@@ -1,0 +1,99 @@
+// BigBlueButton open source conferencing system - http://www.bigbluebutton.org/.
+//
+// Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+//
+// This program is free software; you can redistribute it and/or modify it under the
+// terms of the GNU Lesser General Public License as published by the Free Software
+// Foundation; either version 3.0 of the License, or (at your option) any later
+// version.
+//
+// BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+// PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License along
+// with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+#users-table {
+  .user-role {
+    color: white !important;
+  }
+
+  .user-email {
+    max-width: 250px;
+  }
+}
+
+#clear-search {
+  z-index: 9;
+  position: absolute;
+  right: 55px;
+  top: 8px;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.tag i {
+  color: white !important;
+}
+
+#branding-image{
+  z-index: auto;
+}
+
+.authentication-required{
+  padding-top: 2px;
+}
+
+#site_settings {
+  .colorinput-color {
+    text-align: center;
+    padding-top: 4px;
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+.sort-disabled{
+  background: #e6e6e6 !important;
+  color: rgb(110, 118, 135) !important;
+  opacity: 0.75;
+  &:hover{
+    opacity: 0.9;
+  }
+}
+
+.form-disable{
+  background-color: #e6e6e6;
+}
+
+.role-colour-picker{
+  color: white !important;
+}
+
+.custom-role-tag{
+  color: white !important;
+  // Make it consistent with the manage users tab tags
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+
+.user-role-tag{
+  color: white !important;
+}
+
+.manage-users-tab {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+#merge-account-arrow {
+  position: absolute;
+  top: 47%;
+  right: 47%;
+  z-index: 999;
+  background: white;
+}
