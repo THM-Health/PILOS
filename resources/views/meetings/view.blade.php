@@ -42,6 +42,7 @@
                     backgroundColor: '#9C132E',
                     borderColor: '#9C132E',
                     fill: false,
+                    cubicInterpolationMode: 'monotone',
                     data: [
                         @foreach($stats as $stat)
                         {
@@ -56,6 +57,7 @@
                         backgroundColor: '#00B8E4',
                         borderColor: '#00B8E4',
                         fill: false,
+                        cubicInterpolationMode: 'monotone',
                         data: [
                                 @foreach($stats as $stat)
                             {
@@ -70,6 +72,7 @@
                         backgroundColor: '#F4AA00',
                         borderColor: '#F4AA00',
                         fill: false,
+                        cubicInterpolationMode: 'monotone',
                         data: [
                                 @foreach($stats as $stat)
                             {
