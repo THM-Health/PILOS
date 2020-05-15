@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Server;
+use BigBlueButton\BigBlueButton;
 use Illuminate\Http\Request;
+use JoisarJignesh\Bigbluebutton\Bbb;
 
 class ServerController extends Controller
 {
@@ -13,7 +16,13 @@ class ServerController extends Controller
      */
     public function index()
     {
-        //
+        $servers = Server::all();
+
+        foreach ($servers as $server){
+            $server->getStats();
+        }
+
+        return view('admin.server.index',['servers'=>$servers]);
     }
 
     /**

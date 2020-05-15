@@ -47,4 +47,8 @@ class User extends Authenticatable
         return $this->belongsToMany(Room::class)->withPivot('moderator');
     }
 
+    public function isSuperAdmin(){
+        return $this->role==2;
+    }
+
 }

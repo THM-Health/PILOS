@@ -2,12 +2,18 @@
 
 namespace App;
 
+use BigBlueButton\Core\Meeting;
 use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
+    protected $fillable = ['id','name','attendeePW','moderatorPW','user_id'];
+    public $timestamps = false;
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     public function owner(){
-        return $this->belongsTo(User::class,'owner');
+        return $this->belongsTo(User::class,'user_id');
     }
 
     public function shared(){
@@ -18,11 +24,13 @@ class Room extends Model
         return $this->belongsTo(Server::class,'preferedServer');
     }
 
-    public function parentRoom(){
-        return $this->belongsTo(Room::class,'parentMeetingID');
+
+
+
+    public function meetings(){
+        return $this->hasMany(Meeting::class);
     }
 
-    public function breakoutRooms(){
-        return $this->hasMany(Room::class,'parentMeetingID');
-    }
+
+
 }

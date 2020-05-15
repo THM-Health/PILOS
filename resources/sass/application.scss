@@ -33,7 +33,7 @@
 @import "../tabler/css/variables";
 @import '~bootstrap/scss/bootstrap';
 
-@import "tabler-custom";
+//@import "tabler-custom";
 
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
 @import "~@fortawesome/fontawesome-free/scss/solid";
@@ -41,12 +41,14 @@
 @import '~@simonwep/pickr/dist/themes/monolith.min.css';
 @import "~bootstrap-select/sass/bootstrap-select";
 
+@import "utilities/fonts";
+
 
 @import "admins";
 @import "main";
 @import "rooms";
 @import "sessions";
-@import "utilities/fonts";
+
 @import "users";
 
 * {
@@ -92,6 +94,7 @@ a {
 
 .background {
   background-color: $background-color;
+
 }
 
 .error-section {

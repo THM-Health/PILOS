@@ -5,8 +5,7 @@
 }
 
 .btn-primary,
-.btn-primary:visited,
-.btn-primary i {
+.btn-primary:visited{
   background-color: $primary-color !important;
   border-color: $primary-color !important;
   color: white !important;
@@ -15,8 +14,7 @@
 .btn-primary:active,
 .btn-primary:active:focus,
 .btn-primary:active:hover,
-.btn-primary:hover,
-.btn-primary:hover i {
+.btn-primary:hover{
   background-color: $primary-color-darken !important;
   border-color: $primary-color-darken !important;
   color: white !important;

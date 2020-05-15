@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Room;
+use App\Server;
 use Illuminate\Http\Request;
 
 
@@ -21,11 +22,10 @@ class RoomController extends Controller
     public function index()
     {
 
+        $servers = Server::all();
 
-        $myRooms = Auth::user()->myRooms;
-        $sharedRooms = Auth::user()->sharedRooms;
 
-        return view('rooms.index',['myRooms'=>$myRooms,'sharedRooms'=>$sharedRooms]);
+        return view('admin.rooms.index',['servers'=>$servers]);
 
     }
 

@@ -14,10 +14,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('meetings.index');
 });
 
-Route::resource('rooms', 'RoomController');
+Route::middleware(['auth'])->group(function () {
+    Route::resource('rooms', 'RoomController');
+    Route::resource('server', 'ServerController');
+    Route::resource('meetings', 'MeetingController');
+});
 
 Auth::routes(['register'=>false]);
 
