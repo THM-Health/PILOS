@@ -7,6 +7,7 @@ return [
     |--------------------------------------------------------------------------
     |
     */
+    'meeting_stats' => "Meeting Statistiken",
     'all_my_meetings' => "Alle meine Meetings",
     'all_meetings' => "Alle Meetings",
     'server' => "Server",

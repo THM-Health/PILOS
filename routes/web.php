@@ -18,11 +18,10 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('rooms', 'RoomController');
-    Route::resource('server', 'ServerController');
+   // Route::resource('rooms', 'RoomController');
+   // Route::resource('server', 'ServerController');
     Route::resource('meetings', 'MeetingController');
 });
 
 Auth::routes(['register'=>false]);
 
-Route::get('/home', 'HomeController@index')->name('home');

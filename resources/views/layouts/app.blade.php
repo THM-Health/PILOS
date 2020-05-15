@@ -48,8 +48,8 @@
                             @endif
                         @else
                             <li class="nav-item">
-                                <a class="nav-link"  href="{{route('home')}}">
-                                    <i class="fas fa-home pr-1 "></i> Startseite
+                                <a class="nav-link"  href="{{route('meetings.index')}}">
+                                    <i class="fas fa-chart-line"></i> {{__('meeting.meeting_stats')}}
                                 </a>
                             </li>
                             <li class="nav-item dropdown">
@@ -84,7 +84,6 @@
             <p class="text-center mb-1">
                 <a href="https://www.thm.de/site/impressum.html">Impressum</a> | <a href="https://www.thm.de/ges/datenschutz">Datenschutz</a>
             </p>
-            <p class="text-center mb-1">Bereitgestellt durch <a target="_blank" rel="noopener" href="">PILOS</a>. v2.2.2</p>
         </footer>
 
         @stack('scripts')
