@@ -9,6 +9,7 @@ use App\Server;
 use App\User;
 use DateTime;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Models\OpenLDAP\User as OpenLDAPUser;
@@ -63,12 +64,13 @@ class BuildHistory extends Command
         $endedMeetings = array_diff($openMeetings, $runningMeetings);
         foreach ($endedMeetings as $endedMeeting){
             $meeting = Meeting::find($endedMeeting);
-            $meeting->end = date("Y-m-d H:i:s");
+            $meeting->end = Carbon::now('UTC')->toDateTimeString();
             $meeting->save();
         }
     }
 
     private function syncMeetings($meetings,$server,$breakOut = false){
+
 
         foreach($meetings as $bbbMeeting) {
             if(($bbbMeeting['isBreakout']=="true") !== $breakOut)
@@ -96,8 +98,7 @@ class BuildHistory extends Command
                 $room->save();
             }
 
-
-            $meeting = Meeting::firstOrCreate(['id' => $bbbMeeting['internalMeetingID']],['room_id'=>$room->id,'start'=>date("Y-m-d H:i:s",$bbbMeeting['startTime']/1000),'server_id'=>$server->id,'isBreakout'=>$bbbMeeting['isBreakout']=="true",'parentMeetingID'=>$bbbMeeting['isBreakout']=="true"?$bbbMeeting['parentMeetingID']:null]);
+            $meeting = Meeting::firstOrCreate(['id' => $bbbMeeting['internalMeetingID']],['room_id'=>$room->id,'start'=>Carbon::createFromTimestampUTC(floor($bbbMeeting['startTime']/1000))->toDateTimeString(),'server_id'=>$server->id,'isBreakout'=>$bbbMeeting['isBreakout']=="true",'parentMeetingID'=>$bbbMeeting['isBreakout']=="true"?$bbbMeeting['parentMeetingID']:null]);
 
             $latestMeetingStat = $meeting->stats()->latest()->first();
 

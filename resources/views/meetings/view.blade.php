@@ -4,7 +4,7 @@
 
     <div class="container mt-6">
         <h1>{{$meeting->room->name}}</h1>
-        <h5>von {{$meeting->start->format('d.m.Y H:i')}} bis {{optional($meeting->end)->format('d.m.Y H:i') ?? "jetzt"}}</h5>
+        <h5>von {{$meeting->start->setTimezone(config('app.displaytimezone'))->format('d.m.Y H:i')}} bis {{$meeting->end ? $meeting->end->setTimezone(config('app.displaytimezone'))->format('d.m.Y H:i') : "jetzt"}}</h5>
         <hr>
         <h3>Überblick</h3>
             <form>
@@ -46,7 +46,7 @@
                     data: [
                         @foreach($stats as $stat)
                         {
-                        x: "{{$stat->created_at}}",
+                        x: "{{$stat->created_at->setTimezone(config('app.displaytimezone'))->toDateTimeString()}}",
                         y: {{$stat->participantCount}}
                     },
                         @endforeach
@@ -61,7 +61,7 @@
                         data: [
                                 @foreach($stats as $stat)
                             {
-                                x: "{{$stat->created_at}}",
+                                x: "{{$stat->created_at->setTimezone(config('app.displaytimezone'))->toDateTimeString()}}",
                                 y: {{$stat->voiceParticipantCount}}
                             },
                             @endforeach
@@ -76,7 +76,7 @@
                         data: [
                                 @foreach($stats as $stat)
                             {
-                                x: "{{$stat->created_at}}",
+                                x: "{{$stat->created_at->setTimezone(config('app.displaytimezone'))->toDateTimeString()}}",
                                 y: {{$stat->videoCount}}
                             },
                             @endforeach

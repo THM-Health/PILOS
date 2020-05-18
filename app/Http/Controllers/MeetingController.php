@@ -9,6 +9,7 @@ use App\Server;
 use Illuminate\Http\Request;
 
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use JoisarJignesh\Bigbluebutton\Bbb;
@@ -37,13 +38,13 @@ class MeetingController extends Controller
                 ->join('servers', 'servers.id', '=', 'meetings.server_id')
                 ->leftJoin('users', 'users.id', '=', 'rooms.user_id')
                 ->select([
-                    'servers.description',
-                    'meetings.id',
-                    'users.name',
-                    'users.email',
+                    'servers.description as description',
+                    'meetings.id as id',
+                    'users.name as name',
+                    'users.email as email',
                     'rooms.name as roomname',
-                    'meetings.start',
-                    'meetings.end',
+                    DB::raw("CONVERT_TZ(meetings.start,'UTC','".config('app.displaytimezone')."') as start"),
+                     DB::raw("CONVERT_TZ(meetings.end,'UTC','".config('app.displaytimezone')."') as end"),
                     DB::raw('max(meeting_stats.participantCount) as max_participants'),
                     DB::raw('max(meeting_stats.voiceParticipantCount) as max_voice'),
                     DB::raw('max(meeting_stats.videoCount) as max_video'),
@@ -54,11 +55,33 @@ class MeetingController extends Controller
                     $query = $query->where('rooms.user_id',Auth::user()->id);
                 }
 
-                $query = $query->get();
+
 
             return DataTables::of($query)
                 ->addColumn('action', '<a href="{{route("meetings.show",["meeting"=>$id])}}" class="btn btn-primary"><i class="fas fa-eye"></i></a>')
                 ->rawColumns(['action'])
+                ->editColumn('start', function ($meeting) {
+                    return $meeting->start ? with(new Carbon($meeting->start))->format('d.m.Y H:i') : '';
+                })
+                ->editColumn('end', function ($meeting) {
+                    return $meeting->end ? with(new Carbon($meeting->end))->format('d.m.Y H:i') : '';
+                })
+                ->filter(function ($query)  {
+
+                    if(request()->has('search') && isset(request()->search['value'])){
+                        $keyword = request()->search['value'];
+                        $query->orWhere('servers.description', 'like', "%" . $keyword . "%");
+                        $query->orWhere('users.name', 'like', "%" . $keyword . "%");
+                        $query->orWhere('rooms.name', 'like', "%" . $keyword . "%");
+                        $query->orWhere('users.email', 'like', "%" . $keyword . "%");
+                        $query->orWhereRaw("DATE_FORMAT(CONVERT_TZ(meetings.start,'UTC','".config('app.displaytimezone')."'),'%d.%m.%Y %H:%i:%s') like ?", ["%$keyword%"]);
+                        $query->orWhereRaw("DATE_FORMAT(CONVERT_TZ(meetings.end,'UTC','".config('app.displaytimezone')."'),'%d.%m.%Y %H:%i:%s') like ?", ["%$keyword%"]);
+
+                    }
+
+
+
+                })
                 ->toJson();
 
         }

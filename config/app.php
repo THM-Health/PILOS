@@ -67,8 +67,8 @@ return [
     |
     */
 
-    'timezone' => 'Europe/Berlin',
-
+    'timezone' => 'UTC',
+    'displaytimezone' => env('DISPLAY_TIMEZONE', 'UTC'),
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
