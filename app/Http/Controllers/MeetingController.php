@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Meeting;
 use App\Room;
 use App\Server;
+use DateTime;
+use DateTimeZone;
 use Illuminate\Http\Request;
 
 
@@ -32,6 +34,11 @@ class MeetingController extends Controller
     public function index(Builder $builder) {
         if (request()->ajax()) {
 
+            $target_time_zone = new DateTimeZone(config('app.displaytimezone'));
+            $kolkata_date_time = new DateTime('now', $target_time_zone);
+            $utc_offset = $kolkata_date_time->format('P');
+
+
             $query = DB::table('meetings')
                 ->join('meeting_stats', 'meetings.id', '=', 'meeting_stats.meeting_id')
                 ->join('rooms', 'rooms.id', '=', 'meetings.room_id')
@@ -43,8 +50,8 @@ class MeetingController extends Controller
                     'users.name as name',
                     'users.email as email',
                     'rooms.name as roomname',
-                    DB::raw("CONVERT_TZ(meetings.start,'UTC','".config('app.displaytimezone')."') as start"),
-                     DB::raw("CONVERT_TZ(meetings.end,'UTC','".config('app.displaytimezone')."') as end"),
+                    DB::raw("CONVERT_TZ(meetings.start,'+00:00','$utc_offset') as start"),
+                     DB::raw("CONVERT_TZ(meetings.end,'+00:00','$utc_offset') as end"),
                     DB::raw('max(meeting_stats.participantCount) as max_participants'),
                     DB::raw('max(meeting_stats.voiceParticipantCount) as max_voice'),
                     DB::raw('max(meeting_stats.videoCount) as max_video'),
@@ -66,7 +73,7 @@ class MeetingController extends Controller
                 ->editColumn('end', function ($meeting) {
                     return $meeting->end ? with(new Carbon($meeting->end))->format('d.m.Y H:i') : '';
                 })
-                ->filter(function ($query)  {
+                ->filter(function ($query) use ($utc_offset) {
 
                     if(request()->has('search') && isset(request()->search['value'])){
                         $keyword = request()->search['value'];
@@ -74,8 +81,8 @@ class MeetingController extends Controller
                         $query->orWhere('users.name', 'like', "%" . $keyword . "%");
                         $query->orWhere('rooms.name', 'like', "%" . $keyword . "%");
                         $query->orWhere('users.email', 'like', "%" . $keyword . "%");
-                        $query->orWhereRaw("DATE_FORMAT(CONVERT_TZ(meetings.start,'UTC','".config('app.displaytimezone')."'),'%d.%m.%Y %H:%i:%s') like ?", ["%$keyword%"]);
-                        $query->orWhereRaw("DATE_FORMAT(CONVERT_TZ(meetings.end,'UTC','".config('app.displaytimezone')."'),'%d.%m.%Y %H:%i:%s') like ?", ["%$keyword%"]);
+                        $query->orWhereRaw("DATE_FORMAT(CONVERT_TZ(meetings.start,'+00:00','$utc_offset'),'%d.%m.%Y %H:%i:%s') like ?", ["%$keyword%"]);
+                        $query->orWhereRaw("DATE_FORMAT(CONVERT_TZ(meetings.end,'+00:00','$utc_offset'),'%d.%m.%Y %H:%i:%s') like ?", ["%$keyword%"]);
 
                     }
 
