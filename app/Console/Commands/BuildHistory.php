@@ -102,7 +102,7 @@ class BuildHistory extends Command
 
             $latestMeetingStat = $meeting->stats()->latest()->first();
 
-            if($latestMeetingStat!=null && strtotime($latestMeetingStat->created_at) > strtotime("-5 minutes"))
+            if($latestMeetingStat!=null && strtotime($latestMeetingStat->created_at) > Carbon::now()->subMinutes(5)->timestamp)
                 continue;
             $stat = new MeetingStat();
             $stat->participantCount = $bbbMeeting['participantCount'];
