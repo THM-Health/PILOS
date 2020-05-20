@@ -26,6 +26,7 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
         "@simonwep/pickr": "^1.5.1",
-        "bootstrap-select": "^1.13.16"
+        "bootstrap-select": "^1.13.16",
+        "vue-router": "^3.2.0"
     }
 }

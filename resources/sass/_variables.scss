@@ -1,16 +1,54 @@
 // Body
-$body-bg: #f8fafc;
+$body-bg: #f2f4f0;
 
-
+// Typography
+$font-family-sans-serif: 'Nunito', sans-serif;
+$font-size-base: 0.9rem;
+$line-height-base: 1.6;
 
 // Colors
-$blue: #3490dc;
-$indigo: #6574cd;
-$purple: #9561e2;
-$pink: #f66d9b;
-$red: #e3342f;
-$orange: #f6993f;
-$yellow: #ffed4a;
-$green: #38c172;
-$teal: #4dc0b5;
-$cyan: #6cb2eb;
+$gray-900: #394a59;
+$gray-300: #f2f4f0;
+$gray-500: #6b7982;
+$gray-600: #4a5c66;
+$dark: $gray-900;
+$light: $gray-300;
+$green: #80ba24;
+$red: #9C132E;
+$yellow: #F4AA00;
+$cyan: #00B8E4;
+$blue: #002878;
+$secondary: $gray-600;
+$success: $green;
+$link-hover-decoration: none;
+$enable-rounded: false;
+$enable-responsive-font-sizes: true;
+$table-head-bg: $gray-300;
+$table-head-color: $gray-600;
+$table-dark-bg: $gray-900;
+$input-disabled-bg: $gray-300;
+$input-color: $gray-900;
+$input-border-color: $gray-600;
+$input-group-addon-bg: $gray-300;
+$custom-control-indicator-border-color: $gray-600;
+$custom-select-disabled-bg: $gray-300;
+$custom-select-indicator-color: $gray-900;
+$custom-range-thumb-disabled-bg: $gray-600;
+$nav-tabs-link-active-color: $gray-900;
+$nav-divider-color: $gray-300;
+$dropdown-divider-bg: $gray-300;
+$dropdown-link-hover-bg: $gray-300;
+$pagination-hover-bg: $gray-300;
+$jumbotron-bg: $gray-300;
+$progress-bg: $gray-300;
+$list-group-hover-bg: $gray-300;
+$list-group-action-color: $gray-900;
+$list-group-action-active-bg: $gray-300;
+$breadcrumb-bg: $gray-300;
+$link-color: $cyan;
+$component-active-bg: $success;
+$navbar-brand-height: 2.1875rem;
+$navbar-light-active-color: $secondary;
+$navbar-light-hover-color: rgba($secondary, .9);
+$navbar-light-disabled-color: rgba($secondary, .3);
+$footer-height: 2.1875rem;
