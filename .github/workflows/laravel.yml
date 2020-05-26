@@ -30,8 +30,3 @@ jobs:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
       run: vendor/bin/phpunit
-    
-    - name: easy configurable php-cs-fixer
-      uses: zalexki/php-cs-fixer-action@1.0.1
-      with:
-        other-cmds: '--dry-run --diff --using-cache=no --diff-format udiff'
