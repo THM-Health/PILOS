@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
-    public function owner(){
+    public function owner()
+    {
         return $this->belongsTo(User::class, 'owner');
     }
 
@@ -22,11 +23,11 @@ class Room extends Model
 
     public function parentRoom()
     {
-        return $this->belongsTo(Room::class, 'parentMeetingID');
+        return $this->belongsTo(self::class, 'parentMeetingID');
     }
 
     public function breakoutRooms()
     {
-        return $this->hasMany(Room::class,'parentMeetingID');
+        return $this->hasMany(self::class, 'parentMeetingID');
     }
 }
