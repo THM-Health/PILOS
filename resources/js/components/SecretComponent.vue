@@ -21,6 +21,7 @@
 </template>
 
 <script>
+
 export default {
   data () {
     return {
@@ -30,13 +31,10 @@ export default {
   },
   methods: {
     handleLogin () {
-      // send axios request to the login route
-      // TODO implement
-      // axios.get('/sanctum/csrf-cookie').then(response => {
-      //   axios.post('api/v1/auth/login', this.formData).then(response => {
-      //     console.log('User signed in!')
-      //   }).catch(error => console.log(error)) // credentials didn't match
-      // })
+      this.$store.dispatch('session/login', {
+        password: this.password,
+        username: this.username
+      })
     }
   }
 }

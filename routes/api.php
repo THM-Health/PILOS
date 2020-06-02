@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1', 'namespace' => 'api\v1'], function () {
     Route::namespace('auth')->group(function () {
-        Route::post('currentUser', 'LoginController@currentUser');
+        Route::get('currentUser', 'LoginController@currentUser');
         Route::post('login', 'LoginController@login');
         Route::post('logout', 'LoginController@logout');
         Route::post('register', 'RegisterController@register');
@@ -29,3 +28,6 @@ Route::group(['prefix' => 'v1', 'namespace' => 'api\v1'], function () {
         Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 });
+Route::any('/{any}', function () {
+    return response()->json([ 'error' => 404 ], 404);
+})->where('any', '.*');
