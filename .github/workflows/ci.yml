@@ -8,13 +8,13 @@ jobs:
   laravel-tests:
 
     runs-on: self-hosted
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist && yarn install
     - name: Generate key
       run: php artisan key:generate
     - name: Directory Permissions
@@ -30,3 +30,5 @@ jobs:
       run: vendor/bin/phpunit
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
+    - name: Execute frontend code style check via eslint
+      run: ./node_modules/.bin/eslint .

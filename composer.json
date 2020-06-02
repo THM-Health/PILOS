@@ -16,6 +16,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "joisarjignesh/bigbluebutton": "master",
         "laravel/framework": "^7.0",
+        "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0"
     },
@@ -43,7 +44,8 @@
         },
         "hooks": {
             "pre-commit": [
-                "vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes"
+                "vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes",
+                "./node_modules/.bin/eslint ."
             ],
             "pre-push": [
                 "vendor/bin/phpunit"

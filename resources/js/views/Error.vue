@@ -1,13 +1,11 @@
 <template>
-    <div>
-        Something wen't wrong!
-    </div>
+  <div>
+    Something wen't wrong!
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "Error"
-    }
+export default {}
 </script>
 
 <style scoped>
