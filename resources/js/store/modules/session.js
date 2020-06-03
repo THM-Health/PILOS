@@ -4,7 +4,11 @@ const state = () => ({
   currentUser: null
 })
 
-const getters = {}
+const getters = {
+  isAuthenticated: state => {
+    return !$.isEmptyObject(state.currentUser)
+  }
+}
 
 const actions = {
   async login ({ dispatch, commit }, credentials) {
@@ -14,6 +18,11 @@ const actions = {
 
   async getCurrentUser ({ commit }) {
     commit('setCurrentUser', await auth.getCurrentUser())
+  },
+
+  async logout ({ commit }) {
+    await auth.logout()
+    commit('setCurrentUser', null)
   }
 }
 

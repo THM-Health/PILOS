@@ -1971,7 +1971,12 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-//
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 //
 //
 //
@@ -2010,11 +2015,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  computed: Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])({
+  computed: _objectSpread(_objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])({
     currentUser: function currentUser(state) {
       return state.session.currentUser;
     }
-  }),
+  })), Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
+    isAuthenticated: 'session/isAuthenticated'
+  })),
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
+    logout: 'session/logout'
+  })),
   mounted: function mounted() {
     this.$store.dispatch('session/getCurrentUser');
   }
@@ -81856,32 +81866,30 @@ var render = function() {
                 "b-collapse",
                 { attrs: { id: "nav-collapse", "is-nav": "" } },
                 [
-                  _c(
-                    "b-navbar-nav",
-                    [
-                      _c(
-                        "b-nav-item",
-                        {
-                          attrs: {
-                            to: { name: "room", params: { id: 123 } },
-                            href: "#"
-                          }
-                        },
-                        [_vm._v("Room")]
-                      ),
-                      _vm._v(" "),
-                      _c("b-nav-item", { attrs: { href: "#", disabled: "" } }, [
-                        _vm._v("Disabled")
-                      ])
-                    ],
-                    1
-                  ),
+                  _vm.isAuthenticated
+                    ? _c(
+                        "b-navbar-nav",
+                        [
+                          _c(
+                            "b-nav-item",
+                            {
+                              attrs: {
+                                to: { name: "room", params: { id: 123 } },
+                                href: "#"
+                              }
+                            },
+                            [_vm._v("Room")]
+                          )
+                        ],
+                        1
+                      )
+                    : _vm._e(),
                   _vm._v(" "),
                   _c(
                     "b-navbar-nav",
                     { staticClass: "ml-auto" },
                     [
-                      _vm.currentUser != null
+                      _vm.isAuthenticated
                         ? _c(
                             "b-nav-item-dropdown",
                             {
@@ -81891,14 +81899,20 @@ var render = function() {
                                   {
                                     key: "button-content",
                                     fn: function() {
-                                      return [_c("em", [_vm._v("User")])]
+                                      return [
+                                        _c("em", [
+                                          _vm._v(
+                                            _vm._s(_vm.currentUser.fullName)
+                                          )
+                                        ])
+                                      ]
                                     },
                                     proxy: true
                                   }
                                 ],
                                 null,
                                 false,
-                                4258386881
+                                1725890655
                               )
                             },
                             [
@@ -81907,9 +81921,11 @@ var render = function() {
                                 _vm._v("Profile")
                               ]),
                               _vm._v(" "),
-                              _c("b-dropdown-item", { attrs: { href: "#" } }, [
-                                _vm._v("Sign Out")
-                              ])
+                              _c(
+                                "b-dropdown-item",
+                                { on: { click: _vm.logout } },
+                                [_vm._v("Sign Out")]
+                              )
                             ],
                             1
                           )
@@ -98291,6 +98307,11 @@ __webpack_require__.r(__webpack_exports__);
       data: credentials
     }, true);
   },
+  logout: function logout() {
+    return _base__WEBPACK_IMPORTED_MODULE_0__["default"].call('logout', {
+      method: 'post'
+    });
+  },
   getCurrentUser: function getCurrentUser() {
     return _base__WEBPACK_IMPORTED_MODULE_0__["default"].call('currentUser').then(function (response) {
       return response.data.data;
@@ -98572,7 +98593,11 @@ var state = function state() {
   };
 };
 
-var getters = {};
+var getters = {
+  isAuthenticated: function isAuthenticated(state) {
+    return !$.isEmptyObject(state.currentUser);
+  }
+};
 var actions = {
   login: function login(_ref, credentials) {
     return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee() {
@@ -98619,6 +98644,28 @@ var actions = {
           }
         }
       }, _callee2);
+    }))();
+  },
+  logout: function logout(_ref3) {
+    return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3() {
+      var commit;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              commit = _ref3.commit;
+              _context3.next = 3;
+              return _api_auth__WEBPACK_IMPORTED_MODULE_1__["default"].logout();
+
+            case 3:
+              commit('setCurrentUser', null);
+
+            case 4:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
     }))();
   }
 };

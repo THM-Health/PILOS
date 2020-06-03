@@ -44,4 +44,5 @@ return [
         'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
     ],
 
+    'guard' => env('SANCTUM_AUTH_GUARD', 'api'),
 ];

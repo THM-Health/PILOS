@@ -8,6 +8,12 @@ export default {
     }, true)
   },
 
+  logout () {
+    return Base.call('logout', {
+      method: 'post'
+    })
+  },
+
   getCurrentUser () {
     return Base.call('currentUser').then(response => {
       return response.data.data
