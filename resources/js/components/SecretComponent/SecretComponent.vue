@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import CredentialsInputComponent from "./CredentialsInputComponent";
+import CredentialsInputComponent from './CredentialsInputComponent'
 
 export default {
   components: {
@@ -58,7 +58,7 @@ export default {
         this.loading = true
         await this.$store.dispatch('session/login', { credentials: data, method: id })
       } catch (error) {
-        this.errors[id] = error.response.data.errors;
+        this.errors[id] = error.response.data.errors
       } finally {
         this.loading = false
       }

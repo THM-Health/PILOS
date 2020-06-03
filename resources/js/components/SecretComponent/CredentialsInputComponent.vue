@@ -53,23 +53,23 @@ export default {
     'passwordLabel',
     'submitLabel',
     'title',
-    'usernameLabel',
+    'usernameLabel'
   ],
-  data() {
+  data () {
     return {
       username: '',
       password: ''
     }
   },
   methods: {
-    submit() {
+    submit () {
       this.$emit('submit', {
         id: this.id,
         data: {
           username: this.username,
           password: this.password
         }
-      });
+      })
     }
   }
 }
