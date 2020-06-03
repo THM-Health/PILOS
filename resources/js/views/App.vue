@@ -18,7 +18,7 @@
                         <b-nav-item-dropdown right v-if='isAuthenticated'>
                             <!-- Using 'button-content' slot -->
                             <template v-slot:button-content>
-                                <em>{{currentUser.fullName}}</em>
+                                {{currentUser.firstname}} {{currentUser.lastname}}
                             </template>
                             <b-dropdown-item href="#">Profile</b-dropdown-item>
                             <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
