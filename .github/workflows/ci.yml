@@ -15,10 +15,8 @@ jobs:
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-    - name: Source nvm command
-      run: source ~/.nvm/nvm.sh
     - name: Change Node version
-      run: nvm use
+      run: ~/.nvm/nvm.sh use
     - name: Install Frontend Dependencies
       run: npm install
     - name: Generate key
