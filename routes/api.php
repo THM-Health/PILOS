@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['prefix' => 'v1', 'namespace' => 'api\v1'], function () {
+Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     Route::namespace('auth')->group(function () {
         Route::get('currentUser', 'LoginController@currentUser');
         Route::post('login', 'LoginController@login');
+        Route::post('login/ldap', 'LoginController@ldapLogin');
         Route::post('logout', 'LoginController@logout');
         Route::post('register', 'RegisterController@register');
 

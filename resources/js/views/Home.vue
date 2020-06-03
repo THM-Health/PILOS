@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import SecretComponent from '../components/SecretComponent'
+import SecretComponent from '../components/SecretComponent/SecretComponent'
 
 export default {
   components: {

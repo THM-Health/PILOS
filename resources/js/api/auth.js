@@ -1,8 +1,8 @@
 import Base from './base'
 
 export default {
-  login (credentials) {
-    return Base.call('login', {
+  login (credentials, method) {
+    return Base.call(method === 'ldap' ? 'login/ldap' : 'login', {
       method: 'post',
       data: credentials
     }, true)

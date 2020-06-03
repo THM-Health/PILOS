@@ -11,12 +11,14 @@ const getters = {
 }
 
 const actions = {
-  async login ({ dispatch, commit }, credentials) {
-    await auth.login(credentials)
+  async login ({ dispatch, commit }, { credentials, method }) {
+    await auth.login(credentials, method)
     await dispatch('getCurrentUser')
+    // TODO: Redirect to home page!
   },
 
   async getCurrentUser ({ commit }) {
+    // TODO: Redirect to login page if 401 returned
     commit('setCurrentUser', await auth.getCurrentUser())
   },
 

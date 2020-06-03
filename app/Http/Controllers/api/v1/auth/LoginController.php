@@ -23,6 +23,8 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
+    private $guard = null;
+
     /**
      * Create a new controller instance.
      *
@@ -31,7 +33,7 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except(['logout', 'currentUser']);
-        $this->middleware('auth:api,api_users')->only('logout');
+        $this->middleware('auth:api_users,api')->only(['currentUser', 'logout']);
     }
 
     public function currentUser()
@@ -44,11 +46,30 @@ class LoginController extends Controller
         return 'username';
     }
 
+    public function ldapLogin(Request $request)
+    {
+        $this->guard = 'api';
+
+        return $this->login($request);
+    }
+
     protected function credentials(Request $request)
     {
-        return [
-            'uid'      => $request->get('username'),
-            'password' => $request->get('password'),
+        $credentials = [
+            'password' => $request->get('password')
         ];
+
+        $credentials[$this->guard === 'api' ? 'uid' : 'username'] = $request->get('username');
+
+        return $credentials;
+    }
+
+    protected function guard()
+    {
+        if ($this->guard !== null) {
+            return Auth::guard($this->guard);
+        }
+
+        return Auth::guard();
     }
 }
