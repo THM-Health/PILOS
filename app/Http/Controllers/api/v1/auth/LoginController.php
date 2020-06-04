@@ -43,7 +43,11 @@ class LoginController extends Controller
 
     public function username()
     {
-        return 'username';
+        if ($this->guard == 'api') {
+            return 'username';
+        }
+
+        return 'email';
     }
 
     public function ldapLogin(Request $request)
@@ -59,7 +63,11 @@ class LoginController extends Controller
             'password' => $request->get('password')
         ];
 
-        $credentials[$this->guard === 'api' ? 'uid' : 'username'] = $request->get('username');
+        if ($this->guard === 'api') {
+            $credentials['uid'] = $request->get('username');
+        } else {
+            $credentials['email'] = $request->get('email');
+        }
 
         return $credentials;
     }

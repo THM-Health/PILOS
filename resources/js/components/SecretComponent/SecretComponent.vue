@@ -5,7 +5,7 @@
               <b-card no-body>
                 <b-tabs content-class="m-3" align="center" fill>
                   <b-tab title="LDAP" active>
-                    <credentials-input-component
+                    <ldap-login-component
                       id="ldap"
                       title="Mit einem LDAP-Account anmelden"
                       @submit="handleLogin"
@@ -14,19 +14,19 @@
                       username-label="Benutzerkennung"
                       :loading="loading"
                       :errors="errors.ldap"
-                    ></credentials-input-component>
+                    ></ldap-login-component>
                   </b-tab>
                   <b-tab title="Standard">
-                    <credentials-input-component
+                    <email-login-component
                       id="default"
                       title="Mit einem normalen Account anmelden"
                       @submit="handleLogin"
                       submit-label="Anmelden"
                       password-label="Passwort"
-                      username-label="Benutzerkennung"
+                      email-label="Email"
                       :loading="loading"
                       :errors="errors.default"
-                    ></credentials-input-component>
+                    ></email-login-component>
                   </b-tab>
                 </b-tabs>
               </b-card>
@@ -36,11 +36,13 @@
 </template>
 
 <script>
-import CredentialsInputComponent from './CredentialsInputComponent'
+import EmailLoginComponent from './EmailLoginComponent'
+import LdapLoginComponent from './LdapLoginComponent'
 
 export default {
   components: {
-    CredentialsInputComponent
+    EmailLoginComponent,
+    LdapLoginComponent
   },
   data () {
     return {
