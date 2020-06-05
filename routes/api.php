@@ -28,6 +28,10 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('email/resend', 'VerificationController@resend');
         Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
+    Route::middleware('auth:api_users,api')->group(function () {
+
+    Route::apiResource('rooms', 'RoomController');
+    });
 });
 Route::any('/{any}', function () {
     return response()->json([ 'error' => 404 ], 404);

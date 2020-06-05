@@ -1,5 +1,5 @@
 // Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
 
 // Variables
 @import 'variables';
@@ -7,3 +7,27 @@
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap-vue/src/index.scss';
+
+
+.btn-success {
+    color: #FFF;
+}
+
+// Font Awesome
+@import "../fontawesome/scss/fontawesome.scss";
+@import "../fontawesome/scss/solid.scss";
+@import "../fontawesome/scss/brands.scss";
+
+.roomicon {
+    width:40px;
+    height: 40px;
+    background: $green;
+    border-radius: 5px;
+    display: grid;
+    place-items: center center;
+    color: $white;
+    font-size: 15px;
+    font-weight: bold;
+
+}
+

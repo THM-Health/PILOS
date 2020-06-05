@@ -1,5 +1,7 @@
 import VueRouter from 'vue-router'
 import Home from './views/Home'
+import Rooms from './views/Rooms'
+import Room from './views/Room'
 import Error from './views/Error'
 
 import Vue from 'vue'
@@ -13,6 +15,16 @@ export default new VueRouter({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/rooms',
+      name: 'rooms',
+      component: Rooms
+    },
+    {
+      path: '/room/:id',
+      name: 'room',
+      component: Room
     },
     {
       path: '/404',

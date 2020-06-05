@@ -8,7 +8,12 @@ class Room extends Model
 {
     public function owner()
     {
-        return $this->belongsTo(User::class, 'owner');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function roomType()
+    {
+        return $this->belongsTo(RoomType::class);
     }
 
     public function shared()

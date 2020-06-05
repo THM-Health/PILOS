@@ -2,9 +2,9 @@
     <div class="container">
         <div class="row mt-4">
             <div class="col-6 offset-3">
-              <b-card no-body>
-                <b-tabs content-class="m-3" align="center" fill>
-                  <b-tab title="LDAP" active>
+              <b-card no-body bg-variant="light">
+                <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-success text-white">
+                  <b-tab title="THM" active>
                     <ldap-login-component
                       id="ldap"
                       title="Mit einem LDAP-Account anmelden"
@@ -16,7 +16,7 @@
                       :errors="errors.ldap"
                     ></ldap-login-component>
                   </b-tab>
-                  <b-tab title="Standard">
+                  <b-tab title="Externe">
                     <email-login-component
                       id="default"
                       title="Mit einem normalen Account anmelden"

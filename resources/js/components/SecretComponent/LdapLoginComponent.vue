@@ -12,6 +12,8 @@
           :state="errors !== null && errors.username && errors.username.length > 0 ? false: null"
         ></b-form-input>
 
+        <a href="https://www.thm.de/its/helpdesk/faq/436-benutzerkonto.html#wie-sieht-die-th-benutzerkennung-aus" target="_blank">Was ist meine THM-Benutzerkennung?</a>
+
         <b-form-invalid-feedback v-if="errors !== null && errors.username.length > 0">
           <template v-for="error in errors.username">
             {{ error }}
@@ -36,7 +38,7 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-button type="submit" variant="success" :disabled="loading">
+      <b-button type="submit" variant="success" :disabled="loading" block>
         <b-spinner v-if="loading" small></b-spinner>
         {{submitLabel}}
       </b-button>

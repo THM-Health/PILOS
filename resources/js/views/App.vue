@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-navbar class="mainnav" toggleable="lg" type="light" variant="light">
+        <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
             <b-container>
                 <b-navbar-brand href="#">
                     <img style="height: 2rem;" src="https://11.pilos-thm.de/logo/default/THMPilos.svg">
@@ -10,7 +10,8 @@
 
                 <b-collapse id="nav-collapse" is-nav>
                     <b-navbar-nav v-if='isAuthenticated'>
-                        <b-nav-item :to="{ name: 'room', params: { id: 123 } }" href="#">Room</b-nav-item>
+                      <b-nav-item :to="{ name: 'home'}" href="#">Home</b-nav-item>
+                        <b-nav-item :to="{ name: 'rooms'}" href="#">Rooms</b-nav-item>
                     </b-navbar-nav>
 
                     <!-- Right aligned nav items -->
