@@ -1,7 +1,7 @@
 import VueRouter from 'vue-router'
 import Login from './views/Login'
 import Error from './views/Error'
-import RoomsIndex from "./views/rooms/Index"
+import RoomsIndex from './views/rooms/Index'
 import store from './store'
 import Home from './views/Home'
 
@@ -37,7 +37,7 @@ const router = new VueRouter({
       path: '*',
       redirect: '/404'
     }
-  ],
+  ]
 })
 
 router.beforeEach((to, from, next) => {
