@@ -9,8 +9,9 @@
                 <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
                 <b-collapse id="nav-collapse" is-nav>
-                    <b-navbar-nav v-if='isAuthenticated'>
-                        <b-nav-item :to="{ name: 'room', params: { id: 123 } }" href="#">Room</b-nav-item>
+                    <b-navbar-nav>
+                        <b-nav-item :to="{ name: 'login' }" v-if='!isAuthenticated' right>Login</b-nav-item>
+                        <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>Rooms</b-nav-item>
                     </b-navbar-nav>
 
                     <!-- Right aligned nav items -->
@@ -35,7 +36,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   computed: {
@@ -47,12 +48,12 @@ export default {
     })
   },
   methods: {
-    ...mapActions({
-      logout: 'session/logout'
-    })
-  },
-  mounted () {
-    this.$store.dispatch('session/getCurrentUser')
+    async logout () {
+      // TODO: Loading indicator
+      await this.$store.dispatch('session/logout')
+      // TODO: Message for successful logout
+      this.$router.push({ name: 'home' })
+    }
   }
 }
 </script>

@@ -1,5 +1,7 @@
 <template>
-
+  <div>
+    Hello Rooms Index!
+  </div>
 </template>
 
 <script>

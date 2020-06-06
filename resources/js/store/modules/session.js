@@ -18,8 +18,14 @@ const actions = {
   },
 
   async getCurrentUser ({ commit }) {
-    // TODO: Redirect to login page if 401 returned
-    commit('setCurrentUser', await auth.getCurrentUser())
+    let currentUser
+    try {
+      currentUser = await auth.getCurrentUser()
+    } catch (error) {
+      currentUser = null
+    } finally {
+      commit('setCurrentUser', currentUser)
+    }
   },
 
   async logout ({ commit }) {
