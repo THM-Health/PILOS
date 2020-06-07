@@ -11,5 +11,19 @@ export default new Vuex.Store({
     session
   },
   strict: debug,
-  plugins: []
+  plugins: [],
+  actions: {
+    async initialize ({ dispatch, commit }) {
+      await dispatch('session/getCurrentUser')
+      commit('initialized')
+    }
+  },
+  mutations: {
+    initialized (state) {
+      state.initialized = true
+    }
+  },
+  state: {
+    initialized: false
+  }
 })

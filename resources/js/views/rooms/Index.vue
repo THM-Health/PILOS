@@ -1,6 +1,6 @@
 <template>
   <div>
-    Hello!
+    Hello Rooms Index!
   </div>
 </template>
 

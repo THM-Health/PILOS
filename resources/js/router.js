@@ -1,14 +1,16 @@
 import VueRouter from 'vue-router'
-import Home from './views/Home'
-import Rooms from './views/Rooms'
-import Room from './views/Room'
+import Login from './views/Login'
 import Error from './views/Error'
+import RoomsIndex from './views/rooms/Index'
+import RoomView from './views/rooms/View'
+import store from './store'
+import Home from './views/Home'
 
 import Vue from 'vue'
 
 Vue.use(VueRouter)
 
-export default new VueRouter({
+const router = new VueRouter({
   mode: 'history',
   routes: [
     {
@@ -17,14 +19,21 @@ export default new VueRouter({
       component: Home
     },
     {
-      path: '/rooms',
-      name: 'rooms',
-      component: Rooms
-    },
-    {
       path: '/room/:id',
       name: 'room',
       component: Room
+       meta: { requiresAuth: true }
+       },
+       {
+      path: '/login',
+      name: 'login',
+      component: Login
+    },
+    {
+      path: '/rooms',
+      name: 'rooms.index',
+      component: RoomsIndex,
+      meta: { requiresAuth: true }
     },
     {
       path: '/404',
@@ -37,3 +46,25 @@ export default new VueRouter({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const promise = !store.state.initialized ? store.dispatch('initialize') : Promise.resolve()
+
+  // TODO: Loading indicator
+  promise.then(() => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!store.getters['session/isAuthenticated']) {
+        next({
+          name: 'login',
+          query: { redirect: to.fullPath }
+        })
+      } else {
+        next()
+      }
+    } else {
+      next()
+    }
+  })
+})
+
+export default router
