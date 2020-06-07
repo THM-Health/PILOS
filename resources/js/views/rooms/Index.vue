@@ -17,7 +17,7 @@
 
 <script>
 
-import RoomComponent from './View'
+import RoomComponent from '../../components/Room/RoomComponent.vue'
 import Base from '../../api/base'
 
 export default {

@@ -53,7 +53,7 @@ router.beforeEach((to, from, next) => {
   // TODO: Loading indicator
   promise.then(() => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
-      console.log(store.state);
+      console.log(store.state)
       if (!store.getters['session/isAuthenticated']) {
         next({
           name: 'login',
