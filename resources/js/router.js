@@ -19,12 +19,6 @@ const router = new VueRouter({
       component: Home
     },
     {
-      path: '/room/:id',
-      name: 'room',
-      component: Room
-       meta: { requiresAuth: true }
-       },
-       {
       path: '/login',
       name: 'login',
       component: Login
@@ -33,6 +27,12 @@ const router = new VueRouter({
       path: '/rooms',
       name: 'rooms.index',
       component: RoomsIndex,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/room/:id',
+      name: 'room',
+      component: RoomView,
       meta: { requiresAuth: true }
     },
     {
@@ -53,6 +53,7 @@ router.beforeEach((to, from, next) => {
   // TODO: Loading indicator
   promise.then(() => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
+      console.log(store.state);
       if (!store.getters['session/isAuthenticated']) {
         next({
           name: 'login',

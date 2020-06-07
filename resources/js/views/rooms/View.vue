@@ -6,8 +6,7 @@
 
 <script>
 
-import RoomComponent from '../components/Room/RoomComponent'
-import Base from '../api/base'
+
 
 export default {
 

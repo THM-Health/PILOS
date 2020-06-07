@@ -6,7 +6,7 @@ export default {
 
     // TODO: Error Handling: For other than 422 => input errors and may be 401 => redirect show error messages as flash!
     return promise.then(() => {
-      return axios(`api/v1/${path}`, config)
+      return axios(`/api/v1/${path}`, config)
     })
   },
 
