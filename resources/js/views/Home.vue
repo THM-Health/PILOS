@@ -95,9 +95,7 @@
   }
 
   .display-4 {
-    font-size: 3rem;
     font-weight: normal;
-    line-height: 1.1;
   }
   .lead {
     font-size: 18px;

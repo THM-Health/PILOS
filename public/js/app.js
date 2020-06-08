@@ -2553,6 +2553,233 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({});
 
 /***/ }),
@@ -49114,7 +49341,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.logo[data-v-63cd6604] {\n\n  height: 80px;\n  max-width: 100%;\n  margin-bottom: 21px;\n}\n.display-4[data-v-63cd6604] {\n  font-size: 3rem;\n  font-weight: normal;\n  line-height: 1.1;\n}\n.lead[data-v-63cd6604] {\n  font-size: 18px;\n  line-height: 1.4;\n}\n.feature-stamp .stamp[data-v-63cd6604] {\n  padding: 1em 1.5em;\n  height: auto;\n}\n.stamp[data-v-63cd6604] {\n  color: #fff;\n  display: inline-block;\n  min-width: 2rem;\n  height: 2rem;\n  padding: 0 .25rem;\n  line-height: 2rem;\n  text-align: center;\n  border-radius: 3px;\n  font-weight: 600;\n}\n", ""]);
+exports.push([module.i, "\n.logo[data-v-63cd6604] {\n\n  height: 80px;\n  max-width: 100%;\n  margin-bottom: 21px;\n}\n.display-4[data-v-63cd6604] {\n  font-weight: normal;\n}\n.lead[data-v-63cd6604] {\n  font-size: 18px;\n  line-height: 1.4;\n}\n.feature-stamp .stamp[data-v-63cd6604] {\n  padding: 1em 1.5em;\n  height: auto;\n}\n.stamp[data-v-63cd6604] {\n  color: #fff;\n  display: inline-block;\n  min-width: 2rem;\n  height: 2rem;\n  padding: 0 .25rem;\n  line-height: 2rem;\n  text-align: center;\n  border-radius: 3px;\n  font-weight: 600;\n}\n", ""]);
 
 // exports
 
@@ -83309,9 +83536,621 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [_vm._v("\n  HI " + _vm._s(_vm.$route.params.id) + "\n")])
+  return _c("div", { staticClass: "container mt-5 mb-5" }, [
+    _c("div", { staticClass: "row pt-7 pt-sm-9" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "offset-lg-1 col-lg-3 col-sm-12 mt-5" },
+        [
+          _c(
+            "b-button",
+            { staticClass: "btn-block", attrs: { variant: "success" } },
+            [_c("i", { staticClass: "fas fa-door-open" }), _vm._v(" Starten")]
+          )
+        ],
+        1
+      )
+    ]),
+    _vm._v(" "),
+    _c("hr"),
+    _vm._v(" "),
+    _c("div", { staticClass: "row pt-7 pt-sm-9" }, [
+      _c("div", { staticClass: "col-lg-8 col-sm-12" }, [
+        _c("h4", [_vm._v("Zugang für Teilnehmer")]),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "jumbotron p-4" },
+          [
+            _c(
+              "b-button",
+              { staticClass: "float-right", attrs: { variant: "light" } },
+              [_c("i", { staticClass: "fas fa-copy" })]
+            ),
+            _vm._v(" "),
+            _c("strong", [_vm._v("Mit PILOS teilnehmen")]),
+            _c("br"),
+            _vm._v(" "),
+            _c(
+              "a",
+              { attrs: { href: "https://11.pilos-thm.de/b/sam-er3-rwm" } },
+              [_vm._v("https://11.pilos-thm.de/b/sam-er3-rwm")]
+            ),
+            _c("br"),
+            _vm._v("\n        Zugangscode: 453-532-115\n      ")
+          ],
+          1
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "offset-lg-1 col-lg-3 col-sm-12 mt-5" },
+        [
+          _c(
+            "b-button",
+            {
+              directives: [
+                {
+                  name: "b-toggle",
+                  rawName: "v-b-toggle.collapse-1",
+                  modifiers: { "collapse-1": true }
+                }
+              ],
+              staticClass: "btn-block",
+              attrs: { variant: "dark" }
+            },
+            [_c("i", { staticClass: "fas fa-cog" }), _vm._v(" Einstellungen")]
+          )
+        ],
+        1
+      )
+    ]),
+    _vm._v(" "),
+    _c("div", {}, [
+      _c(
+        "div",
+        { staticClass: "col-lg-12 col-sm-12" },
+        [
+          _c(
+            "b-collapse",
+            { staticClass: "pt-4", attrs: { id: "collapse-1" } },
+            [
+              _c("div", { staticClass: "card" }, [
+                _c("h5", { staticClass: "card-header" }, [
+                  _vm._v("Einstellungen")
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "card-body" }, [
+                  _c("form", [
+                    _c("div", { staticClass: "row" }, [
+                      _c("div", { staticClass: "col-lg-3 col-sm-12 " }, [
+                        _c("h5", [_vm._v("Allgemein")]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c("label", { attrs: { for: "inputPassword4" } }, [
+                            _vm._v("Raumname")
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "input-group mb-3" }, [
+                            _c("input", {
+                              staticClass: "form-control",
+                              attrs: {
+                                type: "text",
+                                placeholder: "",
+                                "aria-label": "Example text with button addon",
+                                "aria-describedby": "button-addon1"
+                              }
+                            })
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c("label", { attrs: { for: "inputPassword4" } }, [
+                            _vm._v("Begrüßungsnachricht (max. 500 Zeichen)")
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "input-group mb-3" }, [
+                            _c("textarea", {
+                              staticClass: "form-control",
+                              attrs: {
+                                type: "text",
+                                placeholder: "",
+                                "aria-label": "Example text with button addon",
+                                "aria-describedby": "button-addon1"
+                              }
+                            })
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c("label", { attrs: { for: "inputPassword4" } }, [
+                            _vm._v("Max. Anzahl Teilnehmer")
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "input-group mb-3" }, [
+                            _c("input", {
+                              staticClass: "form-control",
+                              attrs: {
+                                type: "text",
+                                placeholder: "unbegrenzt",
+                                "aria-label": "Example text with button addon",
+                                "aria-describedby": "button-addon1"
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "input-group-append" }, [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-outline-secondary",
+                                  attrs: { type: "button", id: "button-addon2" }
+                                },
+                                [_c("i", { staticClass: "fas fa-trash" })]
+                              )
+                            ])
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c("label", { attrs: { for: "inputPassword4" } }, [
+                            _vm._v("Dauer")
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "input-group mb-3" }, [
+                            _c("input", {
+                              staticClass: "form-control",
+                              attrs: {
+                                type: "text",
+                                placeholder: "unbegrenzt",
+                                "aria-label": "Example text with button addon",
+                                "aria-describedby": "button-addon1"
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "input-group-append" }, [
+                              _c(
+                                "span",
+                                {
+                                  staticClass: "input-group-text",
+                                  attrs: { id: "basic-addon1" }
+                                },
+                                [_vm._v("min")]
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "input-group-append" }, [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-outline-secondary",
+                                  attrs: { type: "button", id: "button-addon2" }
+                                },
+                                [_c("i", { staticClass: "fas fa-trash" })]
+                              )
+                            ])
+                          ])
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-lg-3 col-sm-12 " }, [
+                        _c("h5", [_vm._v("Sicherheit")]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c("label", { attrs: { for: "inputPassword4" } }, [
+                            _vm._v("Zugangscode")
+                          ]),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "input-group mb-3" }, [
+                            _c("div", { staticClass: "input-group-prepend" }, [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-outline-secondary",
+                                  attrs: { type: "button", id: "button-addon1" }
+                                },
+                                [_c("i", { staticClass: "fas fa-dice" })]
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c("input", {
+                              staticClass: "form-control",
+                              attrs: {
+                                type: "text",
+                                placeholder: "ungeschützt",
+                                "aria-label": "Example text with button addon",
+                                "aria-describedby": "button-addon1"
+                              }
+                            }),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "input-group-append" }, [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-outline-secondary",
+                                  attrs: { type: "button", id: "button-addon2" }
+                                },
+                                [_c("i", { staticClass: "fas fa-trash" })]
+                              )
+                            ])
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c("label", { attrs: { for: "inputPassword4" } }, [
+                            _vm._v("Sicheitsstufe")
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-radio" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: {
+                                  type: "radio",
+                                  id: "customRadio1",
+                                  name: "customRadio"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customRadio1" }
+                                },
+                                [
+                                  _vm._v("Öffentlich"),
+                                  _c("br"),
+                                  _c("small", { staticClass: "text-muted" }, [
+                                    _vm._v(
+                                      "Jeder\n                      mit dem Link kann beitreten"
+                                    )
+                                  ])
+                                ]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-radio" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: {
+                                  type: "radio",
+                                  id: "customRadio2",
+                                  name: "customRadio"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customRadio2" }
+                                },
+                                [
+                                  _vm._v("Intern"),
+                                  _c("br"),
+                                  _c("small", { staticClass: "text-muted" }, [
+                                    _vm._v("Alle\n                      Nutzer")
+                                  ])
+                                ]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-radio" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: {
+                                  type: "radio",
+                                  id: "customRadio3",
+                                  name: "customRadio"
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customRadio3" }
+                                },
+                                [
+                                  _vm._v("Geschlossen"),
+                                  _c("br"),
+                                  _c("small", { staticClass: "text-muted" }, [
+                                    _vm._v(
+                                      "Nur\n                      Teilnehmer"
+                                    )
+                                  ])
+                                ]
+                              )
+                            ]
+                          )
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-lg-3 col-sm-12 " }, [
+                        _c("h5", [_vm._v("Berechtigungen")]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Toggle this switch element")]
+                              )
+                            ]
+                          )
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "col-lg-3 col-sm-12 " }, [
+                        _c("h5", [_vm._v("Einschränkungen")]),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "form-group" }, [
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Kamera deaktivieren")]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Nur Moderatoren sehen Webcams")]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Mikrofon deaktivieren")]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Öffentlichen Chat deaktivieren")]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Privaten Chat deaktivieren")]
+                              )
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "div",
+                            { staticClass: "custom-control custom-switch" },
+                            [
+                              _c("input", {
+                                staticClass: "custom-control-input",
+                                attrs: { type: "checkbox", id: "customSwitch1" }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "label",
+                                {
+                                  staticClass: "custom-control-label",
+                                  attrs: { for: "customSwitch1" }
+                                },
+                                [_vm._v("Geteile Notizen bearbeiten")]
+                              )
+                            ]
+                          )
+                        ])
+                      ])
+                    ])
+                  ])
+                ])
+              ])
+            ]
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-lg-8 col-sm-12" })
+    ]),
+    _vm._v(" "),
+    _c("hr"),
+    _vm._v(" "),
+    _vm._m(1),
+    _vm._v(" "),
+    _vm._m(2)
+  ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-lg-8 col-sm-12" }, [
+      _c("h1", { staticClass: "display-4 text-left mb-3 font-weight-400" }, [
+        _vm._v("Softwaretechnik")
+      ]),
+      _vm._v(" "),
+      _c("h4", [_vm._v("Prof. Thomas Friedl")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h4", [
+      _vm._v("Teilnehmer "),
+      _c("span", { staticClass: "badge badge-pill badge-dark" }, [
+        _vm._v("126")
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "row pt-4" }, [
+      _c("div", { staticClass: "col-lg-4 col-sm-12" }, [
+        _c("div", { staticClass: "card" }, [
+          _c("h5", { staticClass: "card-header" }, [_vm._v("Einstellungen")]),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c("h5", { staticClass: "card-title" }, [
+              _vm._v("Special title treatment")
+            ]),
+            _vm._v(" "),
+            _c("p", { staticClass: "card-text" }, [
+              _vm._v(
+                "With supporting text below as a natural lead-in to additional\n            content."
+              )
+            ]),
+            _vm._v(" "),
+            _c("a", { staticClass: "btn btn-primary", attrs: { href: "#" } }, [
+              _vm._v("Go somewhere")
+            ])
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-lg-8 col-sm-12" }, [
+        _c("table", { staticClass: "table table-hover" }, [
+          _c("thead", [
+            _c("tr", [
+              _c("th", [_vm._v("Nachname")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("Vorname")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("Email")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("Rolle")])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("tbody", [
+            _c("tr", [
+              _c("td", [_vm._v("Mark")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("Mark")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("Otto")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("@mdo")])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("2")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("Jacob")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("Thornton")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("@fat")])
+            ]),
+            _vm._v(" "),
+            _c("tr", [
+              _c("td", [_vm._v("3")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("Larry")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("the Bird")]),
+              _vm._v(" "),
+              _c("td", [_vm._v("@twitter")])
+            ])
+          ])
+        ])
+      ])
+    ])
+  }
+]
 render._withStripped = true
 
 
