@@ -1,15 +1,32 @@
-
+// Fonts
+@import 'fonts';
 // Variables
-//@import 'variables';
+@import 'variables';
 
 // Bootstrap
-//@import '~bootstrap/scss/bootstrap';
+@import '~bootstrap/scss/bootstrap';
+@import '~bootstrap-vue/src/index.scss';
 
 
+.btn-success {
+    color: #FFF;
+}
 
-// PILOS
+// Font Awesome
+@import "../fontawesome/scss/fontawesome.scss";
+@import "../fontawesome/scss/solid.scss";
+@import "../fontawesome/scss/brands.scss";
 
-@import "utilities/variables";
-@import 'application';
+.roomicon {
+    width:40px;
+    height: 40px;
+    background: $green;
+    border-radius: 5px;
+    display: grid;
+    place-items: center center;
+    color: $white;
+    font-size: 15px;
+    font-weight: bold;
 
-@import "_primary_themes";
+}
+

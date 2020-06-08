@@ -6,6 +6,7 @@ use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
+// TODO: Get rid of redirection on api calls! This is not intuitive!
 class RedirectIfAuthenticated
 {
     /**

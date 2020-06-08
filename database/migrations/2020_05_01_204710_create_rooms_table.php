@@ -42,8 +42,8 @@ class CreateRoomsTable extends Migration
             $table->integer('securityLevel')->default(0);
             $table->unsignedBigInteger('preferedServer')->nullable();
             $table->foreign('preferedServer')->references('id')->on('servers')->onDelete('set null');
-            $table->unsignedBigInteger('owner')->nullable();
-            $table->foreign('owner')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

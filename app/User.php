@@ -4,10 +4,12 @@ namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+
 class User extends Authenticatable
 {
-    use Notifiable, AuthenticatesWithLdap;
+    use Notifiable, AuthenticatesWithLdap, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -15,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'firstname', 'lastname', 'email', 'password', 'username', 'guid', 'domain'
     ];
 
     /**
@@ -38,7 +40,7 @@ class User extends Authenticatable
 
     public function myRooms()
     {
-        return $this->hasMany(Room::class, 'owner');
+        return $this->hasMany(Room::class);
     }
 
     public function sharedRooms()
