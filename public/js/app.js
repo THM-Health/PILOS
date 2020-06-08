@@ -82845,14 +82845,6 @@ var render = function() {
                   _c(
                     "b-navbar-nav",
                     [
-                      !_vm.isAuthenticated
-                        ? _c(
-                            "b-nav-item",
-                            { attrs: { to: { name: "login" }, right: "" } },
-                            [_vm._v("Login")]
-                          )
-                        : _vm._e(),
-                      _vm._v(" "),
                       _vm.isAuthenticated
                         ? _c(
                             "b-nav-item",
@@ -82868,6 +82860,14 @@ var render = function() {
                     "b-navbar-nav",
                     { staticClass: "ml-auto" },
                     [
+                      !_vm.isAuthenticated
+                        ? _c(
+                            "b-nav-item",
+                            { attrs: { to: { name: "login" }, right: "" } },
+                            [_vm._v("Login")]
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
                       _vm.isAuthenticated
                         ? _c(
                             "b-nav-item-dropdown",
