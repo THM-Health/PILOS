@@ -2,7 +2,7 @@
     <div>
         <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
             <b-container>
-                <b-navbar-brand href="#">
+                <b-navbar-brand :to="{ name: 'home' }">
                     <img style="height: 2rem;" src="https://11.pilos-thm.de/logo/default/THMPilos.svg">
                 </b-navbar-brand>
 
