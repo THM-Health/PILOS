@@ -13,4 +13,8 @@ yarn-error.log
 .idea
 .vagrant
 cghooks.lock
-
+/public/js
+/public/css
+/public/build
+/public/mix-manifest.json
+/public/fonts
