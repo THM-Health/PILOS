@@ -86,9 +86,7 @@
 </script>
 
 <style scoped>
-
   .logo {
-
     height: 80px;
     max-width: 100%;
     margin-bottom: 21px;
@@ -103,7 +101,6 @@
     font-size: 18px;
     line-height: 1.4;
   }
-
 
   .feature-stamp .stamp {
     padding: 1em 1.5em;
