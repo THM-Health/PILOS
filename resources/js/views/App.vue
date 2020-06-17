@@ -12,7 +12,7 @@
         <b-container>
           <h1>
             <b-navbar-brand :to="{ name: 'home' }">
-              <img style="height: 2rem;" src="https://11.pilos-thm.de/logo/default/THMPilos.svg" alt="Logo">
+              <img style="height: 2rem;" src="/images/logo.svg" alt="Logo">
             </b-navbar-brand>
           </h1>
 
