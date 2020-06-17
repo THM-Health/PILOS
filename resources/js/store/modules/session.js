@@ -14,7 +14,6 @@ const actions = {
   async login ({ dispatch, commit }, { credentials, method }) {
     await auth.login(credentials, method)
     await dispatch('getCurrentUser')
-    // TODO: Redirect to home page!
   },
 
   async getCurrentUser ({ commit }) {
@@ -29,8 +28,10 @@ const actions = {
   },
 
   async logout ({ commit }) {
+    commit('loading', null, { root: true })
     await auth.logout()
     commit('setCurrentUser', null)
+    commit('loadingFinished', null, { root: true })
   }
 }
 
