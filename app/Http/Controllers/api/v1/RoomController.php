@@ -50,9 +50,19 @@ class RoomController extends Controller
      * @param  int                       $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(\App\Room $room, Request $request)
     {
-        //
+        // User calls room with guest token from email
+        if ($request->has('guestToken')) {
+        } else {
+            // Joining room with code
+            if ($request->has('code')) {
+            } else {
+                //if($room->owner->id == Auth::user()->id)
+                //    echo "owner";
+                return new Room($room);
+            }
+        }
     }
 
     /**

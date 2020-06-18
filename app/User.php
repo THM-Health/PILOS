@@ -45,6 +45,6 @@ class User extends Authenticatable
 
     public function sharedRooms()
     {
-        return $this->belongsToMany(Room::class)->withPivot('moderator');
+        return $this->belongsToMany(Room::class)->withPivot('role');
     }
 }

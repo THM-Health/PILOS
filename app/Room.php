@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
+    protected $casts = [
+        'muteOnStart'                    => 'boolean',
+        'lockSettingsDisableCam'         => 'boolean',
+        'webcamsOnlyForModerator'        => 'boolean',
+        'lockSettingsDisableMic'         => 'boolean',
+        'lockSettingsDisablePrivateChat' => 'boolean',
+        'lockSettingsDisablePublicChat'  => 'boolean',
+        'lockSettingsDisableNote'        => 'boolean',
+        'everyoneCanStart'               => 'boolean',
+    ];
+
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -16,9 +27,9 @@ class Room extends Model
         return $this->belongsTo(RoomType::class);
     }
 
-    public function shared()
+    public function members()
     {
-        return $this->belongsToMany(User::class)->withPivot('moderator');
+        return $this->belongsToMany(User::class)->withPivot('role');
     }
 
     public function preferedServer()

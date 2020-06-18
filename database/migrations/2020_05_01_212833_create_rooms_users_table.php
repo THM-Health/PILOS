@@ -19,8 +19,7 @@ class CreateRoomsUsersTable extends Migration
             $table->unsignedBigInteger('room_id');
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->primary(['user_id', 'room_id']);
-            $table->boolean('moderator')->default(false);
-
+            $table->tinyInteger('role')->default(\App\Enums\RoomUserRole::USER);
         });
     }
 

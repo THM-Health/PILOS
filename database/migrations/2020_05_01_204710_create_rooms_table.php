@@ -33,15 +33,13 @@ class CreateRoomsTable extends Migration
             $table->boolean('lockSettingsDisablePublicChat')->default(false);
             $table->boolean('lockSettingsDisableNote')->default(false);
             $table->boolean('lockSettingsLockOnJoin')->default(true);
-            $table->string('guestPolicy')->nullable();
             $table->boolean('allowSubscription')->default(false);
             $table->boolean('everyoneCanStart')->default(false);
             $table->boolean('everyoneModerator')->default(false);
             $table->string('publicID',9);
             $table->integer('accessCode')->length(9)->nullable();
-            $table->integer('securityLevel')->default(0);
-            $table->unsignedBigInteger('preferedServer')->nullable();
-            $table->foreign('preferedServer')->references('id')->on('servers')->onDelete('set null');
+            $table->integer('securityLevel')->default(\App\Enums\RoomSecurityLevel::INTERNAL);
+            $table->string('defaultRole')->default(\App\Enums\RoomUserRole::USER);
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
