@@ -23,21 +23,21 @@
               <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>Rooms</b-nav-item>
             </b-navbar-nav>
 
-            <!-- Right aligned nav items -->
-            <b-navbar-nav class="ml-auto">
-              <b-nav-item :to="{ name: 'login' }" v-if='!isAuthenticated' right>Login</b-nav-item>
-              <b-nav-item-dropdown right v-if='isAuthenticated'>
-                <!-- Using 'button-content' slot -->
-                <template v-slot:button-content>
-                  {{currentUser.firstname}} {{currentUser.lastname}}
-                </template>
-                <b-dropdown-item href="#">Profile</b-dropdown-item>
-                <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
-              </b-nav-item-dropdown>
-            </b-navbar-nav>
-          </b-collapse>
-        </b-container>
-      </b-navbar>
+                    <!-- Right aligned nav items -->
+                    <b-navbar-nav class="ml-auto">
+                      <b-nav-item :to="{ name: 'login' }" v-if='!isAuthenticated' right>{{ $t('auth.login') }}</b-nav-item>
+                        <b-nav-item-dropdown right v-if='isAuthenticated'>
+                            <!-- Using 'button-content' slot -->
+                            <template v-slot:button-content>
+                                {{currentUser.firstname}} {{currentUser.lastname}}
+                            </template>
+                            <b-dropdown-item href="#">Profile</b-dropdown-item>
+                            <b-dropdown-item @click="logout">Sign Out</b-dropdown-item>
+                        </b-nav-item-dropdown>
+                    </b-navbar-nav>
+                </b-collapse>
+            </b-container>
+        </b-navbar>
 
       <main>
         <router-view></router-view>
