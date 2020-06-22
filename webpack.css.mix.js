@@ -1,4 +1,5 @@
 const mix = require('laravel-mix')
+const fs = require('fs')
 require('laravel-mix-merge-manifest')
 
 /*
@@ -12,9 +13,13 @@ require('laravel-mix-merge-manifest')
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
+mix.sass('resources/sass/app.scss', 'public/css')
+  .copy('resources/images', 'public/images')
   .sourceMaps(false)
-  .extract()
+
+if (fs.existsSync('resources/custom/images')) {
+  mix.copy('resources/custom/images', 'public/images')
+}
 
 if (mix.inProduction()) {
   mix.version()
