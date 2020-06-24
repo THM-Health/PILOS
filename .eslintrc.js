@@ -23,7 +23,7 @@ module.exports = {
   rules: {
     '@intlify/vue-i18n/no-html-messages': 'error',
     '@intlify/vue-i18n/no-raw-text': 'error',
-    '@intlify/vue-i18n/no-v-html': 'error'
+    '@intlify/vue-i18n/no-v-html': 'warn'
   },
   settings: {
   }

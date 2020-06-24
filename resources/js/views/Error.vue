@@ -1,6 +1,6 @@
 <template>
   <div>
-    Something wen't wrong!
+    {{ $t('app.error') }}
   </div>
 </template>
 

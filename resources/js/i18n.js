@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 import messages from './lang/en'
@@ -6,7 +7,8 @@ Vue.use(VueI18n)
 
 const i18n = new VueI18n({
   locale: 'en',
-  fallbackLocale: 'en'
+  fallbackLocale: 'en',
+  availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
 })
 
 i18n.setLocaleMessage('en', messages)
@@ -28,11 +30,12 @@ export function loadLanguageAsync (lang) {
   }
 
   return import(
-    /* webpackChunkName: "/js/lang/[request]" */
+    /* webpackChunkName: "js/lang/[request]" */
     /* webpackInclude: /\.js/ */
     `./lang/${lang}`
   ).then(messages => {
-    i18n.setLocaleMessage(lang, messages.default)
+    const existingLocaleMessages = i18n.getLocaleMessage(lang)
+    i18n.setLocaleMessage(lang, $.extend(true, {}, messages.default, existingLocaleMessages))
     loadedLanguages.push(lang)
     return setI18nLanguage(lang)
   })

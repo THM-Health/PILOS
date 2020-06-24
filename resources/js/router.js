@@ -5,7 +5,6 @@ import RoomsIndex from './views/rooms/Index'
 import RoomView from './views/rooms/View'
 import store from './store'
 import Home from './views/Home'
-
 import Vue from 'vue'
 
 Vue.use(VueRouter)

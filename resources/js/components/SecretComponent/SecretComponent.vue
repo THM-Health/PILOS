@@ -4,26 +4,26 @@
             <div class="col-6 offset-3">
               <b-card no-body bg-variant="light">
                 <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-success text-white">
-                  <b-tab title="THM" active>
+                  <b-tab :title="$t('auth.ldap.tabTitle')" active>
                     <ldap-login-component
                       id="ldap"
-                      title="Mit einem LDAP-Account anmelden"
+                      :title="$t('auth.ldap.title')"
                       @submit="handleLogin"
-                      submit-label="Anmelden"
-                      password-label="Passwort"
-                      username-label="Benutzerkennung"
+                      :submit-label="$t('auth.login')"
+                      :password-label="$t('auth.password')"
+                      :username-label="$t('auth.ldap.username')"
                       :loading="loading"
                       :errors="errors.ldap"
                     ></ldap-login-component>
                   </b-tab>
-                  <b-tab title="Externe">
+                  <b-tab :title="$t('auth.email.tabTitle')">
                     <email-login-component
                       id="default"
-                      title="Mit einem normalen Account anmelden"
+                      :title="$t('auth.email.title')"
                       @submit="handleLogin"
-                      submit-label="Anmelden"
-                      password-label="Passwort"
-                      email-label="Email"
+                      :submit-label="$t('auth.login')"
+                      :password-label="$t('auth.password')"
+                      :email-label="$t('auth.email.email')"
                       :loading="loading"
                       :errors="errors.default"
                     ></email-login-component>
