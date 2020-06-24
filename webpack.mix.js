@@ -1,4 +1,5 @@
 const mix = require('laravel-mix')
+const fs = require('fs')
 
 /*
  |--------------------------------------------------------------------------
@@ -14,7 +15,12 @@ const mix = require('laravel-mix')
 mix.js('resources/js/app.js', 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
   .sourceMaps(false)
+  .copy('resources/images', 'public/images')
   .extract()
+
+if (fs.existsSync('resources/custom/images')) {
+  mix.copy('resources/custom/images', 'public/images')
+}
 
 if (mix.inProduction()) {
   mix.version()

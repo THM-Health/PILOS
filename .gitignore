@@ -18,3 +18,5 @@ cghooks.lock
 /public/build
 /public/mix-manifest.json
 /public/fonts
+/public/images
+/resources/custom
