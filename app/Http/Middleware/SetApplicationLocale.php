@@ -24,6 +24,7 @@ class SetApplicationLocale
         foreach ($request->getLanguages() as $language) {
             if (in_array($language, config('app.available_locales'))) {
                 $locale = $language;
+
                 break;
             }
         }
