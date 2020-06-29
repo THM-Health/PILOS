@@ -17,14 +17,8 @@ const actions = {
   },
 
   async getCurrentUser ({ commit }) {
-    let currentUser
-    try {
-      currentUser = await auth.getCurrentUser()
-    } catch (error) {
-      currentUser = null
-    } finally {
-      commit('setCurrentUser', currentUser)
-    }
+    const currentUser = await auth.getCurrentUser()
+    commit('setCurrentUser', currentUser)
   },
 
   async logout ({ commit }) {

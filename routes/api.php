@@ -15,24 +15,27 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     Route::namespace('auth')->group(function () {
-        Route::get('currentUser', 'LoginController@currentUser');
-        Route::post('login', 'LoginController@login');
-        Route::post('login/ldap', 'LoginController@ldapLogin');
-        Route::post('logout', 'LoginController@logout');
-        Route::post('register', 'RegisterController@register');
+        Route::get('currentUser', 'LoginController@currentUser')->name('currentUser');
+        Route::post('login', 'LoginController@login')->name('login');
+        Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
+        Route::post('logout', 'LoginController@logout')->name('logout');
 
-        Route::post('password/reset', 'ResetPasswordController@reset');
-        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
-        Route::post('password/confirm', 'ConfirmPasswordController@confirm');
-
-        Route::post('email/resend', 'VerificationController@resend');
-        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
+// TODO: Implement or remove this completely
+//        Route::post('register', 'RegisterController@register');
+//
+//        Route::post('password/reset', 'ResetPasswordController@reset');
+//        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
+//        Route::post('password/confirm', 'ConfirmPasswordController@confirm');
+//
+//        Route::post('email/resend', 'VerificationController@resend');
+//        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
-    Route::middleware('auth:api_users,api')->group(function () {
 
-    Route::apiResource('rooms', 'RoomController');
+    Route::middleware('auth:api_users,api')->group(function () {
+        Route::apiResource('rooms', 'RoomController');
     });
 });
+
 Route::any('/{any}', function () {
-    return response()->json([ 'error' => 404 ], 404);
+    return response()->json([ 'message' => 'Not found!' ], 404);
 })->where('any', '.*');
