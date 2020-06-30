@@ -6,7 +6,6 @@ use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
-use voku\helper\ASCII;
 
 class LocalesTest extends TestCase
 {
