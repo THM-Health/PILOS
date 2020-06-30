@@ -43,6 +43,12 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         ]);
 
         session()->put('locale', $validatedData['locale']);
+
+        if (Auth::user() !== null) {
+            Auth::user()->update([
+                'locale' => $validatedData['locale']
+            ]);
+        }
     })->name('setLocale');
 });
 

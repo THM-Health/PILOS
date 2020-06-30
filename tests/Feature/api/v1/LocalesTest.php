@@ -1,10 +1,9 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\api\v1;
 
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -19,9 +18,11 @@ class LocalesTest extends TestCase
     {
         parent::setUp();
 
-        Config::set('app.available_locales', ['fr', 'es', 'be', 'de', 'en', 'ru']);
-        Config::set('app.fallback_locale', 'ru');
-        Config::set('app.locale', 'en');
+        config([
+            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.fallback_locale' => 'ru',
+            'app.locale' => 'en'
+        ]);
     }
 
     /**
@@ -153,5 +154,30 @@ class LocalesTest extends TestCase
 
         $response = $this->get('/');
         $response->assertSee('<html lang="fr">', false);
+    }
+
+    public function testSetLocaleUpdatesCurrentUsersLocale() {
+        $user = factory(User::class)->create([
+            'password' => Hash::make('bar'),
+            'locale'   => 'fr'
+        ]);
+        $response = $this->actingAs($user)->session([
+            'locale' => 'es'
+        ])->withHeaders([
+            'Accept-Language' => 'be'
+        ])->from(config('app.url'))->get('/');
+        $response->assertSee('<html lang="fr">', false);
+
+        $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+            'locale' => 'de'
+        ]);
+        $response->assertOk();
+
+        $response = $this->actingAs($user)->from(config('app.url'))->get('/');
+        $response->assertSee('<html lang="de">', false);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'locale' => 'de'
+        ]);
     }
 }
