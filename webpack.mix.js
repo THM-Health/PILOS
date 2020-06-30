@@ -35,6 +35,10 @@ mix.js(files, 'public/js')
   .sourceMaps(false)
   .extract()
 
+if (!mix.inProduction()) {
+  mix.browserSync(process.env.APP_URL)
+}
+
 if (mix.inProduction()) {
   mix.version()
 }
