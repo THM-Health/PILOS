@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use voku\helper\ASCII;
 
 class LocalesTest extends TestCase
 {
@@ -20,8 +21,8 @@ class LocalesTest extends TestCase
 
         config([
             'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
-            'app.fallback_locale' => 'ru',
-            'app.locale' => 'en'
+            'app.fallback_locale'   => 'ru',
+            'app.locale'            => 'en'
         ]);
     }
 
@@ -156,7 +157,14 @@ class LocalesTest extends TestCase
         $response->assertSee('<html lang="fr">', false);
     }
 
-    public function testSetLocaleUpdatesCurrentUsersLocale() {
+    /**
+     * If the user is authenticated and an setLocale api call gets done the locale of the current user should
+     * also be updated to the new locale.
+     *
+     * @return void
+     */
+    public function testSetLocaleUpdatesCurrentUsersLocale()
+    {
         $user = factory(User::class)->create([
             'password' => Hash::make('bar'),
             'locale'   => 'fr'
@@ -176,7 +184,7 @@ class LocalesTest extends TestCase
         $response = $this->actingAs($user)->from(config('app.url'))->get('/');
         $response->assertSee('<html lang="de">', false);
         $this->assertDatabaseHas('users', [
-            'id' => $user->id,
+            'id'     => $user->id,
             'locale' => 'de'
         ]);
     }
