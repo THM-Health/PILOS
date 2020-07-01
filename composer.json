@@ -44,8 +44,7 @@
         },
         "hooks": {
             "pre-commit": [
-                "vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes",
-                "./node_modules/.bin/eslint --ext .js,.vue ."
+                "vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes && npm run ci"
             ],
             "pre-push": [
                 "vendor/bin/phpunit"
