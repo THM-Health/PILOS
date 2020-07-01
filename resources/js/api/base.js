@@ -8,6 +8,10 @@ export default {
     return promise.then(() => {
       return axios(`/api/v1/${path}`, config)
     }).catch((e) => {
+      if (process.env.NODE_ENV === 'test') {
+        return Promise.reject(e)
+      }
+
       if (e.response.status === 401) { // 401 => unauthorized, redirect and show error messages as flash!
         // TODO: Add flash message, when implemented
         router.replace({ name: 'login' })
@@ -24,5 +28,19 @@ export default {
 
   getCsrfCookie () {
     return axios.get('/sanctum/csrf-cookie')
+  },
+
+  /**
+   * Sends the passed locale to the backend so it gets persisted in the current session
+   * and if the user is authenticated his locale in the database gets persisted.
+   *
+   * @param locale Locale that should be stored in the database
+   * @returns {Promise<AxiosResponse<any>>} Resolves if successful, or rejects if the locale isn't supported by the backend
+   */
+  setLocale (locale) {
+    return this.call('setLocale', {
+      data: { locale },
+      method: 'post'
+    })
   }
 }

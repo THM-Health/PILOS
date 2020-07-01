@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,21 +36,21 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
     Route::middleware('auth:api_users,api')->group(function () {
         Route::apiResource('rooms', 'RoomController');
-    });
 
-    Route::post('setLocale', function (Request $request) {
-        $validatedData = $request->validate([
-            'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
-        ]);
-
-        session()->put('locale', $validatedData['locale']);
-
-        if (Auth::user() !== null) {
-            Auth::user()->update([
-                'locale' => $validatedData['locale']
+        Route::post('setLocale', function (Request $request) {
+            $validatedData = $request->validate([
+                'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
             ]);
-        }
-    })->name('setLocale');
+
+            session()->put('locale', $validatedData['locale']);
+
+            if (Auth::user() !== null) {
+                Auth::user()->update([
+                    'locale' => $validatedData['locale']
+                ]);
+            }
+        })->name('setLocale');
+    });
 });
 
 Route::any('/{any}', function () {

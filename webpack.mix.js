@@ -33,7 +33,10 @@ if (fs.existsSync('resources/custom/js/')) {
 
 mix.js(files, 'public/js')
   .sourceMaps(false)
-  .extract()
+
+if (process.env.NODE_ENV !== 'test') {
+  mix.extract()
+}
 
 if (!mix.inProduction()) {
   mix.browserSync(process.env.APP_URL)

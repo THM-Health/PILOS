@@ -1,7 +1,10 @@
 import auth from '../../api/auth'
+import base from '../../api/base'
+import { loadLanguageAsync } from '../../i18n'
 
 const state = () => ({
-  currentUser: null
+  currentUser: null,
+  currentLocale: null
 })
 
 const getters = {
@@ -11,9 +14,14 @@ const getters = {
 }
 
 const actions = {
-  async login ({ dispatch, commit }, { credentials, method }) {
+  async login ({ dispatch, commit, state }, { credentials, method }) {
     await auth.login(credentials, method)
     await dispatch('getCurrentUser')
+
+    if (state.currentUser.locale !== null) {
+      await loadLanguageAsync(state.currentUser.locale)
+      commit('setCurrentLocale', state.currentUser.locale)
+    }
   },
 
   async getCurrentUser ({ commit }) {
@@ -26,10 +34,20 @@ const actions = {
     await auth.logout()
     commit('setCurrentUser', null)
     commit('loadingFinished', null, { root: true })
+  },
+
+  async setLocale ({ commit, dispatch }, { locale }) {
+    await base.setLocale(locale)
+    await dispatch('getCurrentUser')
+    commit('setCurrentLocale', locale)
   }
 }
 
 const mutations = {
+  setCurrentLocale (state, currentLocale) {
+    state.currentLocale = currentLocale
+  },
+
   setCurrentUser (state, currentUser) {
     state.currentUser = currentUser
   }

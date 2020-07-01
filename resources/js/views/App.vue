@@ -33,6 +33,7 @@
                 </template>
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
+              <locale-selector :available-locales="availableLocales"></locale-selector>
             </b-navbar-nav>
           </b-collapse>
         </b-container>
@@ -47,8 +48,10 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex'
+import LocaleSelector from '../components/LocaleSelector'
 
 export default {
+  components: { LocaleSelector },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
@@ -57,6 +60,11 @@ export default {
     ...mapGetters({
       isAuthenticated: 'session/isAuthenticated'
     })
+  },
+  data () {
+    return {
+      availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
+    }
   },
   methods: {
     async logout () {

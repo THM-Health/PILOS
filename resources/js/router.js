@@ -58,7 +58,8 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const promise = !store.state.initialized ? store.dispatch('initialize') : Promise.resolve()
+  const locale = $('html').prop('lang') || 'en'
+  const promise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve()
 
   promise.then(() => {
     if (to.matched.some(record => record.meta.requiresAuth)) {

@@ -2,15 +2,18 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
-    jquery: true
+    jquery: true,
+    mocha: true
   },
   extends: [
     'plugin:vue/essential',
-    'standard'
+    'standard',
+    'plugin:mocha/recommended'
   ],
   globals: {
     Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly'
+    SharedArrayBuffer: 'readonly',
+    expect: 'readonly'
   },
   parserOptions: {
     ecmaVersion: 11,
@@ -18,7 +21,8 @@ module.exports = {
   },
   plugins: [
     'vue',
-    '@intlify/vue-i18n'
+    '@intlify/vue-i18n',
+    'mocha'
   ],
   rules: {
     '@intlify/vue-i18n/no-html-messages': 'error',

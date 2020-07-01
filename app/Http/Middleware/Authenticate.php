@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Resources\User as UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
@@ -24,10 +23,8 @@ class Authenticate extends Middleware
 
     protected function unauthenticated($request, array $guards)
     {
-        if (Route::currentRouteName() === 'api.v1.currentUser') {
-            return new UserResource(null);
+        if (!in_array(Route::currentRouteName(), ['api.v1.currentUser', 'api.v1.setLocale'])) {
+            parent::unauthenticated($request, $guards);
         }
-
-        parent::unauthenticated($request, $guards);
     }
 }

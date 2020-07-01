@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import session from './modules/session'
+import { loadLanguageAsync } from '../i18n'
 
 Vue.use(Vuex)
 
@@ -13,9 +14,11 @@ export default new Vuex.Store({
   strict: debug,
   plugins: [],
   actions: {
-    async initialize ({ dispatch, commit }) {
+    async initialize ({ dispatch, commit }, { locale }) {
       commit('loading')
       await dispatch('session/getCurrentUser')
+      await loadLanguageAsync(locale)
+      commit('session/setCurrentLocale', locale)
       commit('initialized')
       commit('loadingFinished')
     }
@@ -46,7 +49,7 @@ export default new Vuex.Store({
      * @param state
      */
     loadingFinished (state) {
-      state.loadingCounter--
+      state.loadingCounter = Math.max(0, state.loadingCounter - 1)
     }
   },
   state: {
