@@ -29,7 +29,7 @@ BigBlueButton server is necessary to use this application. See how to setup a Bi
 
 1. [BigBlueButton](https://bigbluebutton.org/)
 2. [Greenlight](https://github.com/bigbluebutton/greenlight)
-3. [Laravel]((https://laravel.com/))
+3. [Laravel](https://laravel.com/)
 
 
 ## Contributing
