@@ -7,8 +7,8 @@ It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](http
 
 ## Table of Contents 
 * [About](#About)
-* [Stacks and Frameworks](#Stacks and Framework)
-* [Contribute](#Contribute)
+* [Stacks and Frameworks](#Stacks and Frameworks)
+* [Contribute](#Contributing)
 * [License](#License)
 
 ## About 
