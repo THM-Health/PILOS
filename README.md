@@ -7,7 +7,8 @@ It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](http
 
 ## Table of Contents 
 * [About](#About)
-* [Stacks and Frameworks](#Stacks and Frameworks)
+* [Installation](#Installation)
+* [Stacks](#Stacks)
 * [Contribute](#Contributing)
 * [License](#License)
 
@@ -25,7 +26,7 @@ This project is currently working on the conversion of the Greenlight client, wh
 
 BigBlueButton server is necessary to use this application. See how to setup a BigBlueButton server [here](https://docs.bigbluebutton.org/).  
 
-## Stacks and Frameworks
+## Stacks
 
 1. [BigBlueButton](https://bigbluebutton.org/)
 2. [Greenlight](https://github.com/bigbluebutton/greenlight)
