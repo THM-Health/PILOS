@@ -45,7 +45,7 @@ After that you need to generate Base64 ```APP_KEY``` as well using artisan comma
 php artisan key:generate
 ```
 
-Lastly you want to configure your ``.env`` file accordingly to your vagrant box. The info about your vagrant box is inside ``Homestead.yaml`` file. It is important to configure your ``SANCTUM_STATEFUL_DOMAINS`` and ``SESSION_DOMAIN`` value inside your ``.env`` file with your vagrant box ip inside the ``Homestead.yaml`` file.
+Next you want to configure your ``.env`` file accordingly to your vagrant box. The info about your vagrant box is inside ``Homestead.yaml`` file. It is important to configure your ``SANCTUM_STATEFUL_DOMAINS`` and ``SESSION_DOMAIN`` value inside your ``.env`` file with your vagrant box ip inside the ``Homestead.yaml`` file.
 
 ```
 LDAP_LOGGING=true
@@ -67,6 +67,13 @@ You can check if the LDAP configured correctly using artisan command.
 
 ```
 php artisan ldap:test
+```
+
+Lastly you want to migrate and seed the database using again another artisan command. 
+
+```
+php artisan migrate
+php artisan db:seed
 ```
 
 ## Stacks
