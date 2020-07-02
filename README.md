@@ -1,6 +1,6 @@
 # PILOS
 
-<a href="https://video.ges.thm.de/index.html" align="center"><img src="https://video.ges.thm.de/img/PILOS.svg"></a>
+<p style="text-align: center;"><img src="https://video.ges.thm.de/img/PILOS.svg" alt=""></p>
 
 PILOS is the system for the video conference in class and group learning, which has been in use at the THM Faculty of Health ([FB GES](https://www.thm.de/ges/)) since the summer semester 2020.
 It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](https://github.com/bigbluebutton/greenlight).
