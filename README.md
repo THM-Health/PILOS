@@ -30,12 +30,11 @@ Illustration here
 
 BigBlueButton server is necessary to use this application. See how to setup a BigBlueButton server [here](https://docs.bigbluebutton.org/).  
 
-### 1. Environment setup
+### 1. How to run
 
 Laravel provides an easy way to setup the environment for PILOS with [Homestead](https://laravel.com/docs/7.x/homestead) and [Vagrant](https://www.vagrantup.com/).
  
 After you configured your Vagrant Box a Test LDAP Server is necessary as well to test LDAP-Login see the wiki [here](https://github.com/THM-Health/PILOS/wiki/Installing-OpenLDAP) to set it up in your vagrant box. 
-
 
 Then create an ```.env``` file inside your project and copy the content of ```.env.sample``` data inside it. 
 
@@ -69,12 +68,16 @@ You can check if the LDAP configured correctly using artisan command.
 php artisan ldap:test
 ```
 
-Lastly you want to migrate and seed the database using again another artisan command. 
+Next you want to migrate and seed the database using again another artisan command. 
 
 ```
 php artisan migrate
 php artisan db:seed
 ```
+
+Lastly you can run the following command in your host machine ``npm install `` then ``npm run watch`` or ``npm run dev``  also
+``composer install `` and ``php artisan serve`` inside your vagrant ssh terminal.
+
 
 ## Stacks
 
