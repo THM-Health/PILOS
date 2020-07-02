@@ -6,6 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Authentication with LDAP and Email-Address (#3)
-- A loading screen for loading events of the application (#11)
-- Localization with a locale switcher and saving selected locale for authenticated users (#13)
+- Authentication with LDAP and Email-Address (#1, #3)
+- A loading screen for loading events of the application (#6, #11)
+- Localization with a locale switcher and saving selected locale for authenticated users (#8, #13)
