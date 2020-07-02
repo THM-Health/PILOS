@@ -1,8 +1,8 @@
 # PILOS
 
-<p style="text-align: center;"><img src="https://video.ges.thm.de/img/PILOS.svg" alt=""></p>
+<p style="text-align: center;"><img src="https://video.ges.thm.de/img/PILOS.svg" alt="" width="1000"></p>
 
-PILOS is the system for the video conference in class and group learning, which has been in use at the THM Faculty of Health ([FB GES](https://www.thm.de/ges/)) since the summer semester 2020.
+PILOS (Platform for Interactive Live-Online Seminars) is the system for the video conference in class and group learning, which has been in use at the THM Faculty of Health ([FB GES](https://www.thm.de/ges/)) since the summer semester 2020.
 It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](https://github.com/bigbluebutton/greenlight).
 
 ## Table of Contents 
@@ -22,7 +22,7 @@ This project is currently working on the conversion of the Greenlight client, wh
 
 ## Architecture
 
-Illustration here
+Todo Illustration here
 
 ## Installation
 
@@ -92,8 +92,8 @@ Lastly you can run the following command in your host machine ``npm install `` t
 
 ## Contributing
 
-See how to contribute to the project here (CONTRIBUTE.MD) Insert guideline here
+See how to contribute to the project here (CONTRIBUTE.MD) Insert TODO guideline here
 
 ## License
 
-This PILOS project is Insert License Here (TBD).
+This PILOS project is Insert TODO License Here (TBD).
