@@ -19,6 +19,7 @@
     </filter>
     <php>
         <server name="APP_ENV" value="testing"/>
+        <server name="APP_URL" value="http://localhost"/>
         <server name="BCRYPT_ROUNDS" value="4"/>
         <server name="CACHE_DRIVER" value="array"/>
         <server name="DB_CONNECTION" value="sqlite"/>
@@ -27,5 +28,7 @@
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>
         <server name="TELESCOPE_ENABLED" value="false"/>
+        <server name="SANCTUM_STATEFUL_DOMAINS" value="localhost,127.0.0.1"/>
+        <server name="SESSION_DOMAIN" value="localhost,127.0.0.1"/>
     </php>
 </phpunit>

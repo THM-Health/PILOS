@@ -132,6 +132,9 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'locale' => [
+            'in' => 'Die gewählte Sprache wird vom Server nicht unterstützt.'
+        ]
     ],
 
     /*

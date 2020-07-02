@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class Authenticate extends Middleware
@@ -15,7 +17,14 @@ class Authenticate extends Middleware
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return route('login');
+            return URL::to('/login');
+        }
+    }
+
+    protected function unauthenticated($request, array $guards)
+    {
+        if (!in_array(Route::currentRouteName(), ['api.v1.currentUser', 'api.v1.setLocale'])) {
+            parent::unauthenticated($request, $guards);
         }
     }
 }
