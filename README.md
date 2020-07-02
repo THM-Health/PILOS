@@ -7,6 +7,7 @@ It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](http
 
 ## Table of Contents 
 * [About](#About)
+* [Architecture](#Architecture)
 * [Installation](#Installation)
 * [Stacks](#Stacks)
 * [Contributing](#Contributing)
@@ -18,6 +19,10 @@ PILOS is the complete system for the video conference in class and group learnin
 It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](https://github.com/bigbluebutton/greenlight).
 
 This project is currently working on the conversion of the Greenlight client, which is based on the [Ruby-On-Rails](https://rubyonrails.org/) framework, to the [Laravel](https://laravel.com/) framework.
+
+## Architecture
+
+Illustration here
 
 ## Installation
 
@@ -40,7 +45,7 @@ After that you need to generate Base64 ```APP_KEY``` as well using artisan comma
 php artisan key:generate
 ```
 
-Lastly you want to configure your ``.env`` file accordingly to your vagrant box. The info about your vagrant box is inside ``Homestead.yaml`` file. 
+Lastly you want to configure your ``.env`` file accordingly to your vagrant box. The info about your vagrant box is inside ``Homestead.yaml`` file. It is important to configure your ``SANCTUM_STATEFUL_DOMAINS`` and ``SESSION_DOMAIN`` value inside your ``.env`` file with your vagrant box ip inside the ``Homestead.yaml`` file.
 
 ```
 LDAP_LOGGING=true
@@ -66,9 +71,13 @@ php artisan ldap:test
 
 ## Stacks
 
-1. [BigBlueButton](https://bigbluebutton.org/)
-2. [Greenlight](https://github.com/bigbluebutton/greenlight)
-3. [Laravel](https://laravel.com/)
+1. [BigBlueButton](https://bigbluebutton.org/) - BigBlueButton is an open source web conferencing system.
+2. [Greenlight](https://github.com/bigbluebutton/greenlight) - Greenlight is a simple front-end interface for your BigBlueButton server.
+3. [Laravel](https://laravel.com/) - Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.
+4. [Vue](https://vuejs.org/) -  a progressive Javascript framework for building user interfaces
+5. [Vuex](https://vuex.vuejs.org/) - Vuex is a state management pattern + library for Vue.js applications.
+6. [Vue Router](https://router.vuejs.org/) - Vue Router is the official router for Vue.js. It deeply integrates with Vue.js core to make building Single Page Applications with Vue.js a breeze. Features include
+7. [Vue Bootstrap](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js and the world's most popular front-end CSS library — Bootstrap v4.
 
 
 ## Contributing
