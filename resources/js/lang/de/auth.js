@@ -14,5 +14,17 @@ export default {
     tabTitle: 'Email',
     title: 'Mit einer Email anmelden',
     email: 'Email'
+  },
+
+  flash: {
+    login: {
+      message: 'Die Anmeldung verlief erfolgreich!',
+      title: 'Erfolgreiche Anmeldung'
+    },
+
+    logout: {
+      message: 'Die Abmeldung verlief erfolgreich!',
+      title: 'Erfolgreiche Abmeldung'
+    }
   }
 }

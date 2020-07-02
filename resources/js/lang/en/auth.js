@@ -14,5 +14,17 @@ export default {
     tabTitle: 'Email',
     title: 'Login with Email',
     email: 'Email'
+  },
+
+  flash: {
+    login: {
+      message: 'You have been successfully logged in!',
+      title: 'Successful login'
+    },
+
+    logout: {
+      message: 'You have been successfully logged out!',
+      title: 'Successful logout'
+    }
   }
 }

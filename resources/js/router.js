@@ -1,12 +1,11 @@
 import VueRouter from 'vue-router'
 import Login from './views/Login'
-import Error from './views/Error'
+import NotFound from './views/NotFound'
 import RoomsIndex from './views/rooms/Index'
 import RoomView from './views/rooms/View'
 import store from './store'
 import Home from './views/Home'
 import Vue from 'vue'
-import i18n from './i18n'
 
 Vue.use(VueRouter)
 
@@ -36,19 +35,9 @@ const router = new VueRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/error',
-      name: 'error',
-      component: Error,
-      props: true
-    },
-    {
       path: '/404',
       name: '404',
-      component: Error,
-      props: {
-        statusCode: 404,
-        message: i18n.t('app.notFound')
-      }
+      component: NotFound
     },
     {
       path: '*',

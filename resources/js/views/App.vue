@@ -40,6 +40,7 @@
       </b-navbar>
 
       <main>
+        <FlashMessage position="right top" />
         <router-view></router-view>
       </main>
     </b-overlay>
@@ -69,8 +70,8 @@ export default {
   methods: {
     async logout () {
       await this.$store.dispatch('session/logout')
-      // TODO: Message for successful logout
-      this.$router.push({ name: 'home' })
+      this.flashMessage.success(this.$t('auth.flash.logout'))
+      await this.$router.push({ name: 'home' })
     }
   }
 }

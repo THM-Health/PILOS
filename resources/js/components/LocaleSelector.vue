@@ -73,7 +73,12 @@ export default {
         await this.$store.dispatch('session/setLocale', { locale })
         await loadLanguageAsync(locale)
       } catch (error) {
-        this.errors = error.response.data.errors.locale
+        if (error.response !== undefined && error.response.status === 422) {
+          this.errors = error.response.data.errors.locale
+        } else {
+          this.$store.commit('loadingFinished')
+          throw error
+        }
       } finally {
         this.$store.commit('loadingFinished')
       }
