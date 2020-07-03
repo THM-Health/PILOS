@@ -17,6 +17,17 @@ Vue.use(FlashMessage, {
   strategy: 'multiple'
 })
 
+/**
+ * Global error handler for unhandled errors that can occur in the application.
+ *
+ * Make sure that you catch possible errors caused by requests to the server (e.g. validation errors)
+ * in the appropriate place in the application. This handler is only for the last instance if there
+ * is something going on, that should be normally.
+ *
+ * @param error The occurred error
+ * @param vm The vue instance
+ * @param info Some additional error information
+ */
 Vue.config.errorHandler = function (error, vm, info) {
   const repsonseStatus = error.response !== undefined ? error.response.status : undefined
 
