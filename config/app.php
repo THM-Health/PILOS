@@ -184,6 +184,7 @@ return [
         // Laravel IDE helper
         \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
+        \Spatie\Permission\PermissionServiceProvider::class,
     ],
 
     /*
