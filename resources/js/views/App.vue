@@ -3,7 +3,7 @@
         <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
             <b-container>
                 <b-navbar-brand href="#">
-                    <img style="height: 2rem;" src="https://11.pilos-thm.de/logo/default/THMPilos.svg">
+                  <img style="height: 2rem;" src="/images/logo.svg" alt="Logo">
                 </b-navbar-brand>
 
                 <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>

@@ -2,13 +2,23 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\RoomSecurityLevel;
+use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Room;
+use App\Meeting;
+use App\Room;
+use App\Server;
 use Auth;
+use BigBlueButton\Parameters\CreateMeetingParameters;
+use BigBlueButton\Parameters\IsMeetingRunningParameters;
+use BigBlueButton\Parameters\JoinMeetingParameters;
+use BigBlueButton\Responses\CreateMeetingResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class RoomController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -17,10 +27,27 @@ class RoomController extends Controller
     public function index()
     {
         return ['data' => [
-            'myRooms'     => Room::collection(Auth::user()->myRooms()->with('owner')->get()),
-            'sharedRooms' => Room::collection(Auth::user()->sharedRooms()->with('owner')->get()),
+            'myRooms'     => \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->get()),
+            'sharedRooms' => \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->get()),
             ]
         ];
+    }
+
+    private function checkAccess(Room $room,String $accessCode = null){
+        if(Auth::guest() && $room->securityLevel != RoomSecurityLevel::PUBLIC)
+            abort(403);
+
+        if ($accessCode) {
+            if(is_numeric($accessCode) && $room->accessCode == $accessCode){
+                return true;
+            }
+            else{
+                abort(401,'invalid_code');
+            }
+        }
+        if($room->owner->is(Auth::user()) or $room->members->contains(Auth::user()))
+            return true;
+        return false;
     }
 
     /**
@@ -48,21 +75,56 @@ class RoomController extends Controller
      * Display the specified resource.
      *
      * @param  int                       $id
-     * @return \Illuminate\Http\Response
+     * @return \App\Http\Resources\Room
      */
-    public function show(\App\Room $room, Request $request)
+    public function show(Room $room, Request $request)
     {
-        // User calls room with guest token from email
-        if ($request->has('guestToken')) {
-        } else {
-            // Joining room with code
-            if ($request->has('code')) {
-            } else {
-                //if($room->owner->id == Auth::user()->id)
-                //    echo "owner";
-                return new Room($room);
+       $loggedIn = $this->checkAccess($room,$request->code);
+        return new \App\Http\Resources\Room($room,$loggedIn);
+    }
+
+    public function start(Room $room, Request $request)
+    {
+        if(!$this->checkAccess($room,$request->code))
+            abort(401);
+        $this->authorize('start',$room);
+
+        $meeting = $room->runningMeeting();
+        if(!$meeting){
+            $servers = Server::where('status',true)->get();
+            $server = $servers->random();
+
+            $meeting = $room->meetings()->create();
+            $meeting->server()->associate($server);
+            $meeting->start = date("Y-m-d H:i:s");
+            $meeting->attendeePW = bin2hex(random_bytes(5));
+            $meeting->moderatorPW = bin2hex(random_bytes(5));
+            $meeting->save();
+
+            if (!$meeting->start()) {
+                // @TODO Error
             }
         }
+
+        return $meeting->getJoinUrl(Auth::user()->firstname." ".Auth::user()->lastname, RoomUserRole::MODERATOR);
+    }
+
+    public function join(Room $room, Request $request)
+    {
+        if(!$this->checkAccess($room,$request->code))
+            abort(401);
+
+        $meeting = $room->runningMeeting();
+        if($meeting==null)
+            return response()->json("not_running", 460);
+
+        if (!$meeting->start()) {
+            // @TODO Error
+        }
+
+        return $meeting->getJoinUrl(Auth::user()->firstname." ".Auth::user()->lastname, RoomUserRole::MODERATOR);
+
+
     }
 
     /**
@@ -98,4 +160,23 @@ class RoomController extends Controller
     {
         //
     }
+
+    public function joinMembership(Room $room, Request $request)
+    {
+        if (!$room->allowSubscription)
+            abort(403);
+
+
+        if ($room->accessCode != null && (!$request->has('code') || !is_numeric($request->code) || $room->accessCode != $request->code)) {
+            abort(401, 'invalid_code');
+        }
+
+        if(!$room->members->contains(Auth::user()))
+        $room->members()->attach(Auth::user()->id, ['role' => $room->defaultRole]);
+    }
+
+    public function leaveMembership(Room $room){
+        $room->members()->detach(Auth::user()->id);
+    }
+
 }

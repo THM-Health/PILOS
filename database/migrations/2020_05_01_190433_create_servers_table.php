@@ -18,6 +18,7 @@ class CreateServersTable extends Migration
             $table->text('baseUrl');
             $table->text('salt');
             $table->text('description');
+            $table->softDeletes();
             $table->boolean('status')->default(false);
         });
     }

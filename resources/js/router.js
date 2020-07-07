@@ -30,11 +30,17 @@ const router = new VueRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/room/:id',
-      name: 'room',
+      path: '/rooms/:id',
+      name: 'rooms.view',
       component: RoomView,
-      meta: { requiresAuth: true }
     },
+
+    {
+      path: '/rooms/join/:id',
+      name: 'rooms.join',
+      component: RoomView,
+    },
+
     {
       path: '/404',
       name: '404',

@@ -14,17 +14,12 @@ class CreateRoomsTable extends Migration
     public function up()
     {
         Schema::create('rooms', function (Blueprint $table) {
-            $table->id();
+            $table->string('id',11);
+            $table->primary('id');
             $table->string('name',256);
-            $table->string('attendeePW',64);
-            $table->string('moderatorPW',64);
             $table->string('welcome',5000)->nullable();
             $table->integer('maxParticipants')->default(0);
             $table->integer('duration')->default(0);
-            $table->boolean('isBreakout')->default(false);
-            $table->unsignedBigInteger('parentMeetingID')->nullable();
-            $table->foreign('parentMeetingID')->references('id')->on('rooms')->onDelete('cascade');
-            $table->integer('sequence')->default(0);
             $table->boolean('webcamsOnlyForModerator')->default(false);
             $table->boolean('muteOnStart')->default(false);
             $table->boolean('lockSettingsDisableCam')->default(false);
@@ -36,12 +31,13 @@ class CreateRoomsTable extends Migration
             $table->boolean('allowSubscription')->default(false);
             $table->boolean('everyoneCanStart')->default(false);
             $table->boolean('everyoneModerator')->default(false);
-            $table->string('publicID',9);
-            $table->integer('accessCode')->length(9)->nullable();
+            $table->integer('accessCode')->length(11)->nullable();
             $table->integer('securityLevel')->default(\App\Enums\RoomSecurityLevel::INTERNAL);
             $table->string('defaultRole')->default(\App\Enums\RoomUserRole::USER);
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 

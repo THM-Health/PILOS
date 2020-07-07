@@ -39,9 +39,10 @@ export default {
   },
   methods: {
     say: function (message) {
-      this.$router.push({ name: 'room', params: { id: this.id } })
+      this.$router.push({ name: 'rooms.view', params: { id: this.id } })
     }
   }
+
 }
 </script>
 

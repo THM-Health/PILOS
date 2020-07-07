@@ -2,10 +2,39 @@
 
 namespace App;
 
+use App\Enums\RoomUserRole;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Room extends Model
 {
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (!$model->id) {
+                $newId = null;
+                while(true){
+                    $newId = implode("-",str_split(Str::lower(Str::random(9)),3));
+                    if(Room::find($newId)==null)
+                        break;
+
+                }
+
+
+                $model->id = $newId;
+            }
+        });
+
+    }
+
     protected $casts = [
         'muteOnStart'                    => 'boolean',
         'lockSettingsDisableCam'         => 'boolean',
@@ -37,13 +66,27 @@ class Room extends Model
         return $this->belongsTo(Server::class, 'preferedServer');
     }
 
-    public function parentRoom()
+    public function meetings()
     {
-        return $this->belongsTo(self::class, 'parentMeetingID');
+        return $this->hasMany(Meeting::class);
     }
 
-    public function breakoutRooms()
+    public function runningMeeting()
     {
-        return $this->hasMany(self::class, 'parentMeetingID');
+        return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
+    }
+
+
+    public function canStart($user){
+        if($this->everyoneCanStart)
+            return true;
+        else
+            if($this) {
+                if ($this->owner->is($user))
+                    return true;
+                if ($this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user))
+                    return true;
+            }
+        return false;
     }
 }

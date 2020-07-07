@@ -3,7 +3,7 @@
   <div class="container pt-5 pb-5">
     <div class="row">
       <div class="col-md-12 col-sm-12 text-center">
-        <img class="logo" src="https://11.pilos-thm.de/logo/default/Pilos.svg">
+        <img class="logo" src="/images/logo.svg">
         <h1 id="main-text" class="display-4 mb-4">Willkommen zu PILOS.</h1>
         <p class="lead offset-lg-2 col-lg-8 col-sm-12 ">
           PILOS ist die Plattform für interaktive Live-Online-Seminare des Fachbereichs Gesundheit der THM.
