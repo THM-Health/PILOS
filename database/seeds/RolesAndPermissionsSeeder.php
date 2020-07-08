@@ -1,8 +1,8 @@
 <?php
 
+use App\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -15,11 +15,11 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run()
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach ($this->guards as $guard) {
-            Role::findOrCreate('user', $guard);
-            Role::findOrCreate('admin', $guard);
+            Role::findOrCreate('user', $guard, true);
+            Role::findOrCreate('admin', $guard, true);
         }
     }
 }
