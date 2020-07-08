@@ -38,7 +38,7 @@ class LoginController extends Controller
 
     public function currentUser()
     {
-        return new UserResource(Auth::user());
+        return new UserResource(Auth::user(), true);
     }
 
     public function username()

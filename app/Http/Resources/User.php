@@ -6,6 +6,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class User extends JsonResource
 {
+    private $withPermissions;
+
+    public function __construct($resource, $withPermissions = false)
+    {
+        parent::__construct($resource);
+
+        $this->withPermissions = $withPermissions;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -22,7 +31,12 @@ class User extends JsonResource
             'id'        => $this->id,
             'firstname' => $this->firstname,
             'lastname'  => $this->lastname,
-            'locale'    => $this->locale
+            'locale'    => $this->locale,
+            $this->mergeWhen($this->withPermissions, [
+                'permissions' => $this->getAllPermissions()->map(function ($permission) {
+                    return $permission->name;
+                })
+            ]),
         ];
     }
 }
