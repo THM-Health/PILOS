@@ -25,5 +25,10 @@ export default {
       message: 'You must be authenticated to execute the request!',
       title: 'Unauthenticated'
     }
+  },
+
+  footer: {
+    legalNotice: 'Legal notice',
+    privacyPolicy: 'Privacy policy'
   }
 }

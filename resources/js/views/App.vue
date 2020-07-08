@@ -40,45 +40,71 @@
       </b-navbar>
 
       <main>
-        <FlashMessage position="right top" />
+        <FlashMessage position="right top"/>
         <router-view></router-view>
       </main>
+
+      <!--Footer-->
+      <footer class="footer">
+        <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
+          <b-container>
+            <b-nav>
+              <h1>
+                <b-navbar-brand disabled>
+                  <img style="height: 2rem;" src="/images/THM-logo.svg" alt="THMLogo">
+                </b-navbar-brand>
+              </h1>
+            </b-nav>
+
+            <b-nav>
+              <b-row>
+                <b-nav-item>{{$t('app.footer.legalNotice')}}</b-nav-item>
+                <b-nav-item>{{$t('app.footer.privacyPolicy')}}</b-nav-item>
+              </b-row>
+            </b-nav>
+          </b-container>
+        </b-navbar>
+      </footer>
     </b-overlay>
   </div>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import LocaleSelector from '../components/LocaleSelector'
+  import {mapState, mapGetters} from 'vuex'
+  import LocaleSelector from '../components/LocaleSelector'
 
-export default {
-  components: { LocaleSelector },
-  computed: {
-    ...mapState({
-      currentUser: state => state.session.currentUser,
-      loadingCounter: state => state.loadingCounter
-    }),
-    ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated'
-    })
-  },
-  data () {
-    return {
-      availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
-    }
-  },
-  methods: {
-    async logout () {
-      await this.$store.dispatch('session/logout')
-      this.flashMessage.success(this.$t('auth.flash.logout'))
-      await this.$router.push({ name: 'home' })
+  export default {
+    components: {LocaleSelector},
+    computed: {
+      ...mapState({
+        currentUser: state => state.session.currentUser,
+        loadingCounter: state => state.loadingCounter
+      }),
+      ...mapGetters({
+        isAuthenticated: 'session/isAuthenticated'
+      })
+    },
+    data() {
+      return {
+        availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
+      }
+    },
+    methods: {
+      async logout() {
+        await this.$store.dispatch('session/logout')
+        this.flashMessage.success(this.$t('auth.flash.logout'))
+        await this.$router.push({name: 'home'})
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-.mainnav {
-  border-bottom: 1px solid rgba(0, 40, 100, 0.12);
-}
+  .mainnav {
+    border-bottom: 1px solid rgba(0, 40, 100, 0.12);
+  }
+
+  main{
+    margin-bottom: 300px;
+  }
 </style>
