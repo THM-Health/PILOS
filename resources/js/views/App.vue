@@ -57,36 +57,35 @@
 </template>
 
 <script>
-  import {mapState, mapGetters} from 'vuex'
-  import LocaleSelector from '../components/LocaleSelector'
-  import FooterComponent from '../components/FooterComponent'
-  import CookieLaw from 'vue-cookie-law'
+import { mapState, mapGetters } from 'vuex'
+import LocaleSelector from '../components/LocaleSelector'
+import FooterComponent from '../components/FooterComponent'
+import CookieLaw from 'vue-cookie-law'
 
-
-  export default {
-    components: {LocaleSelector, CookieLaw, FooterComponent},
-    computed: {
-      ...mapState({
-        currentUser: state => state.session.currentUser,
-        loadingCounter: state => state.loadingCounter
-      }),
-      ...mapGetters({
-        isAuthenticated: 'session/isAuthenticated'
-      })
-    },
-    data() {
-      return {
-        availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
-      }
-    },
-    methods: {
-      async logout() {
-        await this.$store.dispatch('session/logout')
-        this.flashMessage.success(this.$t('auth.flash.logout'))
-        await this.$router.push({name: 'home'})
-      }
+export default {
+  components: { LocaleSelector, CookieLaw, FooterComponent },
+  computed: {
+    ...mapState({
+      currentUser: state => state.session.currentUser,
+      loadingCounter: state => state.loadingCounter
+    }),
+    ...mapGetters({
+      isAuthenticated: 'session/isAuthenticated'
+    })
+  },
+  data () {
+    return {
+      availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
+    }
+  },
+  methods: {
+    async logout () {
+      await this.$store.dispatch('session/logout')
+      this.flashMessage.success(this.$t('auth.flash.logout'))
+      await this.$router.push({ name: 'home' })
     }
   }
+}
 </script>
 
 <style scoped>
