@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A loading screen for loading events of the application ([#6], [#11])
 - Localization with a locale switcher and saving selected locale for authenticated users ([#8], [#13])
 - Flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16])
+- Added Footer, Impress, Privacy policy and Cookies banner([#9])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/issues/3
