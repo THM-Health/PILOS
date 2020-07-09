@@ -44,7 +44,6 @@
         <router-view></router-view>
       </main>
 
-      <!--Footer-->
       <footer-component></footer-component>
     </b-overlay>
   </div>
@@ -84,5 +83,9 @@
 <style scoped>
   .mainnav {
     border-bottom: 1px solid rgba(0, 40, 100, 0.12);
+  }
+
+  main {
+    min-height: calc(100vh - 80px);
   }
 </style>

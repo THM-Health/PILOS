@@ -3,6 +3,8 @@ import Login from './views/Login'
 import NotFound from './views/NotFound'
 import RoomsIndex from './views/rooms/Index'
 import RoomView from './views/rooms/View'
+import LegalNotice from './views/LegalNotice'
+import PrivacyPolicy from './views/PrivacyPolicy'
 import store from './store'
 import Home from './views/Home'
 import Vue from 'vue'
@@ -21,6 +23,16 @@ const router = new VueRouter({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacypolicy',
+      component: PrivacyPolicy
+    },
+    {
+      path: '/legal-notice',
+      name: 'legalnotice',
+      component: LegalNotice
     },
     {
       path: '/rooms',

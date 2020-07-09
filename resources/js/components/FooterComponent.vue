@@ -1,5 +1,5 @@
 <template>
-  <div class="footer pilos-footer">
+  <footer class="footer">
     <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
       <b-container>
         <b-nav>
@@ -18,14 +18,14 @@
         </b-nav>
       </b-container>
     </b-navbar>
-  </div>
+  </footer>
 </template>
 
 <script>
 </script>
 
 <style scoped>
-  .pilos-footer {
-    margin-top: 275px;
+  .footer {
+    height: 60px;
   }
 </style>
