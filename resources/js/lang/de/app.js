@@ -30,5 +30,10 @@ export default {
   footer: {
     legalNotice: 'Impressum',
     privacyPolicy: 'Datenschutzerklärung'
+  },
+
+  cookie: {
+    description: 'Cookies helfen uns bei der Bereitstellung unserer Dienste. Durch die Nutzung der Dienste stimmen Sie der Nutzung von Cookies zu.',
+    agreeText: 'Ich stimme zu'
   }
 }

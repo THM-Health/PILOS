@@ -44,6 +44,13 @@
         <router-view></router-view>
       </main>
 
+      <!--Cookie Banner-->
+      <cookie-law theme="base" :buttonText="$t('app.cookie.agreeText')" storageType="cookies">
+        <div slot="message">
+          {{$t('app.cookie.description')}}
+        </div>
+      </cookie-law>
+
       <footer-component></footer-component>
     </b-overlay>
   </div>
@@ -53,9 +60,11 @@
   import {mapState, mapGetters} from 'vuex'
   import LocaleSelector from '../components/LocaleSelector'
   import FooterComponent from '../components/FooterComponent'
+  import CookieLaw from 'vue-cookie-law'
+
 
   export default {
-    components: {LocaleSelector, FooterComponent},
+    components: {LocaleSelector, CookieLaw, FooterComponent},
     computed: {
       ...mapState({
         currentUser: state => state.session.currentUser,

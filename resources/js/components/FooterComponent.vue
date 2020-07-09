@@ -12,8 +12,8 @@
 
         <b-nav>
           <b-row>
-            <b-nav-item :to="{ name: 'legalnotice' }">{{$t('app.footer.legalNotice')}}</b-nav-item>
-            <b-nav-item :to="{ name: 'privacypolicy' }">{{$t('app.footer.privacyPolicy')}}</b-nav-item>
+            <b-nav-item href="https://www.thm.de/ges/impressum">{{$t('app.footer.legalNotice')}}</b-nav-item>
+            <b-nav-item href="https://www.thm.de/ges/datenschutz">{{$t('app.footer.privacyPolicy')}}</b-nav-item>
           </b-row>
         </b-nav>
       </b-container>
