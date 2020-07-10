@@ -43,7 +43,6 @@ class Room extends JsonResource
             'owner'       => $this->owner->firstname.' '.$this->owner->lastname,
             'type'        => new RoomType($this->roomType),
             'loggedIn' => $this->loggedIn,
-            'requireAuth' => (Auth::user() && $this->members->contains(Auth::user())) ? false : $this->accessCode!=null,
             'allowMembership' => Auth::user() && $this->allowSubscription,
             'requireMembership' => $this->securityLevel == RoomSecurityLevel::PRIVATE,
             'isMember' => (Auth::user() && $this->members->contains(Auth::user())),

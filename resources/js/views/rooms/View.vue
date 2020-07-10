@@ -53,7 +53,7 @@
       <div class="offset-lg-1 col-lg-3 col-sm-12">
 
 
-        <template v-if="room.loggedIn || !room.requireAuth">
+        <template v-if="room.loggedIn">
           <template v-if="room.running">
             <b-button
               block
@@ -98,12 +98,12 @@
 
     <!-- Using components -->
 
-    <div v-if="!room.loggedIn && room.requireAuth">
+    <div v-if="!room.loggedIn">
       <b-alert show>Für diesen Raum ist ein Zugangscode erforderlich</b-alert>
     <b-input-group>
-      <b-form-input  v-on:keyup.enter="reload" :state="accessCodeValid" v-model="accessCode" placeholder="Zugangscode"></b-form-input>
+      <b-form-input  v-on:keyup.enter="login" :state="accessCodeValid" v-model="accessCodeInput" placeholder="Zugangscode"></b-form-input>
       <b-input-group-append>
-        <b-button variant="success" v-on:click="reload"><i class="fas fa-lock"></i> Anmelden</b-button>
+        <b-button variant="success" v-on:click="login"><i class="fas fa-lock"></i> Anmelden</b-button>
       </b-input-group-append>
     </b-input-group>
     </div>
@@ -129,7 +129,9 @@ export default {
       room_id: null,
       room: null,
       accessCode: null,
+      accessCodeInput: null,
       accessCodeValid: null,
+      reloadTimer: '',
     }
   },
   // Component not loaded yet
@@ -164,6 +166,9 @@ export default {
       }
     })
   },
+  mounted() {
+    setInterval(this.reload, 3000);
+  },
   methods: {
 
     reload: function() {
@@ -173,13 +178,17 @@ export default {
         url +=  "?code="+this.accessCode;
 
       Base.call(url).then(response => {
-        this.room = response.data.data
-        this.accessCodeValid = null;
+        this.room = response.data.data;
+        if(this.room.loggedIn)
+          this.accessCodeValid = null;
+
       }).catch((error) => {
         if (error.response) {
 
           if(error.response.status == 401 && error.response.data.message == 'invalid_code'){
             this.accessCodeValid = false;
+            this.accessCode = null;
+            this.reload();
 
           }
 
@@ -300,9 +309,12 @@ export default {
         }
       })
 
+    },
+    login: function () {
+      this.accessCode = this.accessCodeInput;
+      this.reload();
     }
-  }
-
+  },
 }
 </script>
 

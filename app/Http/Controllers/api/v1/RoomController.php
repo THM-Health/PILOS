@@ -37,6 +37,9 @@ class RoomController extends Controller
         if(Auth::guest() && $room->securityLevel != RoomSecurityLevel::PUBLIC)
             abort(403);
 
+        if($room->accessCode==null)
+            return true;
+
         if ($accessCode) {
             if(is_numeric($accessCode) && $room->accessCode == $accessCode){
                 return true;
