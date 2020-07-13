@@ -37,6 +37,7 @@ class User extends JsonResource
                     return $permission->name;
                 })
             ]),
+            'modelName' => $this->modelName
         ];
     }
 }
