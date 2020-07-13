@@ -27,7 +27,7 @@ class LoginTest extends TestCase
             'password' => 'foo'
         ]);
         $response->assertStatus(422);
-        $this->isAuthenticated();
+        $this->assertFalse($this->isAuthenticated());
     }
 
     /**
@@ -46,7 +46,7 @@ class LoginTest extends TestCase
             'password' => $password
         ]);
         $response->assertNoContent();
-        $this->isAuthenticated();
+        $this->assertAuthenticated();
     }
 
     /**

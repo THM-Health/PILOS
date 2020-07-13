@@ -15,11 +15,10 @@ class SetProtectedLdapAttributes
      */
     public function handle(Authenticated $event)
     {
-        $ldapUser          = $event->user->getConnection()->query()->find($event->user->getDn());
         $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
 
-        if (array_key_exists($ldapRoleAttribute, $ldapUser) && !empty($ldapUser[$ldapRoleAttribute])) {
-            $ldapRole = $ldapUser[$ldapRoleAttribute];
+        if ($event->user->hasAttribute($ldapRoleAttribute)) {
+            $ldapRole = $event->user->getFirstAttribute($ldapRoleAttribute);
             $user     = $event->model;
 
             if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
