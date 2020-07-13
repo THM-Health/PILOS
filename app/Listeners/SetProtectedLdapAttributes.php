@@ -2,20 +2,32 @@
 
 namespace App\Listeners;
 
-
-use Illuminate\Support\Facades\Log;
+use App\Role;
 use LdapRecord\Laravel\Events\Authenticated;
+use Spatie\Permission\Exceptions\RoleDoesNotExist;
 
 class SetProtectedLdapAttributes
 {
-
+    /**
+     * @param Authenticated $event
+     *
+     * @throws RoleDoesNotExist
+     */
     public function handle(Authenticated $event)
     {
-        $ldapUser = $event->user->getConnection()->query()->find($event->user->getDn());
-        $userclass = $ldapUser['userclass'];
-        $user = $event->model;
-        // @TODO Map ldap userclass to internal class, save or overwrite
-        //$user->role = json_encode($userclass);
-        //$user->save();
+        $ldapUser          = $event->user->getConnection()->query()->find($event->user->getDn());
+        $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
+
+        if (array_key_exists($ldapRoleAttribute, $ldapUser) && !empty($ldapUser[$ldapRoleAttribute])) {
+            $ldapRole = $ldapUser[$ldapRoleAttribute];
+            $user     = $event->model;
+
+            if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
+                $role = Role::findByName(config('ldap.roleMap')[$ldapRole]);
+                if (!$user->hasRole($role)) {
+                    $user->assignRole($role);
+                }
+            }
+        }
     }
 }
