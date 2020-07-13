@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -74,6 +76,27 @@ class LoginTest extends TestCase
         $response->assertJsonFragment([
             'firstname' => $user->firstname,
             'lastname'  => $user->lastname
+        ]);
+    }
+
+    /**
+     * Test that unique permissions gets returned for the authenticated user.
+     *
+     * @return void
+     */
+    public function testCurrentUserPermissions()
+    {
+        Permission::findOrCreate('test');
+        Role::findOrCreate('a')->givePermissionTo(['test']);
+        Role::findOrCreate('b')->givePermissionTo(['test']);
+        $user     = factory(User::class)->create();
+        $user->assignRole('a', 'b');
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'firstname'   => $user->firstname,
+            'lastname'    => $user->lastname,
+            'permissions' => ['test']
         ]);
     }
 
