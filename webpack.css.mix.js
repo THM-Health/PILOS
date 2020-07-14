@@ -21,10 +21,6 @@ if (fs.existsSync('resources/custom/images')) {
   mix.copy('resources/custom/images', 'public/images')
 }
 
-if (!mix.inProduction()) {
-  mix.browserSync(process.env.APP_URL)
-}
-
 if (mix.inProduction()) {
   mix.version()
 }
