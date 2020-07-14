@@ -29,7 +29,10 @@ export default {
 
   footer: {
     legalNotice: 'Impressum',
-    privacyPolicy: 'Datenschutzerklärung'
+    privacyPolicy: 'Datenschutzerklärung',
+    legalNoticeUrl: 'https://www.thm.de/ges/impressum',
+    privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
+    separator: '|'
   },
 
   cookie: {

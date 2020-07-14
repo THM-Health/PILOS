@@ -1,23 +1,18 @@
 <template>
   <footer class="footer">
-    <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
-      <b-container>
-        <b-nav>
-          <h1>
-            <b-navbar-brand disabled>
-              <img style="height: 2rem;" src="/images/THM-logo.svg" alt="THMLogo">
-            </b-navbar-brand>
-          </h1>
-        </b-nav>
+    <b-container class="d-flex justify-content-center border-top bg-white" fluid>
+      <b-row>
+        <a :href="$t('app.footer.legalNoticeUrl')">
+          <small>{{$t('app.footer.legalNotice')}}</small>
+        </a>
 
-        <b-nav>
-          <b-row>
-            <b-nav-item href="https://www.thm.de/ges/impressum">{{$t('app.footer.legalNotice')}}</b-nav-item>
-            <b-nav-item href="https://www.thm.de/ges/datenschutz">{{$t('app.footer.privacyPolicy')}}</b-nav-item>
-          </b-row>
-        </b-nav>
-      </b-container>
-    </b-navbar>
+        <p class="mr-2 ml-2">{{$t('app.footer.separator')}}</p>
+
+        <a :href="$t('app.footer.privacyPolicyUrl')">
+          <small>{{$t('app.footer.privacyPolicy')}}</small>
+        </a>
+      </b-row>
+    </b-container>
   </footer>
 </template>
 
@@ -26,6 +21,6 @@
 
 <style scoped>
   .footer {
-    height: 60px;
+    height: 25px;
   }
 </style>
