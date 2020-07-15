@@ -35,14 +35,17 @@
         "sass": "^1.20.1",
         "sass-loader": "^8.0.0",
         "vue": "^2.5.17",
-        "vue-template-compiler": "^2.6.10"
+        "vue-template-compiler": "^2.6.10",
+        "prettier": "^2.0.5"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.13.0",
         "@simonwep/pickr": "^1.5.1",
+        "awesome-mask": "^1.1.1",
         "bootstrap-select": "^1.13.16",
         "bootstrap-vue": "^2.15.0",
         "es6-promise": "^4.2.8",
+        "v-clipboard": "^2.2.3",
         "vue-i18n": "^8.18.1",
         "vue-router": "^3.2.0",
         "vuex": "^3.4.0"

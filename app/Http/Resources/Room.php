@@ -22,10 +22,7 @@ class Room extends JsonResource
      */
     public function __construct($resource, $loggedIn)
     {
-        // Ensure you call the parent constructor
         parent::__construct($resource);
-        $this->resource = $resource;
-
         $this->loggedIn = $loggedIn;
     }
 
@@ -38,21 +35,21 @@ class Room extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'          => $this->id,
-            'name'        => $this->name,
-            'owner'       => $this->owner->firstname.' '.$this->owner->lastname,
-            'type'        => new RoomType($this->roomType),
-            'loggedIn' => $this->loggedIn,
-            'allowMembership' => Auth::user() && $this->allowSubscription,
+            'id'                => $this->id,
+            'name'              => $this->name,
+            'owner'             => $this->owner->firstname.' '.$this->owner->lastname,
+            'type'              => new RoomType($this->roomType),
+            'loggedIn'          => $this->loggedIn,
+            'allowMembership'   => Auth::user() && $this->allowSubscription,
             'requireMembership' => $this->securityLevel == RoomSecurityLevel::PRIVATE,
-            'isMember' => (Auth::user() && $this->members->contains(Auth::user())),
-            'canStart' =>  $this->canStart(Auth::user()),
-            'running' => $this->runningMeeting()!=null,
-            'guest' => Auth::guest(),
-            'user' => Auth::user(),
-            'accessCode'  => $this->when($this->owner->is(Auth::user()), $this->accessCode),
-            'settings'    => $this->when($this->owner->is(Auth::user()), new RoomSettings($this)),
-            'users'       => $this->when($this->owner->is(Auth::user()), RoomUser::collection($this->members)),
+            'isMember'          => (Auth::user() && $this->members->contains(Auth::user())),
+            'isOwner'           => $this->owner->is(Auth::user()),
+            'isGuest'           => Auth::guest(),
+            'isModerator'       => $this->isModeratorOrOwner(Auth::user()),
+            'canStart'          => $this->canStart(Auth::user()),
+            'running'           => $this->runningMeeting()!=null,
+            'users'             => $this->when($this->owner->is(Auth::user()), RoomUser::collection($this->members)),
+            'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()),$this->accessCode),
         ];
     }
 }

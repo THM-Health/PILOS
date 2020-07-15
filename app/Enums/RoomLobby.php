@@ -9,9 +9,9 @@ use BenSampo\Enum\Enum;
  * @method static static OptionTwo()
  * @method static static OptionThree()
  */
-final class RoomUserRole extends Enum
+final class RoomLobby extends Enum
 {
-    const GUEST     =   0;
-    const USER      =   1;
-    const MODERATOR =   2;
+    const DISABLED      =   0;
+    const ENABLED       =   1;
+    const ONLY_GUEST    = 2;
 }

@@ -18,8 +18,8 @@ class CreateRoomsTable extends Migration
             $table->primary('id');
             $table->string('name',256);
             $table->string('welcome',5000)->nullable();
-            $table->integer('maxParticipants')->default(0);
-            $table->integer('duration')->default(0);
+            $table->integer('maxParticipants')->nullable();
+            $table->integer('duration')->nullable();
             $table->boolean('webcamsOnlyForModerator')->default(false);
             $table->boolean('muteOnStart')->default(false);
             $table->boolean('lockSettingsDisableCam')->default(false);
@@ -27,13 +27,15 @@ class CreateRoomsTable extends Migration
             $table->boolean('lockSettingsDisablePrivateChat')->default(false);
             $table->boolean('lockSettingsDisablePublicChat')->default(false);
             $table->boolean('lockSettingsDisableNote')->default(false);
+            $table->boolean('lockSettingsHideUserList')->default(false);
             $table->boolean('lockSettingsLockOnJoin')->default(true);
             $table->boolean('allowSubscription')->default(false);
             $table->boolean('everyoneCanStart')->default(false);
             $table->boolean('everyoneModerator')->default(false);
             $table->integer('accessCode')->length(11)->nullable();
             $table->integer('securityLevel')->default(\App\Enums\RoomSecurityLevel::INTERNAL);
-            $table->string('defaultRole')->default(\App\Enums\RoomUserRole::USER);
+            $table->integer('defaultRole')->default(\App\Enums\RoomUserRole::USER);
+            $table->integer('lobby')->default(\App\Enums\RoomLobby::DISABLED);
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->softDeletes();

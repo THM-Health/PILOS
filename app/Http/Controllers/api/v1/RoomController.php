@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\RoomSecurityLevel;
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateRoomSettings;
 use App\Meeting;
 use App\Room;
 use App\Server;
@@ -86,10 +87,47 @@ class RoomController extends Controller
         return new \App\Http\Resources\Room($room,$loggedIn);
     }
 
+    public function getSettings(Room $room){
+        return new \App\Http\Resources\RoomSettings($room);
+    }
+
+    public function updateSettings(UpdateRoomSettings $request, Room $room){
+
+        $room->name = $request->name;
+        $room->welcome = $request->welcome;
+        $room->maxParticipants = $request->maxParticipants;
+        $room->duration = $request->duration;
+        $room->accessCode = $request->accessCode;
+
+        $room->muteOnStart = $request->muteOnStart;
+        $room->lockSettingsDisableCam = $request->lockSettingsDisableCam;
+        $room->webcamsOnlyForModerator = $request->webcamsOnlyForModerator;
+        $room->lockSettingsDisableMic = $request->lockSettingsDisableMic;
+        $room->lockSettingsDisablePrivateChat = $request->lockSettingsDisablePrivateChat;
+        $room->lockSettingsDisablePublicChat = $request->lockSettingsDisablePublicChat;
+        $room->lockSettingsDisableNote = $request->lockSettingsDisableNote;
+        $room->lockSettingsLockOnJoin = $request->lockSettingsLockOnJoin;
+        $room->lockSettingsHideUserList = $request->lockSettingsHideUserList;
+        $room->everyoneCanStart = $request->everyoneCanStart;
+        $room->allowSubscription = $request->allowSubscription;
+
+        $room->securityLevel = $request->securityLevel;
+        $room->defaultRole = $request->defaultRole;
+        $room->lobby = $request->lobby;
+        $room->roomType()->associate($request->roomType);
+
+        $room->save();
+
+        return new \App\Http\Resources\RoomSettings($room);
+    }
+
     public function start(Room $room, Request $request)
     {
         if(!$this->checkAccess($room,$request->code))
             abort(401);
+
+        $name = Auth::guest() ? $request->name : Auth::user()->firstname." ".Auth::user()->lastname;
+
         $this->authorize('start',$room);
 
         $meeting = $room->runningMeeting();
@@ -109,13 +147,15 @@ class RoomController extends Controller
             }
         }
 
-        return $meeting->getJoinUrl(Auth::user()->firstname." ".Auth::user()->lastname, RoomUserRole::MODERATOR);
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()))]);
     }
 
     public function join(Room $room, Request $request)
     {
         if(!$this->checkAccess($room,$request->code))
             abort(401);
+
+        $name = Auth::guest() ? $request->name : Auth::user()->firstname." ".Auth::user()->lastname;
 
         $meeting = $room->runningMeeting();
         if($meeting==null)
@@ -125,7 +165,7 @@ class RoomController extends Controller
             // @TODO Error
         }
 
-        return $meeting->getJoinUrl(Auth::user()->firstname." ".Auth::user()->lastname, RoomUserRole::MODERATOR);
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()))]);
 
 
     }

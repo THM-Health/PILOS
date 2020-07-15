@@ -38,6 +38,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     Route::apiResource('rooms', 'RoomController');
     Route::get('rooms/{room}/start','RoomController@start');
     Route::get('rooms/{room}/join','RoomController@join');
+    Route::get('rooms/{room}/settings','RoomController@getSettings');
+    Route::put('rooms/{room}/settings','RoomController@updateSettings');
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
 
     Route::prefix('guest')->namespace('guest')->name('guest.')->group(function () {

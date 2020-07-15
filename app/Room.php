@@ -44,6 +44,9 @@ class Room extends Model
         'lockSettingsDisablePublicChat'  => 'boolean',
         'lockSettingsDisableNote'        => 'boolean',
         'everyoneCanStart'               => 'boolean',
+        'allowSubscription'              => 'boolean',
+        'lockSettingsLockOnJoin'         => 'boolean',
+        'lockSettingsHideUserList'       => 'boolean',
     ];
 
     public function owner()
@@ -88,5 +91,24 @@ class Room extends Model
                     return true;
             }
         return false;
+    }
+
+    public function isModeratorOrOwner($user){
+        return $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
+    }
+
+    public function getRole($user){
+        if($user==null)
+            return RoomUserRole::GUEST;
+
+        if($this->owner->is($user))
+            return RoomUserRole::MODERATOR;
+
+        $member = $this->members()->find($user);
+        if($member){
+            return $member->pivot->role;
+        }
+
+        return $this->defaultRole;
     }
 }

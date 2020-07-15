@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
@@ -50,10 +51,27 @@ class Meeting extends Model
 
     public function start(){
         $meetingParams = new CreateMeetingParameters($this->id,$this->room->name);
-        $meetingParams->setModeratorPassword($this->moderatorPW);
-        $meetingParams->setAttendeePassword($this->attendeePW);
-        $meetingParams->setLogoutUrl(url("rooms/".$this->room->id));
-        $meetingParams->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback',['meeting'=>$this,'salt'=>$this->getCallbackHash()]));
+        $meetingParams->setModeratorPassword($this->moderatorPW)
+           ->setAttendeePassword($this->attendeePW)
+            ->setLogoutUrl(url("rooms/".$this->room->id))
+            ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback',['meeting'=>$this,'salt'=>$this->getCallbackHash()]))
+            ->setDuration($this->room->duration)
+            ->setWelcomeMessage($this->room->welcome)
+            ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
+            ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
+            ->setWebcamsOnlyForModerator($this->room->webcamsOnlyForModerator)
+            ->setLockSettingsDisablePrivateChat($this->room->lockSettingsDisablePrivateChat)
+            ->setLockSettingsDisablePublicChat($this->room->lockSettingsDisablePublicChat)
+            ->setLockSettingsDisableNote($this->room->lockSettingsDisableNote)
+            ->setLockSettingsHideUserList($this->room->lockSettingsHideUserList)
+            ->setLockSettingsLockOnJoin($this->room->lockSettingsLockOnJoin)
+            ->setMuteOnStart($this->room->muteOnStart);
+
+        if($this->room->lobby == RoomLobby::ENABLED)
+            $meetingParams->setGuestPolicyAskModerator();
+        if($this->room->lobby == RoomLobby::ONLY_GUEST)
+            $meetingParams->setGuestPolicyAlwaysAcceptAuth();
+
         return $this->server->bbb()->createMeeting($meetingParams)->success();
     }
 
@@ -62,7 +80,10 @@ class Meeting extends Model
         $joinMeetingParams = new JoinMeetingParameters($this->id,$name, $role == RoomUserRole::MODERATOR ? $this->moderatorPW : $this->attendeePW);
         $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
+
+
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
+        $joinMeetingParams->setAuthenticated($role != RoomUserRole::GUEST);
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }
 }
