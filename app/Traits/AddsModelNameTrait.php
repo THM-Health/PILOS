@@ -11,6 +11,6 @@ trait AddsModelNameTrait
      */
     public function getModelNameAttribute()
     {
-        return strtolower(class_basename(static::class));
+        return class_basename(static::class);
     }
 }
