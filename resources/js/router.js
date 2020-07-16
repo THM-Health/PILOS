@@ -3,6 +3,7 @@ import Login from './views/Login'
 import NotFound from './views/NotFound'
 import RoomsIndex from './views/rooms/Index'
 import RoomView from './views/rooms/View'
+import AdminIndex from './views/admin/Index'
 import store from './store'
 import Home from './views/Home'
 import Vue from 'vue'
@@ -16,6 +17,12 @@ const router = new VueRouter({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/admin',
+      name: 'admin.index',
+      component: AdminIndex,
+      meta: { requiresAuth: true }
     },
     {
       path: '/login',
