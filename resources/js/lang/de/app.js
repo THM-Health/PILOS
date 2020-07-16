@@ -25,5 +25,13 @@ export default {
       message: 'Sie müssen angemeldet sein, um die Anfrage durchführen zu können!',
       title: 'Nicht angemeldet'
     }
+  },
+
+  footer: {
+    legalNotice: 'Impressum',
+    privacyPolicy: 'Datenschutzerklärung',
+    legalNoticeUrl: 'https://www.thm.de/ges/impressum',
+    privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
+    separator: '|'
   }
 }
