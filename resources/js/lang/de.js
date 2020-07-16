@@ -1,11 +1,11 @@
-import admins from './de/admins'
+import admin from './de/admin'
 import app from './de/app'
 import auth from './de/auth'
 import home from './de/home'
 import rooms from './de/rooms'
 
 export default {
-  admins,
+  admin,
   app,
   auth,
   home,
