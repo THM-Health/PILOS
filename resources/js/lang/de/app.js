@@ -33,10 +33,5 @@ export default {
     legalNoticeUrl: 'https://www.thm.de/ges/impressum',
     privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
     separator: '|'
-  },
-
-  cookie: {
-    description: 'Cookies helfen uns bei der Bereitstellung unserer Dienste. Durch die Nutzung der Dienste stimmen Sie der Nutzung von Cookies zu.',
-    agreeText: 'Ich stimme zu'
   }
 }
