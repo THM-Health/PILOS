@@ -21,6 +21,7 @@
           <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
               <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>{{ $t('rooms.rooms') }}</b-nav-item>
+              <!--TODO Hide Administrator Link if not the role-->
               <b-nav-item :to="{ name: 'admin.index' }" v-if='isAuthenticated'>{{ $t('admin.admin') }}</b-nav-item>
             </b-navbar-nav>
 

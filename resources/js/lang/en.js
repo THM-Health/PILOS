@@ -1,4 +1,4 @@
-import admin from './de/admin'
+import admin from './en/admin'
 import app from './en/app'
 import auth from './en/auth'
 import home from './en/home'
