@@ -21,8 +21,12 @@ class User extends JsonResource
         return [
             'id'        => $this->id,
             'firstname' => $this->firstname,
+            'guid'      => $this->guid,
             'lastname'  => $this->lastname,
-            'locale'    => $this->locale
+            'locale'    => $this->locale,
+            'username'  => $this->username,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at
         ];
     }
 }
