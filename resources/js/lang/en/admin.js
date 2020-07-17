@@ -12,10 +12,11 @@ export default {
   users: {
     title: 'Participants',
     table: {
-      firstname: 'Firstname',
-      lastname: 'Lastname',
-      createdAt: 'Created at',
-      updatedAt: 'Updated at',
+      authenticator: 'Authenticator',
+      email: 'Email',
+      name: 'Name',
+      created: 'Created',
+      updated: 'Updated',
       actions: 'Actions'
     }
   },

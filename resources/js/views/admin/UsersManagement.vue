@@ -11,6 +11,11 @@
              :per-page="perPage"
              :current-page="currentPage"
              responsive>
+      <!-- A virtual composite column -->
+      <template v-slot:cell(name)="data">
+        <div class="text-wrap">{{ data.item.firstname }} {{data.item.lastname}}</div>
+      </template>
+
     </b-table>
 
     <b-pagination
@@ -29,13 +34,14 @@
 
 <script>
 import Base from '../../api/base'
+import moment from 'moment'
 
 export default {
   data () {
     return {
       users: [],
       isBusy: false,
-      perPage: 10,
+      perPage: 5,
       currentPage: 1,
       sortDesc: false,
       totalRows: null
@@ -50,12 +56,11 @@ export default {
     },
     fields () {
       return [
-        { key: 'id', sortable: true },
-        { key: 'firstname', sortable: true, label: this.$t('admin.users.table.firstname') },
-        { key: 'lastname', sortable: true, label: this.$t('admin.users.table.lastname') },
-        { key: 'guid', sortable: true, label: 'GUID' },
-        { key: 'createdAt', sortable: true, label: this.$t('admin.users.table.createdAt') },
-        { key: 'updatedAt', sortable: true, label: this.$t('admin.users.table.updatedAt') },
+        { key: 'name', sortable: true, label: this.$t('admin.users.table.name') },
+        { key: 'email', sortable: true, label: this.$t('admin.users.table.email') },
+        { key: 'guid', sortable: true, label: 'Authenticator', formatter: value => { return value === null ? 'pilos' : 'ldap' } },
+        { key: 'createdAt', sortable: true, label: this.$t('admin.users.table.created'), formatter: value => { return moment(value).format('l HH:mm') } },
+        { key: 'updatedAt', sortable: true, label: this.$t('admin.users.table.updated'), formatter: value => { return moment(value).format('l HH:mm') } },
         { key: 'action', label: this.$t('admin.users.table.actions') }
       ]
     }
