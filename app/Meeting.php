@@ -56,7 +56,8 @@ class Meeting extends Model
             ->setLogoutUrl(url("rooms/".$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback',['meeting'=>$this,'salt'=>$this->getCallbackHash()]))
             ->setDuration($this->room->duration)
-            ->setWelcomeMessage($this->room->welcome)
+            ->setWelcomeMessage('<img src="http://10.84.5.161:8000/images/logo.svg" />'.$this->room->welcome)
+            ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
             ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
             ->setWebcamsOnlyForModerator($this->room->webcamsOnlyForModerator)
@@ -67,6 +68,10 @@ class Meeting extends Model
             ->setLockSettingsLockOnJoin($this->room->lockSettingsLockOnJoin)
             ->setMuteOnStart($this->room->muteOnStart);
 
+
+            //->addPresentation("https://11-int.pilos-thm.de/help.pdf",null,"help.pdf")
+
+
         if($this->room->lobby == RoomLobby::ENABLED)
             $meetingParams->setGuestPolicyAskModerator();
         if($this->room->lobby == RoomLobby::ONLY_GUEST)
@@ -75,13 +80,12 @@ class Meeting extends Model
         return $this->server->bbb()->createMeeting($meetingParams)->success();
     }
 
-    public function getJoinUrl($name,$role){
+    public function getJoinUrl($name,$role,$userid){
 
         $joinMeetingParams = new JoinMeetingParameters($this->id,$name, $role == RoomUserRole::MODERATOR ? $this->moderatorPW : $this->attendeePW);
         $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
-
-
+        $joinMeetingParams->setUserId($userid);
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
         $joinMeetingParams->setAuthenticated($role != RoomUserRole::GUEST);
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);

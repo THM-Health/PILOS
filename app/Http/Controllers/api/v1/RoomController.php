@@ -6,9 +6,12 @@ use App\Enums\RoomSecurityLevel;
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateRoomSettings;
+use App\Http\Resources\RoomUser;
 use App\Meeting;
 use App\Room;
+use App\RoomFile;
 use App\Server;
+use App\User;
 use Auth;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\IsMeetingRunningParameters;
@@ -35,7 +38,7 @@ class RoomController extends Controller
     }
 
     private function checkAccess(Room $room,String $accessCode = null){
-        if(Auth::guest() && $room->securityLevel != RoomSecurityLevel::PUBLIC)
+        if(Auth::guest() && !$room->allowGuests)
             abort(403);
 
         if($room->accessCode==null)
@@ -110,8 +113,8 @@ class RoomController extends Controller
         $room->lockSettingsHideUserList = $request->lockSettingsHideUserList;
         $room->everyoneCanStart = $request->everyoneCanStart;
         $room->allowSubscription = $request->allowSubscription;
+        $room->allowGuests = $request->allowGuests;
 
-        $room->securityLevel = $request->securityLevel;
         $room->defaultRole = $request->defaultRole;
         $room->lobby = $request->lobby;
         $room->roomType()->associate($request->roomType);
@@ -127,6 +130,7 @@ class RoomController extends Controller
             abort(401);
 
         $name = Auth::guest() ? $request->name : Auth::user()->firstname." ".Auth::user()->lastname;
+        $id = Auth::guest() ? session()->getId() : Auth::user()->username;
 
         $this->authorize('start',$room);
 
@@ -147,7 +151,7 @@ class RoomController extends Controller
             }
         }
 
-        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()))]);
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()),$id)]);
     }
 
     public function join(Room $room, Request $request)
@@ -156,6 +160,8 @@ class RoomController extends Controller
             abort(401);
 
         $name = Auth::guest() ? $request->name : Auth::user()->firstname." ".Auth::user()->lastname;
+        $id = Auth::guest() ? session()->getId() : Auth::user()->username;
+
 
         $meeting = $room->runningMeeting();
         if($meeting==null)
@@ -165,7 +171,7 @@ class RoomController extends Controller
             // @TODO Error
         }
 
-        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()))]);
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()),$id)]);
 
 
     }
@@ -208,18 +214,47 @@ class RoomController extends Controller
     {
         if (!$room->allowSubscription)
             abort(403);
-
-
         if ($room->accessCode != null && (!$request->has('code') || !is_numeric($request->code) || $room->accessCode != $request->code)) {
             abort(401, 'invalid_code');
         }
-
         if(!$room->members->contains(Auth::user()))
         $room->members()->attach(Auth::user()->id, ['role' => $room->defaultRole]);
     }
 
     public function leaveMembership(Room $room){
         $room->members()->detach(Auth::user()->id);
+    }
+
+    public function getMember(Room $room){
+        return RoomUser::collection($room->members);
+    }
+
+    public function addMember(Room $room, Request $request){
+
+    }
+
+    public function editMember(Room $room, User $user, Request $request){
+        $room->members()->updateExistingPivot($user, ['role' => $request->role]);
+    }
+
+    public function removeMember(Room $room, User $user){
+        $room->members()->detach($user);
+    }
+
+    public function uploadFile(Room $room, Request $request){
+        $name = $request->file('file')->getClientOriginalName();
+        $path = $request->file('file')->store($room->id);
+
+        $file = new RoomFile();
+        $file->path = $path;
+        $file->filename = $name;
+        $file->default = $room->files->count() == 0;
+        $room->files()->save($file);
+    }
+
+    public function getFiles(Room $room){
+        $default = $room->files()->where('default',true)->first();
+        return ["data"=>["files"=>\App\Http\Resources\RoomFile::collection($room->files),'default'=>$default ? $default->id : null]];
     }
 
 }

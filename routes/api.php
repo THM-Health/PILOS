@@ -29,10 +29,17 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
     Route::middleware('auth:api_users,api')->group(function () {
+        // Membership user self add/remove
         Route::post('rooms/{room}/membership', 'RoomController@joinMembership')->name('rooms.membership.join');
         Route::delete('rooms/{room}/membership', 'RoomController@leaveMembership')->name('rooms.membership.leave');
-
-
+        // Membership operations by room owner
+        Route::get('rooms/{room}/member', 'RoomController@getMember')->name('rooms.member.get');
+        Route::post('rooms/{room}/member', 'RoomController@addMember')->name('rooms.member.add');
+        Route::put('rooms/{room}/member/{user}', 'RoomController@editMember')->name('rooms.member.edit');
+        Route::delete('rooms/{room}/member/{user}', 'RoomController@removeMember')->name('rooms.member.remove');
+        // File operations
+        Route::get('rooms/{room}/files', 'RoomController@getFiles')->name('rooms.files.get');
+        Route::post('rooms/{room}/files', 'RoomController@uploadFile')->name('rooms.files.upload');
     });
 
     Route::apiResource('rooms', 'RoomController');

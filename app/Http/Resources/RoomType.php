@@ -18,7 +18,8 @@ class RoomType extends JsonResource
             'id'          => $this->id,
             'short'       => $this->short,
             'description' => $this->description,
-            'color'       => $this->color
+            'color'       => $this->color,
+            'default'     => $this->default
         ];
     }
 }

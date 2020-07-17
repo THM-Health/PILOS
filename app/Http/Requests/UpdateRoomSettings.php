@@ -27,7 +27,7 @@ class UpdateRoomSettings extends FormRequest
             'muteOnStart' => 'required|boolean',
             'webcamsOnlyForModerator' => 'required|boolean',
             'defaultRole' => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],
-            'securityLevel' => ['required',new EnumValue(RoomSecurityLevel::class)],
+            'allowGuests' => 'required|boolean',
             'lobby' => ['required',new EnumValue(RoomLobby::class)],
             'duration' => 'nullable|numeric',
             'maxParticipants' => 'nullable|numeric',

@@ -41,14 +41,12 @@ class Room extends JsonResource
             'type'              => new RoomType($this->roomType),
             'loggedIn'          => $this->loggedIn,
             'allowMembership'   => Auth::user() && $this->allowSubscription,
-            'requireMembership' => $this->securityLevel == RoomSecurityLevel::PRIVATE,
             'isMember'          => (Auth::user() && $this->members->contains(Auth::user())),
             'isOwner'           => $this->owner->is(Auth::user()),
             'isGuest'           => Auth::guest(),
             'isModerator'       => $this->isModeratorOrOwner(Auth::user()),
             'canStart'          => $this->canStart(Auth::user()),
             'running'           => $this->runningMeeting()!=null,
-            'users'             => $this->when($this->owner->is(Auth::user()), RoomUser::collection($this->members)),
             'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()),$this->accessCode),
         ];
     }

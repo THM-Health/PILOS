@@ -1,21 +1,22 @@
 <template>
   <div>
 
-          <form>
-            <div class="row">
-              <div class="col-lg-12 mb-3" >
-                <b-button @click="save()" variant="success"><b-spinner v-if="saving" small></b-spinner><b-icon-check2-circle v-else></b-icon-check2-circle> Einstellungen speichern</b-button>
+
+            <div class="row" v-on:keyup.enter="save" @change="save">
+              <div class="col-lg-12 mb-3" v-if="saving">
+                <b-alert show>
+                  <b-spinner small></b-spinner> Speichern
+                </b-alert>
               </div>
 
               <!-- General settings tab -->
               <div class="col-lg-3 col-sm-12">
                 <h5>Allgemein</h5>
-                <div class="form-group">
-                  <label for="inputPassword4">Typ</label>
-                  <div class="input-group mb-3">
-                    <b-form-select v-model.number="settings.roomType" :options="roomTypeSelect"></b-form-select>
-                  </div>
-                </div>
+                <b-form-group label="Typ">
+                  <b-input-group>
+                  <b-form-select v-model.number="roomType" :options="roomTypeSelect"></b-form-select>
+                  </b-input-group>
+                </b-form-group>
                 <!-- Room name -->
                 <b-form-group label="Raumname">
                   <b-input-group>
@@ -49,7 +50,7 @@
                     <b-input-group-append>
                       <b-input-group-text>min.</b-input-group-text>
                       <b-button
-                        @click="settings.duration = null"
+                        @click="clearDuration"
                         variant="outline-secondary"
                       ><i class="fas fa-trash"></i
                       ></b-button>
@@ -79,7 +80,7 @@
                     ></b-form-input>
                     <b-input-group-append>
                       <b-button
-                        @click="settings.accessCode = null"
+                        @click="clearAccessCode"
                         variant="outline-secondary"
                       ><i class="fas fa-trash"></i
                       ></b-button>
@@ -91,35 +92,14 @@
                   </small>
                 </b-form-group>
                 <b-form-group>
+                  <b-form-checkbox v-model="settings.allowGuests" switch>
+                    Gäste zulassen
+                  </b-form-checkbox>
+                </b-form-group>
+                <b-form-group>
                   <b-form-checkbox v-model="settings.allowSubscription" switch>
                     Neue Mitglieder akzeptieren
                   </b-form-checkbox>
-                </b-form-group>
-                <b-form-group label="Sicheitsstufe">
-                  <b-form-radio
-                    name="setting-securityLevel"
-                    v-model.number="settings.securityLevel"
-                    value="0"
-                  >Öffentlich<br /><small class="text-muted"
-                  >Jeder mit dem Link kann beitreten</small
-                  ></b-form-radio
-                  >
-                  <b-form-radio
-                    name="setting-securityLevel"
-                    v-model.number="settings.securityLevel"
-                    value="1"
-                  >Intern<br /><small class="text-muted"
-                  >Alle angemeldeten Nutzer</small
-                  ></b-form-radio
-                  >
-                  <b-form-radio
-                    name="setting-securityLevel"
-                    v-model.number="settings.securityLevel"
-                    value="2"
-                  >Privat<br /><small class="text-muted"
-                  >Nur Mitglieder</small
-                  ></b-form-radio
-                  >
                 </b-form-group>
               </div>
               <div class="col-lg-3 col-sm-12">
@@ -135,7 +115,7 @@
                       ></b-form-input>
                       <b-input-group-append>
                         <b-button
-                          @click="settings.maxParticipants = null"
+                          @click="clearmaxParticipants"
                           variant="outline-secondary"
                         ><i class="fas fa-trash"></i
                         ></b-button>
@@ -218,7 +198,7 @@
                 </b-form-group>
               </div>
             </div>
-          </form>
+
 
   </div>
 </template>
@@ -230,24 +210,20 @@
   export default {
     props: {
       room: Object,
-      roomtypes: [
-        { value: "a", text: "Vorlesung" },
-        { value: "b", text: "Meeting" },
-        { value: "d", text: "Prüfung" },
-        { value: "d", text: "Übung" },
-      ],
     },
     data() {
       return {
         settings: Object,
         saving : false,
         welcomeMessageLimit: 500,
+        defaultRoomType: null,
       };
     },
     methods: {
       genAccessCode: function (event) {
         this.settings.accessCode =
           Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
+        this.save();
       },
       save() {
         this.saving = true;
@@ -269,9 +245,36 @@
             console.log(error.request)
           }
         })
+      },
+      clearAccessCode() {
+        this.settings.accessCode = null;
+        this.save();
+      },
+      clearDuration() {
+        this.settings.duration = null;
+        this.save();
+      },
+      clearmaxParticipants() {
+        this.settings.maxParticipants = null;
+        this.save();
       }
     },
     computed: {
+      roomType: {
+
+        get: function() {
+          if(this.settings.roomType) {
+            return this.settings.roomType;
+          }
+          else
+            return this.defaultRoomType;
+        },
+        set: function(newValue){
+          return this.settings.roomType = newValue;
+        }
+
+
+      },
 
       roomTypeSelect(){
         if(this.settings.roomTypes) {
@@ -279,6 +282,8 @@
             var entry = {};
             entry['value'] = roomtype.id;
             entry['text'] = roomtype.description;
+            if(roomtype.default)
+              this.defaultRoomType = roomtype.id;
             return entry;
           });
         }

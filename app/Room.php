@@ -45,6 +45,7 @@ class Room extends Model
         'lockSettingsDisableNote'        => 'boolean',
         'everyoneCanStart'               => 'boolean',
         'allowSubscription'              => 'boolean',
+        'allowGuests'                    => 'boolean',
         'lockSettingsLockOnJoin'         => 'boolean',
         'lockSettingsHideUserList'       => 'boolean',
     ];
@@ -72,6 +73,11 @@ class Room extends Model
     public function meetings()
     {
         return $this->hasMany(Meeting::class);
+    }
+
+    public function files()
+    {
+        return $this->hasMany(RoomFile::class);
     }
 
     public function runningMeeting()
@@ -110,5 +116,13 @@ class Room extends Model
         }
 
         return $this->defaultRole;
+    }
+
+    public function getModeratorOnlyMessage(){
+        $message =  "An ".$this->name." mit PILOS teilnehmen<br>";
+        $message .= "Link: ".config('app.url')."rooms/".$this->id;
+        if($this->accessCode != null)
+            $message .= "<br>Zugangscode: ".$this->accessCode;
+        return $message;
     }
 }

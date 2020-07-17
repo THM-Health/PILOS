@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRoomTypesTable extends Migration
+class CreateRoomFilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,15 @@ class CreateRoomTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('room_types', function (Blueprint $table) {
+        Schema::create('room_files', function (Blueprint $table) {
             $table->id();
-            $table->string('short',2);
-            $table->string('description');
-            $table->string('color',7);
+            $table->string('path');
+            $table->string('filename');
             $table->boolean('default')->default(false);
+            $table->boolean('download')->default(false);
+            $table->boolean('useinmeeting')->default(false);
+            $table->string('room_id',11);
+            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -30,6 +33,6 @@ class CreateRoomTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('room_types');
+        Schema::dropIfExists('room_files');
     }
 }

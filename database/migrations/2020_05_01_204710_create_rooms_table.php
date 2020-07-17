@@ -32,8 +32,8 @@ class CreateRoomsTable extends Migration
             $table->boolean('allowSubscription')->default(false);
             $table->boolean('everyoneCanStart')->default(false);
             $table->boolean('everyoneModerator')->default(false);
+            $table->boolean('allowGuests')->default(false);
             $table->integer('accessCode')->length(11)->nullable();
-            $table->integer('securityLevel')->default(\App\Enums\RoomSecurityLevel::INTERNAL);
             $table->integer('defaultRole')->default(\App\Enums\RoomUserRole::USER);
             $table->integer('lobby')->default(\App\Enums\RoomLobby::DISABLED);
             $table->unsignedBigInteger('user_id')->nullable();
