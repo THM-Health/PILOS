@@ -1,6 +1,11 @@
 export default {
   admin: 'Administrator',
 
+  searchbar: {
+    filter: 'Filter',
+    placeholder: 'Suche...'
+  },
+
   pagination: {
     first: 'Erste',
     last: 'Letzte',
@@ -16,9 +21,10 @@ export default {
       email: 'Email',
       name: 'Name',
       username: 'Benutzername',
-      created: 'Erstellt',
-      updated: 'Aktualisiert',
-      actions: 'Aktionen'
+      created: 'Erstellt am: ',
+      actions: 'Aktionen',
+      edit: 'Bearbeiten',
+      delete: 'Löschen'
     }
   },
 
