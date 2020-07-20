@@ -15,6 +15,7 @@ export default {
       authenticator: 'Authenticator',
       email: 'Email',
       name: 'Name',
+      username: 'Benutzername',
       created: 'Erstellt',
       updated: 'Aktualisiert',
       actions: 'Aktionen'
