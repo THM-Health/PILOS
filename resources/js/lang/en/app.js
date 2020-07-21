@@ -24,6 +24,11 @@ export default {
     unauthenticated: {
       message: 'You must be authenticated to execute the request!',
       title: 'Unauthenticated'
+    },
+
+    unauthorized: {
+      message: 'You haven\'t the necessary rights to access the called route!',
+      title: 'Unauthorized'
     }
   }
 }

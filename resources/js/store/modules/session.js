@@ -1,6 +1,7 @@
 import auth from '../../api/auth'
 import base from '../../api/base'
 import { loadLanguageAsync } from '../../i18n'
+import PermissionService from '../../services/PermissionService'
 
 const state = () => ({
   currentUser: null,
@@ -50,6 +51,7 @@ const mutations = {
 
   setCurrentUser (state, currentUser) {
     state.currentUser = currentUser
+    PermissionService.setPermissions(state.currentUser && state.currentUser.permissions ? state.currentUser.permissions : [])
   }
 }
 

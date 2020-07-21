@@ -9,6 +9,7 @@ import Settings from './views/Settings'
 import store from './store'
 import Home from './views/Home'
 import Vue from 'vue'
+import PermissionService from './services/PermissionService'
 
 Vue.use(VueRouter)
 
@@ -41,12 +42,18 @@ const router = new VueRouter({
       path: '/settings',
       name: 'settings',
       component: Settings,
+      meta: {
+        requiresAuth: true,
+        accessPermitted: () => Promise.resolve(PermissionService.can({ permission: 'manage_settings' }))
+      },
       children: [
         {
           path: 'roles',
+          name: 'roles.index',
           component: RolesIndex,
           children: [{
             path: ':roleId',
+            name: 'roles.view',
             component: RolesView
           }],
           alias: ''
@@ -65,20 +72,26 @@ const router = new VueRouter({
   ]
 })
 
+/**
+ * TODO: Add documentation!!!
+ */
 router.beforeEach((to, from, next) => {
   const locale = $('html').prop('lang') || 'en'
-  const promise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve()
+  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve()
 
-  promise.then(() => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (!store.getters['session/isAuthenticated']) {
-        next({
-          name: 'login',
-          query: { redirect: to.fullPath }
-        })
-      } else {
-        next()
-      }
+  initializationPromise.then(() => {
+    return Promise.all(to.matched.map((record) =>
+      record.meta.accessPermitted ? record.meta.accessPermitted() : Promise.resolve(true)
+    ))
+  }).then((recordsPermissions) => {
+    if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
+      next({
+        name: 'login',
+        query: { redirect: to.fullPath }
+      })
+    } else if (!recordsPermissions.every(permission => permission)) {
+      router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'))
+      next(from.matched.length !== 0 ? false : '/')
     } else {
       next()
     }
