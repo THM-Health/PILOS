@@ -14,7 +14,7 @@ class AddAuthenticatorToUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('authenticator');
+            $table->string('authenticator')->default('users');
         });
     }
 
