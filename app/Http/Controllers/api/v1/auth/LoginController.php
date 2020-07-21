@@ -33,7 +33,7 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except(['logout', 'currentUser']);
-        $this->middleware('auth:api_users,api')->only(['currentUser', 'logout']);
+        $this->middleware('auth:users,ldap')->only(['currentUser', 'logout']);
     }
 
     public function currentUser()
@@ -43,7 +43,7 @@ class LoginController extends Controller
 
     public function username()
     {
-        if ($this->guard == 'api') {
+        if ($this->guard == 'ldap') {
             return 'username';
         }
 
@@ -52,7 +52,7 @@ class LoginController extends Controller
 
     public function ldapLogin(Request $request)
     {
-        $this->guard = 'api';
+        $this->guard = 'ldap';
 
         return $this->login($request);
     }
@@ -63,7 +63,7 @@ class LoginController extends Controller
             'password' => $request->get('password')
         ];
 
-        if ($this->guard === 'api') {
+        if ($this->guard === 'ldap') {
             $credentials['uid'] = $request->get('username');
         } else {
             $credentials['email'] = $request->get('email');

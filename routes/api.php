@@ -34,7 +34,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 
-    Route::middleware('auth:api_users,api')->group(function () {
+    Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('rooms', 'RoomController');
 
         Route::post('setLocale', function (Request $request) {
