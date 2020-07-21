@@ -6,7 +6,7 @@ use App\Role;
 use LdapRecord\Laravel\Events\Authenticated;
 use Spatie\Permission\Exceptions\RoleDoesNotExist;
 
-class SetProtectedLdapAttributes
+class SetDefaultRoleForLdapUser
 {
     /**
      * @param Authenticated $event
@@ -22,7 +22,7 @@ class SetProtectedLdapAttributes
             $user     = $event->model;
 
             if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
-                $role = Role::findByName(config('ldap.roleMap')[$ldapRole]);
+                $role = Role::findByName(config('ldap.roleMap')[$ldapRole], 'ldap');
                 if (!$user->hasRole($role)) {
                     $user->assignRole($role);
                 }
