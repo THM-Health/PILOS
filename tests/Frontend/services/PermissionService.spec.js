@@ -17,9 +17,8 @@ describe('PermissionService', function () {
         done()
       }
 
-      EventBus.$on('permissionsChangedEvent', handlePermissionsChanged)
+      EventBus.$once('permissionsChangedEvent', handlePermissionsChanged)
       PermissionService.setPermissions(newPermissions)
-      EventBus.$off('permissionsChangedEvent', handlePermissionsChanged)
     })
   })
 
