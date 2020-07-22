@@ -31,9 +31,11 @@
                 <template v-slot:button-content>
                   {{currentUser.firstname}} {{currentUser.lastname}}
                 </template>
-                <!-- TODO: Check Permission -->
-                <b-dropdown-item :to="{ name: 'settings' }">{{ $t('settings.title') }}</b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
+
+                <can :permissions="{ permission: 'manage_settings' }">
+                  <b-dropdown-item :to="{ name: 'settings' }">{{ $t('settings.title') }}</b-dropdown-item>
+                  <b-dropdown-divider></b-dropdown-divider>
+                </can>
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
               <locale-selector :available-locales="availableLocales"></locale-selector>
@@ -53,9 +55,10 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import LocaleSelector from '../components/LocaleSelector'
+import Can from '../components/Permissions/Can'
 
 export default {
-  components: { LocaleSelector },
+  components: { Can, LocaleSelector },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
