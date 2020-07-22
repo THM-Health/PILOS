@@ -1,5 +1,9 @@
 <?php
 
+$available_locales = array_diff(scandir(resource_path('lang')), array('..', '.'));
+$locales_env = env('MIX_AVAILABLE_LOCALES');
+$available_locales = $locales_env !== null ? preg_split('/,/', $locales_env) : $available_locales;
+
 return [
 
     /*
@@ -107,6 +111,8 @@ return [
     */
 
     'faker_locale' => 'en_US',
+
+    'available_locales' => $available_locales,
 
     /*
     |--------------------------------------------------------------------------

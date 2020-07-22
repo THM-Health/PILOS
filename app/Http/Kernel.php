@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\SetApplicationLocale::class,
         ],
 
         'api' => [
@@ -44,6 +45,7 @@ class Kernel extends HttpKernel
             'throttle:120,1',
             \App\Http\Middleware\LoggedInUser::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\SetApplicationLocale::class,
         ],
     ];
 

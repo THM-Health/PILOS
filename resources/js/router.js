@@ -1,11 +1,10 @@
 import VueRouter from 'vue-router'
 import Login from './views/Login'
-import Error from './views/Error'
+import NotFound from './views/NotFound'
 import RoomsIndex from './views/rooms/Index'
 import RoomView from './views/rooms/View'
 import store from './store'
 import Home from './views/Home'
-
 import Vue from 'vue'
 
 Vue.use(VueRouter)
@@ -44,7 +43,7 @@ const router = new VueRouter({
     {
       path: '/404',
       name: '404',
-      component: Error
+      component: NotFound
     },
     {
       path: '*',
@@ -54,12 +53,11 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const promise = !store.state.initialized ? store.dispatch('initialize') : Promise.resolve()
+  const locale = $('html').prop('lang') || 'en'
+  const promise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve()
 
-  // TODO: Loading indicator
   promise.then(() => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
-      console.log(store.state)
       if (!store.getters['session/isAuthenticated']) {
         next({
           name: 'login',

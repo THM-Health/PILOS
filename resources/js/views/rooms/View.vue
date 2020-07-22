@@ -160,7 +160,6 @@
 
   </div>
 </template>
-
 <script>
   import AwesomeMask from 'awesome-mask'
   import Base from '../../api/base'

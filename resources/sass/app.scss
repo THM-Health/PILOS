@@ -31,4 +31,52 @@
     font-weight: bold;
 
 }
+._vue-flash-msg-body {
+    & ._vue-flash-msg-body__content {
+        padding-top: 10px;
+    }
 
+    &._vue-flash-msg-body_success {
+        border: 1px solid $green !important;
+        background-color: rgba($green, 0.68) !important;
+        &:hover {
+            background-color: rgba($green, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $green !important;
+        }
+    }
+
+    &._vue-flash-msg-body_info {
+        border: 1px solid var($blue) !important;
+        background-color: rgba($blue, 0.68) !important;
+        &:hover {
+            background-color: rgba($blue, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $blue !important;
+        }
+    }
+
+    &._vue-flash-msg-body_error {
+        border: 1px solid $red !important;
+        background-color: rgba($red, 0.68) !important;
+        &:hover {
+            background-color: rgba($red, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $red !important;
+        }
+    }
+
+    &._vue-flash-msg-body_warning {
+        border: 1px solid $orange !important;
+        background-color: rgba($orange, 0.68) !important;
+        &:hover {
+            background-color: rgba($orange, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $orange !important;
+        }
+    }
+}

@@ -22,6 +22,7 @@ class User extends JsonResource
             'id'        => $this->id,
             'firstname' => $this->firstname,
             'lastname'  => $this->lastname,
+            'locale'    => $this->locale
         ];
     }
 }

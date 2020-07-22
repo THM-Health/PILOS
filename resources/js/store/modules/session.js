@@ -1,7 +1,10 @@
 import auth from '../../api/auth'
+import base from '../../api/base'
+import { loadLanguageAsync } from '../../i18n'
 
 const state = () => ({
-  currentUser: null
+  currentUser: null,
+  currentLocale: null
 })
 
 const getters = {
@@ -11,30 +14,40 @@ const getters = {
 }
 
 const actions = {
-  async login ({ dispatch, commit }, { credentials, method }) {
+  async login ({ dispatch, commit, state }, { credentials, method }) {
     await auth.login(credentials, method)
     await dispatch('getCurrentUser')
-    // TODO: Redirect to home page!
-  },
 
-  async getCurrentUser ({ commit }) {
-    let currentUser
-    try {
-      currentUser = await auth.getCurrentUser()
-    } catch (error) {
-      currentUser = null
-    } finally {
-      commit('setCurrentUser', currentUser)
+    if (state.currentUser.locale !== null) {
+      await loadLanguageAsync(state.currentUser.locale)
+      commit('setCurrentLocale', state.currentUser.locale)
     }
   },
 
+  async getCurrentUser ({ commit }) {
+    const currentUser = await auth.getCurrentUser()
+    commit('setCurrentUser', currentUser)
+  },
+
   async logout ({ commit }) {
+    commit('loading', null, { root: true })
     await auth.logout()
     commit('setCurrentUser', null)
+    commit('loadingFinished', null, { root: true })
+  },
+
+  async setLocale ({ commit, dispatch }, { locale }) {
+    await base.setLocale(locale)
+    await dispatch('getCurrentUser')
+    commit('setCurrentLocale', locale)
   }
 }
 
 const mutations = {
+  setCurrentLocale (state, currentLocale) {
+    state.currentLocale = currentLocale
+  },
+
   setCurrentUser (state, currentUser) {
     state.currentUser = currentUser
   }

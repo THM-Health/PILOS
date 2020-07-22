@@ -30,9 +30,9 @@ jobs:
       run: vendor/bin/phpunit
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
-    - name: Execute frontend code style check via eslint
+    - name: Execute frontend code style check via eslint and frontend tests
       run: |
         source ~/.nvm/nvm.sh
         nvm use
         npm install
-        ./node_modules/.bin/eslint --ext .js,.vue .
+        npm run ci
