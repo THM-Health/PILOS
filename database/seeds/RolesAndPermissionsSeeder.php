@@ -10,8 +10,9 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     /**
      * @var string[] Guards/Authenticators to create roles and permissions for.
+     * TODO: Change after pull request #21 was merged!
      */
-    private $guards = ['ldap', 'users'];
+    private $guards = ['api', 'api_users'];
 
     /**
      * Run the database seeds.

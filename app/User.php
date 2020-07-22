@@ -49,4 +49,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Room::class)->withPivot('moderator');
     }
+
+    public function guardName()
+    {
+        // TODO: Change after pull request #21 was merged!
+        return $this->getLdapGuid() ? 'api' : 'api_users';
+    }
 }
