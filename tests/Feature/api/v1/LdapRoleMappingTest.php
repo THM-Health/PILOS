@@ -63,7 +63,7 @@ class LdapRoleMappingTest extends TestCase
             'entryuuid'              => $this->faker->uuid,
         ]);
 
-        Role::findOrCreate($this->roleMap[$this->ldapRoleName], 'api');
+        Role::findOrCreate($this->roleMap[$this->ldapRoleName], $this->guard);
 
         $fake->actingAs($this->ldapUser);
     }
