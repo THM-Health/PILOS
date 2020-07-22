@@ -11,9 +11,9 @@ class Role extends SpatieRole
     /**
      * Find or create role by its name (and optionally guardName).
      *
-     * @param string      $name
-     * @param string|null $guardName
-     * @param boolean     $default
+     * @param string      $name      Name of the role
+     * @param string|null $guardName Name of the guard
+     * @param boolean     $default   Whether the role is a default application role or not (Default: false)
      *
      * @return RoleContract
      */
@@ -37,6 +37,7 @@ class Role extends SpatieRole
      */
     protected static function booted()
     {
+        // Prevent deletion of application default roles.
         static::deleting(function ($role) {
             if ($role->default) {
                 return false;

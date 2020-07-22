@@ -15,7 +15,8 @@ class RolesAndPermissionsSeeder extends Seeder
     private $guards = ['api', 'api_users'];
 
     /**
-     * Run the database seeds.
+     * Creates the default roles and permissions for each guard and assigns to all existing
+     * users of the corresponding guard a default user role if not already set.
      *
      * @return void
      */
@@ -26,7 +27,6 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach ($this->guards as $guard) {
             Permission::findOrCreate('manage_settings', $guard);
 
-            // $userRole =
             Role::findOrCreate('user', $guard, true);
 
             $adminRole = Role::findOrCreate('admin', $guard, true);
@@ -34,12 +34,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'manage_settings'
             ]);
 
-// TODO: Filter user by guard and add the default role!
-//            User::all()->filter(function ($user) use ($userRole) {
-//                return !$user->hasRole($userRole);
-//            })->each(function ($user) use ($userRole) {
-//                $user->assignRole($userRole);
-//            });
+            // TODO(#21): Filter user by guard and add the default role!
+            // User::doesntHave('roles')->where('authenticator', $guard)->filter(function ($user) use ($userRole) {
+            //   return !$user->hasRole($userRole);
+            // })->each(function ($user) use ($userRole) {
+            //   $user->assignRole($userRole);
+            // });
         }
     }
 }

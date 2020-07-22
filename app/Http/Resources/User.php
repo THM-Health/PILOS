@@ -2,12 +2,22 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class User extends JsonResource
 {
+    /**
+     * @var bool Indicates whether user permissions should be included or not.
+     */
     private $withPermissions;
 
+    /**
+     * User resource constructor.
+     *
+     * @param \App\User $resource        The user model that should be transformed.
+     * @param bool      $withPermissions Indicates whether user permissions should be included or not (Default false).
+     */
     public function __construct($resource, $withPermissions = false)
     {
         parent::__construct($resource);
@@ -18,7 +28,7 @@ class User extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param  Request $request
      * @return array
      */
     public function toArray($request)

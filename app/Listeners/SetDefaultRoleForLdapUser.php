@@ -9,8 +9,12 @@ use Spatie\Permission\Exceptions\RoleDoesNotExist;
 class SetDefaultRoleForLdapUser
 {
     /**
-     * @param Imported $event
+     * Handle the event that gets fired if a new user model was imported from ldap.
      *
+     * Adds the roles from the ldap user to the application user, which are mapped
+     * in the config `ldap.roleMap`.
+     *
+     * @param  Imported         $event
      * @throws RoleDoesNotExist
      */
     public function handle(Imported $event)

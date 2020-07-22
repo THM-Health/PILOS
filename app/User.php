@@ -50,6 +50,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Room::class)->withPivot('moderator');
     }
 
+    /**
+     * @return string The name of guard, the user corresponds to.
+     */
     public function guardName()
     {
         // TODO: Change after pull request #21 was merged!
