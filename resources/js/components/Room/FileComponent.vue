@@ -10,10 +10,12 @@
     <b-table :fields="filefields" v-if="files" :items="files.files" hover>
       <template v-slot:cell(actions)="data">
         <b-button-group class="float-right">
-          <b-button variant="danger"
+          <b-button variant="danger"  @click="deleteFile(data.item,data.index)"
           ><i class="fas fa-trash"></i
           ></b-button>
           <b-button variant="dark"
+                    :href="data.item.url"
+                    target="_blank"
           ><i class="fas fa-eye"></i
           ></b-button>
         </b-button-group>
@@ -22,6 +24,7 @@
         <b-form-checkbox
           size="lg"
           switch
+          @change="changeSettings(data.item,'download',$event)"
           v-model="data.item.download"
         ></b-form-checkbox>
       </template>
@@ -29,6 +32,8 @@
         <b-form-checkbox
           size="lg"
           switch
+          @change="changeSettings(data.item,'useinmeeting',$event)"
+          :disabled="files.default === data.item.id"
           v-model="data.item.useinmeeting"
         ></b-form-checkbox>
       </template>
@@ -37,6 +42,7 @@
           size="lg"
           name="default"
           :value="data.item.id"
+          @change="changeDefault"
           v-model="files.default"
         ></b-form-radio>
       </template>
@@ -90,6 +96,39 @@
       }
     },
     methods: {
+      deleteFile: function (file,index) {
+        this.boxTwo = ''
+        var that = this;
+        this.$bvModal.msgBoxConfirm('Wollen Sie \''+file.filename+'\' wirklich löschen?', {
+          title: 'Datei löschen',
+          okVariant: 'danger',
+          okTitle: 'Ja',
+          cancelTitle: 'Nein',
+          footerClass: 'p-2',
+          centered: true
+        })
+          .then(function(value){
+            if(value === true) {
+              // Remove user from room
+              Base.call('rooms/' + this.room.id + '/files/'+file.id, {
+                method: 'delete'
+              }).then(response => {
+                this.files.files.splice(index,1);
+              }).catch((error) => {
+                if (error.response) {
+                  console.log(error.response.data)
+                  console.log(error.response.status)
+                  console.log(error.response.headers)
+                } else if (error.request) {
+                  console.log(error.request)
+                }
+              })
+            }
+          }.bind(this))
+          .catch(err => {
+            console.log(err);
+          })
+      },
       uploadFile: function(event){
         let formData = new FormData();
         formData.append('file', event.target.files[0]);
@@ -128,8 +167,44 @@
           }
         });
       },
+      changeDefault: function (checked) {
+        var file = this.files.files.find( file => file.id === checked );
+        file.useinmeeting = true;
+        Base.call('rooms/' + this.room.id + '/files', {
+          method: 'put',
+          data: {defaultFile: file.id}
+        }).then(() => {
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response.data)
+            console.log(error.response.status)
+            console.log(error.response.headers)
+          } else if (error.request) {
+            console.log(error.request)
+          }
+        });
+      },
+      changeSettings: function (file,setting,value) {
+        console.log(file);
+        console.log(setting);
+        console.log(value);
+        Base.call('rooms/' + this.room.id + '/files/'+file.id, {
+          method: 'put',
+          data: {[setting]: value}
+        }).then(() => {
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response.data)
+            console.log(error.response.status)
+            console.log(error.response.headers)
+          } else if (error.request) {
+            console.log(error.request)
+          }
+        });
 
+      }
     },
+
     created() {
       this.reload();
     },

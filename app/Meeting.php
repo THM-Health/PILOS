@@ -8,6 +8,7 @@ use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 
 class Meeting extends Model
 {
@@ -69,13 +70,20 @@ class Meeting extends Model
             ->setMuteOnStart($this->room->muteOnStart);
 
 
-            //->addPresentation("https://11-int.pilos-thm.de/help.pdf",null,"help.pdf")
+        $files = $this->room->files()->where('useinmeeting',true)->orderBy('default','desc')->get();
+        foreach ($files as $file){
+            $meetingParams->addPresentation(URL::signedRoute('download.file', ['roomFile' => $file->id,'filename'=>$file->filename]),null,preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+        }
 
 
         if($this->room->lobby == RoomLobby::ENABLED)
             $meetingParams->setGuestPolicyAskModerator();
         if($this->room->lobby == RoomLobby::ONLY_GUEST)
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
+
+
+        //dd($meetingParams->getPresentationsAsXML());
+
 
         return $this->server->bbb()->createMeeting($meetingParams)->success();
     }

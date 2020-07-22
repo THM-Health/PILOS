@@ -39,7 +39,14 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/member/{user}', 'RoomController@removeMember')->name('rooms.member.remove');
         // File operations
         Route::get('rooms/{room}/files', 'RoomController@getFiles')->name('rooms.files.get');
+        Route::put('rooms/{room}/files', 'RoomController@updateFiles')->name('rooms.files.update');
         Route::post('rooms/{room}/files', 'RoomController@uploadFile')->name('rooms.files.upload');
+        Route::put('rooms/{room}/files/{file}', 'RoomController@updateFile')->name('rooms.files.updatefile');
+        Route::delete('rooms/{room}/files/{file}', 'RoomController@deleteFile')->name('rooms.files.remove');
+
+        Route::get('users/search','UserController@search','users.search');
+
+
     });
 
     Route::apiResource('rooms', 'RoomController');

@@ -117,9 +117,29 @@
               </b-col>
             </b-row>
 
+
+
           </template>
         </b-col>
       </b-row>
+
+      <template v-if="room.files && room.files.length > 0 && !room.isOwner">
+        <b-row><b-col>
+          <hr>
+          <h4>Dateien</h4>
+          <b-table :fields="filefields" :items="room.files" hover>
+            <template v-slot:cell(actions)="data">
+              <b-button-group class="float-right">
+                <b-button variant="dark"
+                          :href="data.item.url"
+                          target="_blank"
+                ><i class="fas fa-eye"></i
+                ></b-button>
+              </b-button-group>
+            </template>
+          </b-table>
+        </b-col></b-row>
+      </template>
 
       <room-admin :room="room" v-if="room.isOwner"></room-admin>
 
@@ -162,7 +182,18 @@
         accessCode: null,
         accessCodeInput: null,
         accessCodeValid: null,
-        reloadTimer: ''
+        reloadTimer: '',
+        filefields: [
+          {
+            key: "filename",
+            label: "Dateiname",
+            sortable: true,
+          },
+          {
+            key: "actions",
+            label: "Aktion",
+          },
+        ],
       }
     },
     // Component not loaded yet
@@ -247,7 +278,8 @@
         }
 
         Base.call(url).then(response => {
-          window.location = response.data.url;
+          if(response.data.url !== undefined)
+            window.location = response.data.url;
         }).catch((error) => {
           if (error.response) {
             console.log(error.response.data)
@@ -270,7 +302,8 @@
         }
 
         Base.call(url).then(response => {
-          window.location = response.data.url;
+          if(response.data.url !== undefined)
+            window.location = response.data.url;
         }).catch((error) => {
           if (error.response) {
             if (error.response.status === 460) {

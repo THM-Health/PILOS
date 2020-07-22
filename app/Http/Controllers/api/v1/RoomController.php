@@ -5,7 +5,9 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\RoomSecurityLevel;
 use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddRoomMember;
 use App\Http\Requests\UpdateRoomSettings;
+use App\Http\Resources\PrivateRoomFile;
 use App\Http\Resources\RoomUser;
 use App\Meeting;
 use App\Room;
@@ -229,7 +231,11 @@ class RoomController extends Controller
         return RoomUser::collection($room->members);
     }
 
-    public function addMember(Room $room, Request $request){
+    public function addMember(Room $room, AddRoomMember $request){
+
+
+
+        $room->members()->attach($request->id, ['role' => $request->role]);
 
     }
 
@@ -249,12 +255,41 @@ class RoomController extends Controller
         $file->path = $path;
         $file->filename = $name;
         $file->default = $room->files->count() == 0;
+        $file->useinmeeting = true;
         $room->files()->save($file);
     }
 
     public function getFiles(Room $room){
         $default = $room->files()->where('default',true)->first();
-        return ["data"=>["files"=>\App\Http\Resources\RoomFile::collection($room->files),'default'=>$default ? $default->id : null]];
+        return ["data"=>["files"=>PrivateRoomFile::collection($room->files),'default'=>$default ? $default->id : null]];
     }
 
+    public function updateFiles(Request $request, Room $room){
+
+        $file = $room->files()->findOrFail($request->defaultFile);
+
+        $room->files()->update(['default' => false]);
+        $file->default = true;
+        $file->useinmeeting = true;
+        $file->save();
+    }
+
+    public function updateFile(Request $request, Room $room, RoomFile $file){
+
+        if(!$file->room->is($room))
+            abort(404);
+
+        if($request->has('useinmeeting'))
+            $file->useinmeeting = $request->useinmeeting;
+        if($request->has('download'))
+            $file->download = $request->download;
+        $file->save();
+    }
+
+    public function deleteFile(Room $room, RoomFile $file){
+        if(!$file->room->is($room))
+            abort(404);
+
+        $file->delete();
+    }
 }

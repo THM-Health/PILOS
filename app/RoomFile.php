@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class RoomFile extends Model
 {
@@ -11,4 +12,16 @@ class RoomFile extends Model
         'download'         => 'boolean',
         'useinmeeting'     => 'boolean',
     ];
+
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
+
+    public function delete()
+    {
+        Storage::delete($this->path);
+        return parent::delete();
+    }
+
 }

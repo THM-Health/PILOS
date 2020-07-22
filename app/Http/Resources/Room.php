@@ -48,6 +48,7 @@ class Room extends JsonResource
             'canStart'          => $this->canStart(Auth::user()),
             'running'           => $this->runningMeeting()!=null,
             'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()),$this->accessCode),
+            'files'             => $this->when($this->loggedIn,RoomFile::collection($this->files()->where('download',true)->get()))
         ];
     }
 }

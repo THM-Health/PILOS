@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\URL;
 
 class RoomFile extends JsonResource
 {
@@ -15,12 +16,8 @@ class RoomFile extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
             'filename'      => $this->filename,
-            'download'      => $this->download,
-            'useinmeeting'  => $this->useinmeeting,
-            'default'       => $this->default,
-            'uploaded'      => $this->created_at->format('d.m.Y H:i')
+            'url'           => URL::temporarySignedRoute('download.file', now()->addMinutes(30), ['roomFile' => $this->id,'filename'=>$this->filename,'check'=>true])
         ];
     }
 }
