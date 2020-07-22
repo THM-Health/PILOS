@@ -1,5 +1,5 @@
 export default {
-  admin: 'Administrator',
+  admin: 'Einstellungen',
 
   searchbar: {
     filter: 'Filter',
