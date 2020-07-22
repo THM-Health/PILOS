@@ -3,6 +3,7 @@ import WrongParameterCombinationError from '../errors/WrongParameterCombinationE
 import WrongTypeError from '../errors/WrongTypeError'
 import Policies from '../policies'
 import PolicyDoesNotExistsError from '../errors/PolicyDoesNotExistsError'
+import EventBus from './EventBus'
 
 /**
  *
@@ -21,6 +22,7 @@ class PermissionService {
    */
   setPermissions (permissions) {
     this.permissions = permissions
+    EventBus.$emit('permissionsChangedEvent', permissions)
   }
 
   /**

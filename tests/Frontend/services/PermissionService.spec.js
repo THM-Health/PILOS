@@ -3,8 +3,26 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongParameterCombinationError from '../../../resources/js/errors/WrongParameterCombinationError'
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError'
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError'
+import EventBus from '../../../resources/js/services/EventBus'
 
 describe('PermissionService', function () {
+  describe('setPermissions', function () {
+    it('fires an event if the permissions gets set and passes the newly set permissions as parameter', function (done) {
+      const oldPermissions = PermissionService.permissions
+      const newPermissions = ['foo', 'bar']
+      const handlePermissionsChanged = function () {
+        expect(arguments.length).toEqual(1)
+        expect(arguments[0]).toEqual(newPermissions)
+        PermissionService.setPermissions(oldPermissions)
+        done()
+      }
+
+      EventBus.$on('permissionsChangedEvent', handlePermissionsChanged)
+      PermissionService.setPermissions(newPermissions)
+      EventBus.$off('permissionsChangedEvent', handlePermissionsChanged)
+    })
+  })
+
   describe('can', function () {
     it('throws an error if nothing was passed', function () {
       expect(PermissionService.can).toThrow(ParameterMissingError)
