@@ -3,13 +3,9 @@ import Login from './views/Login'
 import NotFound from './views/NotFound'
 import RoomsIndex from './views/rooms/Index'
 import RoomView from './views/rooms/View'
-import RolesIndex from './views/roles/Index'
-import RolesView from './views/roles/View'
-import Settings from './views/Settings'
 import store from './store'
 import Home from './views/Home'
 import Vue from 'vue'
-import PermissionService from './services/PermissionService'
 
 Vue.use(VueRouter)
 
@@ -37,28 +33,6 @@ const router = new VueRouter({
       name: 'room',
       component: RoomView,
       meta: { requiresAuth: true }
-    },
-    {
-      path: '/settings',
-      name: 'settings',
-      component: Settings,
-      meta: {
-        requiresAuth: true,
-        accessPermitted: () => Promise.resolve(PermissionService.can({ permission: 'manage_settings' }))
-      },
-      children: [
-        {
-          path: 'roles',
-          name: 'roles.index',
-          component: RolesIndex,
-          children: [{
-            path: ':roleId',
-            name: 'roles.view',
-            component: RolesView
-          }],
-          alias: ''
-        }
-      ]
     },
     {
       path: '/404',

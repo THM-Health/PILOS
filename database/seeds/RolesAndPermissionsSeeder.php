@@ -25,14 +25,11 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach ($this->guards as $guard) {
-            Permission::findOrCreate('manage_settings', $guard);
+            // Permission::findOrCreate('NAME', $guard);
 
             Role::findOrCreate('user', $guard, true);
-
-            $adminRole = Role::findOrCreate('admin', $guard, true);
-            $adminRole->givePermissionTo([
-                'manage_settings'
-            ]);
+            Role::findOrCreate('admin', $guard, true);
+            // $adminRole->givePermissionTo(['PERMISSION']);
 
             // TODO(#21): Filter user by guard and add the default role!
             // User::doesntHave('roles')->where('authenticator', $guard)->filter(function ($user) use ($userRole) {
