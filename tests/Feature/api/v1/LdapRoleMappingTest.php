@@ -184,11 +184,10 @@ class LdapRoleMappingTest extends TestCase
             'ldap.roleMap'           => $this->roleMap
         ]);
 
-        $respone = $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
-        $respone->dump();
 
         $this->assertAuthenticated($this->guard);
         $this->assertContains($this->roleMap[$this->ldapRoleName], $this->getAuthenticatedUser()->getRoleNames());
