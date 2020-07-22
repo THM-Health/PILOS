@@ -132,13 +132,9 @@ export default {
     }
   },
   methods: {
-    getUsers (pageVal = this.currentPage) {
+    getUsers () {
       this.isBusy = true
-      Base.call('users', {
-        params: {
-          page: pageVal
-        }
-      }).then(response => {
+      Base.call('users').then(response => {
         this.users = response.data.data
         this.totalRows = response.data.length
         this.isBusy = false
