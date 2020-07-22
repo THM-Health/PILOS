@@ -30,5 +30,13 @@ export default {
       message: 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
       title: 'Nicht berechtigt'
     }
+  },
+
+  footer: {
+    legalNotice: 'Impressum',
+    privacyPolicy: 'Datenschutzerklärung',
+    legalNoticeUrl: 'https://www.thm.de/ges/impressum',
+    privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
+    separator: '|'
   }
 }
