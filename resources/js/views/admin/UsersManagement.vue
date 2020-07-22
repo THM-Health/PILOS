@@ -102,7 +102,7 @@ export default {
       users: [],
       isBusy: false,
       perPage: 10,
-      currentPage: 5,
+      currentPage: 1,
       sortDesc: false,
       totalRows: null,
       filter: null
