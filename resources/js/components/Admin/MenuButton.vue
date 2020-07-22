@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <!--TODO add role permission to view the buttons-->
     <b-nav vertical>
