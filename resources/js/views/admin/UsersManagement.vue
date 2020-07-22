@@ -80,12 +80,13 @@
       :total-rows="rows"
       :per-page="perPage"
       aria-controls="user-table"
+      align="right"
+      limit="5"
+      pills
       :first-text="$t('admin.pagination.first')"
       :prev-text="$t('admin.pagination.prev')"
       :next-text="$t('admin.pagination.next')"
       :last-text="$t('admin.pagination.last')"
-      align="right"
-      pills
     >
     </b-pagination>
   </div>
@@ -101,7 +102,7 @@ export default {
       users: [],
       isBusy: false,
       perPage: 10,
-      currentPage: 1,
+      currentPage: 5,
       sortDesc: false,
       totalRows: null,
       filter: null
@@ -131,9 +132,13 @@ export default {
     }
   },
   methods: {
-    getUsers () {
+    getUsers (pageVal = this.currentPage) {
       this.isBusy = true
-      Base.call('users').then(response => {
+      Base.call('users', {
+        params: {
+          page: pageVal
+        }
+      }).then(response => {
         this.users = response.data.data
         this.totalRows = response.data.length
         this.isBusy = false
@@ -146,6 +151,7 @@ export default {
     onFiltered (filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length
+      this.users.count = filteredItems.length
       this.currentPage = 1
     }
   }
