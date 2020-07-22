@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A loading screen for loading events of the application ([#6], [#11])
 - Localization with a locale switcher and saving selected locale for authenticated users ([#8], [#13])
 - Flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16])
+- Roles and permissions concept ([#12], [#22])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/issues/3
@@ -17,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#6]: https://github.com/THM-Health/PILOS/issues/7
 [#8]: https://github.com/THM-Health/PILOS/issues/8
 [#11]: https://github.com/THM-Health/PILOS/issues/11
+[#12]: https://github.com/THM-Health/PILOS/issues/12
 [#13]: https://github.com/THM-Health/PILOS/issues/13
 [#16]: https://github.com/THM-Health/PILOS/issues/16
+[#22]: https://github.com/THM-Health/PILOS/issues/22
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
