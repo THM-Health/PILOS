@@ -11,7 +11,6 @@ import Clipboard from 'v-clipboard'
 Vue.use(Clipboard)
 // Install BootstrapVue
 Vue.use(BootstrapVue)
-Vue.use(Clipboard)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
