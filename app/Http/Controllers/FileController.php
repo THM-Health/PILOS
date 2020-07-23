@@ -31,7 +31,7 @@ class FileController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request                   $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -42,16 +42,16 @@ class FileController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param RoomFile $roomFile
+     * @param  RoomFile                  $roomFile
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request, RoomFile $roomFile)
     {
-        if($request->has('check') && $roomFile->download === false){
+        if ($request->has('check') && $roomFile->download === false) {
             abort(403);
         }
 
-        return Storage::download($roomFile->path,$roomFile->filename,[
+        return Storage::download($roomFile->path, $roomFile->filename, [
             'Content-Disposition' => 'inline; filename="'. $roomFile->filename .'"'
         ]);
     }
@@ -59,7 +59,7 @@ class FileController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param RoomFile $roomFile
+     * @param  RoomFile                  $roomFile
      * @return \Illuminate\Http\Response
      */
     public function edit(RoomFile $roomFile)
@@ -70,8 +70,8 @@ class FileController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param RoomFile $roomFile
+     * @param  Request                   $request
+     * @param  RoomFile                  $roomFile
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, RoomFile $roomFile)
@@ -82,7 +82,7 @@ class FileController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param RoomFile $roomFile
+     * @param  RoomFile                  $roomFile
      * @return \Illuminate\Http\Response
      */
     public function destroy(RoomFile $roomFile)

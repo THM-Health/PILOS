@@ -31,13 +31,13 @@ const router = new VueRouter({
     {
       path: '/rooms/:id',
       name: 'rooms.view',
-      component: RoomView,
+      component: RoomView
     },
 
     {
       path: '/rooms/join/:id',
       name: 'rooms.join',
-      component: RoomView,
+      component: RoomView
     },
 
     {

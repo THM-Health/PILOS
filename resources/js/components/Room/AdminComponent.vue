@@ -37,10 +37,9 @@
 </template>
 
 <script>
-  import SettingsComponent from './SettingsComponent'
-  import UserComponent from './UserComponent'
-  import FileComponent from './FileComponent'
-  import Base from "../../api/base";
+import SettingsComponent from './SettingsComponent'
+import UserComponent from './UserComponent'
+import FileComponent from './FileComponent'
 
 export default {
 
@@ -50,22 +49,20 @@ export default {
     FileComponent
   },
   props: {
-    room: Object,
+    room: Object
   },
-  data() {
+  data () {
     return {
       countUsers: 0,
-      welcomeMessageLimit: 500,
-    };
+      welcomeMessageLimit: 500
+    }
   },
   methods: {
-    onUserChange (value){
-      this.countUsers = value;
+    onUserChange (value) {
+      this.countUsers = value
     }
   }
 
-
-
-};
+}
 </script>
 <style scoped></style>

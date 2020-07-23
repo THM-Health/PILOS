@@ -51,166 +51,164 @@
   </div>
 </template>
 <script>
-  import Base from "../../api/base";
+import Base from '../../api/base'
 
-  export default {
-    props: {
-      room: Object,
-    },
-    data() {
-      return {
-        fileUpload: null,
-        file: null,
-        files: [],
-      }
-    },
-    methods: {
-      deleteFile: function (file,index) {
-        this.boxTwo = ''
-        var that = this;
-        this.$bvModal.msgBoxConfirm(this.$t('rooms.files.modals.delete.confirm',{filename: file.filename}), {
-          title: this.$t('rooms.files.modals.delete.title'),
-          okVariant: 'danger',
-          okTitle: this.$t('rooms.files.modals.delete.yes'),
-          cancelTitle: this.$t('rooms.files.modals.delete.no'),
-          footerClass: 'p-2',
-          centered: true
+export default {
+  props: {
+    room: Object
+  },
+  data () {
+    return {
+      fileUpload: null,
+      file: null,
+      files: []
+    }
+  },
+  methods: {
+    deleteFile: function (file, index) {
+      this.boxTwo = ''
+      this.$bvModal.msgBoxConfirm(this.$t('rooms.files.modals.delete.confirm', { filename: file.filename }), {
+        title: this.$t('rooms.files.modals.delete.title'),
+        okVariant: 'danger',
+        okTitle: this.$t('rooms.files.modals.delete.yes'),
+        cancelTitle: this.$t('rooms.files.modals.delete.no'),
+        footerClass: 'p-2',
+        centered: true
+      })
+        .then(function (value) {
+          if (value === true) {
+            // Remove user from room
+            Base.call('rooms/' + this.room.id + '/files/' + file.id, {
+              method: 'delete'
+            }).then(response => {
+              this.files.files.splice(index, 1)
+            }).catch((error) => {
+              if (error.response) {
+                console.log(error.response.data)
+                console.log(error.response.status)
+                console.log(error.response.headers)
+              } else if (error.request) {
+                console.log(error.request)
+              }
+            })
+          }
+        }.bind(this))
+        .catch(err => {
+          console.log(err)
         })
-          .then(function(value){
-            if(value === true) {
-              // Remove user from room
-              Base.call('rooms/' + this.room.id + '/files/'+file.id, {
-                method: 'delete'
-              }).then(response => {
-                this.files.files.splice(index,1);
-              }).catch((error) => {
-                if (error.response) {
-                  console.log(error.response.data)
-                  console.log(error.response.status)
-                  console.log(error.response.headers)
-                } else if (error.request) {
-                  console.log(error.request)
-                }
-              })
-            }
-          }.bind(this))
-          .catch(err => {
-            console.log(err);
-          })
-      },
-      uploadFile: function(event){
-        let formData = new FormData();
-        formData.append('file', event.target.files[0]);
-        Base.call('rooms/' + this.room.id + '/files', {
-          method: 'post',
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          data: formData
-        }).then(() => {
-          this.fileUpload = null;
-          this.reload();
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-        });
-
-      },
-      reload: function () {
-        var url = 'rooms/' + this.room.id+"/files"
-        Base.call(url).then(response => {
-          this.files = response.data.data
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-
-            console.log(error.request)
-          }
-        });
-      },
-      changeDefault: function (checked) {
-        var file = this.files.files.find( file => file.id === checked );
-        file.useinmeeting = true;
-        Base.call('rooms/' + this.room.id + '/files', {
-          method: 'put',
-          data: {defaultFile: file.id}
-        }).then(() => {
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-        });
-      },
-      changeSettings: function (file,setting,value) {
-        console.log(file);
-        console.log(setting);
-        console.log(value);
-        Base.call('rooms/' + this.room.id + '/files/'+file.id, {
-          method: 'put',
-          data: {[setting]: value}
-        }).then(() => {
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-        });
-
-      }
     },
+    uploadFile: function (event) {
+      const formData = new FormData()
+      formData.append('file', event.target.files[0])
+      Base.call('rooms/' + this.room.id + '/files', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: formData
+      }).then(() => {
+        this.fileUpload = null
+        this.reload()
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
+    },
+    reload: function () {
+      var url = 'rooms/' + this.room.id + '/files'
+      Base.call(url).then(response => {
+        this.files = response.data.data
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
+    },
+    changeDefault: function (checked) {
+      var file = this.files.files.find(file => file.id === checked)
+      file.useinmeeting = true
+      Base.call('rooms/' + this.room.id + '/files', {
+        method: 'put',
+        data: { defaultFile: file.id }
+      }).then(() => {
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
+    },
+    changeSettings: function (file, setting, value) {
+      console.log(file)
+      console.log(setting)
+      console.log(value)
+      Base.call('rooms/' + this.room.id + '/files/' + file.id, {
+        method: 'put',
+        data: { [setting]: value }
+      }).then(() => {
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
+    }
+  },
 
-    computed: {
+  computed: {
 
-      filefields(){ return [
+    filefields () {
+      return [
         {
-          key: "filename",
+          key: 'filename',
           label: this.$t('rooms.files.filename'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "uploaded",
+          key: 'uploaded',
           label: this.$t('rooms.files.uploadedAt'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "download",
+          key: 'download',
           label: this.$t('rooms.files.downloadable'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "useinmeeting",
+          key: 'useinmeeting',
           label: this.$t('rooms.files.useInNextMeeting'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "default",
+          key: 'default',
           label: this.$t('rooms.files.default'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "actions",
-          label: this.$t('rooms.files.actions'),
-        },
-      ]; }
+          key: 'actions',
+          label: this.$t('rooms.files.actions')
+        }
+      ]
+    }
 
-    },
-    created() {
-      this.reload();
-    },
+  },
+  created () {
+    this.reload()
   }
+}
 </script>

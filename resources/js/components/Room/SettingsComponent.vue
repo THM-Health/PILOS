@@ -1,11 +1,10 @@
 <template>
   <div>
 
-
             <div class="row" v-on:keyup.enter="save" @change="save">
               <div class="col-lg-12 mb-3" v-if="saving">
                 <b-alert show>
-                  <b-spinner small></b-spinner> Speichern
+                  <b-spinner small></b-spinner> {{ $t('rooms.settings.saving') }}
                 </b-alert>
               </div>
 
@@ -34,8 +33,7 @@
                     ></b-form-textarea>
                   </b-input-group>
                   <small class="text-muted">
-                    {{$t('rooms.settings.general.chars')}}:
-                    {{ charactersLeftWelcomeMessage }}</small>
+                    {{$t('rooms.settings.general.chars', {chars: charactersLeftWelcomeMessage})}}</small>
                 </b-form-group>
 
                 <!-- Max duration -->
@@ -123,7 +121,7 @@
                   </b-form-group>
                   <b-form-group>
                     <template v-slot:label>
-                      {{ $t('rooms.settings.participants.defaultRole.title') }}<br><small>({{ $t('rooms.settings.participants.defaultRole.onlyLoggedIn') }})</small>
+                      {{ $t('rooms.settings.participants.defaultRole.title') }}<br><small>{{ $t('rooms.settings.participants.defaultRole.onlyLoggedIn') }}</small>
                     </template>
                     <b-form-radio
                       name="setting-defaultRole"
@@ -198,143 +196,136 @@
               </div>
             </div>
 
-
   </div>
 </template>
 
-
 <script>
-  import Base from "../../api/base";
+import Base from '../../api/base'
 
-  export default {
-    props: {
-      room: Object,
+export default {
+  props: {
+    room: Object
+  },
+  data () {
+    return {
+      settings: Object,
+      saving: false,
+      welcomeMessageLimit: 500,
+      defaultRoomType: null
+    }
+  },
+  methods: {
+    genAccessCode: function (event) {
+      this.settings.accessCode =
+          Math.floor(Math.random() * (999999999 - 111111112)) + 111111111
+      this.save()
     },
-    data() {
-      return {
-        settings: Object,
-        saving : false,
-        welcomeMessageLimit: 500,
-        defaultRoomType: null,
-      };
-    },
-    methods: {
-      genAccessCode: function (event) {
-        this.settings.accessCode =
-          Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
-        this.save();
-      },
-      save() {
-        this.saving = true;
-        console.log(this.settings);
+    save () {
+      this.saving = true
+      console.log(this.settings)
 
-        Base.call('rooms/' + this.room.id + '/settings', {
-          method: 'put',
-          data: this.settings
-        }).then(response => {
-          this.settings = response.data.data;
-          this.saving = false;
-        }).catch((error) => {
-          if (error.response) {
-
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-        })
-      },
-      clearAccessCode() {
-        this.settings.accessCode = null;
-        this.save();
-      },
-      clearDuration() {
-        this.settings.duration = null;
-        this.save();
-      },
-      clearmaxParticipants() {
-        this.settings.maxParticipants = null;
-        this.save();
-      }
-    },
-    computed: {
-      roomType: {
-
-        get: function() {
-          if(this.settings.roomType) {
-            return this.settings.roomType;
-          }
-          else
-            return this.defaultRoomType;
-        },
-        set: function(newValue){
-          return this.settings.roomType = newValue;
-        }
-
-
-      },
-
-      roomTypeSelect(){
-        if(this.settings.roomTypes) {
-          return this.settings.roomTypes.map(roomtype => {
-            var entry = {};
-            entry['value'] = roomtype.id;
-            entry['text'] = roomtype.description;
-            if(roomtype.default)
-              this.defaultRoomType = roomtype.id;
-            return entry;
-          });
-        }
-
-      },
-
-      charactersLeftWelcomeMessage() {
-        var char = this.settings.welcome
-          ? this.settings.welcome.length
-          : 0;
-        return char + " / " + this.welcomeMessageLimit;
-      },
-      welcomeMessageValidLength() {
-        return this.settings.welcome
-          ? this.settings.welcome.length <= this.welcomeMessageLimit
-            ? null
-            : false
-          : null;
-      },
-
-    },
-    created() {
-      var url = 'rooms/' + this.room.id+"/settings"
-      Base.call(url).then(response => {
+      Base.call('rooms/' + this.room.id + '/settings', {
+        method: 'put',
+        data: this.settings
+      }).then(response => {
         this.settings = response.data.data
+        this.saving = false
       }).catch((error) => {
         if (error.response) {
-          if (error.response.status === 401 && error.response.data.message == 'invalid_code') {
-            this.accessCodeValid = false
-            this.accessCode = null
-            this.reload()
-          }
-
-          if (error.response.status === 403) {
-            this.room = null
-            this.accessCode = null
-          }
-
           console.log(error.response.data)
           console.log(error.response.status)
           console.log(error.response.headers)
         } else if (error.request) {
-          /*
+          console.log(error.request)
+        }
+      })
+    },
+    clearAccessCode () {
+      this.settings.accessCode = null
+      this.save()
+    },
+    clearDuration () {
+      this.settings.duration = null
+      this.save()
+    },
+    clearmaxParticipants () {
+      this.settings.maxParticipants = null
+      this.save()
+    }
+  },
+  computed: {
+    roomType: {
+
+      get: function () {
+        if (this.settings.roomType) {
+          return this.settings.roomType
+        } else { return this.defaultRoomType }
+      },
+      set: function (newValue) {
+        this.settings.roomType = newValue
+      }
+
+    },
+
+    roomTypeSelect () {
+      if (this.settings.roomTypes) {
+        return this.settings.roomTypes.map(roomtype => {
+          var entry = {}
+          entry.value = roomtype.id
+          entry.text = roomtype.description
+          if (roomtype.default) { this.defaultRoomType = roomtype.id }
+          return entry
+        })
+      }
+      return null
+    },
+
+    charactersLeftWelcomeMessage () {
+      var char = this.settings.welcome
+        ? this.settings.welcome.length
+        : 0
+      return char + ' / ' + this.welcomeMessageLimit
+    },
+    welcomeMessageValidLength () {
+      return this.settings.welcome
+        ? this.settings.welcome.length <= this.welcomeMessageLimit
+          ? null
+          : false
+        : null
+    }
+
+  },
+  created () {
+    var url = 'rooms/' + this.room.id + '/settings'
+    Base.call(url).then(response => {
+      this.settings = response.data.data
+    }).catch((error) => {
+      if (error.response) {
+        if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+          this.accessCodeValid = false
+          this.accessCode = null
+          this.reload()
+        }
+
+        if (error.response.status === 403) {
+          this.room = null
+          this.accessCode = null
+        }
+
+        console.log(error.response.data)
+        console.log(error.response.status)
+        console.log(error.response.headers)
+      } else if (error.request) {
+        /*
              * The request was made but no response was received, `error.request`
              * is an instance of XMLHttpRequest in the browser and an instance
              * of http.ClientRequest in Node.js
              */
-          console.log(error.request)
-        }
-      });
-    },
+        console.log(error.request)
+      }
+    })
+  }
 
-  };
+}
 </script>
 <style scoped></style>

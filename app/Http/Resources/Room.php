@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\RoomSecurityLevel;
 use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,7 +16,7 @@ class Room extends JsonResource
     /**
      * Create a new resource instance.
      *
-     * @param  mixed  $resource
+     * @param  mixed $resource
      * @return void
      */
     public function __construct($resource, $loggedIn)
@@ -46,9 +45,9 @@ class Room extends JsonResource
             'isGuest'           => Auth::guest(),
             'isModerator'       => $this->isModeratorOrOwner(Auth::user()),
             'canStart'          => $this->canStart(Auth::user()),
-            'running'           => $this->runningMeeting()!=null,
-            'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()),$this->accessCode),
-            'files'             => $this->when($this->loggedIn,RoomFile::collection($this->files()->where('download',true)->get()))
+            'running'           => $this->runningMeeting() != null,
+            'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()), $this->accessCode),
+            'files'             => $this->when($this->loggedIn, RoomFile::collection($this->files()->where('download', true)->get()))
         ];
     }
 }

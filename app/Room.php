@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class Room extends Model
 {
     public $incrementing = false;
-    protected $keyType = 'string';
+    protected $keyType   = 'string';
 
     /**
      * The "booted" method of the model.
@@ -21,18 +21,16 @@ class Room extends Model
         static::creating(function ($model) {
             if (!$model->id) {
                 $newId = null;
-                while(true){
-                    $newId = implode("-",str_split(Str::lower(Str::random(9)),3));
-                    if(Room::find($newId)==null)
+                while (true) {
+                    $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));
+                    if (self::find($newId) == null) {
                         break;
-
+                    }
                 }
-
 
                 $model->id = $newId;
             }
         });
-
     }
 
     protected $casts = [
@@ -85,44 +83,53 @@ class Room extends Model
         return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
     }
 
-
-    public function canStart($user){
-        if($this->everyoneCanStart)
+    public function canStart($user)
+    {
+        if ($this->everyoneCanStart) {
             return true;
-        else
-            if($this) {
-                if ($this->owner->is($user))
-                    return true;
-                if ($this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user))
-                    return true;
+        } elseif ($this) {
+            if ($this->owner->is($user)) {
+                return true;
             }
+            if ($this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
-    public function isModeratorOrOwner($user){
+    public function isModeratorOrOwner($user)
+    {
         return $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
     }
 
-    public function getRole($user){
-        if($user==null)
+    public function getRole($user)
+    {
+        if ($user == null) {
             return RoomUserRole::GUEST;
+        }
 
-        if($this->owner->is($user))
+        if ($this->owner->is($user)) {
             return RoomUserRole::MODERATOR;
+        }
 
         $member = $this->members()->find($user);
-        if($member){
+        if ($member) {
             return $member->pivot->role;
         }
 
         return $this->defaultRole;
     }
 
-    public function getModeratorOnlyMessage(){
-        $message =  "An ".$this->name." mit PILOS teilnehmen<br>";
-        $message .= "Link: ".config('app.url')."rooms/".$this->id;
-        if($this->accessCode != null)
-            $message .= "<br>Zugangscode: ".$this->accessCode;
+    public function getModeratorOnlyMessage()
+    {
+        $message =  'An '.$this->name.' mit PILOS teilnehmen<br>';
+        $message .= 'Link: '.config('app.url').'rooms/'.$this->id;
+        if ($this->accessCode != null) {
+            $message .= '<br>Zugangscode: '.$this->accessCode;
+        }
+
         return $message;
     }
 }

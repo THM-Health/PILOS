@@ -114,69 +114,68 @@
   </div>
 </template>
 <script>
-  import Base from "../../api/base";
-  import Multiselect from 'vue-multiselect'
+import Base from '../../api/base'
+import Multiselect from 'vue-multiselect'
 
-  export default {
-    components: { Multiselect },
-    props: {
-      room: Object,
+export default {
+  components: { Multiselect },
+  props: {
+    room: Object
+  },
+  data () {
+    return {
+      newUser: { data: null, feedback: { user: null, role: null } },
+      selectedCountries: [],
+      countries: [],
+      isLoading: false,
+      member: [],
+      boxTwo: '',
+
+      editUser: null
+    }
+  },
+  methods: {
+    limitText (count) {
+      return `and ${count} other countries`
     },
-    data() {
-      return {
-        newUser:  {data: null,feedback: {user: null,role:null}},
-        selectedCountries: [],
-        countries: [],
-        isLoading: false,
-        member: [],
-        boxTwo: '',
+    asyncFind (query) {
+      this.isLoading = true
 
-        editUser: null,
-      }
+      Base.call('users/search?query=' + query, {
+      }).then(response => {
+        this.countries = response.data.data
+        this.isLoading = false
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
     },
-    methods: {
-      limitText (count) {
-        return `and ${count} other countries`
-      },
-      asyncFind (query) {
-        this.isLoading = true
+    clearAll () {
+      this.selectedCountries = []
+    },
 
-        Base.call('users/search?query='+query, {
-        }).then(response => {
-          this.countries = response.data.data
-          this.isLoading = false
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-        })
-      },
-      clearAll () {
-        this.selectedCountries = []
-      },
-
-      deleteUser: function (user,index) {
-        this.boxTwo = ''
-        var that = this;
-        this.$bvModal.msgBoxConfirm(this.$t('rooms.members.modals.delete.confirm',{firstname:user.firstname, lastname: user.lastname}), {
-          title: this.$t('rooms.members.modals.delete.title'),
-          okVariant: 'danger',
-          okTitle: this.$t('rooms.members.modals.delete.yes'),
-          cancelTitle: this.$t('rooms.members.modals.delete.no'),
-          footerClass: 'p-2',
-          centered: true
-        })
-        .then(function(value){
-          if(value === true) {
+    deleteUser: function (user, index) {
+      this.boxTwo = ''
+      this.$bvModal.msgBoxConfirm(this.$t('rooms.members.modals.delete.confirm', { firstname: user.firstname, lastname: user.lastname }), {
+        title: this.$t('rooms.members.modals.delete.title'),
+        okVariant: 'danger',
+        okTitle: this.$t('rooms.members.modals.delete.yes'),
+        cancelTitle: this.$t('rooms.members.modals.delete.no'),
+        footerClass: 'p-2',
+        centered: true
+      })
+        .then(function (value) {
+          if (value === true) {
             // Remove user from room
-            Base.call('rooms/' + this.room.id + '/member/'+user.id, {
+            Base.call('rooms/' + this.room.id + '/member/' + user.id, {
               method: 'delete'
             }).then(response => {
-              this.member.splice(index,1);
+              this.member.splice(index, 1)
             }).catch((error) => {
               if (error.response) {
                 console.log(error.response.data)
@@ -189,129 +188,120 @@
           }
         }.bind(this))
         .catch(err => {
-          console.log(err);
+          console.log(err)
         })
-      },
-      showEditUserModal: function (user,index) {
-        this.editUser = JSON.parse(JSON.stringify(user));
-        this.editUser.index = index;
-        this.$refs['edit-user-modal'].show();
-      },
-      showAddUserModal: function(){
-        this.newUser = {data: null,feedback: {user: null,role:null}};
-        this.$refs['add-user-modal'].show();
-      },
-      saveEditUser: function(){
-
-        Base.call('rooms/' + this.room.id + '/member/'+this.editUser.id, {
-          method: 'put',
-          data: {role: this.editUser.role}
-        }).then(response => {
-          this.member[this.editUser.index].role = this.editUser.role;
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-        })
-
-      },
-      saveNewUser: function(bvModalEvt){
-        bvModalEvt.preventDefault();
-        if(this.newuservalid === false || this.newuserrolevalid === false) {
-          return;
+    },
+    showEditUserModal: function (user, index) {
+      this.editUser = JSON.parse(JSON.stringify(user))
+      this.editUser.index = index
+      this.$refs['edit-user-modal'].show()
+    },
+    showAddUserModal: function () {
+      this.newUser = { data: null, feedback: { user: null, role: null } }
+      this.$refs['add-user-modal'].show()
+    },
+    saveEditUser: function () {
+      Base.call('rooms/' + this.room.id + '/member/' + this.editUser.id, {
+        method: 'put',
+        data: { role: this.editUser.role }
+      }).then(response => {
+        this.member[this.editUser.index].role = this.editUser.role
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
         }
-
-        Base.call('rooms/' + this.room.id + '/member', {
-          method: 'post',
-          data: {id: this.newUser.data.id,role: this.newUser.data.role}
-        }).then(response => {
-          this.$refs['add-user-modal'].hide();
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-            console.log(error.request)
-          }
-          return;
-        });
-
-
-
-
-      },
-      reload: function () {
-        var url = 'rooms/' + this.room.id+"/member"
-        Base.call(url).then(response => {
-          this.member = response.data.data
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
-          } else if (error.request) {
-
-            console.log(error.request)
-          }
-        });
+      })
+    },
+    saveNewUser: function (bvModalEvt) {
+      bvModalEvt.preventDefault()
+      if (this.newuservalid === false || this.newuserrolevalid === false) {
+        return
       }
-    },
-    computed: {
-      newuservalid: function () {
-        if(this.newUser.data == null || this.newUser.data.id == null)
-          return false;
-        return null;
-      },
-      newuserrolevalid: function () {
-        if(this.newUser.data != null && this.newUser.data.role == null)
-          return false;
-        return null;
-      },
 
-      userfields() { return [
+      Base.call('rooms/' + this.room.id + '/member', {
+        method: 'post',
+        data: { id: this.newUser.data.id, role: this.newUser.data.role }
+      }).then(response => {
+        this.$refs['add-user-modal'].hide()
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
+    },
+    reload: function () {
+      var url = 'rooms/' + this.room.id + '/member'
+      Base.call(url).then(response => {
+        this.member = response.data.data
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response.data)
+          console.log(error.response.status)
+          console.log(error.response.headers)
+        } else if (error.request) {
+          console.log(error.request)
+        }
+      })
+    }
+  },
+  computed: {
+    newuservalid: function () {
+      if (this.newUser.data == null || this.newUser.data.id == null) { return false }
+      return null
+    },
+    newuserrolevalid: function () {
+      if (this.newUser.data != null && this.newUser.data.role == null) { return false }
+      return null
+    },
+
+    userfields () {
+      return [
         {
-          key: "firstname",
+          key: 'firstname',
           label: this.$t('rooms.members.firstname'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "lastname",
+          key: 'lastname',
           label: this.$t('rooms.members.lastname'),
-          sortable: true,
+          sortable: true
         },
 
         {
-          key: "email",
+          key: 'email',
           label: this.$t('rooms.members.email'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "role",
+          key: 'role',
           label: this.$t('rooms.members.role'),
-          sortable: true,
+          sortable: true
         },
         {
-          key: "actions",
-          label: this.$t('rooms.members.actions'),
-        },
-      ]; }
+          key: 'actions',
+          label: this.$t('rooms.members.actions')
+        }
+      ]
+    }
 
+  },
+  watch: {
+    'member.length': function () {
+      this.$emit('userChanged', this.member.length)
+    }
+  },
 
-    },
-    watch: {
-      'member.length': function () {
-        this.$emit('userChanged',this.member.length)
-      },
-    },
-
-    created() {
-      this.reload();
-      setInterval(this.reload, 3000)
-    },
+  created () {
+    this.reload()
+    setInterval(this.reload, 3000)
   }
+}
 </script>

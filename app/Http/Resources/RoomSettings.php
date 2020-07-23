@@ -17,7 +17,7 @@ class RoomSettings extends JsonResource
     {
         return [
             'name'                                  => $this->name,
-            'roomType'                              => $this->roomType!=null ? $this->roomType->id : null,
+            'roomType'                              => $this->roomType != null ? $this->roomType->id : null,
             'roomTypes'                             => RoomType::collection(\App\RoomType::all()),
             'accessCode'                            => $this->accessCode,
             'muteOnStart'                           => $this->muteOnStart,

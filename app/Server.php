@@ -2,11 +2,8 @@
 
 namespace App;
 
-
-
 use BigBlueButton\BigBlueButton;
 use Illuminate\Database\Eloquent\Model;
-
 
 class Server extends Model
 {

@@ -13,5 +13,5 @@ final class RoomLobby extends Enum
 {
     const DISABLED      =   0;
     const ENABLED       =   1;
-    const ONLY_GUEST    = 2;
+    const ONLY_GUEST    =   2;
 }

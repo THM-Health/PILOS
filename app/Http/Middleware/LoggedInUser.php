@@ -2,12 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class LoggedInUser extends Middleware
 {
-
     protected function authenticate($request)
     {
         if (empty($guards)) {

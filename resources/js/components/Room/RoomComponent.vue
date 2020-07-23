@@ -5,7 +5,6 @@
       <b-media>
         <template v-slot:aside>
           <div v-if="type" class="roomicon" :style="{ 'background-color': type.color}">{{type.short}}</div>
-          <div v-else class="roomicon">{{ $t('rooms.roomTypeMeeting') }}</div>
         </template>
 
         <h4 class="mt-2 ">{{name}}</h4>

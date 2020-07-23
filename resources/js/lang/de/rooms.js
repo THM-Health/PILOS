@@ -4,9 +4,9 @@ export default {
   rooms: 'Räume',
   sharedBy: 'Geteilt von {name}',
   sharedRooms: 'Mit mir geteilte Räume',
-  roomTypeMeeting: 'ME',
   start: 'Starten',
   notRunning: 'Der Raum ist noch nicht gestartet.',
+  tryAgain: 'Erneut versuchen',
   join: 'Teilnehmen',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
@@ -27,7 +27,7 @@ export default {
     modals: {
       delete: {
         title: 'Datei löschen',
-        confirm:  'Soll die Datei {filename} gelöscht werden?',
+        confirm: 'Soll die Datei {filename} gelöscht werden?',
         yes: 'Ja',
         no: 'Nein'
       }
@@ -49,8 +49,8 @@ export default {
     actions: 'Aktionen',
     roles: {
       guest: 'Gast',
-      participant : 'Teilnehmer',
-      moderator: 'Moderator',
+      participant: 'Teilnehmer',
+      moderator: 'Moderator'
 
     },
     modals: {
@@ -74,18 +74,19 @@ export default {
       },
       delete: {
         title: 'Mitglied aus dem Raum entfernen',
-        confirm:  'Soll {firstname} {lastname} aus dem Raum entfernt werden?',
+        confirm: 'Soll {firstname} {lastname} aus dem Raum entfernt werden?',
         yes: 'Ja',
         no: 'Nein'
       }
     }
   },
   statistics: {
-    title: 'Statistiken',
+    title: 'Statistiken'
   },
   settings: {
     title: 'Einstellungen',
     nonePlaceholder: '-- keine --',
+    saving: 'speichern ...',
     general: {
       title: 'Allgemein',
       type: 'Art',
@@ -93,7 +94,7 @@ export default {
       welcomeMessage: 'Begrüßungsnachricht',
       maxDuration: 'Max. Dauer',
       minutes: 'min.',
-      chars: 'Zeichen'
+      chars: 'Zeichen: {chars}'
     },
     security: {
       title: 'Sicherheit',
@@ -101,28 +102,28 @@ export default {
       accessCode: 'Zugangscode',
       accessCodeNote: 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
       allowGuests: 'Gäste zulassen',
-      allowNewMembers: 'Neue Mitglieder zulassen',
+      allowNewMembers: 'Neue Mitglieder zulassen'
     },
     participants: {
       title: 'Teilnehmer',
       maxParticipants: 'Max. Teilnehmeranzahl',
       defaultRole: {
         title: 'Standardrolle',
-        onlyLoggedIn: 'nur für angemeldete Nutzer',
+        onlyLoggedIn: '(nur für angemeldete Nutzer)',
         participant: 'Teilnehmer',
-        moderator: 'Moderator',
+        moderator: 'Moderator'
       },
       waitingRoom: {
         title: 'Warteraum',
         disabled: 'Deaktiviert',
         enabled: 'Aktiviert',
-        onlyForGuestsEnabled: 'Aktiviert für Gäste',
+        onlyForGuestsEnabled: 'Aktiviert für Gäste'
       }
     },
     permissions: {
       title: 'Berechtigungen',
       everyoneStart: 'Jeder darf das Meeting starten',
-      muteMic: 'Mikrofon bei Beitritt stummschalten',
+      muteMic: 'Mikrofon bei Beitritt stummschalten'
     },
     restrictions: {
       title: 'Einschränkungen',
@@ -135,5 +136,5 @@ export default {
       disableNoteEdit: 'Bearbeiten der Notizen deaktivieren',
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
-  },
+  }
 }

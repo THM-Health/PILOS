@@ -21,7 +21,7 @@ class MeetingController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request                   $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -32,7 +32,7 @@ class MeetingController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Meeting $meeting
+     * @param  Meeting                   $meeting
      * @return \Illuminate\Http\Response
      */
     public function show(Meeting $meeting)
@@ -43,8 +43,8 @@ class MeetingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
-     * @param Meeting $meeting
+     * @param  Request                   $request
+     * @param  Meeting                   $meeting
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Meeting $meeting)
@@ -55,7 +55,7 @@ class MeetingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param Meeting $meeting
+     * @param  Meeting                   $meeting
      * @return \Illuminate\Http\Response
      */
     public function destroy(Meeting $meeting)
@@ -63,16 +63,14 @@ class MeetingController extends Controller
         //
     }
 
-
-
-
-
-    public function endMeetingCallback(Request $request, Meeting $meeting){
+    public function endMeetingCallback(Request $request, Meeting $meeting)
+    {
         // Validate request
-        if($request->salt!=$meeting->getCallbackHash())
+        if ($request->salt != $meeting->getCallbackHash()) {
             abort(401);
+        }
 
-        $meeting->end = date("Y-m-d H:i:s");
+        $meeting->end = date('Y-m-d H:i:s');
         $meeting->save();
     }
 }

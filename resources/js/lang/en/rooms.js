@@ -4,9 +4,9 @@ export default {
   rooms: 'Rooms',
   sharedBy: 'Shared by {name}',
   sharedRooms: 'Rooms shared with me',
-  roomTypeMeeting: 'ME',
   start: 'Start',
   notRunning: 'This room is not started yet.',
+  tryAgain: 'Try again',
   join: 'Join',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
@@ -27,7 +27,7 @@ export default {
     modals: {
       delete: {
         title: 'Delete file',
-        confirm:  'Do you want to delete this file {filename}?',
+        confirm: 'Do you want to delete this file {filename}?',
         yes: 'Yes',
         no: 'No'
       }
@@ -49,8 +49,8 @@ export default {
     actions: 'Actions',
     roles: {
       guest: 'Guest',
-      participant : 'Participant',
-      moderator: 'Moderator',
+      participant: 'Participant',
+      moderator: 'Moderator'
 
     },
     modals: {
@@ -74,18 +74,19 @@ export default {
       },
       delete: {
         title: 'Remove member from this room',
-        confirm:  'Do you want to remove {firstname} {lastname} from this room?',
+        confirm: 'Do you want to remove {firstname} {lastname} from this room?',
         yes: 'Yes',
         no: 'No'
       }
     }
   },
   statistics: {
-    title: 'Statistics',
+    title: 'Statistics'
   },
   settings: {
     title: 'Settings',
     nonePlaceholder: '-- none --',
+    saving: 'saving ...',
     general: {
       title: 'General',
       type: 'Type',
@@ -93,7 +94,7 @@ export default {
       welcomeMessage: 'Welcome message',
       maxDuration: 'Max. duration',
       minutes: 'min.',
-      chars: 'Characters'
+      chars: 'Characters: {chars}'
     },
     security: {
       title: 'Security',
@@ -101,28 +102,28 @@ export default {
       accessCode: 'Access code',
       accessCodeNote: 'Access restriction for joining the room and room membership (if enabled).',
       allowGuests: 'Allow guests',
-      allowNewMembers: 'Allow new members',
+      allowNewMembers: 'Allow new members'
     },
     participants: {
       title: 'Participants',
       maxParticipants: 'Max. participants',
       defaultRole: {
         title: 'Default role',
-        onlyLoggedIn: 'only for logged in users',
+        onlyLoggedIn: '(only for logged in users)',
         participant: 'Participant',
-        moderator: 'Moderator',
+        moderator: 'Moderator'
       },
       waitingRoom: {
         title: 'Waiting room',
         disabled: 'Disabled',
         enabled: 'Enabled',
-        onlyForGuestsEnabled: 'Enabled only for guests',
+        onlyForGuestsEnabled: 'Enabled only for guests'
       }
     },
     permissions: {
       title: 'Permissions',
       everyoneStart: 'Everyone can start the meeting',
-      muteMic: 'Mute microphone on join',
+      muteMic: 'Mute microphone on join'
     },
     restrictions: {
       title: 'Restrictions',
@@ -135,8 +136,6 @@ export default {
       disableNoteEdit: 'Disable editing of notes',
       hideParticipantsList: 'Hide list of participants'
     }
-  },
-
-
+  }
 
 }

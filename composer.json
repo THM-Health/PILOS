@@ -85,7 +85,7 @@
         "test": "vendor/bin/phpunit",
         "fix-cs": [
             "php-cs-fixer fix --allow-risky=yes"
-        ],
+        ]
     },
     "repositories":[
         {
