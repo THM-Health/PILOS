@@ -5,31 +5,31 @@
       <b-nav-item class="focus-hover" :to="{ name: 'admin.index' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-users"></i></span></b-col>
-          <b-col cols="9">{{$t('admin.users.title')}}</b-col>
+          <b-col cols="9">{{$t('settings.users.title')}}</b-col>
         </b-row>
       </b-nav-item>
       <b-nav-item class="focus-hover" :to="{ name: 'admin.rooms' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-binoculars"></i></span></b-col>
-          <b-col cols="9">{{$t('admin.rooms.title')}}</b-col>
+          <b-col cols="9">{{$t('settings.rooms.title')}}</b-col>
         </b-row>
       </b-nav-item>
       <b-nav-item class="focus-hover" :to="{ name: 'admin.recordings' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-video"></i></span></b-col>
-          <b-col cols="9">{{$t('admin.recordings.title')}}</b-col>
+          <b-col cols="9">{{$t('settings.recordings.title')}}</b-col>
         </b-row>
       </b-nav-item>
       <b-nav-item class="focus-hover" :to="{ name: 'admin.siteSettings' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-cogs"></i></span></b-col>
-          <b-col cols="9">{{$t('admin.siteSettings.title')}}</b-col>
+          <b-col cols="9">{{$t('settings.siteSettings.title')}}</b-col>
         </b-row>
       </b-nav-item>
       <b-nav-item class="focus-hover" :to="{ name: 'admin.roles' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-user-tag"></i></span></b-col>
-          <b-col cols="9">{{$t('admin.roles.title')}}</b-col>
+          <b-col cols="9">{{$t('settings.roles.title')}}</b-col>
         </b-row>
       </b-nav-item>
     </b-nav>

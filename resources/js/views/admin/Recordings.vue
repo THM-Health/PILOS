@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>{{$t('admin.recordings.title')}}</h2>
+    <h2>{{$t('settings.recordings.title')}}</h2>
     <hr>
   </div>
 </template>

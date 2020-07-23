@@ -2,12 +2,12 @@
   <div>
     <b-row>
       <b-col>
-        <h2 class="">{{$t('admin.users.title')}}</h2>
+        <h2 class="">{{$t('settings.users.title')}}</h2>
       </b-col>
       <!--Search Bar-->
       <b-col lg="6" class="my-1">
         <b-form-group
-          :label="$t('admin.searchbar.filter')"
+          :label="$t('settings.searchbar.filter')"
           label-cols-sm="3"
           label-align-sm="right"
           label-size="sm"
@@ -19,7 +19,7 @@
               v-model="filter"
               type="search"
               id="filterInput"
-              :placeholder="$t('admin.searchbar.placeholder')"
+              :placeholder="$t('settings.searchbar.placeholder')"
             ></b-form-input>
             <b-input-group-append>
               <b-button :disabled="!filter" @click="filter = ''">
@@ -48,7 +48,7 @@
       <template v-slot:cell(firstname)="data">
         <div class="text-wrap">
           <p class="m-0">{{ data.item.firstname }} {{data.item.lastname}}</p>
-          <p class="text-secondary m-0  ">{{$t('admin.users.table.created')}} {{formatDate(data.item.createdAt)}}</p>
+          <p class="text-secondary m-0  ">{{$t('settings.users.table.created')}} {{formatDate(data.item.createdAt)}}</p>
         </div>
       </template>
       <template v-slot:cell(action)>
@@ -61,12 +61,12 @@
             <b-dropdown-item>
               <span class="mr-3">
               <i class="fas fa fa-user-edit"></i>
-              </span>{{$t('admin.users.table.edit')}}
+              </span>{{$t('settings.users.table.edit')}}
             </b-dropdown-item>
             <b-dropdown-item>
               <span class="mr-3">
               <i class="fas fa fa-user-minus"></i>
-              </span>{{$t('admin.users.table.delete')}}
+              </span>{{$t('settings.users.table.delete')}}
             </b-dropdown-item>
           </b-dropdown>
         </div>
@@ -83,10 +83,10 @@
       align="right"
       limit="5"
       pills
-      :first-text="$t('admin.pagination.first')"
-      :prev-text="$t('admin.pagination.prev')"
-      :next-text="$t('admin.pagination.next')"
-      :last-text="$t('admin.pagination.last')"
+      :first-text="$t('settings.pagination.first')"
+      :prev-text="$t('settings.pagination.prev')"
+      :next-text="$t('settings.pagination.next')"
+      :last-text="$t('settings.pagination.last')"
     >
     </b-pagination>
   </div>
@@ -117,8 +117,8 @@ export default {
     },
     fields () {
       return [
-        { key: 'firstname', sortable: true, label: this.$t('admin.users.table.name') },
-        { key: 'username', sortable: true, label: this.$t('admin.users.table.username') },
+        { key: 'firstname', sortable: true, label: this.$t('settings.users.table.name') },
+        { key: 'username', sortable: true, label: this.$t('settings.users.table.username') },
         {
           key: 'guid',
           sortable: true,
@@ -127,7 +127,7 @@ export default {
             return value === null ? 'pilos' : 'ldap'
           }
         },
-        { key: 'action', label: this.$t('admin.users.table.actions') }
+        { key: 'action', label: this.$t('settings.users.table.actions') }
       ]
     }
   },
@@ -137,9 +137,7 @@ export default {
       Base.call('users').then(response => {
         this.users = response.data.data
         this.totalRows = response.data.length
-        this.isBusy = false
-        return this.users
-      })
+      }).finally(this.isBusy = false)
     },
     formatDate (value) {
       return moment(value).format('l HH:mm')

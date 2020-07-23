@@ -33,7 +33,7 @@
                 </template>
                 <!--TODO Hide Administrator Link if not the role-->
                 <b-dropdown-item :to="{ name: 'admin.index' }" v-if='isAuthenticated'>
-                  {{ $t('admin.admin') }}
+                  {{ $t('settings.settings') }}
                 </b-dropdown-item>
 
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>

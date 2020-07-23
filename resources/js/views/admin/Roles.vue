@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>{{$t('admin.roles.title')}}</h2>
+    <h2>{{$t('settings.roles.title')}}</h2>
     <hr>
   </div>
 </template>

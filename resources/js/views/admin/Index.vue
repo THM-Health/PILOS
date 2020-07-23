@@ -1,6 +1,6 @@
 <template>
   <b-container class="mt-3 mb-5">
-    <h2>{{$t('admin.admin')}}</h2>
+    <h2>{{$t('settings.settings')}}</h2>
     <hr>
     <b-row class="mt-5">
       <b-col lg="3" class="mb-4">
