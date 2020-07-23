@@ -11,44 +11,44 @@
 
               <!-- General settings tab -->
               <div class="col-lg-3 col-sm-12">
-                <h5>Allgemein</h5>
+                <h5>{{ $t('rooms.settings.general.title') }}</h5>
                 <b-form-group label="Typ">
                   <b-input-group>
                   <b-form-select v-model.number="roomType" :options="roomTypeSelect"></b-form-select>
                   </b-input-group>
                 </b-form-group>
                 <!-- Room name -->
-                <b-form-group label="Raumname">
+                <b-form-group :label="$t('rooms.settings.general.roomName')">
                   <b-input-group>
                     <b-form-input  v-model="settings.name"></b-form-input>
                   </b-input-group>
                 </b-form-group>
                 <!-- Welcome message -->
-                <b-form-group label="Begrüßungsnachricht">
+                <b-form-group :label="$t('rooms.settings.general.welcomeMessage')">
                   <b-input-group>
                     <b-form-textarea
                       :state="welcomeMessageValidLength"
-                      placeholder="-- keine -- "
+                      :placeholder="$t('rooms.settings.nonePlaceholder')"
                       rows="3"
                       v-model="settings.welcome"
                     ></b-form-textarea>
                   </b-input-group>
                   <small class="text-muted">
-                    Anzahl Zeichen:
+                    {{$t('rooms.settings.general.chars')}}:
                     {{ charactersLeftWelcomeMessage }}</small>
                 </b-form-group>
 
                 <!-- Max duration -->
-                <b-form-group label="Max. Dauer">
+                <b-form-group :label="$t('rooms.settings.general.maxDuration')">
                   <b-input-group>
                     <b-form-input
                       min="1"
-                      placeholder="-- keine --"
+                      :placeholder="$t('rooms.settings.nonePlaceholder')"
                       type="number"
                       v-model.number="settings.duration"
                     ></b-form-input>
                     <b-input-group-append>
-                      <b-input-group-text>min.</b-input-group-text>
+                      <b-input-group-text>{{$t('rooms.settings.general.minutes')}}</b-input-group-text>
                       <b-button
                         @click="clearDuration"
                         variant="outline-secondary"
@@ -60,9 +60,9 @@
               </div>
               <!-- Security settings tab -->
               <div class="col-lg-3 col-sm-12">
-                <h5>Sicherheit</h5>
+                <h5>{{ $t('rooms.settings.security.title') }}</h5>
                 <!-- Access code -->
-                <b-form-group label="Zugangscode">
+                <b-form-group :label="$t('rooms.settings.security.accessCode')">
                   <b-input-group>
                     <b-input-group-prepend>
                       <b-button
@@ -73,7 +73,7 @@
                     </b-input-group-prepend>
                     <b-form-input
                       id="settings-accessCode"
-                      placeholder="ungeschützt"
+                      :placeholder="$t('rooms.settings.security.unprotectedPlaceholder')"
                       readonly
                       type="number"
                       v-model.number="settings.accessCode"
@@ -87,29 +87,28 @@
                     </b-input-group-append>
                   </b-input-group>
                   <small class="text-muted">
-                    Zugangsbeschränkung für den Beitritt und die
-                    Mitgliedschaft in einem Raum.
+                    {{ $t('rooms.settings.security.accessCodeNote') }}
                   </small>
                 </b-form-group>
                 <b-form-group>
                   <b-form-checkbox v-model="settings.allowGuests" switch>
-                    Gäste zulassen
+                    {{ $t('rooms.settings.security.allowGuests') }}
                   </b-form-checkbox>
                 </b-form-group>
                 <b-form-group>
                   <b-form-checkbox v-model="settings.allowSubscription" switch>
-                    Neue Mitglieder akzeptieren
+                    {{ $t('rooms.settings.security.allowNewMembers') }}
                   </b-form-checkbox>
                 </b-form-group>
               </div>
               <div class="col-lg-3 col-sm-12">
-                <h5>Teilnehmer</h5>
+                <h5>{{ $t('rooms.settings.participants.title') }}</h5>
                   <!-- Max amount of participants -->
-                  <b-form-group label="Max. Anzahl">
+                  <b-form-group :label="$t('rooms.settings.participants.maxParticipants')">
                     <b-input-group>
                       <b-form-input
                         min="1"
-                        placeholder="-- keine --"
+                        :placeholder="$t('rooms.settings.nonePlaceholder')"
                         type="number"
                         v-model.number="settings.maxParticipants"
                       ></b-form-input>
@@ -124,76 +123,76 @@
                   </b-form-group>
                   <b-form-group>
                     <template v-slot:label>
-                      Standardrolle<br><small>(für angemeldete Nutzer)</small>
+                      {{ $t('rooms.settings.participants.defaultRole.title') }}<br><small>({{ $t('rooms.settings.participants.defaultRole.onlyLoggedIn') }})</small>
                     </template>
                     <b-form-radio
                       name="setting-defaultRole"
                       v-model.number="settings.defaultRole"
                       value="1">
-                      Teilnehmer
+                      {{ $t('rooms.settings.participants.defaultRole.participant') }}
                     </b-form-radio>
                     <b-form-radio
                       name="setting-defaultRole"
                       v-model.number="settings.defaultRole"
                       value="2">
-                      Moderator
+                      {{ $t('rooms.settings.participants.defaultRole.moderator') }}
                     </b-form-radio>
                   </b-form-group>
-                <b-form-group label="Warteraum">
+                <b-form-group :label="$t('rooms.settings.participants.waitingRoom.title')">
                   <b-form-radio
                     name="setting-lobby"
                     v-model.number="settings.lobby"
                     value="0">
-                    Deaktiviert
+                    {{ $t('rooms.settings.participants.waitingRoom.disabled') }}
                   </b-form-radio>
                   <b-form-radio
                     name="setting-lobby"
                     v-model.number="settings.lobby"
                     value="1">
-                    Aktiviert
+                    {{ $t('rooms.settings.participants.waitingRoom.enabled') }}
                   </b-form-radio>
                   <b-form-radio
                     name="setting-lobby"
                     v-model.number="settings.lobby"
                     value="2">
-                    Nur für Gäste aktiviert
+                    {{ $t('rooms.settings.participants.waitingRoom.onlyForGuestsEnabled') }}
                   </b-form-radio>
                 </b-form-group>
               </div>
               <div class="col-lg-3 col-sm-12">
-                <h5>Berechtigungen</h5>
+                <h5>{{ $t('rooms.settings.permissions.title') }}</h5>
                 <b-form-checkbox v-model="settings.everyoneCanStart" switch>
-                  Jeder Teilnehmer kann das Meeting starten
+                  {{ $t('rooms.settings.permissions.everyoneStart') }}
                 </b-form-checkbox>
                 <b-form-checkbox v-model="settings.muteOnStart" switch>
-                  Mikrofon bei Beitritt stummschalten
+                  {{ $t('rooms.settings.permissions.muteMic') }}
                 </b-form-checkbox>
                 <hr>
-                <h5>Einschränkungen</h5>
+                <h5>{{ $t('rooms.settings.restrictions.title') }}</h5>
                 <b-form-group>
                   <b-form-checkbox v-model="settings.lockSettingsLockOnJoin" switch>
-                    Einschränkungen aktivieren
+                    {{ $t('rooms.settings.restrictions.enabled') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.lockSettingsDisableCam" switch>
-                    Kamera deaktivieren
+                    {{ $t('rooms.settings.restrictions.disableCam') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.webcamsOnlyForModerator" switch>
-                    Nur Moderatoren sehen Kamera
+                    {{ $t('rooms.settings.restrictions.onlyModSeeCam') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.lockSettingsDisableMic" switch>
-                    Mikrofon deaktivieren
+                    {{ $t('rooms.settings.restrictions.disableMic') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.lockSettingsDisablePublicChat" switch>
-                    Öffentlichen Chat deaktivieren
+                    {{ $t('rooms.settings.restrictions.disablePublicChat') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.lockSettingsDisablePrivateChat" switch>
-                    Privaten Chat deaktivieren
+                    {{ $t('rooms.settings.restrictions.disablePrivateChat') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.lockSettingsDisableNote" switch>
-                    Geteile Notizen bearbeiten
+                    {{ $t('rooms.settings.restrictions.disableNoteEdit') }}
                   </b-form-checkbox>
                   <b-form-checkbox v-model="settings.lockSettingsHideUserList" switch>
-                    Teilnehmerliste verbergen
+                    {{ $t('rooms.settings.restrictions.hideParticipantsList') }}
                   </b-form-checkbox>
                 </b-form-group>
               </div>

@@ -21,6 +21,9 @@ class CreateRoomTypesTable extends Migration
             $table->boolean('default')->default(false);
             $table->timestamps();
         });
+
+        $seeder = new RoomTypeSeeder();
+        $seeder->run();
     }
 
     /**

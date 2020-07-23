@@ -7,25 +7,25 @@
       <b-tabs content-class="p-3" fill  active-nav-item-class="bg-success text-white">
         <b-tab  active>
           <template v-slot:title>
-            <i class="fas fa-users"></i> Mitglieder <span class="badge badge-pill badge-dark">{{ countUsers }}</span>
+            <i class="fas fa-users"></i> {{ $t('rooms.members.title') }} <span class="badge badge-pill badge-dark">{{ countUsers }}</span>
           </template>
           <user-component @userChanged="onUserChange" :room="room"></user-component>
         </b-tab>
         <b-tab>
           <template v-slot:title>
-            <i class="fas fa-folder-open"></i> Dateien
+            <i class="fas fa-folder-open"></i> {{ $t('rooms.files.title') }}
           </template>
           <file-component :room="room"></file-component>
         </b-tab>
         <b-tab>
           <template v-slot:title>
-            <i class="fas fa-chart-line"></i> Statistiken
+            <i class="fas fa-chart-line"></i> {{ $t('rooms.statistics.title') }}
           </template>
 
         </b-tab>
         <b-tab>
           <template v-slot:title>
-            <i class="fas fa-cog"></i> Einstellungen
+            <i class="fas fa-cog"></i> {{ $t('rooms.settings.title') }}
           </template>
           <settings-component :room="room"></settings-component>
         </b-tab>

@@ -4,10 +4,10 @@
       <div class="col-12">
         <b-button-group class="float-lg-right">
           <b-button variant="dark" @click="showAddUserModal"
-          ><i class="fas fa-user-plus"></i> Nutzer hinzufügen
+          ><i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
           <b-button variant="dark"
-          ><i class="fas fa-paper-plane"></i> Gast einladen
+          ><i class="fas fa-paper-plane"></i> {{ $t('rooms.members.inviteGuest') }}
           </b-button>
         </b-button-group>
       </div>
@@ -29,15 +29,15 @@
             </b-button-group>
           </template>
           <template v-slot:cell(role)="data">
-            <b-badge v-if="data.value === 0" variant="primary">Gast</b-badge>
+            <b-badge v-if="data.value === 0" variant="primary">{{ $t('rooms.members.roles.guest') }}</b-badge>
             <b-badge
               class="text-white"
               v-if="data.value === 1"
               variant="success"
-            >Teilnehmer
+            >{{ $t('rooms.members.roles.participant') }}
             </b-badge>
             <b-badge v-if="data.value === 2" variant="danger"
-            >Moderator
+            >{{ $t('rooms.members.roles.moderator') }}
             </b-badge>
           </template>
         </b-table>
@@ -47,39 +47,39 @@
     <!-- Modals -->
 
     <b-modal
-      ok-title="Speichern"
+      :ok-title="$t('rooms.members.modals.edit.save')"
       ok-variant="success"
-      cancel-title="Abbrechen"
+      :cancel-title="$t('rooms.members.modals.edit.cancel')"
       @ok="saveEditUser"
       ref="edit-user-modal" >
       <template v-slot:modal-title>
-        {{ editUser.firstname }} {{ editUser.lastname}} bearbeiten
+        {{ $t('rooms.members.modals.edit.title',{firstname: editUser.firstname,lastname: editUser.lastname}) }}
       </template>
-      <b-form-group label="Rolle" v-if="editUser">
+      <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editUser">
         <b-form-radio v-model.number="editUser.role" name="some-radios" value="1">
-          <b-badge class="text-white" variant="success">Teilnehmer</b-badge>
+          <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
         <b-form-radio v-model.number="editUser.role" name="some-radios" value="2">
-          <b-badge variant="danger">Moderator</b-badge>
+          <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
       </b-form-group>
     </b-modal>
 
     <b-modal
-      ok-title="Hinzufügen"
+      :ok-title="$t('rooms.members.modals.add.add')"
       ok-variant="success"
-      cancel-title="Abbrechen"
+      :cancel-title="$t('rooms.members.modals.add.cancel')"
       @ok="saveNewUser"
       ref="add-user-modal" >
       <template v-slot:modal-title>
-        Nutzer hinzufügen
+        {{ $t('rooms.members.modals.add.title') }}
       </template>
 
-      <b-form-group label="Benutzer" invalid-feedback="Bitte einen Nutzer auswählen" :state="newuservalid">
+      <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="$t('rooms.members.modals.add.selectuser')" :state="newuservalid">
         <multiselect v-model="newUser.data"
                      label="lastname"
                      track-by="id"
-                     placeholder="Name"
+                     :placeholder="$t('rooms.members.modals.add.name')"
                      open-direction="bottom"
                      :options="countries"
                      :multiple="false"
@@ -91,22 +91,22 @@
                      :options-limit="300"
                      :max-height="600"
                      :show-no-results="true"
-                     noOptions="Keine Einträge"
+                     :noOptions="$t('rooms.members.modals.add.noentries')"
                      @search-change="asyncFind">
           <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
           <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
           <template slot="clear" slot-scope="props">
             <div class="multiselect__clear" v-if="selectedCountries.length" @mousedown.prevent.stop="clearAll(props.search)"></div>
-          </template><span slot="noResult">Oops! Es wurden keine Nutzer für diese Abfrage gefunden.</span>
+          </template><span slot="noResult">{{ $t('rooms.members.modals.add.nouserfound') }}</span>
         </multiselect>
       </b-form-group>
 
-      <b-form-group label="Rolle" v-if="newUser.data" invalid-feedback="Bitte eine Rolle auswählen" :state="newuserrolevalid">
+      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :invalid-feedback="$t('rooms.members.modals.add.selectrole')" :state="newuserrolevalid">
         <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="1">
-          <b-badge class="text-white" variant="success">Teilnehmer</b-badge>
+          <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
         <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="2">
-          <b-badge variant="danger">Moderator</b-badge>
+          <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
       </b-form-group>
     </b-modal>
@@ -130,33 +130,7 @@
         isLoading: false,
         member: [],
         boxTwo: '',
-        userfields: [
-          {
-            key: "firstname",
-            label: "Vorname",
-            sortable: true,
-          },
-          {
-            key: "lastname",
-            label: "Nachname",
-            sortable: true,
-          },
 
-          {
-            key: "email",
-            label: "Email",
-            sortable: true,
-          },
-          {
-            key: "role",
-            label: "Rolle",
-            sortable: true,
-          },
-          {
-            key: "actions",
-            label: "Aktion",
-          },
-        ],
         editUser: null,
       }
     },
@@ -188,11 +162,11 @@
       deleteUser: function (user,index) {
         this.boxTwo = ''
         var that = this;
-        this.$bvModal.msgBoxConfirm('Wollen Sie \''+user.firstname+' '+user.lastname+'\' wirklich aus dem Raum entfernen?', {
-          title: 'Teilnehmer aus dem Raum entfernen',
+        this.$bvModal.msgBoxConfirm(this.$t('rooms.members.modals.delete.confirm',{firstname:user.firstname, lastname: user.lastname}), {
+          title: this.$t('rooms.members.modals.delete.title'),
           okVariant: 'danger',
-          okTitle: 'Ja',
-          cancelTitle: 'Nein',
+          okTitle: this.$t('rooms.members.modals.delete.yes'),
+          cancelTitle: this.$t('rooms.members.modals.delete.no'),
           footerClass: 'p-2',
           centered: true
         })
@@ -297,7 +271,37 @@
         if(this.newUser.data != null && this.newUser.data.role == null)
           return false;
         return null;
-      }
+      },
+
+      userfields() { return [
+        {
+          key: "firstname",
+          label: this.$t('rooms.members.firstname'),
+          sortable: true,
+        },
+        {
+          key: "lastname",
+          label: this.$t('rooms.members.lastname'),
+          sortable: true,
+        },
+
+        {
+          key: "email",
+          label: this.$t('rooms.members.email'),
+          sortable: true,
+        },
+        {
+          key: "role",
+          label: this.$t('rooms.members.role'),
+          sortable: true,
+        },
+        {
+          key: "actions",
+          label: this.$t('rooms.members.actions'),
+        },
+      ]; }
+
+
     },
     watch: {
       'member.length': function () {

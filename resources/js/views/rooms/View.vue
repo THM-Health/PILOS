@@ -1,9 +1,7 @@
 <template>
   <div class="container mt-5 mb-5" v-cloak>
-
     <div v-if="!room">
-      <b-alert show><i class="fas fa-exclamation-circle"></i> Dieser Raum kann nur von angemeldeten Nutern
-        verwendet werden.
+      <b-alert show><i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByLoggedInUsers') }}
       </b-alert>
       <b-button-group>
         <b-button
@@ -20,7 +18,6 @@
         </b-button>
       </b-button-group>
     </div>
-
     <div v-if="room">
       <div class="row pt-7 pt-sm-9 mb-3" v-if="room.loggedIn">
         <div class="col-lg-12">
@@ -30,7 +27,7 @@
             v-on:click="joinMembership"
             variant="dark"
           >
-            <i class="fas fa-user-plus"></i> Mitglied werden
+            <i class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
           <b-button
             class="float-right"
@@ -38,10 +35,9 @@
             v-on:click="leaveMembership"
             variant="danger"
           >
-            <i class="fas fa-user-minus"></i> Mitgliedschaft beenden
+            <i class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
           </b-button>
         </div>
-
       </div>
       <div class="row pt-7 pt-sm-9">
         <div class="col-lg-1 col-2">
@@ -58,12 +54,11 @@
       <hr>
       <b-row class="pt-7 pt-sm-9">
         <b-col v-if="room.isModerator">
-
           <div class="jumbotron p-4" >
-            <h5>Zugang für Teilnehmer</h5>
+            <h5>{{ $t('rooms.accessForParticipants') }}</h5>
             <b-button
               class="float-right"
-              v-clipboard="invitationText"
+              v-clipboard="() => invitationText"
               variant="light"
             >
               <i class="fas fa-copy"></i>
@@ -75,7 +70,7 @@
           <template v-if="room.loggedIn">
             <b-row>
               <b-col v-if="room.isGuest">
-                <b-form-group label="Vor- und Nachname">
+                <b-form-group :label="$t('rooms.firstAndLastname')">
                   <b-input-group>
                     <b-form-input v-model="name" placeholder="Max Mustermann"></b-form-input>
                   </b-input-group>
@@ -86,10 +81,10 @@
                   <b-button
                     block
                     v-on:click="join"
-                    :disabled="room.isGuest && name===''"
+                    :disabled="(room.isGuest && name==='') || loadingJoinStart"
                     variant="success"
                   >
-                    <i class="fas fa-door-open"></i> Teilnehmen
+                    <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.join') }}
                   </b-button>
                 </template>
                 <template v-else>
@@ -97,12 +92,12 @@
                     block
                     split
                     v-if="room.canStart"
-                    :disabled="room.isGuest && name===''"
+                    :disabled="(room.isGuest && name==='') || loadingJoinStart"
                     v-on:click="start"
                     variant="success"
                   >
                     <template v-slot:button-content>
-                      <i class="fas fa-door-open"></i> Starten
+                      <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.start') }}
                     </template>
                     <b-dropdown-item href="#">Server 11</b-dropdown-item>
                     <b-dropdown-item href="#">Server 12</b-dropdown-item>
@@ -111,22 +106,18 @@
                     <div class="mb-3">
                       <b-spinner></b-spinner>
                     </div>
-                    Der Raum ist noch nicht gestartet.
+                    {{ $t('rooms.notRunning') }}
                   </b-alert>
                 </template>
               </b-col>
             </b-row>
-
-
-
           </template>
         </b-col>
       </b-row>
-
       <template v-if="room.files && room.files.length > 0 && !room.isOwner">
         <b-row><b-col>
           <hr>
-          <h4>Dateien</h4>
+          <h4>{{ $t('rooms.files.title') }}</h4>
           <b-table :fields="filefields" :items="room.files" hover>
             <template v-slot:cell(actions)="data">
               <b-button-group class="float-right">
@@ -140,24 +131,21 @@
           </b-table>
         </b-col></b-row>
       </template>
-
       <room-admin :room="room" v-if="room.isOwner"></room-admin>
 
       <!-- Using components -->
 
       <div v-if="!room.loggedIn">
-        <b-alert show>Für diesen Raum ist ein Zugangscode erforderlich</b-alert>
+        <b-alert show>{{ $t('rooms.requireAccessCode') }}</b-alert>
         <b-input-group>
           <b-form-input :state="accessCodeValid" placeholder="Zugangscode" v-mask="'999-999-999'" v-model="accessCodeInput"
                         v-on:keyup.enter="login"></b-form-input>
           <b-input-group-append>
-            <b-button v-on:click="login" variant="success"><i class="fas fa-lock"></i> Anmelden</b-button>
+            <b-button v-on:click="login" variant="success"><i class="fas fa-lock"></i> {{ $t('rooms.login') }}</b-button>
           </b-input-group-append>
         </b-input-group>
       </div>
-
     </div>
-
   </div>
 </template>
 <script>
@@ -176,23 +164,13 @@
     data() {
       return {
         name: '',
+        loadingJoinStart : false,
         room_id: null,
         room: null,
         accessCode: null,
         accessCodeInput: null,
         accessCodeValid: null,
         reloadTimer: '',
-        filefields: [
-          {
-            key: "filename",
-            label: "Dateiname",
-            sortable: true,
-          },
-          {
-            key: "actions",
-            label: "Aktion",
-          },
-        ],
       }
     },
     // Component not loaded yet
@@ -271,6 +249,7 @@
       },
 
       start: function () {
+        this.loadingJoinStart = true;
         var url = 'rooms/' + this.room_id + '/start?name='+this.name;
         if (this.accessCode != null) {
           url += '&code=' + this.accessCode
@@ -280,6 +259,7 @@
           if(response.data.url !== undefined)
             window.location = response.data.url;
         }).catch((error) => {
+          this.loadingJoinStart = false;
           if (error.response) {
             console.log(error.response.data)
             console.log(error.response.status)
@@ -295,6 +275,7 @@
         })
       },
       join: function () {
+        this.loadingJoinStart = true;
         var url = 'rooms/' + this.room_id + '/join?name='+this.name;
         if (this.accessCode != null) {
           url += '&code=' + this.accessCode
@@ -304,6 +285,7 @@
           if(response.data.url !== undefined)
             window.location = response.data.url;
         }).catch((error) => {
+          this.loadingJoinStart = false;
           if (error.response) {
             if (error.response.status === 460) {
               this.room.running = false
@@ -381,14 +363,26 @@
         );
       },
 
+      filefields() { return [
+        {
+          key: "filename",
+          label: this.$t('rooms.files.filename'),
+          sortable: true,
+        },
+        {
+          key: "actions",
+          label: this.$t('rooms.files.actions'),
+        },
+      ]; },
+
       invitationText: function () {
-        var message = "An " + this.room.name + " mit PILOS teilnehmen\n";
-        message += "Link: " + this.roomUrl;
+        var message = this.$t('rooms.invitation.room',{roomname:this.room.name})+"\n";
+        message += this.$t('rooms.invitation.link',{link:this.roomUrl});
 
         if (this.room.accessCode) {
-          message += "\nZugangscode: " + String(this.room.accessCode)
-            .match(/.{1,3}/g)
-            .join("-");
+          message += "\n"+this.$t('rooms.invitation.code',{code: String(this.room.accessCode)
+              .match(/.{1,3}/g)
+              .join("-")});
         }
         return message;
       },

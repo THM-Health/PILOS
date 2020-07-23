@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-form-file
-      placeholder="Wähle eine Datei aus, oder ziehe sie hier hin..."
+      :placeholder="$t('rooms.files.selectordrag')"
       v-on:change="uploadFile($event)"
       v-model="fileUpload"
       v-bind:multiple="false"
@@ -61,37 +61,6 @@
       return {
         fileUpload: null,
         file: null,
-        filefields: [
-          {
-            key: "filename",
-            label: "Dateiname",
-            sortable: true,
-          },
-          {
-            key: "uploaded",
-            label: "Hochgeladen am",
-            sortable: true,
-          },
-          {
-            key: "download",
-            label: "Herunterladen",
-            sortable: true,
-          },
-          {
-            key: "useinmeeting",
-            label: "In Meeting nutzen",
-            sortable: true,
-          },
-          {
-            key: "default",
-            label: "Standard",
-            sortable: true,
-          },
-          {
-            key: "actions",
-            label: "Aktion",
-          },
-        ],
         files: [],
       }
     },
@@ -99,11 +68,11 @@
       deleteFile: function (file,index) {
         this.boxTwo = ''
         var that = this;
-        this.$bvModal.msgBoxConfirm('Wollen Sie \''+file.filename+'\' wirklich löschen?', {
-          title: 'Datei löschen',
+        this.$bvModal.msgBoxConfirm(this.$t('rooms.files.modals.delete.confirm',{filename: file.filename}), {
+          title: this.$t('rooms.files.modals.delete.title'),
           okVariant: 'danger',
-          okTitle: 'Ja',
-          cancelTitle: 'Nein',
+          okTitle: this.$t('rooms.files.modals.delete.yes'),
+          cancelTitle: this.$t('rooms.files.modals.delete.no'),
           footerClass: 'p-2',
           centered: true
         })
@@ -205,6 +174,41 @@
       }
     },
 
+    computed: {
+
+      filefields(){ return [
+        {
+          key: "filename",
+          label: this.$t('rooms.files.filename'),
+          sortable: true,
+        },
+        {
+          key: "uploaded",
+          label: this.$t('rooms.files.uploadedAt'),
+          sortable: true,
+        },
+        {
+          key: "download",
+          label: this.$t('rooms.files.downloadable'),
+          sortable: true,
+        },
+        {
+          key: "useinmeeting",
+          label: this.$t('rooms.files.useInNextMeeting'),
+          sortable: true,
+        },
+        {
+          key: "default",
+          label: this.$t('rooms.files.default'),
+          sortable: true,
+        },
+        {
+          key: "actions",
+          label: this.$t('rooms.files.actions'),
+        },
+      ]; }
+
+    },
     created() {
       this.reload();
     },
