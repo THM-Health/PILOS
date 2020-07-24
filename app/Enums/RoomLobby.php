@@ -5,9 +5,8 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static OptionOne()
- * @method static static OptionTwo()
- * @method static static OptionThree()
+ * Lobby/Waiting room settings enum
+ * @package App\Enums
  */
 final class RoomLobby extends Enum
 {

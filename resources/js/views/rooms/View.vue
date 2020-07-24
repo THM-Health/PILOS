@@ -6,8 +6,9 @@
       <b-button-group>
         <b-button
           v-on:click="reload"
+          :disabled="loading"
         >
-          <i class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
+          <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
         </b-button>
 
         <b-button
@@ -19,6 +20,13 @@
       </b-button-group>
     </div>
     <div v-if="room">
+      <b-button
+        class="float-right"
+        v-on:click="reload"
+        :disabled="loading"
+      >
+        <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i>
+      </b-button>
       <div class="row pt-7 pt-sm-9 mb-3" v-if="room.loggedIn">
         <div class="col-lg-12">
           <b-button
@@ -132,7 +140,7 @@
           </b-table>
         </b-col></b-row>
       </template>
-      <room-admin :room="room" v-if="room.isOwner"></room-admin>
+      <room-admin @settingsChanged="reload" :room="room" v-if="room.isOwner"></room-admin>
 
       <!-- Using components -->
 
@@ -164,6 +172,7 @@ export default {
 
   data () {
     return {
+      loading: false,
       name: '',
       loadingJoinStart: false,
       room_id: null,
@@ -207,22 +216,26 @@ export default {
     })
   },
   mounted () {
-    setInterval(this.reload, 3000)
+    setInterval(this.reload, process.env.MIX_REFRESH_RATE*1000)
   },
   methods: {
 
     reload: function () {
+      this.loading = true;
       var url = 'rooms/' + this.room_id
       if (this.accessCode != null) {
         url += '?code=' + this.accessCode
       }
 
       Base.call(url).then(response => {
+        this.loading = false;
         this.room = response.data.data
         if (this.room.loggedIn) {
           this.accessCodeValid = null
         }
+
       }).catch((error) => {
+        this.loading = false;
         if (error.response) {
           if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
             this.accessCodeValid = false
@@ -261,6 +274,12 @@ export default {
       }).catch((error) => {
         this.loadingJoinStart = false
         if (error.response) {
+          if (error.response.status === 403) {
+            this.room.canStart = false
+            this.flashMessage.error(this.$t('rooms.flash.startForbidden'))
+          }
+
+
           console.log(error.response.data)
           console.log(error.response.status)
           console.log(error.response.headers)
@@ -288,6 +307,7 @@ export default {
         if (error.response) {
           if (error.response.status === 460) {
             this.room.running = false
+            this.flashMessage.error(this.$t('rooms.flash.notRunning'))
           }
 
           console.log(error.response.data)

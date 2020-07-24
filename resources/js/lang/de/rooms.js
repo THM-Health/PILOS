@@ -15,8 +15,21 @@ export default {
   endMembership: 'Mitgliedschaft beenden',
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
+  flash: {
+    notRunning: {
+      message: 'Der Raum ist aktuell geschlossen.',
+      title: 'Teilnahme fehlgeschlagen'
+    },
+    startForbidden: {
+      message: 'Der Raum kann von Ihnen nicht gestartet werden.',
+      title: 'Starten fehlgeschlagen'
+    },
+  },
+
+
   files: {
     title: 'Dateien',
+    nodata: 'Keine Dateien vorhanden',
     filename: 'Dateiname',
     actions: 'Aktionen',
     default: 'Standard',
@@ -31,7 +44,13 @@ export default {
         yes: 'Ja',
         no: 'Nein'
       }
-    }
+    },
+    flash: {
+      deleted: {
+        message: 'Die Datei wurde erfolgreich gelöscht',
+        title: 'Gelöscht'
+      },
+    },
   },
   invitation: {
     room: 'An "{roomname}" mit PILOS teilnehmen',
@@ -40,6 +59,7 @@ export default {
   },
   members: {
     title: 'Mitglieder',
+    nodata: 'Keine Mitglieder vorhanden',
     addUser: 'Nutzer hinzufügen',
     inviteGuest: 'Gast einladen',
     firstname: 'Vorname',

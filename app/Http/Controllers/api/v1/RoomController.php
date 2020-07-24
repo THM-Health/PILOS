@@ -86,6 +86,7 @@ class RoomController extends Controller
     {
         $loggedIn = $this->checkAccess($room, $request->code);
 
+
         return new \App\Http\Resources\Room($room, $loggedIn);
     }
 
@@ -235,7 +236,7 @@ class RoomController extends Controller
 
     public function addMember(Room $room, AddRoomMember $request)
     {
-        $room->members()->attach($request->id, ['role' => $request->role]);
+        $room->members()->attach($request->user, ['role' => $request->role]);
     }
 
     public function editMember(Room $room, User $user, Request $request)

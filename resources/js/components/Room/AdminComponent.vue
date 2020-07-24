@@ -27,7 +27,7 @@
           <template v-slot:title>
             <i class="fas fa-cog"></i> {{ $t('rooms.settings.title') }}
           </template>
-          <settings-component :room="room"></settings-component>
+          <settings-component @settingsChanged="onSettingsChange" :room="room"></settings-component>
         </b-tab>
       </b-tabs>
         </b-card>
@@ -60,6 +60,9 @@ export default {
   methods: {
     onUserChange (value) {
       this.countUsers = value
+    },
+    onSettingsChange(){
+      this.$emit('settingsChanged');
     }
   }
 

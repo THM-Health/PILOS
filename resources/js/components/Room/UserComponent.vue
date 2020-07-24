@@ -2,12 +2,18 @@
   <div>
     <div class="row">
       <div class="col-12">
+
+
+
         <b-button-group class="float-lg-right">
           <b-button variant="dark" @click="showAddUserModal"
           ><i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
           <b-button variant="dark"
           ><i class="fas fa-paper-plane"></i> {{ $t('rooms.members.inviteGuest') }}
+          </b-button>
+          <b-button variant="dark" @click="reload"
+          ><i class="fas fa-sync"></i>
           </b-button>
         </b-button-group>
       </div>
@@ -18,8 +24,19 @@
           :fields="userfields"
           :items="member"
           hover
+          :busy="isBusy"
           stacked="md"
+          show-empty
         >
+          <template v-slot:empty="scope">
+            <i>{{ $t('rooms.members.nodata') }}</i>
+          </template>
+
+          <template v-slot:table-busy>
+            <div class="text-center my-2">
+              <b-spinner class="align-middle"></b-spinner>
+            </div>
+          </template>
           <template v-slot:cell(actions)="data">
             <b-button-group class="float-md-right">
               <b-button variant="dark" @click="showEditUserModal(data.item,data.index)"
@@ -75,6 +92,7 @@
         {{ $t('rooms.members.modals.add.title') }}
       </template>
 
+      <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="$t('rooms.members.modals.add.selectuser')" :state="newuservalid">
         <multiselect v-model="newUser.data"
                      label="lastname"
@@ -124,13 +142,14 @@ export default {
   },
   data () {
     return {
+      isBusy: false,
       newUser: { data: null, feedback: { user: null, role: null } },
       selectedCountries: [],
       countries: [],
       isLoading: false,
       member: [],
       boxTwo: '',
-
+      createError: null,
       editUser: null
     }
   },
@@ -176,6 +195,7 @@ export default {
               method: 'delete'
             }).then(response => {
               this.member.splice(index, 1)
+              this.reload()
             }).catch((error) => {
               if (error.response) {
                 console.log(error.response.data)
@@ -198,6 +218,7 @@ export default {
     },
     showAddUserModal: function () {
       this.newUser = { data: null, feedback: { user: null, role: null } }
+      this.createError = null
       this.$refs['add-user-modal'].show()
     },
     saveEditUser: function () {
@@ -206,6 +227,7 @@ export default {
         data: { role: this.editUser.role }
       }).then(response => {
         this.member[this.editUser.index].role = this.editUser.role
+        this.reload()
       }).catch((error) => {
         if (error.response) {
           console.log(error.response.data)
@@ -218,17 +240,27 @@ export default {
     },
     saveNewUser: function (bvModalEvt) {
       bvModalEvt.preventDefault()
+      this.createError = null;
       if (this.newuservalid === false || this.newuserrolevalid === false) {
         return
       }
 
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'post',
-        data: { id: this.newUser.data.id, role: this.newUser.data.role }
+        data: { user: this.newUser.data.id, role: this.newUser.data.role }
       }).then(response => {
         this.$refs['add-user-modal'].hide()
+        this.reload()
       }).catch((error) => {
         if (error.response) {
+
+          if(error.response.status === 422) {
+            if(error.response.data.errors.user){
+              this.createError = error.response.data.errors.user.join("<br>");
+            }
+
+
+          }
           console.log(error.response.data)
           console.log(error.response.status)
           console.log(error.response.headers)
@@ -238,10 +270,13 @@ export default {
       })
     },
     reload: function () {
+      this.isBusy = true;
       var url = 'rooms/' + this.room.id + '/member'
       Base.call(url).then(response => {
         this.member = response.data.data
+        this.isBusy = false
       }).catch((error) => {
+        this.isBusy = false
         if (error.response) {
           console.log(error.response.data)
           console.log(error.response.status)
@@ -301,7 +336,6 @@ export default {
 
   created () {
     this.reload()
-    setInterval(this.reload, 3000)
   }
 }
 </script>

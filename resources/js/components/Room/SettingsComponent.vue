@@ -229,6 +229,7 @@ export default {
         data: this.settings
       }).then(response => {
         this.settings = response.data.data
+        this.$emit('settingsChanged');
         this.saving = false
       }).catch((error) => {
         if (error.response) {

@@ -6,63 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Meeting;
 use Illuminate\Http\Request;
 
+/**
+ * Class MeetingController
+ * @package App\Http\Controllers\api\v1
+ */
 class MeetingController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of all currently running meetings
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        //
+        //@TODO Implement a list of all currently running meetings
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Callback from bbb-server to notify about the end of the meeting
      *
-     * @param  Request                   $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Meeting $meeting
      */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  Meeting                   $meeting
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Meeting $meeting)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request                   $request
-     * @param  Meeting                   $meeting
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Meeting $meeting)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  Meeting                   $meeting
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Meeting $meeting)
-    {
-        //
-    }
-
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
         // Validate request
@@ -70,6 +35,7 @@ class MeetingController extends Controller
             abort(401);
         }
 
+        // Set end of meeting
         $meeting->end = date('Y-m-d H:i:s');
         $meeting->save();
     }

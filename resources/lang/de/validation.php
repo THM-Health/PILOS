@@ -134,6 +134,12 @@ return [
         ],
         'locale' => [
             'in' => 'Die gewählte Sprache wird vom Server nicht unterstützt.'
+        ],
+        'user' => [
+            'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.'
+        ],
+        'room' => [
+            'already member' => 'Der Benutzer ist bereits Mitglied des Raums.'
         ]
     ],
 
@@ -150,6 +156,7 @@ return [
 
     'attributes' => [
         'name'                  => 'Name',
+        'user'                  => 'Benutzer',
         'username'              => 'Benutzername',
         'email'                 => 'E-Mail Adresse',
         'first_name'            => 'Vorname',

@@ -1,13 +1,37 @@
 <template>
   <div>
-    <b-form-file
-      :placeholder="$t('rooms.files.selectordrag')"
-      v-on:change="uploadFile($event)"
-      v-model="fileUpload"
-      v-bind:multiple="false"
-    ></b-form-file>
+    <div class="row mb-3">
+      <div class="col-8">
+        <b-form-file
+          :placeholder="$t('rooms.files.selectordrag')"
+          v-on:change="uploadFile($event)"
+          v-model="fileUpload"
+          v-bind:multiple="false"
+        ></b-form-file>
+      </div>
+      <div class="col-4">
 
-    <b-table :fields="filefields" v-if="files" :items="files.files" hover>
+
+          <b-button class="float-right" variant="dark" @click="reload"
+          ><i class="fas fa-sync"></i>
+          </b-button>
+      </div>
+    </div>
+
+
+
+    <b-table :fields="filefields" v-if="files" :busy="isBusy" :items="files.files" hover show-empty>
+
+      <template v-slot:empty="scope">
+        <i>{{ $t('rooms.files.nodata') }}</i>
+      </template>
+
+      <template v-slot:table-busy>
+        <div class="text-center my-2">
+          <b-spinner class="align-middle"></b-spinner>
+        </div>
+      </template>
+
       <template v-slot:cell(actions)="data">
         <b-button-group class="float-right">
           <b-button variant="danger"  @click="deleteFile(data.item,data.index)"
@@ -59,6 +83,7 @@ export default {
   },
   data () {
     return {
+      isBusy: false,
       fileUpload: null,
       file: null,
       files: []
@@ -81,7 +106,8 @@ export default {
             Base.call('rooms/' + this.room.id + '/files/' + file.id, {
               method: 'delete'
             }).then(response => {
-              this.files.files.splice(index, 1)
+              this.files.files.splice(index, 1);
+              this.reload()
             }).catch((error) => {
               if (error.response) {
                 console.log(error.response.data)
@@ -120,10 +146,13 @@ export default {
       })
     },
     reload: function () {
+      this.isBusy = true
       var url = 'rooms/' + this.room.id + '/files'
       Base.call(url).then(response => {
         this.files = response.data.data
+        this.isBusy = false
       }).catch((error) => {
+        this.isBusy = false
         if (error.response) {
           console.log(error.response.data)
           console.log(error.response.status)
