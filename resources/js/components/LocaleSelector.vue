@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { loadLanguageAsync } from '../i18n'
+import { setI18nLanguage } from '../i18n'
 import { mapState } from 'vuex'
 
 const localeMap = {
@@ -71,7 +71,7 @@ export default {
 
       try {
         await this.$store.dispatch('session/setLocale', { locale })
-        await loadLanguageAsync(locale)
+        setI18nLanguage(locale)
       } catch (error) {
         if (error.response !== undefined && error.response.status === 422) {
           this.errors = error.response.data.errors.locale

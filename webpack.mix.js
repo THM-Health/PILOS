@@ -2,7 +2,6 @@ const mix = require('laravel-mix')
 const fs = require('fs')
 const glob = require('glob')
 const path = require('path')
-require('laravel-mix-merge-manifest')
 
 /*
  |--------------------------------------------------------------------------
@@ -20,7 +19,11 @@ const files = ['resources/js/app.js']
 if (!process.env.MIX_AVAILABLE_LOCALES) {
   process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*.js').map(file => {
     return path.basename(file, '.js')
-  }).join(',')
+  }).filter(lang => lang !== 'index').join(',')
+}
+
+if (!process.env.MIX_DEFAULT_LOCALE) {
+  process.env.MIX_DEFAULT_LOCALE = 'en'
 }
 
 if (fs.existsSync('resources/custom/js/')) {
@@ -32,10 +35,12 @@ if (fs.existsSync('resources/custom/js/')) {
 }
 
 mix.js(files, 'public/js')
+  .sass('resources/sass/app.scss', 'public/css')
+  .copy('resources/images', 'public/images')
   .sourceMaps(false)
 
-if (process.env.NODE_ENV !== 'test') {
-  mix.extract()
+if (fs.existsSync('resources/custom/images')) {
+  mix.copy('resources/custom/images', 'public/images')
 }
 
 if (!mix.inProduction()) {
@@ -45,5 +50,3 @@ if (!mix.inProduction()) {
 if (mix.inProduction()) {
   mix.version()
 }
-
-mix.mergeManifest()
