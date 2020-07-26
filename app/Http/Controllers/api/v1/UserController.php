@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\User as UserResource;
-use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -18,13 +15,13 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->firstname && $request->lastname && $request->username) {
-            return User::orWhere('firstname', 'like', '%'.$request->firstname.'%')
+            DB::table('users')->orWhere('firstname', 'like', '%'.$request->firstname.'%')
                 ->orWhere('lastname', 'like', '%'.$request->lastname.'%')
                 ->orWhere('username', 'like', '%'.$request->username.'%')
                 ->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
         }
 
-        return User::paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+        return DB::table('users')->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
     }
 
     /**
