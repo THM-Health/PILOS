@@ -16,44 +16,44 @@
         >
           <b-input-group size="sm">
             <b-form-input
-              v-model="filter"
+              v-model="filterInput"
               type="search"
               id="filterInput"
               :placeholder="$t('settings.searchbar.placeholder')"
+              @input="getUsers(currentPage, filterInput)"
             ></b-form-input>
             <b-input-group-append>
-              <b-button :disabled="!filter" @click="filter = ''">
-                <i class="fas fa fa-trash"></i>
+              <b-button class="btn-success">
+                <i class="text-white fas fa fa-search"></i>
               </b-button>
             </b-input-group-append>
           </b-input-group>
         </b-form-group>
       </b-col>
     </b-row>
+
     <hr>
 
-    <b-table id="user-table" hover
+    <b-table id="user-table"
+             hover
              :fields="fields"
-             :sort-by.sync="sortBy"
              :sort-desc.sync="sortDesc"
              :busy.sync="isBusy"
              :items="users"
-             :per-page="perPage"
-             :current-page="currentPage"
              :filter="filter"
              @filtered="onFiltered"
              responsive
              small>
-      <!-- A virtual composite column -->
-      <template v-slot:cell(firstname)="data">
-        <div class="text-wrap">
-          <p class="m-0">{{ data.item.firstname }} {{data.item.lastname}}</p>
-          <p class="text-secondary m-0  ">{{$t('settings.users.table.created')}} {{formatDate(data.item.createdAt)}}</p>
+      <!--Loading state overlay on table-->
+      <template v-slot:table-busy>
+        <div class="text-center text-success my-2">
+          <b-spinner class="align-middle"></b-spinner>
+          <strong>{{$t('settings.users.table.loading')}}</strong>
         </div>
       </template>
       <template v-slot:cell(action)>
         <div class="ml-3">
-          <b-dropdown id="dropdown-right" right variant="success" class="m-2">
+          <b-dropdown size="sm" id="dropdown-right" right variant="success" class="m-2">
             <template v-slot:button-content>
               <span><i class="fas fa fa-user"></i></span>
             </template>
@@ -71,7 +71,6 @@
           </b-dropdown>
         </div>
       </template>
-
     </b-table>
 
     <b-pagination
@@ -79,16 +78,17 @@
       v-model="currentPage"
       :total-rows="rows"
       :per-page="perPage"
-      aria-controls="user-table"
-      align="right"
-      limit="5"
-      pills
+      :limit="limits"
       :first-text="$t('settings.pagination.first')"
       :prev-text="$t('settings.pagination.prev')"
       :next-text="$t('settings.pagination.next')"
       :last-text="$t('settings.pagination.last')"
+      align="right"
+      pills
+      @input="getUsers(currentPage)"
     >
     </b-pagination>
+
   </div>
 </template>
 
@@ -100,12 +100,17 @@ export default {
   data () {
     return {
       users: [],
-      isBusy: false,
-      perPage: 10,
-      currentPage: 1,
+      isBusy: true,
       sortDesc: false,
       totalRows: null,
-      filter: null
+      filterInput: null,
+      currentPage: 1,
+      firstPage: 1,
+      lastPage: null,
+      nextPage: null,
+      prevPage: null,
+      perPage: null,
+      limits: process.env.MIX_PAGINATION_LIMIT
     }
   },
   mounted () {
@@ -113,11 +118,12 @@ export default {
   },
   computed: {
     rows () {
-      return this.users.length
+      return this.totalRows
     },
     fields () {
       return [
-        { key: 'firstname', sortable: true, label: this.$t('settings.users.table.name') },
+        { key: 'firstname', sortable: true, label: this.$t('settings.users.table.firstname') },
+        { key: 'lastname', sortable: true, label: this.$t('settings.users.table.lastname') },
         { key: 'username', sortable: true, label: this.$t('settings.users.table.username') },
         {
           key: 'guid',
@@ -127,16 +133,43 @@ export default {
             return value === null ? 'pilos' : 'ldap'
           }
         },
+        {
+          key: 'created_at',
+          sortable: true,
+          label: this.$t('settings.users.table.created'),
+          formatter: value =>
+            this.formatDate(value)
+        },
+        {
+          key: 'updated_at',
+          sortable: true,
+          label: this.$t('settings.users.table.updated'),
+          formatter: value =>
+            this.formatDate(value)
+        },
         { key: 'action', label: this.$t('settings.users.table.actions') }
       ]
     }
   },
   methods: {
-    getUsers () {
+    getUsers (pageVal = 1, searchInput) {
       this.isBusy = true
-      Base.call('users').then(response => {
+      Base.call('users', {
+        params: {
+          page: pageVal,
+          firstname: searchInput,
+          lastname: searchInput,
+          username: searchInput
+        }
+      }).then(response => {
         this.users = response.data.data
-        this.totalRows = response.data.length
+        this.totalRows = response.data.data.length
+        this.currentPage = response.data.current_page
+        this.lastPage = response.data.last_page
+        this.perPage = response.data.per_page
+        this.totalRows = response.data.total
+        this.nextPage = this.currentPage + 1
+        this.prevPage = this.currentPage - 1
       }).finally(this.isBusy = false)
     },
     formatDate (value) {

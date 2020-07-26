@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\User as UserResource;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -13,9 +15,16 @@ class UserController extends Controller
      * Display a listing of the resource.
      *
      */
-    public function index()
+    public function index(Request $request)
     {
-        return UserResource::collection(User::all());
+        if ($request->firstname && $request->lastname && $request->username) {
+            return User::orWhere('firstname', 'like', '%'.$request->firstname.'%')
+                ->orWhere('lastname', 'like', '%'.$request->lastname.'%')
+                ->orWhere('username', 'like', '%'.$request->username.'%')
+                ->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+        }
+
+        return User::paginate(env('MIX_PAGINATION_PER_PAGE', 15));
     }
 
     /**
@@ -24,7 +33,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //TODO implement create an user method
     }
 
     /**
@@ -33,7 +42,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        //TODO implement fetch a specific user based on id method
     }
 
     /**
@@ -43,7 +52,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //TODO implement update method on a specific user based on request method
     }
 
     /**
@@ -52,6 +61,6 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        //TODO implement delete user based on id method
     }
 }

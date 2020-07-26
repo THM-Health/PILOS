@@ -20,11 +20,15 @@ export default {
       authenticator: 'Authenticator',
       email: 'Email',
       name: 'Name',
+      firstname: 'Firstname',
+      lastname: 'Lastname',
       username: 'Username',
-      created: 'Created at: ',
+      created: 'Created',
+      updated: 'Updated',
       actions: 'Actions',
       edit: 'Edit',
-      delete: 'Delete'
+      delete: 'Delete',
+      loading: 'Loading...'
     }
   },
 
