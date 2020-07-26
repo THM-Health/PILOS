@@ -163,7 +163,6 @@ export default {
         }
       }).then(response => {
         this.users = response.data.data
-        this.totalRows = response.data.data.length
         this.currentPage = response.data.current_page
         this.lastPage = response.data.last_page
         this.perPage = response.data.per_page
