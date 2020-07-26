@@ -34,10 +34,10 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 
-    Route::apiResource('users', 'UserController');
-
     Route::middleware('auth:api_users,api')->group(function () {
         Route::apiResource('rooms', 'RoomController');
+
+        Route::apiResource('users', 'UserController');
 
         Route::post('setLocale', function (Request $request) {
             $validatedData = $request->validate([
