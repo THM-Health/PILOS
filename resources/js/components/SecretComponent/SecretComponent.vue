@@ -59,9 +59,15 @@ export default {
         this.errors[id] = null
         this.loading = true
         await this.$store.dispatch('session/login', { credentials: data, method: id })
-        this.$router.push({ name: 'rooms.index' })
+        this.flashMessage.success(this.$t('auth.flash.login'))
+        await this.$router.push({ name: 'rooms.index' })
       } catch (error) {
-        this.errors[id] = error.response.data.errors
+        if (error.response !== undefined && error.response.status === 422) {
+          this.errors[id] = error.response.data.errors
+        } else {
+          this.loading = false
+          throw error
+        }
       } finally {
         this.loading = false
       }

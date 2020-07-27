@@ -40,8 +40,11 @@
       </b-navbar>
 
       <main>
+        <FlashMessage position="right top"/>
         <router-view></router-view>
       </main>
+
+      <footer-component></footer-component>
     </b-overlay>
   </div>
 </template>
@@ -49,9 +52,10 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import LocaleSelector from '../components/LocaleSelector'
+import FooterComponent from '../components/FooterComponent'
 
 export default {
-  components: { LocaleSelector },
+  components: { LocaleSelector, FooterComponent },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
@@ -69,15 +73,19 @@ export default {
   methods: {
     async logout () {
       await this.$store.dispatch('session/logout')
-      // TODO: Message for successful logout
-      this.$router.push({ name: 'home' })
+      this.flashMessage.success(this.$t('auth.flash.logout'))
+      await this.$router.push({ name: 'home' })
     }
   }
 }
 </script>
 
 <style scoped>
-.mainnav {
-  border-bottom: 1px solid rgba(0, 40, 100, 0.12);
-}
+  .mainnav {
+    border-bottom: 1px solid rgba(0, 40, 100, 0.12);
+  }
+
+  main {
+    min-height: calc(100vh - 80px);
+  }
 </style>
