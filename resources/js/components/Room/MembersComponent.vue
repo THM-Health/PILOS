@@ -3,8 +3,6 @@
     <div class="row">
       <div class="col-12">
 
-
-
         <b-button-group class="float-lg-right">
           <b-button variant="dark" @click="showAddUserModal"
           ><i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
@@ -132,8 +130,8 @@
   </div>
 </template>
 <script>
-import Base from '../../api/base'
-import Multiselect from 'vue-multiselect'
+import Base from '../../api/base';
+import Multiselect from 'vue-multiselect';
 
 export default {
   components: { Multiselect },
@@ -150,31 +148,31 @@ export default {
       member: [],
       createError: null,
       editUser: null
-    }
+    };
   },
   methods: {
     limitText (count) {
-      return `and ${count} other countries`
+      return `and ${count} other countries`;
     },
     asyncFind (query) {
-      this.isLoading = true
+      this.isLoading = true;
 
       Base.call('users/search?query=' + query, {
       }).then(response => {
-        this.countries = response.data.data
-        this.isLoading = false
+        this.countries = response.data.data;
+        this.isLoading = false;
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     },
     clearAll () {
-      this.selectedCountries = []
+      this.selectedCountries = [];
     },
 
     deleteUser: function (user, index) {
@@ -192,107 +190,104 @@ export default {
             Base.call('rooms/' + this.room.id + '/member/' + user.id, {
               method: 'delete'
             }).then(response => {
-              this.member.splice(index, 1)
-              this.reload()
+              this.member.splice(index, 1);
+              this.reload();
             }).catch((error) => {
               if (error.response) {
-                console.log(error.response.data)
-                console.log(error.response.status)
-                console.log(error.response.headers)
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
               } else if (error.request) {
-                console.log(error.request)
+                console.log(error.request);
               }
-            })
+            });
           }
         }.bind(this))
         .catch(err => {
-          console.log(err)
-        })
+          console.log(err);
+        });
     },
     showEditUserModal: function (user, index) {
-      this.editUser = JSON.parse(JSON.stringify(user))
-      this.editUser.index = index
-      this.$refs['edit-user-modal'].show()
+      this.editUser = JSON.parse(JSON.stringify(user));
+      this.editUser.index = index;
+      this.$refs['edit-user-modal'].show();
     },
     showAddUserModal: function () {
-      this.newUser = { data: null, feedback: { user: null, role: null } }
-      this.createError = null
-      this.$refs['add-user-modal'].show()
+      this.newUser = { data: null, feedback: { user: null, role: null } };
+      this.createError = null;
+      this.$refs['add-user-modal'].show();
     },
     saveEditUser: function () {
       Base.call('rooms/' + this.room.id + '/member/' + this.editUser.id, {
         method: 'put',
         data: { role: this.editUser.role }
       }).then(response => {
-        this.member[this.editUser.index].role = this.editUser.role
-        this.reload()
+        this.member[this.editUser.index].role = this.editUser.role;
+        this.reload();
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     },
     saveNewUser: function (bvModalEvt) {
-      bvModalEvt.preventDefault()
+      bvModalEvt.preventDefault();
       this.createError = null;
       if (this.newuservalid === false || this.newuserrolevalid === false) {
-        return
+        return;
       }
 
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'post',
         data: { user: this.newUser.data.id, role: this.newUser.data.role }
       }).then(response => {
-        this.$refs['add-user-modal'].hide()
-        this.reload()
+        this.$refs['add-user-modal'].hide();
+        this.reload();
       }).catch((error) => {
         if (error.response) {
-
-          if(error.response.status === 422) {
-            if(error.response.data.errors.user){
-              this.createError = error.response.data.errors.user.join("<br>");
+          if (error.response.status === 422) {
+            if (error.response.data.errors.user) {
+              this.createError = error.response.data.errors.user.join('<br>');
             }
-
-
           }
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     },
     reload: function () {
       this.isBusy = true;
-      var url = 'rooms/' + this.room.id + '/member'
+      var url = 'rooms/' + this.room.id + '/member';
       Base.call(url).then(response => {
-        this.member = response.data.data
-        this.isBusy = false
+        this.member = response.data.data;
+        this.isBusy = false;
       }).catch((error) => {
-        this.isBusy = false
+        this.isBusy = false;
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     }
   },
   computed: {
     newuservalid: function () {
-      if (this.newUser.data == null || this.newUser.data.id == null) { return false }
-      return null
+      if (this.newUser.data == null || this.newUser.data.id == null) { return false; }
+      return null;
     },
     newuserrolevalid: function () {
-      if (this.newUser.data != null && this.newUser.data.role == null) { return false }
-      return null
+      if (this.newUser.data != null && this.newUser.data.role == null) { return false; }
+      return null;
     },
 
     userfields () {
@@ -322,18 +317,18 @@ export default {
           key: 'actions',
           label: this.$t('rooms.members.actions')
         }
-      ]
+      ];
     }
 
   },
   watch: {
     'member.length': function () {
-      this.$emit('membersChanged', this.member.length)
+      this.$emit('membersChanged', this.member.length);
     }
   },
 
   created () {
-    this.reload()
+    this.reload();
   }
-}
+};
 </script>

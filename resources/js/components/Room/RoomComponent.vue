@@ -26,8 +26,8 @@ export default {
     },
     type: Object,
     sharedBy: String
-  },
-}
+  }
+};
 </script>
 <style scoped>
 .roomcard{

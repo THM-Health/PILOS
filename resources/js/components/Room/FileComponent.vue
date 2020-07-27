@@ -99,7 +99,7 @@
   </div>
 </template>
 <script>
-import Base from '../../api/base'
+import Base from '../../api/base';
 
 export default {
   props: {
@@ -113,7 +113,7 @@ export default {
       fileUpload: null,
       // file list from api
       files: []
-    }
+    };
   },
   methods: {
     /**
@@ -141,22 +141,22 @@ export default {
               // delete successfull, remove file from table and reload data from api
               // (fallback and display files that have been uploaded in the meantime)
               this.files.files.splice(index, 1);
-              this.reload()
+              this.reload();
             }).catch((error) => {
               // TODO Error handling
               if (error.response) {
-                console.log(error.response.data)
-                console.log(error.response.status)
-                console.log(error.response.headers)
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
               } else if (error.request) {
-                console.log(error.request)
+                console.log(error.request);
               }
-            })
+            });
           }
         }.bind(this))
         .catch(err => {
-          console.log(err)
-        })
+          console.log(err);
+        });
     },
     /**
      * Handle file upload event on file select or drag'n'drop
@@ -164,8 +164,8 @@ export default {
      */
     uploadFile: function (event) {
       // Build form data
-      const formData = new FormData()
-      formData.append('file', event.target.files[0])
+      const formData = new FormData();
+      formData.append('file', event.target.files[0]);
 
       // Send new file to api
       Base.call('rooms/' + this.room.id + '/files', {
@@ -176,45 +176,45 @@ export default {
         data: formData
       }).then(() => {
         // File upload complete, reload file list
-        this.fileUpload = null
-        this.reload()
+        this.fileUpload = null;
+        this.reload();
       }).catch((error) => {
         // File upload failed
         // TODO Error handling
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     },
     /**
      * Reload file list
      */
     reload: function () {
       // Change table to busy state
-      this.isBusy = true
+      this.isBusy = true;
       // Fetch file list
       Base.call('rooms/' + this.room.id + '/files')
         .then(response => {
           // Fetch successful
-          this.files = response.data.data
-          this.isBusy = false
+          this.files = response.data.data;
+          this.isBusy = false;
         })
         .catch((error) => {
           // Fetch failed
-          this.isBusy = false
+          this.isBusy = false;
           // TODO Error handling
           if (error.response) {
-            console.log(error.response.data)
-            console.log(error.response.status)
-            console.log(error.response.headers)
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
           } else if (error.request) {
-            console.log(error.request)
+            console.log(error.request);
           }
-      })
+        });
     },
     /**
      * Handle change of the default presentation
@@ -222,10 +222,10 @@ export default {
      */
     changeDefault: function (checked) {
       // Find the new default presentation file
-      var file = this.files.files.find(file => file.id === checked)
+      var file = this.files.files.find(file => file.id === checked);
       // Set useinmeetings parameter true, as the default presentation
       // can only be the default if it is also used in the next meeting
-      file.useinmeeting = true
+      file.useinmeeting = true;
       // Update room files settings with the new default presentation
       Base.call('rooms/' + this.room.id + '/files', {
         method: 'put',
@@ -235,13 +235,13 @@ export default {
         // Change failed
         // TODO Error handling
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     },
     /**
      * Change a setting for a files
@@ -259,13 +259,13 @@ export default {
         // Change failed
         // TODO Error handling
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     }
   },
   computed: {
@@ -301,12 +301,12 @@ export default {
           key: 'actions',
           label: this.$t('rooms.files.actions')
         }
-      ]
+      ];
     }
 
   },
   created () {
-    this.reload()
+    this.reload();
   }
-}
+};
 </script>

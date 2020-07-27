@@ -1,6 +1,6 @@
-const mix = require('laravel-mix')
-const fs = require('fs')
-require('laravel-mix-merge-manifest')
+const mix = require('laravel-mix');
+const fs = require('fs');
+require('laravel-mix-merge-manifest');
 
 /*
  |--------------------------------------------------------------------------
@@ -15,18 +15,18 @@ require('laravel-mix-merge-manifest')
 
 mix.sass('resources/sass/app.scss', 'public/css')
   .copy('resources/images', 'public/images')
-  .sourceMaps(false)
+  .sourceMaps(false);
 
 if (fs.existsSync('resources/custom/images')) {
-  mix.copy('resources/custom/images', 'public/images')
+  mix.copy('resources/custom/images', 'public/images');
 }
 
 if (!mix.inProduction()) {
-  mix.browserSync(process.env.APP_URL)
+  mix.browserSync(process.env.APP_URL);
 }
 
 if (mix.inProduction()) {
-  mix.version()
+  mix.version();
 }
 
-mix.mergeManifest()
+mix.mergeManifest();

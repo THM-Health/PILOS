@@ -202,9 +202,9 @@
   </div>
 </template>
 <script>
-import AwesomeMask from 'awesome-mask'
-import Base from '../../api/base'
-import RoomAdmin from '../../components/Room/AdminComponent'
+import AwesomeMask from 'awesome-mask';
+import Base from '../../api/base';
+import RoomAdmin from '../../components/Room/AdminComponent';
 
 export default {
   directives: {
@@ -223,8 +223,8 @@ export default {
       room: null, // Room object
       accessCode: null, // Access code to use for requests
       accessCodeInput: null, // Access code input modal
-      accessCodeValid: null, // Is access code valid
-    }
+      accessCodeValid: null // Is access code valid
+    };
   },
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
@@ -232,37 +232,37 @@ export default {
     Base.call('rooms/' + to.params.id).then(response => {
       next(vm => {
         vm.room = response.data.data;
-        vm.room_id = to.params.id
-      })
+        vm.room_id = to.params.id;
+      });
     }).catch((error) => {
       if (error.response) {
         // Room not found
         if (error.response.status === 404) {
-          next('/404')
+          next('/404');
         }
         // Room is not open for guests
         if (error.response.status === 403) {
           next(vm => {
-            vm.room_id = to.params.id
-          })
+            vm.room_id = to.params.id;
+          });
         }
 
         console.log(error.response.data);
         console.log(error.response.status);
-        console.log(error.response.headers)
+        console.log(error.response.headers);
       } else if (error.request) {
         /*
              * The request was made but no response was received, `error.request`
              * is an instance of XMLHttpRequest in the browser and an instance
              * of http.ClientRequest in Node.js
              */
-        console.log(error.request)
+        console.log(error.request);
       }
-    })
+    });
   },
   mounted () {
     // Reload room details in a set inteval, change in the .env
-    setInterval(this.reload, process.env.MIX_REFRESH_RATE*1000)
+    setInterval(this.reload, process.env.MIX_REFRESH_RATE * 1000);
   },
   methods: {
     /**
@@ -274,7 +274,7 @@ export default {
       // Build room api url, include access code if set
       var url = 'rooms/' + this.room_id;
       if (this.accessCode != null) {
-        url += '?code=' + this.accessCode
+        url += '?code=' + this.accessCode;
       }
       // Load data
       Base.call(url)
@@ -284,7 +284,7 @@ export default {
           this.room = response.data.data;
           // If logged in, reset the access code valid
           if (this.room.loggedIn) {
-            this.accessCodeValid = null
+            this.accessCodeValid = null;
           }
         })
         .catch((error) => {
@@ -297,28 +297,28 @@ export default {
               this.accessCodeValid = false;
               // Reset access code (not the form input) to load the general room details again
               this.accessCode = null;
-              this.reload()
+              this.reload();
             }
 
             // Forbidden, guests not allowed
             if (error.response.status === 403) {
               this.room = null;
               // Remove a potential access code
-              this.accessCode = null
+              this.accessCode = null;
             }
 
             console.log(error.response.data);
             console.log(error.response.status);
-            console.log(error.response.headers)
+            console.log(error.response.headers);
           } else if (error.request) {
             /*
                  * The request was made but no response was received, `error.request`
                  * is an instance of XMLHttpRequest in the browser and an instance
                  * of http.ClientRequest in Node.js
                  */
-            console.log(error.request)
-        }
-      })
+            console.log(error.request);
+          }
+        });
     },
 
     /**
@@ -330,7 +330,7 @@ export default {
       // Build url, add accessCode if needed
       var url = 'rooms/' + this.room_id + '/start?name=' + this.name;
       if (this.accessCode != null) {
-        url += '&code=' + this.accessCode
+        url += '&code=' + this.accessCode;
       }
 
       Base.call(url)
@@ -338,9 +338,8 @@ export default {
           // Disable loading indicator
           this.loadingJoinStart = false;
           // Check if response has a join url, if yes redirect
-          if (response.data.url !== undefined)
-          {
-            window.location = response.data.url
+          if (response.data.url !== undefined) {
+            window.location = response.data.url;
           }
         })
         .catch((error) => {
@@ -354,22 +353,21 @@ export default {
               // Disable room start button and reload the room settings, as there was obviously
               // a diffent understanding of the users permission in this room
               this.room.canStart = false;
-              this.reload()
+              this.reload();
             }
-
 
             console.log(error.response.data);
             console.log(error.response.status);
-            console.log(error.response.headers)
+            console.log(error.response.headers);
           } else if (error.request) {
             /*
                  * The request was made but no response was received, `error.request`
                  * is an instance of XMLHttpRequest in the browser and an instance
                  * of http.ClientRequest in Node.js
                  */
-            console.log(error.request)
+            console.log(error.request);
           }
-      })
+        });
     },
     /**
      * Join a running meeting
@@ -380,7 +378,7 @@ export default {
       // Build url, add accessCode if needed
       var url = 'rooms/' + this.room_id + '/join?name=' + this.name;
       if (this.accessCode != null) {
-        url += '&code=' + this.accessCode
+        url += '&code=' + this.accessCode;
       }
 
       // Join meeting request
@@ -389,9 +387,8 @@ export default {
           // Disable loading indicator
           this.loadingJoinStart = false;
           // Check if response has a join url, if yes redirect
-          if (response.data.url !== undefined)
-          {
-            window.location = response.data.url
+          if (response.data.url !== undefined) {
+            window.location = response.data.url;
           }
         })
         .catch((error) => {
@@ -403,21 +400,21 @@ export default {
               // Update room running
               this.room.running = false;
               // Display error message
-              this.flashMessage.error(this.$t('rooms.flash.notRunning'))
+              this.flashMessage.error(this.$t('rooms.flash.notRunning'));
             }
 
             console.log(error.response.data);
             console.log(error.response.status);
-            console.log(error.response.headers)
+            console.log(error.response.headers);
           } else if (error.request) {
             /*
                  * The request was made but no response was received, `error.request`
                  * is an instance of XMLHttpRequest in the browser and an instance
                  * of http.ClientRequest in Node.js
                  */
-            console.log(error.request)
-        }
-      })
+            console.log(error.request);
+          }
+        });
     },
     /**
      * Become a room member
@@ -432,7 +429,7 @@ export default {
         .then(response => {
           // Reload room, now as a member; access code no longer needed
           this.accessCode = null;
-          this.reload()
+          this.reload();
         })
         .catch((error) => {
           if (error.response) {
@@ -441,21 +438,21 @@ export default {
               // reset the logged in status, as it is no longer correct
               this.room.loggedIn = false;
               // set the access code input invalid
-              this.accessCodeValid = false
+              this.accessCodeValid = false;
             }
 
             if (error.response.status === 403) {
               // @TODO Show error, join membership deactivated by room owner
-              this.reload()
+              this.reload();
             }
 
             console.log(error.response.data);
             console.log(error.response.status);
-            console.log(error.response.headers)
+            console.log(error.response.headers);
           } else if (error.request) {
-            console.log(error.request)
+            console.log(error.request);
           }
-      })
+        });
     },
     /**
      * Leave room membership
@@ -467,7 +464,7 @@ export default {
       })
         .then(response => {
           // Reload without membership
-          this.reload()
+          this.reload();
         })
         .catch((error) => {
           // leaving room failed
@@ -475,11 +472,11 @@ export default {
           if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
-            console.log(error.response.headers)
+            console.log(error.response.headers);
           } else if (error.request) {
-            console.log(error.request)
+            console.log(error.request);
           }
-      })
+        });
     },
     /**
      * Handle login with access code
@@ -490,7 +487,7 @@ export default {
       // Remove the dashes for storing the access code
       this.accessCode = this.accessCodeInput.replace(/[-]/g, '');
       // Reload the room with an access code
-      this.reload()
+      this.reload();
     }
   },
   computed: {
@@ -508,7 +505,7 @@ export default {
           key: 'actions',
           label: this.$t('rooms.files.actions')
         }
-      ]
+      ];
     },
 
     /**
@@ -523,12 +520,12 @@ export default {
           code: String(this.room.accessCode)
             .match(/.{1,3}/g)
             .join('-')
-        })
+        });
       }
-      return message
+      return message;
     }
   }
-}
+};
 </script>
 
 <style scoped>

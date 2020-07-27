@@ -234,7 +234,7 @@
 </template>
 
 <script>
-import Base from '../../api/base'
+import Base from '../../api/base';
 
 export default {
   props: {
@@ -244,8 +244,8 @@ export default {
     return {
       settings: Object, // Room settings
       saving: false, // Settings are currently saved, display spinner
-      welcomeMessageLimit: 500, // TODO parameterise with .env
-    }
+      welcomeMessageLimit: 500 // TODO parameterise with .env
+    };
   },
   methods: {
     /**
@@ -253,15 +253,15 @@ export default {
      */
     genAccessCode: function () {
       this.settings.accessCode =
-          Math.floor(Math.random() * (999999999 - 111111112)) + 111111111
-      this.save()
+          Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
+      this.save();
     },
     /**
      * Save room settings
      */
     save () {
       // Set saving indicator
-      this.saving = true
+      this.saving = true;
       // Send new settings to the server
       Base.call('rooms/' + this.room.id + '/settings', {
         method: 'put',
@@ -269,43 +269,43 @@ export default {
       }).then(response => {
         // Settings successfully saved
         // update the settings to the response from the server, feedback the changed were applied correctly
-        this.settings = response.data.data
+        this.settings = response.data.data;
         // inform parent component about changed settings
         this.$emit('settingsChanged');
         // Disable saving indicator
-        this.saving = false
+        this.saving = false;
       }).catch((error) => {
         // Settings couldn't be saved
         // TODO error handling
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
-          console.log(error.request)
+          console.log(error.request);
         }
-      })
+      });
     },
     /**
      * Clear access code and save settings
      */
     clearAccessCode () {
-      this.settings.accessCode = null
-      this.save()
+      this.settings.accessCode = null;
+      this.save();
     },
     /**
      * Clear meeting duration and save settings
      */
     clearDuration () {
-      this.settings.duration = null
-      this.save()
+      this.settings.duration = null;
+      this.save();
     },
     /**
      * Clear max participants code and save settings
      */
     clearMaxParticipants () {
-      this.settings.maxParticipants = null
-      this.save()
+      this.settings.maxParticipants = null;
+      this.save();
     }
   },
   computed: {
@@ -316,13 +316,13 @@ export default {
     roomTypeSelect () {
       if (this.settings.roomTypes) {
         return this.settings.roomTypes.map(roomtype => {
-          var entry = {}
-          entry.value = roomtype.id
-          entry.text = roomtype.description
-          return entry
-        })
+          var entry = {};
+          entry.value = roomtype.id;
+          entry.text = roomtype.description;
+          return entry;
+        });
       }
-      return null
+      return null;
     },
     /**
      * Count the chars of the welcome message
@@ -331,8 +331,8 @@ export default {
     charactersLeftWelcomeMessage () {
       var char = this.settings.welcome
         ? this.settings.welcome.length
-        : 0
-      return char + ' / ' + this.welcomeMessageLimit
+        : 0;
+      return char + ' / ' + this.welcomeMessageLimit;
     },
     /**
      * Check if the welcome message is valid (not too long)
@@ -343,7 +343,7 @@ export default {
         ? this.settings.welcome.length <= this.welcomeMessageLimit
           ? null
           : false
-        : null
+        : null;
     }
   },
   created () {
@@ -351,25 +351,25 @@ export default {
     Base.call('rooms/' + this.room.id + '/settings')
       .then(response => {
         // fetch successful
-        this.settings = response.data.data
+        this.settings = response.data.data;
       })
       .catch((error) => {
         // failed
         // TODO error handling
         if (error.response) {
-          console.log(error.response.data)
-          console.log(error.response.status)
-          console.log(error.response.headers)
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
         } else if (error.request) {
           /*
                * The request was made but no response was received, `error.request`
                * is an instance of XMLHttpRequest in the browser and an instance
                * of http.ClientRequest in Node.js
                */
-          console.log(error.request)
+          console.log(error.request);
         }
-    })
+      });
   }
-}
+};
 </script>
 <style scoped></style>

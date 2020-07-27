@@ -39,9 +39,9 @@
   </div>
 </template>
 <script>
-import SettingsComponent from './SettingsComponent'
-import MembersComponent from './MembersComponent'
-import FileComponent from './FileComponent'
+import SettingsComponent from './SettingsComponent';
+import MembersComponent from './MembersComponent';
+import FileComponent from './FileComponent';
 
 export default {
 
@@ -56,19 +56,19 @@ export default {
   data () {
     return {
       // Amount of members
-      countMembers: 0,
-    }
+      countMembers: 0
+    };
   },
   methods: {
     // Handle event from members component to display amount of members
     onMembersChange (value) {
-      this.countMembers = value
+      this.countMembers = value;
     },
     // Handle event from settings component and emit to room view to reload
-    onSettingsChange(){
+    onSettingsChange () {
       this.$emit('settingsChanged');
     }
   }
-}
+};
 </script>
 <style scoped></style>

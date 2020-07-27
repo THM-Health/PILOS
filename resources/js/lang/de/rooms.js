@@ -23,9 +23,8 @@ export default {
     startForbidden: {
       message: 'Der Raum kann von Ihnen nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
-    },
+    }
   },
-
 
   files: {
     title: 'Dateien',
@@ -49,8 +48,8 @@ export default {
       deleted: {
         message: 'Die Datei wurde erfolgreich gelöscht',
         title: 'Gelöscht'
-      },
-    },
+      }
+    }
   },
   invitation: {
     room: 'An "{roomname}" mit PILOS teilnehmen',
@@ -157,4 +156,4 @@ export default {
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
   }
-}
+};
