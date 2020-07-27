@@ -26,7 +26,7 @@
           stacked="md"
           show-empty
         >
-          <template v-slot:empty="scope">
+          <template v-slot:empty>
             <i>{{ $t('rooms.members.nodata') }}</i>
           </template>
 

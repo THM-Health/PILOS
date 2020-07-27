@@ -29,7 +29,7 @@
       show-empty
     >
       <!-- Show message on empty file list -->
-      <template v-slot:empty="scope">
+      <template v-slot:empty>
         <i>{{ $t('rooms.files.nodata') }}</i>
       </template>
 
