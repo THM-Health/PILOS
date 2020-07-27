@@ -20,10 +20,10 @@
               type="search"
               id="filterInput"
               :placeholder="$t('settings.searchbar.placeholder')"
-              @input="getUsers(currentPage, filterInput)"
+              @input="getUsers(filterInput)"
             ></b-form-input>
             <b-input-group-append>
-              <b-button class="btn-success">
+              <b-button class="btn-success disabled">
                 <i class="text-white fas fa fa-search"></i>
               </b-button>
             </b-input-group-append>
@@ -40,7 +40,7 @@
              :sort-desc.sync="sortDesc"
              :busy.sync="isBusy"
              :items="users"
-             :filter="filter"
+             :filter="filterInput"
              @filtered="onFiltered"
              responsive
              small>
