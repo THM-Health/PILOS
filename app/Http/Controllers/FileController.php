@@ -48,7 +48,7 @@ class FileController extends Controller
      * Display/Download a file of a room
      * Protected function with signed routes
      *
-     * @param  RoomFile                  $roomFile
+     * @param  RoomFile                                           $roomFile
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function show(Request $request, RoomFile $roomFile)

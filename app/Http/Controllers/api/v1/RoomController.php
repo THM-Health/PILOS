@@ -16,11 +16,9 @@ use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware(['auth:api_users,api'])->except(['show','join','start','joinMembership','leaveMembership']);
-
     }
 
     /**
@@ -91,7 +89,6 @@ class RoomController extends Controller
     public function show(Room $room, Request $request)
     {
         $loggedIn = $this->checkAccess($room, $request->code);
-
 
         return new \App\Http\Resources\Room($room, $loggedIn);
     }
