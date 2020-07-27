@@ -17,9 +17,9 @@ const path = require('path')
 const files = ['resources/js/app.js']
 
 if (!process.env.MIX_AVAILABLE_LOCALES) {
-  process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*.js').map(file => {
-    return path.basename(file, '.js')
-  }).filter(lang => lang !== 'index').join(',')
+  process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*').map(folder => {
+    return path.basename(folder)
+  }).join(',')
 }
 
 if (!process.env.MIX_DEFAULT_LOCALE) {

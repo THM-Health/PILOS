@@ -1,21 +1,24 @@
 import axios from 'axios'
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
-import messages from './lang/en'
+
+const defaultLocale = process.env.MIX_DEFAULT_LOCALE
+
+const messages = {}
+messages[defaultLocale] = require(`./lang/${process.env.MIX_DEFAULT_LOCALE}`).default
 
 Vue.use(VueI18n)
 
 const i18n = new VueI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
-  availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
+  locale: defaultLocale,
+  fallbackLocale: defaultLocale,
+  availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(','),
+  messages
 })
 
-i18n.setLocaleMessage('en', messages)
+const loadedLanguages = [defaultLocale]
 
 export default i18n
-
-const loadedLanguages = ['en']
 
 function setI18nLanguage (lang) {
   i18n.locale = lang
