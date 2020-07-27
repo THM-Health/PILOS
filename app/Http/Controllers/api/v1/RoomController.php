@@ -17,6 +17,12 @@ use Illuminate\Http\Request;
 class RoomController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware(['auth:api_users','api'])->except(['show','join','start','joinMembership','leaveMembership']);
+
+    }
+
     /**
      * Display a listing of the resource.
      *

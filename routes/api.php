@@ -35,7 +35,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware('auth:api_users,api')->group(function () {
-      
+
 
         Route::post('setLocale', function (Request $request) {
             $validatedData = $request->validate([
@@ -50,7 +50,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
                 ]);
             }
         })->name('setLocale');
-        
+
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', 'RoomController@joinMembership')->name('rooms.membership.join');
         Route::delete('rooms/{room}/membership', 'RoomController@leaveMembership')->name('rooms.membership.leave');
@@ -68,14 +68,15 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
         Route::get('users/search','UserController@search','users.search');
 
-
+        Route::get('rooms/{room}/settings','RoomController@getSettings');
+        Route::put('rooms/{room}/settings','RoomController@updateSettings');
     });
 
     Route::apiResource('rooms', 'RoomController');
+
     Route::get('rooms/{room}/start','RoomController@start');
     Route::get('rooms/{room}/join','RoomController@join');
-    Route::get('rooms/{room}/settings','RoomController@getSettings');
-    Route::put('rooms/{room}/settings','RoomController@updateSettings');
+
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
 
     Route::prefix('guest')->namespace('guest')->name('guest.')->group(function () {
