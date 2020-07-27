@@ -148,7 +148,6 @@ export default {
       countries: [],
       isLoading: false,
       member: [],
-      boxTwo: '',
       createError: null,
       editUser: null
     }
@@ -179,7 +178,6 @@ export default {
     },
 
     deleteUser: function (user, index) {
-      this.boxTwo = ''
       this.$bvModal.msgBoxConfirm(this.$t('rooms.members.modals.delete.confirm', { firstname: user.firstname, lastname: user.lastname }), {
         title: this.$t('rooms.members.modals.delete.title'),
         okVariant: 'danger',
@@ -330,7 +328,7 @@ export default {
   },
   watch: {
     'member.length': function () {
-      this.$emit('userChanged', this.member.length)
+      this.$emit('membersChanged', this.member.length)
     }
   },
 
