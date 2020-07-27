@@ -19,7 +19,7 @@ class RoomController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['auth:api_users','api'])->except(['show','join','start','joinMembership','leaveMembership']);
+        $this->middleware(['auth:api_users,api'])->except(['show','join','start','joinMembership','leaveMembership']);
 
     }
 
