@@ -141,11 +141,7 @@ class LocalesTest extends TestCase
             'locale' => 'us'
         ]);
         $response->assertStatus(422);
-        $response->assertJsonFragment([
-            'locale' => [
-                'validation.in'
-            ]
-        ]);
+        $response->assertJsonValidationErrors(['locale']);
 
         $response = $this->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
             'locale' => 'fr'
