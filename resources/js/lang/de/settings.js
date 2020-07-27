@@ -47,4 +47,4 @@ export default {
   roles: {
     title: 'Rollen'
   }
-}
+};

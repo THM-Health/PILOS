@@ -8,7 +8,7 @@
 <script>
 export default {
   name: 'SiteSettings'
-}
+};
 </script>
 
 <style scoped>

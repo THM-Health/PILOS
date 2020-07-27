@@ -1,19 +1,19 @@
-import VueRouter from 'vue-router'
-import Login from './views/Login'
-import NotFound from './views/NotFound'
-import RoomsIndex from './views/rooms/Index'
-import RoomView from './views/rooms/View'
-import AdminIndex from './views/admin/Index'
-import AdminUsers from './views/admin/UsersManagement'
-import AdminRoles from './views/admin/Roles'
-import AdminSiteSettings from './views/admin/SiteSettings'
-import AdminRecordings from './views/admin/Recordings'
-import AdminRooms from './views/admin/Rooms'
-import store from './store'
-import Home from './views/Home'
-import Vue from 'vue'
+import VueRouter from 'vue-router';
+import Login from './views/Login';
+import NotFound from './views/NotFound';
+import RoomsIndex from './views/rooms/Index';
+import RoomView from './views/rooms/View';
+import AdminIndex from './views/admin/Index';
+import AdminUsers from './views/admin/UsersManagement';
+import AdminRoles from './views/admin/Roles';
+import AdminSiteSettings from './views/admin/SiteSettings';
+import AdminRecordings from './views/admin/Recordings';
+import AdminRooms from './views/admin/Rooms';
+import store from './store';
+import Home from './views/Home';
+import Vue from 'vue';
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const router = new VueRouter({
   mode: 'history',
@@ -82,11 +82,11 @@ const router = new VueRouter({
       redirect: '/404'
     }
   ]
-})
+});
 
 router.beforeEach((to, from, next) => {
-  const locale = $('html').prop('lang') || 'en'
-  const promise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve()
+  const locale = $('html').prop('lang') || 'en';
+  const promise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
   promise.then(() => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
@@ -94,14 +94,14 @@ router.beforeEach((to, from, next) => {
         next({
           name: 'login',
           query: { redirect: to.fullPath }
-        })
+        });
       } else {
-        next()
+        next();
       }
     } else {
-      next()
+      next();
     }
-  })
-})
+  });
+});
 
-export default router
+export default router;

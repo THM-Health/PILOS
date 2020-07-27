@@ -14,15 +14,15 @@
 </template>
 
 <script>
-import MenuButton from '../../components/Admin/MenuButton'
-import SettingsView from '../../components/Admin/SettingsView'
+import MenuButton from '../../components/Admin/MenuButton';
+import SettingsView from '../../components/Admin/SettingsView';
 
 export default {
   components: {
     MenuButton,
     SettingsView
   }
-}
+};
 </script>
 
 <style scoped>

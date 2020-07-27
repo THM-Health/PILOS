@@ -36,15 +36,15 @@ export default {
   data () {
     return {
 
-    }
+    };
   },
 
   methods: {
     say: function (message) {
-      this.$router.push({ name: 'room', params: { id: this.id } })
+      this.$router.push({ name: 'room', params: { id: this.id } });
     }
   }
-}
+};
 </script>
 
 <style scoped>

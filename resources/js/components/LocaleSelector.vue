@@ -24,13 +24,13 @@
 </template>
 
 <script>
-import { loadLanguageAsync } from '../i18n'
-import { mapState } from 'vuex'
+import { loadLanguageAsync } from '../i18n';
+import { mapState } from 'vuex';
 
 const localeMap = {
   de: 'Deutsch',
   en: 'English'
-}
+};
 
 export default {
   props: {
@@ -38,7 +38,7 @@ export default {
       type: Array,
       required: true,
       validator: prop => prop.every(element => {
-        return typeof element === 'string' && Object.keys(localeMap).includes(element)
+        return typeof element === 'string' && Object.keys(localeMap).includes(element);
       })
     }
   },
@@ -48,9 +48,9 @@ export default {
       return Object.keys(localeMap)
         .filter(key => this.availableLocales.includes(key))
         .reduce((object, key) => {
-          object[key] = localeMap[key]
-          return object
-        }, {})
+          object[key] = localeMap[key];
+          return object;
+        }, {});
     },
 
     ...mapState({
@@ -61,30 +61,30 @@ export default {
   data () {
     return {
       errors: null
-    }
+    };
   },
 
   methods: {
     async changeLocale (locale) {
-      this.$store.commit('loading')
-      this.errors = null
+      this.$store.commit('loading');
+      this.errors = null;
 
       try {
-        await this.$store.dispatch('session/setLocale', { locale })
-        await loadLanguageAsync(locale)
+        await this.$store.dispatch('session/setLocale', { locale });
+        await loadLanguageAsync(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === 422) {
-          this.errors = error.response.data.errors.locale
+          this.errors = error.response.data.errors.locale;
         } else {
-          this.$store.commit('loadingFinished')
-          throw error
+          this.$store.commit('loadingFinished');
+          throw error;
         }
       } finally {
-        this.$store.commit('loadingFinished')
+        this.$store.commit('loadingFinished');
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

@@ -93,8 +93,8 @@
 </template>
 
 <script>
-import Base from '../../api/base'
-import moment from 'moment'
+import Base from '../../api/base';
+import moment from 'moment';
 
 export default {
   data () {
@@ -111,14 +111,14 @@ export default {
       prevPage: null,
       perPage: null,
       limits: process.env.MIX_PAGINATION_LIMIT
-    }
+    };
   },
   mounted () {
-    this.getUsers()
+    this.getUsers();
   },
   computed: {
     rows () {
-      return this.totalRows
+      return this.totalRows;
     },
     fields () {
       return [
@@ -130,7 +130,7 @@ export default {
           sortable: true,
           label: 'Authenticator',
           formatter: value => {
-            return value === null ? 'pilos' : 'ldap'
+            return value === null ? 'pilos' : 'ldap';
           }
         },
         {
@@ -148,12 +148,12 @@ export default {
             this.formatDate(value)
         },
         { key: 'action', label: this.$t('settings.users.table.actions') }
-      ]
+      ];
     }
   },
   methods: {
     getUsers (pageVal = 1, searchInput) {
-      this.isBusy = true
+      this.isBusy = true;
       Base.call('users', {
         params: {
           page: pageVal,
@@ -162,26 +162,26 @@ export default {
           username: searchInput
         }
       }).then(response => {
-        this.users = response.data.data
-        this.currentPage = response.data.current_page
-        this.lastPage = response.data.last_page
-        this.perPage = response.data.per_page
-        this.totalRows = response.data.total
-        this.nextPage = this.currentPage + 1
-        this.prevPage = this.currentPage - 1
-      }).finally(this.isBusy = false)
+        this.users = response.data.data;
+        this.currentPage = response.data.current_page;
+        this.lastPage = response.data.last_page;
+        this.perPage = response.data.per_page;
+        this.totalRows = response.data.total;
+        this.nextPage = this.currentPage + 1;
+        this.prevPage = this.currentPage - 1;
+      }).finally(this.isBusy = false);
     },
     formatDate (value) {
-      return moment(value).format('l HH:mm')
+      return moment(value).format('l HH:mm');
     },
     onFiltered (filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length
-      this.users.count = filteredItems.length
-      this.currentPage = 1
+      this.totalRows = filteredItems.length;
+      this.users.count = filteredItems.length;
+      this.currentPage = 1;
     }
   }
-}
+};
 </script>
 
 <style scoped>

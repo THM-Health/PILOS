@@ -42,4 +42,4 @@ export default {
   },
   subtitle: 'PILOS is the platform for interactive Live-Online-Seminars.',
   title: 'Welcome to PILOS.'
-}
+};
