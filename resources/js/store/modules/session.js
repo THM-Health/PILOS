@@ -1,6 +1,6 @@
 import auth from '../../api/auth'
 import base from '../../api/base'
-import { setI18nLanguage } from '../../i18n'
+import { loadLanguageAsync } from '../../i18n'
 
 const state = () => ({
   currentUser: null,
@@ -19,7 +19,7 @@ const actions = {
     await dispatch('getCurrentUser')
 
     if (state.currentUser.locale !== null) {
-      setI18nLanguage(state.currentUser.locale)
+      await loadLanguageAsync(state.currentUser.locale)
       commit('setCurrentLocale', state.currentUser.locale)
     }
   },

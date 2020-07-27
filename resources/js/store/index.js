@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import session from './modules/session'
-import { setI18nLanguage } from '../i18n'
+import { loadLanguageAsync } from '../i18n'
 
 Vue.use(Vuex)
 
@@ -17,7 +17,7 @@ export default new Vuex.Store({
     async initialize ({ dispatch, commit }, { locale }) {
       commit('loading')
       await dispatch('session/getCurrentUser')
-      setI18nLanguage(locale)
+      await loadLanguageAsync(locale)
       commit('session/setCurrentLocale', locale)
       commit('initialized')
       commit('loadingFinished')
