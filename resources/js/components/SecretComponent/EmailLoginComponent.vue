@@ -59,7 +59,7 @@ export default {
     return {
       email: '',
       password: ''
-    }
+    };
   },
   methods: {
     submit () {
@@ -69,10 +69,10 @@ export default {
           email: this.email,
           password: this.password
         }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>

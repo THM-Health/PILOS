@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import EmailLoginComponent from './EmailLoginComponent'
-import LdapLoginComponent from './LdapLoginComponent'
+import EmailLoginComponent from './EmailLoginComponent';
+import LdapLoginComponent from './LdapLoginComponent';
 
 export default {
   components: {
@@ -51,29 +51,29 @@ export default {
         default: null,
         ldap: null
       }
-    }
+    };
   },
   methods: {
     async handleLogin ({ data, id }) {
       try {
-        this.errors[id] = null
-        this.loading = true
-        await this.$store.dispatch('session/login', { credentials: data, method: id })
-        this.flashMessage.success(this.$t('auth.flash.login'))
-        await this.$router.push({ name: 'rooms.index' })
+        this.errors[id] = null;
+        this.loading = true;
+        await this.$store.dispatch('session/login', { credentials: data, method: id });
+        this.flashMessage.success(this.$t('auth.flash.login'));
+        await this.$router.push({ name: 'rooms.index' });
       } catch (error) {
         if (error.response !== undefined && error.response.status === 422) {
-          this.errors[id] = error.response.data.errors
+          this.errors[id] = error.response.data.errors;
         } else {
-          this.loading = false
-          throw error
+          this.loading = false;
+          throw error;
         }
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
