@@ -1,7 +1,7 @@
-const mix = require('laravel-mix')
-const fs = require('fs')
-const glob = require('glob')
-const path = require('path')
+const mix = require('laravel-mix');
+const fs = require('fs');
+const glob = require('glob');
+const path = require('path');
 
 /*
  |--------------------------------------------------------------------------
@@ -14,39 +14,39 @@ const path = require('path')
  |
  */
 
-const files = ['resources/js/app.js']
+const files = ['resources/js/app.js'];
 
 if (!process.env.MIX_AVAILABLE_LOCALES) {
   process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*').map(folder => {
-    return path.basename(folder)
-  }).join(',')
+    return path.basename(folder);
+  }).join(',');
 }
 
 if (!process.env.MIX_DEFAULT_LOCALE) {
-  process.env.MIX_DEFAULT_LOCALE = 'en'
+  process.env.MIX_DEFAULT_LOCALE = 'en';
 }
 
 if (fs.existsSync('resources/custom/js/')) {
-  const customFiles = glob.sync('resources/custom/js/**/*.js')
+  const customFiles = glob.sync('resources/custom/js/**/*.js');
 
   customFiles.forEach(file => {
-    files.push(file)
-  })
+    files.push(file);
+  });
 }
 
 mix.js(files, 'public/js')
   .sass('resources/sass/app.scss', 'public/css')
   .copy('resources/images', 'public/images')
-  .sourceMaps(false)
+  .sourceMaps(false);
 
 if (fs.existsSync('resources/custom/images')) {
-  mix.copy('resources/custom/images', 'public/images')
+  mix.copy('resources/custom/images', 'public/images');
 }
 
 if (!mix.inProduction()) {
-  mix.browserSync(process.env.APP_URL)
+  mix.browserSync(process.env.APP_URL);
 }
 
 if (mix.inProduction()) {
-  mix.version()
+  mix.version();
 }

@@ -50,9 +50,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
-import LocaleSelector from '../components/LocaleSelector'
-import FooterComponent from '../components/FooterComponent'
+import { mapState, mapGetters } from 'vuex';
+import LocaleSelector from '../components/LocaleSelector';
+import FooterComponent from '../components/FooterComponent';
 
 export default {
   components: { LocaleSelector, FooterComponent },
@@ -68,16 +68,16 @@ export default {
   data () {
     return {
       availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(',')
-    }
+    };
   },
   methods: {
     async logout () {
-      await this.$store.dispatch('session/logout')
-      this.flashMessage.success(this.$t('auth.flash.logout'))
-      await this.$router.push({ name: 'home' })
+      await this.$store.dispatch('session/logout');
+      this.flashMessage.success(this.$t('auth.flash.logout'));
+      await this.$router.push({ name: 'home' });
     }
   }
-}
+};
 </script>
 
 <style scoped>
