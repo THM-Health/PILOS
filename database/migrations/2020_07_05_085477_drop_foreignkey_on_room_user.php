@@ -8,13 +8,13 @@ class DropForeignkeyOnRoomUser extends Migration
 {
     public function up()
     {
+
         Schema::table('room_user', function (Blueprint $table) {
-            $table->dropForeign(['room_id']);
+            $table->drop();
         });
 
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropForeign(['parentMeetingID']);
-            $table->dropForeign(['preferedServer']);
+            $table->dropColumn(['parentMeetingID','preferedServer']);
         });
     }
 

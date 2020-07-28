@@ -9,7 +9,7 @@ class ChangeRoomAttributes extends Migration
     public function up()
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropColumn(['attendeePW','moderatorPW','isBreakout','parentMeetingID','sequence','publicID','securityLevel','preferedServer']);
+            $table->dropColumn(['attendeePW','moderatorPW','isBreakout','sequence','publicID','securityLevel']);
             $table->string('id',11)->change();
             $table->integer('maxParticipants')->nullable()->change();
             $table->integer('duration')->nullable()->change();
