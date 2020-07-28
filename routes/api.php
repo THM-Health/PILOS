@@ -79,11 +79,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
 
-    Route::prefix('guest')->namespace('guest')->name('guest.')->group(function () {
-        Route::get('rooms', 'RoomController@show')->name('rooms.show');
-
-    });
-
 
 });
 
