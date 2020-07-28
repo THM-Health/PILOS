@@ -83,22 +83,6 @@ class Room extends Model
         return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
     }
 
-    public function canStart($user)
-    {
-        if ($this->everyoneCanStart) {
-            return true;
-        } elseif ($this) {
-            if ($this->owner->is($user)) {
-                return true;
-            }
-            if ($this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function isModeratorOrOwner($user)
     {
         return $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);

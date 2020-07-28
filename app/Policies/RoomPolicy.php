@@ -2,9 +2,11 @@
 
 namespace App\Policies;
 
+use App\Enums\RoomUserRole;
 use App\Room;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class RoomPolicy
 {
@@ -33,9 +35,9 @@ class RoomPolicy
      * @param  Room $room
      * @return bool
      */
-    public function view(User $user, Room $room)
+    public function view(?User $user, Room $room)
     {
-        //
+        return $user == null && !$room->allowGuests;
     }
 
     /**
@@ -50,14 +52,27 @@ class RoomPolicy
     }
 
     /**
-     * Determine whether the user can create rooms.
+     * Determine whether the user can start a new meeting in a room.
      *
      * @param  User $user
      * @return bool
      */
     public function start(?User $user, Room $room)
     {
-        return $room->canStart($user);
+        if ($room->everyoneCanStart) {
+            return true;
+        }
+
+        if($user) {
+            if ($room->owner->is($user)) {
+                return true;
+            }
+            if ($room->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

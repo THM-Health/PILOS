@@ -69,7 +69,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('users/search','UserController@search','users.search');
 
         Route::get('rooms/{room}/settings','RoomController@getSettings');
-        Route::put('rooms/{room}/settings','RoomController@updateSettings');
     });
 
     Route::apiResource('rooms', 'RoomController');

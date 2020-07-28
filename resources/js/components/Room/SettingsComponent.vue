@@ -263,7 +263,7 @@ export default {
       // Set saving indicator
       this.saving = true;
       // Send new settings to the server
-      Base.call('rooms/' + this.room.id + '/settings', {
+      Base.call('rooms/' + this.room.id, {
         method: 'put',
         data: this.settings
       }).then(response => {

@@ -82,8 +82,6 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
-        //dd($meetingParams->getPresentationsAsXML());
-
         return $this->server->bbb()->createMeeting($meetingParams)->success();
     }
 
@@ -94,7 +92,7 @@ class Meeting extends Model
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setUserId($userid);
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
-        $joinMeetingParams->setAuthenticated($role != RoomUserRole::GUEST);
+        //$joinMeetingParams->setAuthenticated($role != RoomUserRole::GUEST);
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }

@@ -13,12 +13,17 @@ use App\Server;
 use App\User;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class RoomController extends Controller
 {
     public function __construct()
     {
         $this->middleware(['auth:api_users,api'])->except(['show','join','start','joinMembership','leaveMembership']);
+        $this->middleware('room.guest_protection',['only' => ['show','join','start']]);
+        $this->middleware('room.authorize:true',['only' => ['show']]);
+        $this->middleware('room.authorize',['only' => ['start','join']]);
+
     }
 
     /**
@@ -35,70 +40,102 @@ class RoomController extends Controller
         ];
     }
 
-    private function checkAccess(Room $room, String $accessCode = null)
-    {
-        if (Auth::guest() && !$room->allowGuests) {
-            abort(403);
-        }
-
-        if ($room->accessCode == null) {
-            return true;
-        }
-
-        if ($accessCode) {
-            if (is_numeric($accessCode) && $room->accessCode == $accessCode) {
-                return true;
-            } else {
-                abort(401, 'invalid_code');
-            }
-        }
-        if ($room->owner->is(Auth::user()) or $room->members->contains(Auth::user())) {
-            return true;
-        }
-
-        return false;
-    }
-
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a new created room
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
+        //TODO implement
     }
 
     /**
-     * Display the specified resource.
+     * Return all general room details
      *
      * @param  int                      $id
      * @return \App\Http\Resources\Room
      */
     public function show(Room $room, Request $request)
     {
-        $loggedIn = $this->checkAccess($room, $request->code);
-
-        return new \App\Http\Resources\Room($room, $loggedIn);
+        return new \App\Http\Resources\Room($room, $request->authorized);
     }
 
+    /**
+     * Return all room settings
+     * @param Room $room
+     * @return \App\Http\Resources\RoomSettings
+     */
     public function getSettings(Room $room)
     {
         return new \App\Http\Resources\RoomSettings($room);
     }
 
-    public function updateSettings(UpdateRoomSettings $request, Room $room)
+    /**
+     * Start a new meeting
+     * @param Room $room
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function start(Room $room, Request $request)
+    {
+        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
+        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
+
+        $this->authorize('start', $room);
+
+        $meeting = $room->runningMeeting();
+        if (!$meeting) {
+            $servers = Server::where('status', true)->get();
+            $server  = $servers->random();
+
+            $meeting = $room->meetings()->create();
+            $meeting->server()->associate($server);
+            $meeting->start       = date('Y-m-d H:i:s');
+            $meeting->attendeePW  = bin2hex(random_bytes(5));
+            $meeting->moderatorPW = bin2hex(random_bytes(5));
+            $meeting->save();
+
+            if (!$meeting->start()) {
+                // @TODO Error
+            }
+        }
+
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
+    }
+
+    /**
+     * Join an existing meeting
+     * @param Room $room
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function join(Room $room, Request $request)
+    {
+        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
+        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
+
+        $meeting = $room->runningMeeting();
+        if ($meeting == null) {
+            return response()->json('not_running', 460);
+        }
+
+        if (!$meeting->start()) {
+            // @TODO Error
+        }
+
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
+    }
+
+    /**
+     * Update room settings
+     * @param UpdateRoomSettings $request
+     * @param Room $room
+     * @return \App\Http\Resources\RoomSettings
+     */
+    public function update(UpdateRoomSettings $request, Room $room)
     {
         $room->name            = $request->name;
         $room->welcome         = $request->welcome;
@@ -128,90 +165,15 @@ class RoomController extends Controller
         return new \App\Http\Resources\RoomSettings($room);
     }
 
-    public function start(Room $room, Request $request)
-    {
-        if (!$this->checkAccess($room, $request->code)) {
-            abort(401);
-        }
-
-        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
-        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
-
-        $this->authorize('start', $room);
-
-        $meeting = $room->runningMeeting();
-        if (!$meeting) {
-            $servers = Server::where('status', true)->get();
-            $server  = $servers->random();
-
-            $meeting = $room->meetings()->create();
-            $meeting->server()->associate($server);
-            $meeting->start       = date('Y-m-d H:i:s');
-            $meeting->attendeePW  = bin2hex(random_bytes(5));
-            $meeting->moderatorPW = bin2hex(random_bytes(5));
-            $meeting->save();
-
-            if (!$meeting->start()) {
-                // @TODO Error
-            }
-        }
-
-        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
-    }
-
-    public function join(Room $room, Request $request)
-    {
-        if (!$this->checkAccess($room, $request->code)) {
-            abort(401);
-        }
-
-        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
-        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
-
-        $meeting = $room->runningMeeting();
-        if ($meeting == null) {
-            return response()->json('not_running', 460);
-        }
-
-        if (!$meeting->start()) {
-            // @TODO Error
-        }
-
-        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
-    }
-
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int                       $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int                       $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
+     * Delete a meeting and all related data
      *
      * @param  int                       $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
+        //TODO implement; maybe keep some statistical data
     }
 
     public function joinMembership(Room $room, Request $request)
