@@ -5,4 +5,4 @@ export default {
   sharedBy: 'Shared by {name}',
   sharedRooms: 'Rooms shared with me',
   roomTypeMeeting: 'ME'
-}
+};

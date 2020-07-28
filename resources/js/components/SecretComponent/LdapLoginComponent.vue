@@ -63,7 +63,7 @@ export default {
     return {
       username: '',
       password: ''
-    }
+    };
   },
   methods: {
     submit () {
@@ -73,10 +73,10 @@ export default {
           username: this.username,
           password: this.password
         }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>

@@ -1,8 +1,8 @@
-const mix = require('laravel-mix')
-const fs = require('fs')
-const glob = require('glob')
-const path = require('path')
-require('laravel-mix-merge-manifest')
+const mix = require('laravel-mix');
+const fs = require('fs');
+const glob = require('glob');
+const path = require('path');
+require('laravel-mix-merge-manifest');
 
 /*
  |--------------------------------------------------------------------------
@@ -15,35 +15,35 @@ require('laravel-mix-merge-manifest')
  |
  */
 
-const files = ['resources/js/app.js']
+const files = ['resources/js/app.js'];
 
 if (!process.env.MIX_AVAILABLE_LOCALES) {
   process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*.js').map(file => {
-    return path.basename(file, '.js')
-  }).join(',')
+    return path.basename(file, '.js');
+  }).join(',');
 }
 
 if (fs.existsSync('resources/custom/js/')) {
-  const customFiles = glob.sync('resources/custom/js/**/*.js')
+  const customFiles = glob.sync('resources/custom/js/**/*.js');
 
   customFiles.forEach(file => {
-    files.push(file)
-  })
+    files.push(file);
+  });
 }
 
 mix.js(files, 'public/js')
-  .sourceMaps(false)
+  .sourceMaps(false);
 
 if (process.env.NODE_ENV !== 'test') {
-  mix.extract()
+  mix.extract();
 }
 
 if (!mix.inProduction()) {
-  mix.browserSync(process.env.BROWSERSYNC_URL || process.env.APP_URL)
+  mix.browserSync(process.env.BROWSERSYNC_URL || process.env.APP_URL);
 }
 
 if (mix.inProduction()) {
-  mix.version()
+  mix.version();
 }
 
-mix.mergeManifest()
+mix.mergeManifest();

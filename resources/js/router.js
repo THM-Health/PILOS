@@ -1,13 +1,13 @@
-import VueRouter from 'vue-router'
-import Login from './views/Login'
-import NotFound from './views/NotFound'
-import RoomsIndex from './views/rooms/Index'
-import RoomView from './views/rooms/View'
-import store from './store'
-import Home from './views/Home'
-import Vue from 'vue'
+import VueRouter from 'vue-router';
+import Login from './views/Login';
+import NotFound from './views/NotFound';
+import RoomsIndex from './views/rooms/Index';
+import RoomView from './views/rooms/View';
+import store from './store';
+import Home from './views/Home';
+import Vue from 'vue';
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const router = new VueRouter({
   mode: 'history',
@@ -44,7 +44,7 @@ const router = new VueRouter({
       redirect: '/404'
     }
   ]
-})
+});
 
 /**
  * Callback that gets called before a route gets entered.
@@ -61,26 +61,26 @@ const router = new VueRouter({
  * check it must always be a promise.
  */
 router.beforeEach((to, from, next) => {
-  const locale = $('html').prop('lang') || 'en'
-  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve()
+  const locale = $('html').prop('lang') || 'en';
+  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
       record.meta.accessPermitted ? record.meta.accessPermitted() : Promise.resolve(true)
-    ))
+    ));
   }).then((recordsPermissions) => {
     if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }
-      })
+      });
     } else if (!recordsPermissions.every(permission => permission)) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'))
-      next(from.matched.length !== 0 ? false : '/')
+      router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
+      next(from.matched.length !== 0 ? false : '/');
     } else {
-      next()
+      next();
     }
-  })
-})
+  });
+});
 
-export default router
+export default router;

@@ -39,4 +39,4 @@ export default {
     privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
     separator: '|'
   }
-}
+};

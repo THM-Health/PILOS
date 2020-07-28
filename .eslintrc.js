@@ -1,7 +1,7 @@
 module.exports = {
   env: {
     browser: true,
-    es2020: true,
+    es6: true,
     jquery: true,
     mocha: true
   },
@@ -27,6 +27,7 @@ module.exports = {
   rules: {
     '@intlify/vue-i18n/no-html-messages': 'error',
     '@intlify/vue-i18n/no-raw-text': 'error',
-    '@intlify/vue-i18n/no-v-html': 'warn'
+    '@intlify/vue-i18n/no-v-html': 'warn',
+    semi: ['error', 'always']
   }
-}
+};
