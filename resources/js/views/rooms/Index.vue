@@ -24,8 +24,8 @@
 
 <script>
 
-import RoomComponent from '../../components/Room/RoomComponent.vue'
-import Base from '../../api/base'
+import RoomComponent from '../../components/Room/RoomComponent.vue';
+import Base from '../../api/base';
 
 export default {
   components: {
@@ -35,16 +35,16 @@ export default {
   data () {
     return {
       rooms: []
-    }
+    };
   },
 
   // Component not loaded yet
   beforeRouteEnter  (to, from, next) {
     Base.call('rooms').then(response => {
       next(vm => {
-        vm.rooms = response.data.data
-      })
-    })
+        vm.rooms = response.data.data;
+      });
+    });
   }
-}
+};
 </script>

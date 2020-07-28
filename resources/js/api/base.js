@@ -1,16 +1,16 @@
-import axios from 'axios'
+import axios from 'axios';
 
 export default {
   call (path, config, loadCsrfCookie = false) {
-    const promise = loadCsrfCookie ? this.getCsrfCookie() : Promise.resolve()
+    const promise = loadCsrfCookie ? this.getCsrfCookie() : Promise.resolve();
 
     return promise.then(() => {
-      return axios(`/api/v1/${path}`, config)
-    })
+      return axios(`/api/v1/${path}`, config);
+    });
   },
 
   getCsrfCookie () {
-    return axios.get('/sanctum/csrf-cookie')
+    return axios.get('/sanctum/csrf-cookie');
   },
 
   /**
@@ -24,6 +24,6 @@ export default {
     return this.call('setLocale', {
       data: { locale },
       method: 'post'
-    })
+    });
   }
-}
+};
