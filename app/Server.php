@@ -12,6 +12,11 @@ class Server extends Model
         return $this->hasMany(Room::class, 'preferedServer');
     }
 
+    /**
+     * Get bigbluebutton api instance with the url and secret stored in the database fields
+     * @return BigBlueButton
+     * @throws \Exception
+     */
     public function bbb()
     {
         return new BigBlueButton($this->baseUrl, $this->salt);
