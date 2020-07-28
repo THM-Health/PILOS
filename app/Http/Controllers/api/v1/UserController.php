@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\User as UserResource;
+use App\User;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,14 +17,25 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->firstname && $request->lastname && $request->username) {
-            DB::table('users')->orWhere('firstname', 'like', '%'.$request->firstname.'%')
-                ->orWhere('lastname', 'like', '%'.$request->lastname.'%')
-                ->orWhere('username', 'like', '%'.$request->username.'%')
-                ->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+        if ($request->firstname || $request->lastname || $request->username) {
+            $this->search($request);
         }
 
-        return DB::table('users')->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+        return UserResource::collection(User::paginate(env('MIX_PAGINATION_PER_PAGE', 15)));
+    }
+
+    /**
+     * Search users based on query parameters
+     *
+     */
+    public function search(Request $request)
+    {
+        $users = User::orWhere('firstname', 'like', '%' . $request->firstname . '%')
+            ->orWhere('lastname', 'like', '%' . $request->lastname . '%')
+            ->orWhere('username', 'like', '%' . $request->username . '%')
+            ->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+
+        return UserResource::collection($users);
     }
 
     /**
@@ -58,6 +72,13 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //TODO implement delete user based on id method
+        $user = User::find($id);
+
+        if ($user)
+            $user->delete();
+        else
+            return response()->json(['message' => 'User not found!'], 404);
+
+        return response()->json(null, 204);
     }
 }

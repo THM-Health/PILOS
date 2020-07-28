@@ -29,6 +29,14 @@ export default {
       edit: 'Edit',
       delete: 'Delete',
       loading: 'Loading...'
+    },
+    deleteModal: {
+      title: 'Delete Confirmation',
+      content: 'Are you sure? This action cannot be undone!'
+    },
+    deleteSuccess: {
+      message: 'User deleted successfully!',
+      title: 'Delete'
     }
   },
 

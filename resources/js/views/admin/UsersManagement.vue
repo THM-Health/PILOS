@@ -2,12 +2,11 @@
   <div>
     <b-row>
       <b-col>
-        <h2 class="">{{$t('settings.users.title')}}</h2>
+        <h2 class="text-success">{{$t('settings.users.title')}}</h2>
       </b-col>
       <!--Search Bar-->
       <b-col lg="6" class="my-1">
         <b-form-group
-          :label="$t('settings.searchbar.filter')"
           label-cols-sm="3"
           label-align-sm="right"
           label-size="sm"
@@ -21,9 +20,10 @@
               id="filterInput"
               :placeholder="$t('settings.searchbar.placeholder')"
               @input="getUsers(filterInput)"
+              debounce="1000"
             ></b-form-input>
             <b-input-group-append>
-              <b-button class="btn-success disabled">
+              <b-button class="btn-success" :disabled="true">
                 <i class="text-white fas fa fa-search"></i>
               </b-button>
             </b-input-group-append>
@@ -43,33 +43,27 @@
              :filter="filterInput"
              @filtered="onFiltered"
              responsive
-             small>
-      <!--Loading state overlay on table-->
-      <template v-slot:table-busy>
-        <div class="text-center text-success my-2">
-          <b-spinner class="align-middle"></b-spinner>
-          <strong>{{$t('settings.users.table.loading')}}</strong>
-        </div>
-      </template>
-      <template v-slot:cell(action)>
-        <div class="ml-3">
-          <b-dropdown size="sm" id="dropdown-right" right variant="success" class="m-2">
-            <template v-slot:button-content>
-              <span><i class="fas fa fa-user"></i></span>
-            </template>
-            <!--TODO Add :to navigation -->
-            <b-dropdown-item>
-              <span class="mr-3">
-              <i class="fas fa fa-user-edit"></i>
-              </span>{{$t('settings.users.table.edit')}}
-            </b-dropdown-item>
-            <b-dropdown-item>
-              <span class="mr-3">
-              <i class="fas fa fa-user-minus"></i>
-              </span>{{$t('settings.users.table.delete')}}
-            </b-dropdown-item>
-          </b-dropdown>
-        </div>
+             small
+    >
+      <template v-slot:cell(action)="row">
+        <b-dropdown size="sm" id="dropdown-right" class="ml-3 mb-1" right variant="success" no-caret>
+          <template v-slot:button-content>
+            <span><i class="fas fa fa-user"></i></span>
+          </template>
+          <!--TODO Add :to navigation -->
+          <b-dropdown-item>
+            <b-row class="text-muted">
+              <b-col cols="3"><i class="fas fa fa-user-edit"></i></b-col>
+              <b-col cols="9">{{$t('settings.users.table.edit')}}</b-col>
+            </b-row>
+          </b-dropdown-item>
+          <b-dropdown-item v-b-modal.delete-modal @click="populateSelectedUser(row.item)">
+            <b-row class="text-muted">
+              <b-col cols="3"><i class="fas fa fa-user-minus"></i></b-col>
+              <b-col cols="9">{{$t('settings.users.table.delete')}}</b-col>
+            </b-row>
+          </b-dropdown-item>
+        </b-dropdown>
       </template>
     </b-table>
 
@@ -89,6 +83,20 @@
     >
     </b-pagination>
 
+    <!-- Delete confirm modal -->
+    <b-modal
+      id="delete-modal"
+      :title="$t('settings.users.deleteModal.title')"
+      header-bg-variant="success"
+      header-text-variant="light"
+      ok-variant="success"
+      ok-only
+      centered
+      @hidden="resetSelectedUser"
+      @ok="deleteUser(selectedUser.id)"
+    >
+      {{ $t('settings.users.deleteModal.content') }}
+    </b-modal>
   </div>
 </template>
 
@@ -110,7 +118,13 @@ export default {
       nextPage: null,
       prevPage: null,
       perPage: null,
-      limits: process.env.MIX_PAGINATION_LIMIT
+      limits: process.env.MIX_PAGINATION_LIMIT,
+      selectedUser: {
+        id: null,
+        firstname: null,
+        lastname: null,
+        username: null
+      }
     };
   },
   mounted () {
@@ -134,14 +148,14 @@ export default {
           }
         },
         {
-          key: 'created_at',
+          key: 'createdAt',
           sortable: true,
           label: this.$t('settings.users.table.created'),
           formatter: value =>
             this.formatDate(value)
         },
         {
-          key: 'updated_at',
+          key: 'updatedAt',
           sortable: true,
           label: this.$t('settings.users.table.updated'),
           formatter: value =>
@@ -152,7 +166,7 @@ export default {
     }
   },
   methods: {
-    getUsers (pageVal = 1, searchInput) {
+    getUsers (pageVal = this.currentPage, searchInput) {
       this.isBusy = true;
       Base.call('users', {
         params: {
@@ -171,11 +185,30 @@ export default {
         this.prevPage = this.currentPage - 1;
       }).finally(this.isBusy = false);
     },
-    formatDate (value) {
-      return moment(value).format('l HH:mm');
+    deleteUser (id) {
+      Base.call('users/' + id, {
+        method: 'delete'
+      }).then(response => {
+        this.flashMessage.success(this.$t('settings.users.deleteSuccess'));
+        this.getUsers(this.currentPage);
+      });
     },
-    onFiltered (filteredItems) {
-      // Trigger pagination to update the number of buttons/pages due to filtering
+    populateSelectedUser (user) {
+      this.selectedUser.id = user.id;
+      this.selectedUser.firstname = user.firstname;
+      this.selectedUser.lastname = user.lastname;
+      this.selectedUser.username = user.username;
+    },
+    resetSelectedUser () {
+      this.selectedUser.id = null;
+      this.selectedUser.firstname = null;
+      this.selectedUser.lastname = null;
+      this.selectedUser.username = null;
+    },
+    formatDate (value) {
+      return moment(value).format('YYYY-MM-DD HH:mm UTC');
+    },
+    onFiltered (filteredItems) { // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;
       this.users.count = filteredItems.length;
       this.currentPage = 1;

@@ -29,6 +29,14 @@ export default {
       edit: 'Bearbeiten',
       delete: 'Löschen',
       loading: 'Laden...'
+    },
+    deleteModal: {
+      title: 'Bestätigung zum Löschen',
+      content: 'Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!'
+    },
+    deleteSuccess: {
+      message: 'Benutzer wurde erfolgreich gelöscht!',
+      title: 'Löschen'
     }
   },
 
