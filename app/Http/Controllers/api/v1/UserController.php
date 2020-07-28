@@ -5,15 +5,16 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User as UserResource;
 use App\User;
-use http\Env\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
+     * @param Request $request
+     * @return AnonymousResourceCollection
      */
     public function index(Request $request)
     {
@@ -26,7 +27,8 @@ class UserController extends Controller
 
     /**
      * Search users based on query parameters
-     *
+     * @param Request $request
+     * @return AnonymousResourceCollection
      */
     public function search(Request $request)
     {
@@ -69,6 +71,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      * @param $id
+     * @return JsonResponse
      */
     public function destroy($id)
     {
