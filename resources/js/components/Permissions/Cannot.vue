@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import EventBus from '../../services/EventBus'
-import PermissionService from '../../services/PermissionService'
+import EventBus from '../../services/EventBus';
+import PermissionService from '../../services/PermissionService';
 
 /**
  * Checks whether the passed permissions aren't given and depending
@@ -51,7 +51,7 @@ export default {
        * @type boolean
        */
       slotVisible: false
-    }
+    };
   },
 
   methods: {
@@ -62,7 +62,7 @@ export default {
      * @return undefined
      */
     evaluatePermissions () {
-      this.slotVisible = PermissionService.cannot(this.permissions)
+      this.slotVisible = PermissionService.cannot(this.permissions);
     }
   },
 
@@ -74,8 +74,8 @@ export default {
    * @return undefined
    */
   mounted () {
-    EventBus.$on('permissionsChangedEvent', this.evaluatePermissions)
-    this.evaluatePermissions()
+    EventBus.$on('permissionsChangedEvent', this.evaluatePermissions);
+    this.evaluatePermissions();
   },
 
   /**
@@ -85,9 +85,9 @@ export default {
    * @return undefined
    */
   beforeDestroy () {
-    EventBus.$off('permissionsChangedEvent', this.evaluatePermissions)
+    EventBus.$off('permissionsChangedEvent', this.evaluatePermissions);
   }
-}
+};
 </script>
 
 <style scoped>

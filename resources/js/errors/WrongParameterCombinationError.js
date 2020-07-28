@@ -8,6 +8,6 @@ export default class WrongParameterCombinationError extends Error {
    * @return undefined
    */
   constructor () {
-    super('A wrong combination of parameters was passed!')
+    super('A wrong combination of parameters was passed!');
   }
 }

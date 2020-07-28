@@ -1,9 +1,9 @@
-import ParameterMissingError from '../errors/ParameterMissingError'
-import WrongParameterCombinationError from '../errors/WrongParameterCombinationError'
-import WrongTypeError from '../errors/WrongTypeError'
-import Policies from '../policies'
-import PolicyDoesNotExistsError from '../errors/PolicyDoesNotExistsError'
-import EventBus from './EventBus'
+import ParameterMissingError from '../errors/ParameterMissingError';
+import WrongParameterCombinationError from '../errors/WrongParameterCombinationError';
+import WrongTypeError from '../errors/WrongTypeError';
+import Policies from '../policies';
+import PolicyDoesNotExistsError from '../errors/PolicyDoesNotExistsError';
+import EventBus from './EventBus';
 
 /**
  * Service that holds the permissions of the current user and provides methods that
@@ -30,7 +30,7 @@ class PermissionService {
      * @type {String[]}
      * @private
      */
-    this.permissions = []
+    this.permissions = [];
   }
 
   /**
@@ -43,14 +43,14 @@ class PermissionService {
    * @return undefined
    */
   setPermissions (permissions) {
-    this.permissions = permissions
+    this.permissions = permissions;
 
     /**
      * Triggers when new permissions set on this service.
      *
      * @property {String[]} permissions The newly set permissions
      */
-    EventBus.$emit('permissionsChangedEvent', permissions)
+    EventBus.$emit('permissionsChangedEvent', permissions);
   }
 
   /**
@@ -111,56 +111,56 @@ class PermissionService {
     if (process.env.NODE_ENV !== 'production') {
       // Parameter checks
       if (!permission && !policy && !method && !object) {
-        throw new ParameterMissingError(['permission', 'policy', 'method', 'object'], true)
+        throw new ParameterMissingError(['permission', 'policy', 'method', 'object'], true);
       } else if ((permission && policy) || (permission && method) || (permission && object) || (policy && object)) {
-        throw new WrongParameterCombinationError()
+        throw new WrongParameterCombinationError();
       } else if ((policy && !method) || (object && !method)) {
-        throw new ParameterMissingError(['method'])
+        throw new ParameterMissingError(['method']);
       } else if ((method && !policy && !object)) {
-        throw new ParameterMissingError(['object', 'policy'], true)
+        throw new ParameterMissingError(['object', 'policy'], true);
       }
 
       if (permission && typeof permission !== 'string') {
-        throw new WrongTypeError('permission', 'string')
+        throw new WrongTypeError('permission', 'string');
       }
 
       if (policy && typeof policy !== 'string') {
-        throw new WrongTypeError('policy', 'string')
+        throw new WrongTypeError('policy', 'string');
       }
 
       if (method && typeof method !== 'string') {
-        throw new WrongTypeError('method', 'string')
+        throw new WrongTypeError('method', 'string');
       }
 
       if (object && typeof object !== 'object') {
-        throw new WrongTypeError('object', 'object')
+        throw new WrongTypeError('object', 'object');
       } else if (object && (!Object.prototype.hasOwnProperty.call(object, 'modelName') || typeof object.modelName !== 'string')) {
-        throw new ParameterMissingError('The passed `object` has no `modelName` or it is not of type string!')
+        throw new ParameterMissingError('The passed `object` has no `modelName` or it is not of type string!');
       }
     }
 
     if (permission) {
-      return this.permissions.includes(permission)
+      return this.permissions.includes(permission);
     } else if (policy) {
       if (process.env.NODE_ENV !== 'production' && (
         !Object.prototype.hasOwnProperty.call(Policies, policy) ||
         !Object.prototype.hasOwnProperty.call(Policies[policy], method)
       )) {
-        throw new PolicyDoesNotExistsError(policy, method)
+        throw new PolicyDoesNotExistsError(policy, method);
       }
 
-      return Policies[policy][method](this)
+      return Policies[policy][method](this);
     }
 
-    policy = `${object.modelName}Policy`
+    policy = `${object.modelName}Policy`;
     if (process.env.NODE_ENV !== 'production' && (
       !Object.prototype.hasOwnProperty.call(Policies, policy) ||
       !Object.prototype.hasOwnProperty.call(Policies[policy], method)
     )) {
-      throw new PolicyDoesNotExistsError(policy, method)
+      throw new PolicyDoesNotExistsError(policy, method);
     }
 
-    return Policies[policy][method](this, object)
+    return Policies[policy][method](this, object);
   }
 
   /**
@@ -179,8 +179,8 @@ class PermissionService {
    * @return boolean Indicating whether the action isn't permitted.
    */
   cannot ({ permission, policy, method, object } = {}) {
-    return !this.can({ permission, policy, method, object })
+    return !this.can({ permission, policy, method, object });
   }
 }
 
-export default new PermissionService()
+export default new PermissionService();
