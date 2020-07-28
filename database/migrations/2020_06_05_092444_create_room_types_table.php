@@ -18,12 +18,8 @@ class CreateRoomTypesTable extends Migration
             $table->string('short',2);
             $table->string('description');
             $table->string('color',7);
-            $table->boolean('default')->default(false);
             $table->timestamps();
         });
-
-        $seeder = new RoomTypeSeeder();
-        $seeder->run();
     }
 
     /**

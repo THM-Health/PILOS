@@ -16,10 +16,11 @@ class CreateRoomsUsersTable extends Migration
         Schema::create('room_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('room_id',11);
+            $table->unsignedBigInteger('room_id');
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->primary(['user_id', 'room_id']);
-            $table->tinyInteger('role')->default(\App\Enums\RoomUserRole::USER);
+            $table->boolean('moderator')->default(false);
+
         });
     }
 

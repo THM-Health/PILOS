@@ -12,6 +12,7 @@
         "bensampo/laravel-enum": "^2.0",
         "caouecs/laravel-lang": "~6.0",
         "directorytree/ldaprecord-laravel": "^1.3",
+        "doctrine/dbal": "^2.10",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "goldspecdigital/laravel-eloquent-uuid": "7.0",
