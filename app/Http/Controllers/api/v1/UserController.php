@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @param Request $request
+     * @param  Request                     $request
      * @return AnonymousResourceCollection
      */
     public function index(Request $request)
@@ -28,7 +28,7 @@ class UserController extends Controller
 
     /**
      * Search users based on query parameters
-     * @param Request $request
+     * @param  Request                     $request
      * @return AnonymousResourceCollection
      */
     public function search(Request $request)
@@ -62,7 +62,7 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      * @param Request $request
-     * @param User $user
+     * @param User    $user
      */
     public function update(Request $request, User $user)
     {
@@ -71,7 +71,7 @@ class UserController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * @param User $user
+     * @param  User         $user
      * @return JsonResponse
      * @throws Exception
      */
