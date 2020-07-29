@@ -25,6 +25,11 @@ class UserTest extends TestCase
             'firstname' => 'John',
             'lastname'  => 'Doe'
         ]);
+
+        $this->users[] = factory(User::class)->create([
+            'firstname' => 'Erika',
+            'lastname'  => 'Mustermann'
+        ]);
     }
 
     public function testReturnsUserWithGivenFirstnamePart()
@@ -38,9 +43,18 @@ class UserTest extends TestCase
     public function testReturnsUserWithGivenLastnamePart()
     {
         $result = User::withLastname('us')->get();
-        $this->assertCount(1, $result);
+        $this->assertCount(2, $result);
         $this->assertEquals($this->users[0]->firstname, $result[0]->firstname);
         $this->assertEquals($this->users[0]->lastname, $result[0]->lastname);
+        $this->assertEquals($this->users[2]->firstname, $result[1]->firstname);
+        $this->assertEquals($this->users[2]->lastname, $result[1]->lastname);
+
+        $result = User::withLastname('Mustermann')->get();
+        $this->assertCount(2, $result);
+        $this->assertEquals($this->users[0]->firstname, $result[0]->firstname);
+        $this->assertEquals($this->users[0]->lastname, $result[0]->lastname);
+        $this->assertEquals($this->users[2]->firstname, $result[1]->firstname);
+        $this->assertEquals($this->users[2]->lastname, $result[1]->lastname);
     }
 
     public function testReturnsUserWithGivenNamePart()
@@ -57,11 +71,14 @@ class UserTest extends TestCase
 
         $result = User::withName('ax    ust')->where('id', $this->users[1]->id)->get();
         $this->assertCount(0, $result);
+
+        $result = User::withName('Max Doe')->where('id', $this->users[1]->id)->get();
+        $this->assertCount(0, $result);
     }
 
     public function testReturnsEmptyArrayForNotExistingName()
     {
-        $result = User::withName('Erika Mustermann')->get();
+        $result = User::withName('Darth Vader')->get();
         $this->assertCount(0, $result);
     }
 }
