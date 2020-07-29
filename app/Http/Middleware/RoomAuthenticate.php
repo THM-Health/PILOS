@@ -16,15 +16,15 @@ class RoomAuthenticate
      *
      * If an access code is provided, but is invalid an error is return and the request isn't continued.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @param bool $allowAuthenticated Allow users that are unauthenticated to pass
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure                 $next
+     * @param  bool                     $allowAuthenticated Allow users that are unauthenticated to pass
      * @return mixed
      */
     public function handle($request, Closure $next, $allowAuthenticated = false)
     {
         $authenticated = false;
-        $room = $request->route('room');
+        $room          = $request->route('room');
 
         // requested user is the owner or a member of the room or the room doesn't require access code
         if ($room->owner->is(Auth::user()) or $room->members->contains(Auth::user()) or $room->accessCode == null) {
