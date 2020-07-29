@@ -21,7 +21,7 @@ class UserController extends Controller
     {
         $query = User::paginate(env('MIX_PAGINATION_PER_PAGE', 15));
 
-        if($request->has('name')) {
+        if ($request->has('name')) {
             $query = User::withName($request->name)->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
         }
 
