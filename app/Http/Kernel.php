@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
         'api' => [
             EnsureFrontendRequestsAreStateful::class,
             'throttle:120,1',
-            \App\Http\Middleware\LoggedInUser::class,
+            'loggedin:api_users,api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
         ],
@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'verified'              => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'room.guest_protection' => RoomGuestProtection::class,
         'room.authorize'        => RoomLoggedin::class,
+        'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
     ];
 }
