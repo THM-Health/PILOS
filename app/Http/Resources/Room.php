@@ -45,7 +45,7 @@ class Room extends JsonResource
             'isOwner'           => $this->owner->is(Auth::user()),
             'isGuest'           => Auth::guest(),
             'isModerator'       => $this->isModeratorOrOwner(Auth::user()),
-            'canStart'          => Gate::inspect('start',$this->resource)->allowed(),
+            'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
             'running'           => $this->runningMeeting() != null,
             'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()), $this->accessCode),
             'files'             => $this->when($this->loggedIn, RoomFile::collection($this->files()->where('download', true)->get()))

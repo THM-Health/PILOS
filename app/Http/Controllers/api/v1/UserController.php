@@ -11,7 +11,7 @@ class UserController extends Controller
 
     /**
      * Search for users in the whole database, based on first name and last name
-     * @param Request $request query parameter with search query
+     * @param  Request                                                     $request query parameter with search query
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function search(Request $request)

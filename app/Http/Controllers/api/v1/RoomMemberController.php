@@ -9,14 +9,12 @@ use App\Http\Resources\RoomUser;
 use App\Room;
 use App\User;
 use Auth;
-use Illuminate\Http\Request;
 
 class RoomMemberController extends Controller
 {
-
     public function __construct()
     {
-        $this->middleware('room.authorize',['only' => ['join']]);
+        $this->middleware('room.authorize', ['only' => ['join']]);
     }
 
     /**
@@ -32,8 +30,8 @@ class RoomMemberController extends Controller
     /**
      * Add membership
      *
-     * @param AddRoomMember $request
-     * @param Room $room
+     * @param  AddRoomMember             $request
+     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
     public function store(Room $room, AddRoomMember $request)
@@ -44,9 +42,9 @@ class RoomMemberController extends Controller
     /**
      * Update membership role
      *
-     * @param UpdateRoomMember $request
-     * @param Room $room
-     * @param User $user
+     * @param  UpdateRoomMember          $request
+     * @param  Room                      $room
+     * @param  User                      $user
      * @return \Illuminate\Http\Response
      */
     public function update(Room $room, User $user, UpdateRoomMember $request)
@@ -57,15 +55,14 @@ class RoomMemberController extends Controller
     /**
      * Remove membership
      *
-     * @param Room $room
-     * @param User $user
+     * @param  Room                      $room
+     * @param  User                      $user
      * @return \Illuminate\Http\Response
      */
     public function destroy(Room $room, User $user)
     {
         $room->members()->detach($user);
     }
-
 
     /**
      * User is self promoting to become a member
@@ -91,5 +88,4 @@ class RoomMemberController extends Controller
     {
         $room->members()->detach(Auth::user()->id);
     }
-
 }

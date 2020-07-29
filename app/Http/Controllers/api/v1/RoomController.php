@@ -3,18 +3,12 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AddRoomMember;
 use App\Http\Requests\UpdateRoomSettings;
-use App\Http\Resources\PrivateRoomFile;
 use App\Http\Resources\RoomSettings;
-use App\Http\Resources\RoomUser;
 use App\Room;
-use App\RoomFile;
 use App\Server;
-use App\User;
 use Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class RoomController extends Controller
 {
@@ -22,9 +16,9 @@ class RoomController extends Controller
     {
         $this->authorizeResource(Room::class, 'room');
         $this->middleware(['auth:api_users,api'])->except(['show','join','start']);
-        $this->middleware('room.guest_protection',['only' => ['show','join','start']]);
-        $this->middleware('room.authorize:true',['only' => ['show']]);
-        $this->middleware('room.authorize',['only' => ['start','join']]);
+        $this->middleware('room.guest_protection', ['only' => ['show','join','start']]);
+        $this->middleware('room.authorize:true', ['only' => ['show']]);
+        $this->middleware('room.authorize', ['only' => ['start','join']]);
     }
 
     /**
@@ -56,7 +50,7 @@ class RoomController extends Controller
     /**
      * Return all general room details
      *
-     * @param  Room $room
+     * @param  Room                     $room
      * @return \App\Http\Resources\Room
      */
     public function show(Room $room, Request $request)
@@ -66,19 +60,20 @@ class RoomController extends Controller
 
     /**
      * Return all room settings
-     * @param Room $room
+     * @param  Room         $room
      * @return RoomSettings
      */
     public function getSettings(Room $room)
     {
         $this->authorize('viewSettings', $room);
+
         return new RoomSettings($room);
     }
 
     /**
      * Start a new meeting
-     * @param Room $room
-     * @param Request $request
+     * @param  Room                                           $room
+     * @param  Request                                        $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
@@ -111,8 +106,8 @@ class RoomController extends Controller
 
     /**
      * Join an existing meeting
-     * @param Room $room
-     * @param Request $request
+     * @param  Room                          $room
+     * @param  Request                       $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function join(Room $room, Request $request)
@@ -134,8 +129,8 @@ class RoomController extends Controller
 
     /**
      * Update room settings
-     * @param UpdateRoomSettings $request
-     * @param Room $room
+     * @param  UpdateRoomSettings $request
+     * @param  Room               $room
      * @return RoomSettings
      */
     public function update(UpdateRoomSettings $request, Room $room)
@@ -171,7 +166,7 @@ class RoomController extends Controller
     /**
      * Delete a room and all related data
      *
-     * @param Room $room
+     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
     public function destroy(Room $room)

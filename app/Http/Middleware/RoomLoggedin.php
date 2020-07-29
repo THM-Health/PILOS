@@ -10,13 +10,12 @@ class RoomLoggedin
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure                 $next
      * @return mixed
      */
     public function handle($request, Closure $next, $allowUnauthorized = false)
     {
-
         $authorized = false;
 
         $room = $request->route('room');
@@ -38,8 +37,9 @@ class RoomLoggedin
             }
         }
 
-        if(!$allowUnauthorized && !$authorized)
+        if (!$allowUnauthorized && !$authorized) {
             abort(403);
+        }
 
         $request->merge(['authorized' => $authorized]);
 

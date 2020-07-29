@@ -6,7 +6,6 @@ use App\Enums\RoomUserRole;
 use App\Room;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Auth\Access\Response;
 
 class RoomPolicy
 {
@@ -75,7 +74,7 @@ class RoomPolicy
             return true;
         }
 
-        if($user) {
+        if ($user) {
             if ($room->owner->is($user)) {
                 return true;
             }
@@ -159,7 +158,6 @@ class RoomPolicy
         return $room->owner->is($user);
     }
 
-
     /**
      * Determine whether the user create, update, delete files
      *
@@ -171,5 +169,4 @@ class RoomPolicy
     {
         return $room->owner->is($user);
     }
-
 }
