@@ -11,7 +11,7 @@
       </b-button>
 
       <!-- Show membership options for users that are logged into the room (via access code, membership, ownership) -->
-      <div class="row pt-7 pt-sm-9 mb-3" v-if="room.loggedIn">
+      <div class="row pt-7 pt-sm-9 mb-3" v-if="room.authenticated">
         <div class="col-lg-12">
           <!-- If membership is enabled, allow user to become member -->
           <b-button
@@ -52,7 +52,7 @@
       <hr>
 
       <!-- room join/start, files, settings for logged in users -->
-      <template v-if="room.loggedIn">
+      <template v-if="room.authenticated">
         <!-- Room join/start -->
         <b-row class="pt-7 pt-sm-9">
           <!-- Show inviation text/link to moderators and room owners -->
@@ -283,7 +283,7 @@ export default {
           this.loading = false;
           this.room = response.data.data;
           // If logged in, reset the access code valid
-          if (this.room.loggedIn) {
+          if (this.room.authenticated) {
             this.accessCodeValid = null;
           }
         })
@@ -436,7 +436,7 @@ export default {
             // Access code invalid
             if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
               // reset the logged in status, as it is no longer correct
-              this.room.loggedIn = false;
+              this.room.authenticated = false;
               // set the access code input invalid
               this.accessCodeValid = false;
             }

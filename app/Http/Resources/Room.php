@@ -12,7 +12,7 @@ class Room extends JsonResource
     /**
      * @var
      */
-    private $loggedIn;
+    private $authenticated;
 
     /**
      * Create a new resource instance.
@@ -20,10 +20,10 @@ class Room extends JsonResource
      * @param  mixed $resource
      * @return void
      */
-    public function __construct($resource, $loggedIn)
+    public function __construct($resource, $authenticated)
     {
         parent::__construct($resource);
-        $this->loggedIn = $loggedIn;
+        $this->authenticated = $authenticated;
     }
 
     /**
@@ -39,7 +39,7 @@ class Room extends JsonResource
             'name'              => $this->name,
             'owner'             => $this->owner->firstname.' '.$this->owner->lastname,
             'type'              => new RoomType($this->roomType),
-            'loggedIn'          => $this->loggedIn,
+            'authenticated'     => $this->authenticated,
             'allowMembership'   => Auth::user() && $this->allowMembership,
             'isMember'          => (Auth::user() && $this->members->contains(Auth::user())),
             'isOwner'           => $this->owner->is(Auth::user()),
@@ -48,7 +48,7 @@ class Room extends JsonResource
             'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
             'running'           => $this->runningMeeting() != null,
             'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()), $this->accessCode),
-            'files'             => $this->when($this->loggedIn, RoomFile::collection($this->files()->where('download', true)->get()))
+            'files'             => $this->when($this->authenticated, RoomFile::collection($this->files()->where('download', true)->get()))
         ];
     }
 }
