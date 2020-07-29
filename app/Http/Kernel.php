@@ -3,7 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\RoomGuestProtection;
-use App\Http\Middleware\RoomLoggedin;
+use App\Http\Middleware\RoomAuthenticate;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -70,7 +70,7 @@ class Kernel extends HttpKernel
         'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified'              => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'room.guest_protection' => RoomGuestProtection::class,
-        'room.authorize'        => RoomLoggedin::class,
+        'room.authenticate'     => RoomAuthenticate::class,
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
     ];
 }

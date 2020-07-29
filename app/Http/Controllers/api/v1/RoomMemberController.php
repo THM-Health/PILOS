@@ -14,7 +14,7 @@ class RoomMemberController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('room.authorize', ['only' => ['join']]);
+        $this->middleware('room.authenticate', ['only' => ['join']]);
     }
 
     /**
