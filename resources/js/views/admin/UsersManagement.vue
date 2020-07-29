@@ -19,8 +19,7 @@
               type="search"
               id="filterInput"
               :placeholder="$t('settings.searchbar.placeholder')"
-              @input="getUsers(filterInput)"
-              debounce="1000"
+              @input="getUsers(currentPage, filterInput)"
             ></b-form-input>
             <b-input-group-append>
               <b-button class="btn-success" :disabled="true">
@@ -166,7 +165,7 @@ export default {
     }
   },
   methods: {
-    getUsers (pageVal = this.currentPage, searchInput) {
+    getUsers (pageVal = 1, searchInput) {
       this.isBusy = true;
       Base.call('users', {
         params: {
@@ -190,8 +189,10 @@ export default {
         method: 'delete'
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.deleteSuccess'));
-        this.getUsers(this.currentPage);
-      });
+      }).catch(error => {
+        console.log(error);
+        this.flashMessage.error(this.$t('settings.users.deleteFailed'));
+      }).finally(() => this.getUsers(this.currentPage));
     },
     populateSelectedUser (user) {
       this.selectedUser.id = user.id;
@@ -206,7 +207,7 @@ export default {
       this.selectedUser.username = null;
     },
     formatDate (value) {
-      return moment(value).format('YYYY-MM-DD HH:mm UTC');
+      return moment(value).format('DD-MM-YYYY HH:mm UTC');
     },
     onFiltered (filteredItems) { // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;

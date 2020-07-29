@@ -37,6 +37,10 @@ export default {
     deleteSuccess: {
       message: 'User deleted successfully!',
       title: 'Delete'
+    },
+    deleteFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'Delete'
     }
   },
 

@@ -37,6 +37,10 @@ export default {
     deleteSuccess: {
       message: 'Benutzer wurde erfolgreich gelöscht!',
       title: 'Löschen'
+    },
+    deleteFailed: {
+      message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
+      title: 'Löschen'
     }
   },
 
