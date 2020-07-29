@@ -19,26 +19,13 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->has('firstname') || $request->has('lastname') || $request->has('username')) {
-            $this->search($request);
+        $query = User::paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+
+        if($request->has('name')) {
+            $query = User::withName($request->name)->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
         }
 
-        return UserResource::collection(User::paginate(env('MIX_PAGINATION_PER_PAGE', 15)));
-    }
-
-    /**
-     * Search users based on query parameters
-     * @param  Request                     $request
-     * @return AnonymousResourceCollection
-     */
-    public function search(Request $request)
-    {
-        $users = User::orWhere('firstname', 'like', '%' . $request->firstname . '%')
-            ->orWhere('lastname', 'like', '%' . $request->lastname . '%')
-            ->orWhere('username', 'like', '%' . $request->username . '%')
-            ->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
-
-        return UserResource::collection($users);
+        return UserResource::collection($query);
     }
 
     /**

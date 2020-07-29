@@ -170,9 +170,7 @@ export default {
       Base.call('users', {
         params: {
           page: pageVal,
-          firstname: searchInput,
-          lastname: searchInput,
-          username: searchInput
+          name: searchInput
         }
       }).then(response => {
         this.users = response.data.data;
