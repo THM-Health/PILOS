@@ -52,19 +52,20 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         })->name('setLocale');
 
         // Membership user self add/remove
-        Route::post('rooms/{room}/membership', 'RoomController@joinMembership')->name('rooms.membership.join');
-        Route::delete('rooms/{room}/membership', 'RoomController@leaveMembership')->name('rooms.membership.leave');
+        Route::post('rooms/{room}/membership', 'RoomMemberController@join')->name('rooms.membership.join');
+        Route::delete('rooms/{room}/membership', 'RoomMemberController@leave')->name('rooms.membership.leave');
         // Membership operations by room owner
-        Route::get('rooms/{room}/member', 'RoomController@getMember')->name('rooms.member.get');
-        Route::post('rooms/{room}/member', 'RoomController@addMember')->name('rooms.member.add');
-        Route::put('rooms/{room}/member/{user}', 'RoomController@editMember')->name('rooms.member.edit');
-        Route::delete('rooms/{room}/member/{user}', 'RoomController@removeMember')->name('rooms.member.remove');
+        Route::get('rooms/{room}/member', 'RoomMemberController@index')->name('rooms.member.get')->middleware('can:viewMembers,room');
+        Route::post('rooms/{room}/member', 'RoomMemberController@store')->name('rooms.member.add')->middleware('can:manageMembers,room');
+        Route::put('rooms/{room}/member/{user}', 'RoomMemberController@update')->name('rooms.member.update')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member/{user}', 'RoomMemberController@destroy')->name('rooms.member.remove')->middleware('can:manageMembers,room');
         // File operations
-        Route::get('rooms/{room}/files', 'RoomController@getFiles')->name('rooms.files.get');
-        Route::put('rooms/{room}/files', 'RoomController@updateFiles')->name('rooms.files.update');
-        Route::post('rooms/{room}/files', 'RoomController@uploadFile')->name('rooms.files.upload');
-        Route::put('rooms/{room}/files/{file}', 'RoomController@updateFile')->name('rooms.files.updatefile');
-        Route::delete('rooms/{room}/files/{file}', 'RoomController@deleteFile')->name('rooms.files.remove');
+        Route::middleware('can:manageFiles,room')->group(function () {
+            Route::get('rooms/{room}/files', 'RoomFileController@index')->name('rooms.files.get');
+            Route::post('rooms/{room}/files', 'RoomFileController@store')->name('rooms.files.add');
+            Route::put('rooms/{room}/files/{file}', 'RoomFileController@update')->name('rooms.files.update');
+            Route::delete('rooms/{room}/files/{file}', 'RoomFileController@destroy')->name('rooms.files.remove');
+        });
 
         Route::get('users/search','UserController@search','users.search');
 

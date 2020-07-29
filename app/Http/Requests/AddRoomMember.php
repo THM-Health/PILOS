@@ -20,9 +20,4 @@ class AddRoomMember extends FormRequest
             'role' => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],
         ];
     }
-
-    public function authorize()
-    {
-        return true;
-    }
 }

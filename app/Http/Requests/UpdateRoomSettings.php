@@ -14,7 +14,7 @@ class UpdateRoomSettings extends FormRequest
     {
         return [
             'accessCode'                     => 'nullable|numeric|digits:9',
-            'allowSubscription'              => 'required|boolean',
+            'allowMembership'                => 'required|boolean',
             'everyoneCanStart'               => 'required|boolean',
             'lockSettingsDisableCam'         => 'required|boolean',
             'lockSettingsDisableMic'         => 'required|boolean',
@@ -33,10 +33,5 @@ class UpdateRoomSettings extends FormRequest
             'name'                           => 'required|string',
             'welcome'                        => 'nullable|string',
         ];
-    }
-
-    public function authorize()
-    {
-        return true;
     }
 }

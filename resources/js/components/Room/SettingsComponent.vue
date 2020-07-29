@@ -102,7 +102,7 @@
 
         <!-- Checkbox allow users to become room members -->
         <b-form-group>
-          <b-form-checkbox v-model="settings.allowSubscription" switch>
+          <b-form-checkbox v-model="settings.allowMembership" switch>
             {{ $t('rooms.settings.security.allowNewMembers') }}
           </b-form-checkbox>
         </b-form-group>

@@ -37,7 +37,19 @@ class RoomPolicy
      */
     public function view(?User $user, Room $room)
     {
-        return $user == null && !$room->allowGuests;
+        return true;
+    }
+
+    /**
+     * Determine whether the user can view the room.
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewSettings(User $user, Room $room)
+    {
+        return $room->owner->is($user);
     }
 
     /**
@@ -84,7 +96,7 @@ class RoomPolicy
      */
     public function update(User $user, Room $room)
     {
-        //
+        return $room->owner->is($user);
     }
 
     /**
@@ -122,4 +134,42 @@ class RoomPolicy
     {
         //
     }
+
+    /**
+     * Determine whether the user can view all members of the room
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewMembers(User $user, Room $room)
+    {
+        return $room->owner->is($user); // or $room->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
+    }
+
+    /**
+     * Determine whether the user create, update, delete members
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function manageMembers(User $user, Room $room)
+    {
+        return $room->owner->is($user);
+    }
+
+
+    /**
+     * Determine whether the user create, update, delete files
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function manageFiles(User $user, Room $room)
+    {
+        return $room->owner->is($user);
+    }
+
 }

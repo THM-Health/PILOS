@@ -42,7 +42,7 @@ class Room extends Model
         'lockSettingsDisablePublicChat'  => 'boolean',
         'lockSettingsDisableNote'        => 'boolean',
         'everyoneCanStart'               => 'boolean',
-        'allowSubscription'              => 'boolean',
+        'allowMembership'                => 'boolean',
         'allowGuests'                    => 'boolean',
         'lockSettingsLockOnJoin'         => 'boolean',
         'lockSettingsHideUserList'       => 'boolean',

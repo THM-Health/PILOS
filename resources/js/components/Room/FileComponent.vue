@@ -223,25 +223,10 @@ export default {
     changeDefault: function (checked) {
       // Find the new default presentation file
       var file = this.files.files.find(file => file.id === checked);
+      this.changeSettings(file, 'default', true);
       // Set useinmeetings parameter true, as the default presentation
       // can only be the default if it is also used in the next meeting
       file.useinmeeting = true;
-      // Update room files settings with the new default presentation
-      Base.call('rooms/' + this.room.id + '/files', {
-        method: 'put',
-        data: { defaultFile: file.id }
-      }).then(() => {
-      }).catch((error) => {
-        // Change failed
-        // TODO Error handling
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        }
-      });
     },
     /**
      * Change a setting for a files

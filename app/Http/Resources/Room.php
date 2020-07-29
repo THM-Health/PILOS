@@ -40,7 +40,7 @@ class Room extends JsonResource
             'owner'             => $this->owner->firstname.' '.$this->owner->lastname,
             'type'              => new RoomType($this->roomType),
             'loggedIn'          => $this->loggedIn,
-            'allowMembership'   => Auth::user() && $this->allowSubscription,
+            'allowMembership'   => Auth::user() && $this->allowMembership,
             'isMember'          => (Auth::user() && $this->members->contains(Auth::user())),
             'isOwner'           => $this->owner->is(Auth::user()),
             'isGuest'           => Auth::guest(),

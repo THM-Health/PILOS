@@ -31,7 +31,7 @@ class RoomSettings extends JsonResource
             'lockSettingsHideUserList'              => $this->lockSettingsHideUserList,
             'everyoneCanStart'                      => $this->everyoneCanStart,
             'allowGuests'                           => $this->allowGuests,
-            'allowSubscription'                     => $this->allowSubscription,
+            'allowMembership'                       => $this->allowMembership,
             'welcome'                               => $this->welcome,
             'maxParticipants'                       => $this->maxParticipants,
             'duration'                              => $this->duration,
