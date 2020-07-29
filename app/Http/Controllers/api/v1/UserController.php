@@ -13,7 +13,7 @@ class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @param Request $request
+     * @param  Request                     $request
      * @return AnonymousResourceCollection
      */
     public function index(Request $request)
@@ -27,7 +27,7 @@ class UserController extends Controller
 
     /**
      * Search users based on query parameters
-     * @param Request $request
+     * @param  Request                     $request
      * @return AnonymousResourceCollection
      */
     public function search(Request $request)
@@ -77,10 +77,11 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if ($user)
+        if ($user) {
             $user->delete();
-        else
+        } else {
             return response()->json(['message' => 'User not found!'], 404);
+        }
 
         return response()->json(null, 204);
     }
