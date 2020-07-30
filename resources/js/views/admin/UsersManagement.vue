@@ -2,7 +2,25 @@
   <div>
     <b-row>
       <b-col>
-        <h2 class="text-success">{{$t('settings.users.title')}}</h2>
+        <b-row>
+          <h2 class="ml-3 text-success">{{$t('settings.users.title')}}</h2>
+          <!--TODO Create User Function-->
+          <b-avatar
+            class="text-white ml-2"
+            variant="success"
+            icon="person-plus"
+            v-b-tooltip.hover.top="$t('settings.users.tooltip.create')"
+            button>
+          </b-avatar>
+          <!--TODO Invite Participant Function-->
+          <b-avatar
+            class="text-white ml-2"
+            variant="success"
+            icon="envelope"
+            v-b-tooltip.hover.top="$t('settings.users.tooltip.invite')"
+            button>
+          </b-avatar>
+        </b-row>
       </b-col>
       <!--Search Bar-->
       <b-col lg="6" class="my-1">
@@ -22,7 +40,7 @@
               @input="getUsers(currentPage, filterInput)"
             ></b-form-input>
             <b-input-group-append>
-              <b-button class="btn-success" :disabled="true">
+              <b-button class="btn-success">
                 <i class="text-white fas fa fa-search"></i>
               </b-button>
             </b-input-group-append>

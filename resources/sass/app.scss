@@ -30,7 +30,14 @@
 
 }
 ._vue-flash-msg-body {
+    width: 300px !important;
+    z-index: 9999;
+
     & ._vue-flash-msg-body__content {
+        h3 {
+            font-size: $h5-font-size;
+        }
+
         padding-top: 10px;
     }
 

@@ -16,6 +16,10 @@ export default {
 
   users: {
     title: 'Participants',
+    tooltip: {
+      create: 'Create a user.',
+      invite: 'Invite a participant.'
+    },
     table: {
       authenticator: 'Authenticator',
       email: 'Email',
