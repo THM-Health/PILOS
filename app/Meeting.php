@@ -35,30 +35,48 @@ class Meeting extends Model
      */
     protected $guarded = [];
 
+    /**
+     * Server the meeting is/should be running on
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function server()
     {
         return $this->belongsTo(Server::class);
     }
 
+    /**
+     * Room this meeting belongs to
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function room()
     {
         return $this->belongsTo(Room::class);
     }
 
+    /**
+     * Callback-hash for his meeting and server, required to validate incoming end of meeting request
+     * @return string
+     */
     public function getCallbackHash()
     {
         return sha1( $this->id.$this->server->salt);
     }
 
+    /**
+     * Start this meeting with the properties saved for this meeting and room
+     * @return boolean Meeting was successfully started
+     */
     public function start()
     {
+        // Set meeting parameters
+        // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
         $meetingParams->setModeratorPassword($this->moderatorPW)
            ->setAttendeePassword($this->attendeePW)
             ->setLogoutUrl(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackHash()]))
             ->setDuration($this->room->duration)
-            ->setWelcomeMessage('<img src="http://10.84.5.161:8000/images/logo.svg" />'.$this->room->welcome)
+            ->setWelcomeMessage($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
             ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
@@ -70,11 +88,13 @@ class Meeting extends Model
             ->setLockSettingsLockOnJoin($this->room->lockSettingsLockOnJoin)
             ->setMuteOnStart($this->room->muteOnStart);
 
+        // get files that should be used in this meeting and add links to the files
         $files = $this->room->files()->where('useinmeeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
             $meetingParams->addPresentation(URL::signedRoute('download.file', ['roomFile' => $file->id,'filename'=>$file->filename]), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
+        // set guest policy
         if ($this->room->lobby == RoomLobby::ENABLED) {
             $meetingParams->setGuestPolicyAskModerator();
         }
@@ -85,6 +105,13 @@ class Meeting extends Model
         return $this->server->bbb()->createMeeting($meetingParams)->success();
     }
 
+    /**
+     * Create a join url for this meeting
+     * @param $name string Name of the user
+     * @param $role RoomUserRole Role of the user inside the meeting
+     * @param $userid integer unique identifier for this user/guest
+     * @return mixed
+     */
     public function getJoinUrl($name, $role, $userid)
     {
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $role == RoomUserRole::MODERATOR ? $this->moderatorPW : $this->attendeePW);
@@ -92,7 +119,6 @@ class Meeting extends Model
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setUserId($userid);
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
-        //$joinMeetingParams->setAuthenticated($role != RoomUserRole::GUEST);
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }

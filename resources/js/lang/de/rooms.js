@@ -10,7 +10,7 @@ export default {
   join: 'Teilnehmen',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
-  onlyUsedByLoggedInUsers: 'Dieser Raum kann nur von angemeldeten Nutern verwendet werden.',
+  onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutern verwendet werden.',
   becomeMember: 'Mitglied werden',
   endMembership: 'Mitgliedschaft beenden',
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',

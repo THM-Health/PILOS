@@ -180,7 +180,7 @@
     <template v-else>
       <!-- Show message that room can only be used by logged in users -->
       <b-alert show>
-        <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByLoggedInUsers') }}
+        <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
       </b-alert>
       <b-button-group>
         <!-- Reload page, in case the room settings changed -->

@@ -10,10 +10,10 @@ export default {
   join: 'Join',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
-  onlyUsedByLoggedInUsers: 'This room can only be used by logged in users.',
+  onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
   becomeMember: 'Become member',
   endMembership: 'End membership',
-  requireAccessCode: 'An accesscode is required to join this room',
+  requireAccessCode: 'An access code is required to join this room',
   login: 'Login',
   files: {
     title: 'Files',
@@ -109,7 +109,7 @@ export default {
       maxParticipants: 'Max. participants',
       defaultRole: {
         title: 'Default role',
-        onlyLoggedIn: '(only for logged in users)',
+        onlyLoggedIn: '(only for authenticated users)',
         participant: 'Participant',
         moderator: 'Moderator'
       },

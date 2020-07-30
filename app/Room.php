@@ -4,6 +4,7 @@ namespace App;
 
 use App\Enums\RoomUserRole;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Room extends Model
@@ -19,15 +20,16 @@ class Room extends Model
     protected static function booted()
     {
         static::creating(function ($model) {
+            // if the meeting has no ID yet, create a unique id
+            // 36^9 possible room ids ≈ 10^14
             if (!$model->id) {
                 $newId = null;
                 while (true) {
                     $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));
-                    if (self::find($newId) == null) {
+                    if (DB::table('rooms')->where('id', 'LIKE',$newId)->doesntExist()) {
                         break;
                     }
                 }
-
                 $model->id = $newId;
             }
         });

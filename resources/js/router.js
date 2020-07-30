@@ -33,13 +33,6 @@ const router = new VueRouter({
       name: 'rooms.view',
       component: RoomView
     },
-
-    {
-      path: '/rooms/join/:id',
-      name: 'rooms.join',
-      component: RoomView
-    },
-
     {
       path: '/404',
       name: '404',
