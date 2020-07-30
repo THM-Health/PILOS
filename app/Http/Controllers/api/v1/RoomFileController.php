@@ -82,8 +82,8 @@ class RoomFileController extends Controller
     /**
      * Remove the specified file from storage and database.
      *
-     * @param Room $room
-     * @param RoomFile $file
+     * @param  Room                      $room
+     * @param  RoomFile                  $file
      * @return \Illuminate\Http\Response
      * @throws \Exception
      */
