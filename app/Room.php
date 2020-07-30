@@ -110,7 +110,7 @@ class Room extends Model
      */
     public function isModeratorOrOwner($user)
     {
-        return $user==null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
+        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
     }
 
     /**
@@ -120,7 +120,7 @@ class Room extends Model
      */
     public function isMember($user)
     {
-        return $user==null ? false : $this->members->contains($user);
+        return $user == null ? false : $this->members->contains($user);
     }
 
     /**
@@ -152,10 +152,10 @@ class Room extends Model
      */
     public function getModeratorOnlyMessage()
     {
-        $message =  __('rooms.invitation.room',['roomname'=>$this->name]).'<br>';
-        $message .= __('rooms.invitation.link',['link'=>config('app.url').'rooms/'.$this->id]);
+        $message =  __('rooms.invitation.room', ['roomname'=>$this->name]).'<br>';
+        $message .= __('rooms.invitation.link', ['link'=>config('app.url').'rooms/'.$this->id]);
         if ($this->accessCode != null) {
-            $message .= '<br>'.__('rooms.invitation.code',['code'=>implode('-', str_split($this->accessCode, 3))]);
+            $message .= '<br>'.__('rooms.invitation.code', ['code'=>implode('-', str_split($this->accessCode, 3))]);
         }
 
         return $message;

@@ -70,11 +70,13 @@ class RoomPolicy
      */
     public function start(?User $user, Room $room)
     {
-        if ($room->everyoneCanStart)
+        if ($room->everyoneCanStart) {
             return true;
+        }
 
-        if ($room->isModeratorOrOwner($user))
+        if ($room->isModeratorOrOwner($user)) {
             return true;
+        }
 
         return false;
     }
