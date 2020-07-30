@@ -50,46 +50,84 @@ class Room extends Model
         'lockSettingsHideUserList'       => 'boolean',
     ];
 
+    /**
+     * Room owner
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function owner()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * Room type
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function roomType()
     {
         return $this->belongsTo(RoomType::class);
     }
 
+    /**
+     * Members of the room
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function members()
     {
         return $this->belongsToMany(User::class)->withPivot('role');
     }
 
-    public function preferedServer()
-    {
-        return $this->belongsTo(Server::class, 'preferedServer');
-    }
-
+    /**
+     * Meetings
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function meetings()
     {
         return $this->hasMany(Meeting::class);
     }
 
+    /**
+     * Files
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function files()
     {
         return $this->hasMany(RoomFile::class);
     }
 
+    /**
+     * Get the newest running meeting
+     * @return Meeting|null
+     */
     public function runningMeeting()
     {
         return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
     }
 
+    /** Check if user is moderator or owner of this room
+     * @param $user User|null
+     * @return bool
+     */
     public function isModeratorOrOwner($user)
     {
-        return $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
+        return $user==null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
     }
 
+    /**
+     * Check if user is member of this room
+     * @param $user User|null
+     * @return bool
+     */
+    public function isMember($user)
+    {
+        return $user==null ? false : $this->members->contains($user);
+    }
+
+    /**
+     * Get role of the user
+     * @param $user|null
+     * @return int|mixed
+     */
     public function getRole($user)
     {
         if ($user == null) {
@@ -108,12 +146,16 @@ class Room extends Model
         return $this->defaultRole;
     }
 
+    /**
+     * Generate message for moderators inside the meeting
+     * @return string
+     */
     public function getModeratorOnlyMessage()
     {
-        $message =  'An '.$this->name.' mit PILOS teilnehmen<br>';
-        $message .= 'Link: '.config('app.url').'rooms/'.$this->id;
+        $message =  __('rooms.invitation.room',['roomname'=>$this->name]).'<br>';
+        $message .= __('rooms.invitation.link',['link'=>config('app.url').'rooms/'.$this->id]);
         if ($this->accessCode != null) {
-            $message .= '<br>Zugangscode: '.$this->accessCode;
+            $message .= '<br>'.__('rooms.invitation.code',['code'=>implode('-', str_split($this->accessCode, 3))]);
         }
 
         return $message;

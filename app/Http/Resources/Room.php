@@ -17,8 +17,8 @@ class Room extends JsonResource
     /**
      * Create a new resource instance.
      *
-     * @param  mixed $resource
-     * @return void
+     * @param mixed $resource
+     * @param $authenticated boolean is user authenticated (has valid access code, member or owner)
      */
     public function __construct($resource, $authenticated)
     {
@@ -41,14 +41,14 @@ class Room extends JsonResource
             'type'              => new RoomType($this->roomType),
             'authenticated'     => $this->authenticated,
             'allowMembership'   => Auth::user() && $this->allowMembership,
-            'isMember'          => (Auth::user() && $this->members->contains(Auth::user())),
+            'isMember'          => $this->resource->isMember(Auth::user()),
             'isOwner'           => $this->owner->is(Auth::user()),
             'isGuest'           => Auth::guest(),
-            'isModerator'       => $this->isModeratorOrOwner(Auth::user()),
+            'isModerator'       => $this->resource->isModeratorOrOwner(Auth::user()),
             'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
-            'running'           => $this->runningMeeting() != null,
-            'accessCode'        => $this->when($this->isModeratorOrOwner(Auth::user()), $this->accessCode),
-            'files'             => $this->when($this->authenticated, RoomFile::collection($this->files()->where('download', true)->get()))
+            'running'           => $this->resource->runningMeeting() != null,
+            'accessCode'        => $this->when($this->resource->isModeratorOrOwner(Auth::user()), $this->accessCode),
+            'files'             => $this->when($this->authenticated, RoomFile::collection($this->resource->files()->where('download', true)->get()))
         ];
     }
 }

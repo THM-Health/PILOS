@@ -70,18 +70,11 @@ class RoomPolicy
      */
     public function start(?User $user, Room $room)
     {
-        if ($room->everyoneCanStart) {
+        if ($room->everyoneCanStart)
             return true;
-        }
 
-        if ($user) {
-            if ($room->owner->is($user)) {
-                return true;
-            }
-            if ($room->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user)) {
-                return true;
-            }
-        }
+        if ($room->isModeratorOrOwner($user))
+            return true;
 
         return false;
     }
