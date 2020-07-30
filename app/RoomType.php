@@ -16,7 +16,7 @@ class RoomType extends Model
     /**
      * Scope a query to only get the default room
      *
-     * @param  Builder $query     Query that should be scoped
+     * @param  Builder $query Query that should be scoped
      * @return Builder The scoped query
      */
     public function scopeDefault(Builder $query)

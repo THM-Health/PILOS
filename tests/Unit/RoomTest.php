@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Room;
-use App\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -22,15 +21,12 @@ class RoomTest extends TestCase
     public function testCreateRoom()
     {
         $room = factory(Room::class)->create();
-        $this->assertDatabaseHas('rooms',['id' => $room->id,'name' => $room->name]);
+        $this->assertDatabaseHas('rooms', ['id' => $room->id,'name' => $room->name]);
     }
 
     public function testCreateRoomUniqueID()
     {
-        factory(Room::class,1000)->create();
-        $this->assertDatabaseCount('rooms',1000);
+        factory(Room::class, 1000)->create();
+        $this->assertDatabaseCount('rooms', 1000);
     }
-
-
-
 }
