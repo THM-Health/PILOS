@@ -26,7 +26,7 @@ class Room extends Model
                 $newId = null;
                 while (true) {
                     $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));
-                    if (DB::table('rooms')->where('id', 'LIKE',$newId)->doesntExist()) {
+                    if (DB::table('rooms')->where('id', 'LIKE', $newId)->doesntExist()) {
                         break;
                     }
                 }

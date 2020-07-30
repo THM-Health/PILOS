@@ -9,7 +9,7 @@
         "prod": "npm run production && npm run production-css",
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
         "production-css": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --env.mixfile=webpack.css.mix.js --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "test": "NODE_ENV=test mochapack --webpack-config=node_modules/laravel-mix/setup/webpack.config.js --require tests/Frontend/setup.js \"tests/Frontend/**/*.spec.js\"",
+        "test": "cross-env NODE_ENV=test mochapack --webpack-config=node_modules/laravel-mix/setup/webpack.config.js --require tests/Frontend/setup.js \"tests/Frontend/**/*.spec.js\"",
         "lint": "./node_modules/.bin/eslint --ext .js,.vue .",
         "ci": "npm run lint && npm run test"
     },
