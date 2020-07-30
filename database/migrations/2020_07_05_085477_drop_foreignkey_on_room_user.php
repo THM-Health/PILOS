@@ -13,6 +13,14 @@ class DropForeignkeyOnRoomUser extends Migration
             $table->drop();
         });
 
+        if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('rooms', function (Blueprint $table) {
+                $table->dropForeign(['parentMeetingID']);
+                $table->dropForeign(['preferedServer']);
+                $table->dropForeign(['room_type_id']);
+            });
+        }
+
         Schema::table('rooms', function (Blueprint $table) {
             $table->dropColumn(['parentMeetingID','preferedServer']);
         });

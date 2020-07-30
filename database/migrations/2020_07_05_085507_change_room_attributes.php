@@ -19,6 +19,7 @@ class ChangeRoomAttributes extends Migration
             $table->integer('defaultRole')->default(\App\Enums\RoomUserRole::USER);
             $table->integer('lobby')->default(\App\Enums\RoomLobby::DISABLED);
             $table->unsignedBigInteger('room_type_id')->nullable(false)->change();
+            $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('restrict');
             $table->softDeletes();
             $table->timestamps();
         });

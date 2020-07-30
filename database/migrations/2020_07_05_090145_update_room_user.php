@@ -14,7 +14,6 @@ class UpdateRoomUser extends Migration
             $table->string('room_id',11);
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->primary(['user_id', 'room_id']);
-            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->tinyInteger('role')->default(\App\Enums\RoomUserRole::USER);
         });
     }
