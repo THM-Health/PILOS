@@ -55,7 +55,7 @@ class UserController extends Controller
     {
         $data = $request->all();
 
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             $user->$key = $value;
         }
 

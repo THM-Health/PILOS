@@ -100,7 +100,7 @@
     <!-- Edit form modal -->
     <b-modal
       id="edit-modal"
-      :title="$t('settings.users.editModal.title', {firstname: selectedUser.firstname, lastname: selectedUser.lastname})"
+      :title="$t('settings.users.editModal.title')"
       header-bg-variant="success"
       header-text-variant="light"
       centered

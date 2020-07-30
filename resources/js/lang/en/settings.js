@@ -31,7 +31,7 @@ export default {
       loading: 'Loading...'
     },
     editModal: {
-      title: '{firstname} {lastname} - Edit User',
+      title: 'Edit User',
       firstname: 'Firstname',
       lastname: 'Lastname',
       username: 'Username',
