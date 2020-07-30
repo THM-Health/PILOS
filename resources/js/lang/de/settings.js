@@ -30,6 +30,14 @@ export default {
       delete: 'Löschen',
       loading: 'Laden...'
     },
+    editModal: {
+      title: '{firstname} {lastname} - Benutzer bearbeiten',
+      firstname: 'Vorname',
+      lastname: 'Nachname',
+      username: 'Benutzername',
+      email: 'Email',
+      submit: 'Abschicken'
+    },
     deleteModal: {
       title: 'Bestätigung zum Löschen',
       content: 'Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!'
@@ -41,6 +49,14 @@ export default {
     deleteFailed: {
       message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
       title: 'Löschen'
+    },
+    editSuccess: {
+      message: 'Benutzer wurde erfolgreich geändert!',
+      title: 'Bearbeiten'
+    },
+    editFailed: {
+      message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
+      title: 'Bearbeiten'
     }
   },
 

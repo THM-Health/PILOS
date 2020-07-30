@@ -44,13 +44,13 @@
              responsive
              small
     >
+      <!--Action Dropdown Button-->
       <template v-slot:cell(action)="row">
         <b-dropdown size="sm" id="dropdown-right" class="ml-3 mb-1" right variant="success" no-caret>
           <template v-slot:button-content>
             <span><i class="fas fa fa-user"></i></span>
           </template>
-          <!--TODO Add :to navigation -->
-          <b-dropdown-item>
+          <b-dropdown-item v-b-modal.edit-modal @click="populateSelectedUser(row.item)">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-edit"></i></b-col>
               <b-col cols="9">{{$t('settings.users.table.edit')}}</b-col>
@@ -96,6 +96,50 @@
     >
       {{ $t('settings.users.deleteModal.content') }}
     </b-modal>
+
+    <!-- Edit form modal -->
+    <b-modal
+      id="edit-modal"
+      :title="$t('settings.users.editModal.title', {firstname: selectedUser.firstname, lastname: selectedUser.lastname})"
+      header-bg-variant="success"
+      header-text-variant="light"
+      centered
+      hide-footer
+      @hidden="resetSelectedUser"
+    >
+      <b-container fluid>
+        <!-- TODO Input Validation -->
+        <b-form @submit.stop.prevent="editUser(selectedUser.id, selectedUser)">
+          <b-form-group id="firstname" :label="$t('settings.users.editModal.firstname')" label-for="input-firstname">
+            <b-form-input id="input-firstname"
+                          v-model="selectedUser.firstname"
+                          :placeholder="$t('settings.users.editModal.firstname')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+          <b-form-group id="lastname" :label="$t('settings.users.editModal.lastname')" label-for="input-lastname">
+            <b-form-input id="input-lastname"
+                          v-model="selectedUser.lastname"
+                          :placeholder="$t('settings.users.editModal.lastname')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+          <b-form-group id="email" :label="$t('settings.users.editModal.email')" label-for="input-email">
+            <b-form-input id="input-email"
+                          v-model="selectedUser.email"
+                          :placeholder="$t('settings.users.editModal.email')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+
+          <b-container class="d-flex justify-content-end">
+            <b-button @click="$bvModal.hide('edit-modal')" type="submit" variant="success">
+              {{$t('settings.users.editModal.submit')}}
+            </b-button>
+          </b-container>
+        </b-form>
+      </b-container>
+    </b-modal>
   </div>
 </template>
 
@@ -122,7 +166,8 @@ export default {
         id: null,
         firstname: null,
         lastname: null,
-        username: null
+        username: null,
+        email: null
       }
     };
   },
@@ -192,11 +237,31 @@ export default {
         this.flashMessage.error(this.$t('settings.users.deleteFailed'));
       }).finally(() => this.getUsers(this.currentPage));
     },
+    editUser (id, user) {
+      Base.call('users/' + id, {
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'put',
+        data: {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          email: user.email,
+          username: user.username
+        }
+      }).then(response => {
+        this.flashMessage.success(this.$t('settings.users.editSuccess'));
+      }).catch(error => {
+        console.log(error);
+        this.flashMessage.error(this.$t('settings.users.editFailed'));
+      }).finally(() => this.getUsers(this.currentPage));
+    },
     populateSelectedUser (user) {
       this.selectedUser.id = user.id;
       this.selectedUser.firstname = user.firstname;
       this.selectedUser.lastname = user.lastname;
       this.selectedUser.username = user.username;
+      this.selectedUser.email = user.email;
     },
     resetSelectedUser () {
       this.selectedUser.id = null;

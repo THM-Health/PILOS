@@ -53,7 +53,15 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //TODO implement update method on a specific user based on request method
+        $data = $request->all();
+
+        foreach($data as $key => $value) {
+            $user->$key = $value;
+        }
+
+        $user->save();
+
+        return response()->json($user, 202);
     }
 
     /**

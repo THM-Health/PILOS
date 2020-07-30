@@ -30,6 +30,14 @@ export default {
       delete: 'Delete',
       loading: 'Loading...'
     },
+    editModal: {
+      title: '{firstname} {lastname} - Edit User',
+      firstname: 'Firstname',
+      lastname: 'Lastname',
+      username: 'Username',
+      email: 'Email',
+      submit: 'Submit'
+    },
     deleteModal: {
       title: 'Delete Confirmation',
       content: 'Are you sure? This action cannot be undone!'
@@ -41,6 +49,14 @@ export default {
     deleteFailed: {
       message: 'Something went wrong! Please check your connection!',
       title: 'Delete'
+    },
+    editSuccess: {
+      message: 'User edited successfully',
+      title: 'Edit'
+    },
+    editFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'Edit'
     }
   },
 
