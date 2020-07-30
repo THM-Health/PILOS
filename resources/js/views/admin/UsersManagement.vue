@@ -174,10 +174,10 @@ export default {
         }
       }).then(response => {
         this.users = response.data.data;
-        this.currentPage = response.data.current_page;
-        this.lastPage = response.data.last_page;
-        this.perPage = response.data.per_page;
-        this.totalRows = response.data.total;
+        this.currentPage = response.data.meta.current_page;
+        this.lastPage = response.data.meta.last_page;
+        this.perPage = response.data.meta.per_page;
+        this.totalRows = response.data.meta.total;
         this.nextPage = this.currentPage + 1;
         this.prevPage = this.currentPage - 1;
       }).finally(this.isBusy = false);
