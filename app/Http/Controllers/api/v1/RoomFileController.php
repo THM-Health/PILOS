@@ -12,7 +12,7 @@ use App\RoomFile;
 class RoomFileController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Return a list of all files of a room and id of the default file
      * @param  Room                          $room
      * @return \Illuminate\Http\JsonResponse
      */
@@ -29,7 +29,7 @@ class RoomFileController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a new file in the storage
      *
      * @param  StoreRoomFile             $request
      * @param  Room                      $room
@@ -49,7 +49,7 @@ class RoomFileController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified file attributes
      *
      * @param  UpdateRoomFile            $request
      * @param  Room                      $room
@@ -80,11 +80,12 @@ class RoomFileController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified file from storage and database.
      *
-     * @param  Room                      $room
-     * @param  RoomFile                  $file
+     * @param Room $room
+     * @param RoomFile $file
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function destroy(Room $room, RoomFile $file)
     {

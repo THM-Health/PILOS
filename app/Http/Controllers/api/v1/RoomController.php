@@ -22,7 +22,7 @@ class RoomController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Return a json array with all rooms the user owners or is member of
      *
      * @return \Illuminate\Http\JsonResponse
      */

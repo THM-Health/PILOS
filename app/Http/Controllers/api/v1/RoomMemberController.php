@@ -18,7 +18,7 @@ class RoomMemberController extends Controller
     }
 
     /**
-     * Display a listing of all members
+     * Return a list with all members of the room
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
