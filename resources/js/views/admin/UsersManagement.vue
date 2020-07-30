@@ -10,6 +10,7 @@
             variant="success"
             icon="person-plus"
             v-b-tooltip.hover.top="$t('settings.users.tooltip.create')"
+            v-b-modal.create-modal
             button>
           </b-avatar>
           <!--TODO Invite Participant Function-->
@@ -128,22 +129,24 @@
       <b-container fluid>
         <!-- TODO Input Validation -->
         <b-form @submit.stop.prevent="editUser(selectedUser.id, selectedUser)">
-          <b-form-group id="firstname" :label="$t('settings.users.editModal.firstname')" label-for="input-firstname">
-            <b-form-input id="input-firstname"
+          <b-form-group id="edit-firstname" :label="$t('settings.users.editModal.firstname')"
+                        label-for="edit-input-firstname">
+            <b-form-input id="edit-input-firstname"
                           v-model="selectedUser.firstname"
                           :placeholder="$t('settings.users.editModal.firstname')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="lastname" :label="$t('settings.users.editModal.lastname')" label-for="input-lastname">
-            <b-form-input id="input-lastname"
+          <b-form-group id="edit-lastname" :label="$t('settings.users.editModal.lastname')"
+                        label-for="edit-input-lastname">
+            <b-form-input id="edit-input-lastname"
                           v-model="selectedUser.lastname"
                           :placeholder="$t('settings.users.editModal.lastname')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="email" :label="$t('settings.users.editModal.email')" label-for="input-email">
-            <b-form-input id="input-email"
+          <b-form-group id="edit-email" :label="$t('settings.users.editModal.email')" label-for="edit-input-email">
+            <b-form-input id="edit-input-email"
                           v-model="selectedUser.email"
                           :placeholder="$t('settings.users.editModal.email')"
                           required>
@@ -153,6 +156,70 @@
           <b-container class="d-flex justify-content-end">
             <b-button @click="$bvModal.hide('edit-modal')" type="submit" variant="success">
               {{$t('settings.users.editModal.submit')}}
+            </b-button>
+          </b-container>
+        </b-form>
+      </b-container>
+    </b-modal>
+
+    <!-- Create form modal -->
+    <b-modal
+      id="create-modal"
+      :title="$t('settings.users.createModal.title')"
+      header-bg-variant="success"
+      header-text-variant="light"
+      centered
+      hide-footer
+      @hidden="resetSelectedUser"
+    >
+      <b-container fluid>
+        <!-- TODO Input Validation -->
+        <b-form @submit.stop.prevent="createUser(selectedUser)">
+          <b-form-group id="create-email" :label="$t('settings.users.createModal.email')"
+                        label-for="create-input-email">
+            <b-form-input id="create-input-email"
+                          v-model="selectedUser.email"
+                          :placeholder="$t('settings.users.createModal.email')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+          <b-form-group id="create-username" :label="$t('settings.users.createModal.username')"
+                        label-for="create-input-username">
+            <b-form-input id="create-input-username"
+                          v-model="selectedUser.username"
+                          :placeholder="$t('settings.users.createModal.username')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+          <b-form-group id="create-password" :label="$t('settings.users.createModal.password')"
+                        label-for="create-input-password">
+            <b-form-input id="create-input-password"
+                          v-model="selectedUser.password"
+                          :placeholder="$t('settings.users.createModal.password')"
+                          type="password"
+                          required>
+            </b-form-input>
+          </b-form-group>
+          <b-form-group id="create-firstname" :label="$t('settings.users.createModal.firstname')"
+                        label-for="create-input-firstname">
+            <b-form-input id="create-input-firstname"
+                          v-model="selectedUser.firstname"
+                          :placeholder="$t('settings.users.createModal.firstname')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+          <b-form-group id="create-lastname" :label="$t('settings.users.createModal.lastname')"
+                        label-for="create-input-lastname">
+            <b-form-input id="create-input-lastname"
+                          v-model="selectedUser.lastname"
+                          :placeholder="$t('settings.users.createModal.lastname')"
+                          required>
+            </b-form-input>
+          </b-form-group>
+
+          <b-container class="d-flex justify-content-end">
+            <b-button @click="$bvModal.hide('create-modal')" type="submit" variant="success">
+              {{$t('settings.users.createModal.submit')}}
             </b-button>
           </b-container>
         </b-form>
@@ -182,6 +249,7 @@ export default {
       limits: process.env.MIX_PAGINATION_LIMIT,
       selectedUser: {
         id: null,
+        password: null,
         firstname: null,
         lastname: null,
         username: null,
@@ -264,14 +332,33 @@ export default {
         data: {
           firstname: user.firstname,
           lastname: user.lastname,
-          email: user.email,
-          username: user.username
+          email: user.email
         }
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.editSuccess'));
       }).catch(error => {
         console.log(error);
         this.flashMessage.error(this.$t('settings.users.editFailed'));
+      }).finally(() => this.getUsers(this.currentPage));
+    },
+    createUser (user) {
+      Base.call('users', {
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'post',
+        data: {
+          firstname: user.firstname,
+          lastname: user.lastname,
+          password: user.password,
+          email: user.email,
+          username: user.username
+        }
+      }).then(response => {
+        this.flashMessage.success(this.$t('settings.users.createSuccess'));
+      }).catch(error => {
+        console.log(error);
+        this.flashMessage.error(this.$t('settings.users.createFailed'));
       }).finally(() => this.getUsers(this.currentPage));
     },
     populateSelectedUser (user) {
@@ -286,6 +373,8 @@ export default {
       this.selectedUser.firstname = null;
       this.selectedUser.lastname = null;
       this.selectedUser.username = null;
+      this.selectedUser.email = null;
+      this.selectedUser.password = null;
     },
     formatDate (value) {
       return moment(value).format('DD-MM-YYYY HH:mm UTC');

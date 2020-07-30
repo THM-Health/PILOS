@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -34,7 +35,21 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //TODO implement create an user method
+        $user = new User();
+
+        $data = $request->all();
+
+        foreach ($data as $key => $value) {
+            if ($key == 'password') {
+                $value = Hash::make($value);
+            }
+
+            $user->$key = $value;
+        }
+
+        $user->save();
+
+        return response()->json($user, 201);
     }
 
     /**

@@ -34,6 +34,15 @@ export default {
       delete: 'Delete',
       loading: 'Loading...'
     },
+    createModal: {
+      title: 'Create User',
+      firstname: 'Firstname',
+      lastname: 'Lastname',
+      username: 'Username',
+      email: 'Email',
+      password: 'Password',
+      submit: 'Submit'
+    },
     editModal: {
       title: 'Edit User',
       firstname: 'Firstname',
@@ -45,6 +54,14 @@ export default {
     deleteModal: {
       title: 'Delete Confirmation',
       content: 'Are you sure? This action cannot be undone!'
+    },
+    createSuccess: {
+      message: 'User created successfully!',
+      title: 'Create'
+    },
+    createFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'Create'
     },
     deleteSuccess: {
       message: 'User deleted successfully!',

@@ -34,6 +34,15 @@ export default {
       delete: 'Löschen',
       loading: 'Laden...'
     },
+    createModal: {
+      title: 'Benutzer erstellen',
+      firstname: 'Vorname',
+      lastname: 'Nachname',
+      username: 'Benutzername',
+      email: 'Email',
+      password: 'Kenntwort',
+      submit: 'Abschicken'
+    },
     editModal: {
       title: 'Benutzer bearbeiten',
       firstname: 'Vorname',
@@ -45,6 +54,14 @@ export default {
     deleteModal: {
       title: 'Bestätigung zum Löschen',
       content: 'Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!'
+    },
+    createSuccess: {
+      message: 'Benutzer wurde erfolgreich erstellt!',
+      title: 'Erstellen'
+    },
+    createFailed: {
+      message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
+      title: 'Erstellen'
     },
     deleteSuccess: {
       message: 'Benutzer wurde erfolgreich gelöscht!',
