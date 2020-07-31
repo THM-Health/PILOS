@@ -2,7 +2,7 @@
   <div>
     <!-- Delete confirm modal -->
     <b-modal
-      id="delete-modal"
+      :id="modalId"
       :title="$t('settings.users.deleteModal.title')"
       header-bg-variant="success"
       header-text-variant="light"
@@ -25,7 +25,8 @@ export default {
     return {};
   },
   props: {
-    deletedUser: Object
+    deletedUser: Object,
+    modalId: String
   },
   methods: {
     deleteUser (id) {

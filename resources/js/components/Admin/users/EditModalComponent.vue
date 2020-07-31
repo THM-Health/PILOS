@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-modal
-      id="edit-modal"
+      :id="modalId"
       :title="$t('settings.users.editModal.title')"
       header-bg-variant="success"
       header-text-variant="light"
@@ -55,7 +55,8 @@ export default {
     return {};
   },
   props: {
-    editedUser: Object
+    editedUser: Object,
+    modalId: String
   },
   methods: {
     editUser (id, user) {

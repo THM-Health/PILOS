@@ -100,29 +100,14 @@
     >
     </b-pagination>
 
-    <!-- Delete confirm modal -->
-    <b-modal
-      id="delete-modal"
-      :title="$t('settings.users.deleteModal.title')"
-      header-bg-variant="success"
-      header-text-variant="light"
-      ok-variant="success"
-      ok-only
-      centered
-      @hidden="resetSelectedUser"
-      @ok="deleteUser(selectedUser.id)"
-    >
-      {{ $t('settings.users.deleteModal.content') }}
-    </b-modal>
-
     <!-- Edit form modal-->
-    <edit-modal-component v-bind:edited-user="selectedUser"></edit-modal-component>
+    <edit-modal-component v-bind:edited-user="selectedUser" v-bind:modal-id="'edit-modal'"></edit-modal-component>
 
     <!-- Create form modal-->
-    <create-modal-component v-bind:created-user="selectedUser"></create-modal-component>
+    <create-modal-component v-bind:created-user="selectedUser" v-bind:modal-id="'create-modal'"></create-modal-component>
 
     <!-- Delete modal-->
-    <delete-modal-component v-bind:deleted-user="selectedUser"></delete-modal-component>
+    <delete-modal-component v-bind:deleted-user="selectedUser" v-bind:modal-id="'delete-modal'"></delete-modal-component>
   </div>
 </template>
 

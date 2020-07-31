@@ -2,7 +2,7 @@
   <div>
     <!-- Create form modal -->
     <b-modal
-      id="create-modal"
+      :id="modalId"
       :title="$t('settings.users.createModal.title')"
       header-bg-variant="success"
       header-text-variant="light"
@@ -74,7 +74,8 @@ export default {
     return {};
   },
   props: {
-    createdUser: Object
+    createdUser: Object,
+    modalId: String
   },
   methods: {
     createUser (user) {
