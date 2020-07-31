@@ -4,7 +4,6 @@
       <b-col>
         <b-row>
           <h2 class="ml-3 text-success">{{$t('settings.users.title')}}</h2>
-          <!--TODO Create User Function-->
           <b-avatar
             class="text-white ml-2"
             variant="success"
@@ -116,123 +115,26 @@
       {{ $t('settings.users.deleteModal.content') }}
     </b-modal>
 
-    <!-- Edit form modal -->
-    <b-modal
-      id="edit-modal"
-      :title="$t('settings.users.editModal.title')"
-      header-bg-variant="success"
-      header-text-variant="light"
-      centered
-      hide-footer
-      @hidden="resetSelectedUser"
-    >
-      <b-container fluid>
-        <!-- TODO Input Validation -->
-        <b-form @submit.stop.prevent="editUser(selectedUser.id, selectedUser)">
-          <b-form-group id="edit-firstname" :label="$t('settings.users.editModal.firstname')"
-                        label-for="edit-input-firstname">
-            <b-form-input id="edit-input-firstname"
-                          v-model="selectedUser.firstname"
-                          :placeholder="$t('settings.users.editModal.firstname')"
-                          required>
-            </b-form-input>
-          </b-form-group>
-          <b-form-group id="edit-lastname" :label="$t('settings.users.editModal.lastname')"
-                        label-for="edit-input-lastname">
-            <b-form-input id="edit-input-lastname"
-                          v-model="selectedUser.lastname"
-                          :placeholder="$t('settings.users.editModal.lastname')"
-                          required>
-            </b-form-input>
-          </b-form-group>
-          <b-form-group id="edit-email" :label="$t('settings.users.editModal.email')" label-for="edit-input-email">
-            <b-form-input id="edit-input-email"
-                          v-model="selectedUser.email"
-                          :placeholder="$t('settings.users.editModal.email')"
-                          required>
-            </b-form-input>
-          </b-form-group>
+    <!-- Edit form modal-->
+    <edit-modal-component v-bind:edited-user="selectedUser"></edit-modal-component>
 
-          <b-container class="d-flex justify-content-end">
-            <b-button @click="$bvModal.hide('edit-modal')" type="submit" variant="success">
-              {{$t('settings.users.editModal.submit')}}
-            </b-button>
-          </b-container>
-        </b-form>
-      </b-container>
-    </b-modal>
+    <!-- Create form modal-->
+    <create-modal-component v-bind:created-user="selectedUser"></create-modal-component>
 
-    <!-- Create form modal -->
-    <b-modal
-      id="create-modal"
-      :title="$t('settings.users.createModal.title')"
-      header-bg-variant="success"
-      header-text-variant="light"
-      centered
-      hide-footer
-      @hidden="resetSelectedUser"
-    >
-      <b-container fluid>
-        <!-- TODO Input Validation -->
-        <b-form @submit.stop.prevent="createUser(selectedUser)">
-          <b-form-group id="create-email" :label="$t('settings.users.createModal.email')"
-                        label-for="create-input-email">
-            <b-form-input id="create-input-email"
-                          v-model="selectedUser.email"
-                          :placeholder="$t('settings.users.createModal.email')"
-                          required>
-            </b-form-input>
-          </b-form-group>
-          <b-form-group id="create-username" :label="$t('settings.users.createModal.username')"
-                        label-for="create-input-username">
-            <b-form-input id="create-input-username"
-                          v-model="selectedUser.username"
-                          :placeholder="$t('settings.users.createModal.username')"
-                          required>
-            </b-form-input>
-          </b-form-group>
-          <b-form-group id="create-password" :label="$t('settings.users.createModal.password')"
-                        label-for="create-input-password">
-            <b-form-input id="create-input-password"
-                          v-model="selectedUser.password"
-                          :placeholder="$t('settings.users.createModal.password')"
-                          type="password"
-                          required>
-            </b-form-input>
-          </b-form-group>
-          <b-form-group id="create-firstname" :label="$t('settings.users.createModal.firstname')"
-                        label-for="create-input-firstname">
-            <b-form-input id="create-input-firstname"
-                          v-model="selectedUser.firstname"
-                          :placeholder="$t('settings.users.createModal.firstname')"
-                          required>
-            </b-form-input>
-          </b-form-group>
-          <b-form-group id="create-lastname" :label="$t('settings.users.createModal.lastname')"
-                        label-for="create-input-lastname">
-            <b-form-input id="create-input-lastname"
-                          v-model="selectedUser.lastname"
-                          :placeholder="$t('settings.users.createModal.lastname')"
-                          required>
-            </b-form-input>
-          </b-form-group>
-
-          <b-container class="d-flex justify-content-end">
-            <b-button @click="$bvModal.hide('create-modal')" type="submit" variant="success">
-              {{$t('settings.users.createModal.submit')}}
-            </b-button>
-          </b-container>
-        </b-form>
-      </b-container>
-    </b-modal>
+    <!-- Delete modal-->
+    <delete-modal-component v-bind:deleted-user="selectedUser"></delete-modal-component>
   </div>
 </template>
 
 <script>
 import Base from '../../api/base';
 import moment from 'moment';
+import EditModalComponent from '../../components/Admin/users/EditModalComponent';
+import CreateModalComponent from '../../components/Admin/users/CreateModalComponent';
+import DeleteModalComponent from '../../components/Admin/users/DeleteModalComponent';
 
 export default {
+  components: { EditModalComponent, CreateModalComponent, DeleteModalComponent },
   data () {
     return {
       users: [],
@@ -312,54 +214,6 @@ export default {
         this.nextPage = this.currentPage + 1;
         this.prevPage = this.currentPage - 1;
       }).finally(this.isBusy = false);
-    },
-    deleteUser (id) {
-      Base.call('users/' + id, {
-        method: 'delete'
-      }).then(response => {
-        this.flashMessage.success(this.$t('settings.users.deleteSuccess'));
-      }).catch(error => {
-        console.log(error);
-        this.flashMessage.error(this.$t('settings.users.deleteFailed'));
-      }).finally(() => this.getUsers(this.currentPage));
-    },
-    editUser (id, user) {
-      Base.call('users/' + id, {
-        headers: {
-          'content-type': 'application/json'
-        },
-        method: 'put',
-        data: {
-          firstname: user.firstname,
-          lastname: user.lastname,
-          email: user.email
-        }
-      }).then(response => {
-        this.flashMessage.success(this.$t('settings.users.editSuccess'));
-      }).catch(error => {
-        console.log(error);
-        this.flashMessage.error(this.$t('settings.users.editFailed'));
-      }).finally(() => this.getUsers(this.currentPage));
-    },
-    createUser (user) {
-      Base.call('users', {
-        headers: {
-          'content-type': 'application/json'
-        },
-        method: 'post',
-        data: {
-          firstname: user.firstname,
-          lastname: user.lastname,
-          password: user.password,
-          email: user.email,
-          username: user.username
-        }
-      }).then(response => {
-        this.flashMessage.success(this.$t('settings.users.createSuccess'));
-      }).catch(error => {
-        console.log(error);
-        this.flashMessage.error(this.$t('settings.users.createFailed'));
-      }).finally(() => this.getUsers(this.currentPage));
     },
     populateSelectedUser (user) {
       this.selectedUser.id = user.id;
