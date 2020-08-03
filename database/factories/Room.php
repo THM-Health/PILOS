@@ -9,5 +9,6 @@ $factory->define(Room::class, function (Faker $faker) {
     return [
         'name' => $faker->word,
         'room_type_id' => \App\RoomType::default()->id,
+        'user_id' => factory(App\User::class),
     ];
 });
