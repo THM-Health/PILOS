@@ -12,26 +12,26 @@
       <b-container fluid>
         <!-- TODO Input Validation -->
         <b-form @submit.stop.prevent="editUser(editedUser.id, editedUser)">
-          <b-form-group id="edit-firstname" :label="$t('settings.users.editModal.firstname')"
+          <b-form-group id="edit-firstname" :label="$t('settings.users.fields.firstname')"
                         label-for="edit-input-firstname">
             <b-form-input id="edit-input-firstname"
                           v-model="editedUser.firstname"
-                          :placeholder="$t('settings.users.editModal.firstname')"
+                          :placeholder="$t('settings.users.fields.firstname')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="edit-lastname" :label="$t('settings.users.editModal.lastname')"
+          <b-form-group id="edit-lastname" :label="$t('settings.users.fields.lastname')"
                         label-for="edit-input-lastname">
             <b-form-input id="edit-input-lastname"
                           v-model="editedUser.lastname"
-                          :placeholder="$t('settings.users.editModal.lastname')"
+                          :placeholder="$t('settings.users.fields.lastname')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="edit-email" :label="$t('settings.users.editModal.email')" label-for="edit-input-email">
+          <b-form-group id="edit-email" :label="$t('settings.users.fields.email')" label-for="edit-input-email">
             <b-form-input id="edit-input-email"
                           v-model="editedUser.email"
-                          :placeholder="$t('settings.users.editModal.email')"
+                          :placeholder="$t('settings.users.fields.email')"
                           required>
             </b-form-input>
           </b-form-group>

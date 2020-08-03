@@ -15,12 +15,12 @@ export default {
   },
 
   users: {
-    title: 'Participants',
+    title: 'Users',
     tooltip: {
-      create: 'Create a user.',
-      invite: 'Invite a participant.'
+      create: 'Create an user.',
+      invite: 'Invite an user.'
     },
-    table: {
+    fields: {
       authenticator: 'Authenticator',
       email: 'Email',
       name: 'Name',
@@ -32,23 +32,14 @@ export default {
       actions: 'Actions',
       edit: 'Edit',
       delete: 'Delete',
-      loading: 'Loading...'
+      password: 'Password'
     },
     createModal: {
       title: 'Create User',
-      firstname: 'Firstname',
-      lastname: 'Lastname',
-      username: 'Username',
-      email: 'Email',
-      password: 'Password',
       submit: 'Submit'
     },
     editModal: {
       title: 'Edit User',
-      firstname: 'Firstname',
-      lastname: 'Lastname',
-      username: 'Username',
-      email: 'Email',
       submit: 'Submit'
     },
     deleteModal: {

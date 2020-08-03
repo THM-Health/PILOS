@@ -36,7 +36,7 @@
               v-model="filterInput"
               type="search"
               id="filterInput"
-              :placeholder="$t('settings.searchbar.placeholder')"
+              :placeholder="$t('app.searchbar.placeholder')"
               @input="getUsers(currentPage, filterInput)"
             ></b-form-input>
             <b-input-group-append>
@@ -71,13 +71,13 @@
           <b-dropdown-item v-b-modal.edit-modal @click="populateSelectedUser(row.item)">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-edit"></i></b-col>
-              <b-col cols="9">{{$t('settings.users.table.edit')}}</b-col>
+              <b-col cols="9">{{$t('settings.users.fields.edit')}}</b-col>
             </b-row>
           </b-dropdown-item>
           <b-dropdown-item v-b-modal.delete-modal @click="populateSelectedUser(row.item)">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-minus"></i></b-col>
-              <b-col cols="9">{{$t('settings.users.table.delete')}}</b-col>
+              <b-col cols="9">{{$t('settings.users.fields.delete')}}</b-col>
             </b-row>
           </b-dropdown-item>
         </b-dropdown>
@@ -90,10 +90,10 @@
       :total-rows="rows"
       :per-page="perPage"
       :limit="limits"
-      :first-text="$t('settings.pagination.first')"
-      :prev-text="$t('settings.pagination.prev')"
-      :next-text="$t('settings.pagination.next')"
-      :last-text="$t('settings.pagination.last')"
+      :first-text="$t('app.pagination.first')"
+      :prev-text="$t('app.pagination.prev')"
+      :next-text="$t('app.pagination.next')"
+      :last-text="$t('app.pagination.last')"
       align="right"
       pills
       @input="getUsers(currentPage)"
@@ -153,13 +153,13 @@ export default {
     },
     fields () {
       return [
-        { key: 'firstname', sortable: true, label: this.$t('settings.users.table.firstname') },
-        { key: 'lastname', sortable: true, label: this.$t('settings.users.table.lastname') },
-        { key: 'username', sortable: true, label: this.$t('settings.users.table.username') },
+        { key: 'firstname', sortable: true, label: this.$t('settings.users.fields.firstname') },
+        { key: 'lastname', sortable: true, label: this.$t('settings.users.fields.lastname') },
+        { key: 'username', sortable: true, label: this.$t('settings.users.fields.username') },
         {
           key: 'guid',
           sortable: true,
-          label: 'Authenticator',
+          label: this.$t('settings.users.fields.authenticator'),
           formatter: value => {
             return value === null ? 'pilos' : 'ldap';
           }
@@ -167,18 +167,18 @@ export default {
         {
           key: 'createdAt',
           sortable: true,
-          label: this.$t('settings.users.table.created'),
+          label: this.$t('settings.users.fields.created'),
           formatter: value =>
             this.formatDate(value)
         },
         {
           key: 'updatedAt',
           sortable: true,
-          label: this.$t('settings.users.table.updated'),
+          label: this.$t('settings.users.fields.updated'),
           formatter: value =>
             this.formatDate(value)
         },
-        { key: 'action', label: this.$t('settings.users.table.actions') }
+        { key: 'action', label: this.$t('settings.users.fields.actions') }
       ];
     }
   },

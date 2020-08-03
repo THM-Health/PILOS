@@ -1,26 +1,13 @@
 export default {
   settings: 'Einstellungen',
 
-  searchbar: {
-    filter: 'Filter',
-    placeholder: 'Suche...'
-  },
-
-  pagination: {
-    first: 'Erste',
-    last: 'Letzte',
-    prev: 'Vorherige',
-    next: 'Nächste',
-    page: 'Seite'
-  },
-
   users: {
-    title: 'Teilnehmer',
+    title: 'Benutzer',
     tooltip: {
       create: 'Benutzer erstellen.',
-      invite: 'Teilnehmer einladen.'
+      invite: 'Benutzer einladen.'
     },
-    table: {
+    fields: {
       authenticator: 'Authenticator',
       email: 'Email',
       name: 'Name',
@@ -32,23 +19,14 @@ export default {
       actions: 'Aktionen',
       edit: 'Bearbeiten',
       delete: 'Löschen',
-      loading: 'Laden...'
+      password: 'Kenntwort'
     },
     createModal: {
       title: 'Benutzer erstellen',
-      firstname: 'Vorname',
-      lastname: 'Nachname',
-      username: 'Benutzername',
-      email: 'Email',
-      password: 'Kenntwort',
       submit: 'Abschicken'
     },
     editModal: {
       title: 'Benutzer bearbeiten',
-      firstname: 'Vorname',
-      lastname: 'Nachname',
-      username: 'Benutzername',
-      email: 'Email',
       submit: 'Abschicken'
     },
     deleteModal: {

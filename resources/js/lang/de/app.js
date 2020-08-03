@@ -33,5 +33,18 @@ export default {
     legalNoticeUrl: 'https://www.thm.de/ges/impressum',
     privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
     separator: '|'
+  },
+
+  searchbar: {
+    filter: 'Filter',
+    placeholder: 'Suche...'
+  },
+
+  pagination: {
+    first: 'Erste',
+    last: 'Letzte',
+    prev: 'Vorherige',
+    next: 'Nächste',
+    page: 'Seite'
   }
 };

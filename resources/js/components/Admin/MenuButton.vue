@@ -5,7 +5,7 @@
       <b-nav-item class="focus-hover" :to="{ name: 'admin.index' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-users"></i></span></b-col>
-          <b-col cols="9">{{$t('settings.users.title')}}</b-col>
+          <b-col cols="7">{{$t('settings.users.title')}}</b-col>
         </b-row>
       </b-nav-item>
       <b-nav-item class="focus-hover" :to="{ name: 'admin.rooms' }" exact exact-active-class="active">
@@ -29,7 +29,7 @@
       <b-nav-item class="focus-hover" :to="{ name: 'admin.roles' }" exact exact-active-class="active">
         <b-row>
           <b-col cols="3"><span><i class="fas fa-user-tag"></i></span></b-col>
-          <b-col cols="9">{{$t('settings.roles.title')}}</b-col>
+          <b-col cols="7">{{$t('settings.roles.title')}}</b-col>
         </b-row>
       </b-nav-item>
     </b-nav>

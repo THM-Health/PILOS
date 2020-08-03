@@ -13,44 +13,44 @@
       <b-container fluid>
         <!-- TODO Input Validation -->
         <b-form @submit.stop.prevent="createUser(createdUser)">
-          <b-form-group id="create-email" :label="$t('settings.users.createModal.email')"
+          <b-form-group id="create-email" :label="$t('settings.users.fields.email')"
                         label-for="create-input-email">
             <b-form-input id="create-input-email"
                           v-model="createdUser.email"
-                          :placeholder="$t('settings.users.createModal.email')"
+                          :placeholder="$t('settings.users.fields.email')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="create-username" :label="$t('settings.users.createModal.username')"
+          <b-form-group id="create-username" :label="$t('settings.users.fields.username')"
                         label-for="create-input-username">
             <b-form-input id="create-input-username"
                           v-model="createdUser.username"
-                          :placeholder="$t('settings.users.createModal.username')"
+                          :placeholder="$t('settings.users.fields.username')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="create-password" :label="$t('settings.users.createModal.password')"
+          <b-form-group id="create-password" :label="$t('settings.users.fields.password')"
                         label-for="create-input-password">
             <b-form-input id="create-input-password"
                           v-model="createdUser.password"
-                          :placeholder="$t('settings.users.createModal.password')"
+                          :placeholder="$t('settings.users.fields.password')"
                           type="password"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="create-firstname" :label="$t('settings.users.createModal.firstname')"
+          <b-form-group id="create-firstname" :label="$t('settings.users.fields.firstname')"
                         label-for="create-input-firstname">
             <b-form-input id="create-input-firstname"
                           v-model="createdUser.firstname"
-                          :placeholder="$t('settings.users.createModal.firstname')"
+                          :placeholder="$t('settings.users.fields.firstname')"
                           required>
             </b-form-input>
           </b-form-group>
-          <b-form-group id="create-lastname" :label="$t('settings.users.createModal.lastname')"
+          <b-form-group id="create-lastname" :label="$t('settings.users.fields.lastname')"
                         label-for="create-input-lastname">
             <b-form-input id="create-input-lastname"
                           v-model="createdUser.lastname"
-                          :placeholder="$t('settings.users.createModal.lastname')"
+                          :placeholder="$t('settings.users.fields.lastname')"
                           required>
             </b-form-input>
           </b-form-group>
