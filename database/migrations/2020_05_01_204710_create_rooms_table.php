@@ -36,7 +36,7 @@ class CreateRoomsTable extends Migration
             $table->boolean('everyoneCanStart')->default(false);
             $table->boolean('everyoneModerator')->default(false);
             $table->integer('accessCode')->length(11)->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('room_type_id');
             $table->foreign('room_type_id')->references('id')->on('room_types')->onDelete('restrict');
