@@ -133,7 +133,7 @@ export default {
       nextPage: null,
       prevPage: null,
       perPage: null,
-      limits: process.env.MIX_PAGINATION_LIMIT,
+      limits: process.env.MIX_PAGINATION_INDEX_LIMIT,
       selectedUser: {
         id: null,
         password: null,

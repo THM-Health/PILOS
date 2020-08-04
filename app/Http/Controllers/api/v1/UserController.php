@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUser;
+use App\Http\Requests\UpdateUser;
 use App\Http\Resources\User as UserResource;
 use App\User;
 use Exception;
@@ -20,10 +22,10 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+        $query = User::paginate(env('MIX_PAGINATION_PAGE_SIZE', 15));
 
         if ($request->has('name')) {
-            $query = User::withName($request->name)->paginate(env('MIX_PAGINATION_PER_PAGE', 15));
+            $query = User::withName($request->name)->paginate(env('MIX_PAGINATION_PAGE_SIZE', 15));
         }
 
         return UserResource::collection($query);
@@ -31,52 +33,57 @@ class UserController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * @param Request $request
+     * @param  StoreUser    $request
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreUser $request)
     {
         $user = new User();
 
-        $data = $request->all();
+        $user->firstname = $request->firstname;
+        $user->lastname  = $request->lastname;
+        $user->email     = $request->email;
+        $user->username  = $request->username;
+        $user->password  = Hash::make($request->password);
 
-        foreach ($data as $key => $value) {
-            if ($key == 'password') {
-                $value = Hash::make($value);
-            }
+        $store = $user->save();
 
-            $user->$key = $value;
-        }
-
-        $user->save();
-
-        return response()->json($user, 201);
+        return ($store === true) ? (response()->json($user, 201)) : (response()->json(['message' => 'Bad Request!'], 400));
     }
 
     /**
      * Display the specified resource.
-     * @param User $user
+     * @param  User         $user
+     * @return JsonResponse
      */
     public function show(User $user)
     {
-        //TODO implement fetch a specific user based on id method
+        if (!$user) {
+            response()->json(['message' => 'User not found!'], 404);
+        }
+
+        return response()->json($user, 200);
     }
 
     /**
      * Update the specified resource in storage.
-     * @param Request $request
-     * @param User    $user
+     * @param  UpdateUser   $request
+     * @param  User         $user
+     * @return JsonResponse
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUser $request, User $user)
     {
-        $data = $request->all();
-
-        foreach ($data as $key => $value) {
-            $user->$key = $value;
+        if (!$user) {
+            return response()->json(['message' => 'User not found!'], 404);
         }
 
-        $user->save();
+        $user->firstname = $request->firstname;
+        $user->lastname  = $request->lastname;
+        $user->email     = $request->email;
 
-        return response()->json($user, 202);
+        $update = $user->save();
+
+        return ($update === true) ? (response()->json($user, 202)) : (response()->json(['message' => 'Bad Request!'], 400));
     }
 
     /**
@@ -87,12 +94,12 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user) {
-            $user->delete();
-        } else {
+        if (!$user) {
             return response()->json(['message' => 'User not found!'], 404);
         }
 
-        return response()->json(null, 204);
+        $delete = $user->delete();
+
+        return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => 'Bad Request!'], 400));
     }
 }

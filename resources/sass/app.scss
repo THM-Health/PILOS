@@ -85,3 +85,9 @@
         }
     }
 }
+
+// Pagination current page background
+.page-item.active .page-link {
+    background-color: #80BA27 !important;
+    border-color: #80BA27 !important;
+}
