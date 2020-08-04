@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     Route::namespace('auth')->group(function () {
         Route::get('currentUser', 'LoginController@currentUser')->name('currentUser');
-        Route::post('login', 'LoginController@login')->name('login');
+        Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 

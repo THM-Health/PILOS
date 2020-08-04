@@ -57,6 +57,13 @@ class LoginController extends Controller
         return $this->login($request);
     }
 
+    public function usersLogin(Request $request)
+    {
+        $this->guard = 'users';
+
+        return $this->login($request);
+    }
+
     protected function credentials(Request $request)
     {
         $credentials = [
@@ -66,6 +73,7 @@ class LoginController extends Controller
         if ($this->guard === 'ldap') {
             $credentials['uid'] = $request->get('username');
         } else {
+            $credentials['authenticator'] = 'users';
             $credentials['email'] = $request->get('email');
         }
 
