@@ -20,7 +20,7 @@ class RoomUser extends JsonResource
             'firstname' => $this->firstname,
             'lastname'  => $this->lastname,
             'email'     => $this->email,
-            'role'      => $this->pivot->role,
+            'role'      => (int) $this->pivot->role,
         ];
     }
 }
