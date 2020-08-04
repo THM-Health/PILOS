@@ -74,7 +74,7 @@ class LoginController extends Controller
             $credentials['uid'] = $request->get('username');
         } else {
             $credentials['authenticator'] = 'users';
-            $credentials['email'] = $request->get('email');
+            $credentials['email']         = $request->get('email');
         }
 
         return $credentials;
