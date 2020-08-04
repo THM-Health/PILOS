@@ -21,7 +21,7 @@
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "littleredbutton/bigbluebutton-api-php": "master"
+        "littleredbutton/bigbluebutton-api-php": "^3.2.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",
@@ -89,11 +89,5 @@
         "fix-cs": [
             "vendor/bin/php-cs-fixer fix --allow-risky=yes"
         ]
-    },
-    "repositories":[
-        {
-            "type": "vcs",
-            "url": "https://github.com/littleredbutton/bigbluebutton-api-php"
-        }
-    ]
+    }
 }
