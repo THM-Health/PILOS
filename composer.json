@@ -18,8 +18,7 @@
         "laravel/framework": "^7.0",
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
-        "laravel/ui": "^2.0",
-        "spatie/laravel-permission": "^3.13"
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",

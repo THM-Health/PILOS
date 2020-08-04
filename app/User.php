@@ -8,11 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use Notifiable, AuthenticatesWithLdap, HasApiTokens, HasRoles, AddsModelNameTrait;
+    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -97,14 +96,5 @@ class User extends Authenticatable
                 });
             }
         });
-    }
-
-    /**
-     * @return string The name of guard, the user corresponds to.
-     */
-    public function guardName()
-    {
-        // TODO: Change after pull request #21 was merged!
-        return $this->getLdapGuid() ? 'api' : 'api_users';
     }
 }
