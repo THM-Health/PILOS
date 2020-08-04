@@ -27,7 +27,7 @@ export default {
     },
 
     unauthorized: {
-      message: 'You haven\'t the necessary rights to access the called route!',
+      message: 'You don\'t have the necessary rights to access the called route!',
       title: 'Unauthorized'
     }
   },
