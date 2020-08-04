@@ -38,7 +38,7 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: vendor/bin/phpunit --coverage-text
+      run: vendor/bin/phpunit --coverage-clover=coverage.xml
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
     - name: Execute frontend code style check via eslint and frontend tests
@@ -47,3 +47,8 @@ jobs:
         nvm use
         npm install
         npm run ci
+    - name: Upload coverage
+      env:
+        CODECOV_TOKEN: ${{ secrets.SuperSecret }}
+      run: bash <(curl -s https://codecov.io/bash)
+      if: matrix.php-versions == '7.3'
