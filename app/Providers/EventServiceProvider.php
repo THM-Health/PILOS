@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Listeners\SetDefaultRoleForLdapUser;
+use App\Listeners\SetUserModelLdapAuthenticatorType;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\Events\Importing;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -21,7 +23,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         Imported::class => [
             SetDefaultRoleForLdapUser::class
-        ]
+        ],
+        Importing::class => [
+            SetUserModelLdapAuthenticatorType::class
+        ],
     ];
 
     /**
