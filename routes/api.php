@@ -35,7 +35,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
-       
+
         Route::post('setLocale', function (Request $request) {
             $validatedData = $request->validate([
                 'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
@@ -49,6 +49,13 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
                 ]);
             }
         })->name('setLocale');
+
+        Route::get('rooms','RoomController@index')->name('rooms.index');
+        Route::post('rooms','RoomController@store')->name('rooms.store');
+        Route::put('rooms/{room}','RoomController@update')->name('rooms.update');
+        Route::delete('rooms/{room}','RoomController@destroy')->name('rooms.destroy');
+
+        Route::get('rooms/{room}/settings','RoomController@getSettings')->name('rooms.settings');
 
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', 'RoomMemberController@join')->name('rooms.membership.join');
@@ -67,14 +74,11 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         });
 
         Route::get('users/search','UserController@search','users.search');
-
-        Route::get('rooms/{room}/settings','RoomController@getSettings');
     });
 
-    Route::apiResource('rooms', 'RoomController');
-
-    Route::get('rooms/{room}/start','RoomController@start');
-    Route::get('rooms/{room}/join','RoomController@join');
+    Route::get('rooms/{room}','RoomController@show')->name('rooms.show')->middleware(['room.guest_protection','room.authenticate:true']);
+    Route::get('rooms/{room}/start','RoomController@start')->name('rooms.start')->middleware(['room.guest_protection','room.authenticate']);
+    Route::get('rooms/{room}/join','RoomController@join')->name('rooms.join')->middleware(['room.guest_protection','room.authenticate']);
 
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
 

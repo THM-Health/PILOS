@@ -15,10 +15,6 @@ class RoomController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Room::class, 'room');
-        $this->middleware(['auth:api_users,api'])->except(['show','join','start']);
-        $this->middleware('room.guest_protection', ['only' => ['show','join','start']]);
-        $this->middleware('room.authenticate:true', ['only' => ['show']]);
-        $this->middleware('room.authenticate', ['only' => ['start','join']]);
     }
 
     /**
