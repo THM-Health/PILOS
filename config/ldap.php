@@ -78,8 +78,8 @@ return [
     | To map ldap roles to the corresponding roles in this application set
     | the correct ldap role attribute in the .env file and also a map from
     | ldap roles to the roles in the application. Make sure that the roles
-    | exists in the application, otherwise an error will be thrown when
-    | trying to map to a not existing role.
+    | exists in the application, otherwise the not existing mapped role
+    | wouldn't be assign to the user.
     |
     */
 

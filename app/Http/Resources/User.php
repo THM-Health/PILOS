@@ -43,9 +43,7 @@ class User extends JsonResource
             'lastname'  => $this->lastname,
             'locale'    => $this->locale,
             $this->mergeWhen($this->withPermissions, [
-                'permissions' => $this->getAllPermissions()->map(function ($permission) {
-                    return $permission->name;
-                })
+                'permissions' => $this->permissions
             ]),
             'modelName' => $this->modelName
         ];

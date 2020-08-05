@@ -3,8 +3,8 @@
 namespace App\Listeners;
 
 use App\Role;
+use App\User;
 use LdapRecord\Laravel\Events\Imported;
-use Spatie\Permission\Exceptions\RoleDoesNotExist;
 
 class SetDefaultRoleForLdapUser
 {
@@ -14,8 +14,7 @@ class SetDefaultRoleForLdapUser
      * Adds the roles from the ldap user to the application user, which are mapped
      * in the config `ldap.roleMap`.
      *
-     * @param  Imported         $event
-     * @throws RoleDoesNotExist
+     * @param Imported $event
      */
     public function handle(Imported $event)
     {
@@ -26,10 +25,9 @@ class SetDefaultRoleForLdapUser
             $user     = $event->model;
 
             if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
-                // TODO: Change after pull request #21 was merged!
-                $role = Role::findByName(config('ldap.roleMap')[$ldapRole], 'api');
-                if (!$user->hasRole($role)) {
-                    $user->assignRole($role);
+                $role = Role::where('name', config('ldap.roleMap')[$ldapRole])->first();
+                if (!empty($role) && $user->roles->where('name', $role->name)->count() == 0) {
+                    $user->roles()->attach($role->id);
                 }
             }
         }

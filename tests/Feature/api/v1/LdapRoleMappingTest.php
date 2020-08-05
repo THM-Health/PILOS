@@ -3,13 +3,13 @@
 namespace Tests\Feature\api\v1;
 
 use App\Role;
+use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\Model;
 use LdapRecord\Models\ModelDoesNotExistException;
-use Spatie\Permission\Exceptions\RoleDoesNotExist;
 use Tests\TestCase;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 
@@ -20,7 +20,7 @@ class LdapRoleMappingTest extends TestCase
     /**
      * @var string $guard The guard that is used for the ldap authenticated users.
      */
-    private $guard = 'api';
+    private $guard = 'ldap';
 
     /**
      * @var Model|null $ldapUser The ldap user that is used in the tests.
@@ -63,7 +63,9 @@ class LdapRoleMappingTest extends TestCase
             'entryuuid'              => $this->faker->uuid,
         ]);
 
-        Role::findOrCreate($this->roleMap[$this->ldapRoleName], $this->guard);
+        Role::firstOrCreate([
+            'name' => $this->roleMap[$this->ldapRoleName]
+        ]);
 
         $fake->actingAs($this->ldapUser);
     }
@@ -96,7 +98,9 @@ class LdapRoleMappingTest extends TestCase
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertEmpty($this->getAuthenticatedUser()->getRoleNames());
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $this->assertCount(0, $user->roles);
     }
 
     /**
@@ -120,7 +124,9 @@ class LdapRoleMappingTest extends TestCase
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertEmpty($this->getAuthenticatedUser()->getRoleNames());
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $this->assertCount(0, $user->roles);
     }
 
     /**
@@ -144,11 +150,13 @@ class LdapRoleMappingTest extends TestCase
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertEmpty($this->getAuthenticatedUser()->getRoleNames());
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $this->assertCount(0, $user->roles);
     }
 
     /**
-     * Test that an error gets thrown if a ldap role is mapped to an not existing role.
+     * Test that nothing happens if a ldap role is mapped to an not existing role.
      *
      * @return void
      */
@@ -166,10 +174,10 @@ class LdapRoleMappingTest extends TestCase
             'password' => 'secret'
         ]);
 
-        $this->assertEquals($response->getStatusCode(), 500);
-        $response->assertJsonFragment([
-            'exception' => RoleDoesNotExist::class
-        ]);
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $this->assertCount(0, $user->roles);
     }
 
     /**
@@ -190,7 +198,13 @@ class LdapRoleMappingTest extends TestCase
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertContains($this->roleMap[$this->ldapRoleName], $this->getAuthenticatedUser()->getRoleNames());
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $roleNames = array_map(function ($role) {
+            return $role->name;
+        }, $user->roles->all());
+        $this->assertCount(1, $roleNames);
+        $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
     }
 
     /**
@@ -205,15 +219,20 @@ class LdapRoleMappingTest extends TestCase
             'ldap.roleMap'           => $this->roleMap
         ]);
 
-        $roleName = $this->roleMap[array_key_first($this->roleMap)];
-
         $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertContains($roleName, $this->getAuthenticatedUser()->getRoleNames());
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $roleNames = array_map(function ($role) {
+            return $role->name;
+        }, $user->roles->all());
+        echo $user->roles->where('name', 'test')->count();
+        $this->assertCount(1, $roleNames);
+        $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
 
         $this->postJson(route('api.v1.logout'));
 
@@ -224,6 +243,7 @@ class LdapRoleMappingTest extends TestCase
             'password' => 'secret'
         ]);
 
-        $this->assertDatabaseCount(config('permission.table_names.model_has_roles'), 1);
+        $this->assertAuthenticated($this->guard);
+        $this->assertDatabaseCount('user_role', 1);
     }
 }

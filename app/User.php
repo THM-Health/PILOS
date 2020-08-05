@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -96,5 +97,27 @@ class User extends Authenticatable
                 });
             }
         });
+    }
+
+    /**
+     *
+     * @return BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany('App\Role', 'user_role', 'user_id', 'role_id');
+    }
+
+    public function getPermissionsAttribute()
+    {
+        return array_reduce($this->roles->all(), function ($permissions, $role) {
+            foreach ($role->permissions as $permission) {
+                if (!in_array($permission->name, $permissions)) {
+                    array_push($permissions, $permission->name);
+                }
+
+                return $permissions;
+            }
+        }, []);
     }
 }

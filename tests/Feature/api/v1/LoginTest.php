@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Permission;
 use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -86,11 +86,16 @@ class LoginTest extends TestCase
      */
     public function testCurrentUserPermissions()
     {
-        Permission::findOrCreate('test');
-        Role::findOrCreate('a')->givePermissionTo(['test']);
-        Role::findOrCreate('b')->givePermissionTo(['test']);
+        $permission = Permission::firstOrCreate([ 'name' => 'test' ]);
+
+        $a = Role::firstOrCreate(['name' => 'a']);
+        $a->permissions()->attach($permission->id);
+
+        $b = Role::firstOrCreate(['name' => 'b']);
+        $b->permissions()->attach($permission->id);
+
         $user     = factory(User::class)->create();
-        $user->assignRole('a', 'b');
+        $user->roles()->attach([$a->id, $b->id]);
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
         $response->assertOk();
         $response->assertJsonFragment([

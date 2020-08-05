@@ -9,24 +9,20 @@ use Spatie\Permission\PermissionRegistrar;
 class RolesAndPermissionsSeeder extends Seeder
 {
     /**
-     * Creates the default roles and permissions for each guard and assigns to all existing
-     * users of the corresponding guard a default user role if not already set.
+     * Creates the default roles and permissions and assigns to all existing
+     * users a default user role if not already set.
      *
      * @return void
      */
     public function run()
     {
-        // TODO
-        // Permission::findOrCreate('NAME', $guard);
+        $userRole = Role::firstOrCreate([ 'name' => 'user', 'default' => true ]);
+        Role::firstOrCreate([ 'name' => 'admin', 'default' => true ]);
 
-        // Role::findOrCreate('user', $guard, true);
-        // Role::findOrCreate('admin', $guard, true);
-        // $adminRole->givePermissionTo(['PERMISSION']);
-
-        // User::doesntHave('roles')->where('authenticator', $guard)->filter(function ($user) use ($userRole) {
-        //   return !$user->hasRole($userRole);
-        // })->each(function ($user) use ($userRole) {
-        //   $user->assignRole($userRole);
-        // });
+        User::all()->filter(function ($user) use ($userRole) {
+           return !$user->roles->contains($userRole);
+         })->each(function ($user) use ($userRole) {
+           $user->roles()->attach($userRole);
+         });
     }
 }
