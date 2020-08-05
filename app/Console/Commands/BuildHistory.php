@@ -56,6 +56,8 @@ class BuildHistory extends Command
             if($server->status==0)
                 continue;
             $meetings = $server->getMeetings();
+            if($meetings == null)
+                continue;
             $runningMeetings = array_merge($runningMeetings,$meetings->pluck('internalMeetingID')->all());
             $this->syncMeetings($meetings,$server,false);
             $this->syncMeetings($meetings,$server,true);
