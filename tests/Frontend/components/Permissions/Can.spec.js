@@ -2,6 +2,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import { mount } from '@vue/test-utils';
 import Can from '../../../../resources/js/components/Permissions/Can';
 import Vue from 'vue';
+import sinon from 'sinon';
 
 const testComponent = {
   name: 'test-component',
@@ -66,6 +67,35 @@ describe('Can', function () {
     PermissionService.setPermissions(['bar']);
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
+
+    PermissionService.setPermissions(oldPermissions);
+  });
+
+  it('describes from `permissionsChangedEvent` after destroy', async function () {
+    const oldPermissions = PermissionService.permissions;
+    const spy = sinon.spy(Can.methods, 'evaluatePermissions');
+
+    const wrapper = mount(Can, {
+      propsData: {
+        permissions: { permission: 'bar' }
+      },
+      slots: {
+        default: testComponent
+      }
+    });
+
+    await Vue.nextTick();
+    spy.resetHistory();
+    PermissionService.setPermissions(['foo']);
+
+    await Vue.nextTick();
+    wrapper.destroy();
+
+    await Vue.nextTick();
+    PermissionService.setPermissions(['qux']);
+
+    await Vue.nextTick();
+    expect(spy.callCount).toEqual(1);
 
     PermissionService.setPermissions(oldPermissions);
   });
