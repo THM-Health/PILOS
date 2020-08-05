@@ -100,6 +100,7 @@ class User extends Authenticatable
     }
 
     /**
+     * The roles that are assigned to the user.
      *
      * @return BelongsToMany
      */
@@ -108,6 +109,11 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Role', 'user_role', 'user_id', 'role_id');
     }
 
+    /**
+     * Array of unique permission names that are given to the user through the assigned roles.
+     *
+     * @return String[]
+     */
     public function getPermissionsAttribute()
     {
         return array_reduce($this->roles->all(), function ($permissions, $role) {
@@ -115,9 +121,9 @@ class User extends Authenticatable
                 if (!in_array($permission->name, $permissions)) {
                     array_push($permissions, $permission->name);
                 }
-
-                return $permissions;
             }
+
+            return $permissions;
         }, []);
     }
 }
