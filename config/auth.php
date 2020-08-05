@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'api_users',
+        'guard' => 'users',
         'passwords' => 'users',
     ],
 
@@ -36,11 +36,11 @@ return [
     */
 
     'guards' => [
-        'api' => [
+        'ldap' => [
             'driver' => 'session',
             'provider' => 'ldap',
         ],
-        'api_users' => [
+        'users' => [
             'driver' => 'session',
             'provider' => 'users',
         ],

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     Route::namespace('auth')->group(function () {
         Route::get('currentUser', 'LoginController@currentUser')->name('currentUser');
-        Route::post('login', 'LoginController@login')->name('login');
+        Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 
@@ -34,7 +34,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 
-    Route::middleware('auth:api_users,api')->group(function () {
+    Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('rooms', 'RoomController');
 
         Route::apiResource('users', 'UserController');

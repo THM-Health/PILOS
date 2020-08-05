@@ -6,11 +6,22 @@ on:
 
 jobs:
   laravel-tests:
-
+    name: Laravel (PHP ${{ matrix.php-versions }}
     runs-on: self-hosted
-
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['7.3', '7.4']
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup PHP, with composer and extensions
+      uses: shivammathur/setup-php@v2 #https://github.com/shivammathur/setup-php
+      with:
+        php-version: ${{ matrix.php-versions }}
+        extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
+        coverage: xdebug #optional
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: Install Dependencies
@@ -27,7 +38,7 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: vendor/bin/phpunit
+      run: vendor/bin/phpunit --coverage-clover=coverage.xml
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
     - name: Execute frontend code style check via eslint and frontend tests
@@ -36,3 +47,8 @@ jobs:
         nvm use
         npm install
         npm run ci
+    - name: Upload coverage
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: bash <(curl -s https://codecov.io/bash)
+      if: matrix.php-versions == '7.3'
