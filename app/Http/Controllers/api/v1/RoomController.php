@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Room;
 use App\Server;
 use Auth;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class RoomController extends Controller
 {
@@ -73,7 +76,7 @@ class RoomController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function start(Room $room, Request $request)
+    public function start(Room $room, StartJoinMeeting $request)
     {
         $this->authorize('start', $room);
 
@@ -83,7 +86,12 @@ class RoomController extends Controller
         $meeting = $room->runningMeeting();
         if (!$meeting) {
             $servers = Server::where('status', true)->get();
-            $server  = $servers->random();
+
+            try {
+                $server = $servers->random();
+            } catch (InvalidArgumentException $ex) {
+                return response()->json('no_server_available', CustomStatusCodes::NO_SERVER_AVAILABLE);
+            }
 
             $meeting = $room->meetings()->create();
             $meeting->server()->associate($server);
@@ -106,14 +114,14 @@ class RoomController extends Controller
      * @param  Request                       $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function join(Room $room, Request $request)
+    public function join(Room $room, StartJoinMeeting $request)
     {
         $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
         $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
 
         $meeting = $room->runningMeeting();
         if ($meeting == null) {
-            return response()->json('not_running', 460);
+            return response()->json('not_running', CustomStatusCodes::MEETING_NOT_RUNNING);
         }
 
         if (!$meeting->start()) {

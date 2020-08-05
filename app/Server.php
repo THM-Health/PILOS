@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Server extends Model
 {
+    public $timestamps = false;
+
     public function rooms()
     {
         return $this->hasMany(Room::class, 'preferedServer');

@@ -5,6 +5,8 @@ namespace App;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use BigBlueButton\Parameters\CreateMeetingParameters;
+use BigBlueButton\Parameters\EndMeetingParameters;
+use BigBlueButton\Parameters\IsMeetingRunningParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 use Illuminate\Database\Eloquent\Model;
@@ -103,6 +105,29 @@ class Meeting extends Model
         }
 
         return $this->server->bbb()->createMeeting($meetingParams)->success();
+    }
+
+    /**
+     * Is Meeting running
+     * @return bool
+     */
+    public function isRunning()
+    {
+        $meetingParams = new IsMeetingRunningParameters('foobar');
+        $response      = $this->server->bbb()->isMeetingRunning($this->id)->success();
+
+        return $response->success() && $response->isRunning();
+    }
+
+    /**
+     * End meeting
+     * @return boolean
+     */
+    public function end()
+    {
+        $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
+
+        return $this->server->bbb()->endMeeting($endParams)->success();
     }
 
     /**
