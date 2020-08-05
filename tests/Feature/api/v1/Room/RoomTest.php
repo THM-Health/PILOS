@@ -97,7 +97,7 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false, 'allowMembership' => false]);
-        
+
         // Try with empty access code
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>'']))
             ->assertUnauthorized();

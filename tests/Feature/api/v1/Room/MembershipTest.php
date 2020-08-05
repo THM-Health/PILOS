@@ -122,6 +122,10 @@ class MembershipTest extends TestCase
         $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>RoomUserRole::USER])
             ->assertOk();
 
+        // Add same member again
+        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user');
+
         // Check member list
         $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertOk()
