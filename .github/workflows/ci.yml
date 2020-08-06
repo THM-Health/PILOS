@@ -8,7 +8,7 @@ jobs:
   laravel-tests:
     name: Laravel (PHP ${{ matrix.php-versions }}
     runs-on: self-hosted
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -46,7 +46,7 @@ jobs:
       run: |
         source ~/.nvm/nvm.sh
         nvm use
-        npm install
+        npm ci
         npm run ci
     - name: Upload coverage
       env:
