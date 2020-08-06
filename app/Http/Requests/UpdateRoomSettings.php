@@ -28,8 +28,9 @@ class UpdateRoomSettings extends FormRequest
             'defaultRole'                    => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],
             'allowGuests'                    => 'required|boolean',
             'lobby'                          => ['required',new EnumValue(RoomLobby::class)],
-            'duration'                       => 'nullable|numeric',
-            'maxParticipants'                => 'nullable|numeric',
+            'roomType'                       => 'required|exists:App\RoomType,id',
+            'duration'                       => 'nullable|numeric|min:1',
+            'maxParticipants'                => 'nullable|numeric|min:1',
             'name'                           => 'required|string',
             'welcome'                        => 'nullable|string',
         ];

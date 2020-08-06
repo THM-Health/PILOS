@@ -48,6 +48,11 @@ class Room extends Model
         'allowGuests'                    => 'boolean',
         'lockSettingsLockOnJoin'         => 'boolean',
         'lockSettingsHideUserList'       => 'boolean',
+        'maxParticipants'                => 'integer',
+        'duration'                       => 'integer',
+        'defaultRole'                    => 'integer',
+        'lobby'                          => 'integer',
+        'accessCode'                     => 'integer',
     ];
 
     /**
