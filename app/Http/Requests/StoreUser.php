@@ -35,10 +35,10 @@ class StoreUser extends FormRequest
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             return [
-                'firstname' => 'string|max:255',
-                'lastname'  => 'string|max:255',
-                'email'     => 'email|max:255|unique:users,email,' . $this->user->id,
-                'username'  => 'string|max:255|unique:users,username,' . $this->user->id
+                'firstname' => 'required|string|max:255',
+                'lastname'  => 'required|string|max:255',
+                'email'     => 'required|email|max:255|unique:users,email,' . $this->user->id,
+                'username'  => 'required|string|max:255|unique:users,username,' . $this->user->id
             ];
         }
     }
