@@ -18,6 +18,12 @@ Vue.use(FlashMessage, {
   strategy: 'multiple'
 });
 
+// Add accessibility check tools for development
+if (process.env.NODE_ENV === 'development') {
+  const VueAxe = require('vue-axe').default;
+  Vue.use(VueAxe);
+}
+
 /**
  * Global error handler for unhandled errors that can occur in the application.
  *
