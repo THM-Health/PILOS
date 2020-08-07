@@ -4,7 +4,6 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUser;
-use App\Http\Requests\UpdateUser;
 use App\Http\Resources\User as UserResource;
 use App\User;
 use Exception;
@@ -67,11 +66,11 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * @param  UpdateUser   $request
+     * @param  StoreUser    $request
      * @param  User         $user
      * @return JsonResponse
      */
-    public function update(UpdateUser $request, User $user)
+    public function update(StoreUser $request, User $user)
     {
         if (!$user) {
             return response()->json(['message' => 'User not found!'], 404);
@@ -80,6 +79,7 @@ class UserController extends Controller
         $user->firstname = $request->firstname;
         $user->lastname  = $request->lastname;
         $user->email     = $request->email;
+        $user->username  = $request->username;
 
         $update = $user->save();
 

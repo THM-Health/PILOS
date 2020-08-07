@@ -23,12 +23,23 @@ class StoreUser extends FormRequest
      */
     public function rules()
     {
-        return [
-            'firstname' => 'required|string|max:255',
-            'lastname'  => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email|max:255',
-            'username'  => 'required|string|unique:users,username|max:255',
-            'password'  => 'required|max:255'
-        ];
+        if (in_array($this->method(), ['POST'])) {
+            return [
+                'firstname' => 'required|string|max:255',
+                'lastname'  => 'required|string|max:255',
+                'email'     => 'required|email|max:255|unique:users,email',
+                'username'  => 'required|string|max:255|unique:users,username',
+                'password'  => 'required|string|max:255'
+            ];
+        }
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            return [
+                'firstname' => 'string|max:255',
+                'lastname'  => 'string|max:255',
+                'email'     => 'email|max:255|unique:users,email,' . $this->user->id,
+                'username'  => 'string|max:255|unique:users,username,' . $this->user->id
+            ];
+        }
     }
 }
