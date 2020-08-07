@@ -44,7 +44,7 @@ class UserTest extends TestCase
     }
 
     /**
-     * Test that create a user with valid inputs
+     * Test that create an user with valid inputs
      *
      * @return void
      */
@@ -64,7 +64,7 @@ class UserTest extends TestCase
     }
 
     /**
-     * Test that create a user with invalid inputs
+     * Test that create an user with invalid inputs
      *
      * @return void
      */
@@ -77,6 +77,130 @@ class UserTest extends TestCase
             'lastname'  => 'Mustermann',
             'password'  => 'secret',
             'email'     => 'max@mustermann.com',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    /**
+     * Test that delete an user with a valid user id
+     *
+     * @return void
+     */
+    public function testDeleteUserWithValidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+           'id'        => 32,
+           'firstname' => 'Max',
+           'lastname'  => 'Mustermann',
+            'username' => 'mtm',
+            'email'    => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', 32));
+
+        $response->assertStatus(204);
+    }
+
+    /**
+     * Test that delete user with an invalid user id
+     *
+     * @return void
+     */
+    public function testDeleteUserWithInvalidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', 77));
+
+        $response->assertStatus(404);
+    }
+
+    /**
+     * Test that update user with valid inputs and valid user id
+     *
+     * @return void
+     */
+    public function testUpdateUserWithValidInputsAndValidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->putJson(route('api.v1.users.update', 32), [
+            'firstname' => 'updatemax',
+            'lastname'  => 'updatemustermann',
+            'username'  => 'updatemtm',
+            'email'     => 'update@mail.com'
+        ]);
+
+        $response->assertStatus(202);
+    }
+
+    /**
+     * Test that update user with valid inputs and invalid user id
+     *
+     * @return void
+     */
+    public function testUpdateUserWithValidInputsAndInvalidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->putJson(route('api.v1.users.update', 77), [
+            'firstname' => 'updatemax',
+            'lastname'  => 'updatemustermann',
+            'username'  => 'updatemtm',
+            'email'     => 'update@mail.com'
+        ]);
+
+        $response->assertStatus(404);
+    }
+
+    /**
+     * Test that update user with invalid inputs and valid user id
+     *
+     * @return void
+     */
+    public function testUpdateUserWithInvalidInputsAndValidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->putJson(route('api.v1.users.update', 32), [
+            'firstname' => 'updatemax',
+            'lastname'  => 'updatemustermann',
+            'username'  => 'updatemtm'
         ]);
 
         $response->assertStatus(422);
