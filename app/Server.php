@@ -9,11 +9,6 @@ class Server extends Model
 {
     public $timestamps = false;
 
-    public function rooms()
-    {
-        return $this->hasMany(Room::class, 'preferedServer');
-    }
-
     /**
      * Get bigbluebutton api instance with the url and secret stored in the database fields
      * @return BigBlueButton

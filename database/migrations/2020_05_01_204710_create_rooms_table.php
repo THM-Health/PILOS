@@ -18,8 +18,8 @@ class CreateRoomsTable extends Migration
             $table->primary('id');
             $table->string('name',256);
             $table->string('welcome',5000)->nullable();
-            $table->integer('maxParticipants')->default(0)->nullable();
-            $table->integer('duration')->default(0)->nullable();
+            $table->integer('maxParticipants')->nullable();
+            $table->integer('duration')->nullable();
             $table->boolean('webcamsOnlyForModerator')->default(false);
             $table->boolean('muteOnStart')->default(false);
             $table->boolean('lockSettingsDisableCam')->default(false);

@@ -41,10 +41,10 @@ class RoomController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    /*public function store(Request $request)
     {
         //TODO implement
-    }
+    }*/
 
     /**
      * Return all general room details
@@ -173,8 +173,8 @@ class RoomController extends Controller
      * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Room $room)
+    /*public function destroy(Room $room)
     {
         //TODO implement; maybe keep some statistical data
-    }
+    }*/
 }

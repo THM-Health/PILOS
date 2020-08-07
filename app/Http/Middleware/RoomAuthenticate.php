@@ -43,7 +43,7 @@ class RoomAuthenticate
             }
         }
 
-        // user is authenticated and should not continue with the request
+        // user is not  authenticated and should not continue with the request
         if (!$allowAuthenticated && !$authenticated) {
             abort(403);
         }
