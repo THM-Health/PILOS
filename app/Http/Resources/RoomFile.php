@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\URL;
 
 class RoomFile extends JsonResource
 {
@@ -17,7 +16,7 @@ class RoomFile extends JsonResource
     {
         return [
             'filename'      => $this->filename,
-            'url'           => URL::temporarySignedRoute('download.file', now()->addMinutes(30), ['roomFile' => $this->id,'filename'=>$this->filename,'check'=>true])
+            'url'           => $this->downloadLink()
         ];
     }
 }

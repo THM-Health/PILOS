@@ -93,7 +93,7 @@ class Meeting extends Model
         // get files that should be used in this meeting and add links to the files
         $files = $this->room->files()->where('useinmeeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
-            $meetingParams->addPresentation(URL::signedRoute('download.file', ['roomFile' => $file->id,'filename'=>$file->filename]), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
+            $meetingParams->addPresentation($file->bbbDownloadLink(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
         // set guest policy
@@ -113,8 +113,8 @@ class Meeting extends Model
      */
     public function isRunning()
     {
-        $meetingParams = new IsMeetingRunningParameters('foobar');
-        $response      = $this->server->bbb()->isMeetingRunning($this->id)->success();
+        $isMeetingRunningParams = new IsMeetingRunningParameters($this->id);
+        $response               = $this->server->bbb()->isMeetingRunning($isMeetingRunningParams);
 
         return $response->success() && $response->isRunning();
     }

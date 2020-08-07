@@ -141,7 +141,7 @@
                 <b-button
                   class="float-right"
                   variant="dark"
-                  :href="data.item.url"
+                  :href="downloadFileUrl(data.item.url)"
                   target="_blank"
                 >
                   <i class="fas fa-eye"></i>
@@ -265,6 +265,17 @@ export default {
     setInterval(this.reload, process.env.MIX_REFRESH_RATE * 1000);
   },
   methods: {
+
+    /**
+     * Create url for file download
+     */
+    downloadFileUrl(url) {
+      if (this.accessCode != null) {
+        url += '?code=' + this.accessCode;
+      }
+      return url;
+    },
+
     /**
      * Reload the room details/settings
      */

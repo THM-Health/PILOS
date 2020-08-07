@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Enums\RoomUserRole;
 use App\Room;
+use App\RoomFile;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -163,5 +164,18 @@ class RoomPolicy
     public function manageFiles(User $user, Room $room)
     {
         return $room->owner->is($user);
+    }
+
+    /**
+     * Determine whether the user can download files
+     *
+     * @param  User     $user
+     * @param  Room     $room
+     * @param  RoomFile $roomFile
+     * @return bool
+     */
+    public function downloadFile(?User $user, Room $room, RoomFile $roomFile)
+    {
+        return $room->owner->is(\Auth::user()) || $roomFile->download === true;
     }
 }

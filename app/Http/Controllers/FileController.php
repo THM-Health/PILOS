@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Room;
 use App\RoomFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,18 +16,30 @@ class FileController extends Controller
 {
     /**
      * Display/Download a file of a room
-     * Protected function with signed routes
      *
      * @param  RoomFile                                           $roomFile
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function show(Request $request, RoomFile $roomFile)
+    public function show(Request $request, Room $room, RoomFile $roomFile)
     {
-        // If check enabled make sure the file is still allowed to be downloaded
-        if ($request->has('check') && $roomFile->download === false) {
-            abort(403);
+        if (!$roomFile->room->is($room)) {
+            abort(404);
         }
 
+        // Download file/view in browser
+        return Storage::download($roomFile->path, $roomFile->filename, [
+            'Content-Disposition' => 'inline; filename="'. $roomFile->filename .'"'
+        ]);
+    }
+
+    /**
+     * Display/Download a file for bbb
+     *
+     * @param  RoomFile                                           $roomFile
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function bbb(Request $request, RoomFile $roomFile)
+    {
         // Download file/view in browser
         return Storage::download($roomFile->path, $roomFile->filename, [
             'Content-Disposition' => 'inline; filename="'. $roomFile->filename .'"'

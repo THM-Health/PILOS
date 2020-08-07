@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\URL;
 
 class PrivateRoomFile extends JsonResource
 {
@@ -22,7 +21,7 @@ class PrivateRoomFile extends JsonResource
             'useinmeeting'  => $this->useinmeeting,
             'default'       => $this->default,
             'uploaded'      => $this->created_at->format('d.m.Y H:i'),
-            'url'           => URL::signedRoute('download.file', ['roomFile' => $this->id,'filename'=>$this->filename])
+            'url'           => $this->downloadLink()
         ];
     }
 }

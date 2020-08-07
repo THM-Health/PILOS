@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class RoomFile extends Model
 {
@@ -32,5 +33,23 @@ class RoomFile extends Model
         Storage::delete($this->path);
 
         return parent::delete();
+    }
+
+    /**
+     * Create download link for frontend usage
+     * @return string
+     */
+    public function downloadLink()
+    {
+        return URL::route('download.file', ['room'=>$this->room->id, 'roomFile' => $this->id,'filename'=>$this->filename]);
+    }
+
+    /**
+     * Create download link for bbb usage
+     * @return string
+     */
+    public function bbbDownloadLink()
+    {
+        return URL::signedRoute('bbb.file', ['roomFile' => $this->id,'filename'=>$this->filename]);
     }
 }
