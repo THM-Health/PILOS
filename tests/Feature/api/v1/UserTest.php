@@ -44,6 +44,46 @@ class UserTest extends TestCase
     }
 
     /**
+     * Test that get an single user with valid user id
+     */
+    public function testGetUserWithValidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->getJson(route('api.v1.users.show', 32));
+
+        $response->assertOk();
+    }
+
+    /**
+     * Test that get an single user with invalid user id
+     */
+    public function testGetUserWithInvalidUserId()
+    {
+        $user = factory(User::class)->create();
+
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        $response = $this->actingAs($user)->getJson(route('api.v1.users.show', 77));
+
+        $response->assertStatus(404);
+    }
+
+    /**
      * Test that create an user with valid inputs
      *
      * @return void

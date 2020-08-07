@@ -57,10 +57,6 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        if (!$user) {
-            response()->json(['message' => 'User not found!'], 404);
-        }
-
         return response()->json($user, 200);
     }
 
@@ -72,10 +68,6 @@ class UserController extends Controller
      */
     public function update(StoreUser $request, User $user)
     {
-        if (!$user) {
-            return response()->json(['message' => 'User not found!'], 404);
-        }
-
         $user->firstname = $request->firstname;
         $user->lastname  = $request->lastname;
         $user->email     = $request->email;
@@ -94,10 +86,6 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if (!$user) {
-            return response()->json(['message' => 'User not found!'], 404);
-        }
-
         $delete = $user->delete();
 
         return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => 'Bad Request!'], 400));
