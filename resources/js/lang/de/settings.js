@@ -21,17 +21,16 @@ export default {
       delete: 'Löschen',
       password: 'Kenntwort'
     },
-    createModal: {
-      title: 'Benutzer erstellen',
+    modal: {
+      create: 'Benutzer erstellen',
+      update: 'Benutzer bearbeiten',
+      delete: 'Bestätigung zum Löschen',
+      deleteContent: 'Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!',
+      invite: 'Nutzer einladen',
+      invitePlaceholder: 'Emailaddresse',
+      inviteButton: 'Einladung schicken',
+      inviteFooterMessage: 'Der Nutzer wird eine Email mit Anweisungen erhalten, wie er sich registrieren kann',
       submit: 'Abschicken'
-    },
-    editModal: {
-      title: 'Benutzer bearbeiten',
-      submit: 'Abschicken'
-    },
-    deleteModal: {
-      title: 'Bestätigung zum Löschen',
-      content: 'Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!'
     },
     createSuccess: {
       message: 'Benutzer wurde erfolgreich erstellt!',

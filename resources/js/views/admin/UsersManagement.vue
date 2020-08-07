@@ -3,21 +3,21 @@
     <b-row>
       <b-col>
         <b-row>
-          <h2 class="ml-3 text-success">{{$t('settings.users.title')}}</h2>
+          <h2 class="ml-3 text-success">{{ $t('settings.users.title') }}</h2>
           <b-avatar
             class="text-white ml-2"
             variant="success"
             icon="person-plus"
             v-b-tooltip.hover.top="$t('settings.users.tooltip.create')"
-            v-b-modal.create-modal
+            @click="openModal('create')"
             button>
           </b-avatar>
-          <!--TODO Invite Participant Function-->
           <b-avatar
             class="text-white ml-2"
             variant="success"
             icon="envelope"
             v-b-tooltip.hover.top="$t('settings.users.tooltip.invite')"
+            v-b-modal.invite-modal
             button>
           </b-avatar>
         </b-row>
@@ -68,16 +68,16 @@
           <template v-slot:button-content>
             <span><i class="fas fa fa-user"></i></span>
           </template>
-          <b-dropdown-item v-b-modal.edit-modal @click="populateSelectedUser(row.item)">
+          <b-dropdown-item @click="populateSelectedUser(row.item);openModal( 'update')">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-edit"></i></b-col>
-              <b-col cols="9">{{$t('settings.users.fields.edit')}}</b-col>
+              <b-col cols="9">{{ $t('settings.users.fields.edit') }}</b-col>
             </b-row>
           </b-dropdown-item>
-          <b-dropdown-item v-b-modal.delete-modal @click="populateSelectedUser(row.item)">
+          <b-dropdown-item @click="populateSelectedUser(row.item);openModal( 'delete')">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-minus"></i></b-col>
-              <b-col cols="9">{{$t('settings.users.fields.delete')}}</b-col>
+              <b-col cols="9">{{ $t('settings.users.fields.delete') }}</b-col>
             </b-row>
           </b-dropdown-item>
         </b-dropdown>
@@ -100,26 +100,26 @@
     >
     </b-pagination>
 
-    <!-- Edit form modal-->
-    <edit-modal-component v-bind:edited-user="selectedUser" v-bind:modal-id="'edit-modal'"></edit-modal-component>
+    <!-- CRUD modal -->
+    <crud-modal-component @crud="getUsers(currentPage)" v-bind:modal-id="'crud-modal'" v-bind:crud-user="selectedUser"
+                          v-bind:modal-type="modalType"></crud-modal-component>
 
-    <!-- Create form modal-->
-    <create-modal-component v-bind:created-user="selectedUser" v-bind:modal-id="'create-modal'"></create-modal-component>
-
-    <!-- Delete modal-->
-    <delete-modal-component v-bind:deleted-user="selectedUser" v-bind:modal-id="'delete-modal'"></delete-modal-component>
+    <!-- Invite modal-->
+    <invite-modal-component v-bind:modal-id="'invite-modal'"></invite-modal-component>
   </div>
 </template>
 
 <script>
 import Base from '../../api/base';
 import moment from 'moment';
-import EditModalComponent from '../../components/Admin/users/EditModalComponent';
-import CreateModalComponent from '../../components/Admin/users/CreateModalComponent';
-import DeleteModalComponent from '../../components/Admin/users/DeleteModalComponent';
+import CrudModalComponent from '../../components/Admin/users/CrudModalComponent';
+import InviteModalComponent from '../../components/Admin/users/InviteModalComponent';
 
 export default {
-  components: { EditModalComponent, CreateModalComponent, DeleteModalComponent },
+  components: {
+    CrudModalComponent,
+    InviteModalComponent
+  },
   data () {
     return {
       users: [],
@@ -141,7 +141,8 @@ export default {
         lastname: null,
         username: null,
         email: null
-      }
+      },
+      modalType: null
     };
   },
   mounted () {
@@ -157,12 +158,9 @@ export default {
         { key: 'lastname', sortable: true, label: this.$t('settings.users.fields.lastname') },
         { key: 'username', sortable: true, label: this.$t('settings.users.fields.username') },
         {
-          key: 'guid',
+          key: 'authenticator',
           sortable: true,
-          label: this.$t('settings.users.fields.authenticator'),
-          formatter: value => {
-            return value === null ? 'pilos' : 'ldap';
-          }
+          label: this.$t('settings.users.fields.authenticator')
         },
         {
           key: 'createdAt',
@@ -200,6 +198,10 @@ export default {
         this.prevPage = this.currentPage - 1;
       }).finally(this.isBusy = false);
     },
+    openModal (modalType) {
+      this.modalType = modalType;
+      this.$bvModal.show('crud-modal');
+    },
     populateSelectedUser (user) {
       this.selectedUser.id = user.id;
       this.selectedUser.firstname = user.firstname;
@@ -208,12 +210,7 @@ export default {
       this.selectedUser.email = user.email;
     },
     resetSelectedUser () {
-      this.selectedUser.id = null;
-      this.selectedUser.firstname = null;
-      this.selectedUser.lastname = null;
-      this.selectedUser.username = null;
-      this.selectedUser.email = null;
-      this.selectedUser.password = null;
+      this.selectedUser = null;
     },
     formatDate (value) {
       return moment(value).format('DD-MM-YYYY HH:mm UTC');

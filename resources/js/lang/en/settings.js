@@ -34,17 +34,16 @@ export default {
       delete: 'Delete',
       password: 'Password'
     },
-    createModal: {
-      title: 'Create User',
+    modal: {
+      create: 'Create User',
+      update: 'Update User',
+      delete: 'Delete Confirmation',
+      deleteContent: 'Are you sure? This action cannot be undone!',
+      invite: 'Invite User',
+      invitePlaceholder: 'Email address of a user',
+      inviteButton: 'Send invitation email',
+      inviteFooterMessage: 'The user will receive an email with instructions on how to register',
       submit: 'Submit'
-    },
-    editModal: {
-      title: 'Edit User',
-      submit: 'Submit'
-    },
-    deleteModal: {
-      title: 'Delete Confirmation',
-      content: 'Are you sure? This action cannot be undone!'
     },
     createSuccess: {
       message: 'User created successfully!',
