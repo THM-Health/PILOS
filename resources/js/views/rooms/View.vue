@@ -269,7 +269,7 @@ export default {
     /**
      * Create url for file download
      */
-    downloadFileUrl(url) {
+    downloadFileUrl (url) {
       if (this.accessCode != null) {
         url += '?code=' + this.accessCode;
       }

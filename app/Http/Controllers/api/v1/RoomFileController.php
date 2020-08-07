@@ -73,6 +73,7 @@ class RoomFileController extends Controller
 
         if ($request->has('default') && $request->default === true) {
             $room->files()->update(['default' => false]);
+            $file->refresh();
             $file->default      = true;
             $file->useinmeeting = true;
             $file->save();
