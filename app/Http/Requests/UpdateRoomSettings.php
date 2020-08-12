@@ -31,8 +31,8 @@ class UpdateRoomSettings extends FormRequest
             'roomType'                       => 'required|exists:App\RoomType,id',
             'duration'                       => 'nullable|numeric|min:1',
             'maxParticipants'                => 'nullable|numeric|min:1',
-            'name'                           => 'required|string',
-            'welcome'                        => 'nullable|string',
+            'name'                           => 'required|string|max:'.config('bigbluebutton.room_name_limit'),
+            'welcome'                        => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),
         ];
     }
 }

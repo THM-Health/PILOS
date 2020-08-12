@@ -244,7 +244,7 @@ export default {
     return {
       settings: Object, // Room settings
       saving: false, // Settings are currently saved, display spinner
-      welcomeMessageLimit: 500 // TODO parameterise with .env
+      welcomeMessageLimit: env.WELCOME_MESSAGE_LIMIT,
     };
   },
   methods: {
