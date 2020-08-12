@@ -5,7 +5,7 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * Lobby/Waiting room settings enum
+ * Custom status response codes of the api
  * @package App\Enums
  */
 final class CustomStatusCodes extends Enum

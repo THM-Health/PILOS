@@ -150,7 +150,7 @@ export default {
       disableCam: 'Webcam deaktivieren',
       onlyModSeeCam: 'Webcam nur für Moderatoren sichtbar',
       disableMic: 'Mikrofon deaktivieren',
-      disablePublicChat: 'Öffentlicher Chat deaktivieren',
+      disablePublicChat: 'Öffentlichen Chat deaktivieren',
       disablePrivateChat: 'Private Chats deaktivieren',
       disableNoteEdit: 'Bearbeiten der Notizen deaktivieren',
       hideParticipantsList: 'Teilnehmerliste verbergen'
