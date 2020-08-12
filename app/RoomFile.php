@@ -50,6 +50,6 @@ class RoomFile extends Model
      */
     public function bbbDownloadLink()
     {
-        return URL::signedRoute('bbb.file', ['roomFile' => $this->id,'filename'=>$this->filename]);
+        return URL::signedRoute('bbb.file', ['room'=>$this->room->id,'roomFile' => $this->id,'filename'=>$this->filename]);
     }
 }
