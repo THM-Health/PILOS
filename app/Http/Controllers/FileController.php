@@ -6,6 +6,7 @@ use App\Room;
 use App\RoomFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class FileController
@@ -17,8 +18,10 @@ class FileController extends Controller
     /**
      * Display/Download a file of a room
      *
-     * @param  RoomFile                                           $roomFile
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @param  Request          $request
+     * @param  Room             $room
+     * @param  RoomFile         $roomFile
+     * @return StreamedResponse
      */
     public function show(Request $request, Room $room, RoomFile $roomFile)
     {
@@ -26,19 +29,16 @@ class FileController extends Controller
             abort(404);
         }
 
-        // Download file/view in browser
-        return Storage::download($roomFile->path, $roomFile->filename, [
-            'Content-Disposition' => 'inline; filename="'. $roomFile->filename .'"'
-        ]);
+        return $this->download($request, $roomFile);
     }
 
     /**
-     * Display/Download a file for bbb
+     * Display/Download a file
      *
-     * @param  RoomFile                                           $roomFile
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @param  RoomFile         $roomFile
+     * @return StreamedResponse
      */
-    public function bbb(Request $request, RoomFile $roomFile)
+    public function download(Request $request, RoomFile $roomFile)
     {
         // Download file/view in browser
         return Storage::download($roomFile->path, $roomFile->filename, [
