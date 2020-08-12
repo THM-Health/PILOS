@@ -127,7 +127,7 @@ export default {
     },
     restrictions: {
       title: 'Restrictions',
-      enabled: 'Restrictions enabled',
+      enabled: 'Enabled restrictions',
       disableCam: 'Disable webcam',
       onlyModSeeCam: 'Only moderators can see the webcam',
       disableMic: 'Disable microphone',

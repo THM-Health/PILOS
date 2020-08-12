@@ -149,6 +149,26 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'welcome'                           => 'Welcome message',
+        'roomType'                          => 'Room type',
+        'defaultRole'                       => 'Default role',
+        'duration'                          => 'Max. duration',
+        'accessCode'                        => 'Access code',
+        'allowGuests'                       => 'Allow guests',
+        'allowMembership'                   => 'Allow new membersn',
+        'maxParticipants'                   => 'Max. participants',
+        'lobby'                             => 'Waiting room',
+        'everyoneCanStart'                  => 'Everyone can start the meeting',
+        'muteOnStart'                       => 'Mute microphone on join',
+        'lockSettingsLockOnJoin'            => 'Enabled restrictions',
+        'lockSettingsDisableCam'            => 'Disable webcam',
+        'webcamsOnlyForModerator'           => 'Only moderators can see the webcam',
+        'lockSettingsDisableMic'            => 'Disable microphone',
+        'lockSettingsDisableNote'           => 'Disable editing of notes',
+        'lockSettingsDisablePrivateChat'    => 'Disable private chat',
+        'lockSettingsDisablePublicChat'     => 'Disable public chat',
+        'lockSettingsHideUserList'          => 'Hide list of participants'
+    ],
 
 ];
