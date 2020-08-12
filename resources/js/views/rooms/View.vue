@@ -205,6 +205,7 @@
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
 import RoomAdmin from '../../components/Room/AdminComponent';
+import env from './../../env.js';
 
 export default {
   directives: {
@@ -262,7 +263,7 @@ export default {
   },
   mounted () {
     // Reload room details in a set inteval, change in the .env
-    setInterval(this.reload, process.env.MIX_REFRESH_RATE * 1000);
+    setInterval(this.reload, env.WELCOME_MESSAGE_LIMIT * 1000);
   },
   methods: {
 
