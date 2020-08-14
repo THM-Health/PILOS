@@ -4,7 +4,7 @@ import NotFound from './views/NotFound';
 import RoomsIndex from './views/rooms/Index';
 import RoomView from './views/rooms/View';
 import AdminIndex from './views/admin/Index';
-import AdminUsers from './views/admin/UsersManagement';
+import AdminUsers from './views/admin/Users';
 import AdminRoles from './views/admin/Roles';
 import AdminSiteSettings from './views/admin/SiteSettings';
 import AdminRecordings from './views/admin/Recordings';

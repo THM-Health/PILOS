@@ -3,7 +3,7 @@
     <!-- Invite Modal -->
     <b-modal
       :id="modalId"
-      :title="$t('settings.users.inviteModal.title')"
+      :title="$t('settings.users.modal.invite')"
       header-bg-variant="success"
       header-text-variant="light"
       ok-variant="success"

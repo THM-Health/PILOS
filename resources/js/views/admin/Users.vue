@@ -5,6 +5,7 @@
         <b-row>
           <h2 class="ml-3 text-success">{{ $t('settings.users.title') }}</h2>
           <b-avatar
+            id="create-user-button"
             class="text-white ml-2"
             variant="success"
             icon="person-plus"
@@ -13,6 +14,7 @@
             button>
           </b-avatar>
           <b-avatar
+            id="invite-user-button"
             class="text-white ml-2"
             variant="success"
             icon="envelope"

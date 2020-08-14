@@ -4,7 +4,6 @@
       <router-view></router-view>
     </b-card>
   </div>
-
 </template>
 
 <script>
