@@ -40,11 +40,27 @@ class RoomFile extends Model
     }
 
     /**
-     * Create download link for bbb usage
+     * Create download link
      * @return string
      */
-    public function bbbDownloadLink()
+    public function getDownloadLink($timelimit = null)
     {
-        return URL::signedRoute('bbb.file', ['room'=>$this->room->id,'roomFile' => $this->id,'filename'=>$this->filename]);
+        $params = ['roomFile' => $this->id,'filename'=>$this->filename];
+        $route  = 'download.file';
+
+        // Handle missing file on drive
+        if (!Storage::exists($this->path)) {
+            try {
+                $this->delete();
+            } catch (\Exception $exception) {
+            }
+            abort(404);
+        }
+
+        if ($timelimit == null) {
+            return URL::signedRoute($route, $params);
+        }
+
+        return URL::temporarySignedRoute($route, now()->addMinutes($timelimit), $params);
     }
 }

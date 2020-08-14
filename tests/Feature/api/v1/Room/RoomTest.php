@@ -71,15 +71,15 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['authenticated' => false]);
 
         // Try with empty access code
-        $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>'']))
+        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
 
         // Try with random access code
-        $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>$this->faker->numberBetween(111111111, 999999999)]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
 
         // Try with correct access code
-        $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true]);
     }
@@ -100,15 +100,15 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['authenticated' => false, 'allowMembership' => false]);
 
         // Try with empty access code
-        $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>'']))
+        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
 
         // Try with random access code
-        $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>$this->faker->numberBetween(111111111, 999999999)]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
 
         // Try with correct access code
-        $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true]);
     }
@@ -288,22 +288,26 @@ class RoomTest extends TestCase
         // Testing guests
         $this->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.start', ['room'=>$room,'code'=>$this->faker->numberBetween(111111111, 999999999)]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertUnauthorized();
-        $this->getJson(route('api.v1.rooms.start', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertJsonValidationErrors('name');
-        $this->getJson(route('api.v1.rooms.start', ['room'=>$room,'code'=>$room->accessCode,'name'=>'<script>alert("HI");</script>']))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>'<script>alert("HI");</script>']))
             ->assertJsonValidationErrors('name');
-        $this->getJson(route('api.v1.rooms.start', ['room'=>$room,'code'=>$room->accessCode,'name'=>$this->faker->name]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>$this->faker->name]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+
+        $this->flushHeaders();
 
         // Testing authorized users
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.start', ['room'=>$room,'code'=>$this->faker->numberBetween(111111111, 999999999)]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertUnauthorized();
-        $this->getJson(route('api.v1.rooms.start', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+
+        $this->flushHeaders();
 
         // Testing owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
@@ -378,24 +382,28 @@ class RoomTest extends TestCase
             ->assertForbidden();
 
         // Join as guest without name
-        $this->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertJsonValidationErrors('name');
 
         // Join as guest with invalid/dangerous name
-        $this->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->accessCode,'name'=>'<script>alert("HI");</script>']))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>'<script>alert("HI");</script>']))
             ->assertJsonValidationErrors('name');
 
         // Join as guest
-        $response = $this->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->accessCode,'name'=>$this->faker->name]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$this->faker->name]))
             ->assertSuccessful();
+
+        $this->flushHeaders();
 
         // Join as authorized users
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertForbidden();
-        $this->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$this->faker->numberBetween(111111111, 999999999)]))
+        $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertUnauthorized();
-        $this->getJson(route('api.v1.rooms.join', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertSuccessful();
+
+        $this->flushHeaders();
 
         // Testing owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))

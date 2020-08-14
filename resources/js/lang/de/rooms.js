@@ -35,6 +35,14 @@ export default {
     membershipDisabled: {
       message: 'Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.',
       title: 'Mitgliedschaft fehlgeschlagen'
+    },
+    fileGone: {
+      message: 'Die gesuchte Datei wurde nicht gefunden.',
+      title: 'Nicht gefunden'
+    },
+    fileForbidden: {
+      message: 'Die Zugriff auf die Datei wurde verweigert.',
+      title: 'Zugriff verweigert'
     }
   },
 

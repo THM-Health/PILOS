@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Room;
 use App\RoomFile;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -16,19 +14,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class FileController extends Controller
 {
     /**
-     * Display/Download a file of a room
+     * Display/Download a file
      *
-     * @param  Request          $request
-     * @param  Room             $room
      * @param  RoomFile         $roomFile
      * @return StreamedResponse
      */
-    public function show(Request $request, Room $room, RoomFile $roomFile)
+    public function show(RoomFile $roomFile)
     {
-        if (!$roomFile->room->is($room)) {
-            abort(404);
-        }
-
         // Handle missing file on drive
         if (!Storage::exists($roomFile->path)) {
             try {

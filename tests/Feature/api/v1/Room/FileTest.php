@@ -131,7 +131,7 @@ class FileTest extends TestCase
     }
 
     /**
-     * Test download of file that is shared with participants of a room without an access code
+     * Test getting file download url and download of file that is shared with participants of a room without an access code
      */
     public function testDownloadFilesDownload()
     {
@@ -142,7 +142,7 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
-        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+        $download_link = route('api.v1.rooms.files.show', ['room'=>$room_file->room,'file'=>$room_file]);
 
         // Access as guest, without guest access
         $this->get($download_link)
@@ -169,12 +169,17 @@ class FileTest extends TestCase
             ->assertSuccessful();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->get($download_link)
+        $response = $this->actingAs($this->room->owner)->get($download_link)
+            ->assertSuccessful();
+        $this->assertIsString($response->json('url'));
+
+        // Download file
+        $this->get($response->json('url'))
             ->assertSuccessful();
     }
 
     /**
-     * Test download of file that is shared with participants of a room that requires an access code
+     * Test get download url of file that is shared with participants of a room that requires an access code
      */
     public function testDownloadFilesDownloadWithAccessCode()
     {
@@ -187,7 +192,7 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
-        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+        $download_link = route('api.v1.rooms.files.show', ['room'=>$room_file->room,'file'=>$room_file]);
 
         // Access as guest, without guest access and without access code
         $this->get($download_link)
@@ -206,7 +211,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Access as guest, with guest access and access code
-        $this->get(route('download.file', ['room'=>$this->room->id, 'roomFile' => $room_file,'filename'=>$room_file->filename,'code'=>$this->room->accessCode]))
+        $this->get(route('api.v1.rooms.show', ['room'=>$this->room->id, 'roomFile' => $room_file,'code'=>$this->room->accessCode]))
             ->assertSuccessful();
 
         // Testing user without access code
@@ -214,7 +219,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing user with access code
-        $this->actingAs($this->user)->get(route('download.file', ['room'=>$this->room->id, 'roomFile' => $room_file,'filename'=>$room_file->filename,'code'=>$this->room->accessCode]))
+        $this->actingAs($this->user)->get(route('api.v1.rooms.show', ['room'=>$this->room->id, 'roomFile' => $room_file,'code'=>$this->room->accessCode]))
             ->assertSuccessful();
 
         // Testing member
@@ -233,7 +238,7 @@ class FileTest extends TestCase
     }
 
     /**
-     * Test download of file that is not with participants of a room
+     * Test get download url of file that is not with participants of a room
      */
     public function testDownloadFilesDownloadDisabled()
     {
@@ -242,7 +247,7 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
         \Auth::logout();
 
-        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+        $download_link = route('api.v1.rooms.files.show', ['room'=>$room_file->room,'file'=>$room_file]);
 
         // Access as guest
         $this->get($download_link)
@@ -264,7 +269,7 @@ class FileTest extends TestCase
     }
 
     /**
-     * Check if download of a file from an other room is working, if parameters in the url are changed
+     * Check if get download url of a file from an other room is working, if parameters in the url are changed
      */
     public function testDownloadFilesDownloadUrlManipulation()
     {
@@ -276,13 +281,13 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         // Testing for room without permission
-        $this->actingAs($this->room->owner)->get(route('download.file', ['room'=>$other_room->id, 'roomFile' => $room_file,'filename'=>$room_file->filename]))
+        $this->actingAs($this->room->owner)->get(route('api.v1.rooms.files.show', ['room'=>$other_room->id, 'file' => $room_file]))
             ->assertForbidden();
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
-        $this->actingAs($this->room->owner)->get(route('download.file', ['room'=>$other_room->id, 'roomFile' => $room_file,'filename'=>$room_file->filename]))
+        $this->actingAs($this->room->owner)->get(route('api.v1.rooms.files.show', ['room'=>$other_room->id, 'file' => $room_file]))
             ->assertNotFound();
     }
 
@@ -298,7 +303,7 @@ class FileTest extends TestCase
 
         \Auth::logout();
 
-        $this->get($room_file->bbbDownloadLink())
+        $this->get($room_file->getDownloadLink())
             ->assertSuccessful();
     }
 
@@ -346,9 +351,9 @@ class FileTest extends TestCase
     }
 
     /**
-     * Testing to access file that was deleted on the drive
+     * Testing to get file download url for file that was deleted on the drive
      */
-    public function testFilesDeleteFromDrive()
+    public function testGetDownloadLinkForFileDeleteFromDrive()
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
@@ -359,10 +364,38 @@ class FileTest extends TestCase
         // delete file on the drive
         Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
 
-        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+        $download_link = route('api.v1.rooms.files.show', ['room'=>$room_file->room,'file'=>$room_file]);
 
         // try to access deleted file
         $this->get($download_link)
+            ->assertNotFound();
+
+        // Check if model was deleted as well
+        $this->assertDatabaseMissing('room_files', ['id'=>$room_file->id]);
+    }
+
+    /**
+     * Testing to access file that was deleted on the drive
+     */
+    public function testDownloadDeletedFileFromDrive()
+    {
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
+            ->assertSuccessful();
+        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
+
+        Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
+
+        // try to access deleted file
+        $response = $this->get( route('api.v1.rooms.files.show', ['room'=>$room_file->room,'file'=>$room_file]))
+            ->assertSuccessful();
+
+        $this->assertIsString($response->json('url'));
+
+        // delete file on the drive
+        Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
+
+        // Download file
+        $this->get($response->json('url'))
             ->assertNotFound();
 
         // Check if model was deleted as well

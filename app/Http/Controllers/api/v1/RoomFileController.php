@@ -53,6 +53,23 @@ class RoomFileController extends Controller
     /**
      * Update the specified file attributes
      *
+     * @param  UpdateRoomFile                $request
+     * @param  Room                          $room
+     * @param  RoomFile                      $file
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Room $room, RoomFile $file)
+    {
+        if (!$file->room->is($room)) {
+            abort(404);
+        }
+
+        return response()->json(['url' => $file->getDownloadLink(1)]);
+    }
+
+    /**
+     * Update the specified file attributes
+     *
      * @param  UpdateRoomFile  $request
      * @param  Room            $room
      * @param  RoomFile        $file

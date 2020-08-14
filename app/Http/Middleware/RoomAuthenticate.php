@@ -32,8 +32,8 @@ class RoomAuthenticate
         }
 
         // request provided access code
-        if ($request->has('code')) {
-            $accessCode = $request->code;
+        if ($request->headers->has('Access-Code')) {
+            $accessCode = $request->header('Access-Code');
             // check if access code is correct
             if (is_numeric($accessCode) && $room->accessCode == $accessCode) {
                 $authenticated = true;
@@ -45,7 +45,7 @@ class RoomAuthenticate
 
         // user is not  authenticated and should not continue with the request
         if (!$allowAuthenticated && !$authenticated) {
-            abort(403);
+            abort(403, 'require_code');
         }
 
         $request->merge(['authenticated' => $authenticated]);

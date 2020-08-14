@@ -33,8 +33,16 @@ export default {
       title: 'Access code invalid'
     },
     membershipDisabled: {
-      message: 'A room membership isn\'t available at the moment.',
+      message: 'A room membership is not available at the moment.',
       title: 'Membership failed'
+    },
+    fileGone: {
+      message: 'The requested file was not found.',
+      title: 'Not found'
+    },
+    fileForbidden: {
+      message: 'The access to the requested file was forbidden.',
+      title: 'Access forbidden'
     }
   },
   files: {

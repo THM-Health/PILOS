@@ -53,10 +53,11 @@
           <!-- View file -->
           <b-button
             variant="dark"
-            :href="downloadFile(data.item)"
+            @click="downloadFile(data.item,data.index)"
+            :disabled="loadingDownload"
             target="_blank"
           >
-            <i class="fas fa-eye"></i>
+            <b-spinner small v-if="loadingDownload"></b-spinner> <i v-if="!loadingDownload" class="fas fa-eye"></i>
           </b-button>
         </b-button-group>
       </template>
@@ -100,7 +101,6 @@
 </template>
 <script>
 import Base from '../../api/base';
-import env from './../../env.js';
 
 export default {
   props: {
@@ -110,6 +110,7 @@ export default {
     return {
       // file list fetching from api
       isBusy: false,
+      loadingDownload: false,
       // file upload model
       fileUpload: null,
       // file list from api
@@ -119,12 +120,33 @@ export default {
   methods: {
 
     /**
-     * Build file download url
+     * Request file download url
      * @param file file object
+     * @param index integer index in filelist
      * @return string url
      */
-    downloadFile: function (file) {
-      return env.BASE_URL + '/download/file/' + this.room.id + '/' + file.id + '/' + file.filename;
+    downloadFile: function (file, index) {
+      this.loadingDownload = true;
+      // Update value for the setting and the effected file
+      Base.call('rooms/' + this.room.id + '/files/' + file.id)
+        .then(response => {
+          if (response.data.url !== undefined) {
+            window.open(response.data.url, '_blank');
+          }
+        }).catch((error) => {
+          if (error.response) {
+            if (error.response.status === 404) {
+            // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+              // Remove file from list
+              this.files.files.splice(index, 1);
+              return;
+            }
+          }
+          throw error;
+        }).finally(() => {
+          this.loadingDownload = false;
+        });
     },
 
     /**

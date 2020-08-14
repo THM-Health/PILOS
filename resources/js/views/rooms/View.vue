@@ -143,7 +143,7 @@
                 <b-button
                   class="float-right"
                   variant="dark"
-                  :href="downloadFile(data.item)"
+                  @click="downloadFile(data.item,data.index)"
                   target="_blank"
                 >
                   <i class="fas fa-eye"></i>
@@ -224,6 +224,7 @@ export default {
       loadingJoinStart: false, // Loading indicator on joining/starting a room
       loadingJoinMembership: false, // Loading indicator on joining membership
       loadingLeaveMembership: false, // Loading indicator on leaving membership
+      loadingDownload: false, // Loading indicator for downloading file
       name: '', // Name of guest
       room_id: null, // ID of the room
       room: null, // Room object
@@ -264,17 +265,69 @@ export default {
   methods: {
 
     /**
-     * Build file download url
+     * Request file download url
      * @param file file object
+     * @param index integer index in filelist
      * @return string url
      */
-    downloadFile (file) {
-      let url = env.BASE_URL + '/download/file/' + this.room.id + '/' + file.id + '/' + file.filename;
+    downloadFile: function (file, index) {
+      this.loadingDownload = true;
+      // Update value for the setting and the effected file
+      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      Base.call('rooms/' + this.room.id + '/files/' + file.id, config)
+        .then(response => {
+          if (response.data.url !== undefined) {
+            window.open(response.data.url, '_blank');
+          }
+        }).catch((error) => {
+          if (error.response) {
+          // Access code invalid
+            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+            // Show access code is valid
+              this.accessCodeValid = false;
+              // Reset access code (not the form input) to load the general room details again
+              this.accessCode = null;
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+              this.reload();
+              return;
+            }
 
-      if (this.accessCode != null) {
-        url += '?code=' + this.accessCode;
-      }
-      return url;
+            // Forbidden, require access code
+            if (error.response.status === 403 && error.response.data.message === 'require_code') {
+            // Show access code is valid
+              this.accessCodeValid = false;
+              // Reset access code (not the form input) to load the general room details again
+              this.accessCode = null;
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+              this.reload();
+              return;
+            }
+
+            // Forbidden, not allowed to download this file
+            if (error.response.status === 403) {
+            // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
+              // Remove file from list
+              this.room.files.splice(index, 1);
+              return;
+            }
+
+            // File gone
+            if (error.response.status === 404) {
+            // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+              // Remove file from list
+              this.room.files.splice(index, 1);
+              return;
+            }
+          }
+          throw error;
+        }).finally(() => {
+        // Disable loading indicator
+          this.loadingDownload = false;
+        });
     },
 
     /**
@@ -284,12 +337,12 @@ export default {
       // Enable loading indictor
       this.loading = true;
       // Build room api url, include access code if set
-      var url = 'rooms/' + this.room_id;
-      if (this.accessCode != null) {
-        url += '?code=' + this.accessCode;
-      }
+
+      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      const url = 'rooms/' + this.room_id;
+
       // Load data
-      Base.call(url)
+      Base.call(url, config)
         .then(response => {
           this.room = response.data.data;
           // If logged in, reset the access code valid
@@ -333,12 +386,10 @@ export default {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
       // Build url, add accessCode if needed
-      let url = 'rooms/' + this.room_id + '/start?name=' + this.name;
-      if (this.accessCode != null) {
-        url += '&code=' + this.accessCode;
-      }
+      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      const url = 'rooms/' + this.room_id + '/start?name=' + this.name;
 
-      Base.call(url)
+      Base.call(url, config)
         .then(response => {
           // Check if response has a join url, if yes redirect
           if (response.data.url !== undefined) {
@@ -377,13 +428,11 @@ export default {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
       // Build url, add accessCode if needed
-      var url = 'rooms/' + this.room_id + '/join?name=' + this.name;
-      if (this.accessCode != null) {
-        url += '&code=' + this.accessCode;
-      }
+      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      const url = 'rooms/' + this.room_id + '/join?name=' + this.name;
 
       // Join meeting request
-      Base.call(url)
+      Base.call(url, config)
         .then(response => {
           // Check if response has a join url, if yes redirect
           if (response.data.url !== undefined) {
@@ -423,10 +472,8 @@ export default {
       this.loadingJoinMembership = true;
 
       // Join room as member, send access code if needed
-      Base.call('rooms/' + this.room.id + '/membership', {
-        method: 'post',
-        data: { code: this.accessCode }
-      })
+      const config = this.accessCode == null ? { method: 'post' } : { method: 'post', headers: { 'Access-Code': this.accessCode } };
+      Base.call('rooms/' + this.room.id + '/membership', config)
         .then(response => {
           // Reload room, now as a member; access code no longer needed
           this.accessCode = null;
