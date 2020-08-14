@@ -49,7 +49,12 @@ class RoomMemberController extends Controller
      */
     public function update(Room $room, User $user, UpdateRoomMember $request)
     {
+        if (!$room->members->contains($user)) {
+            abort(404, 'not_member_of_room');
+        }
         $room->members()->updateExistingPivot($user, ['role' => $request->role]);
+
+        return response()->noContent();
     }
 
     /**
@@ -61,12 +66,18 @@ class RoomMemberController extends Controller
      */
     public function destroy(Room $room, User $user)
     {
+        if (!$room->members->contains($user)) {
+            abort(404, 'not_member_of_room');
+        }
         $room->members()->detach($user);
+
+        return response()->noContent();
     }
 
     /**
      * User is self promoting to become a member
-     * @param Room $room
+     * @param  Room                      $room
+     * @return \Illuminate\Http\Response
      */
     public function join(Room $room)
     {
@@ -78,14 +89,19 @@ class RoomMemberController extends Controller
         if (!$room->members->contains(Auth::user())) {
             $room->members()->attach(Auth::user()->id, ['role' => $room->defaultRole]);
         }
+
+        return response()->noContent();
     }
 
     /**
      * Leaving membership in this room
-     * @param Room $room
+     * @param  Room                      $room
+     * @return \Illuminate\Http\Response
      */
     public function leave(Room $room)
     {
         $room->members()->detach(Auth::user()->id);
+
+        return response()->noContent();
     }
 }

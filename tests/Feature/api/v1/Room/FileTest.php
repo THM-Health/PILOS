@@ -35,9 +35,6 @@ class FileTest extends TestCase
      */
     public function testUploadValidFile()
     {
-        $this->postJson(route('api.v1.rooms.files.add', ['room'=>$this->room]), ['file' => $this->file_valid])
-            ->assertUnauthorized();
-
         // Testing guests
         $this->postJson(route('api.v1.rooms.files.add', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertUnauthorized();
@@ -145,32 +142,34 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
+        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+
         // Access as guest, without guest access
-        $this->get($room_file->downloadLink())
+        $this->get($download_link)
             ->assertForbidden();
 
         // Allow guest access
         $this->room->allowGuests = true;
         $this->room->save();
-        $this->get($room_file->downloadLink())
+        $this->get($download_link)
             ->assertSuccessful();
 
         // Testing user
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->get($room_file->downloadLink())
+        $this->actingAs($this->room->owner)->get($download_link)
             ->assertSuccessful();
     }
 
@@ -188,8 +187,10 @@ class FileTest extends TestCase
         $room_file->save();
         \Auth::logout();
 
+        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+
         // Access as guest, without guest access and without access code
-        $this->get($room_file->downloadLink())
+        $this->get($download_link)
             ->assertForbidden();
 
         // Access as guest, without guest access and with access code
@@ -201,7 +202,7 @@ class FileTest extends TestCase
         $this->room->save();
 
         // Access as guest, with guest access and without access code
-        $this->get($room_file->downloadLink())
+        $this->get($download_link)
             ->assertForbidden();
 
         // Access as guest, with guest access and access code
@@ -209,7 +210,7 @@ class FileTest extends TestCase
             ->assertSuccessful();
 
         // Testing user without access code
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertForbidden();
 
         // Testing user with access code
@@ -218,16 +219,16 @@ class FileTest extends TestCase
 
         // Testing member
         $this->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->get($room_file->downloadLink())
+        $this->actingAs($this->room->owner)->get($download_link)
             ->assertSuccessful();
     }
 
@@ -241,22 +242,24 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
         \Auth::logout();
 
+        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+
         // Access as guest
-        $this->get($room_file->downloadLink())
+        $this->get($download_link)
             ->assertForbidden();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertForbidden();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->get($room_file->downloadLink())
+        $this->actingAs($this->user)->get($download_link)
             ->assertForbidden();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->get($room_file->downloadLink())
+        $this->actingAs($this->room->owner)->get($download_link)
             ->assertSuccessful();
     }
 
@@ -340,6 +343,30 @@ class FileTest extends TestCase
 
         // Check if file was deleted as well
         Storage::disk('local')->assertMissing($this->room->id.'/'.$this->file_valid->hashName());
+    }
+
+    /**
+     * Testing to access file that was deleted on the drive
+     */
+    public function testFilesDeleteFromDrive()
+    {
+        $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
+            ->assertSuccessful();
+        $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
+
+        Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
+
+        // delete file on the drive
+        Storage::disk('local')->delete($this->room->id.'/'.$this->file_valid->hashName());
+
+        $download_link = '/download/file/'.$room_file->room->id.'/'.$room_file->id.'/'.$room_file->filename;
+
+        // try to access deleted file
+        $this->get($download_link)
+            ->assertNotFound();
+
+        // Check if model was deleted as well
+        $this->assertDatabaseMissing('room_files', ['id'=>$room_file->id]);
     }
 
     /**

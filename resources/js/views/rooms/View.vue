@@ -141,7 +141,7 @@
                 <b-button
                   class="float-right"
                   variant="dark"
-                  :href="downloadFileUrl(data.item.url)"
+                  :href="downloadFile(data.item)"
                   target="_blank"
                 >
                   <i class="fas fa-eye"></i>
@@ -268,9 +268,13 @@ export default {
   methods: {
 
     /**
-     * Create url for file download
+     * Build file download url
+     * @param file file object
+     * @return string url
      */
-    downloadFileUrl (url) {
+    downloadFile (file) {
+      var url = env.BASE_URL + '/download/file/' + this.room.id + '/' + file.id + '/' + file.filename;
+
       if (this.accessCode != null) {
         url += '?code=' + this.accessCode;
       }
@@ -367,6 +371,11 @@ export default {
               this.room.canStart = false;
               this.reload();
             }
+            // Starting of the room failed
+            if (error.response.status === 462) {
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.errorRoomStart'));
+            }
 
             console.log(error.response.data);
             console.log(error.response.status);
@@ -413,6 +422,12 @@ export default {
               this.room.running = false;
               // Display error message
               this.flashMessage.error(this.$t('rooms.flash.notRunning'));
+            }
+
+            // Starting of the room failed
+            if (error.response.status === 462) {
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.errorRoomStart'));
             }
 
             console.log(error.response.data);

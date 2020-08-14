@@ -15,6 +15,7 @@ class CreateMeetingsTable extends Migration
     {
         Schema::create('meetings', function (Blueprint $table) {
             $table->string('id');
+            $table->primary('id');
             $table->string('room_id',11);
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->unsignedBigInteger('server_id')->nullable();

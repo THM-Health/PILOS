@@ -139,7 +139,7 @@ return [
             'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.'
         ],
         'room' => [
-            'already member' => 'Der Benutzer ist bereits Mitglied des Raums.'
+            'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.'
         ]
     ],
 

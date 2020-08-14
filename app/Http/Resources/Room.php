@@ -10,7 +10,7 @@ class Room extends JsonResource
 {
 
     /**
-     * @var
+     * @var bool is user authenticated (has valid access code, member or owner)
      */
     private $authenticated;
 
@@ -37,7 +37,7 @@ class Room extends JsonResource
         return [
             'id'                => $this->id,
             'name'              => $this->name,
-            'owner'             => $this->owner->firstname.' '.$this->owner->lastname,
+            'owner'             => $this->owner->fullname,
             'type'              => new RoomType($this->roomType),
             'authenticated'     => $this->authenticated,
             'allowMembership'   => Auth::user() && $this->allowMembership,

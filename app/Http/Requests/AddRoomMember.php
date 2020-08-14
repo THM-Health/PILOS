@@ -14,7 +14,7 @@ class AddRoomMember extends FormRequest
             'user' => ['required','integer','exists:App\User,id',
                 function ($attribute, $value, $fail) {
                     if ($this->room->members()->find($value) or $this->room->owner->id == $value) {
-                        $fail(__('validation.custom.room.already member'));
+                        $fail(__('validation.custom.room.already_member'));
                     }
                 }],
             'role' => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],

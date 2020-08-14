@@ -60,7 +60,7 @@ class RoomPolicy
      */
     public function create(User $user)
     {
-        //
+        return false;
     }
 
     /**
@@ -103,7 +103,7 @@ class RoomPolicy
      */
     public function delete(User $user, Room $room)
     {
-        //
+        return false;
     }
 
     /**
@@ -115,7 +115,7 @@ class RoomPolicy
      */
     public function restore(User $user, Room $room)
     {
-        //
+        return false;
     }
 
     /**
@@ -127,7 +127,7 @@ class RoomPolicy
      */
     public function forceDelete(User $user, Room $room)
     {
-        //
+        return false;
     }
 
     /**

@@ -30,18 +30,13 @@ class RoomFile extends Model
      */
     public function delete()
     {
-        Storage::delete($this->path);
+        $response = parent::delete();
+        // if delete successfull
+        if ($response) {
+            Storage::delete($this->path);
+        }
 
-        return parent::delete();
-    }
-
-    /**
-     * Create download link for frontend usage
-     * @return string
-     */
-    public function downloadLink()
-    {
-        return URL::route('download.file', ['room'=>$this->room->id, 'roomFile' => $this->id,'filename'=>$this->filename]);
+        return $response;
     }
 
     /**

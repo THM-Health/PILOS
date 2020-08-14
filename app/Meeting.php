@@ -10,6 +10,7 @@ use BigBlueButton\Parameters\IsMeetingRunningParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 
 class Meeting extends Model
@@ -61,7 +62,7 @@ class Meeting extends Model
      */
     public function getCallbackHash()
     {
-        return sha1( $this->id.$this->server->salt);
+        return Hash::make( $this->id.$this->server->salt);
     }
 
     /**

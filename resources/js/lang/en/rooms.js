@@ -15,6 +15,20 @@ export default {
   endMembership: 'End membership',
   requireAccessCode: 'An access code is required to join this room',
   login: 'Login',
+  flash: {
+    notRunning: {
+      message: 'The room is currently closed.',
+      title: 'Joining failed'
+    },
+    startForbidden: {
+      message: 'The room could not be started by you.',
+      title: 'Starting failed'
+    },
+    errorRoomStart: {
+      message: 'The room could not be started.',
+      title: 'Starting failed'
+    }
+  },
   files: {
     title: 'Files',
     filename: 'Filename',

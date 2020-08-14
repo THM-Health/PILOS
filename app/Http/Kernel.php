@@ -45,7 +45,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             EnsureFrontendRequestsAreStateful::class,
-            'throttle:120,1',
+            'throttle:60,1',
             'loggedin:ldap,users',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,

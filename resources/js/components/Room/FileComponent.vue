@@ -53,7 +53,7 @@
           <!-- View file -->
           <b-button
             variant="dark"
-            :href="data.item.url"
+            :href="downloadFile(data.item)"
             target="_blank"
           >
             <i class="fas fa-eye"></i>
@@ -100,6 +100,7 @@
 </template>
 <script>
 import Base from '../../api/base';
+import env from './../../env.js';
 
 export default {
   props: {
@@ -116,6 +117,16 @@ export default {
     };
   },
   methods: {
+
+    /**
+     * Build file download url
+     * @param file file object
+     * @return string url
+     */
+    downloadFile: function (file) {
+      return env.BASE_URL + '/download/file/' + this.room.id + '/' + file.id + '/' + file.filename;
+    },
+
     /**
      * Delete file
      * @param file file object

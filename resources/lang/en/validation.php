@@ -135,6 +135,12 @@ return [
         ],
         'locale' => [
             'in' => 'The selected language isn\'t supported by the server.'
+        ],
+        'user' => [
+            'exists' => 'The selected user could not be found.'
+        ],
+        'room' => [
+            'already_member' => 'The user is already member of the room.'
         ]
     ],
 

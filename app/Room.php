@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Enums\RoomUserRole;
+use App\Exceptions\RoomIdGenerationFailed;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,9 +23,16 @@ class Room extends Model
         static::creating(function ($model) {
             // if the meeting has no ID yet, create a unique id
             // 36^9 possible room ids ≈ 10^14
+
             if (!$model->id) {
+                $count_tries = 0;
                 $newId = null;
                 while (true) {
+                    $count_tries++;
+                    if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {
+                        throw new RoomIdGenerationFailed();
+                    }
+
                     $newId = implode('-', str_split(Str::lower(Str::random(9)), 3));
                     if (DB::table('rooms')->where('id', 'LIKE', $newId)->doesntExist()) {
                         break;

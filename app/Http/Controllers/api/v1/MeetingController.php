@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Meeting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Class MeetingController
@@ -31,12 +32,15 @@ class MeetingController extends Controller
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
         // Validate request
-        if ($request->salt != $meeting->getCallbackHash()) {
+        if (!Hash::check($request->salt, $meeting->getCallbackHash())) {
             abort(401);
         }
 
-        // Set end of meeting
-        $meeting->end = date('Y-m-d H:i:s');
-        $meeting->save();
+        // Only set end of meeting, if not set before
+        if ($meeting->end == null) {
+            // Set end of meeting
+            $meeting->end = date('Y-m-d H:i:s');
+            $meeting->save();
+        }
     }
 }

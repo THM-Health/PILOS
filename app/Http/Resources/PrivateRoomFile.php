@@ -20,8 +20,7 @@ class PrivateRoomFile extends JsonResource
             'download'      => $this->download,
             'useinmeeting'  => $this->useinmeeting,
             'default'       => $this->default,
-            'uploaded'      => $this->created_at->format('d.m.Y H:i'),
-            'url'           => $this->downloadLink()
+            'uploaded'      => $this->created_at->format('d.m.Y H:i')
         ];
     }
 }

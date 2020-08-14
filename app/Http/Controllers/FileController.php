@@ -29,6 +29,15 @@ class FileController extends Controller
             abort(404);
         }
 
+        // Handle missing file on drive
+        if (!Storage::exists($roomFile->path)) {
+            try {
+                $roomFile->delete();
+            } catch (\Exception $exception) {
+            }
+            abort(404);
+        }
+
         // Download file/view in browser
         return Storage::download($roomFile->path, $roomFile->filename, [
             'Content-Disposition' => 'inline; filename="'. $roomFile->filename .'"'

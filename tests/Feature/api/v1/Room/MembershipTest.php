@@ -53,7 +53,7 @@ class MembershipTest extends TestCase
         $room->save();
 
         $this->actingAs($user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room,'code'=>$room->accessCode]))
-            ->assertStatus(200);
+            ->assertNoContent();
         // Try to get room details with access code even not needed
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>$room->accessCode]))
             ->assertStatus(200)
@@ -76,7 +76,7 @@ class MembershipTest extends TestCase
         $room->members()->attach($user, ['role'=>RoomUserRole::USER]);
 
         $this->actingAs($user)->deleteJson(route('api.v1.rooms.membership.leave', ['room'=>$room]))
-            ->assertStatus(200);
+            ->assertNoContent();
         // Check membership is removed
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>$room->accessCode]))
             ->assertStatus(200)
@@ -168,7 +168,7 @@ class MembershipTest extends TestCase
 
         // Remove member
         $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
-            ->assertOk();
+            ->assertNoContent();
 
         // Check member list
         $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
@@ -209,7 +209,7 @@ class MembershipTest extends TestCase
 
         // Update role
         $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$user]), ['role' => RoomUserRole::MODERATOR])
-            ->assertOk();
+            ->assertNoContent();
 
         // Check member list
         $this->actingAs($owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))

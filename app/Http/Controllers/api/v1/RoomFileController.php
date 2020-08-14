@@ -31,9 +31,9 @@ class RoomFileController extends Controller
     /**
      * Store a new file in the storage
      *
-     * @param  StoreRoomFile             $request
-     * @param  Room                      $room
-     * @return \Illuminate\Http\Response
+     * @param  StoreRoomFile   $request
+     * @param  Room            $room
+     * @return PrivateRoomFile
      */
     public function store(Room $room, StoreRoomFile $request)
     {
@@ -46,15 +46,17 @@ class RoomFileController extends Controller
         $file->default      = $room->files->count() == 0;
         $file->useinmeeting = true;
         $room->files()->save($file);
+
+        return new PrivateRoomFile($file);
     }
 
     /**
      * Update the specified file attributes
      *
-     * @param  UpdateRoomFile            $request
-     * @param  Room                      $room
-     * @param  RoomFile                  $file
-     * @return \Illuminate\Http\Response
+     * @param  UpdateRoomFile  $request
+     * @param  Room            $room
+     * @param  RoomFile        $file
+     * @return PrivateRoomFile
      */
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
@@ -64,11 +66,9 @@ class RoomFileController extends Controller
 
         if ($request->has('useinmeeting')) {
             $file->useinmeeting = $request->useinmeeting;
-            $file->save();
         }
         if ($request->has('download')) {
             $file->download = $request->download;
-            $file->save();
         }
 
         if ($request->has('default') && $request->default === true) {
@@ -76,8 +76,11 @@ class RoomFileController extends Controller
             $file->refresh();
             $file->default      = true;
             $file->useinmeeting = true;
-            $file->save();
         }
+
+        $file->save();
+
+        return new PrivateRoomFile($file);
     }
 
     /**
@@ -95,5 +98,7 @@ class RoomFileController extends Controller
         }
 
         $file->delete();
+
+        return response()->noContent();
     }
 }

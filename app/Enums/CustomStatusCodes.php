@@ -12,4 +12,5 @@ final class CustomStatusCodes extends Enum
 {
     const MEETING_NOT_RUNNING   =   460;
     const NO_SERVER_AVAILABLE   =   461;
+    const ROOM_START_FAILED     =   462;
 }

@@ -23,6 +23,10 @@ export default {
     startForbidden: {
       message: 'Der Raum kann von Ihnen nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
+    },
+    errorRoomStart: {
+      message: 'Der Raum konnte nicht gestartet werden.',
+      title: 'Starten fehlgeschlagen'
     }
   },
 

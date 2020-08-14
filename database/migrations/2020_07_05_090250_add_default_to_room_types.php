@@ -19,7 +19,7 @@ class AddDefaultToRoomTypes extends Migration
     public function down()
     {
         Schema::table('rom_types', function (Blueprint $table) {
-            //
+            $table->dropColumn('default');
         });
     }
 }

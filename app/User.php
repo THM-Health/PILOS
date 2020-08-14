@@ -39,6 +39,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ['fullname'];
+
+    public function getFullnameAttribute()
+    {
+        return $this->firstname.' '.$this->lastname;
+    }
+
     /**
      * Rooms the user is owner of
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

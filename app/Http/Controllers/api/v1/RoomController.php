@@ -101,7 +101,7 @@ class RoomController extends Controller
             $meeting->save();
 
             if (!$meeting->start()) {
-                // @TODO Error
+                abort(CustomStatusCodes::ROOM_START_FAILED);
             }
         }
 
@@ -125,7 +125,7 @@ class RoomController extends Controller
         }
 
         if (!$meeting->start()) {
-            // @TODO Error
+            abort(CustomStatusCodes::ROOM_START_FAILED);
         }
 
         return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);

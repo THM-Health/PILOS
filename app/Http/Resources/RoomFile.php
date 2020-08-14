@@ -15,8 +15,8 @@ class RoomFile extends JsonResource
     public function toArray($request)
     {
         return [
+            'id'            => $this->id,
             'filename'      => $this->filename,
-            'url'           => $this->downloadLink()
         ];
     }
 }
