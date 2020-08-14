@@ -27,6 +27,14 @@ export default {
     errorRoomStart: {
       message: 'The room could not be started.',
       title: 'Starting failed'
+    },
+    accessCodeChanged: {
+      message: 'The access code was changed in the meantime.',
+      title: 'Access code invalid'
+    },
+    membershipDisabled: {
+      message: 'A room membership isn\'t available at the moment.',
+      title: 'Membership failed'
     }
   },
   files: {

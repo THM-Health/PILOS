@@ -11,25 +11,27 @@
       </b-button>
 
       <!-- Show membership options for users that are logged into the room (via access code, membership, ownership) -->
-      <div class="row pt-7 pt-sm-9 mb-3" v-if="room.authenticated">
+      <div class="row pt-7 pt-sm-9 mb-3" v-if="room.authenticated && isAuthenticated">
         <div class="col-lg-12">
           <!-- If membership is enabled, allow user to become member -->
           <b-button
             class="float-right"
             v-if="room.allowMembership && !room.isMember && !room.isOwner"
             v-on:click="joinMembership"
+            :disabled="loadingJoinMembership"
             variant="dark"
           >
-            <i class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
+            <b-spinner small v-if="loadingJoinMembership"></b-spinner> <i v-if="!loadingJoinMembership" class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
           <!-- If user is member, allow user to end the membership -->
           <b-button
             class="float-right"
             v-if="room.isMember"
             v-on:click="leaveMembership"
+            :disabled="loadingLeaveMembership"
             variant="danger"
           >
-            <i class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
+            <b-spinner small v-if="loadingLeaveMembership"></b-spinner> <i v-if="!loadingLeaveMembership" class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
           </b-button>
         </div>
       </div>
@@ -202,6 +204,7 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex';
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
 import RoomAdmin from '../../components/Room/AdminComponent';
@@ -218,8 +221,10 @@ export default {
   data () {
     return {
       loading: false, // Room settings/details loading
-      name: '', // Name of guest
       loadingJoinStart: false, // Loading indicator on joining/starting a room
+      loadingJoinMembership: false, // Loading indicator on joining membership
+      loadingLeaveMembership: false, // Loading indicator on leaving membership
+      name: '', // Name of guest
       room_id: null, // ID of the room
       room: null, // Room object
       accessCode: null, // Access code to use for requests
@@ -239,25 +244,16 @@ export default {
       if (error.response) {
         // Room not found
         if (error.response.status === 404) {
-          next('/404');
+          return next('/404');
         }
         // Room is not open for guests
         if (error.response.status === 403) {
-          next(vm => {
+          return next(vm => {
             vm.room_id = to.params.id;
           });
         }
 
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      } else if (error.request) {
-        /*
-             * The request was made but no response was received, `error.request`
-             * is an instance of XMLHttpRequest in the browser and an instance
-             * of http.ClientRequest in Node.js
-             */
-        console.log(error.request);
+        throw error;
       }
     });
   },
@@ -273,7 +269,7 @@ export default {
      * @return string url
      */
     downloadFile (file) {
-      var url = env.BASE_URL + '/download/file/' + this.room.id + '/' + file.id + '/' + file.filename;
+      let url = env.BASE_URL + '/download/file/' + this.room.id + '/' + file.id + '/' + file.filename;
 
       if (this.accessCode != null) {
         url += '?code=' + this.accessCode;
@@ -295,8 +291,6 @@ export default {
       // Load data
       Base.call(url)
         .then(response => {
-          // Disable loading indicator
-          this.loading = false;
           this.room = response.data.data;
           // If logged in, reset the access code valid
           if (this.room.authenticated) {
@@ -304,8 +298,6 @@ export default {
           }
         })
         .catch((error) => {
-          // Disable loading indicator
-          this.loading = false;
           if (error.response) {
             // Access code invalid
             if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
@@ -313,7 +305,10 @@ export default {
               this.accessCodeValid = false;
               // Reset access code (not the form input) to load the general room details again
               this.accessCode = null;
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
               this.reload();
+              return;
             }
 
             // Forbidden, guests not allowed
@@ -321,19 +316,13 @@ export default {
               this.room = null;
               // Remove a potential access code
               this.accessCode = null;
+              return;
             }
-
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            /*
-                 * The request was made but no response was received, `error.request`
-                 * is an instance of XMLHttpRequest in the browser and an instance
-                 * of http.ClientRequest in Node.js
-                 */
-            console.log(error.request);
           }
+          throw error;
+        }).finally(() => {
+          // Disable loading indicator
+          this.loading = false;
         });
     },
 
@@ -344,23 +333,19 @@ export default {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
       // Build url, add accessCode if needed
-      var url = 'rooms/' + this.room_id + '/start?name=' + this.name;
+      let url = 'rooms/' + this.room_id + '/start?name=' + this.name;
       if (this.accessCode != null) {
         url += '&code=' + this.accessCode;
       }
 
       Base.call(url)
         .then(response => {
-          // Disable loading indicator
-          this.loadingJoinStart = false;
           // Check if response has a join url, if yes redirect
           if (response.data.url !== undefined) {
             window.location = response.data.url;
           }
         })
         .catch((error) => {
-          // Disable loading indicator
-          this.loadingJoinStart = false;
           if (error.response) {
             // Forbidden, use can't start the room
             if (error.response.status === 403) {
@@ -370,24 +355,19 @@ export default {
               // a diffent understanding of the users permission in this room
               this.room.canStart = false;
               this.reload();
+              return;
             }
             // Starting of the room failed
             if (error.response.status === 462) {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.errorRoomStart'));
+              return;
             }
-
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            /*
-                 * The request was made but no response was received, `error.request`
-                 * is an instance of XMLHttpRequest in the browser and an instance
-                 * of http.ClientRequest in Node.js
-                 */
-            console.log(error.request);
           }
+          throw error;
+        }).finally(() => {
+          // Disable loading indicator
+          this.loadingJoinStart = false;
         });
     },
     /**
@@ -405,16 +385,12 @@ export default {
       // Join meeting request
       Base.call(url)
         .then(response => {
-          // Disable loading indicator
-          this.loadingJoinStart = false;
           // Check if response has a join url, if yes redirect
           if (response.data.url !== undefined) {
             window.location = response.data.url;
           }
         })
         .catch((error) => {
-          // Disable loading indicator
-          this.loadingJoinStart = false;
           if (error.response) {
             // Room is not running
             if (error.response.status === 460) {
@@ -422,25 +398,20 @@ export default {
               this.room.running = false;
               // Display error message
               this.flashMessage.error(this.$t('rooms.flash.notRunning'));
+              return;
             }
 
             // Starting of the room failed
             if (error.response.status === 462) {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.errorRoomStart'));
+              return;
             }
-
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            /*
-                 * The request was made but no response was received, `error.request`
-                 * is an instance of XMLHttpRequest in the browser and an instance
-                 * of http.ClientRequest in Node.js
-                 */
-            console.log(error.request);
           }
+          throw error;
+        }).finally(() => {
+          // Disable loading indicator
+          this.loadingJoinStart = false;
         });
     },
     /**
@@ -448,6 +419,9 @@ export default {
      * @param event
      */
     joinMembership: function (event) {
+      // Enable loading indictor
+      this.loadingJoinMembership = true;
+
       // Join room as member, send access code if needed
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'post',
@@ -466,19 +440,23 @@ export default {
               this.room.authenticated = false;
               // set the access code input invalid
               this.accessCodeValid = false;
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+              return;
             }
 
             if (error.response.status === 403) {
-              // @TODO Show error, join membership deactivated by room owner
-              this.reload();
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.membershipDisabled'));
+              // reset the allow membership status, as it is no longer correct
+              this.room.allowMembership = false;
+              return;
             }
-
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            console.log(error.request);
           }
+          throw error;
+        }).finally(() => {
+        // Disable loading indicator
+          this.loadingJoinMembership = false;
         });
     },
     /**
@@ -486,6 +464,9 @@ export default {
      * @param event
      */
     leaveMembership: function (event) {
+      // Enable loading indictor
+      this.loadingLeaveMembership = true;
+
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'delete'
       })
@@ -497,12 +478,13 @@ export default {
           // leaving room failed
           // TODO error handling
           if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            console.log(error.request);
+
           }
+
+          throw error;
+        }).finally(() => {
+        // Disable loading indicator
+          this.loadingLeaveMembership = false;
         });
     },
     /**
@@ -518,6 +500,10 @@ export default {
     }
   },
   computed: {
+
+    ...mapGetters({
+      isAuthenticated: 'session/isAuthenticated'
+    }),
     /**
      * Filestable heading
      */
@@ -539,7 +525,7 @@ export default {
      * Build inviation message
      */
     invitationText: function () {
-      var message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
+      let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
       message += this.$t('rooms.invitation.link', { link: location.protocol + '//' + location.host + location.pathname });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {

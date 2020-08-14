@@ -10,7 +10,7 @@ export default {
   join: 'Teilnehmen',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
-  onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutern verwendet werden.',
+  onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
   becomeMember: 'Mitglied werden',
   endMembership: 'Mitgliedschaft beenden',
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
@@ -27,6 +27,14 @@ export default {
     errorRoomStart: {
       message: 'Der Raum konnte nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
+    },
+    accessCodeChanged: {
+      message: 'Der Zugangscode wurde in der Zwischenzeit geändert.',
+      title: 'Zugangscode ungültig'
+    },
+    membershipDisabled: {
+      message: 'Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.',
+      title: 'Mitgliedschaft fehlgeschlagen'
     }
   },
 
@@ -109,7 +117,7 @@ export default {
   settings: {
     title: 'Einstellungen',
     nonePlaceholder: '-- keine --',
-    saving: 'speichern ...',
+    saving: 'Einstellungen werden gespeichert ...',
     general: {
       title: 'Allgemein',
       type: 'Art',

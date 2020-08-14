@@ -19,12 +19,13 @@
               <file-component :room="room"></file-component>
             </b-tab>
             <!-- Statistics tab -->
-            <!-- TODO Implementaion-->
+            <!-- TODO Implementaion
             <b-tab>
               <template v-slot:title>
                 <i class="fas fa-chart-line"></i> {{ $t('rooms.statistics.title') }}
               </template>
             </b-tab>
+            -->
             <!-- Room settings tab -->
             <b-tab>
               <template v-slot:title>
