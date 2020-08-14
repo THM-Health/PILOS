@@ -8,10 +8,9 @@
       header-text-variant="light"
       centered
       hide-footer
-      @hidden="resetUser()"
+      @hidden="resetModal()"
     >
       <b-container fluid>
-        <!-- TODO Input Validation -->
         <b-form @submit.stop.prevent="onSubmit(crudUser)">
           <div v-if="modalType === 'delete'">
             {{ $t('settings.users.modal.deleteContent') }}
@@ -22,16 +21,30 @@
               <b-form-input id="crud-input-email"
                             v-model="crudUser.email"
                             :placeholder="$t('settings.users.fields.email')"
-                            required>
+                            required
+                            :state="errors !== null && errors.email && errors.email.length > 0 ? false: null">
               </b-form-input>
+              <b-form-invalid-feedback
+                :state="errors !== null && errors.email && errors.email.length > 0 ? false: null">
+                <template v-for="error in errors.email">
+                  {{ error }}
+                </template>
+              </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group id="crud-username" :label="$t('settings.users.fields.username')"
                           label-for="crud-input-username">
               <b-form-input id="crud-input-username"
                             v-model="crudUser.username"
                             :placeholder="$t('settings.users.fields.username')"
-                            required>
+                            required
+                            :state="errors !== null && errors.username && errors.username.length > 0 ? false: null">
               </b-form-input>
+              <b-form-invalid-feedback
+                :state="errors !== null && errors.username && errors.username.length > 0 ? false: null">
+                <template v-for="error in errors.username">
+                  {{ error }}
+                </template>
+              </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group id="crud-password" :label="$t('settings.users.fields.password')"
                           label-for="crud-input-password" v-if="modalType !== 'update'">
@@ -39,24 +52,45 @@
                             v-model="crudUser.password"
                             :placeholder="$t('settings.users.fields.password')"
                             type="password"
-                            required>
+                            required
+                            :state="errors !== null && errors.password && errors.password.length > 0 ? false: null">
               </b-form-input>
+              <b-form-invalid-feedback
+                :state="errors !== null && errors.password && errors.password.length > 0 ? false: null">
+                <template v-for="error in errors.password">
+                  {{ error }}
+                </template>
+              </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group id="crud-firstname" :label="$t('settings.users.fields.firstname')"
                           label-for="crud-input-firstname">
               <b-form-input id="crud-input-firstname"
                             v-model="crudUser.firstname"
                             :placeholder="$t('settings.users.fields.firstname')"
-                            required>
+                            required
+                            :state="errors !== null && errors.firstname && errors.firstname.length > 0 ? false: null">
               </b-form-input>
+              <b-form-invalid-feedback
+                :state="errors !== null && errors.firstname && errors.firstname.length > 0 ? false: null">
+                <template v-for="error in errors.firstname">
+                  {{ error }}
+                </template>
+              </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group id="crud-lastname" :label="$t('settings.users.fields.lastname')"
                           label-for="crud-input-lastname">
               <b-form-input id="crud-input-lastname"
                             v-model="crudUser.lastname"
                             :placeholder="$t('settings.users.fields.lastname')"
-                            required>
+                            required
+                            :state="errors !== null && errors.lastname && errors.lastname.length > 0 ? false: null">
               </b-form-input>
+              <b-form-invalid-feedback
+                :state="errors !== null && errors.lastname && errors.lastname.length > 0 ? false: null">
+                <template v-for="error in errors.lastname">
+                  {{ error }}
+                </template>
+              </b-form-invalid-feedback>
             </b-form-group>
           </div>
           <b-container class="d-flex justify-content-end">
@@ -75,7 +109,9 @@ import Base from '../../../api/base';
 
 export default {
   data () {
-    return {};
+    return {
+      errors: []
+    };
   },
   props: {
     crudUser: Object,
@@ -87,8 +123,6 @@ export default {
       (this.modalType === 'create') ? this.createUser(user)
         : (this.modalType === 'update') ? this.updateUser(user.id, user)
           : this.deleteUser(user.id);
-
-      this.$bvModal.hide('crud-modal');
     },
     createUser (user) {
       Base.call('users', {
@@ -105,9 +139,16 @@ export default {
         }
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.createSuccess'));
+
+        this.$bvModal.hide(this.modalId);
+
+        this.errors = [];
       }).catch(error => {
-        console.log(error);
+        this.errors = error.response.data.errors;
+
         this.flashMessage.error(this.$t('settings.users.createFailed'));
+
+        throw error;
       }).finally(() => {
         this.$emit('crud');
       });
@@ -126,9 +167,16 @@ export default {
         }
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.editSuccess'));
+
+        this.$bvModal.hide(this.modalId);
+
+        this.errors = [];
       }).catch(error => {
-        console.log(error);
+        this.errors = error.response.data.errors;
+
         this.flashMessage.error(this.$t('settings.users.editFailed'));
+
+        throw error;
       }).finally(() => {
         this.$emit('crud');
       });
@@ -138,20 +186,29 @@ export default {
         method: 'delete'
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.deleteSuccess'));
+
+        this.$bvModal.hide(this.modalId);
+
+        this.errors = [];
       }).catch(error => {
-        console.log(error);
+        this.errors = error.response.data.errors;
+
         this.flashMessage.error(this.$t('settings.users.deleteFailed'));
+
+        throw error;
       }).finally(() => {
         this.$emit('crud');
       });
     },
-    resetUser () {
+    resetModal () {
       this.crudUser.id = null;
       this.crudUser.firstname = null;
       this.crudUser.lastname = null;
       this.crudUser.email = null;
       this.crudUser.password = null;
       this.crudUser.username = null;
+
+      this.errors = [];
     }
   },
   computed: {

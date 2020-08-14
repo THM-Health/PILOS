@@ -103,8 +103,11 @@
     </b-pagination>
 
     <!-- CRUD modal -->
-    <crud-modal-component @crud="getUsers(currentPage)" v-bind:modal-id="'crud-modal'" v-bind:crud-user="selectedUser"
-                          v-bind:modal-type="modalType"></crud-modal-component>
+    <crud-modal-component @crud="getUsers(currentPage)"
+                          v-bind:modal-id="'crud-modal'"
+                          v-bind:crud-user="selectedUser"
+                          v-bind:modal-type="modalType">
+    </crud-modal-component>
 
     <!-- Invite modal-->
     <invite-modal-component v-bind:modal-id="'invite-modal'"></invite-modal-component>
