@@ -37,6 +37,8 @@ class RoomMemberController extends Controller
     public function store(Room $room, AddRoomMember $request)
     {
         $room->members()->attach($request->user, ['role' => $request->role]);
+
+        return response()->noContent();
     }
 
     /**
@@ -70,6 +72,8 @@ class RoomMemberController extends Controller
             abort(404, 'not_member_of_room');
         }
         $room->members()->detach($user);
+
+        sleep(10);
 
         return response()->noContent();
     }

@@ -58,7 +58,7 @@
         <!-- Room join/start -->
         <b-row class="pt-7 pt-sm-9">
           <!-- Show inviation text/link to moderators and room owners -->
-          <b-col v-if="room.isModerator">
+          <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="room.isModerator">
             <div class="jumbotron p-4" >
               <h5>{{ $t('rooms.accessForParticipants') }}</h5>
               <b-button
@@ -71,18 +71,18 @@
               <span style="white-space: pre;">{{ invitationText }}</span>
             </div>
           </b-col>
-          <b-col>
+          <b-col order="1" order-md="2" col cols="12" :md="room.isModerator ? 4 : 12" :lg="room.isModerator ? 6 : 12">
             <b-row>
               <!-- Ask guests for their first and lastname -->
-              <b-col v-if="room.isGuest">
+              <b-col col cols="12" md="6" v-if="room.isGuest">
                 <b-form-group :label="$t('rooms.firstAndLastname')">
                   <b-input-group>
-                    <b-form-input v-model="name" placeholder="Max Mustermann"></b-form-input>
+                    <b-form-input v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
                   </b-input-group>
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->
-              <b-col>
+              <b-col col cols="12" :md="room.isGuest ? 6 : 12">
                 <!-- If room is running, show join button -->
                 <template v-if="room.running">
                   <!-- If user is guest, join is only possible if a name is provided -->
@@ -162,7 +162,7 @@
         <b-input-group>
           <b-form-input
             :state="accessCodeValid"
-            placeholder="Zugangscode"
+            :placeholder="$t('rooms.placeholderAccessCode')"
             v-mask="'999-999-999'"
             v-model="accessCodeInput"
             v-on:keyup.enter="login"
@@ -521,15 +521,7 @@ export default {
           // Reload without membership
           this.reload();
         })
-        .catch((error) => {
-          // leaving room failed
-          // TODO error handling
-          if (error.response) {
-
-          }
-
-          throw error;
-        }).finally(() => {
+        .finally(() => {
         // Disable loading indicator
           this.loadingLeaveMembership = false;
         });

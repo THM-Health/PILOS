@@ -10,12 +10,12 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
         "production-css": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --env.mixfile=webpack.css.mix.js --config=node_modules/laravel-mix/setup/webpack.config.js",
         "test": "cross-env NODE_ENV=test mochapack --webpack-config=node_modules/laravel-mix/setup/webpack.config.js --require tests/Frontend/setup.js \"resources/js/**/*.vue\" \"tests/Frontend/**/*.spec.js\"",
-        "lint": "./node_modules/.bin/eslint --ext .js,.vue .",
+        "lint": "node_modules/.bin/eslint --fix --ext .js,.vue .",
         "cover": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text npm run test",
         "ci": "npm run lint && npm run cover"
     },
     "pre-commit": [
-        "lint"
+        "ci"
     ],
     "devDependencies": {
         "@intlify/eslint-plugin-vue-i18n": "^0.4.1",

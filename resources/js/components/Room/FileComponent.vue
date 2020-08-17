@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row mb-3">
-      <div class="col-8">
+      <div class="col-10">
         <!-- Upload new file -->
         <b-form-file
           :placeholder="$t('rooms.files.selectordrag')"
@@ -11,7 +11,7 @@
         >
         </b-form-file>
       </div>
-      <div class="col-4">
+      <div class="col-2">
         <!-- Reload file list -->
         <b-button class="float-right" variant="dark" @click="reload">
             <i class="fas fa-sync"></i>
@@ -26,6 +26,7 @@
       :busy="isBusy"
       :items="files.files"
       hover
+      stacked="md"
       show-empty
     >
       <!-- Show message on empty file list -->
@@ -42,7 +43,7 @@
 
       <!-- Render action column -->
       <template v-slot:cell(actions)="data">
-        <b-button-group class="float-right">
+        <b-button-group class="float-md-right">
           <!-- Delete file -->
           <b-button
             variant="danger"
@@ -328,3 +329,9 @@ export default {
   }
 };
 </script>
+
+<style>
+  .custom-file-label {
+    overflow: hidden;
+  }
+</style>

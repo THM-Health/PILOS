@@ -15,6 +15,7 @@ export default {
   endMembership: 'Mitgliedschaft beenden',
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
+  placeholderName: 'Max Mustermann',
   flash: {
     notRunning: {
       message: 'Der Raum ist aktuell geschlossen.',
@@ -104,12 +105,12 @@ export default {
         add: 'Hinzufügen',
         cancel: 'Abbrechen',
         user: 'Benutzer',
-        selectuser: 'Bitte wähle einen Benutzer aus',
+        selectUser: 'Bitte wähle einen Benutzer aus',
         name: 'Name',
-        noentries: 'Keine Einträge',
-        nouserfound: 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
+        noOptions: 'Keine Einträge, bitte suche nach einem Benutzer.',
+        noResult: 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
         role: 'Rolle',
-        selectrole: 'Bitte wähle eine Rolle aus'
+        selectRole: 'Bitte wähle eine Rolle aus'
       },
       delete: {
         title: 'Mitglied aus dem Raum entfernen',

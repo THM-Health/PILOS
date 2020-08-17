@@ -77,10 +77,12 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('users/search','UserController@search','users.search');
     });
 
-    Route::get('rooms/{room}','RoomController@show')->name('rooms.show')->middleware(['room.guest_protection','room.authenticate:true']);
-    Route::get('rooms/{room}/start','RoomController@start')->name('rooms.start')->middleware(['room.guest_protection','room.authenticate']);
-    Route::get('rooms/{room}/join','RoomController@join')->name('rooms.join')->middleware(['room.guest_protection','room.authenticate']);
-    Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file','room.guest_protection','room.authenticate']);
+    Route::middleware('can:view,room')->group(function () {
+        Route::get('rooms/{room}', 'RoomController@show')->name('rooms.show')->middleware('room.authenticate:true');
+        Route::get('rooms/{room}/start', 'RoomController@start')->name('rooms.start')->middleware('room.authenticate');
+        Route::get('rooms/{room}/join', 'RoomController@join')->name('rooms.join')->middleware('room.authenticate');
+        Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
+    });
 
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
 

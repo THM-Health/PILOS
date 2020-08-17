@@ -37,7 +37,7 @@ class RoomPolicy
      */
     public function view(?User $user, Room $room)
     {
-        return true;
+        return $user != null || $room->allowGuests;
     }
 
     /**

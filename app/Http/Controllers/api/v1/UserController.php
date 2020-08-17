@@ -16,6 +16,6 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        return \App\Http\Resources\User::collection(User::withName( $request->get('query'))->limit(10)->get());
+        return \App\Http\Resources\User::collection(User::withName( $request->get('query'))->limit(config('bigbluebutton.user_search_limit'))->get());
     }
 }

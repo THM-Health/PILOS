@@ -66,7 +66,7 @@
               <!-- remove member -->
               <b-button
                 variant="danger"
-                @click="deleteUser(data.item,data.index)"
+                @click="showRemoveUserModal(data.item,data.index)"
               >
                 <i class="fas fa-trash"></i>
               </b-button>
@@ -94,13 +94,16 @@
 
     <!-- edit user role modal -->
     <b-modal
-      :ok-title="$t('rooms.members.modals.edit.save')"
+      :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.edit.cancel')"
       @ok="saveEditUser"
       ref="edit-user-modal" >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.edit.title',{firstname: editUser.firstname,lastname: editUser.lastname}) }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
       </template>
       <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editUser">
         <b-form-radio v-model.number="editUser.role" name="some-radios" value="1">
@@ -112,9 +115,29 @@
       </b-form-group>
     </b-modal>
 
+    <!-- remove user modal -->
+    <b-modal
+      :busy="isLoadingAction"
+      ok-variant="danger"
+      cancel-variant="dark"
+      :cancel-title="$t('rooms.members.modals.delete.no')"
+      @ok="saveRemoveUser"
+      ref="remove-user-modal" >
+      <template v-slot:modal-title>
+        {{ $t('rooms.members.modals.delete.title') }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.delete.yes') }}
+      </template>
+      <span v-if="deleteUser">
+        {{ $t('rooms.members.modals.delete.confirm',{firstname: deleteUser.firstname,lastname: deleteUser.lastname}) }}
+      </span>
+
+    </b-modal>
+
     <!-- add new user modal -->
     <b-modal
-      :ok-title="$t('rooms.members.modals.add.add')"
+      :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.add.cancel')"
       @ok="saveNewUser"
@@ -122,10 +145,13 @@
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.add.title') }}
       </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.add.add') }}
+      </template>
       <!-- show server validation errors -->
       <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <!-- select user -->
-      <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="$t('rooms.members.modals.add.selectuser')" :state="newuservalid">
+      <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="$t('rooms.members.modals.add.selectUser')" :state="newuservalid">
         <multiselect v-model="newUser.data"
                      label="lastname"
                      track-by="id"
@@ -134,21 +160,23 @@
                      :options="users"
                      :multiple="false"
                      :searchable="true"
-                     :loading="isLoading"
+                     :loading="isLoadingSearch"
                      :internal-search="false"
                      :clear-on-select="false"
                      :close-on-select="true"
                      :options-limit="300"
                      :max-height="600"
                      :show-no-results="true"
-                     :noOptions="$t('rooms.members.modals.add.noentries')"
+                     :showLabels="false"
                      @search-change="asyncFind">
+          <template slot="noResult">{{ $t('rooms.members.modals.add.noResult') }}</template>
+          <template slot="noOptions">{{ $t('rooms.members.modals.add.noOptions') }}</template>
           <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
           <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
         </multiselect>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :invalid-feedback="$t('rooms.members.modals.add.selectrole')" :state="newuserrolevalid">
+      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :invalid-feedback="$t('rooms.members.modals.add.selectRole')" :state="newuserrolevalid">
         <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
@@ -174,10 +202,12 @@ export default {
       isBusy: false, // table is fetching data from api
       newUser: { data: null, feedback: { user: null, role: null } }, // object user to be added
       users: [], // list of all found users
-      isLoading: false, // is user search active
+      isLoadingSearch: false, // is user search active
+      isLoadingAction: false, // is user search active
       members: [], // list of all members
       createError: null, // error on adding new user as member
-      editUser: null // user to be edited
+      editUser: null, // user to be edited
+      deleteUser: null // user to be deleted
     };
   },
   methods: {
@@ -186,66 +216,46 @@ export default {
      * @param query
      */
     asyncFind (query) {
-      this.isLoading = true;
+      this.isLoadingSearch = true;
 
-      Base.call('users/search?query=' + query, {
-      }).then(response => {
+      Base.call('users/search?query=' + query).then(response => {
         // query executed
         this.users = response.data.data;
-        this.isLoading = false;
-      }).catch((error) => {
-        // search failed
-        // TODO error handling
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        }
-      });
+      })
+        .finally(() => {
+          this.isLoadingSearch = false;
+        });
+    },
+
+    /**
+     * show modal to remove a member
+     * @param user user object
+     * @param index index in the table
+     */
+    showRemoveUserModal: function (user, index) {
+      this.deleteUser = user;
+      this.deleteUser.index = index;
+      this.$refs['remove-user-modal'].show();
     },
 
     /**
      * Remove a member
-     * @param user user object
-     * @param index index in the table
      */
-    deleteUser: function (user, index) {
-      this.$bvModal.msgBoxConfirm(this.$t('rooms.members.modals.delete.confirm', { firstname: user.firstname, lastname: user.lastname }), {
-        title: this.$t('rooms.members.modals.delete.title'),
-        okVariant: 'danger',
-        okTitle: this.$t('rooms.members.modals.delete.yes'),
-        cancelTitle: this.$t('rooms.members.modals.delete.no'),
-        footerClass: 'p-2',
-        centered: true
-      })
-        .then(function (value) {
-          // Check if delete was confirmed
-          if (value === true) {
-            // Remove user from room
-            Base.call('rooms/' + this.room.id + '/member/' + user.id, {
-              method: 'delete'
-            }).then(response => {
-              // remove user entry from list and reload user table
-              this.members.splice(index, 1);
-              this.reload();
-            }).catch((error) => {
-              // removal failed
-              // TODO error handling
-              if (error.response) {
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-              } else if (error.request) {
-                console.log(error.request);
-              }
-            });
-          }
-        }.bind(this))
-        .catch(err => {
-          console.log(err);
-        });
+    saveRemoveUser: function (bvModalEvt) {
+      // prevent modal from closing
+      bvModalEvt.preventDefault();
+
+      this.isLoadingAction = true;
+
+      Base.call('rooms/' + this.room.id + '/member/' + this.deleteUser.id, {
+        method: 'delete'
+      }).then(response => {
+        // remove user entry from list
+        this.members.splice(this.deleteUser.index, 1);
+      }).finally(() => {
+        this.$refs['remove-user-modal'].hide();
+        this.isLoadingAction = false;
+      });
     },
     /**
      * show modal to edit user role
@@ -253,6 +263,7 @@ export default {
      * @param index index in the table
      */
     showEditUserModal: function (user, index) {
+      // Clone object to edit properties without displaying the changes in realtime in the members list
       this.editUser = JSON.parse(JSON.stringify(user));
       this.editUser.index = index;
       this.$refs['edit-user-modal'].show();
@@ -270,24 +281,21 @@ export default {
     /**
      * save new user role
      */
-    saveEditUser: function () {
+    saveEditUser: function (bvModalEvt) {
+      // prevent modal from closing
+      bvModalEvt.preventDefault();
+
+      this.isLoadingAction = true;
+
       Base.call('rooms/' + this.room.id + '/member/' + this.editUser.id, {
         method: 'put',
         data: { role: this.editUser.role }
       }).then(response => {
         // user role was saved
         this.members[this.editUser.index].role = this.editUser.role;
-        this.reload();
-      }).catch((error) => {
-        // saving failed
-        // TODO error handling
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        }
+      }).finally(() => {
+        this.$refs['edit-user-modal'].hide();
+        this.isLoadingAction = false;
       });
     },
     /**
@@ -297,6 +305,9 @@ export default {
     saveNewUser: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
+
+      this.isLoadingAction = true;
+
       // reset previous error messages
       this.createError = null;
       // Check if no html/js form errors are present
@@ -328,7 +339,10 @@ export default {
         } else if (error.request) {
           console.log(error.request);
         }
-      });
+      })
+        .finally(() => {
+          this.isLoadingAction = false;
+        });
     },
     /**
      * reload member list from api

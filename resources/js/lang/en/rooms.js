@@ -15,6 +15,8 @@ export default {
   endMembership: 'End membership',
   requireAccessCode: 'An access code is required to join this room',
   login: 'Login',
+  placeholderName: 'John Doe',
+  placeholderAccessCode: 'Access code',
   flash: {
     notRunning: {
       message: 'The room is currently closed.',
@@ -47,6 +49,7 @@ export default {
   },
   files: {
     title: 'Files',
+    nodata: 'No files available',
     filename: 'Filename',
     actions: 'Actions',
     default: 'Default',
@@ -95,12 +98,12 @@ export default {
         add: 'Add',
         cancel: 'Cancel',
         user: 'User',
-        selectuser: 'Please select the user you would like to add',
+        selectUser: 'Please select the user you would like to add',
         name: 'Name',
-        noentries: 'No entries',
-        nouserfound: 'Oops! No user was found for this query.',
+        noOptions: 'No entries, please search for a user.',
+        noResult: 'Oops! No user was found for this query.',
         role: 'Role',
-        selectrole: 'Please select a role'
+        selectRole: 'Please select a role'
       },
       delete: {
         title: 'Remove member from this room',

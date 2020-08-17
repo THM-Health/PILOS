@@ -8,4 +8,5 @@ return [
     'welcome_message_limit' => env('MIX_WELCOME_MESSAGE_LIMIT',500),
     'room_name_limit' => env('MIX_ROOM_NAME_LIMIT',50),
     'room_id_max_tries' =>  env('BBB_ROOM_ID_MAX_TRIES',1000),
+    'user_search_limit' =>  env('USER_SEARCH_LIMIT',10),
 ];
