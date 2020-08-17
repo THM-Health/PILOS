@@ -230,7 +230,7 @@ class LdapRoleMappingTest extends TestCase
         $roleNames = array_map(function ($role) {
             return $role->name;
         }, $user->roles->all());
-        echo $user->roles->where('name', 'test')->count();
+
         $this->assertCount(1, $roleNames);
         $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
 

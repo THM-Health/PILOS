@@ -29,7 +29,7 @@ class LoginTest extends TestCase
             'password' => 'foo'
         ]);
         $response->assertStatus(422);
-        $this->assertFalse($this->isAuthenticated());
+        $this->assertGuest();
     }
 
     /**
@@ -115,7 +115,7 @@ class LoginTest extends TestCase
         $user     = factory(User::class)->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
         $response->assertNoContent();
-        $this->assertFalse($this->isAuthenticated());
+        $this->assertGuest();
     }
 
     /**
