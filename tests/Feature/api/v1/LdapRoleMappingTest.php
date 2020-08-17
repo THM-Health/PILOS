@@ -244,6 +244,6 @@ class LdapRoleMappingTest extends TestCase
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertDatabaseCount('user_role', 1);
+        $this->assertDatabaseCount('role_user', 1);
     }
 }
