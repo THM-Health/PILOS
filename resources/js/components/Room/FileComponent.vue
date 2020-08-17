@@ -184,10 +184,7 @@ export default {
               this.files.files.splice(index, 1);
             });
           }
-        }.bind(this))
-        .catch(err => {
-          console.log(err);
-        });
+        }.bind(this));
     },
     /**
      * Handle file upload event on file select or drag'n'drop
