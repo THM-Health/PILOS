@@ -11,7 +11,7 @@ class RoomAuthenticate
      * Handle requests to room routes and determine room unauthenticated status
      *
      * This middleware checks if a user is owner, member, has a valid access token or non is required
-     * If any of these rules fail, the user isn' authenticated and the middleware param allowAuthenticated
+     * If any of these rules fail, the user isn't authenticated and the middleware param allowAuthenticated
      * decides what to do
      *
      * If an access code is provided, but is invalid an error is return and the request isn't continued.

@@ -4,6 +4,9 @@
       <!-- Reload general room settings/details -->
       <b-button
         class="float-right"
+        variant="dark"
+        :title="$t('app.reload')"
+        v-b-tooltip.hover
         v-on:click="reload"
         :disabled="loading"
       >

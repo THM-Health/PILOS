@@ -24,6 +24,8 @@
           <b-button
             variant="dark"
             @click="reload"
+            :title="$t('app.reload')"
+            v-b-tooltip.hover
           >
             <i class="fas fa-sync"></i>
           </b-button>

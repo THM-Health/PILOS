@@ -3,7 +3,7 @@ export default {
   error: 'Es ist ein Fehler aufgetreten!',
   notFound: '404 | Die aufgerufene Adresse existiert nicht!',
   selectLocale: 'Wählen Sie eine Sprache aus',
-
+  reload: 'Neuladen',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',

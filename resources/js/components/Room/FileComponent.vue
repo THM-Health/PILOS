@@ -13,7 +13,13 @@
       </div>
       <div class="col-2">
         <!-- Reload file list -->
-        <b-button class="float-right" variant="dark" @click="reload">
+        <b-button
+          class="float-right"
+          variant="dark"
+          @click="reload"
+          :title="$t('app.reload')"
+          v-b-tooltip.hover
+        >
             <i class="fas fa-sync"></i>
           </b-button>
       </div>
