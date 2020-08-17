@@ -73,8 +73,6 @@ class RoomMemberController extends Controller
         }
         $room->members()->detach($user);
 
-        sleep(10);
-
         return response()->noContent();
     }
 

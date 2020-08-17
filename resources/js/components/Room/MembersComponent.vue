@@ -153,7 +153,7 @@
       <!-- show server validation errors -->
       <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <!-- select user -->
-      <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="$t('rooms.members.modals.add.selectUser')" :state="newuservalid">
+      <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="userValidationError" :state="newUserValid">
         <multiselect v-model="newUser.data"
                      label="lastname"
                      track-by="id"
@@ -178,11 +178,11 @@
         </multiselect>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :invalid-feedback="$t('rooms.members.modals.add.selectRole')" :state="newuserrolevalid">
+      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :invalid-feedback="roleValidationError" :state="newUserRoleValid">
         <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="2">
+        <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="5">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
       </b-form-group>
@@ -209,7 +209,8 @@ export default {
       members: [], // list of all members
       createError: null, // error on adding new user as member
       editUser: null, // user to be edited
-      deleteUser: null // user to be deleted
+      deleteUser: null, // user to be deleted
+      errors: {}
     };
   },
   methods: {
@@ -312,10 +313,9 @@ export default {
 
       // reset previous error messages
       this.createError = null;
-      // Check if no html/js form errors are present
-      if (this.newuservalid === false || this.newuserrolevalid === false) {
-        return;
-      }
+
+      this.errors = {};
+
       // post new user as room members
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'post',
@@ -329,18 +329,12 @@ export default {
         if (error.response) {
           // failed due to form validation errors
           if (error.response.status === 422) {
-            // error on user field, display error
-            if (error.response.data.errors.user) {
-              this.createError = error.response.data.errors.user.join('<br>');
-            }
+            this.errors = error.response.data.errors;
+            return;
           }
-          // TODO more error handling
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
         }
+        this.$refs['add-user-modal'].hide();
+        throw error;
       })
         .finally(() => {
           this.isLoadingAction = false;
@@ -357,33 +351,41 @@ export default {
         .then(response => {
           // fetching successfull
           this.members = response.data.data;
-          this.isBusy = false;
         })
-        .catch((error) => {
-          // fetch of user lis failed
+        .finally(() => {
           this.isBusy = false;
-          // TODO error handling
-          if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            console.log(error.request);
-          }
         });
+    },
+    // Check if field has server-side error
+    fieldState (field) {
+      return this.errors[field] === undefined ? null : false;
+    },
+    // Get server-side error for field
+    fieldError (field) {
+      if (this.fieldState(field) !== false) { return ''; }
+      return this.errors[field].join('<br>');
     }
   },
   computed: {
-    // check if new user input field is valid
-    newuservalid: function () {
-      if (this.newUser.data == null || this.newUser.data.id == null) { return false; }
+    // check if new user input field is valid, local and server-side check
+    newUserValid: function () {
+      if (this.newUser.data == null || this.newUser.data.id == null || this.fieldState('user') === false) { return false; }
       return null;
     },
-    // check if new user role input field is valid
-    newuserrolevalid: function () {
-      if (this.newUser.data != null && this.newUser.data.role == null) { return false; }
+    // check if new user role input field is valid, local and server-side check
+    newUserRoleValid: function () {
+      if ((this.newUser.data != null && this.newUser.data.role == null) || this.fieldState('role') === false) { return false; }
       return null;
     },
+    // return error message for user, local or server-side
+    userValidationError: function () {
+      return this.fieldState('user') === false ? this.fieldError('user') : this.$t('rooms.members.modals.add.selectUser');
+    },
+    // return error message for role, local or server-side
+    roleValidationError: function () {
+      return this.fieldState('role') === false ? this.fieldError('role') : this.$t('rooms.members.modals.add.selectRole');
+    },
+
     // member tables headings
     tablefields () {
       return [
@@ -397,7 +399,6 @@ export default {
           label: this.$t('rooms.members.lastname'),
           sortable: true
         },
-
         {
           key: 'email',
           label: this.$t('rooms.members.email'),

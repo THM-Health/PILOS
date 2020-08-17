@@ -294,24 +294,17 @@ export default {
         this.settings = response.data.data;
         // inform parent component about changed settings
         this.$emit('settingsChanged');
-        // Disable saving indicator
-        this.saving = false;
         this.errors = {};
       }).catch((error) => {
-        this.saving = false;
         // Settings couldn't be saved
-
         if (error.response.status === 422) {
           this.errors = error.response.data.errors;
-        } else {
-          if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            console.log(error.request);
-          }
+          return;
         }
+        throw error;
+      }).finally(() => {
+        // Disable saving indicator
+        this.saving = false;
       });
     },
     /**

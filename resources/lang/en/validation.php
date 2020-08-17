@@ -174,7 +174,8 @@ return [
         'lockSettingsDisableNote'           => 'Disable editing of notes',
         'lockSettingsDisablePrivateChat'    => 'Disable private chat',
         'lockSettingsDisablePublicChat'     => 'Disable public chat',
-        'lockSettingsHideUserList'          => 'Hide list of participants'
+        'lockSettingsHideUserList'          => 'Hide list of participants',
+        'role'                              => 'Role',
     ],
 
 ];

@@ -203,6 +203,7 @@ return [
         'lockSettingsDisableNote'           => 'Bearbeiten der Notizen deaktivieren',
         'lockSettingsDisablePrivateChat'    => 'Private Chats deaktivieren',
         'lockSettingsDisablePublicChat'     => 'Öffentlichen Chat deaktivieren',
-        'lockSettingsHideUserList'          => 'Teilnehmerliste verbergen'
+        'lockSettingsHideUserList'          => 'Teilnehmerliste verbergen',
+        'role'                              => 'Rolle',
     ],
 ];

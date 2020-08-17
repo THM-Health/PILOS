@@ -173,9 +173,10 @@
           <b-input-group-append>
             <b-button
               v-on:click="login"
+              :disabled="loading"
               variant="success"
             >
-              <i class="fas fa-lock"></i> {{ $t('rooms.login') }}
+              <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-lock"></i> {{ $t('rooms.login') }}
             </b-button>
           </b-input-group-append>
         </b-input-group>
