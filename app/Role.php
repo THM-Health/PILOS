@@ -25,7 +25,7 @@ class Role extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\User', 'user_role', 'role_id', 'user_id');
+        return $this->belongsToMany('App\User');
     }
 
     /**
@@ -35,7 +35,7 @@ class Role extends Model
      */
     public function permissions()
     {
-        return $this->belongsToMany('App\Permission', 'role_permission', 'role_id', 'permission_id');
+        return $this->belongsToMany('App\Permission');
     }
 
     /**

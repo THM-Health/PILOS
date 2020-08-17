@@ -19,7 +19,7 @@ class CreatePermissionsTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('role_permission', function (Blueprint $table) {
+        Schema::create('permission_role', function (Blueprint $table) {
             $table->foreignId('permission_id')
                 ->constrained()
                 ->onDelete('cascade');
@@ -38,6 +38,6 @@ class CreatePermissionsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('permissions');
-        Schema::dropIfExists('role_permission');
+        Schema::dropIfExists('permission_role');
     }
 }

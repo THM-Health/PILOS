@@ -20,7 +20,7 @@ class CreateRolesTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('user_role', function (Blueprint $table) {
+        Schema::create('role_user', function (Blueprint $table) {
             $table->foreignId('user_id')
                 ->constrained()
                 ->onDelete('cascade');
@@ -39,6 +39,6 @@ class CreateRolesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('roles');
-        Schema::dropIfExists('user_role');
+        Schema::dropIfExists('role_user');
     }
 }
