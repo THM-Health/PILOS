@@ -59,7 +59,7 @@ class LdapRoleMappingTest extends TestCase
             'cn'                     => $this->faker->name,
             'mail'                   => $this->faker->unique()->safeEmail,
             'uid'                    => $this->faker->unique()->userName,
-            $this->ldapRoleAttribute => $this->ldapRoleName,
+            $this->ldapRoleAttribute => [$this->ldapRoleName],
             'entryuuid'              => $this->faker->uuid,
         ]);
 
@@ -245,5 +245,64 @@ class LdapRoleMappingTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
         $this->assertDatabaseCount('role_user', 1);
+    }
+
+    public function testMultipleRolesPartiallyMapped()
+    {
+        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, [
+            $this->ldapRoleName,
+            'foo'
+        ]);
+
+        config([
+            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
+            'ldap.roleMap'           => $this->roleMap
+        ]);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $roleNames = array_map(function ($role) {
+            return $role->name;
+        }, $user->roles->all());
+        $this->assertCount(1, $roleNames);
+        $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
+    }
+
+    public function testMultipleRolesFullMapped()
+    {
+        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapAdmin', 'ldapUser', 'ldapSuperAdmin']);
+
+        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'user']);
+
+        config([
+            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
+            'ldap.roleMap'           => [
+                'ldapAdmin'      => 'admin',
+                'ldapUser'       => 'user',
+                'ldapSuperAdmin' => 'admin'
+            ]
+        ]);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+        $roleNames = array_map(function ($role) {
+            return $role->name;
+        }, $user->roles->all());
+        $this->assertCount(2, $roleNames);
+        $this->assertContains('admin', $roleNames);
+        $this->assertContains('user', $roleNames);
     }
 }

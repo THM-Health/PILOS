@@ -21,15 +21,21 @@ class SetDefaultRoleForLdapUser
         $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
 
         if ($event->user->hasAttribute($ldapRoleAttribute)) {
-            $ldapRole = $event->user->getFirstAttribute($ldapRoleAttribute);
-            $user     = $event->model;
+            $ldapRoles = $event->user->getAttribute($ldapRoleAttribute);
+            $user      = $event->model;
+            $roleIds   = [];
 
-            if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
-                $role = Role::where('name', config('ldap.roleMap')[$ldapRole])->first();
-                if (!empty($role) && $user->roles->where('name', $role->name)->count() == 0) {
-                    $user->roles()->attach($role->id);
+            foreach ($ldapRoles as $ldapRole) {
+                if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
+                    $role = Role::where('name', config('ldap.roleMap')[$ldapRole])->first();
+
+                    if (!empty($role)) {
+                        array_push($roleIds, $role->id);
+                    }
                 }
             }
+
+            $user->roles()->syncWithoutDetaching($roleIds);
         }
     }
 }
