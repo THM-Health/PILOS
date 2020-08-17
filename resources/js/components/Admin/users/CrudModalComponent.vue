@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Create form modal -->
+    <!-- CRUD form modal -->
     <b-modal
       :id="modalId"
       :title="modalTitle"
