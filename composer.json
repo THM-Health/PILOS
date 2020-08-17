@@ -47,7 +47,7 @@
         },
         "hooks": {
             "pre-commit": [
-                "vendor/bin/php-cs-fixer fix --allow-risky=yes && npm run ci"
+                "vendor/bin/php-cs-fixer fix --allow-risky=yes"
             ],
             "pre-push": [
                 "vendor/bin/phpunit"
