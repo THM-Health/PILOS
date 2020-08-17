@@ -19,10 +19,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $userRole = Role::firstOrCreate([ 'name' => 'user', 'default' => true ]);
         Role::firstOrCreate([ 'name' => 'admin', 'default' => true ]);
 
-        User::all()->filter(function ($user) use ($userRole) {
-           return !$user->roles->contains($userRole);
-         })->each(function ($user) use ($userRole) {
-           $user->roles()->attach($userRole);
-         });
+        $userRole->users()->syncWithoutDetaching(User::pluck('id'));
     }
 }
