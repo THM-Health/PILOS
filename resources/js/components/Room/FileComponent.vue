@@ -4,6 +4,7 @@
       <div class="col-10">
         <!-- Upload new file -->
         <b-form-file
+          :disabled="isBusy"
           :placeholder="$t('rooms.files.selectordrag')"
           v-on:change="uploadFile($event)"
           v-model="fileUpload"
@@ -16,12 +17,13 @@
         <b-button
           class="float-right"
           variant="dark"
+          :disabled="isBusy"
           @click="reload"
           :title="$t('app.reload')"
           v-b-tooltip.hover
         >
-            <i class="fas fa-sync"></i>
-          </b-button>
+          <i class="fas fa-sync"></i>
+        </b-button>
       </div>
     </div>
 
@@ -143,7 +145,7 @@ export default {
         }).catch((error) => {
           if (error.response) {
             if (error.response.status === 404) {
-            // Show error message
+              // Show error message
               this.flashMessage.error(this.$t('rooms.flash.fileGone'));
               // Remove file from list
               this.files.files.splice(index, 1);
@@ -178,19 +180,8 @@ export default {
             Base.call('rooms/' + this.room.id + '/files/' + file.id, {
               method: 'delete'
             }).then(response => {
-              // delete successfull, remove file from table and reload data from api
-              // (fallback and display files that have been uploaded in the meantime)
+              // delete successfull, remove file from table
               this.files.files.splice(index, 1);
-              this.reload();
-            }).catch((error) => {
-              // TODO Error handling
-              if (error.response) {
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
-              } else if (error.request) {
-                console.log(error.request);
-              }
             });
           }
         }.bind(this))
@@ -203,6 +194,8 @@ export default {
      * @param event
      */
     uploadFile: function (event) {
+      // Change table to busy state
+      this.isBusy = true;
       // Build form data
       const formData = new FormData();
       formData.append('file', event.target.files[0]);
@@ -219,15 +212,8 @@ export default {
         this.fileUpload = null;
         this.reload();
       }).catch((error) => {
-        // File upload failed
-        // TODO Error handling
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        }
+        this.isBusy = false;
+        throw error;
       });
     },
     /**
@@ -241,19 +227,8 @@ export default {
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
+        }).finally(() => {
           this.isBusy = false;
-        })
-        .catch((error) => {
-          // Fetch failed
-          this.isBusy = false;
-          // TODO Error handling
-          if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            console.log(error.request);
-          }
         });
     },
     /**
@@ -280,16 +255,6 @@ export default {
         method: 'put',
         data: { [setting]: value }
       }).then(() => {
-      }).catch((error) => {
-        // Change failed
-        // TODO Error handling
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        }
       });
     }
   },

@@ -7,6 +7,7 @@
           <!-- Add existing user from database -->
           <b-button
             variant="dark"
+            :disabled="isBusy"
             @click="showAddUserModal"
           >
             <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
@@ -24,6 +25,7 @@
           <b-button
             variant="dark"
             @click="reload"
+            :disabled="isBusy"
             :title="$t('app.reload')"
             v-b-tooltip.hover
           >
@@ -421,6 +423,12 @@ export default {
     // watch for changes on the members amount, emit event to parent to display changes
     'member.length': function () {
       this.$emit('membersChanged', this.members.length);
+    },
+    'newUser.data.id': function () {
+      this.errors = {};
+    },
+    'newUser.data.role': function () {
+      this.errors = {};
     }
   },
   created () {

@@ -64,12 +64,6 @@ export default {
         yes: 'Ja',
         no: 'Nein'
       }
-    },
-    flash: {
-      deleted: {
-        message: 'Die Datei wurde erfolgreich gelöscht',
-        title: 'Gelöscht'
-      }
     }
   },
   invitation: {

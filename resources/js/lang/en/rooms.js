@@ -73,6 +73,7 @@ export default {
   },
   members: {
     title: 'Members',
+    nodata: 'No members available',
     addUser: 'Add user',
     inviteGuest: 'Invite guest',
     firstname: 'Firstname',
