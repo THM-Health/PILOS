@@ -16,7 +16,11 @@ import PermissionService from '../../services/PermissionService';
  *
  * @example
  *   ```vue
- *   <cannot :permissions="{ permission: 'test' }">
+ *   <cannot method="viewAll" policy="UserPolicy">
+ *     Hello World!
+ *   </cannot>
+ *   <!-- or -->
+ *   <cannot method="viewAll" :policy="{ modelName: 'User', id: 1 ... }">
  *     Hello World!
  *   </cannot>
  *   ```
@@ -24,14 +28,27 @@ import PermissionService from '../../services/PermissionService';
 export default {
   props: {
     /**
-     * Permissions to check against.
+     * Method to check permissions with.
      *
      * @see {@link PermissionService.cannot}
-     * @property permissions
-     * @type Object
+     * @property method
+     * @type String
      */
-    permissions: {
-      type: Object
+    method: {
+      type: String,
+      required: true
+    },
+
+    /**
+     * Policy which contains method to check permissions with.
+     *
+     * @see {@link PermissionService.cannot}
+     * @property policy
+     * @type String|Object
+     */
+    policy: {
+      type: [String, Object],
+      required: true
     }
   },
 
@@ -62,30 +79,30 @@ export default {
      * @return undefined
      */
     evaluatePermissions () {
-      this.slotVisible = PermissionService.cannot(this.permissions);
+      this.slotVisible = PermissionService.cannot(this.method, this.policy);
     }
   },
 
   /**
-   * Sets the event listener on permissions change to re-evaluate whether the
+   * Sets the event listener on current user change to re-evaluate whether the
    * slot content can be shown or not.
    *
    * @method mounted
    * @return undefined
    */
   mounted () {
-    EventBus.$on('permissionsChangedEvent', this.evaluatePermissions);
+    EventBus.$on('currentUserChangedEvent', this.evaluatePermissions);
     this.evaluatePermissions();
   },
 
   /**
-   * Removes the listener for permissions change on destroy of this component.
+   * Removes the listener for current user change on destroy of this component.
    *
    * @method beforeDestroy
    * @return undefined
    */
   beforeDestroy () {
-    EventBus.$off('permissionsChangedEvent', this.evaluatePermissions);
+    EventBus.$off('currentUserChangedEvent', this.evaluatePermissions);
   }
 };
 </script>

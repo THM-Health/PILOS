@@ -51,7 +51,7 @@ const mutations = {
 
   setCurrentUser (state, currentUser) {
     state.currentUser = currentUser;
-    PermissionService.setPermissions(state.currentUser && state.currentUser.permissions ? state.currentUser.permissions : []);
+    PermissionService.setCurrentUser(state.currentUser);
   }
 };
 

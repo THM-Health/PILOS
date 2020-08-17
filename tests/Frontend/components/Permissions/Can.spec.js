@@ -12,12 +12,12 @@ const testComponent = {
 
 describe('Can', function () {
   it('hides the content if the necessary permission isn\'t available', async function () {
-    const oldPermissions = PermissionService.permissions;
-    PermissionService.setPermissions(['foo']);
+    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
 
     const wrapper = mount(Can, {
       propsData: {
-        permissions: { permission: 'bar' }
+        method: 'test',
+        policy: { modelName: 'Test' }
       },
       slots: {
         default: testComponent
@@ -27,16 +27,16 @@ describe('Can', function () {
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
-    PermissionService.setPermissions(oldPermissions);
+    PermissionService.__ResetDependency__('Policies');
   });
 
   it('shows the content if the necessary permission is available', async function () {
-    const oldPermissions = PermissionService.permissions;
-    PermissionService.setPermissions(['foo']);
+    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
 
     const wrapper = mount(Can, {
       propsData: {
-        permissions: { permission: 'foo' }
+        method: 'test',
+        policy: { modelName: 'Test' }
       },
       slots: {
         default: testComponent
@@ -46,15 +46,17 @@ describe('Can', function () {
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
-    PermissionService.setPermissions(oldPermissions);
+    PermissionService.__ResetDependency__('Policies');
   });
 
-  it('updates state on changes in the permissions of the permission service', async function () {
-    const oldPermissions = PermissionService.permissions;
+  it('updates state on changes of the current user of the permission service', async function () {
+    PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
+    const oldUser = PermissionService.currentUser;
 
     const wrapper = mount(Can, {
       propsData: {
-        permissions: { permission: 'bar' }
+        method: 'test',
+        policy: { modelName: 'Test' }
       },
       slots: {
         default: testComponent
@@ -64,20 +66,23 @@ describe('Can', function () {
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
-    PermissionService.setPermissions(['bar']);
+    PermissionService.setCurrentUser({ permissions: ['bar'] });
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
-    PermissionService.setPermissions(oldPermissions);
+    PermissionService.setCurrentUser(oldUser);
+    PermissionService.__ResetDependency__('Policies');
   });
 
-  it('describes from `permissionsChangedEvent` after destroy', async function () {
-    const oldPermissions = PermissionService.permissions;
+  it('describes from `currentUserChangedEvent` after destroy', async function () {
+    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    const oldUser = PermissionService.currentUser;
     const spy = sinon.spy(Can.methods, 'evaluatePermissions');
 
     const wrapper = mount(Can, {
       propsData: {
-        permissions: { permission: 'bar' }
+        method: 'test',
+        policy: { modelName: 'Test' }
       },
       slots: {
         default: testComponent
@@ -86,17 +91,18 @@ describe('Can', function () {
 
     await Vue.nextTick();
     spy.resetHistory();
-    PermissionService.setPermissions(['foo']);
+    PermissionService.setCurrentUser({ permissions: ['foo'] });
 
     await Vue.nextTick();
     wrapper.destroy();
 
     await Vue.nextTick();
-    PermissionService.setPermissions(['qux']);
+    PermissionService.setCurrentUser({ permissions: ['qux'] });
 
     await Vue.nextTick();
     expect(spy.callCount).toEqual(1);
 
-    PermissionService.setPermissions(oldPermissions);
+    PermissionService.setCurrentUser(oldUser);
+    PermissionService.__ResetDependency__('Policies');
   });
 });
