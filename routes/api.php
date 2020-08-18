@@ -74,7 +74,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
             Route::delete('rooms/{room}/files/{file}', 'RoomFileController@destroy')->name('rooms.files.remove');
         });
 
-        Route::get('users/search','UserController@search','users.search');
+        Route::get('users/search','UserController@search')->name('users.search');
     });
 
     Route::middleware('can:view,room')->group(function () {
