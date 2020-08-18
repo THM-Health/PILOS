@@ -199,6 +199,7 @@
 <script>
 import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
+import _ from 'lodash';
 
 export default {
   components: { Multiselect },
@@ -273,7 +274,7 @@ export default {
      */
     showEditUserModal: function (user, index) {
       // Clone object to edit properties without displaying the changes in realtime in the members list
-      this.editUser = JSON.parse(JSON.stringify(user));
+      this.editUser = _.cloneDeep(user);
       this.editUser.index = index;
       this.$refs['edit-user-modal'].show();
     },
