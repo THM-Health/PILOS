@@ -56,7 +56,7 @@ export default {
     downloadable: 'Herunterladbar',
     uploadedAt: 'Hochgeladen am',
     useInNextMeeting: 'Im nächsten Meeting nutzen',
-    selectordrag: 'Wähle eine Datei aus, oder ziehe sie hier hin...',
+    selectordrag: 'Wählen Sie eine Datei aus, oder ziehen Sie eine Datei per Drag & Drop in dieses Feld ...',
     modals: {
       delete: {
         title: 'Datei löschen',
@@ -99,12 +99,12 @@ export default {
         add: 'Hinzufügen',
         cancel: 'Abbrechen',
         user: 'Benutzer',
-        selectUser: 'Bitte wähle einen Benutzer aus',
+        selectUser: 'Bitte wählen Sie einen Benutzer aus',
         name: 'Name',
-        noOptions: 'Keine Einträge, bitte suche nach einem Benutzer.',
+        noOptions: 'Keine Einträge, bitte suchen Sie nach einem Benutzer.',
         noResult: 'Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.',
         role: 'Rolle',
-        selectRole: 'Bitte wähle eine Rolle aus'
+        selectRole: 'Bitte wählen Sie eine Rolle aus'
       },
       delete: {
         title: 'Mitglied aus dem Raum entfernen',
