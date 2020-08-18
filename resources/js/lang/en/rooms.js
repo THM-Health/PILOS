@@ -64,6 +64,11 @@ export default {
         yes: 'Yes',
         no: 'No'
       }
+    },
+    formats: 'Allowed file formats: {formats}',
+    size: 'Max. file size: {size} MB',
+    validation: {
+      tooLarge: 'The selected file is too large.'
     }
   },
   invitation: {

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <b-overlay :show="isBusy" z-index="100">
     <div class="row">
       <div class="col-12">
 
@@ -41,7 +42,6 @@
           :fields="tablefields"
           :items="members"
           hover
-          :busy="isBusy"
           stacked="md"
           show-empty
         >
@@ -62,6 +62,7 @@
             <b-button-group class="float-md-right">
               <!-- edit membership role -->
               <b-button
+                :disabled="isBusy"
                 variant="dark"
                 @click="showEditUserModal(data.item,data.index)"
               >
@@ -69,6 +70,7 @@
               </b-button>
               <!-- remove member -->
               <b-button
+                :disabled="isBusy"
                 variant="danger"
                 @click="showRemoveUserModal(data.item,data.index)"
               >
@@ -93,6 +95,8 @@
         </b-table>
       </div>
     </div>
+
+    </b-overlay>
 
     <!-- Modals -->
 

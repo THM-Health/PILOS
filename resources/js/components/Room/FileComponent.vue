@@ -1,16 +1,25 @@
 <template>
   <div>
+    <b-overlay :show="isBusy" >
     <div class="row mb-3">
       <div class="col-10">
         <!-- Upload new file -->
         <b-form-file
           :disabled="isBusy"
+          :state="fieldState('file')"
           :placeholder="$t('rooms.files.selectordrag')"
           v-on:change="uploadFile($event)"
           v-model="fileUpload"
           v-bind:multiple="false"
         >
         </b-form-file>
+
+        <b-form-invalid-feedback>
+          {{ fieldError('file') }}
+        </b-form-invalid-feedback>
+
+        <b-form-text>{{ $t('rooms.files.formats',{formats: files.file_mimes}) }}<br>{{ $t('rooms.files.size',{size: files.file_size}) }}</b-form-text>
+
       </div>
       <div class="col-2">
         <!-- Reload file list -->
@@ -31,7 +40,6 @@
     <b-table
       :fields="filefields"
       v-if="files"
-      :busy="isBusy"
       :items="files.files"
       hover
       stacked="md"
@@ -55,6 +63,7 @@
           <!-- Delete file -->
           <b-button
             variant="danger"
+            :disabled="loadingDownload===data.index"
             @click="deleteFile(data.item,data.index)"
           >
             <i class="fas fa-trash"></i>
@@ -63,10 +72,10 @@
           <b-button
             variant="dark"
             @click="downloadFile(data.item,data.index)"
-            :disabled="loadingDownload"
+            :disabled="loadingDownload!==null"
             target="_blank"
           >
-            <b-spinner small v-if="loadingDownload"></b-spinner> <i v-if="!loadingDownload" class="fas fa-eye"></i>
+            <b-spinner small v-if="loadingDownload===data.index"></b-spinner> <i v-else class="fas fa-eye"></i>
           </b-button>
         </b-button-group>
       </template>
@@ -90,7 +99,6 @@
           size="lg"
           switch
           @change="changeSettings(data.item,'useinmeeting',$event)"
-          :disabled="files.default === data.item.id"
           v-model="data.item.useinmeeting"
         ></b-form-checkbox>
       </template>
@@ -101,11 +109,13 @@
           size="lg"
           name="default"
           :value="data.item.id"
-          @change="changeDefault"
+          :disabled="data.item.useinmeeting !== true"
+          @change="changeSettings(data.item,'default',$event)"
           v-model="files.default"
         ></b-form-radio>
       </template>
     </b-table>
+    </b-overlay>
   </div>
 </template>
 <script>
@@ -119,14 +129,23 @@ export default {
     return {
       // file list fetching from api
       isBusy: false,
-      loadingDownload: false,
+      loadingDownload: null,
       // file upload model
       fileUpload: null,
       // file list from api
-      files: []
+      files: [],
+      errors: {}
     };
   },
   methods: {
+
+    fieldState (field) {
+      return this.errors[field] === undefined ? null : false;
+    },
+    fieldError (field) {
+      if (this.fieldState(field) !== false) { return ''; }
+      return this.errors[field].join('<br>');
+    },
 
     /**
      * Request file download url
@@ -135,7 +154,7 @@ export default {
      * @return string url
      */
     downloadFile: function (file, index) {
-      this.loadingDownload = true;
+      this.loadingDownload = index;
       // Update value for the setting and the effected file
       Base.call('rooms/' + this.room.id + '/files/' + file.id)
         .then(response => {
@@ -154,7 +173,7 @@ export default {
           }
           throw error;
         }).finally(() => {
-          this.loadingDownload = false;
+          this.loadingDownload = null;
         });
     },
 
@@ -176,12 +195,16 @@ export default {
         .then(function (value) {
           // Delete confirmed
           if (value === true) {
+            // Change table to busy state
+            this.isBusy = true;
             // Remove file from room with api call
             Base.call('rooms/' + this.room.id + '/files/' + file.id, {
               method: 'delete'
             }).then(response => {
-              // delete successfull, remove file from table
-              this.files.files.splice(index, 1);
+              // Fetch successful
+              this.files = response.data.data;
+            }).finally(() => {
+              this.isBusy = false;
             });
           }
         }.bind(this));
@@ -193,6 +216,9 @@ export default {
     uploadFile: function (event) {
       // Change table to busy state
       this.isBusy = true;
+      // Reset errors
+      this.errors = {};
+
       // Build form data
       const formData = new FormData();
       formData.append('file', event.target.files[0]);
@@ -204,13 +230,25 @@ export default {
           'Content-Type': 'multipart/form-data'
         },
         data: formData
-      }).then(() => {
-        // File upload complete, reload file list
-        this.fileUpload = null;
-        this.reload();
+      }).then(response => {
+        // Fetch successful
+        this.files = response.data.data;
       }).catch((error) => {
-        this.isBusy = false;
+        if (error.response) {
+          if (error.response.status === 413) {
+            this.errors = { file: [this.$t('rooms.files.validation.tooLarge')] };
+            return;
+          }
+          if (error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            return;
+          }
+        }
         throw error;
+      }).finally(() => {
+        // Clear file field and busy status
+        this.isBusy = false;
+        this.fileUpload = null;
       });
     },
     /**
@@ -229,29 +267,28 @@ export default {
         });
     },
     /**
-     * Handle change of the default presentation
-     * @param checked id of the new default presentation
-     */
-    changeDefault: function (checked) {
-      // Find the new default presentation file
-      var file = this.files.files.find(file => file.id === checked);
-      this.changeSettings(file, 'default', true);
-      // Set useinmeetings parameter true, as the default presentation
-      // can only be the default if it is also used in the next meeting
-      file.useinmeeting = true;
-    },
-    /**
      * Change a setting for a files
      * @param file effected file
      * @param setting setting name
      * @param value new value
      */
     changeSettings: function (file, setting, value) {
+      // Change table to busy state
+      this.isBusy = true;
+
+      if (setting === 'default') {
+        value = true;
+      }
+
       // Update value for the setting and the effected file
       Base.call('rooms/' + this.room.id + '/files/' + file.id, {
         method: 'put',
         data: { [setting]: value }
-      }).then(() => {
+      }).then(response => {
+        // Fetch successful
+        this.files = response.data.data;
+      }).finally(() => {
+        this.isBusy = false;
       });
     }
   },

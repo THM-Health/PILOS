@@ -1,14 +1,8 @@
 <template>
   <div>
     <b-form  @submit.stop.prevent :novalidate="true">
+      <b-overlay :show="saving" >
       <div class="row" v-on:keyup.enter="save" @change="save">
-        <!-- Show spinner while settings are being saved -->
-        <div class="col-lg-12 mb-3" v-if="saving">
-          <b-alert show>
-            <b-spinner small></b-spinner> {{ $t('rooms.settings.saving') }}
-          </b-alert>
-        </div>
-
         <!-- General settings tab -->
         <div class="col-lg-3 col-sm-12">
           <h5>{{ $t('rooms.settings.general.title') }}</h5>
@@ -248,6 +242,7 @@
           <b-form-invalid-feedback :state="fieldState('lockSettingsHideUserList')">{{fieldError('lockSettingsHideUserList')}}</b-form-invalid-feedback>
         </div>
       </div>
+      </b-overlay>
     </b-form>
   </div>
 </template>

@@ -22,8 +22,10 @@ class RoomFileController extends Controller
 
         return response()->json([
             'data'=> [
-                'files'  => PrivateRoomFile::collection($room->files),
-                'default'=> $default ? $default->id : null
+                'files'      => PrivateRoomFile::collection($room->files),
+                'default'    => $default ? $default->id : null,
+                'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
+                'file_size'  => config('bigbluebutton.max_filesize') / 1000,
             ]
         ]);
     }
@@ -43,11 +45,10 @@ class RoomFileController extends Controller
         $file               = new RoomFile();
         $file->path         = $path;
         $file->filename     = $name;
-        $file->default      = $room->files->count() == 0;
-        $file->useinmeeting = true;
         $room->files()->save($file);
+        $room->updateDefaultFile();
 
-        return new PrivateRoomFile($file);
+        return $this->index($room);
     }
 
     /**
@@ -83,6 +84,9 @@ class RoomFileController extends Controller
 
         if ($request->has('useinmeeting')) {
             $file->useinmeeting = $request->useinmeeting;
+            if (!$room->files()->where('default', true)->exists()) {
+                $file->default = true;
+            }
         }
         if ($request->has('download')) {
             $file->download = $request->download;
@@ -91,13 +95,14 @@ class RoomFileController extends Controller
         if ($request->has('default') && $request->default === true) {
             $room->files()->update(['default' => false]);
             $file->refresh();
-            $file->default      = true;
-            $file->useinmeeting = true;
+            $file->default = true;
         }
 
         $file->save();
 
-        return new PrivateRoomFile($file);
+        $room->updateDefaultFile();
+
+        return $this->index($room);
     }
 
     /**
@@ -115,7 +120,8 @@ class RoomFileController extends Controller
         }
 
         $file->delete();
+        $room->updateDefaultFile();
 
-        return response()->noContent();
+        return $this->index($room);
     }
 }

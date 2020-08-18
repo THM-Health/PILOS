@@ -506,26 +506,38 @@ class FileTest extends TestCase
         $room_file_1 = $this->room->files()->where('filename', $file_1->name)->first();
         $room_file_2 = $this->room->files()->where('filename', $file_2->name)->first();
 
+        $this->assertFalse($room_file_1->default);
+        $this->assertFalse($room_file_1->useinmeeting);
+
+        $this->assertFalse($room_file_2->default);
+        $this->assertFalse($room_file_2->useinmeeting);
+
+        // Set new default without useinmeeting
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['default'=>true])
+            ->assertSuccessful();
+        $room_file_1->refresh();
+        $room_file_2->refresh();
+        $this->assertFalse($room_file_1->default);
+        $this->assertFalse($room_file_1->useinmeeting);
+        $this->assertFalse($room_file_2->default);
+        $this->assertFalse($room_file_2->useinmeeting);
+
+        // Set new default with useinmeeting
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_1]), ['useinmeeting'=>true])
+            ->assertSuccessful();
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['useinmeeting'=>true])
+            ->assertSuccessful();
+        $room_file_1->refresh();
+        $room_file_2->refresh();
         $this->assertTrue($room_file_1->default);
         $this->assertTrue($room_file_1->useinmeeting);
-
         $this->assertFalse($room_file_2->default);
         $this->assertTrue($room_file_2->useinmeeting);
 
-        $room_file_2->useinmeeting = false;
-        $room_file_2->save();
-
-        // Set new default
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['default'=>true])
-            ->assertSuccessful()
-            ->dump();
-
-        $room_file_1->refresh();
+        // Remove current default
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file_1]))
+            ->assertSuccessful();
         $room_file_2->refresh();
-
-        $this->assertFalse($room_file_1->default);
-        $this->assertTrue($room_file_1->useinmeeting);
-
         $this->assertTrue($room_file_2->default);
         $this->assertTrue($room_file_2->useinmeeting);
     }

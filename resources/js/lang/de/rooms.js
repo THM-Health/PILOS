@@ -64,6 +64,11 @@ export default {
         yes: 'Ja',
         no: 'Nein'
       }
+    },
+    formats: 'Erlaubte Dateiformate: {formats}',
+    size: 'Max. Dateigröße: {size} MB',
+    validation: {
+      tooLarge: 'Die ausgewählte Datei ist zu groß.'
     }
   },
   invitation: {

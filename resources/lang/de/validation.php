@@ -205,5 +205,6 @@ return [
         'lockSettingsDisablePublicChat'     => 'Öffentlichen Chat deaktivieren',
         'lockSettingsHideUserList'          => 'Teilnehmerliste verbergen',
         'role'                              => 'Rolle',
+        'file'                              => 'Datei',
     ],
 ];
