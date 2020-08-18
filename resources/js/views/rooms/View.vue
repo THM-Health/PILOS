@@ -21,20 +21,20 @@
             class="float-right"
             v-if="room.allowMembership && !room.isMember && !room.isOwner"
             v-on:click="joinMembership"
-            :disabled="loadingJoinMembership"
+            :disabled="loading"
             variant="dark"
           >
-            <b-spinner small v-if="loadingJoinMembership"></b-spinner> <i v-if="!loadingJoinMembership" class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
           <!-- If user is member, allow user to end the membership -->
           <b-button
             class="float-right"
             v-if="room.isMember"
             v-on:click="leaveMembership"
-            :disabled="loadingLeaveMembership"
+            :disabled="loading"
             variant="danger"
           >
-            <b-spinner small v-if="loadingLeaveMembership"></b-spinner> <i v-if="!loadingLeaveMembership" class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
           </b-button>
         </div>
       </div>
@@ -226,8 +226,6 @@ export default {
     return {
       loading: false, // Room settings/details loading
       loadingJoinStart: false, // Loading indicator on joining/starting a room
-      loadingJoinMembership: false, // Loading indicator on joining membership
-      loadingLeaveMembership: false, // Loading indicator on leaving membership
       loadingDownload: false, // Loading indicator for downloading file
       name: '', // Name of guest
       room_id: null, // ID of the room
@@ -473,7 +471,7 @@ export default {
      */
     joinMembership: function (event) {
       // Enable loading indictor
-      this.loadingJoinMembership = true;
+      this.loading = true;
 
       // Join room as member, send access code if needed
       const config = this.accessCode == null ? { method: 'post' } : { method: 'post', headers: { 'Access-Code': this.accessCode } };
@@ -484,6 +482,8 @@ export default {
           this.reload();
         })
         .catch((error) => {
+          this.loading = false;
+
           if (error.response) {
             // Access code invalid
             if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
@@ -505,9 +505,6 @@ export default {
             }
           }
           throw error;
-        }).finally(() => {
-        // Disable loading indicator
-          this.loadingJoinMembership = false;
         });
     },
     /**
@@ -516,19 +513,14 @@ export default {
      */
     leaveMembership: function (event) {
       // Enable loading indictor
-      this.loadingLeaveMembership = true;
+      this.loading = true;
 
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'delete'
-      })
-        .then(response => {
-          // Reload without membership
-          this.reload();
-        })
-        .finally(() => {
-        // Disable loading indicator
-          this.loadingLeaveMembership = false;
-        });
+      }).finally(() => {
+        // Reload without membership
+        this.reload();
+      });
     },
     /**
      * Handle login with access code
