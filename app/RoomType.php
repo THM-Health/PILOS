@@ -13,6 +13,43 @@ class RoomType extends Model
         'default'   => 'boolean',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Make sure only one room type can be default
+        static::saving(function ($roomType) {
+            // Remove any other defaults
+            if ($roomType->default == true) {
+                self::where('default', true)->update(['default' => false]);
+
+                return;
+            }
+            // If no default exits, set default
+            if (self::where('default', true)->doesntExist()) {
+                $roomType->default = true;
+
+                return;
+            }
+
+            // If the room exits and is default, prevent from changing default
+            if ($roomType->exists && $roomType->default == false && self::where('default', true)->where('id', $roomType->id)->exists()) {
+                $roomType->default = true;
+            }
+        });
+
+        // On delete, find a new default if current is deleted
+        static::deleting(function ($roomType) {
+            if ($roomType->default == true) {
+                $room = self::first();
+                if ($room != null) {
+                    $room->default = true;
+                    $room->save();
+                }
+            }
+        });
+    }
+
     /**
      * Scope a query to only get the default room
      *

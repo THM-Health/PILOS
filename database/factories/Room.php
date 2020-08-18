@@ -8,7 +8,7 @@ use Faker\Generator as Faker;
 $factory->define(Room::class, function (Faker $faker) {
     return [
         'name' => $faker->word,
-        'room_type_id' => \App\RoomType::default()->id,
+        'room_type_id' => factory(App\RoomType::class),
         'user_id' => factory(App\User::class),
     ];
 });
