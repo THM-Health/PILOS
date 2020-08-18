@@ -356,17 +356,6 @@ export default {
         ? this.settings.welcome.length
         : 0;
       return char + ' / ' + this.welcomeMessageLimit;
-    },
-    /**
-     * Check if the welcome message is valid (not too long)
-     * @returns {*}
-     */
-    welcomeMessageValidLength () {
-      return this.settings.welcome
-        ? this.settings.welcome.length <= this.welcomeMessageLimit
-          ? null
-          : false
-        : null;
     }
   },
   created () {

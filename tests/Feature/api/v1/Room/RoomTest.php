@@ -511,10 +511,9 @@ class RoomTest extends TestCase
         // check if response has a join url
         $this->assertIsString($response->json('url'));
         // check if join url is working
-        $response = Http::withOptions(['allow_redirects' => false])->get($response->json('url'));
-        $this->assertEquals(302, $response->status());
-        $this->assertArrayHasKey('Location', $response->headers());
-        // check if redirected to guest wait page
-        return Str::contains($response->headers()['Location'][0], 'guest-wait.html');
+        $response = Http::withOptions(['allow_redirects' =>['track_redirects' => true]])->get($response->json('url'));
+        $headersRedirect = $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER);
+        $this->assertNotEmpty($headersRedirect);
+        return Str::contains(last($headersRedirect), 'guest-wait.html');
     }
 }

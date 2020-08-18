@@ -11,7 +11,7 @@
         "production-css": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --env.mixfile=webpack.css.mix.js --config=node_modules/laravel-mix/setup/webpack.config.js",
         "test": "cross-env NODE_ENV=test mochapack --webpack-config=node_modules/laravel-mix/setup/webpack.config.js --require tests/Frontend/setup.js \"resources/js/**/*.vue\" \"tests/Frontend/**/*.spec.js\"",
         "lint": "node_modules/.bin/eslint --ext .js,.vue .",
-        "fix-cs": "npm run lint --fix",
+        "fix-cs": "node_modules/.bin/eslint --ext .js,.vue . --fix",
         "cover": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text npm run test",
         "ci": "npm run lint && npm run cover"
     },

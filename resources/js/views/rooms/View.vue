@@ -262,7 +262,7 @@ export default {
   },
   mounted () {
     // Reload room details in a set inteval, change in the .env
-    setInterval(this.reload, env.WELCOME_MESSAGE_LIMIT * 1000);
+    setInterval(this.reload, env.REFRESH_RATE * 1000);
   },
   methods: {
 
