@@ -54,7 +54,7 @@ class RoomController extends Controller
      */
     public function show(Room $room, Request $request)
     {
-        return new \App\Http\Resources\Room($room, $request->authenticated);
+        return new \App\Http\Resources\Room($room, $request->authenticated, true);
     }
 
     /**

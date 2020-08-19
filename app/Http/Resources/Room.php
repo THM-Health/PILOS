@@ -13,6 +13,7 @@ class Room extends JsonResource
      * @var bool is user authenticated (has valid access code, member or owner)
      */
     private $authenticated;
+    private $details;
 
     /**
      * Create a new resource instance.
@@ -20,10 +21,11 @@ class Room extends JsonResource
      * @param mixed $resource
      * @param $authenticated boolean is user authenticated (has valid access code, member or owner)
      */
-    public function __construct($resource, $authenticated)
+    public function __construct($resource, $authenticated, $details = false)
     {
         parent::__construct($resource);
         $this->authenticated = $authenticated;
+        $this->details       = $details;
     }
 
     /**
@@ -39,16 +41,18 @@ class Room extends JsonResource
             'name'              => $this->name,
             'owner'             => $this->owner->fullname,
             'type'              => new RoomType($this->roomType),
-            'authenticated'     => $this->authenticated,
-            'allowMembership'   => Auth::user() && $this->allowMembership,
-            'isMember'          => $this->resource->isMember(Auth::user()),
-            'isOwner'           => $this->owner->is(Auth::user()),
-            'isGuest'           => Auth::guest(),
-            'isModerator'       => $this->resource->isModeratorOrOwner(Auth::user()),
-            'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
-            'running'           => $this->resource->runningMeeting() != null,
-            'accessCode'        => $this->when($this->resource->isModeratorOrOwner(Auth::user()), $this->accessCode),
-            'files'             => $this->when($this->authenticated, RoomFile::collection($this->resource->files()->where('download', true)->get()))
+            $this->mergeWhen($this->details, [
+                'authenticated'     => $this->authenticated,
+                'allowMembership'   => Auth::user() && $this->allowMembership,
+                'isMember'          => $this->resource->isMember(Auth::user()),
+                'isOwner'           => $this->owner->is(Auth::user()),
+                'isGuest'           => Auth::guest(),
+                'isModerator'       => $this->resource->isModeratorOrOwner(Auth::user()),
+                'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
+                'running'           => $this->resource->runningMeeting() != null,
+                'accessCode'        => $this->when($this->resource->isModeratorOrOwner(Auth::user()), $this->accessCode),
+                'files'             => $this->when($this->authenticated, RoomFile::collection($this->resource->files()->where('download', true)->get()))
+            ])
         ];
     }
 }
