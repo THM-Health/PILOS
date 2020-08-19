@@ -4,6 +4,7 @@
     <b-modal
       :id="modalId"
       :title="modalTitle"
+      :static="true"
       header-class="modal-title"
       header-text-variant="success"
       centered
@@ -12,18 +13,24 @@
     >
       <b-container fluid>
         <b-form @submit.stop.prevent="onSubmit(crudUser)">
-          <div v-if="modalType === 'delete'">
-            {{ $t('settings.users.modal.deleteContent') }}
+          <div id="user-delete" v-if="modalType === 'delete'">
+            <p>{{ $t('settings.users.modal.deleteContent') }}</p>
           </div>
-          <div v-if="modalType === 'create' || modalType === 'update'">
-            <b-form-group id="crud-email" :label="$t('settings.users.fields.email')"
+          <div id="user-create-update" v-if="modalType === 'create' || modalType === 'update'">
+            <b-form-group id="crud-email"
                           label-for="crud-input-email">
-              <b-form-input id="crud-input-email"
-                            v-model="crudUser.email"
-                            :placeholder="$t('settings.users.fields.email')"
-                            required
-                            :state="errors !== null && errors.email && errors.email.length > 0 ? false: null">
-              </b-form-input>
+              <b-input-group>
+                <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.email')">
+                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-mail-bulk"></i>
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input id="crud-input-email"
+                              v-model="crudUser.email"
+                              :placeholder="$t('settings.users.fields.email')"
+                              required
+                              :state="errors !== null && errors.email && errors.email.length > 0 ? false: null">
+                </b-form-input>
+              </b-input-group>
               <b-form-invalid-feedback
                 :state="errors !== null && errors.email && errors.email.length > 0 ? false: null">
                 <template v-for="error in errors.email">
@@ -31,14 +38,20 @@
                 </template>
               </b-form-invalid-feedback>
             </b-form-group>
-            <b-form-group id="crud-username" :label="$t('settings.users.fields.username')"
+            <b-form-group id="crud-username"
                           label-for="crud-input-username">
-              <b-form-input id="crud-input-username"
-                            v-model="crudUser.username"
-                            :placeholder="$t('settings.users.fields.username')"
-                            required
-                            :state="errors !== null && errors.username && errors.username.length > 0 ? false: null">
-              </b-form-input>
+              <b-input-group>
+                <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.username')">
+                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-user-circle"></i>
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input id="crud-input-username"
+                              v-model="crudUser.username"
+                              :placeholder="$t('settings.users.fields.username')"
+                              required
+                              :state="errors !== null && errors.username && errors.username.length > 0 ? false: null">
+                </b-form-input>
+              </b-input-group>
               <b-form-invalid-feedback
                 :state="errors !== null && errors.username && errors.username.length > 0 ? false: null">
                 <template v-for="error in errors.username">
@@ -46,15 +59,22 @@
                 </template>
               </b-form-invalid-feedback>
             </b-form-group>
-            <b-form-group id="crud-password" :label="$t('settings.users.fields.password')"
-                          label-for="crud-input-password" v-if="modalType !== 'update'">
-              <b-form-input id="crud-input-password"
-                            v-model="crudUser.password"
-                            :placeholder="$t('settings.users.fields.password')"
-                            type="password"
-                            required
-                            :state="errors !== null && errors.password && errors.password.length > 0 ? false: null">
-              </b-form-input>
+            <b-form-group id="crud-password"
+                          label-for="crud-input-password"
+                          v-if="modalType !== 'update'">
+              <b-input-group>
+                <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.password')">
+                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-lock"></i>
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input id="crud-input-password"
+                              v-model="crudUser.password"
+                              :placeholder="$t('settings.users.fields.password')"
+                              type="password"
+                              required
+                              :state="errors !== null && errors.password && errors.password.length > 0 ? false: null">
+                </b-form-input>
+              </b-input-group>
               <b-form-invalid-feedback
                 :state="errors !== null && errors.password && errors.password.length > 0 ? false: null">
                 <template v-for="error in errors.password">
@@ -62,14 +82,20 @@
                 </template>
               </b-form-invalid-feedback>
             </b-form-group>
-            <b-form-group id="crud-firstname" :label="$t('settings.users.fields.firstname')"
+            <b-form-group id="crud-firstname"
                           label-for="crud-input-firstname">
-              <b-form-input id="crud-input-firstname"
-                            v-model="crudUser.firstname"
-                            :placeholder="$t('settings.users.fields.firstname')"
-                            required
-                            :state="errors !== null && errors.firstname && errors.firstname.length > 0 ? false: null">
-              </b-form-input>
+              <b-input-group>
+                <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.firstname')">
+                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-tag"></i>
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input id="crud-input-firstname"
+                              v-model="crudUser.firstname"
+                              :placeholder="$t('settings.users.fields.firstname')"
+                              required
+                              :state="errors !== null && errors.firstname && errors.firstname.length > 0 ? false: null">
+                </b-form-input>
+              </b-input-group>
               <b-form-invalid-feedback
                 :state="errors !== null && errors.firstname && errors.firstname.length > 0 ? false: null">
                 <template v-for="error in errors.firstname">
@@ -77,14 +103,20 @@
                 </template>
               </b-form-invalid-feedback>
             </b-form-group>
-            <b-form-group id="crud-lastname" :label="$t('settings.users.fields.lastname')"
+            <b-form-group id="crud-lastname"
                           label-for="crud-input-lastname">
-              <b-form-input id="crud-input-lastname"
-                            v-model="crudUser.lastname"
-                            :placeholder="$t('settings.users.fields.lastname')"
-                            required
-                            :state="errors !== null && errors.lastname && errors.lastname.length > 0 ? false: null">
-              </b-form-input>
+              <b-input-group>
+                <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.lastname')">
+                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-tags"></i>
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input id="crud-input-lastname"
+                              v-model="crudUser.lastname"
+                              :placeholder="$t('settings.users.fields.lastname')"
+                              required
+                              :state="errors !== null && errors.lastname && errors.lastname.length > 0 ? false: null">
+                </b-form-input>
+              </b-input-group>
               <b-form-invalid-feedback
                 :state="errors !== null && errors.lastname && errors.lastname.length > 0 ? false: null">
                 <template v-for="error in errors.lastname">
@@ -93,11 +125,16 @@
               </b-form-invalid-feedback>
             </b-form-group>
           </div>
-          <b-container class="d-flex justify-content-end">
-            <b-button type="submit" variant="success">
-              {{ $t('settings.users.modal.submit') }}
-            </b-button>
-          </b-container>
+
+          <b-button
+            id="crud-user-submit"
+            class="mt-3"
+            block
+            type="submit"
+            variant="success">
+            {{ $t('settings.users.modal.submit') }}
+          </b-button>
+
         </b-form>
       </b-container>
     </b-modal>

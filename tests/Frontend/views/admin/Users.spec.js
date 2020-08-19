@@ -44,11 +44,17 @@ describe('AdminUser', function () {
   it('contains a crud user modal component', function () {
     const crudModal = wrapper.findComponent(CrudModalComponent);
     expect(crudModal.exists()).toBe(true);
+
+    const crudModalElement = wrapper.find('#crud-modal');
+    expect(crudModalElement.exists()).toBe(true);
   });
 
   it('contains a invite user modal component', function () {
     const inviteModal = wrapper.findComponent(InviteModalComponent);
     expect(inviteModal.exists()).toBe(true);
+
+    const inviteModalElement = wrapper.find('#invite-modal');
+    expect(inviteModalElement.exists()).toBe(true);
   });
 
   it('getUsers method should work properly', function (done) {
@@ -92,17 +98,16 @@ describe('AdminUser', function () {
             total: 203
           }
         }
-      })
-        .then(function () {
-          expect(wrapper.vm.users.length).toBe(1);
-          expect(wrapper.vm.currentPage).toBe(2);
-          expect(wrapper.vm.firstPage).toBe(1);
-          expect(wrapper.vm.nextPage).toBe(3);
-          expect(wrapper.vm.lastPage).toBe(21);
-          expect(wrapper.vm.prevPage).toBe(1);
-          expect(wrapper.vm.totalRows).toBe(203);
-          done();
-        });
+      }).then(function () {
+        expect(wrapper.vm.users.length).toBe(1);
+        expect(wrapper.vm.currentPage).toBe(2);
+        expect(wrapper.vm.firstPage).toBe(1);
+        expect(wrapper.vm.nextPage).toBe(3);
+        expect(wrapper.vm.lastPage).toBe(21);
+        expect(wrapper.vm.prevPage).toBe(1);
+        expect(wrapper.vm.totalRows).toBe(203);
+        done();
+      });
     });
   });
 });

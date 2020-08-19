@@ -4,6 +4,7 @@
     <b-modal
       :id="modalId"
       :title="$t('settings.users.modal.invite')"
+      :static="true"
       header-text-variant="success"
       centered
       hide-footer
@@ -24,7 +25,6 @@
                             :placeholder="$t('settings.users.modal.invitePlaceholder')"
                             @keydown.enter.prevent="addEmail(inputEmail)"
                             type="email"
-                            required
                             :state="errors !== null && errors.email && errors.email.length > 0 ? false: null"
               >
               </b-form-input>

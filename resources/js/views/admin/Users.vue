@@ -42,9 +42,8 @@
               @input="getUsers(currentPage, filterInput)"
             ></b-form-input>
             <b-input-group-append>
-              <b-button class="btn-success">
-                <i class="text-white fas fa fa-search"></i>
-              </b-button>
+              <b-input-group-text class="bg-success text-white"><i class="fa fas fa-search"></i>
+              </b-input-group-text>
             </b-input-group-append>
           </b-input-group>
         </b-form-group>
