@@ -4,8 +4,8 @@
     <b-modal
       :id="modalId"
       :title="modalTitle"
-      header-bg-variant="success"
-      header-text-variant="light"
+      header-class="modal-title"
+      header-text-variant="success"
       centered
       hide-footer
       @hidden="resetModal()"
@@ -222,5 +222,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

@@ -5,7 +5,8 @@ export default {
     title: 'Benutzer',
     tooltip: {
       create: 'Benutzer erstellen.',
-      invite: 'Benutzer einladen.'
+      invite: 'Benutzer einladen.',
+      removeEmail: 'anklicken zum Entfernen'
     },
     fields: {
       authenticator: 'Authenticator',

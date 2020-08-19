@@ -66,7 +66,7 @@
     >
       <!--Action Dropdown Button-->
       <template v-slot:cell(action)="row">
-        <b-dropdown size="sm" id="dropdown-right" class="ml-3 mb-1" right variant="success" no-caret>
+        <b-dropdown size="sm" id="user-action-dropdown" class="ml-3 mb-1" right variant="success" no-caret>
           <template v-slot:button-content>
             <span><i class="fas fa fa-user"></i></span>
           </template>
