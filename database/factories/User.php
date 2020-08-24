@@ -13,8 +13,6 @@ $factory->define(User::class, function (Faker $faker) {
         'email' => $faker->unique()->safeEmail,
         'email_verified_at' => now(),
         'password' => $faker->password,
-        'remember_token' => Str::random(10),
-        'guid' => $faker->unique()->uuid,
-        'domain' => $faker->domainName
+        'remember_token' => Str::random(10)
     ];
 });

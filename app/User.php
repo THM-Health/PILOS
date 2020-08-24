@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -10,7 +12,7 @@ use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
 class User extends Authenticatable
 {
-    use Notifiable, AuthenticatesWithLdap, HasApiTokens;
+    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -110,5 +112,33 @@ class User extends Authenticatable
                 });
             }
         });
+    }
+
+    /**
+     * The roles that are assigned to the user.
+     *
+     * @return BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany('App\Role');
+    }
+
+    /**
+     * Array of unique permission names that are given to the user through the assigned roles.
+     *
+     * @return String[]
+     */
+    public function getPermissionsAttribute()
+    {
+        return array_reduce($this->roles->all(), function ($permissions, $role) {
+            foreach ($role->permissions as $permission) {
+                if (!in_array($permission->name, $permissions)) {
+                    array_push($permissions, $permission->name);
+                }
+            }
+
+            return $permissions;
+        }, []);
     }
 }

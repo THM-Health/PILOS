@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Permission;
+use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,7 +29,7 @@ class LoginTest extends TestCase
             'password' => 'foo'
         ]);
         $response->assertStatus(422);
-        $this->isAuthenticated();
+        $this->assertGuest();
     }
 
     /**
@@ -46,7 +48,7 @@ class LoginTest extends TestCase
             'password' => $password
         ]);
         $response->assertNoContent();
-        $this->isAuthenticated();
+        $this->assertAuthenticated();
     }
 
     /**
@@ -78,6 +80,32 @@ class LoginTest extends TestCase
     }
 
     /**
+     * Test that unique permissions gets returned for the authenticated user.
+     *
+     * @return void
+     */
+    public function testCurrentUserPermissions()
+    {
+        $permission = Permission::firstOrCreate([ 'name' => 'test' ]);
+
+        $a = Role::firstOrCreate(['name' => 'a']);
+        $a->permissions()->attach($permission->id);
+
+        $b = Role::firstOrCreate(['name' => 'b']);
+        $b->permissions()->attach($permission->id);
+
+        $user     = factory(User::class)->create();
+        $user->roles()->attach([$a->id, $b->id]);
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'firstname'   => $user->firstname,
+            'lastname'    => $user->lastname,
+            'permissions' => ['test']
+        ]);
+    }
+
+    /**
      * Test that logout works as expected if the user is authenticated.
      *
      * @return void
@@ -87,7 +115,7 @@ class LoginTest extends TestCase
         $user     = factory(User::class)->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
         $response->assertNoContent();
-        $this->assertFalse($this->isAuthenticated());
+        $this->assertGuest();
     }
 
     /**
