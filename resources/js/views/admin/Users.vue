@@ -62,6 +62,7 @@
              @filtered="onFiltered"
              responsive
              small
+             @row-clicked="toggleRowDetails"
     >
       <!--Action Dropdown Button-->
       <template v-slot:cell(action)="row">
@@ -81,7 +82,91 @@
               <b-col cols="9">{{ $t('settings.users.fields.delete') }}</b-col>
             </b-row>
           </b-dropdown-item>
+          <b-dropdown-item @click="toggleRowDetails(row.item)">
+            <b-row class="text-muted">
+              <b-col cols="3"><i class="fas fa fa-user-check"></i></b-col>
+              <b-col cols="9">{{ $t('settings.users.fields.details') }}</b-col>
+            </b-row>
+          </b-dropdown-item>
         </b-dropdown>
+      </template>
+
+      <!-- User Details Card-->
+      <template v-slot:row-details="row">
+        <!--Database user info detail card-->
+        <b-card>
+          <b-card-title class="text-success">
+            {{$t('settings.users.titleDatabaseCard')}}
+          </b-card-title>
+          <hr>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.id') }}</b></b-col>
+            <b-col>{{ row.item.id }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.firstname') }}</b></b-col>
+            <b-col>{{ row.item.firstname }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.lastname') }}</b></b-col>
+            <b-col>{{ row.item.lastname }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.email') }}</b></b-col>
+            <b-col>{{ row.item.email }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.username') }}</b></b-col>
+            <b-col>{{ row.item.username }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.authenticator') }}</b></b-col>
+            <b-col>{{ row.item.authenticator }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.guid') }}</b></b-col>
+            <b-col>{{ row.item.guid }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.created') }}</b></b-col>
+            <b-col>{{ formatDate(row.item.createdAt) }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.updated') }}</b></b-col>
+            <b-col>{{ formatDate(row.item.updatedAt) }}</b-col>
+          </b-row>
+        </b-card>
+        <!--LDAP info detail card-->
+        <b-card class="mt-2" v-if="row.item.ldapData != null">
+          <b-card-title class="text-success">
+            {{ $t('settings.users.titleLdapCard') }}
+          </b-card-title>
+          <hr>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.uid') }}</b></b-col>
+            <b-col>{{ row.item.ldapData.uid[0] }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.mail') }}</b></b-col>
+            <b-col>{{ row.item.ldapData.mail[0] }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.cn') }}</b></b-col>
+            <b-col>{{ row.item.ldapData.cn[0] }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.givenname') }}</b></b-col>
+            <b-col>{{ row.item.ldapData.givenname[0] }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.sn') }}</b></b-col>
+            <b-col>{{ row.item.ldapData.sn[0] }}</b-col>
+          </b-row>
+          <b-row class="mb-2">
+            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.entryuuid') }}</b></b-col>
+            <b-col>{{ row.item.ldapData.entryuuid[0] }}</b-col>
+          </b-row>
+        </b-card>
       </template>
     </b-table>
 
@@ -161,24 +246,11 @@ export default {
         { key: 'firstname', sortable: true, label: this.$t('settings.users.fields.firstname') },
         { key: 'lastname', sortable: true, label: this.$t('settings.users.fields.lastname') },
         { key: 'username', sortable: true, label: this.$t('settings.users.fields.username') },
+        { key: 'email', sortable: true, label: this.$t('settings.users.fields.email') },
         {
           key: 'authenticator',
           sortable: true,
           label: this.$t('settings.users.fields.authenticator')
-        },
-        {
-          key: 'createdAt',
-          sortable: true,
-          label: this.$t('settings.users.fields.created'),
-          formatter: value =>
-            this.formatDate(value)
-        },
-        {
-          key: 'updatedAt',
-          sortable: true,
-          label: this.$t('settings.users.fields.updated'),
-          formatter: value =>
-            this.formatDate(value)
         },
         { key: 'action', label: this.$t('settings.users.fields.actions') }
       ];
@@ -200,7 +272,25 @@ export default {
         this.totalRows = response.data.meta.total;
         this.nextPage = this.currentPage + 1;
         this.prevPage = this.currentPage - 1;
-      }).finally(this.isBusy = false);
+      }).finally(() => {
+        this.isBusy = false;
+        this.users.map(user => {
+          user._showDetails = false;
+        });
+      });
+    },
+    getUserLdapData (user) {
+      Base.call('ldap/' + user.guid)
+        .then((response) => {
+          user.ldapData = response.data;
+        })
+        .catch((error) => {
+          user.ldapData = null;
+          throw error();
+        })
+        .finally(() => {
+          this.$root.$emit('bv::refresh::table', 'user-table');
+        });
     },
     openModal (modalType) {
       this.modalType = modalType;
@@ -223,6 +313,11 @@ export default {
       this.totalRows = filteredItems.length;
       this.users.count = filteredItems.length;
       this.currentPage = 1;
+    },
+    toggleRowDetails (user) {
+      if (user._showDetails === false && user.authenticator === 'ldap') this.getUserLdapData(user);
+      this.$set(user, '_showDetails', !user._showDetails);
+      this.$root.$emit('bv::refresh::table', 'user-table');
     }
   }
 };

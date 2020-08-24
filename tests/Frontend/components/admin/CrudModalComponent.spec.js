@@ -66,7 +66,7 @@ describe('CrudModalComponent', function () {
     expect(createUpdateDiv.exists()).toBe(true);
   });
 
-  it('resets crudUser variables when resetModal method called', function () {
+  it('resets crudUser variables when resetModal is called', function () {
     expect(wrapper.vm.crudUser.id).toBe(1);
     expect(wrapper.vm.crudUser.firstname).toBe('max');
     expect(wrapper.vm.crudUser.lastname).toBe('mustermann');
@@ -82,7 +82,7 @@ describe('CrudModalComponent', function () {
     expect(wrapper.vm.crudUser.username).toBe(null);
   });
 
-  it('emits (crud) when create user method are called', function (done) {
+  it('emits (crud) when create user method is called', function (done) {
     // Nothing emitted at the beginning
     expect(wrapper.emitted().crud).toBeUndefined();
 
@@ -101,7 +101,7 @@ describe('CrudModalComponent', function () {
     });
   });
 
-  it('emits (crud) when update user method are called', function (done) {
+  it('emits (crud) when update user method is called', function (done) {
     // Nothing emitted at the beginning
     expect(wrapper.emitted().crud).toBeUndefined();
 

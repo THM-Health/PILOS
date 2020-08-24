@@ -3,12 +3,15 @@ export default {
 
   users: {
     title: 'Benutzer',
+    titleDatabaseCard: 'Datenbank Informationen',
+    titleLdapCard: 'LDAP Informationen',
     tooltip: {
       create: 'Benutzer erstellen.',
       invite: 'Benutzer einladen.',
       removeEmail: 'anklicken zum Entfernen'
     },
     fields: {
+      id: 'Benutzer ID',
       authenticator: 'Authenticator',
       email: 'Email',
       name: 'Name',
@@ -17,10 +20,18 @@ export default {
       username: 'Benutzername',
       created: 'Erstellt',
       updated: 'Aktualisiert',
+      guid: 'GUID',
       actions: 'Aktionen',
       edit: 'Bearbeiten',
       delete: 'Löschen',
-      password: 'Kenntwort'
+      details: 'Details',
+      password: 'Kenntwort',
+      uid: 'uid',
+      mail: 'mail',
+      cn: 'cn',
+      givenname: 'givenname',
+      sn: 'sn',
+      entryuuid: 'entryuuid'
     },
     modal: {
       create: 'Benutzer erstellen',

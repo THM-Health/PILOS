@@ -16,24 +16,35 @@ export default {
 
   users: {
     title: 'Users',
+    titleDatabaseCard: 'Database Information',
+    titleLdapCard: 'LDAP Information',
     tooltip: {
       create: 'Create an user.',
       invite: 'Invite an user.',
       removeEmail: 'click to remove'
     },
     fields: {
+      id: 'User ID',
       authenticator: 'Authenticator',
       email: 'Email',
       name: 'Name',
       firstname: 'Firstname',
       lastname: 'Lastname',
       username: 'Username',
+      guid: 'GUID',
       created: 'Created',
       updated: 'Updated',
       actions: 'Actions',
       edit: 'Edit',
       delete: 'Delete',
-      password: 'Password'
+      details: 'Details',
+      password: 'Password',
+      uid: 'uid',
+      mail: 'mail',
+      cn: 'cn',
+      givenname: 'givenname',
+      sn: 'sn',
+      entryuuid: 'entryuuid'
     },
     modal: {
       create: 'Create User',

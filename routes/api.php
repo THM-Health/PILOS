@@ -23,7 +23,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 
-// TODO: Implement or remove this completely
+        // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');
 //
 //        Route::post('password/reset', 'ResetPasswordController@reset');
@@ -38,6 +38,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::apiResource('rooms', 'RoomController');
 
         Route::apiResource('users', 'UserController');
+
+        Route::apiResource('ldap', 'LdapController')->except(['store', 'index']);
 
         Route::post('setLocale', function (Request $request) {
             $validatedData = $request->validate([
