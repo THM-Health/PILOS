@@ -80,7 +80,7 @@
               <b-col col cols="12" md="6" v-if="room.isGuest">
                 <b-form-group :label="$t('rooms.firstAndLastname')">
                   <b-input-group>
-                    <b-form-input v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
                   </b-input-group>
                 </b-form-group>
               </b-col>
@@ -91,6 +91,7 @@
                   <!-- If user is guest, join is only possible if a name is provided -->
                   <b-button
                     block
+                    ref="joinMeeting"
                     v-on:click="join"
                     :disabled="(room.isGuest && name==='') || loadingJoinStart"
                     variant="success"
@@ -106,6 +107,7 @@
                   -->
                   <b-dropdown
                     block
+                    ref="startMeeting"
                     split
                     v-if="room.canStart"
                     :disabled="(room.isGuest && name==='') || loadingJoinStart"
