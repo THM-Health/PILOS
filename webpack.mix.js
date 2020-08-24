@@ -44,7 +44,7 @@ if (fs.existsSync('resources/custom/images')) {
 }
 
 if (!mix.inProduction()) {
-  mix.browserSync(process.env.APP_URL);
+  mix.browserSync(process.env.BROWSERSYNC_URL || process.env.APP_URL);
 }
 
 if (mix.inProduction()) {

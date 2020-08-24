@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16])
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
+- Roles and permissions concept ([#12], [#22])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/issues/3
@@ -20,9 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#8]: https://github.com/THM-Health/PILOS/issues/8
 [#9]: https://github.com/THM-Health/PILOS/issues/9
 [#11]: https://github.com/THM-Health/PILOS/issues/11
+[#12]: https://github.com/THM-Health/PILOS/issues/12
 [#13]: https://github.com/THM-Health/PILOS/issues/13
 [#16]: https://github.com/THM-Health/PILOS/issues/16
 [#17]: https://github.com/THM-Health/PILOS/issues/17
 [#17]: https://github.com/THM-Health/PILOS/issues/19
 [#17]: https://github.com/THM-Health/PILOS/issues/21
+[#22]: https://github.com/THM-Health/PILOS/issues/22
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

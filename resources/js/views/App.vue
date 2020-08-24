@@ -31,6 +31,7 @@
                 <template v-slot:button-content>
                   {{currentUser.firstname}} {{currentUser.lastname}}
                 </template>
+
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
               <locale-selector :available-locales="availableLocales"></locale-selector>

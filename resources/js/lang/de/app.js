@@ -24,6 +24,11 @@ export default {
     unauthenticated: {
       message: 'Sie müssen angemeldet sein, um die Anfrage durchführen zu können!',
       title: 'Nicht angemeldet'
+    },
+
+    unauthorized: {
+      message: 'Sie haben für die aufgerufene Route nicht die notwendigen Rechte!',
+      title: 'Nicht berechtigt'
     }
   },
 
