@@ -47,7 +47,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const locale = $('html').prop('lang') || 'en';
+  const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
   const promise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
   promise.then(() => {
