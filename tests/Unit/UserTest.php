@@ -117,9 +117,9 @@ class UserTest extends TestCase
      */
     public function testUniquePermissionNames()
     {
-        $user = factory(User::class)->create();
-        $roleA = factory(Role::class)->create();
-        $roleB = factory(Role::class)->create();
+        $user       = factory(User::class)->create();
+        $roleA      = factory(Role::class)->create();
+        $roleB      = factory(Role::class)->create();
         $permission = factory(Permission::class)->create();
         $roleA->permissions()->attach($permission->id);
         $roleB->permissions()->attach($permission->id);
