@@ -319,6 +319,27 @@ class RoomTest extends TestCase
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
     }
 
+    public function testStartAndJoinWithWrongServerDetails()
+    {
+        $room = factory(Room::class)->create();
+
+        // Adding fake server(s)
+        $server              = new Server();
+        $server->baseUrl     = $this->faker->url;
+        $server->salt        = $this->faker->sha1;
+        $server->status      = true;
+        $server->description = $this->faker->word;
+        $server->save();
+
+        // Create meeting
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+
+        // Create meeting
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room]))
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+    }
+
     /**
      * Tests starting new meeting with a running bbb server
      */
@@ -329,7 +350,7 @@ class RoomTest extends TestCase
         // Adding server(s)
         $this->seed('ServerSeeder');
 
-        // Create server
+        // Create meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));

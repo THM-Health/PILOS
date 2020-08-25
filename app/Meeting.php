@@ -105,7 +105,11 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
-        return $this->server->bbb()->createMeeting($meetingParams)->success();
+        try {
+            return $this->server->bbb()->createMeeting($meetingParams)->success();
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 
     /**

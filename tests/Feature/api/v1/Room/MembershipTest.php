@@ -27,7 +27,7 @@ class MembershipTest extends TestCase
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false,  'allowMembership' => true]);
 
-        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room,'code'=>'']))
+        $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
 
         $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -46,7 +46,7 @@ class MembershipTest extends TestCase
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
-        $this->actingAs($user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room,'code'=>$room->accessCode]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
             ->assertForbidden();
 
         $room->allowMembership = true;
@@ -177,6 +177,10 @@ class MembershipTest extends TestCase
             ->assertOk()
             ->assertJsonMissing(['id'=>$user->id,'email'=>$user->email,'firstname'=>$user->firstname,'lastname'=>$user->lastname]);
 
+        // Try to remove user again
+        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
+            ->assertNotFound();
+
         // Check if user is no member
         $this->actingAs($user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
@@ -188,8 +192,9 @@ class MembershipTest extends TestCase
      */
     public function testChangeMemberRole()
     {
-        $user  = factory(User::class)->create();
-        $owner = factory(User::class)->create();
+        $user       = factory(User::class)->create();
+        $otherUser  = factory(User::class)->create();
+        $owner      = factory(User::class)->create();
 
         $room = factory(Room::class)->create([
             'allowGuests' => true,
@@ -213,8 +218,12 @@ class MembershipTest extends TestCase
         $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$user]), ['role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
+        // Update role for wrong user
+        $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$otherUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertNotFound();
+
         // Check member list
-        $this->actingAs($owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertOk()
             ->assertJsonFragment(['id'=>$user->id,'role'=>RoomUserRole::MODERATOR]);
     }
