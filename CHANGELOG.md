@@ -13,19 +13,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
 - Roles and permissions concept ([#12], [#22])
+- Added page to view room, start/join meetings, change settings ([#4], [#18])
+- Added file upload for room owner and file download for participants ([#4], [#18])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
-[#3]: https://github.com/THM-Health/PILOS/issues/3
+[#3]: https://github.com/THM-Health/PILOS/pull/3
+[#4]: https://github.com/THM-Health/PILOS/issues/4
 [#6]: https://github.com/THM-Health/PILOS/issues/6
-[#6]: https://github.com/THM-Health/PILOS/issues/7
+[#7]: https://github.com/THM-Health/PILOS/issues/7
 [#8]: https://github.com/THM-Health/PILOS/issues/8
 [#9]: https://github.com/THM-Health/PILOS/issues/9
-[#11]: https://github.com/THM-Health/PILOS/issues/11
+[#11]: https://github.com/THM-Health/PILOS/pull/11
 [#12]: https://github.com/THM-Health/PILOS/issues/12
-[#13]: https://github.com/THM-Health/PILOS/issues/13
-[#16]: https://github.com/THM-Health/PILOS/issues/16
-[#17]: https://github.com/THM-Health/PILOS/issues/17
-[#17]: https://github.com/THM-Health/PILOS/issues/19
-[#17]: https://github.com/THM-Health/PILOS/issues/21
-[#22]: https://github.com/THM-Health/PILOS/issues/22
+[#13]: https://github.com/THM-Health/PILOS/pull/13
+[#16]: https://github.com/THM-Health/PILOS/pull/16
+[#17]: https://github.com/THM-Health/PILOS/pull/17
+[#18]: https://github.com/THM-Health/PILOS/pull/18
+[#19]: https://github.com/THM-Health/PILOS/issues/19
+[#21]: https://github.com/THM-Health/PILOS/pull/21
+[#22]: https://github.com/THM-Health/PILOS/pull/22
+
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

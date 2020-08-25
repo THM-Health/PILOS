@@ -38,6 +38,7 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
+        TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: vendor/bin/phpunit --coverage-clover=coverage.xml
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes

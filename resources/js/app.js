@@ -6,10 +6,11 @@ import App from './views/App';
 import router from './router';
 import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
+import Clipboard from 'v-clipboard';
 
+Vue.use(Clipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
-
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
 

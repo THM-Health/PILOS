@@ -135,6 +135,12 @@ return [
         ],
         'locale' => [
             'in' => 'The selected language isn\'t supported by the server.'
+        ],
+        'user' => [
+            'exists' => 'The selected user could not be found.'
+        ],
+        'room' => [
+            'already_member' => 'The user is already member of the room.'
         ]
     ],
 
@@ -149,6 +155,58 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'name'                              => 'Name',
+        'user'                              => 'User',
+        'username'                          => 'Username',
+        'email'                             => 'Email',
+        'first_name'                        => 'First name',
+        'last_name'                         => 'Last name',
+        'password'                          => 'Password',
+        'password_confirmation'             => 'Password confirmation',
+        'city'                              => 'City',
+        'country'                           => 'Country',
+        'address'                           => 'Adress',
+        'phone'                             => 'Phone',
+        'mobile'                            => 'Mobile',
+        'age'                               => 'Age',
+        'sex'                               => 'Sex',
+        'gender'                            => 'Gender',
+        'day'                               => 'Day',
+        'month'                             => 'Month',
+        'year'                              => 'Year',
+        'hour'                              => 'Hour',
+        'minute'                            => 'Minute',
+        'second'                            => 'Second',
+        'title'                             => 'Title',
+        'content'                           => 'Content',
+        'description'                       => 'Description',
+        'excerpt'                           => 'Excerpt',
+        'date'                              => 'Date',
+        'time'                              => 'Time',
+        'available'                         => 'Available',
+        'size'                              => 'Size',
+        'welcome'                           => 'Welcome message',
+        'roomType'                          => 'Room type',
+        'defaultRole'                       => 'Default role',
+        'duration'                          => 'Max. duration',
+        'accessCode'                        => 'Access code',
+        'allowGuests'                       => 'Allow guests',
+        'allowMembership'                   => 'Allow new members',
+        'maxParticipants'                   => 'Max. participants',
+        'lobby'                             => 'Waiting room',
+        'everyoneCanStart'                  => 'Everyone can start the meeting',
+        'muteOnStart'                       => 'Mute microphone on join',
+        'lockSettingsLockOnJoin'            => 'Enabled restrictions',
+        'lockSettingsDisableCam'            => 'Disable webcam',
+        'webcamsOnlyForModerator'           => 'Only moderators can see the webcam',
+        'lockSettingsDisableMic'            => 'Disable microphone',
+        'lockSettingsDisableNote'           => 'Disable editing of notes',
+        'lockSettingsDisablePrivateChat'    => 'Disable private chat',
+        'lockSettingsDisablePublicChat'     => 'Disable public chat',
+        'lockSettingsHideUserList'          => 'Hide list of participants',
+        'role'                              => 'Role',
+        'file'                              => 'File',
+    ],
 
 ];

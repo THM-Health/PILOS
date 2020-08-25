@@ -41,14 +41,29 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ['fullname'];
+
+    public function getFullnameAttribute()
+    {
+        return $this->firstname.' '.$this->lastname;
+    }
+
+    /**
+     * Rooms the user is owner of
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function myRooms()
     {
         return $this->hasMany(Room::class);
     }
 
+    /**
+     * Rooms the user is member of
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function sharedRooms()
     {
-        return $this->belongsToMany(Room::class)->withPivot('moderator');
+        return $this->belongsToMany(Room::class)->withPivot('role');
     }
 
     /**

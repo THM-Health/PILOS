@@ -17,11 +17,12 @@
 @import "../fontawesome/scss/solid.scss";
 @import "../fontawesome/scss/brands.scss";
 
+@import "~vue-multiselect/dist/vue-multiselect.min.css";
+
 .roomicon {
     width:40px;
     height: 40px;
     background: $green;
-    border-radius: 5px;
     display: grid;
     place-items: center center;
     color: $white;
