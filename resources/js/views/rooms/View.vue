@@ -6,6 +6,7 @@
         class="float-right"
         variant="dark"
         :title="$t('app.reload')"
+        ref="reloadButton"
         v-b-tooltip.hover
         v-on:click="reload"
         :disabled="loading"
