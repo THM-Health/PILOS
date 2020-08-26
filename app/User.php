@@ -131,6 +131,9 @@ class User extends Authenticatable
      */
     public function getPermissionsAttribute()
     {
+        // TODO improve performance, detect changes to roles and permissions
+        $this->unsetRelation('roles');
+
         return array_reduce($this->roles->all(), function ($permissions, $role) {
             foreach ($role->permissions as $permission) {
                 if (!in_array($permission->name, $permissions)) {
@@ -142,6 +145,11 @@ class User extends Authenticatable
         }, []);
     }
 
+    /**
+     * Check if user has the given permission
+     * @param $permission string Name of a permission
+     * @return bool has permission
+     */
     public function hasPermission($permission)
     {
         return in_array($permission, $this->getPermissionsAttribute());

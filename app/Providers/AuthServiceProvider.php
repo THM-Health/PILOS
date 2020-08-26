@@ -28,6 +28,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        // Check permissions of users roles
         Gate::before(function ($user, $ability) {
             if ($user->hasPermission($ability)) {
                 return true;
