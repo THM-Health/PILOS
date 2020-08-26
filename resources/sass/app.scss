@@ -28,8 +28,16 @@
     color: $white;
     font-size: 15px;
     font-weight: bold;
-
 }
+
+.roomcard{
+    pointer-events: auto;
+    cursor: pointer;
+}
+.roomcard:hover{
+    background-color: darken(#FFF, 7.5%) !important;
+}
+
 ._vue-flash-msg-body {
     width: 300px !important;
 

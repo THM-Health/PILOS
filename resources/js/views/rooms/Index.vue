@@ -8,6 +8,11 @@
         <b-col v-if="!rooms.myRooms.length" class="pt-2">
           <em>{{ $t('rooms.noRoomsAvailable') }}</em>
         </b-col>
+        <can method="create" policy="RoomPolicy">
+        <b-col class="pt-2">
+          <new-room-component :room-types="rooms.roomTypes"></new-room-component>
+        </b-col>
+        </can>
       </b-row>
       <hr>
       <h2>{{ $t('rooms.sharedRooms') }}</h2>
@@ -25,11 +30,15 @@
 <script>
 
 import RoomComponent from '../../components/Room/RoomComponent.vue';
+import NewRoomComponent from '../../components/Room/NewRoomComponent.vue';
+import Can from '../../components/Permissions/Can';
 import Base from '../../api/base';
 
 export default {
   components: {
-    RoomComponent
+    RoomComponent,
+    NewRoomComponent,
+    Can
   },
 
   data () {

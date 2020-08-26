@@ -141,4 +141,9 @@ class User extends Authenticatable
             return $permissions;
         }, []);
     }
+
+    public function hasPermission($permission)
+    {
+        return in_array($permission, $this->getPermissionsAttribute());
+    }
 }

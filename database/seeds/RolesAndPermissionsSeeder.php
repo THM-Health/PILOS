@@ -1,10 +1,10 @@
 <?php
 
+use App\Permission;
 use App\Role;
 use App\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\PermissionRegistrar;
+
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -18,6 +18,7 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $userRole = Role::firstOrCreate([ 'name' => 'user', 'default' => true ]);
         Role::firstOrCreate([ 'name' => 'admin', 'default' => true ]);
+        Permission::firstOrCreate([ 'name' => 'rooms.create']);
 
         $userRole->users()->syncWithoutDetaching(User::pluck('id'));
     }
