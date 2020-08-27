@@ -35,7 +35,6 @@
                 <b-dropdown-item :to="{ name: 'admin.index' }" v-if='isAuthenticated'>
                   {{ $t('settings.settings') }}
                 </b-dropdown-item>
-
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
               <locale-selector :available-locales="availableLocales"></locale-selector>

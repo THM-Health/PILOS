@@ -90,4 +90,14 @@ class UserController extends Controller
 
         return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => 'Bad Request!'], 400));
     }
+
+    /**
+     * Search for users in the whole database, based on first name and last name
+     * @param  Request                     $request query parameter with search query
+     * @return AnonymousResourceCollection
+     */
+    public function search(Request $request)
+    {
+        return UserResource::collection(User::withName( $request->get('query'))->limit(config('bigbluebutton.user_search_limit'))->get());
+    }
 }

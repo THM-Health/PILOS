@@ -12,4 +12,5 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('download/file/{roomFile}/{filename?}','FileController@show')->name('download.file')->middleware('signed');
 Route::any('/{any}', 'ApplicationController@index')->where('any', '.*');

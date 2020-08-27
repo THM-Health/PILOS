@@ -101,7 +101,6 @@
   padding: 0 .25rem;
   line-height: 2rem;
   text-align: center;
-  border-radius: 3px;
   font-weight: 600;
 }
 </style>

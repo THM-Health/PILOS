@@ -12,11 +12,12 @@ class RoomTypeSeeder extends Seeder
      */
     public function run()
     {
-        RoomType::create(['short' => 'VL','description' => 'Vorlesung','color'=>'#80BA27']);
-        RoomType::create(['short' => 'ME','description' => 'Meeting','color'=>'#4a5c66']);
-        RoomType::create(['short' => 'PR','description' => 'Prüfung','color'=>'#9C132E']);
-        RoomType::create(['short' => 'ÜB','description' => 'Übung','color'=>'#00B8E4']);
-
-
+        // Only create room types if none exits
+        if(RoomType::all()->count()==0) {
+            RoomType::create(['short' => 'VL', 'description' => 'Vorlesung', 'color' => '#80BA27']);
+            RoomType::create(['short' => 'ME', 'description' => 'Meeting', 'color' => '#4a5c66', 'default' => true]);
+            RoomType::create(['short' => 'PR', 'description' => 'Prüfung', 'color' => '#9C132E']);
+            RoomType::create(['short' => 'ÜB', 'description' => 'Übung', 'color' => '#00B8E4']);
+        }
     }
 }
