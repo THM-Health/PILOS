@@ -6,6 +6,10 @@ import RoomView from './views/rooms/View';
 import store from './store';
 import Home from './views/Home';
 import Vue from 'vue';
+import PermissionService from './services/PermissionService';
+import Settings from './views/settings/Settings';
+import Roles from './views/settings/Roles';
+import Users from './views/settings/Users';
 
 Vue.use(VueRouter);
 
@@ -32,6 +36,42 @@ const router = new VueRouter({
       path: '/rooms/:id',
       name: 'rooms.view',
       component: RoomView
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      redirect: { name: 'settings.users' },
+      component: Settings,
+      meta: {
+        requiresAuth: true,
+        accessPermitted: () => Promise.resolve(PermissionService.can('manage', 'SettingPolicy'))
+      },
+      children: [
+        {
+          path: 'users',
+          component: Users,
+          name: 'settings.users',
+          meta: {
+            requiresAuth: true,
+            accessPermitted: () => Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('viewAny', 'UserPolicy')
+            )
+          }
+        },
+        {
+          path: 'roles',
+          name: 'settings.roles',
+          component: Roles,
+          meta: {
+            requiresAuth: true,
+            accessPermitted: () => Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('viewAny', 'RolePolicy')
+            )
+          }
+        }
+      ]
     },
     {
       path: '/404',
