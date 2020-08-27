@@ -18,8 +18,8 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $userRole = Role::firstOrCreate([ 'name' => 'user', 'default' => true ]);
         Role::firstOrCreate([ 'name' => 'admin', 'default' => true ]);
-        Permission::firstOrCreate([ 'name' => 'rooms.create']);
-
+        $roomsCreate = Permission::firstOrCreate([ 'name' => 'rooms.create']);
+        $roomsCreate->roles()->syncWithoutDetaching(Role::pluck('id'));
         $userRole->users()->syncWithoutDetaching(User::pluck('id'));
     }
 }
