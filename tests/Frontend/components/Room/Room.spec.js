@@ -1,9 +1,9 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
-import store from '../../../resources/js/store';
+import store from '../../../../resources/js/store';
 import moxios from 'moxios';
-import RoomView from '../../../resources/js/views/rooms/View.vue';
-import AdminComponent from '../../../resources/js/components/Room/AdminComponent';
+import RoomView from '../../../../resources/js/views/rooms/View.vue';
+import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
 import Clipboard from 'v-clipboard';
 
 const localVue = createLocalVue();

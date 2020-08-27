@@ -1,14 +1,11 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../resources/js/views/rooms/Index';
+import RoomList from '../../../../resources/js/views/rooms/Index';
 import BootstrapVue, { BCard, IconsPlugin } from 'bootstrap-vue';
-import store from '../../../resources/js/store';
+import store from '../../../../resources/js/store';
 import moxios from 'moxios';
-import RoomComponent from '../../../resources/js/components/Room/RoomComponent';
+import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
-import NewRoomComponent from '../../../resources/js/components/Room/NewRoomComponent';
-import PermissionService from '../../../resources/js/services/PermissionService';
-import _ from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -141,48 +138,6 @@ describe('RoomList', function () {
     moxios.wait(() => {
       sinon.assert.calledOnce(spy);
       sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
-      done();
-    });
-  });
-
-  it('create new room', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
-      status: 200,
-      response: { data: exampleRoomListResponse }
-    });
-
-    moxios.stubRequest('/api/v1/currentUser', {
-      status: 200,
-      response: { data: exampleUser }
-    });
-
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store
-    });
-
-    store.dispatch('initialize', {});
-
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
-      await view.vm.$nextTick();
-
-      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-      expect(missingNewRoomComponent.exists()).toBeFalsy();
-
-      const newUser = _.cloneDeep(exampleUser);
-      newUser.permissions.push('rooms.create');
-
-      PermissionService.setCurrentUser(newUser);
-
-      await view.vm.$nextTick();
-
-      const newRoomComponent = view.findComponent(NewRoomComponent);
-      expect(newRoomComponent.exists()).toBeTruthy();
-
       done();
     });
   });

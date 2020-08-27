@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card no-body class="roomcard" @click="$refs['new-room'].show()">
+    <b-card no-body class="roomcard" @click="$bvModal.show('new-room')">
       <b-card-body class="p-3">
       <b-media>
 
@@ -10,13 +10,14 @@
     </b-card>
 
     <b-modal
-      ref="new-room"
+      id="new-room"
       :title="$t('rooms.create.title')"
       :busy="isLoadingAction"
       ok-variant="success"
       :ok-title="$t('rooms.create.ok')"
       :cancel-title="$t('rooms.create.cancel')"
-      @ok="createRoom"
+      :static="modalStatic"
+      @ok="handleOk"
     >
       <b-form-group :state="fieldState('roomType')" :invalid-feedback="fieldError('roomType')" :label="$t('rooms.settings.general.type')">
         <b-input-group>
@@ -38,7 +39,11 @@ import Base from '../../api/base';
 
 export default {
   props: {
-    roomTypes: Array
+    roomTypes: Array,
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
   },
   data () {
     return {
@@ -56,8 +61,12 @@ export default {
       return this.errors[field].join('<br>');
     },
 
-    createRoom: function (bvModalEvt) {
+    handleOk: function (bvModalEvt) {
       bvModalEvt.preventDefault();
+      this.handleSubmit();
+    },
+
+    handleSubmit () {
       this.isLoadingAction = true;
       Base.call('rooms', {
         method: 'post',
@@ -75,14 +84,15 @@ export default {
           // permission denied
           if (error.response.status === 403) {
             this.flashMessage.error(this.$t('rooms.flash.noNewRoom'));
-            this.$refs['new-room'].hide();
+            this.$bvModal.hide('new-room');
             return;
           }
         }
-        this.$refs['new-room'].hide();
+        this.$bvModal.hide('new-room');
         throw error;
       });
     }
+
   },
   computed: {
     /**
