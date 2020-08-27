@@ -7,6 +7,7 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
@@ -131,9 +132,6 @@ class User extends Authenticatable
      */
     public function getPermissionsAttribute()
     {
-        // TODO improve performance, detect changes to roles and permissions
-        $this->unsetRelation('roles');
-
         return array_reduce($this->roles->all(), function ($permissions, $role) {
             foreach ($role->permissions as $permission) {
                 if (!in_array($permission->name, $permissions)) {
@@ -152,6 +150,11 @@ class User extends Authenticatable
      */
     public function hasPermission($permission)
     {
-        return in_array($permission, $this->getPermissionsAttribute());
+        return DB::table('permissions')
+            ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
+            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
+            ->where('permissions.name', 'LIKE', $permission)
+            ->where('role_user.user_id', '=', $this->id)
+            ->exists();
     }
 }
