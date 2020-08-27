@@ -17,6 +17,10 @@ export default {
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
   flash: {
+    noNewRoom: {
+      message: 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
+      title: 'Keine Berechtigung'
+    },
     notRunning: {
       message: 'Der Raum ist aktuell geschlossen.',
       title: 'Teilnahme fehlgeschlagen'
@@ -46,7 +50,11 @@ export default {
       title: 'Zugriff verweigert'
     }
   },
-
+  create: {
+    title: 'Neuen Raum erstellen',
+    ok: 'Erstellen',
+    cancel: 'Abbrechen'
+  },
   files: {
     title: 'Dateien',
     nodata: 'Keine Dateien vorhanden',

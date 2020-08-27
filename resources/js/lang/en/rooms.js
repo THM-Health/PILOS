@@ -18,6 +18,10 @@ export default {
   placeholderName: 'John Doe',
   placeholderAccessCode: 'Access code',
   flash: {
+    noNewRoom: {
+      message: 'You do not have the necessary permission to create a new room.',
+      title: 'Permission denied'
+    },
     notRunning: {
       message: 'The room is currently closed.',
       title: 'Joining failed'
@@ -46,6 +50,11 @@ export default {
       message: 'The access to the requested file was forbidden.',
       title: 'Access forbidden'
     }
+  },
+  create: {
+    title: 'Create new room',
+    ok: 'Create',
+    cancel: 'Cancel'
   },
   files: {
     title: 'Files',

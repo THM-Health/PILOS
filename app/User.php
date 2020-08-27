@@ -7,6 +7,7 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
@@ -140,5 +141,20 @@ class User extends Authenticatable
 
             return $permissions;
         }, []);
+    }
+
+    /**
+     * Check if user has the given permission
+     * @param $permission string Name of a permission
+     * @return bool has permission
+     */
+    public function hasPermission($permission)
+    {
+        return DB::table('permissions')
+            ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
+            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
+            ->where('permissions.name', '=', $permission)
+            ->where('role_user.user_id', '=', $this->id)
+            ->exists();
     }
 }

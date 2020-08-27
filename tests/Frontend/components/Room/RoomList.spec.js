@@ -1,15 +1,15 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../resources/js/views/rooms/Index';
-import BootstrapVue, { BCard } from 'bootstrap-vue';
-import store from '../../../resources/js/store';
+import RoomList from '../../../../resources/js/views/rooms/Index';
+import BootstrapVue, { BCard, IconsPlugin } from 'bootstrap-vue';
+import store from '../../../../resources/js/store';
 import moxios from 'moxios';
-import RoomComponent from '../../../resources/js/components/Room/RoomComponent';
+import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();
-
 localVue.use(BootstrapVue);
+localVue.use(IconsPlugin);
 
 describe('RoomList', function () {
   beforeEach(function () {
@@ -63,10 +63,17 @@ describe('RoomList', function () {
     ]
   };
 
+  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User' };
+
   it('check list of rooms', function (done) {
     moxios.stubRequest('/api/v1/rooms', {
       status: 200,
       response: { data: exampleRoomListResponse }
+    });
+
+    moxios.stubRequest('/api/v1/currentUser', {
+      status: 200,
+      response: { data: exampleUser }
     });
 
     const view = mount(RoomList, {
@@ -76,6 +83,8 @@ describe('RoomList', function () {
       },
       store
     });
+
+    store.dispatch('initialize', {});
 
     RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
       next(view.vm);

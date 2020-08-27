@@ -5,6 +5,8 @@ namespace Tests\Feature\api\v1\Room;
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Permission;
+use App\Role;
 use App\Room;
 use App\RoomType;
 use App\Server;
@@ -32,6 +34,41 @@ class RoomTest extends TestCase
     {
         parent::setUp();
         $this->user = factory(User::class)->create();
+    }
+
+    public function testCreateNewRoom()
+    {
+        $room = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>$this->faker->word];
+
+        // Test unauthenticated user
+        $this->postJson(route('api.v1.rooms.store'), $room)
+            ->assertUnauthorized();
+
+        // Test unauthorized user
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertForbidden();
+
+        // Authorize user
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name'=>'rooms.create']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Try again
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertCreated();
+
+        // -- Try different invalid requests --
+
+        // empty name and invalid roomtype
+        $room = ['roomType'=>0,'name'=>''];
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertJsonValidationErrors(['name','roomType']);
+
+        // missing parameters
+        $room = [];
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertJsonValidationErrors(['name','roomType']);
     }
 
     /**
