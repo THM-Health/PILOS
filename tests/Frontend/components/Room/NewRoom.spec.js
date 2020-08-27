@@ -129,9 +129,9 @@ describe('Create new rooms', function () {
       store
     });
 
-    view.vm.handleSubmit();
     const nameInput = view.findComponent(BFormInput);
     nameInput.setValue('Test');
+    view.vm.handleSubmit();
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
@@ -215,5 +215,26 @@ describe('Create new rooms', function () {
           done();
         });
     });
+  });
+
+  it('cancel or close', function () {
+    const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true }];
+
+    const view = mount(NewRoomComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        roomTypes: roomTypes,
+        modalStatic: true
+      },
+      store
+    });
+
+    view.findComponent(BFormInput).setValue('Test');
+    expect(view.vm.$data.room).toMatchObject({ roomType: 2, name: 'Test' });
+    view.vm.handleCancel();
+    expect(view.vm.$data.room).toMatchObject({});
   });
 });

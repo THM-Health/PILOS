@@ -18,6 +18,7 @@
       :cancel-title="$t('rooms.create.cancel')"
       :static="modalStatic"
       @ok="handleOk"
+      @hidden="handleCancel"
     >
       <b-form-group :state="fieldState('roomType')" :invalid-feedback="fieldError('roomType')" :label="$t('rooms.settings.general.type')">
         <b-input-group>
@@ -27,7 +28,7 @@
       <!-- Room name -->
       <b-form-group :state="fieldState('name')" :invalid-feedback="fieldError('name')" :label="$t('rooms.settings.general.roomName')">
         <b-input-group>
-          <b-form-input   :state="fieldState('name')" v-model="room.name"></b-form-input>
+          <b-form-input :state="fieldState('name')" v-model="room.name"></b-form-input>
         </b-input-group>
       </b-form-group>
     </b-modal>
@@ -64,6 +65,10 @@ export default {
     handleOk: function (bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();
+    },
+
+    handleCancel: function () {
+      this.room = {};
     },
 
     handleSubmit () {
