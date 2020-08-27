@@ -51,6 +51,11 @@ export default {
       title: 'Access forbidden'
     }
   },
+  create: {
+    title: 'Create new room',
+    ok: 'Create',
+    cancel: 'Cancel'
+  },
   files: {
     title: 'Files',
     nodata: 'No files available',
