@@ -16,7 +16,8 @@ class ApplicationController extends Controller
     {
         return response()->json(['data' => [
           'settings' => [
-              'logo' => setting('logo'),
+              'logo'       => setting('logo'),
+              'room_limit' => Auth::guest() ? setting('room_limit') : Auth::user()->room_limit
           ],
           'user' => new UserResource(Auth::user(), true)
         ]]);

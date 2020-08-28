@@ -59,6 +59,20 @@ class User extends Authenticatable
     }
 
     /**
+     *
+     * @return int
+     */
+    public function getRoomLimitAttribute()
+    {
+        // check if any role has unlimited rooms, if yes set to unlimited
+        if ($this->roles()->pluck('room_limit')->contains(-1)) {
+            return -1;
+        }
+        // otherwise try to find highest room limit, if none defined (=null) use global limit
+        return intval($this->roles()->pluck('room_limit')->max() ?: setting('room_limit'));
+    }
+
+    /**
      * Rooms the user is member of
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

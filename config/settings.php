@@ -69,5 +69,6 @@ return [
     */
     'defaults' => [
         'logo' => env('DEFAULT_LOGO', 'images/logo.svg'),
+        'room_limit' => env('DEFAULT_ROOM_LIMIT',-1),
     ]
 ];
