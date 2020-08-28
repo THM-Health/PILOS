@@ -17,8 +17,23 @@ use Illuminate\Support\Facades\Auth;
 */
 
 Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
+
+    Route::get('application', 'ApplicationController@application')->name('application');
+    Route::post('setLocale', function (Request $request) {
+        $validatedData = $request->validate([
+            'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
+        ]);
+
+        session()->put('locale', $validatedData['locale']);
+
+        if (Auth::user() !== null) {
+            Auth::user()->update([
+                'locale' => $validatedData['locale']
+            ]);
+        }
+    })->name('setLocale');
+
     Route::namespace('auth')->group(function () {
-        Route::get('currentUser', 'LoginController@currentUser')->name('currentUser');
         Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
@@ -35,20 +50,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
-
-        Route::post('setLocale', function (Request $request) {
-            $validatedData = $request->validate([
-                'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
-            ]);
-
-            session()->put('locale', $validatedData['locale']);
-
-            if (Auth::user() !== null) {
-                Auth::user()->update([
-                    'locale' => $validatedData['locale']
-                ]);
-            }
-        })->name('setLocale');
 
         Route::get('rooms','RoomController@index')->name('rooms.index');
         Route::post('rooms','RoomController@store')->name('rooms.store');

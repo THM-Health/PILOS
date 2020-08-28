@@ -58,7 +58,7 @@ class LoginTest extends TestCase
      */
     public function testUnauthenticatedCurrentUser()
     {
-        $response = $this->getJson(route('api.v1.currentUser'));
+        $response = $this->getJson(route('api.v1.application'));
         $response->assertOk();
         $response->assertJson([]);
     }
@@ -71,11 +71,12 @@ class LoginTest extends TestCase
     public function testAuthenticatedCurrentUser()
     {
         $user     = factory(User::class)->make();
-        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.application'));
         $response->assertOk();
         $response->assertJsonFragment([
             'firstname' => $user->firstname,
             'lastname'  => $user->lastname
+
         ]);
     }
 
@@ -96,7 +97,7 @@ class LoginTest extends TestCase
 
         $user     = factory(User::class)->create();
         $user->roles()->attach([$a->id, $b->id]);
-        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.application'));
         $response->assertOk();
         $response->assertJsonFragment([
             'firstname'   => $user->firstname,

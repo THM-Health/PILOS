@@ -4,42 +4,45 @@ import { loadLanguageAsync } from '../../i18n';
 import PermissionService from '../../services/PermissionService';
 
 const state = () => ({
-  currentUser: null,
+  application: null,
   currentLocale: null
 });
 
 const getters = {
   isAuthenticated: state => {
-    return !$.isEmptyObject(state.currentUser);
+    return !$.isEmptyObject(state.application) && !$.isEmptyObject(state.application.user);
+  },
+  settings: (state) => (setting) => {
+    return $.isEmptyObject(state.application) || !(setting in state.application.settings) ? null : state.application.settings[setting];
   }
 };
 
 const actions = {
   async login ({ dispatch, commit, state }, { credentials, method }) {
     await auth.login(credentials, method);
-    await dispatch('getCurrentUser');
+    await dispatch('getApplication');
 
-    if (state.currentUser.locale !== null) {
-      await loadLanguageAsync(state.currentUser.locale);
-      commit('setCurrentLocale', state.currentUser.locale);
+    if (state.application.user.locale !== null) {
+      await loadLanguageAsync(state.application.user.locale);
+      commit('setCurrentLocale', state.application.user.locale);
     }
   },
 
-  async getCurrentUser ({ commit }) {
-    const currentUser = await auth.getCurrentUser();
-    commit('setCurrentUser', currentUser);
+  async getApplication ({ commit }) {
+    const application = await auth.getApplication();
+    commit('setApplication', application);
   },
 
   async logout ({ commit }) {
     commit('loading', null, { root: true });
     await auth.logout();
-    commit('setCurrentUser', null);
+    commit('setUser', null);
     commit('loadingFinished', null, { root: true });
   },
 
   async setLocale ({ commit, dispatch }, { locale }) {
     await base.setLocale(locale);
-    await dispatch('getCurrentUser');
+    await dispatch('getApplication');
     commit('setCurrentLocale', locale);
   }
 };
@@ -49,9 +52,14 @@ const mutations = {
     state.currentLocale = currentLocale;
   },
 
-  setCurrentUser (state, currentUser) {
-    state.currentUser = currentUser;
-    PermissionService.setCurrentUser(state.currentUser);
+  setApplication (state, application) {
+    state.application = application;
+    PermissionService.setCurrentUser(state.application.user);
+  },
+
+  setUser (state, user) {
+    state.application.user = user;
+    PermissionService.setCurrentUser(state.application.user);
   }
 };
 

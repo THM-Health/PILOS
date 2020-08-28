@@ -3,7 +3,7 @@
     <div class="container pt-5 pb-5">
       <div class="row">
         <div class="col-md-12 col-sm-12 text-center">
-          <img class="logo" src="/images/logo.svg">
+          <img class="logo" v-if="settings('logo')" :src="settings('logo')">
           <h1 id="main-text" class="display-4 mb-4">{{ $t('home.title') }}</h1>
           <p class="lead offset-lg-2 col-lg-8 col-sm-12 ">{{ $t('home.subtitle') }}</p>
           <p class="lead offset-lg-2 col-lg-8 col-sm-12 " v-html="$t('home.description')"></p>
@@ -68,6 +68,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+export default {
+  computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    })
+  }
+};
 
 </script>
 

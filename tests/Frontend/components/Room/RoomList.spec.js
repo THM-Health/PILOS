@@ -71,9 +71,9 @@ describe('RoomList', function () {
       response: { data: exampleRoomListResponse }
     });
 
-    moxios.stubRequest('/api/v1/currentUser', {
+    moxios.stubRequest('/api/v1/application', {
       status: 200,
-      response: { data: exampleUser }
+      response: { data: { user: exampleUser } }
     });
 
     const view = mount(RoomList, {

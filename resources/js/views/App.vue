@@ -12,7 +12,7 @@
         <b-container>
           <h1>
             <b-navbar-brand :to="{ name: 'home' }">
-              <img style="height: 2rem;" src="/images/logo.svg" alt="Logo">
+              <img style="height: 2rem;" v-if="settings('logo')" :src="settings('logo')" alt="Logo">
             </b-navbar-brand>
           </h1>
 
@@ -29,7 +29,7 @@
               <b-nav-item-dropdown right v-if='isAuthenticated'>
                 <!-- Using 'button-content' slot -->
                 <template v-slot:button-content>
-                  {{currentUser.firstname}} {{currentUser.lastname}}
+                  {{application.user.firstname}} {{application.user.lastname}}
                 </template>
 
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
@@ -60,10 +60,12 @@ export default {
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
+      application: state => state.session.application,
       loadingCounter: state => state.loadingCounter
     }),
     ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated'
+      isAuthenticated: 'session/isAuthenticated',
+      settings: 'session/settings'
     })
   },
   data () {
