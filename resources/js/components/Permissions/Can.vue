@@ -92,7 +92,6 @@ export default {
      */
     evaluatePermissions () {
       this.slotVisible = PermissionService.can(this.method, this.policy);
-      console.log(this.method, this.policy, this.slotVisible);
     }
   },
 
