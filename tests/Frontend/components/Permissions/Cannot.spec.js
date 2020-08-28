@@ -27,6 +27,7 @@ describe('Cannot', function () {
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
+    wrapper.destroy();
     PermissionService.__ResetDependency__('Policies');
   });
 
@@ -46,6 +47,7 @@ describe('Cannot', function () {
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
+    wrapper.destroy();
     PermissionService.__ResetDependency__('Policies');
   });
 
@@ -70,6 +72,7 @@ describe('Cannot', function () {
     await Vue.nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
+    wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
   });
@@ -102,6 +105,7 @@ describe('Cannot', function () {
     await Vue.nextTick();
     expect(spy.callCount).toEqual(1);
 
+    wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
   });
