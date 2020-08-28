@@ -32,11 +32,13 @@
                   {{currentUser.firstname}} {{currentUser.lastname}}
                 </template>
 
-                <can method='manage' policy='SettingPolicy'>
-                  <b-dropdown-item :to="{ name: 'settings' }">
-                    {{ $t('settings.title') }}
-                  </b-dropdown-item>
-                  <b-dropdown-divider></b-dropdown-divider>
+                <can method='manage' policy='SettingPolicy' tag='li'>
+                  <ul class='list-unstyled' role='group'>
+                    <b-dropdown-item :to="{ name: 'settings' }">
+                      {{ $t('settings.title') }}
+                    </b-dropdown-item>
+                    <b-dropdown-divider></b-dropdown-divider>
+                  </ul>
                 </can>
 
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>

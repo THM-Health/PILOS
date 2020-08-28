@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <li>
     <b-dropdown
       size="lg"
       variant="link"
@@ -20,7 +20,7 @@
         {{ error }}
       </template>
     </b-form-invalid-feedback>
-  </div>
+  </li>
 </template>
 
 <script>

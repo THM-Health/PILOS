@@ -1,8 +1,8 @@
 <template>
-  <div v-if="slotVisible">
+  <component :is='this.tag' v-if="slotVisible">
     <!-- @slot Content that should be only visible if permissions aren't given. -->
     <slot></slot>
-  </div>
+  </component>
 </template>
 
 <script>
@@ -49,6 +49,18 @@ export default {
     policy: {
       type: [String, Object],
       required: true
+    },
+
+    /**
+     * Name of tag to use for the root element.
+     *
+     * @property tag
+     * @type String
+     * @default 'div'
+     */
+    tag: {
+      type: String,
+      default: 'div'
     }
   },
 
