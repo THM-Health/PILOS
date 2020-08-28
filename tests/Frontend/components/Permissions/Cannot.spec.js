@@ -109,4 +109,39 @@ describe('Cannot', function () {
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
   });
+
+  it('tag can be modified and the default is "div"', async function () {
+    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
+    const oldUser = PermissionService.currentUser;
+
+    const wrapperDefault = mount(Cannot, {
+      propsData: {
+        method: 'test',
+        policy: { modelName: 'Test' }
+      },
+      slots: {
+        default: testComponent
+      }
+    });
+
+    const wrapper = mount(Cannot, {
+      propsData: {
+        method: 'test',
+        policy: { modelName: 'Test' },
+        tag: 'p'
+      },
+      slots: {
+        default: testComponent
+      }
+    });
+
+    await Vue.nextTick();
+    expect(wrapperDefault.element.tagName).toBe('DIV');
+    expect(wrapper.element.tagName).toBe('P');
+
+    wrapperDefault.destroy();
+    wrapper.destroy();
+    PermissionService.setCurrentUser(oldUser);
+    PermissionService.__ResetDependency__('Policies');
+  });
 });
