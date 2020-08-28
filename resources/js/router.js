@@ -13,77 +13,92 @@ import Users from './views/settings/Users';
 
 Vue.use(VueRouter);
 
-const router = new VueRouter({
-  mode: 'history',
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: Home
+let localStore = store;
+
+export const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: Home
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
+  },
+  {
+    path: '/rooms',
+    name: 'rooms.index',
+    component: RoomsIndex,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/rooms/:id',
+    name: 'rooms.view',
+    component: RoomView
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    redirect: { name: 'settings.users' },
+    component: Settings,
+    meta: {
+      requiresAuth: true,
+      accessPermitted: () => Promise.resolve(PermissionService.can('manage', 'SettingPolicy'))
     },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
-    },
-    {
-      path: '/rooms',
-      name: 'rooms.index',
-      component: RoomsIndex,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/rooms/:id',
-      name: 'rooms.view',
-      component: RoomView
-    },
-    {
-      path: '/settings',
-      name: 'settings',
-      redirect: { name: 'settings.users' },
-      component: Settings,
-      meta: {
-        requiresAuth: true,
-        accessPermitted: () => Promise.resolve(PermissionService.can('manage', 'SettingPolicy'))
-      },
-      children: [
-        {
-          path: 'users',
-          component: Users,
-          name: 'settings.users',
-          meta: {
-            requiresAuth: true,
-            accessPermitted: () => Promise.resolve(
-              PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('viewAny', 'UserPolicy')
-            )
-          }
-        },
-        {
-          path: 'roles',
-          name: 'settings.roles',
-          component: Roles,
-          meta: {
-            requiresAuth: true,
-            accessPermitted: () => Promise.resolve(
-              PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('viewAny', 'RolePolicy')
-            )
-          }
+    children: [
+      {
+        path: 'users',
+        component: Users,
+        name: 'settings.users',
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'UserPolicy')
+          )
         }
-      ]
-    },
-    {
-      path: '/404',
-      name: '404',
-      component: NotFound
-    },
-    {
-      path: '*',
-      redirect: '/404'
-    }
-  ]
+      },
+      {
+        path: 'roles',
+        name: 'settings.roles',
+        component: Roles,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'RolePolicy')
+          )
+        }
+      }
+    ]
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: NotFound
+  },
+  {
+    path: '*',
+    redirect: '/404'
+  }
+];
+
+let router = new VueRouter({
+  mode: 'history',
+  routes
 });
+
+/**
+ * Mock router and store for testing.
+ *
+ * @param routerMock
+ * @param storeMock
+ */
+export function mockRouter (routerMock, storeMock) {
+  router = routerMock;
+  localStore = storeMock;
+}
 
 /**
  * Callback that gets called before a route gets entered.
@@ -99,16 +114,16 @@ const router = new VueRouter({
  * Since it may be that additional data must be requested from the server to perform the permission
  * check it must always be a promise.
  */
-router.beforeEach((to, from, next) => {
+export function beforeEachRoute (to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
-  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
+  const initializationPromise = !localStore.state.initialized ? localStore.dispatch('initialize', { locale }) : Promise.resolve();
 
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
       record.meta.accessPermitted ? record.meta.accessPermitted() : Promise.resolve(true)
     ));
   }).then((recordsPermissions) => {
-    if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
+    if (to.matched.some(record => record.meta.requiresAuth) && !localStore.getters['session/isAuthenticated']) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }
@@ -120,6 +135,8 @@ router.beforeEach((to, from, next) => {
       next();
     }
   });
-});
+}
+
+router.beforeEach((to, from, next) => beforeEachRoute(to, from, next));
 
 export default router;
