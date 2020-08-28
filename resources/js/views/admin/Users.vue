@@ -66,7 +66,13 @@
     >
       <!--Action Dropdown Button-->
       <template v-slot:cell(action)="row">
-        <b-dropdown size="sm" id="user-action-dropdown" class="ml-3 mb-1" right variant="success" no-caret>
+        <b-dropdown id="user-action-dropdown"
+                    size="sm"
+                    class="ml-3 mt-1"
+                    right
+                    variant="success"
+                    boundary="window"
+                    no-caret>
           <template v-slot:button-content>
             <span><i class="fas fa fa-user"></i></span>
           </template>
@@ -80,6 +86,18 @@
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-minus"></i></b-col>
               <b-col cols="9">{{ $t('settings.users.fields.delete') }}</b-col>
+            </b-row>
+          </b-dropdown-item>
+          <b-dropdown-item @click="populateSelectedUser(row.item);openLdapModal('update')">
+            <b-row class="text-muted">
+              <b-col cols="3"><i class="fas fa fa-user-cog"></i></b-col>
+              <b-col cols="9">{{ $t('settings.users.fields.ldapedit') }}</b-col>
+            </b-row>
+          </b-dropdown-item>
+          <b-dropdown-item @click="populateSelectedUser(row.item);openLdapModal('delete')">
+            <b-row class="text-muted">
+              <b-col cols="3"><i class="fas fa fa-user-times"></i></b-col>
+              <b-col cols="9">{{ $t('settings.users.fields.ldapdelete') }}</b-col>
             </b-row>
           </b-dropdown-item>
           <b-dropdown-item @click="toggleRowDetails(row.item)">
@@ -96,7 +114,7 @@
         <!--Database user info detail card-->
         <b-card>
           <b-card-title class="text-success">
-            {{$t('settings.users.titleDatabaseCard')}}
+            {{ $t('settings.users.titleDatabaseCard') }}
           </b-card-title>
           <hr>
           <b-row class="mb-2">
@@ -119,7 +137,7 @@
             <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.username') }}</b></b-col>
             <b-col>{{ row.item.username }}</b-col>
           </b-row>
-          <b-row class="mb-2">
+          <b-row sclass="mb-2">
             <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.authenticator') }}</b></b-col>
             <b-col>{{ row.item.authenticator }}</b-col>
           </b-row>
@@ -134,37 +152,6 @@
           <b-row class="mb-2">
             <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.updated') }}</b></b-col>
             <b-col>{{ formatDate(row.item.updatedAt) }}</b-col>
-          </b-row>
-        </b-card>
-        <!--LDAP info detail card-->
-        <b-card class="mt-2" v-if="row.item.ldapData != null">
-          <b-card-title class="text-success">
-            {{ $t('settings.users.titleLdapCard') }}
-          </b-card-title>
-          <hr>
-          <b-row class="mb-2">
-            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.uid') }}</b></b-col>
-            <b-col>{{ row.item.ldapData.uid[0] }}</b-col>
-          </b-row>
-          <b-row class="mb-2">
-            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.mail') }}</b></b-col>
-            <b-col>{{ row.item.ldapData.mail[0] }}</b-col>
-          </b-row>
-          <b-row class="mb-2">
-            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.cn') }}</b></b-col>
-            <b-col>{{ row.item.ldapData.cn[0] }}</b-col>
-          </b-row>
-          <b-row class="mb-2">
-            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.givenname') }}</b></b-col>
-            <b-col>{{ row.item.ldapData.givenname[0] }}</b-col>
-          </b-row>
-          <b-row class="mb-2">
-            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.sn') }}</b></b-col>
-            <b-col>{{ row.item.ldapData.sn[0] }}</b-col>
-          </b-row>
-          <b-row class="mb-2">
-            <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.entryuuid') }}</b></b-col>
-            <b-col>{{ row.item.ldapData.entryuuid[0] }}</b-col>
           </b-row>
         </b-card>
       </template>
@@ -187,11 +174,27 @@
     </b-pagination>
 
     <!-- CRUD modal -->
-    <crud-modal-component @crud="getUsers(currentPage)"
-                          v-bind:modal-id="'crud-modal'"
-                          v-bind:crud-user="selectedUser"
-                          v-bind:modal-type="modalType">
+    <crud-modal-component
+      ref="crudUserModal"
+      @crud="getUsers(currentPage)"
+      v-bind:modal-id="'crud-modal'"
+      v-bind:crud-user="selectedUser"
+      v-bind:modal-type="modalType">
     </crud-modal-component>
+
+    <!-- CRUD LDAP modal -->
+    <crud-ldap-modal-component
+      ref="crudUserLdapModal"
+      @crud-ldap="getUsers(currentPage)"
+      @crud-ldap-delete="deleteUser(selectedUser.id)"
+      v-bind:modal-id="'crud-ldap-modal'"
+      v-bind:guid="selectedUser.guid"
+      v-bind:cn="selectedUser.ldapData.cn[0]"
+      v-bind:sn="selectedUser.ldapData.sn[0]"
+      v-bind:givenname="selectedUser.ldapData.givenname[0]"
+      v-bind:mail="selectedUser.ldapData.mail[0]"
+      v-bind:modal-type="ldapModalType">
+    </crud-ldap-modal-component>
 
     <!-- Invite modal-->
     <invite-modal-component v-bind:modal-id="'invite-modal'"></invite-modal-component>
@@ -203,11 +206,13 @@ import Base from '../../api/base';
 import moment from 'moment';
 import CrudModalComponent from '../../components/Admin/users/CrudModalComponent';
 import InviteModalComponent from '../../components/Admin/users/InviteModalComponent';
+import CrudLdapModalComponent from '../../components/Admin/users/CrudLdapModalComponent';
 
 export default {
   components: {
     CrudModalComponent,
-    InviteModalComponent
+    InviteModalComponent,
+    CrudLdapModalComponent
   },
   data () {
     return {
@@ -229,9 +234,16 @@ export default {
         firstname: null,
         lastname: null,
         username: null,
-        email: null
+        email: null,
+        ldapData: {
+          mail: [],
+          sn: [],
+          cn: [],
+          givenname: []
+        }
       },
-      modalType: null
+      modalType: null,
+      ldapModalType: null
     };
   },
   mounted () {
@@ -292,9 +304,16 @@ export default {
           this.$root.$emit('bv::refresh::table', 'user-table');
         });
     },
+    deleteUser (id) {
+      this.$refs.crudUserModal.deleteUser(id);
+    },
     openModal (modalType) {
       this.modalType = modalType;
       this.$bvModal.show('crud-modal');
+    },
+    openLdapModal (ldapModalType) {
+      this.ldapModalType = ldapModalType;
+      this.$bvModal.show('crud-ldap-modal');
     },
     populateSelectedUser (user) {
       this.selectedUser.id = user.id;
@@ -302,6 +321,9 @@ export default {
       this.selectedUser.lastname = user.lastname;
       this.selectedUser.username = user.username;
       this.selectedUser.email = user.email;
+      this.selectedUser.guid = user.guid;
+      this.selectedUser.authenticator = user.authenticator;
+      if (user.authenticator === 'ldap') this.getUserLdapData(this.selectedUser);
     },
     resetSelectedUser () {
       this.selectedUser = null;
@@ -315,7 +337,6 @@ export default {
       this.currentPage = 1;
     },
     toggleRowDetails (user) {
-      if (user._showDetails === false && user.authenticator === 'ldap') this.getUserLdapData(user);
       this.$set(user, '_showDetails', !user._showDetails);
       this.$root.$emit('bv::refresh::table', 'user-table');
     }

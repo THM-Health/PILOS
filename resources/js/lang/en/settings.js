@@ -17,11 +17,12 @@ export default {
   users: {
     title: 'Users',
     titleDatabaseCard: 'Database Information',
-    titleLdapCard: 'LDAP Information',
     tooltip: {
       create: 'Create an user.',
       invite: 'Invite an user.',
-      removeEmail: 'click to remove'
+      removeEmail: 'click to remove',
+      deleteLdap: 'Delete LDAP Data',
+      updateLdap: 'Update LDAP Data'
     },
     fields: {
       id: 'User ID',
@@ -39,6 +40,8 @@ export default {
       delete: 'Delete',
       details: 'Details',
       password: 'Password',
+      ldapedit: 'Edit LDAP',
+      ldapdelete: 'Delete LDAP',
       uid: 'uid',
       mail: 'mail',
       cn: 'cn',
@@ -51,6 +54,8 @@ export default {
       update: 'Update User',
       delete: 'Delete Confirmation',
       deleteContent: 'Are you sure? This action cannot be undone!',
+      updateLdap: 'LDAP edit',
+      deleteLdap: 'Delete Confirmation for LDAP Data',
       invite: 'Invite User',
       invitePlaceholder: 'Email address of a user',
       inviteButton: 'Send invitation email',
@@ -80,6 +85,22 @@ export default {
     editFailed: {
       message: 'Something went wrong! Please check your connection!',
       title: 'Edit'
+    },
+    deleteLdapSuccess: {
+      message: 'LDAP data deleted successfully!',
+      title: 'LDAP Delete'
+    },
+    deleteLdapFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'LDAP Delete'
+    },
+    editLdapSuccess: {
+      message: 'LDAP data edited successfully',
+      title: 'LDAP Edit'
+    },
+    editLdapFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'LDAP Edit'
     }
   },
 

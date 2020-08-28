@@ -21,7 +21,8 @@
                           label-for="crud-input-email">
               <b-input-group>
                 <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.email')">
-                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-mail-bulk"></i>
+                  <b-input-group-text class="bg-success text-white">
+                    <b-icon icon="envelope"></b-icon>
                   </b-input-group-text>
                 </b-input-group-prepend>
                 <b-form-input id="crud-input-email"
@@ -42,7 +43,8 @@
                           label-for="crud-input-username">
               <b-input-group>
                 <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.username')">
-                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-user-circle"></i>
+                  <b-input-group-text class="bg-success text-white">
+                    <b-icon icon="person-circle"></b-icon>
                   </b-input-group-text>
                 </b-input-group-prepend>
                 <b-form-input id="crud-input-username"
@@ -64,7 +66,8 @@
                           v-if="modalType !== 'update'">
               <b-input-group>
                 <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.password')">
-                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-lock"></i>
+                  <b-input-group-text class="bg-success text-white">
+                    <b-icon icon="shield-lock"></b-icon>
                   </b-input-group-text>
                 </b-input-group-prepend>
                 <b-form-input id="crud-input-password"
@@ -86,7 +89,8 @@
                           label-for="crud-input-firstname">
               <b-input-group>
                 <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.firstname')">
-                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-tag"></i>
+                  <b-input-group-text class="bg-success text-white">
+                    <b-icon icon="tag"></b-icon>
                   </b-input-group-text>
                 </b-input-group-prepend>
                 <b-form-input id="crud-input-firstname"
@@ -107,7 +111,8 @@
                           label-for="crud-input-lastname">
               <b-input-group>
                 <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.lastname')">
-                  <b-input-group-text class="bg-success text-white"><i class="fa fas fa-tags"></i>
+                  <b-input-group-text class="bg-success text-white">
+                    <b-icon icon="tag-fill"></b-icon>
                   </b-input-group-text>
                 </b-input-group-prepend>
                 <b-form-input id="crud-input-lastname"
