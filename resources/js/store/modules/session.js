@@ -13,7 +13,7 @@ const getters = {
     return !$.isEmptyObject(state.application) && !$.isEmptyObject(state.application.user);
   },
   settings: (state) => (setting) => {
-    return $.isEmptyObject(state.application) || !(setting in state.application.settings) ? null : state.application.settings[setting];
+    return $.isEmptyObject(state.application) || state.application.settings===undefined || !(setting in state.application.settings) ? null : state.application.settings[setting];
   }
 };
 
