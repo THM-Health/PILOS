@@ -21,11 +21,17 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::paginate(env('MIX_PAGINATION_PAGE_SIZE', 15));
+        $query = User::query();
+
+        if ($request->has('sortBy') && $request->has('orderBy')) {
+            $query = $query->orderBy($request->query('sortBy'), $request->query('orderBy'));
+        }
 
         if ($request->has('name')) {
-            $query = User::withName($request->name)->paginate(env('MIX_PAGINATION_PAGE_SIZE', 15));
+            $query = $query->withName($request->query('name'));
         }
+
+        $query = $query->paginate(env('MIX_PAGINATION_PAGE_SIZE', 15));
 
         return UserResource::collection($query);
     }
@@ -98,6 +104,6 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        return UserResource::collection(User::withName( $request->get('query'))->limit(config('bigbluebutton.user_search_limit'))->get());
+        return UserResource::collection(User::withName($request->get('query'))->limit(config('bigbluebutton.user_search_limit'))->get());
     }
 }

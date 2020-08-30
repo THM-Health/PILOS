@@ -55,15 +55,23 @@
     <b-table id="user-table"
              hover
              :fields="fields"
-             :sort-desc.sync="sortDesc"
              :busy.sync="isBusy"
              :items="users"
              :filter="filterInput"
-             @filtered="onFiltered"
+             :no-local-sorting="true"
              responsive
              small
+             @filtered="onFiltered"
              @row-clicked="toggleRowDetails"
+             @sort-changed="sortChanged"
     >
+      <!--Table Loading Spinner-->
+      <template v-slot:table-busy>
+        <div class="text-center text-success my-2">
+          <b-spinner class="align-middle"></b-spinner>
+          <strong>{{ $t('app.wait') }}</strong>
+        </div>
+      </template>
       <!--Action Dropdown Button-->
       <template v-slot:cell(action)="row">
         <b-dropdown id="user-action-dropdown"
@@ -158,7 +166,6 @@
     </b-table>
 
     <b-pagination
-      class="mt-3"
       v-model="currentPage"
       :total-rows="rows"
       :per-page="perPage"
@@ -167,6 +174,8 @@
       :prev-text="$t('app.pagination.prev')"
       :next-text="$t('app.pagination.next')"
       :last-text="$t('app.pagination.last')"
+      :disabled="isBusy"
+      class="mt-3"
       align="right"
       pills
       @input="getUsers(currentPage)"
@@ -218,7 +227,8 @@ export default {
     return {
       users: [],
       isBusy: true,
-      sortDesc: false,
+      sortBy: 'id',
+      orderBy: 'asc',
       totalRows: null,
       filterInput: null,
       currentPage: 1,
@@ -274,7 +284,9 @@ export default {
       Base.call('users', {
         params: {
           page: pageVal,
-          name: searchInput
+          name: searchInput,
+          orderBy: this.orderBy,
+          sortBy: this.sortBy
         }
       }).then(response => {
         this.users = response.data.data;
@@ -327,6 +339,13 @@ export default {
     },
     resetSelectedUser () {
       this.selectedUser = null;
+    },
+    sortChanged (ctx) {
+      console.log('test ' + ctx.sortBy);
+      console.log('test ' + ctx.sortDesc);
+      this.sortBy = ctx.sortBy;
+      this.orderBy = (ctx.sortDesc === false) ? 'asc' : 'desc';
+      this.getUsers(this.currentPage);
     },
     formatDate (value) {
       return moment(value).format('DD-MM-YYYY HH:mm UTC');
