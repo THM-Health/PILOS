@@ -112,7 +112,8 @@
             class="mt-3"
             block
             type="submit"
-            variant="success">
+            variant="success"
+            :disabled="isBusy">
             {{ $t('settings.users.modal.submit') }}
           </b-button>
 
@@ -128,6 +129,7 @@ import Base from '../../../api/base';
 export default {
   data () {
     return {
+      isBusy: false,
       errors: []
     };
   },
@@ -146,6 +148,8 @@ export default {
         : this.deleteLdap(this.guid);
     },
     updateLdap (guid) {
+      this.isBusy = true;
+
       Base.call('ldap/' + guid, {
         headers: {
           'content-type': 'application/json'
@@ -171,9 +175,12 @@ export default {
         throw error;
       }).finally(() => {
         this.$emit('crud-ldap');
+        this.isBusy = false;
       });
     },
     deleteLdap (guid) {
+      this.isBusy = true;
+
       Base.call('ldap/' + guid, {
         method: 'delete'
       }).then(response => {
@@ -191,6 +198,7 @@ export default {
       }).finally(() => {
         this.$emit('crud-ldap');
         this.$emit('crud-ldap-delete');
+        this.isBusy = false;
       });
     },
     resetModal () {

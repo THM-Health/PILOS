@@ -129,11 +129,17 @@ return [
     */
 
     'custom' => [
+        'request' => [
+            '400' => 'Ungültige Anfrage.'
+        ],
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
         'locale' => [
             'in' => 'Die gewählte Sprache wird vom Server nicht unterstützt.'
+        ],
+        'ldap' => [
+            'exists' => 'Das LDAP-Modell konnte nicht gefunden werden'
         ],
         'user' => [
             'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.'

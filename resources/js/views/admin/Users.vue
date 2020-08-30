@@ -96,13 +96,13 @@
               <b-col cols="9">{{ $t('settings.users.fields.delete') }}</b-col>
             </b-row>
           </b-dropdown-item>
-          <b-dropdown-item @click="populateSelectedUser(row.item);openLdapModal('update')">
+          <b-dropdown-item v-if="row.item.authenticator === 'ldap'" @click="populateSelectedUser(row.item);openLdapModal('update')">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-cog"></i></b-col>
               <b-col cols="9">{{ $t('settings.users.fields.ldapedit') }}</b-col>
             </b-row>
           </b-dropdown-item>
-          <b-dropdown-item @click="populateSelectedUser(row.item);openLdapModal('delete')">
+          <b-dropdown-item v-if="row.item.authenticator === 'ldap'" @click="populateSelectedUser(row.item);openLdapModal('delete')">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-times"></i></b-col>
               <b-col cols="9">{{ $t('settings.users.fields.ldapdelete') }}</b-col>
@@ -341,8 +341,6 @@ export default {
       this.selectedUser = null;
     },
     sortChanged (ctx) {
-      console.log('test ' + ctx.sortBy);
-      console.log('test ' + ctx.sortDesc);
       this.sortBy = ctx.sortBy;
       this.orderBy = (ctx.sortDesc === false) ? 'asc' : 'desc';
       this.getUsers(this.currentPage);

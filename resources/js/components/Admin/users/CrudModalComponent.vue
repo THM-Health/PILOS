@@ -136,7 +136,8 @@
             class="mt-3"
             block
             type="submit"
-            variant="success">
+            variant="success"
+            :disabled="isBusy">
             {{ $t('settings.users.modal.submit') }}
           </b-button>
 
@@ -152,6 +153,7 @@ import Base from '../../../api/base';
 export default {
   data () {
     return {
+      isBusy: false,
       errors: []
     };
   },
@@ -167,6 +169,8 @@ export default {
           : this.deleteUser(user.id);
     },
     createUser (user) {
+      this.isBusy = true;
+
       Base.call('users', {
         headers: {
           'content-type': 'application/json'
@@ -193,9 +197,12 @@ export default {
         throw error;
       }).finally(() => {
         this.$emit('crud');
+        this.isBusy = false;
       });
     },
     updateUser (id, user) {
+      this.isBusy = true;
+
       Base.call('users/' + id, {
         headers: {
           'content-type': 'application/json'
@@ -221,9 +228,12 @@ export default {
         throw error;
       }).finally(() => {
         this.$emit('crud');
+        this.isBusy = false;
       });
     },
     deleteUser (id) {
+      this.isBusy = true;
+
       Base.call('users/' + id, {
         method: 'delete'
       }).then(response => {
@@ -240,6 +250,7 @@ export default {
         throw error;
       }).finally(() => {
         this.$emit('crud');
+        this.isBusy = false;
       });
     },
     resetModal () {

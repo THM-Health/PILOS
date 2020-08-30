@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Lang;
 
 class UserController extends Controller
 {
@@ -53,7 +54,7 @@ class UserController extends Controller
 
         $store = $user->save();
 
-        return ($store === true) ? (response()->json($user, 201)) : (response()->json(['message' => 'Bad Request!'], 400));
+        return ($store === true) ? (response()->json($user, 201)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
     }
 
     /**
@@ -81,7 +82,7 @@ class UserController extends Controller
 
         $update = $user->save();
 
-        return ($update === true) ? (response()->json($user, 202)) : (response()->json(['message' => 'Bad Request!'], 400));
+        return ($update === true) ? (response()->json($user, 202)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
     }
 
     /**
@@ -94,7 +95,7 @@ class UserController extends Controller
     {
         $delete = $user->delete();
 
-        return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => 'Bad Request!'], 400));
+        return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
     }
 
     /**
