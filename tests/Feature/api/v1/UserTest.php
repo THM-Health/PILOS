@@ -37,7 +37,8 @@ class UserTest extends TestCase
                     'locale',
                     'username',
                     'createdAt',
-                    'updatedAt'
+                    'updatedAt',
+                    'modelName'
                 ]
             ]
         ]);

@@ -197,12 +197,8 @@
       @crud-ldap="getUsers(currentPage)"
       @crud-ldap-delete="deleteUser(selectedUser.id)"
       v-bind:modal-id="'crud-ldap-modal'"
-      v-bind:guid="selectedUser.guid"
-      v-bind:cn="selectedUser.ldapData.cn[0]"
-      v-bind:sn="selectedUser.ldapData.sn[0]"
-      v-bind:givenname="selectedUser.ldapData.givenname[0]"
-      v-bind:mail="selectedUser.ldapData.mail[0]"
-      v-bind:modal-type="ldapModalType">
+      v-bind:modal-type="ldapModalType"
+      v-bind:uid="selectedUser.username">
     </crud-ldap-modal-component>
 
     <!-- Invite modal-->
@@ -244,13 +240,7 @@ export default {
         firstname: null,
         lastname: null,
         username: null,
-        email: null,
-        ldapData: {
-          mail: [],
-          sn: [],
-          cn: [],
-          givenname: []
-        }
+        email: null
       },
       modalType: null,
       ldapModalType: null
@@ -303,19 +293,6 @@ export default {
         });
       });
     },
-    getUserLdapData (user) {
-      Base.call('ldap/' + user.guid)
-        .then((response) => {
-          user.ldapData = response.data;
-        })
-        .catch((error) => {
-          user.ldapData = null;
-          throw error();
-        })
-        .finally(() => {
-          this.$root.$emit('bv::refresh::table', 'user-table');
-        });
-    },
     deleteUser (id) {
       this.$refs.crudUserModal.deleteUser(id);
     },
@@ -335,7 +312,6 @@ export default {
       this.selectedUser.email = user.email;
       this.selectedUser.guid = user.guid;
       this.selectedUser.authenticator = user.authenticator;
-      if (user.authenticator === 'ldap') this.getUserLdapData(this.selectedUser);
     },
     resetSelectedUser () {
       this.selectedUser = null;

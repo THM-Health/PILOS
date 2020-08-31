@@ -101,6 +101,10 @@ export default {
     editLdapFailed: {
       message: 'Something went wrong! Please check your connection!',
       title: 'LDAP Edit'
+    },
+    getLdapFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'LDAP Get'
     }
   },
 

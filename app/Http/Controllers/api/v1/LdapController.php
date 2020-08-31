@@ -15,19 +15,19 @@ class LdapController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  $guid
+     * @param $uid
      * @return JsonResponse
      */
-    public function show($guid)
+    public function show($uid)
     {
         try {
-            $user = User::findByGuidOrFail($guid);
+            $user = User::findByOrFail('uid', $uid);
 
             $user = collect($user)->forget('userpassword')->forget('objectclass');
 
             return response()->json($user, 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'LDAP Model Not Found!'], 404);
+            return response()->json(['message' => Lang::get('validation.custom.ldap.exists')], 404);
         }
     }
 
@@ -35,13 +35,13 @@ class LdapController extends Controller
      * Update the specified resource in storage.
      *
      * @param UpdateLdap $request
-     * @param $guid
+     * @param $uid
      * @return JsonResponse
      */
-    public function update(UpdateLdap $request, $guid)
+    public function update(UpdateLdap $request, $uid)
     {
         try {
-            $user = User::findByGuidOrFail($guid);
+            $user = User::findByOrFail('uid', $uid);
 
             $user->mail      = $request->mail;
             $user->cn        = $request->cn;
@@ -59,13 +59,13 @@ class LdapController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param $guid
+     * @param $uid
      * @return JsonResponse
      */
-    public function destroy($guid)
+    public function destroy($uid)
     {
         try {
-            $user = User::findByGuidOrFail($guid);
+            $user = User::findByOrFail('uid', $uid);
 
             $delete = $user->delete();
 

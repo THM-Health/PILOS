@@ -88,6 +88,10 @@ export default {
     editLdapFailed: {
       message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
       title: 'LDAP Bearbeiten'
+    },
+    getLdapFailed: {
+      message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
+      title: 'LDAP Abfragen'
     }
   },
 

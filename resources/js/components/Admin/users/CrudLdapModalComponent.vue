@@ -9,7 +9,8 @@
       header-text-variant="success"
       centered
       hide-footer
-      @hidden="resetModal()"
+      @shown="shownModal"
+      @hidden="resetModal"
     >
       <b-container fluid>
         <b-form @submit.stop.prevent="onSubmit()">
@@ -29,6 +30,7 @@
                               v-model="mail"
                               :placeholder="$t('settings.users.fields.mail')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.mail && errors.mail.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -51,6 +53,7 @@
                               v-model="givenname"
                               :placeholder="$t('settings.users.fields.givenname')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.givenname && errors.givenname.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -73,6 +76,7 @@
                               v-model="cn"
                               :placeholder="$t('settings.users.fields.cn')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.cn && errors.cn.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -95,6 +99,7 @@
                               v-model="sn"
                               :placeholder="$t('settings.users.fields.sn')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.sn && errors.sn.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -129,28 +134,51 @@ import Base from '../../../api/base';
 export default {
   data () {
     return {
+      ldap: null,
+      mail: null,
+      cn: null,
+      givenname: null,
+      sn: null,
       isBusy: false,
       errors: []
     };
   },
   props: {
-    mail: String,
-    cn: String,
-    givenname: String,
-    sn: String,
-    guid: String,
+    uid: String,
     modalId: String,
     modalType: { type: String, validator: (val) => ['update', 'delete'].includes(val) }
   },
   methods: {
     onSubmit () {
-      (this.modalType === 'update') ? this.updateLdap(this.guid)
-        : this.deleteLdap(this.guid);
+      (this.modalType === 'update') ? this.updateLdap(this.uid)
+        : this.deleteLdap(this.uid);
     },
-    updateLdap (guid) {
+    getUserLdapData (uid) {
       this.isBusy = true;
 
-      Base.call('ldap/' + guid, {
+      Base.call('ldap/' + uid)
+        .then((response) => {
+          this.ldap = response.data;
+          this.mail = this.ldap.mail[0];
+          this.cn = this.ldap.cn[0];
+          this.sn = this.ldap.sn[0];
+          this.givenname = this.ldap.givenname[0];
+        })
+        .catch((error) => {
+          this.ldap = null;
+          this.flashMessage.error(this.$t('settings.users.getLdapFailed'));
+          this.$bvModal.hide(this.modalId);
+          throw error();
+        })
+        .finally(() => {
+          this.$root.$emit('crud-ldap');
+          this.isBusy = false;
+        });
+    },
+    updateLdap (uid) {
+      this.isBusy = true;
+
+      Base.call('ldap/' + uid, {
         headers: {
           'content-type': 'application/json'
         },
@@ -178,10 +206,10 @@ export default {
         this.isBusy = false;
       });
     },
-    deleteLdap (guid) {
+    deleteLdap (uid) {
       this.isBusy = true;
 
-      Base.call('ldap/' + guid, {
+      Base.call('ldap/' + uid, {
         method: 'delete'
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.deleteLdapSuccess'));
@@ -202,13 +230,16 @@ export default {
       });
     },
     resetModal () {
+      this.ldap = null;
       this.mail = null;
       this.sn = null;
       this.cn = null;
-      this.guid = null;
       this.givenname = null;
 
       this.errors = [];
+    },
+    shownModal () {
+      this.getUserLdapData(this.uid);
     }
   },
   computed: {
