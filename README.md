@@ -1,9 +1,13 @@
 # PILOS
 
-<p style="text-align: center;"><img src="https://video.ges.thm.de/img/PILOS.svg" alt="" width="1000"></p>
+![Status](https://github.com/THM-Health/PILOS/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/master/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
 
-PILOS (Platform for Interactive Live-Online Seminars) is the system for the video conference in class and group learning, which has been in use at the THM Faculty of Health ([FB GES](https://www.thm.de/ges/)) since the summer semester 2020.
-It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](https://github.com/bigbluebutton/greenlight).
+PILOS (Platform for Interactive Live-Online Seminars) is an easy to use frontend for [BigBlueButton](https://bigbluebutton.org/) developed at the TH Mittelhessen University of Applied Sciences ([THM](https://thm.de/)) Faculty of Health ([FB GES](https://www.thm.de/ges/)).
+It is based on the experience of students, teachers and staff during the covid-19 pandemic and the raised need for a modern and flexible video conferencing system for the use case of digital class rooms, group learning and other digital meetings. 
+
+
+**This Frontend uses BigBlueButton and is not endorsed or certified by BigBlueButton Inc. BigBlueButton and the BigBlueButton Logo are trademarks of BigBlueButton Inc.**
 
 ## Table of Contents 
 * [About](#About)
@@ -15,20 +19,21 @@ It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](http
 
 ## About 
 
-PILOS is the complete system for the video conference in class and group learning, which has been in use at the THM Faculty of Health ([FB GES](https://www.thm.de/ges/)) since the summer semester 2020.
-It is based on [BigBlueButton](https://bigbluebutton.org/) and [Greenlight](https://github.com/bigbluebutton/greenlight).
-
-This project is currently working on the conversion of the Greenlight client, which is based on the [Ruby-On-Rails](https://rubyonrails.org/) framework, to the [Laravel](https://laravel.com/) framework.
+The interface is similar to another open-source project [Greenlight](https://github.com/bigbluebutton/greenlight).
+During the online semester 2020 many features araised that could not be solved or were hard to implement into Greenlight.
+The team behind Greenlight did an amzing job and we want to thank for their hard work!
+However due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
+we decided to build a new system with another architecture.
 
 ## Architecture
 
-Todo Illustration here
+PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework, [Laravel](https://laravel.com/) as a PHP based JSON API and littleredbutton's [bigbluebutton-api-php](https://github.com/littleredbutton/bigbluebutton-api-php) as the api for controlling BBB.
 
 ## Installation
 
 [Laravel](https://laravel.com/) is the main framework that used to develop PILOS. Follow the documentation [here](https://laravel.com/docs/7.x/) to install it in your development machine. 
 
-BigBlueButton server is necessary to use this application. See how to setup a BigBlueButton server [here](https://docs.bigbluebutton.org/).  
+A BigBlueButton server is necessary to use this application. See how to setup a BigBlueButton server [here](https://docs.bigbluebutton.org/).  
 
 ### 1. How to run
 
@@ -82,7 +87,7 @@ Lastly you can run the following command in your host machine ``npm install `` t
 ## Stacks
 
 1. [BigBlueButton](https://bigbluebutton.org/) - BigBlueButton is an open source web conferencing system.
-2. [Greenlight](https://github.com/bigbluebutton/greenlight) - Greenlight is a simple front-end interface for your BigBlueButton server.
+2. [littleredbutton/bigbluebutton-api-php](https://github.com/littleredbutton/bigbluebutton-api-php) - An unofficial php api for BigBlueButton.
 3. [Laravel](https://laravel.com/) - Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.
 4. [Vue](https://vuejs.org/) -  a progressive Javascript framework for building user interfaces
 5. [Vuex](https://vuex.vuejs.org/) - Vuex is a state management pattern + library for Vue.js applications.
@@ -96,4 +101,4 @@ See how to contribute to the project here (CONTRIBUTE.MD) Insert TODO guideline 
 
 ## License
 
-This PILOS project is Insert TODO License Here (TBD).
+This PILOS project is open-sourced software licensed under the MIT license.
