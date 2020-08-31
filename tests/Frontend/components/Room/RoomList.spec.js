@@ -11,6 +11,7 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
+localVue.use(VueRouter);
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -118,8 +119,8 @@ describe('RoomList', function () {
   it('click on room in list', function (done) {
     const spy = sinon.spy();
 
-    const $router = new VueRouter();
-    $router.push = spy;
+    const router = new VueRouter();
+    router.push = spy;
 
     const exampleRoomListEntry = {
       id: 'abc-def-123',
@@ -136,9 +137,9 @@ describe('RoomList', function () {
 
     const view = mount(RoomComponent, {
       localVue,
+      router,
       mocks: {
-        $t: (key) => key,
-        $router
+        $t: (key) => key
       },
       propsData: {
         id: exampleRoomListEntry.id,

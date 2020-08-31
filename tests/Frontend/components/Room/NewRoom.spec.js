@@ -12,6 +12,7 @@ import VueRouter from 'vue-router';
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
+localVue.use(VueRouter);
 
 describe('Create new rooms', function () {
   beforeEach(function () {
@@ -148,14 +149,14 @@ describe('Create new rooms', function () {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true }];
     const spy = sinon.spy();
 
-    const $router = new VueRouter();
-    $router.push = spy;
+    const router = new VueRouter();
+    router.push = spy;
 
     const view = mount(NewRoomComponent, {
       localVue,
+      router,
       mocks: {
-        $t: (key) => key,
-        $router
+        $t: (key) => key
       },
       propsData: {
         roomTypes: roomTypes,
