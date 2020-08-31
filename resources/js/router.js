@@ -40,7 +40,6 @@ export const routes = [
   },
   {
     path: '/settings',
-    name: 'settings',
     component: Settings,
     meta: {
       requiresAuth: true,
@@ -50,7 +49,7 @@ export const routes = [
       {
         path: '',
         component: SettingsHome,
-        name: 'settings.index'
+        name: 'settings'
       },
       {
         path: 'users',

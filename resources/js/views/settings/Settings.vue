@@ -5,26 +5,22 @@
     <b-row class='mt-5'>
       <b-col lg='3' class='mb-4'>
         <b-nav vertical>
-          <can method='viewAny' policy='UserPolicy' tag='li'>
-            <ul class='list-unstyled'>
-              <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.users' }">
-                <b-row>
-                  <b-col cols='3'><span><i class='fas fa-users'></i></span></b-col>
-                  <b-col cols='7'>{{ $t('settings.users.title') }}</b-col>
-                </b-row>
-              </b-nav-item>
-            </ul>
+          <can method='viewAny' policy='UserPolicy'>
+            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.users' }">
+              <b-row>
+                <b-col cols='3'><span><i class='fas fa-users'></i></span></b-col>
+                <b-col cols='7'>{{ $t('settings.users.title') }}</b-col>
+              </b-row>
+            </b-nav-item>
           </can>
 
-          <can method='viewAny' policy='RolePolicy' tag='li'>
-            <ul class='list-unstyled'>
-              <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.roles' }">
-                <b-row>
-                  <b-col cols='3'><span><i class='fas fa-user-tag'></i></span></b-col>
-                  <b-col cols='7'>{{ $t('settings.roles.title') }}</b-col>
-                </b-row>
-              </b-nav-item>
-            </ul>
+          <can method='viewAny' policy='RolePolicy'>
+            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.roles' }">
+              <b-row>
+                <b-col cols='3'><span><i class='fas fa-user-tag'></i></span></b-col>
+                <b-col cols='7'>{{ $t('settings.roles.title') }}</b-col>
+              </b-row>
+            </b-nav-item>
           </can>
         </b-nav>
       </b-col>

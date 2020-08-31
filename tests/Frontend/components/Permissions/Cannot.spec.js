@@ -1,5 +1,5 @@
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { mount } from '@vue/test-utils';
+import { mount, shallowMount } from '@vue/test-utils';
 import Cannot from '../../../../resources/js/components/Permissions/Cannot';
 import Vue from 'vue';
 import sinon from 'sinon';
@@ -14,7 +14,7 @@ describe('Cannot', function () {
   it('hides the content if the necessary permission is available', async function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
 
-    const wrapper = mount(Cannot, {
+    const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -34,7 +34,7 @@ describe('Cannot', function () {
   it('shows the content if the necessary permission isn\'t available', async function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
 
-    const wrapper = mount(Cannot, {
+    const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -55,7 +55,7 @@ describe('Cannot', function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
     const oldUser = PermissionService.currentUser;
 
-    const wrapper = mount(Cannot, {
+    const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -82,7 +82,7 @@ describe('Cannot', function () {
     const oldUser = PermissionService.currentUser;
     const spy = sinon.spy(Cannot.methods, 'evaluatePermissions');
 
-    const wrapper = mount(Cannot, {
+    const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -110,36 +110,24 @@ describe('Cannot', function () {
     PermissionService.__ResetDependency__('Policies');
   });
 
-  it('tag can be modified and the default is "div"', async function () {
+  it('component does not generate an extra html tag', async function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
     const oldUser = PermissionService.currentUser;
 
-    const wrapperDefault = mount(Cannot, {
-      propsData: {
-        method: 'test',
-        policy: { modelName: 'Test' }
-      },
-      slots: {
-        default: testComponent
+    const parentStub = {
+      name: 'parentStub',
+      template: '<div><cannot method="test" policy="TestPolicy">A<test-component>Test</test-component></cannot></div>',
+      components: {
+        Cannot, testComponent
       }
-    });
+    };
 
-    const wrapper = mount(Cannot, {
-      propsData: {
-        method: 'test',
-        policy: { modelName: 'Test' },
-        tag: 'p'
-      },
-      slots: {
-        default: testComponent
-      }
-    });
+    const wrapper = mount(parentStub);
 
     await Vue.nextTick();
-    expect(wrapperDefault.element.tagName).toBe('DIV');
-    expect(wrapper.element.tagName).toBe('P');
+    expect(wrapper.element.children.length).toBe(1);
+    expect(wrapper.element.children[0]).toBeInstanceOf(HTMLParagraphElement);
 
-    wrapperDefault.destroy();
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
