@@ -34,7 +34,7 @@
 
                 <can method='manage' policy='SettingPolicy' tag='li'>
                   <ul class='list-unstyled' role='group'>
-                    <b-dropdown-item :to="{ name: 'settings' }">
+                    <b-dropdown-item :to="{ name: 'settings.index' }">
                       {{ $t('settings.title') }}
                     </b-dropdown-item>
                     <b-dropdown-divider></b-dropdown-divider>

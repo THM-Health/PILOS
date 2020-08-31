@@ -10,6 +10,7 @@ import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
 import Roles from './views/settings/Roles';
 import Users from './views/settings/Users';
+import SettingsHome from './views/settings/SettingsHome';
 
 Vue.use(VueRouter);
 
@@ -40,13 +41,17 @@ export const routes = [
   {
     path: '/settings',
     name: 'settings',
-    redirect: { name: 'settings.users' },
     component: Settings,
     meta: {
       requiresAuth: true,
       accessPermitted: () => Promise.resolve(PermissionService.can('manage', 'SettingPolicy'))
     },
     children: [
+      {
+        path: '',
+        component: SettingsHome,
+        name: 'settings.index'
+      },
       {
         path: 'users',
         component: Users,

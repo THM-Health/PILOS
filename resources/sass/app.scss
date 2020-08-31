@@ -47,6 +47,7 @@
 
 .setting-nav-link-active {
     @extend .setting-nav-link, :hover;
+    background-color: lighten(rgba($green, 0.5), 25%);
     font-weight: 600;
 }
 
