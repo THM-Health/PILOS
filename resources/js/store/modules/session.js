@@ -1,45 +1,59 @@
-import auth from '../../api/auth'
+import auth from '../../api/auth';
+import base from '../../api/base';
+import { loadLanguageAsync } from '../../i18n';
+import PermissionService from '../../services/PermissionService';
 
 const state = () => ({
-  currentUser: null
-})
+  currentUser: null,
+  currentLocale: null
+});
 
 const getters = {
   isAuthenticated: state => {
-    return !$.isEmptyObject(state.currentUser)
+    return !$.isEmptyObject(state.currentUser);
   }
-}
+};
 
 const actions = {
-  async login ({ dispatch, commit }, { credentials, method }) {
-    await auth.login(credentials, method)
-    await dispatch('getCurrentUser')
-  },
+  async login ({ dispatch, commit, state }, { credentials, method }) {
+    await auth.login(credentials, method);
+    await dispatch('getCurrentUser');
 
-  async getCurrentUser ({ commit }) {
-    let currentUser
-    try {
-      currentUser = await auth.getCurrentUser()
-    } catch (error) {
-      currentUser = null
-    } finally {
-      commit('setCurrentUser', currentUser)
+    if (state.currentUser.locale !== null) {
+      await loadLanguageAsync(state.currentUser.locale);
+      commit('setCurrentLocale', state.currentUser.locale);
     }
   },
 
+  async getCurrentUser ({ commit }) {
+    const currentUser = await auth.getCurrentUser();
+    commit('setCurrentUser', currentUser);
+  },
+
   async logout ({ commit }) {
-    commit('loading', null, { root: true })
-    await auth.logout()
-    commit('setCurrentUser', null)
-    commit('loadingFinished', null, { root: true })
+    commit('loading', null, { root: true });
+    await auth.logout();
+    commit('setCurrentUser', null);
+    commit('loadingFinished', null, { root: true });
+  },
+
+  async setLocale ({ commit, dispatch }, { locale }) {
+    await base.setLocale(locale);
+    await dispatch('getCurrentUser');
+    commit('setCurrentLocale', locale);
   }
-}
+};
 
 const mutations = {
+  setCurrentLocale (state, currentLocale) {
+    state.currentLocale = currentLocale;
+  },
+
   setCurrentUser (state, currentUser) {
-    state.currentUser = currentUser
+    state.currentUser = currentUser;
+    PermissionService.setCurrentUser(state.currentUser);
   }
-}
+};
 
 export default {
   namespaced: true,
@@ -47,4 +61,4 @@ export default {
   getters,
   actions,
   mutations
-}
+};

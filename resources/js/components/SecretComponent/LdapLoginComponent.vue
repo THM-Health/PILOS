@@ -2,17 +2,19 @@
   <div>
     <h5>{{title}}</h5>
     <b-form @submit.prevent="submit">
-      <b-form-group :label="usernameLabel" label-for="username">
+      <b-form-group :label="usernameLabel" :label-for="`${id}Username`">
         <b-form-input
-          id="username"
+          :id="`${id}Username`"
           v-model="username"
           type="text"
           required
           :placeholder="usernameLabel"
           :state="errors !== null && errors.username && errors.username.length > 0 ? false: null"
+          aria-describedby="usernameHelpBlock"
         ></b-form-input>
 
-        <a href="https://www.thm.de/its/helpdesk/faq/436-benutzerkonto.html#wie-sieht-die-th-benutzerkennung-aus" target="_blank">Was ist meine THM-Benutzerkennung?</a>
+        <b-form-text id="usernameHelpBlock" v-html="$t('auth.ldap.usernameHelp')">
+        </b-form-text>
 
         <b-form-invalid-feedback v-if="errors !== null && errors.username.length > 0">
           <template v-for="error in errors.username">
@@ -21,9 +23,9 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-form-group :label="passwordLabel" label-for="password">
+      <b-form-group :label="passwordLabel" :label-for="`${id}Password`">
         <b-form-input
-          id="password"
+          :id="`${id}Password`"
           v-model="password"
           type="password"
           required
@@ -61,7 +63,7 @@ export default {
     return {
       username: '',
       password: ''
-    }
+    };
   },
   methods: {
     submit () {
@@ -71,10 +73,10 @@ export default {
           username: this.username,
           password: this.password
         }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>

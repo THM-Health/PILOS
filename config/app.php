@@ -1,5 +1,9 @@
 <?php
 
+$available_locales = array_diff(scandir(resource_path('lang')), array('..', '.'));
+$locales_env = env('MIX_AVAILABLE_LOCALES');
+$available_locales = $locales_env !== null ? preg_split('/,/', $locales_env) : $available_locales;
+
 return [
 
     /*
@@ -80,7 +84,7 @@ return [
     |
     */
 
-    'locale' => 'de',
+    'locale' => env('MIX_DEFAULT_LOCALE', 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -93,7 +97,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => env('MIX_DEFAULT_LOCALE', 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -107,6 +111,8 @@ return [
     */
 
     'faker_locale' => 'en_US',
+
+    'available_locales' => $available_locales,
 
     /*
     |--------------------------------------------------------------------------
@@ -177,7 +183,6 @@ return [
 
         // Laravel IDE helper
         \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
-
     ],
 
     /*

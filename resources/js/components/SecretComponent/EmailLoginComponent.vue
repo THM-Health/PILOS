@@ -2,9 +2,9 @@
   <div>
     <h5>{{title}}</h5>
     <b-form @submit.prevent="submit">
-      <b-form-group :label="emailLabel" label-for="email">
+      <b-form-group :label="emailLabel" :label-for="`${id}Email`">
         <b-form-input
-          id="email"
+          :id="`${id}Email`"
           v-model="email"
           type="email"
           required
@@ -19,9 +19,9 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-form-group :label="passwordLabel" label-for="password">
+      <b-form-group :label="passwordLabel" :label-for="`${id}Password`">
         <b-form-input
-          id="password"
+          :id="`${id}Password`"
           v-model="password"
           type="password"
           required
@@ -59,7 +59,7 @@ export default {
     return {
       email: '',
       password: ''
-    }
+    };
   },
   methods: {
     submit () {
@@ -69,10 +69,10 @@ export default {
           email: this.email,
           password: this.password
         }
-      })
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>

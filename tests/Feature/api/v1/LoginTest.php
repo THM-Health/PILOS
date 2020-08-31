@@ -1,78 +1,134 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\api\v1;
 
+use App\Permission;
+use App\Role;
+use App\User;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
 {
+    use RefreshDatabase, WithFaker;
+
     /**
-     * TODO: Add docu
+     * Tests that a correct response gets returned when trying to login with invalid credentials.
      *
      * @return void
      */
     public function testLoginWrongCredentials()
     {
-        // $this->assertFalse(true);
+        $user = factory(User::class)->create([
+            'password' => Hash::make('bar')
+        ]);
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => 'foo'
+        ]);
+        $response->assertStatus(422);
+        $this->assertGuest();
     }
 
     /**
-     * TODO: Add docu
-     *
-     * @return void
-     */
-    public function testLoginSuccessLdapProvider()
-    {
-        // $this->assertFalse(true);
-    }
-
-    /**
-     * TODO: Add docu
+     * Tests a successful authentication with correct user credentials for database users.
      *
      * @return void
      */
     public function testLoginSuccessUserProvider()
     {
-        // $this->assertFalse(true);
+        $user           = factory(User::class)->make();
+        $password       = $user->password;
+        $user->password = Hash::make($password);
+        $user->save();
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => $password
+        ]);
+        $response->assertNoContent();
+        $this->assertAuthenticated();
     }
 
     /**
-     * TODO: Add docu
+     * Test empty response for current user if the user isn't authenticated.
      *
      * @return void
      */
     public function testUnauthenticatedCurrentUser()
     {
-        // $this->assertFalse(true);
+        $response = $this->getJson(route('api.v1.currentUser'));
+        $response->assertOk();
+        $response->assertJson([]);
     }
 
     /**
-     * TODO: Add docu
+     * Test correct response for current user if the user is authenticated.
      *
      * @return void
      */
     public function testAuthenticatedCurrentUser()
     {
-        // $this->assertFalse(true);
+        $user     = factory(User::class)->make();
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'firstname' => $user->firstname,
+            'lastname'  => $user->lastname
+        ]);
     }
 
     /**
-     * TODO: Add docu
+     * Test that unique permissions gets returned for the authenticated user.
+     *
+     * @return void
+     */
+    public function testCurrentUserPermissions()
+    {
+        $permission = Permission::firstOrCreate([ 'name' => 'test' ]);
+
+        $a = Role::firstOrCreate(['name' => 'a']);
+        $a->permissions()->attach($permission->id);
+
+        $b = Role::firstOrCreate(['name' => 'b']);
+        $b->permissions()->attach($permission->id);
+
+        $user     = factory(User::class)->create();
+        $user->roles()->attach([$a->id, $b->id]);
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'firstname'   => $user->firstname,
+            'lastname'    => $user->lastname,
+            'permissions' => ['test']
+        ]);
+    }
+
+    /**
+     * Test that logout works as expected if the user is authenticated.
      *
      * @return void
      */
     public function testLogoutAuthenticated()
     {
-        // $this->assertFalse(true);
+        $user     = factory(User::class)->make();
+        $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
+        $response->assertNoContent();
+        $this->assertGuest();
     }
 
     /**
-     * TODO: Add docu
+     * Test correct error message on calling logout as unauthenticated user.
      *
      * @return void
      */
     public function testLogoutUnauthenticated()
     {
-        // $this->assertFalse(true);
+        $response = $this->postJson(route('api.v1.logout'));
+        $response->assertUnauthorized();
+        $response->assertJson([
+            'message' => 'Unauthenticated.'
+        ]);
     }
 }

@@ -1,10 +1,11 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import session from './modules/session'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import session from './modules/session';
+import { loadLanguageAsync } from '../i18n';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
-const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.NODE_ENV !== 'production';
 
 export default new Vuex.Store({
   modules: {
@@ -13,16 +14,18 @@ export default new Vuex.Store({
   strict: debug,
   plugins: [],
   actions: {
-    async initialize ({ dispatch, commit }) {
-      commit('loading')
-      await dispatch('session/getCurrentUser')
-      commit('initialized')
-      commit('loadingFinished')
+    async initialize ({ dispatch, commit }, { locale }) {
+      commit('loading');
+      await dispatch('session/getCurrentUser');
+      await loadLanguageAsync(locale);
+      commit('session/setCurrentLocale', locale);
+      commit('initialized');
+      commit('loadingFinished');
     }
   },
   mutations: {
     initialized (state) {
-      state.initialized = true
+      state.initialized = true;
     },
 
     /**
@@ -34,7 +37,7 @@ export default new Vuex.Store({
      * @param state
      */
     loading (state) {
-      state.loadingCounter++
+      state.loadingCounter++;
     },
 
     /**
@@ -46,7 +49,7 @@ export default new Vuex.Store({
      * @param state
      */
     loadingFinished (state) {
-      state.loadingCounter--
+      state.loadingCounter = Math.max(0, state.loadingCounter - 1);
     }
   },
   state: {
@@ -59,4 +62,4 @@ export default new Vuex.Store({
      */
     loadingCounter: 0
   }
-})
+});

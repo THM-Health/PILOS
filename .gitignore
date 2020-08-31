@@ -20,3 +20,5 @@ cghooks.lock
 /public/fonts
 /public/images
 /resources/custom
+.nyc_output
+coverage

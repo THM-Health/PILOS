@@ -70,4 +70,24 @@ return [
         'driver' => env('CACHE_DRIVER', 'file'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | LDAP Role Mapping
+    |--------------------------------------------------------------------------
+    |
+    | To map ldap roles to the corresponding roles in this application set
+    | the correct ldap role attribute in the .env file and also a map from
+    | ldap roles to the roles in the application. Make sure that the roles
+    | exists in the application, otherwise the not existing mapped role
+    | wouldn't be assign to the user.
+    |
+    */
+
+    'ldapRoleAttribute' => env('LDAP_ROLE_ATTRIBUTE', 'userclass'),
+
+    'roleMap' => array_reduce(array_filter(explode(',', env('LDAP_ROLE_MAP', ''))), function ($carry, $value) {
+        [$ldapRole, $role] = explode('=', $value);
+        $carry[$ldapRole] = $role;
+        return $carry;
+    }, [])
 ];
