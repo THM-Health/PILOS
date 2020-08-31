@@ -59,8 +59,12 @@ class User extends Authenticatable
     }
 
     /**
+     * Calculation of the room limit for this user, based on groups and global settings
+     * Groups have priority over global settings. Use the highest value of all groups or unlimited (-1) of
+     * exits in one of the groups
+     * If room limit of a group is null, ignore it. If all groups are null, use global limit
      *
-     * @return int
+     * @return int limit of rooms of this user: -1: unlimited, 0: zero rooms, 1: one room, 2: two rooms ...
      */
     public function getRoomLimitAttribute()
     {
