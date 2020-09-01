@@ -58,7 +58,7 @@ class LoginTest extends TestCase
      */
     public function testUnauthenticatedCurrentUser()
     {
-        $response = $this->getJson(route('api.v1.application'));
+        $response = $this->getJson(route('api.v1.currentUser'));
         $response->assertOk();
         $response->assertJson([]);
     }
@@ -76,7 +76,6 @@ class LoginTest extends TestCase
         $response->assertJsonFragment([
             'firstname' => $user->firstname,
             'lastname'  => $user->lastname
-
         ]);
     }
 
