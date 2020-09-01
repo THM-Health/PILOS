@@ -9,6 +9,6 @@ export default {
    * @return {boolean}
    */
   manage (permissionService) {
-    return permissionService.currentUser.permissions.includes('settings.manage');
+    return permissionService.currentUser && permissionService.currentUser.permissions.includes('settings.manage');
   }
 };
