@@ -23,7 +23,8 @@ const store = new Vuex.Store({
         currentUser
       },
       getters: {
-        isAuthenticated: () => true
+        isAuthenticated: () => true,
+        settings: () => (setting) => null
       }
     }
   },
