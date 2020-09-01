@@ -1,18 +1,49 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index';
 import BootstrapVue, { BCard, IconsPlugin } from 'bootstrap-vue';
-import store from '../../../../resources/js/store';
 import moxios from 'moxios';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
 import _ from 'lodash';
+import Vuex from 'vuex';
+import PermissionService from '../../../../resources/js/services/PermissionService';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
 localVue.use(VueRouter);
+localVue.use(Vuex);
+
+const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
+
+const store = new Vuex.Store({
+  modules: {
+    session: {
+      namespaced: true,
+      actions: {
+        getCurrentUser () {}
+      },
+      state: {
+        currentUser: exampleUser
+      },
+      getters: {
+        isAuthenticated: () => true,
+        settings: () => (setting) => null
+      },
+      mutations: {
+        setCurrentUser (state, currentUser) {
+          PermissionService.setCurrentUser(currentUser);
+          state.currentUser = currentUser;
+        }
+      }
+    }
+  },
+  state: {
+    loadingCounter: 0
+  }
+});
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -80,40 +111,31 @@ describe('RoomList', function () {
     ]
   };
 
-  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
-
   it('check list of rooms', function (done) {
     moxios.stubRequest('/api/v1/rooms', {
       status: 200,
       response: { data: exampleRoomListResponse }
     });
 
-    moxios.stubRequest('/api/v1/currentUser', {
-      status: 200,
-      response: { data: exampleUser }
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store
     });
 
-    store.dispatch('initialize', {}).then(() => {
-      const view = mount(RoomList, {
-        localVue,
-        mocks: {
-          $t: (key) => key
-        },
-        store
-      });
+    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
 
-      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-        next(view.vm);
-        await view.vm.$nextTick();
+      expect(view.vm.rooms).toEqual(exampleRoomListResponse);
+      const rooms = view.findAllComponents(RoomComponent);
+      expect(rooms.length).toBe(3);
 
-        expect(view.vm.rooms).toEqual(exampleRoomListResponse);
-        const rooms = view.findAllComponents(RoomComponent);
-        expect(rooms.length).toBe(3);
-
-        expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
-        expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
-        done();
-      });
+      expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
+      expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
+      done();
     });
   });
 
@@ -185,81 +207,75 @@ describe('RoomList', function () {
 
     const newUser = _.cloneDeep(exampleUser);
     newUser.room_limit = 2;
+    store.commit('session/setCurrentUser', newUser);
 
-    moxios.stubRequest('/api/v1/currentUser', {
-      status: 200,
-      response: { data: newUser }
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store
     });
 
-    store.dispatch('initialize', {}).then(() => {
-      const view = mount(RoomList, {
-        localVue,
-        mocks: {
-          $t: (key) => key
-        },
-        store
+    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+      // find current amount of rooms
+      const rooms = view.findAllComponents(RoomComponent);
+      expect(rooms.length).toBe(1);
+
+      // change response and fire event
+      overrideStub('/api/v1/rooms', {
+        status: 200,
+        response: {
+          data: {
+            myRooms: [
+              {
+                id: 'abc-def-123',
+                name: 'Meeting One',
+                owner: 'John Doe',
+                type: {
+                  id: 2,
+                  short: 'ME',
+                  description: 'Meeting',
+                  color: '#4a5c66',
+                  default: false
+                }
+              },
+              {
+                id: 'abc-def-456',
+                name: 'Meeting Two',
+                owner: 'John Doe',
+                type: {
+                  id: 2,
+                  short: 'ME',
+                  description: 'Meeting',
+                  color: '#4a5c66',
+                  default: false
+                }
+              }
+            ],
+            sharedRooms: []
+          }
+        }
       });
 
-      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-        next(view.vm);
-        await view.vm.$nextTick();
-        // find current amount of rooms
+      // find new room component and fire event
+      const newRoomComponent = view.findComponent(NewRoomComponent);
+      expect(newRoomComponent.exists()).toBeTruthy();
+      newRoomComponent.vm.$emit('limitReached');
+
+      moxios.wait(function () {
+        view.vm.$nextTick();
+        // check if now two rooms are displayed
         const rooms = view.findAllComponents(RoomComponent);
-        expect(rooms.length).toBe(1);
+        expect(rooms.length).toBe(2);
 
-        // change response and fire event
-        overrideStub('/api/v1/rooms', {
-          status: 200,
-          response: {
-            data: {
-              myRooms: [
-                {
-                  id: 'abc-def-123',
-                  name: 'Meeting One',
-                  owner: 'John Doe',
-                  type: {
-                    id: 2,
-                    short: 'ME',
-                    description: 'Meeting',
-                    color: '#4a5c66',
-                    default: false
-                  }
-                },
-                {
-                  id: 'abc-def-456',
-                  name: 'Meeting Two',
-                  owner: 'John Doe',
-                  type: {
-                    id: 2,
-                    short: 'ME',
-                    description: 'Meeting',
-                    color: '#4a5c66',
-                    default: false
-                  }
-                }
-              ],
-              sharedRooms: []
-            }
-          }
-        });
-
-        // find new room component and fire event
+        // try to find new room component, should be missing as the limit is reached
         const newRoomComponent = view.findComponent(NewRoomComponent);
-        expect(newRoomComponent.exists()).toBeTruthy();
-        newRoomComponent.vm.$emit('limitReached');
+        expect(newRoomComponent.exists()).toBeFalsy();
 
-        moxios.wait(function () {
-          view.vm.$nextTick();
-          // check if now two rooms are displayed
-          const rooms = view.findAllComponents(RoomComponent);
-          expect(rooms.length).toBe(2);
-
-          // try to find new room component, should be missing as the limit is reached
-          const newRoomComponent = view.findComponent(NewRoomComponent);
-          expect(newRoomComponent.exists()).toBeFalsy();
-
-          done();
-        });
+        done();
       });
     });
   });

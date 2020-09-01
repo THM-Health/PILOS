@@ -38,6 +38,19 @@
     background-color: darken(#FFF, 7.5%) !important;
 }
 
+.setting-nav-link {
+    &:hover {
+        color: $green;
+        background-color: rgba($green, 0.5);
+    }
+}
+
+.setting-nav-link-active {
+    @extend .setting-nav-link, :hover;
+    background-color: lighten(rgba($green, 0.5), 25%);
+    font-weight: 600;
+}
+
 ._vue-flash-msg-body {
     width: 300px !important;
 

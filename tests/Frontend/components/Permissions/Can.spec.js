@@ -1,5 +1,5 @@
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { mount } from '@vue/test-utils';
+import { shallowMount, mount } from '@vue/test-utils';
 import Can from '../../../../resources/js/components/Permissions/Can';
 import Vue from 'vue';
 import sinon from 'sinon';
@@ -14,7 +14,7 @@ describe('Can', function () {
   it('hides the content if the necessary permission isn\'t available', async function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
 
-    const wrapper = mount(Can, {
+    const wrapper = shallowMount(Can, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -34,7 +34,7 @@ describe('Can', function () {
   it('shows the content if the necessary permission is available', async function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
 
-    const wrapper = mount(Can, {
+    const wrapper = shallowMount(Can, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -55,7 +55,7 @@ describe('Can', function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
     const oldUser = PermissionService.currentUser;
 
-    const wrapper = mount(Can, {
+    const wrapper = shallowMount(Can, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -82,7 +82,7 @@ describe('Can', function () {
     const oldUser = PermissionService.currentUser;
     const spy = sinon.spy(Can.methods, 'evaluatePermissions');
 
-    const wrapper = mount(Can, {
+    const wrapper = shallowMount(Can, {
       propsData: {
         method: 'test',
         policy: { modelName: 'Test' }
@@ -104,6 +104,29 @@ describe('Can', function () {
 
     await Vue.nextTick();
     expect(spy.callCount).toEqual(1);
+
+    wrapper.destroy();
+    PermissionService.setCurrentUser(oldUser);
+    PermissionService.__ResetDependency__('Policies');
+  });
+
+  it('component does not generate an extra html tag', async function () {
+    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    const oldUser = PermissionService.currentUser;
+
+    const parentStub = {
+      name: 'parentStub',
+      template: '<div><can method="test" policy="TestPolicy">A<test-component>Test</test-component></can></div>',
+      components: {
+        Can, testComponent
+      }
+    };
+
+    const wrapper = mount(parentStub);
+
+    await Vue.nextTick();
+    expect(wrapper.element.children.length).toBe(1);
+    expect(wrapper.element.children[0]).toBeInstanceOf(HTMLParagraphElement);
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);

@@ -1,26 +1,52 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index';
 import BootstrapVue, { BFormInput, IconsPlugin } from 'bootstrap-vue';
-import store from '../../../../resources/js/store';
 import moxios from 'moxios';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
+import Vuex from 'vuex';
+
+const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User', room_limit: -1 };
+
+const store = new Vuex.Store({
+  modules: {
+    session: {
+      namespaced: true,
+      actions: {
+        getCurrentUser ({ state }) { }
+      },
+      state: {
+        currentUser: exampleUser
+      },
+      getters: {
+        isAuthenticated: () => true,
+        settings: () => (setting) => null
+      },
+      mutations: {
+        setCurrentUser (state, currentUser) {
+          PermissionService.setCurrentUser(currentUser);
+          state.currentUser = currentUser;
+        }
+      }
+    }
+  },
+  state: {
+    loadingCounter: 0
+  }
+});
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
 localVue.use(VueRouter);
+localVue.use(Vuex);
 
 describe('Create new rooms', function () {
   beforeEach(function () {
     moxios.install();
-    moxios.stubRequest('/api/v1/settings', {
-      status: 200,
-      response: { }
-    });
   });
 
   afterEach(function () {
@@ -70,47 +96,41 @@ describe('Create new rooms', function () {
     ]
   };
 
-  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User', room_limit: -1 };
-
   it('frontend permission test', function (done) {
     moxios.stubRequest('/api/v1/rooms', {
       status: 200,
       response: { data: exampleRoomListResponse }
     });
 
-    moxios.stubRequest('/api/v1/currentUser', {
-      status: 200,
-      response: { data: exampleUser }
+    PermissionService.setCurrentUser(exampleUser);
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store
     });
 
-    store.dispatch('initialize', {}).then(() => {
-      const view = mount(RoomList, {
-        localVue,
-        mocks: {
-          $t: (key) => key
-        },
-        store
-      });
+    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
 
-      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-        next(view.vm);
-        await view.vm.$nextTick();
+      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+      expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-        expect(missingNewRoomComponent.exists()).toBeFalsy();
+      const newUser = _.cloneDeep(exampleUser);
+      newUser.permissions.push('rooms.create');
 
-        const newUser = _.cloneDeep(exampleUser);
-        newUser.permissions.push('rooms.create');
+      PermissionService.setCurrentUser(newUser);
 
-        PermissionService.setCurrentUser(newUser);
+      await view.vm.$nextTick();
 
-        await view.vm.$nextTick();
+      const newRoomComponent = view.findComponent(NewRoomComponent);
+      expect(newRoomComponent.exists()).toBeTruthy();
 
-        const newRoomComponent = view.findComponent(NewRoomComponent);
-        expect(newRoomComponent.exists()).toBeTruthy();
-
-        done();
-      });
+      view.destroy();
+      done();
     });
   });
 
@@ -123,29 +143,25 @@ describe('Create new rooms', function () {
     const newUser = _.cloneDeep(exampleUser);
     newUser.permissions.push('rooms.create');
     newUser.room_limit = 1;
+    store.commit('session/setCurrentUser', newUser);
 
-    moxios.stubRequest('/api/v1/currentUser', {
-      status: 200,
-      response: { data: newUser }
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store
     });
-    store.dispatch('initialize', {}).then(() => {
-      const view = mount(RoomList, {
-        localVue,
-        mocks: {
-          $t: (key) => key
-        },
-        store
-      });
 
-      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-        next(view.vm);
-        await view.vm.$nextTick();
+    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
 
-        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-        expect(missingNewRoomComponent.exists()).toBeFalsy();
+      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+      expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-        done();
-      });
+      view.destroy();
+      done();
     });
   });
 
@@ -183,6 +199,7 @@ describe('Create new rooms', function () {
           view.vm.$nextTick();
           sinon.assert.calledOnce(spy);
           sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: 'zej-p5h-2wf' } });
+          view.destroy();
           done();
         });
     });
@@ -224,6 +241,7 @@ describe('Create new rooms', function () {
           view.vm.$nextTick();
           sinon.assert.calledOnce(flashMessageSpy);
           sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.noNewRoom');
+          view.destroy();
           done();
         });
     });
@@ -265,6 +283,7 @@ describe('Create new rooms', function () {
           sinon.assert.calledOnce(flashMessageSpy);
           sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.roomLimitExceeded');
           expect(view.emitted().limitReached).toBeTruthy();
+          view.destroy();
           done();
         });
     });
@@ -294,6 +313,7 @@ describe('Create new rooms', function () {
         .then(function () {
           view.vm.$nextTick();
           expect(nameInput.classes()).toContain('is-invalid');
+          view.destroy();
           done();
         });
     });
@@ -317,6 +337,7 @@ describe('Create new rooms', function () {
     view.findComponent(BFormInput).setValue('Test');
     expect(view.vm.$data.room).toMatchObject({ roomType: 2, name: 'Test' });
     view.vm.handleCancel();
+    view.destroy();
     expect(view.vm.$data.room).toMatchObject({});
   });
 });
