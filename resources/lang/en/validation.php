@@ -207,6 +207,7 @@ return [
         'lockSettingsHideUserList'          => 'Hide list of participants',
         'role'                              => 'Role',
         'file'                              => 'File',
+        'permissions'                       => 'Permissions',
     ],
 
 ];

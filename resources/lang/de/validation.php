@@ -206,5 +206,6 @@ return [
         'lockSettingsHideUserList'          => 'Teilnehmerliste verbergen',
         'role'                              => 'Rolle',
         'file'                              => 'Datei',
+        'permissions'                       => 'Rechte',
     ],
 ];
