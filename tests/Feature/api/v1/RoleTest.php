@@ -44,7 +44,7 @@ class RoleTest extends TestCase
         $roleA      = factory(Role::class)->create();
         $user->roles()->attach([$roleA->id]);
 
-        $role = ['name' => $roleA->name, 'default' => true, 'permissions' => 'test'];
+        $role = ['name' => $roleA->name, 'default' => true, 'permissions' => 'test', 'room_limit' => -2];
 
         $this->postJson(route('api.v1.roles.store', $role))->assertUnauthorized();
         $this->actingAs($user)->postJson(route('api.v1.roles.store', $role))->assertStatus(403);
@@ -53,10 +53,11 @@ class RoleTest extends TestCase
         $roleA->permissions()->attach([$permission_id]);
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'permissions']);
+            ->assertJsonValidationErrors(['name', 'permissions', 'room_limit']);
 
         $role['name']        = str_repeat('a', 256);
         $role['permissions'] = ['test'];
+        $role['room_limit']  = 10;
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions.0']);
@@ -73,13 +74,15 @@ class RoleTest extends TestCase
             ->assertSuccessful();
         $this->assertDatabaseCount('roles', 2);
         $this->assertDatabaseCount('permission_role', 2);
-        $this->assertFalse(Role::where(['name' => 'Test'])->get()[0]->default);
+        $roleDB = Role::where(['name' => 'Test'])->first();
+        $this->assertFalse($roleDB->default);
+        $this->assertEquals(10, $roleDB->room_limit);
     }
 
     public function testUpdate()
     {
         $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create(['default' => true]);
+        $roleA      = factory(Role::class)->create(['default' => true, 'room_limit' => 20]);
         $user->roles()->attach([$roleA->id]);
 
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
@@ -94,7 +97,8 @@ class RoleTest extends TestCase
         $changes = [
             'name'        => 'Test',
             'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $new_permission],
-            'default'     => true
+            'default'     => true,
+            'room_limit'  => null
         ];
 
         $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
@@ -117,6 +121,7 @@ class RoleTest extends TestCase
         $roleA->refresh();
         $this->assertEquals($changes['name'], $roleA->name);
         $this->assertEquals(false, $roleA->default);
+        $this->assertEquals(null, $roleA->room_limit);
         $this->assertEquals($changes['permissions'], $roleA->permissions()->pluck('permissions.id')->toArray());
     }
 

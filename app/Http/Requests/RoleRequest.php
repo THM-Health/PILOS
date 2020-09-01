@@ -15,6 +15,7 @@ class RoleRequest extends FormRequest
     {
         return [
             'name'          => 'required|string|alpha_dash|max:255|unique:App\Role',
+            'room_limit'    => 'nullable|int|min:-1',
             'permissions'   => 'required|array',
             'permissions.*' => 'distinct|exists:App\Permission,id',
         ];

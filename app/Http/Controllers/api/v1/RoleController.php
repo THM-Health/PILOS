@@ -40,9 +40,10 @@ class RoleController extends Controller
      */
     public function store(RoleRequest $request)
     {
-        $role          = new Role;
-        $role->name    = $request->name;
-        $role->default = false;
+        $role             = new Role;
+        $role->name       = $request->name;
+        $role->room_limit = $request->room_limit;
+        $role->default    = false;
 
         if (!$role->save()) {
             return response()->json([
@@ -76,20 +77,15 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        $required_permissions = [
-            'settings.manage',
-            'roles.update',
-            'roles.viewAny'
-        ];
-
         $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
         $role->permissions()->sync($request->permissions);
 
         $user = Auth::user();
-        $user->unsetRelation('roles');
 
-        if (array_intersect($required_permissions, $user->permissions) !== $required_permissions) {
+        if (!($user->hasPermission('settings.manage')
+            && $user->hasPermission('roles.update')
+            && $user->hasPermission('roles.viewAny'))) {
             $role->permissions()->sync($old_role_permissions);
 
             return response()->json([
@@ -98,6 +94,7 @@ class RoleController extends Controller
             ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
         }
 
+        $role->room_limit = $request->room_limit;
         $role->name = $request->name;
         if (!$role->save()) {
             return response()->json([
