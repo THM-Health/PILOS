@@ -4,45 +4,52 @@ import { loadLanguageAsync } from '../../i18n';
 import PermissionService from '../../services/PermissionService';
 
 const state = () => ({
-  application: null,
+  settings: null,
+  currentUser: null,
   currentLocale: null
 });
 
 const getters = {
   isAuthenticated: state => {
-    return !$.isEmptyObject(state.application) && !$.isEmptyObject(state.application.user);
+    return !$.isEmptyObject(state.currentUser);
   },
   settings: (state) => (setting) => {
-    return $.isEmptyObject(state.application) || state.application.settings === undefined || !(setting in state.application.settings) ? null : state.application.settings[setting];
+    return $.isEmptyObject(state.settings) || !(setting in state.settings) ? null : state.settings[setting];
   }
 };
 
 const actions = {
   async login ({ dispatch, commit, state }, { credentials, method }) {
     await auth.login(credentials, method);
-    await dispatch('getApplication');
+    await dispatch('getCurrentUser');
 
-    if (state.application.user.locale !== null) {
-      await loadLanguageAsync(state.application.user.locale);
-      commit('setCurrentLocale', state.application.user.locale);
+    if (state.currentUser.locale !== null) {
+      await loadLanguageAsync(state.currentUser.locale);
+      commit('setCurrentLocale', state.currentUser.locale);
     }
   },
 
-  async getApplication ({ commit }) {
-    const application = await auth.getApplication();
-    commit('setApplication', application);
+  async getSettings ({ commit }) {
+    base.call('settings').then(response => {
+      return commit('setSettings', response.data.data);
+    });
+  },
+
+  async getCurrentUser ({ commit }) {
+    const currentUser = await auth.getCurrentUser();
+    commit('setCurrentUser', currentUser);
   },
 
   async logout ({ commit }) {
     commit('loading', null, { root: true });
     await auth.logout();
-    commit('setUser', null);
+    commit('setCurrentUser', null);
     commit('loadingFinished', null, { root: true });
   },
 
   async setLocale ({ commit, dispatch }, { locale }) {
     await base.setLocale(locale);
-    await dispatch('getApplication');
+    await dispatch('getCurrentUser');
     commit('setCurrentLocale', locale);
   }
 };
@@ -52,14 +59,13 @@ const mutations = {
     state.currentLocale = currentLocale;
   },
 
-  setApplication (state, application) {
-    state.application = application;
-    PermissionService.setCurrentUser(state.application.user);
+  setSettings (state, settings) {
+    state.settings = settings;
   },
 
-  setUser (state, user) {
-    state.application.user = user;
-    PermissionService.setCurrentUser(state.application.user);
+  setCurrentUser (state, currentUser) {
+    state.currentUser = currentUser;
+    PermissionService.setCurrentUser(state.currentUser);
   }
 };
 

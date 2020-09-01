@@ -129,11 +129,11 @@ describe('LocaleSelector', function () {
     moxios.stubRequest('/api/v1/setLocale', {
       status: 200
     });
-    moxios.stubRequest('/api/v1/application', {
+    moxios.stubRequest('/api/v1/currentUser', {
       status: 200,
       response: {
         data: {
-          data: { user: [] }
+          data: null
         }
       }
     });

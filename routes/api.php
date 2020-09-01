@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Auth;
 
 Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
-    Route::get('application', 'ApplicationController@application')->name('application');
+    Route::get('settings', 'ApplicationController@settings')->name('application');
+    Route::get('currentUser', 'ApplicationController@currentUser')->name('currentUser');
     Route::post('setLocale', function (Request $request) {
         $validatedData = $request->validate([
             'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]

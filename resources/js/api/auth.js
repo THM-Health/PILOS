@@ -14,8 +14,8 @@ export default {
     });
   },
 
-  getApplication () {
-    return Base.call('application').then(response => {
+  getCurrentUser () {
+    return Base.call('currentUser').then(response => {
       return response.data.data;
     });
   }

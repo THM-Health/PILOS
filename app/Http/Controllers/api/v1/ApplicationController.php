@@ -9,17 +9,23 @@ use Illuminate\Support\Facades\Auth;
 class ApplicationController extends Controller
 {
     /**
-     * Load basic application data, like settings and currently logged in user
+     * Load basic application data, like settings
      * @return \Illuminate\Http\JsonResponse
      */
-    public function application()
+    public function settings()
     {
         return response()->json(['data' => [
-          'settings' => [
               'logo'       => setting('logo'),
-              'room_limit' => Auth::guest() ? setting('room_limit') : Auth::user()->room_limit
-          ],
-          'user' => new UserResource(Auth::user(), true)
-        ]]);
+          ]
+        ]);
+    }
+
+    /**
+     * Load current user
+     * @return UserResource
+     */
+    public function currentUser()
+    {
+        return new UserResource(Auth::user(), true);
     }
 }

@@ -29,7 +29,7 @@
               <b-nav-item-dropdown right v-if='isAuthenticated'>
                 <!-- Using 'button-content' slot -->
                 <template v-slot:button-content>
-                  {{application.user.firstname}} {{application.user.lastname}}
+                  {{currentUser.firstname}} {{currentUser.lastname}}
                 </template>
 
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>

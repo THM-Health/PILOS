@@ -17,6 +17,10 @@ localVue.use(VueRouter);
 describe('Create new rooms', function () {
   beforeEach(function () {
     moxios.install();
+    moxios.stubRequest('/api/v1/settings', {
+      status: 200,
+      response: { }
+    });
   });
 
   afterEach(function () {
@@ -66,7 +70,7 @@ describe('Create new rooms', function () {
     ]
   };
 
-  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User' };
+  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User', room_limit: -1 };
 
   it('frontend permission test', function (done) {
     moxios.stubRequest('/api/v1/rooms', {
@@ -74,39 +78,39 @@ describe('Create new rooms', function () {
       response: { data: exampleRoomListResponse }
     });
 
-    moxios.stubRequest('/api/v1/application', {
+    moxios.stubRequest('/api/v1/currentUser', {
       status: 200,
-      response: { data: { settings: { room_limit: -1 }, user: exampleUser } }
+      response: { data: exampleUser }
     });
 
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store
-    });
+    store.dispatch('initialize', {}).then(() => {
+      const view = mount(RoomList, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        store
+      });
 
-    store.dispatch('initialize', {});
+      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+        next(view.vm);
+        await view.vm.$nextTick();
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
-      await view.vm.$nextTick();
+        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+        expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-      expect(missingNewRoomComponent.exists()).toBeFalsy();
+        const newUser = _.cloneDeep(exampleUser);
+        newUser.permissions.push('rooms.create');
 
-      const newUser = _.cloneDeep(exampleUser);
-      newUser.permissions.push('rooms.create');
+        PermissionService.setCurrentUser(newUser);
 
-      PermissionService.setCurrentUser(newUser);
+        await view.vm.$nextTick();
 
-      await view.vm.$nextTick();
+        const newRoomComponent = view.findComponent(NewRoomComponent);
+        expect(newRoomComponent.exists()).toBeTruthy();
 
-      const newRoomComponent = view.findComponent(NewRoomComponent);
-      expect(newRoomComponent.exists()).toBeTruthy();
-
-      done();
+        done();
+      });
     });
   });
 
@@ -118,30 +122,30 @@ describe('Create new rooms', function () {
 
     const newUser = _.cloneDeep(exampleUser);
     newUser.permissions.push('rooms.create');
+    newUser.room_limit = 1;
 
-    moxios.stubRequest('/api/v1/application', {
+    moxios.stubRequest('/api/v1/currentUser', {
       status: 200,
-      response: { data: { settings: { room_limit: 1 }, user: newUser } }
+      response: { data: newUser }
     });
+    store.dispatch('initialize', {}).then(() => {
+      const view = mount(RoomList, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        store
+      });
 
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store
-    });
+      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+        next(view.vm);
+        await view.vm.$nextTick();
 
-    store.dispatch('initialize', {});
+        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+        expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
-      await view.vm.$nextTick();
-
-      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-      expect(missingNewRoomComponent.exists()).toBeFalsy();
-
-      done();
+        done();
+      });
     });
   });
 

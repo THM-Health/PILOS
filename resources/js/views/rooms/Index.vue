@@ -1,7 +1,7 @@
 <template>
     <b-container class="mt-3 mb-5">
       <h2>{{ $t('rooms.myRooms') }}</h2>
-      <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:rooms.myRooms.length,max:settings('room_limit')}) }}</b-badge>
+      <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:rooms.myRooms.length,max:currentUser.room_limit}) }}</b-badge>
 
       <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" v-if="rooms.myRooms">
         <b-col v-for="room in rooms.myRooms" :key="room.id" class="pt-2">
@@ -36,7 +36,7 @@ import RoomComponent from '../../components/Room/RoomComponent.vue';
 import NewRoomComponent from '../../components/Room/NewRoomComponent.vue';
 import Can from '../../components/Permissions/Can';
 import Base from '../../api/base';
-import { mapGetters } from 'vuex';
+import { mapState } from 'vuex';
 import store from '../../store';
 
 export default {
@@ -46,20 +46,20 @@ export default {
     Can
   },
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
+    ...mapState({
+      currentUser: state => state.session.currentUser
     }),
     showLimit: function () {
-      return this.settings('room_limit') !== -1 && this.rooms.myRooms !== undefined;
+      return this.currentUser.room_limit !== -1 && this.rooms.myRooms !== undefined;
     },
     limitReached: function () {
-      return this.settings('room_limit') !== -1 && this.rooms.myRooms !== undefined && this.rooms.myRooms.length >= this.settings('room_limit');
+      return this.currentUser.room_limit !== -1 && this.rooms.myRooms !== undefined && this.rooms.myRooms.length >= this.currentUser.room_limit;
     }
   },
   methods: {
     // Handle event from new room component that the limit was reached
     onReachLimit () {
-      store.dispatch('session/getApplication');
+      store.dispatch('session/getCurrentUser');
       this.reload();
     },
     reload () {

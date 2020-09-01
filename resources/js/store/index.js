@@ -16,7 +16,8 @@ export default new Vuex.Store({
   actions: {
     async initialize ({ dispatch, commit }, { locale }) {
       commit('loading');
-      await dispatch('session/getApplication');
+      await dispatch('session/getSettings');
+      await dispatch('session/getCurrentUser');
       await loadLanguageAsync(locale);
       commit('session/setCurrentLocale', locale);
       commit('initialized');
