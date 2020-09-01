@@ -52,18 +52,6 @@ export default {
     policy: {
       type: [String, Object],
       required: true
-    },
-
-    /**
-     * Name of tag to use for the root element.
-     *
-     * @property tag
-     * @type String
-     * @default 'div'
-     */
-    tag: {
-      type: String,
-      default: 'div'
     }
   },
 
