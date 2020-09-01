@@ -127,4 +127,57 @@ class UserTest extends TestCase
 
         $this->assertEquals([$permission->name], $user->permissions);
     }
+
+    /**
+     * Testing the calculation of the room limit for this user, based on groups and global settings
+     */
+    public function testRoomLimitCalc()
+    {
+        $user       = factory(User::class)->create();
+        $roleA      = factory(Role::class)->create();
+        $roleB      = factory(Role::class)->create();
+        $user->roles()->attach([$roleA->id, $roleB->id]);
+
+        // Only global limit, unlimited
+        setting(['room_limit' => '-1']);
+        $roleA->room_limit = null;
+        $roleA->save();
+        $roleB->room_limit = null;
+        $roleB->save();
+        $this->assertEquals(-1, $user->room_limit);
+
+        // Only global limit, limited
+        setting(['room_limit' => '10']);
+        $roleA->room_limit = null;
+        $roleA->save();
+        $roleB->room_limit = null;
+        $roleB->save();
+        $this->assertEquals(10, $user->room_limit);
+
+        // Lower limit on one group, other has none, global unlimited
+        setting(['room_limit' => '-1']);
+        $roleA->room_limit = 1;
+        $roleA->save();
+        $this->assertEquals(1, $user->room_limit);
+
+        // Lower limit on one group, other has none, global limit
+        setting(['room_limit' => '10']);
+        $roleA->room_limit = 1;
+        $roleA->save();
+        $this->assertEquals(1, $user->room_limit);
+
+        // Global limit, unlimited one group
+        setting(['room_limit' => '10']);
+        $roleA->room_limit = -1;
+        $roleA->save();
+        $this->assertEquals(-1, $user->room_limit);
+
+        // Different high limits
+        setting(['room_limit' => '10']);
+        $roleA->room_limit = 20;
+        $roleA->save();
+        $roleB->room_limit = 30;
+        $roleB->save();
+        $this->assertEquals(30, $user->room_limit);
+    }
 }

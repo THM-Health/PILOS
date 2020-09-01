@@ -8,6 +8,12 @@ import Clipboard from 'v-clipboard';
 
 const localVue = createLocalVue();
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 
@@ -43,7 +49,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'abc-def-123' } };
@@ -67,7 +74,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'abc-def-456' } };
@@ -91,7 +99,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'abc-def-789' } };
@@ -125,7 +134,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'cba-fed-123' } };
@@ -155,7 +165,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'cba-fed-234' } };
@@ -185,7 +196,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'cba-fed-345' } };

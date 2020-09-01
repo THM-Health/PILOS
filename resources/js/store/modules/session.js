@@ -4,6 +4,7 @@ import { loadLanguageAsync } from '../../i18n';
 import PermissionService from '../../services/PermissionService';
 
 const state = () => ({
+  settings: null,
   currentUser: null,
   currentLocale: null
 });
@@ -11,6 +12,9 @@ const state = () => ({
 const getters = {
   isAuthenticated: state => {
     return !$.isEmptyObject(state.currentUser);
+  },
+  settings: (state) => (setting) => {
+    return $.isEmptyObject(state.settings) || !(setting in state.settings) ? null : state.settings[setting];
   }
 };
 
@@ -23,6 +27,12 @@ const actions = {
       await loadLanguageAsync(state.currentUser.locale);
       commit('setCurrentLocale', state.currentUser.locale);
     }
+  },
+
+  async getSettings ({ commit }) {
+    base.call('settings').then(response => {
+      return commit('setSettings', response.data.data);
+    });
   },
 
   async getCurrentUser ({ commit }) {
@@ -47,6 +57,10 @@ const actions = {
 const mutations = {
   setCurrentLocale (state, currentLocale) {
     state.currentLocale = currentLocale;
+  },
+
+  setSettings (state, settings) {
+    state.settings = settings;
   },
 
   setCurrentUser (state, currentUser) {

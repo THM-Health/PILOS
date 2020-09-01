@@ -59,6 +59,26 @@ class User extends Authenticatable
     }
 
     /**
+     * Calculation of the room limit for this user, based on groups and global settings
+     * Groups have priority over global settings. Use the highest value of all groups or unlimited (-1) of
+     * exits in one of the groups
+     * If room limit of a group is null, ignore it. If all groups are null, use global limit
+     *
+     * @return int limit of rooms of this user: -1: unlimited, 0: zero rooms, 1: one room, 2: two rooms ...
+     */
+    public function getRoomLimitAttribute()
+    {
+        $role_limits = $this->roles()->pluck('room_limit');
+
+        // check if any role has unlimited rooms, if yes set to unlimited
+        if ($role_limits->contains(-1)) {
+            return -1;
+        }
+        // otherwise try to find highest room limit, if none defined (=null) use global limit
+        return intval($role_limits->max() ?: setting('room_limit'));
+    }
+
+    /**
      * Rooms the user is member of
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

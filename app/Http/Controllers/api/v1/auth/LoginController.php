@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\User as UserResource;
 
 class LoginController extends Controller
 {
@@ -32,13 +31,8 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest')->except(['logout', 'currentUser']);
-        $this->middleware('auth:users,ldap')->only(['currentUser', 'logout']);
-    }
-
-    public function currentUser()
-    {
-        return new UserResource(Auth::user(), true);
+        $this->middleware('guest')->except(['logout']);
+        $this->middleware('auth:users,ldap')->only(['logout']);
     }
 
     public function username()

@@ -12,7 +12,7 @@
         <b-container>
           <h1>
             <b-navbar-brand :to="{ name: 'home' }">
-              <img style="height: 2rem;" src="/images/logo.svg" alt="Logo">
+              <img style="height: 2rem;" v-if="settings('logo')" :src="settings('logo')" alt="Logo">
             </b-navbar-brand>
           </h1>
 
@@ -60,10 +60,12 @@ export default {
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
+      application: state => state.session.application,
       loadingCounter: state => state.loadingCounter
     }),
     ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated'
+      isAuthenticated: 'session/isAuthenticated',
+      settings: 'session/settings'
     })
   },
   data () {
