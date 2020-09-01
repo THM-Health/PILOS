@@ -92,6 +92,13 @@ export default {
             this.$bvModal.hide('new-room');
             return;
           }
+          // room limit exceeded
+          if (error.response.status === 463) {
+            this.flashMessage.error(this.$t('rooms.flash.roomLimitExceeded'));
+            this.$emit('limitReached');
+            this.$bvModal.hide('new-room');
+            return;
+          }
         }
         this.$bvModal.hide('new-room');
         throw error;

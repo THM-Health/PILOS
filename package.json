@@ -45,6 +45,7 @@
         "mocha": "^7.2.0",
         "mochapack": "^2.0.2",
         "moxios": "^0.4.0",
+        "mutationobserver-shim": "^0.3.7",
         "nyc": "^15.1.0",
         "popper.js": "^1.12",
         "pre-commit": "^1.1.3",

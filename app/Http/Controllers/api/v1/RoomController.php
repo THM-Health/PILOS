@@ -41,11 +41,15 @@ class RoomController extends Controller
     /**
      * Store a new created room
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return \App\Http\Resources\Room
+     * @param  \Illuminate\Http\Request                               $request
+     * @return \App\Http\Resources\Room|\Illuminate\Http\JsonResponse
      */
     public function store(CreateRoom $request)
     {
+        if (Auth::user()->room_limit !== -1 && Auth::user()->myRooms()->count() >= Auth::user()->room_limit) {
+            return response()->json('room_limit_exceeded', CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
+        }
+
         $room             = new Room();
         $room->name       = $request->name;
         $room->accessCode = rand(111111111, 999999999);

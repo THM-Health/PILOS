@@ -36,8 +36,13 @@ class RoomTest extends TestCase
         $this->user = factory(User::class)->create();
     }
 
+    /**
+     * Test to create a new room with and without the required permissions
+     */
     public function testCreateNewRoom()
     {
+        setting(['room_limit' => '-1']);
+
         $room = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>$this->faker->word];
 
         // Test unauthenticated user
@@ -69,6 +74,29 @@ class RoomTest extends TestCase
         $room = [];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertJsonValidationErrors(['name','roomType']);
+    }
+
+    /**
+     * Check if the room limit is reached and the creation of new rooms is prevented
+     */
+    public function testCreateNewRoomReachLimit()
+    {
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name'=>'rooms.create']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+        setting(['room_limit' => '1']);
+
+        $room_1 = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>$this->faker->word];
+        $room_2 = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>$this->faker->word];
+
+        // Create first room
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_1)
+            ->assertCreated();
+
+        // Create second room, expect reach of limit
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_2)
+            ->assertStatus(CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
     }
 
     /**

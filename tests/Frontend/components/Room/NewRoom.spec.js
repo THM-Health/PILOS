@@ -17,6 +17,10 @@ localVue.use(VueRouter);
 describe('Create new rooms', function () {
   beforeEach(function () {
     moxios.install();
+    moxios.stubRequest('/api/v1/settings', {
+      status: 200,
+      response: { }
+    });
   });
 
   afterEach(function () {
@@ -66,7 +70,7 @@ describe('Create new rooms', function () {
     ]
   };
 
-  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User' };
+  const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User', room_limit: -1 };
 
   it('frontend permission test', function (done) {
     moxios.stubRequest('/api/v1/rooms', {
@@ -79,34 +83,69 @@ describe('Create new rooms', function () {
       response: { data: exampleUser }
     });
 
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store
+    store.dispatch('initialize', {}).then(() => {
+      const view = mount(RoomList, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        store
+      });
+
+      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+        next(view.vm);
+        await view.vm.$nextTick();
+
+        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+        expect(missingNewRoomComponent.exists()).toBeFalsy();
+
+        const newUser = _.cloneDeep(exampleUser);
+        newUser.permissions.push('rooms.create');
+
+        PermissionService.setCurrentUser(newUser);
+
+        await view.vm.$nextTick();
+
+        const newRoomComponent = view.findComponent(NewRoomComponent);
+        expect(newRoomComponent.exists()).toBeTruthy();
+
+        done();
+      });
+    });
+  });
+
+  it('frontend room limit test', function (done) {
+    moxios.stubRequest('/api/v1/rooms', {
+      status: 200,
+      response: { data: exampleRoomListResponse }
     });
 
-    store.dispatch('initialize', {});
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.push('rooms.create');
+    newUser.room_limit = 1;
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
-      await view.vm.$nextTick();
+    moxios.stubRequest('/api/v1/currentUser', {
+      status: 200,
+      response: { data: newUser }
+    });
+    store.dispatch('initialize', {}).then(() => {
+      const view = mount(RoomList, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        store
+      });
 
-      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-      expect(missingNewRoomComponent.exists()).toBeFalsy();
+      RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
+        next(view.vm);
+        await view.vm.$nextTick();
 
-      const newUser = _.cloneDeep(exampleUser);
-      newUser.permissions.push('rooms.create');
+        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+        expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-      PermissionService.setCurrentUser(newUser);
-
-      await view.vm.$nextTick();
-
-      const newRoomComponent = view.findComponent(NewRoomComponent);
-      expect(newRoomComponent.exists()).toBeTruthy();
-
-      done();
+        done();
+      });
     });
   });
 
@@ -171,9 +210,10 @@ describe('Create new rooms', function () {
       store
     });
 
-    view.vm.handleSubmit();
     const nameInput = view.findComponent(BFormInput);
     nameInput.setValue('Test');
+    view.vm.handleSubmit();
+
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
@@ -184,6 +224,47 @@ describe('Create new rooms', function () {
           view.vm.$nextTick();
           sinon.assert.calledOnce(flashMessageSpy);
           sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.noNewRoom');
+          done();
+        });
+    });
+  });
+
+  it('submit reached room limit', function (done) {
+    const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true }];
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(NewRoomComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      propsData: {
+        roomTypes: roomTypes,
+        modalStatic: true
+      },
+      store
+    });
+
+    view.vm.handleSubmit();
+    const nameInput = view.findComponent(BFormInput);
+    nameInput.setValue('Test');
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+      request.respondWith({
+        status: 463
+      })
+        .then(function () {
+          view.vm.$nextTick();
+          sinon.assert.calledOnce(flashMessageSpy);
+          sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.roomLimitExceeded');
+          expect(view.emitted().limitReached).toBeTruthy();
           done();
         });
     });
