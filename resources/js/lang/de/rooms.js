@@ -17,6 +17,7 @@ export default {
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
+  placeholderAccessCode: 'Zugangscode',
   flash: {
     roomLimitExceeded: {
       message: 'Sie haben die max. Anzahl an Räumen erreicht.',
