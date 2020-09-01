@@ -2,11 +2,8 @@
 
 namespace App;
 
-use App\Exceptions\DefaultRoleModificationException;
-use App\Exceptions\RoleWithUsersDeletionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Class Role

@@ -55,19 +55,19 @@ class RoleTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions']);
 
-        $role['name'] = str_repeat('a', 256);
+        $role['name']        = str_repeat('a', 256);
         $role['permissions'] = ['test'];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions.0']);
 
-        $role['name'] = '**';
+        $role['name']        = '**';
         $role['permissions'] = [99];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions.0']);
 
-        $role['name'] = 'Test';
+        $role['name']        = 'Test';
         $role['permissions'] = [$permission_id];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertSuccessful();
@@ -75,7 +75,6 @@ class RoleTest extends TestCase
         $this->assertDatabaseCount('permission_role', 2);
         $this->assertFalse(Role::where(['name' => 'Test'])->get()[0]->default);
     }
-
 
     public function testUpdate()
     {
@@ -93,9 +92,9 @@ class RoleTest extends TestCase
         ];
 
         $changes = [
-            'name' => 'Test',
+            'name'        => 'Test',
             'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $new_permission],
-            'default' => true
+            'default'     => true
         ];
 
         $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
@@ -163,7 +162,7 @@ class RoleTest extends TestCase
         $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))
             ->assertStatus(200)
             ->assertJsonFragment([
-                'name' => $roleA->name,
+                'name'        => $roleA->name,
                 'permissions' => [['name' => $permission->name, 'id' => $permission->id]]
             ]);
     }
@@ -187,7 +186,7 @@ class RoleTest extends TestCase
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleB]))
             ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS)
             ->assertJsonFragment([
-                'error' => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
+                'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
                 'message' => trans('app.errors.role_delete_linked_users')
             ]);
 
