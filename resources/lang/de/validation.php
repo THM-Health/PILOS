@@ -207,5 +207,7 @@ return [
         'role'                              => 'Rolle',
         'file'                              => 'Datei',
         'permissions'                       => 'Rechte',
+        'updated_at'                        => 'Aktualisiert am',
+        'room_limit'                        => 'Max. Anzahl an Räumen'
     ],
 ];

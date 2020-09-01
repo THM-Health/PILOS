@@ -18,6 +18,7 @@ class RoleRequest extends FormRequest
             'room_limit'    => 'nullable|int|min:-1',
             'permissions'   => 'required|array',
             'permissions.*' => 'distinct|exists:App\Permission,id',
+            'updated_at'    => 'required|date'
         ];
     }
 }

@@ -208,6 +208,8 @@ return [
         'role'                              => 'Role',
         'file'                              => 'File',
         'permissions'                       => 'Permissions',
+        'updated_at'                        => 'Updated at',
+        'room_limit'                        => 'Room limit'
     ],
 
 ];
