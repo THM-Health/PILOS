@@ -21,8 +21,8 @@ trait EnsureModelNotStaleTrait
     {
         if ($updated_at_request < $model->updated_at) {
             return response()->json([
-                'error' => CustomStatusCodes::STALE_MODEL,
-                'message' => trans('app.errors.stale_model', ['model' => trans('app.model', $model->getTable())]),
+                'error'     => CustomStatusCodes::STALE_MODEL,
+                'message'   => trans('app.errors.stale_model', ['model' => trans('app.model.' . $model->getTable())]),
                 'new_model' => new $resource_class($model)
             ], CustomStatusCodes::STALE_MODEL);
         }

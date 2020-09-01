@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleRequest extends FormRequest
 {
@@ -13,12 +14,18 @@ class RoleRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name'          => 'required|string|alpha_dash|max:255|unique:App\Role',
+        $rules = [
+            'name'          => ['required', 'string', 'alpha_dash', 'max:255', Rule::unique('roles', 'name')],
             'room_limit'    => 'nullable|int|min:-1',
             'permissions'   => 'required|array',
-            'permissions.*' => 'distinct|exists:App\Permission,id',
-            'updated_at'    => 'required|date'
+            'permissions.*' => 'distinct|exists:App\Permission,id'
         ];
+
+        if ($this->method() === 'PUT' || $this->method() === 'PATCH') {
+            $rules['name']       = ['required', 'string', 'alpha_dash', 'max:255', Rule::unique('roles', 'name')->ignore($this->role->id)];
+            $rules['updated_at'] = 'required|date';
+        }
+
+        return $rules;
     }
 }

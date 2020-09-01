@@ -9,7 +9,6 @@ use App\Http\Resources\Role as RoleResource;
 use App\Role;
 use App\Traits\EnsureModelNotStaleTrait;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -74,11 +73,11 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request           $request
+     * @param  RoleRequest       $request
      * @param  Role              $role
      * @return JsonResponse|void
      */
-    public function update(Request $request, Role $role)
+    public function update(RoleRequest $request, Role $role)
     {
         $stale = $this->isStale(RoleResource::class, $role, $request->updated_at);
 
@@ -104,7 +103,7 @@ class RoleController extends Controller
         }
 
         $role->room_limit = $request->room_limit;
-        $role->name = $request->name;
+        $role->name       = $request->name;
         if (!$role->save()) {
             return response()->json([
                 'error'   => 400,

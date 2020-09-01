@@ -116,6 +116,12 @@ class RoleTest extends TestCase
         $roleA->save();
 
         $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('updated_at');
+
+        $changes['updated_at'] = now();
+
+        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
             ->assertSuccessful();
 
         $roleA->refresh();
@@ -142,8 +148,10 @@ class RoleTest extends TestCase
         $roleA->permissions()->attach($permission_ids);
 
         $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role'=>$roleA]), [
-            'name' => $roleA->name, 'permissions' => [$permission_ids[0], $permission_ids[1], $new_permission]
-        ])->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
+            'name'        => $roleA->name,
+            'permissions' => [$permission_ids[0], $permission_ids[1], $new_permission],
+            'updated_at'  => $roleA->updated_at
+        ])->dump()->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
 
         $roleA->unsetRelation('permissions');
         $this->assertEquals($permission_ids, $roleA->permissions()->pluck('permissions.id')->toArray());
