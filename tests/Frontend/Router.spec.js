@@ -1,36 +1,47 @@
-import { beforeEachRoute, mockRouter } from '../../resources/js/router';
+import { beforeEachRoute } from '../../resources/js/router';
 
 describe('Router', function () {
   describe('beforeEachRoute', function () {
     it('beforeEachRoute calls next if there is no permission checks or required authentication', function (done) {
-      mockRouter({}, {
+      const router = {};
+
+      const store = {
         getters: {
           'session/isAuthenticated': true
         },
         state: {
           initialized: true
         }
-      });
+      };
 
       const to = {
         matched: [{ path: '/', meta: {} }]
       };
 
-      beforeEachRoute(to, undefined, () => {
-        expect(true).toBe(true);
+      let nextCalled = false;
+
+      new Promise((resolve) => {
+        beforeEachRoute(router, store, to, undefined, () => {
+          nextCalled = true;
+          resolve();
+        });
+      }).then(() => {
+        expect(nextCalled).toBe(true);
         done();
       });
     });
 
     it('beforeEachRoute calls next with login path if the user is not authenticated even if permission check accidentally returns true', function (done) {
-      mockRouter({}, {
+      const router = {};
+
+      const store = {
         getters: {
           'session/isAuthenticated': false
         },
         state: {
           initialized: true
         }
-      });
+      };
 
       const to = {
         matched: [{
@@ -42,7 +53,7 @@ describe('Router', function () {
         }]
       };
 
-      beforeEachRoute(to, undefined, (args) => {
+      beforeEachRoute(router, store, to, undefined, (args) => {
         expect(args.name).toBe('login');
         done();
       });
@@ -50,7 +61,8 @@ describe('Router', function () {
 
     it('beforeEachRoute calls next with false or root route if there is no route and access is not permitted', function (done) {
       const errors = [];
-      mockRouter({
+
+      const router = {
         app: {
           $t: (key) => key,
           $root: {
@@ -59,14 +71,16 @@ describe('Router', function () {
             }
           }
         }
-      }, {
+      };
+
+      const store = {
         getters: {
           'session/isAuthenticated': true
         },
         state: {
           initialized: true
         }
-      });
+      };
 
       const to = {
         matched: [{
@@ -78,12 +92,12 @@ describe('Router', function () {
         }]
       };
 
-      beforeEachRoute(to, { matched: [] }, (args) => {
+      beforeEachRoute(router, store, to, { matched: [] }, (args) => {
         expect(args).toBe('/');
         expect(errors).toHaveLength(1);
         expect(errors[0]).toBe('app.flash.unauthorized');
 
-        beforeEachRoute(to, { matched: [{ path: '/foo' }] }, (args) => {
+        beforeEachRoute(router, store, to, { matched: [{ path: '/foo' }] }, (args) => {
           expect(args).toBe(false);
           expect(errors).toHaveLength(2);
           expect(errors[1]).toBe('app.flash.unauthorized');

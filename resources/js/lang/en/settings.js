@@ -1,7 +1,7 @@
 export default {
   title: 'Settings',
-  description: 'You can manage the application settings here.<br>' +
-    'Please select one of the opposite menu points, to adjust the settings.',
+  description: 'Here you can manage the settings of the application.<br>' +
+    'Please select one of the menu items on the left to adjust the settings.',
 
   roles: {
     title: 'Roles'

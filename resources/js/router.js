@@ -14,8 +14,6 @@ import SettingsHome from './views/settings/SettingsHome';
 
 Vue.use(VueRouter);
 
-let localStore = store;
-
 export const routes = [
   {
     path: '/',
@@ -88,21 +86,10 @@ export const routes = [
   }
 ];
 
-let router = new VueRouter({
+const router = new VueRouter({
   mode: 'history',
   routes
 });
-
-/**
- * Mock router and store for testing.
- *
- * @param routerMock
- * @param storeMock
- */
-export function mockRouter (routerMock, storeMock) {
-  router = routerMock;
-  localStore = storeMock;
-}
 
 /**
  * Callback that gets called before a route gets entered.
@@ -118,16 +105,16 @@ export function mockRouter (routerMock, storeMock) {
  * Since it may be that additional data must be requested from the server to perform the permission
  * check it must always be a promise.
  */
-export function beforeEachRoute (to, from, next) {
+export function beforeEachRoute (router, store, to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
-  const initializationPromise = !localStore.state.initialized ? localStore.dispatch('initialize', { locale }) : Promise.resolve();
+  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
       record.meta.accessPermitted ? record.meta.accessPermitted() : Promise.resolve(true)
     ));
   }).then((recordsPermissions) => {
-    if (to.matched.some(record => record.meta.requiresAuth) && !localStore.getters['session/isAuthenticated']) {
+    if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }
@@ -141,6 +128,6 @@ export function beforeEachRoute (to, from, next) {
   });
 }
 
-router.beforeEach((to, from, next) => beforeEachRoute(to, from, next));
+router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
 
 export default router;
