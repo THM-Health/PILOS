@@ -56,6 +56,14 @@ export default {
       title: 'Access forbidden'
     }
   },
+  modals: {
+    delete: {
+      title: 'Delete room',
+      confirm: 'Should the room \'{name}\' be deleted?',
+      yes: 'Yes',
+      no: 'No'
+    }
+  },
   create: {
     title: 'Create new room',
     ok: 'Create',

@@ -103,31 +103,7 @@ class RoomPolicy
      */
     public function delete(User $user, Room $room)
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the room.
-     *
-     * @param  User $user
-     * @param  Room $room
-     * @return bool
-     */
-    public function restore(User $user, Room $room)
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the room.
-     *
-     * @param  User $user
-     * @param  Room $room
-     * @return bool
-     */
-    public function forceDelete(User $user, Room $room)
-    {
-        return false;
+        return $room->owner->is($user);
     }
 
     /**

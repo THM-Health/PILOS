@@ -1,6 +1,41 @@
 <template>
   <div class="container mt-5 mb-5" v-cloak>
     <template v-if="room">
+
+      <!-- Remove room -->
+      <b-button
+        class="float-right"
+        variant="danger"
+        :title="$t('rooms.modals.delete.title')"
+        ref="deleteButton"
+        v-if="room.isOwner"
+        v-b-tooltip.hover
+        v-on:click="$refs['remove-modal'].show()"
+        :disabled="loading"
+      >
+        <i class="fas fa-trash"></i>
+      </b-button>
+
+      <!-- Remove room modal -->
+      <b-modal
+        :busy="isDeleting"
+        :no-close-on-backdrop="isDeleting"
+        :no-close-on-esc="isDeleting"
+        :hide-header-close="isDeleting"
+        ok-variant="danger"
+        cancel-variant="dark"
+        :cancel-title="$t('rooms.modals.delete.no')"
+        @ok="deleteRoom"
+        ref="remove-modal" >
+        <template v-slot:modal-title>
+          {{ $t('rooms.modals.delete.title') }}
+        </template>
+        <template v-slot:modal-ok>
+          <b-spinner small v-if="isDeleting"></b-spinner>  {{ $t('rooms.modals.delete.yes') }}
+        </template>
+        {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
+      </b-modal>
+
       <!-- Reload general room settings/details -->
       <b-button
         class="float-right"
@@ -235,7 +270,8 @@ export default {
       room: null, // Room object
       accessCode: null, // Access code to use for requests
       accessCodeInput: null, // Access code input modal
-      accessCodeValid: null // Is access code valid
+      accessCodeValid: null, // Is access code valid
+      isDeleting: false, // is room getting deleted
     };
   },
   // Component not loaded yet
@@ -268,6 +304,28 @@ export default {
     setInterval(this.reload, env.REFRESH_RATE * 1000);
   },
   methods: {
+
+    /**
+     * Handle deleting of the current room
+     */
+    deleteRoom: function(bvModalEvt) {
+      // prevent modal from closing
+      bvModalEvt.preventDefault();
+      // Change modal state to bussy
+      this.isDeleting = true;
+      // Remove room
+      Base.call('rooms/' + this.room.id, {
+        method: 'delete'
+      }).then(response => {
+        // delete successful
+        this.$router.push({ name: 'rooms.index'});
+      }).catch((error) => {
+        this.isDeleting = false;
+        this.$refs['remove-user-modal'].hide();
+        throw error;
+      });
+
+    },
 
     /**
      * Request file download url

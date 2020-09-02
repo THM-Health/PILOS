@@ -56,6 +56,14 @@ export default {
       title: 'Zugriff verweigert'
     }
   },
+  modals: {
+    delete: {
+      title: 'Raum löschen',
+      confirm: 'Soll der Raum "{name}" gelöscht werden?',
+      yes: 'Ja',
+      no: 'Nein'
+    }
+  },
   create: {
     title: 'Neuen Raum erstellen',
     ok: 'Erstellen',

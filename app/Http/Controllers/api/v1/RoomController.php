@@ -187,8 +187,9 @@ class RoomController extends Controller
      * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
-    /*public function destroy(Room $room)
+    public function destroy(Room $room)
     {
-        //TODO implement; maybe keep some statistical data
-    }*/
+        $room->delete();
+        return response()->noContent();
+    }
 }
