@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import AdminUser from '../../../../resources/js/views/admin/Users';
+import AdminUser from '../../../../resources/js/views/settings/Users';
 import CrudModalComponent from '../../../../resources/js/components/Admin/users/CrudModalComponent';
 import InviteModalComponent from '../../../../resources/js/components/Admin/users/InviteModalComponent';
 import BootstrapVue, { BPagination, BTable } from 'bootstrap-vue';
@@ -12,11 +12,15 @@ describe('AdminUser', function () {
   let wrapper;
 
   beforeEach(function () {
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+
     wrapper = mount(AdminUser, {
       localVue,
       mocks: {
         $t: (key) => key
-      }
+      },
+      attachTo: div
     });
 
     moxios.install();

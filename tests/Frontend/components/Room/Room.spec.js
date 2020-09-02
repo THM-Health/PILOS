@@ -1,15 +1,45 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
-import store from '../../../resources/js/store';
 import moxios from 'moxios';
-import RoomView from '../../../resources/js/views/rooms/View.vue';
-import AdminComponent from '../../../resources/js/components/Room/AdminComponent';
+import RoomView from '../../../../resources/js/views/rooms/View.vue';
+import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
 import Clipboard from 'v-clipboard';
+import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
+localVue.use(Vuex);
+
+const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
+
+const store = new Vuex.Store({
+  modules: {
+    session: {
+      namespaced: true,
+      actions: {
+        getCurrentUser () {}
+      },
+      state: {
+        currentUser: exampleUser
+      },
+      getters: {
+        isAuthenticated: () => true,
+        settings: () => (setting) => null
+      }
+    }
+  },
+  state: {
+    loadingCounter: 0
+  }
+});
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -43,7 +73,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'abc-def-123' } };
@@ -67,7 +98,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'abc-def-456' } };
@@ -91,7 +123,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'abc-def-789' } };
@@ -125,7 +158,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'cba-fed-123' } };
@@ -155,7 +189,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'cba-fed-234' } };
@@ -185,7 +220,8 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     const to = { params: { id: 'cba-fed-345' } };

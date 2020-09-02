@@ -2,6 +2,7 @@ export default {
   myRooms: 'Meine Räume',
   noRoomsAvailable: 'Keine Räume vorhanden',
   rooms: 'Räume',
+  roomLimit: 'Max. Anzahl an Räumen: {has}/{max}',
   sharedBy: 'Geteilt von {name}',
   sharedRooms: 'Mit mir geteilte Räume',
   start: 'Starten',
@@ -16,7 +17,16 @@ export default {
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
+  placeholderAccessCode: 'Zugangscode',
   flash: {
+    roomLimitExceeded: {
+      message: 'Sie haben die max. Anzahl an Räumen erreicht.',
+      title: 'Raumerstellung fehlgeschlagen'
+    },
+    noNewRoom: {
+      message: 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
+      title: 'Keine Berechtigung'
+    },
     notRunning: {
       message: 'Der Raum ist aktuell geschlossen.',
       title: 'Teilnahme fehlgeschlagen'
@@ -46,7 +56,11 @@ export default {
       title: 'Zugriff verweigert'
     }
   },
-
+  create: {
+    title: 'Neuen Raum erstellen',
+    ok: 'Erstellen',
+    cancel: 'Abbrechen'
+  },
   files: {
     title: 'Dateien',
     nodata: 'Keine Dateien vorhanden',

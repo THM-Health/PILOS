@@ -1,19 +1,35 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import CrudModalComponent from '../../../../resources/js/components/Admin/users/CrudModalComponent';
-import BootstrapVue, {} from 'bootstrap-vue';
+import BootstrapVue, { IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
+import sinon from 'sinon';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(IconsPlugin);
 
 describe('CrudModalComponent', function () {
   let wrapper;
 
   beforeEach(function () {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      },
+      success (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const div = document.createElement('div');
+    document.body.appendChild(div);
+
     wrapper = mount(CrudModalComponent, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        flashMessage: flashMessage
       },
       propsData: {
         modalId: 'crud-modal',
@@ -26,7 +42,8 @@ describe('CrudModalComponent', function () {
           password: 'secret',
           username: 'mstt'
         }
-      }
+      },
+      attachTo: div
     });
 
     moxios.install();

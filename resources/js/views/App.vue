@@ -12,7 +12,7 @@
         <b-container>
           <h1>
             <b-navbar-brand :to="{ name: 'home' }">
-              <img style="height: 2rem;" src="/images/logo.svg" alt="Logo">
+              <img style="height: 2rem;" v-if="settings('logo')" :src="settings('logo')" alt="Logo">
             </b-navbar-brand>
           </h1>
 
@@ -31,10 +31,14 @@
                 <template v-slot:button-content>
                   {{currentUser.firstname}} {{currentUser.lastname}}
                 </template>
-                <!--TODO Hide Administrator Link if not the role-->
-                <b-dropdown-item :to="{ name: 'admin.index' }" v-if='isAuthenticated'>
-                  {{ $t('settings.settings') }}
-                </b-dropdown-item>
+
+                <can method='manage' policy='SettingPolicy'>
+                  <b-dropdown-item :to="{ name: 'settings' }">
+                    {{ $t('settings.title') }}
+                  </b-dropdown-item>
+                  <b-dropdown-divider></b-dropdown-divider>
+                </can>
+
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
               <locale-selector :available-locales="availableLocales"></locale-selector>
@@ -57,16 +61,19 @@
 import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
 import FooterComponent from '../components/FooterComponent';
+import Can from '../components/Permissions/Can';
 
 export default {
-  components: { LocaleSelector, FooterComponent },
+  components: { Can, LocaleSelector, FooterComponent },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
+      application: state => state.session.application,
       loadingCounter: state => state.loadingCounter
     }),
     ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated'
+      isAuthenticated: 'session/isAuthenticated',
+      settings: 'session/settings'
     })
   },
   data () {

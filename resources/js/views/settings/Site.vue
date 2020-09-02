@@ -7,7 +7,7 @@
 
 <script>
 export default {
-  name: 'SiteSettings'
+  name: 'Site'
 };
 </script>
 

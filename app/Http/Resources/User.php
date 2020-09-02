@@ -42,14 +42,15 @@ class User extends JsonResource
             'authenticator'=> $this->authenticator,
             'email'        => $this->email,
             'firstname'    => $this->firstname,
-            'guid'         => $this->guid,
             'lastname'     => $this->lastname,
-            'locale'       => $this->locale,
             'username'     => $this->username,
+            'guid'         => $this->guid,
+            'locale'       => $this->locale,
+            'permissions'  => $this->when($this->withPermissions, $this->permissions),
+            'modelName'    => $this->modelName,
+            'room_limit'   => $this->room_limit,
             'createdAt'    => $this->created_at,
             'updatedAt'    => $this->updated_at,
-            'permissions'  => $this->when($this->withPermissions, $this->permissions),
-            'modelName'    => $this->modelName
         ];
     }
 }

@@ -60,7 +60,7 @@ class RoomPolicy
      */
     public function create(User $user)
     {
-        return false;
+        return $user->can('rooms.create');
     }
 
     /**

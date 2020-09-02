@@ -189,8 +189,9 @@ export default {
         this.$bvModal.hide(this.modalId);
 
         this.errors = [];
-      }).catch(error => {
-        this.errors = error.response.data.errors;
+      }).catch((error) => {
+        // TODO error handling
+        // this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.createFailed'));
 
@@ -221,7 +222,8 @@ export default {
 
         this.errors = [];
       }).catch(error => {
-        this.errors = error.response.data.errors;
+        // TODO error handling
+        // this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.editFailed'));
 
@@ -242,8 +244,9 @@ export default {
         this.$bvModal.hide(this.modalId);
 
         this.errors = [];
-      }).catch(error => {
-        this.errors = error.response.data.errors;
+      }).catch((error) => {
+        // TODO error handling
+        // this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.deleteFailed'));
 

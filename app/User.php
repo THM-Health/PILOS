@@ -7,6 +7,7 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
@@ -55,6 +56,26 @@ class User extends Authenticatable
     public function myRooms()
     {
         return $this->hasMany(Room::class);
+    }
+
+    /**
+     * Calculation of the room limit for this user, based on groups and global settings
+     * Groups have priority over global settings. Use the highest value of all groups or unlimited (-1) of
+     * exits in one of the groups
+     * If room limit of a group is null, ignore it. If all groups are null, use global limit
+     *
+     * @return int limit of rooms of this user: -1: unlimited, 0: zero rooms, 1: one room, 2: two rooms ...
+     */
+    public function getRoomLimitAttribute()
+    {
+        $role_limits = $this->roles()->pluck('room_limit');
+
+        // check if any role has unlimited rooms, if yes set to unlimited
+        if ($role_limits->contains(-1)) {
+            return -1;
+        }
+        // otherwise try to find highest room limit, if none defined (=null) use global limit
+        return intval($role_limits->max() ?: setting('room_limit'));
     }
 
     /**
@@ -140,5 +161,20 @@ class User extends Authenticatable
 
             return $permissions;
         }, []);
+    }
+
+    /**
+     * Check if user has the given permission
+     * @param $permission string Name of a permission
+     * @return bool has permission
+     */
+    public function hasPermission($permission)
+    {
+        return DB::table('permissions')
+            ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
+            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
+            ->where('permissions.name', '=', $permission)
+            ->where('role_user.user_id', '=', $this->id)
+            ->exists();
     }
 }

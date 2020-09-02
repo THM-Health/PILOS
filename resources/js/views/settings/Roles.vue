@@ -2,13 +2,11 @@
   <div>
     <h2 class="text-success">{{$t('settings.roles.title')}}</h2>
     <hr>
+    <!-- TODO: Implement -->
   </div>
 </template>
 
 <script>
-export default {
-  name: 'Roles'
-};
 </script>
 
 <style scoped>

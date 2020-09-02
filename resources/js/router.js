@@ -3,84 +3,124 @@ import Login from './views/Login';
 import NotFound from './views/NotFound';
 import RoomsIndex from './views/rooms/Index';
 import RoomView from './views/rooms/View';
-import AdminIndex from './views/admin/Index';
-import AdminUsers from './views/admin/Users';
-import AdminRoles from './views/admin/Roles';
-import AdminSiteSettings from './views/admin/SiteSettings';
-import AdminRecordings from './views/admin/Recordings';
-import AdminRooms from './views/admin/Rooms';
 import store from './store';
 import Home from './views/Home';
 import Vue from 'vue';
+import PermissionService from './services/PermissionService';
+import Settings from './views/settings/Settings';
+import SettingsRoles from './views/settings/Roles';
+import SettingsUsers from './views/settings/Users';
+import SettingsRooms from './views/settings/Rooms';
+import SettingsRecordings from './views/settings/Recordings';
+import SettingsSite from './views/settings/Site';
 
 Vue.use(VueRouter);
 
+export const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: Home
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
+  },
+  {
+    path: '/rooms',
+    name: 'rooms.index',
+    component: RoomsIndex,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/rooms/:id',
+    name: 'rooms.view',
+    component: RoomView
+  },
+  {
+    path: '/settings',
+    component: Settings,
+    meta: {
+      requiresAuth: true,
+      accessPermitted: () => Promise.resolve(PermissionService.can('manage', 'SettingPolicy'))
+    },
+    children: [
+      {
+        path: '',
+        name: 'settings',
+        component: SettingsSite,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy')
+          )
+        }
+      },
+      {
+        path: 'users',
+        component: SettingsUsers,
+        name: 'settings.users',
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'UserPolicy')
+          )
+        }
+      },
+      {
+        path: 'roles',
+        name: 'settings.roles',
+        component: SettingsRoles,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'RolePolicy')
+          )
+        }
+      },
+      {
+        path: 'rooms',
+        name: 'settings.rooms',
+        component: SettingsRooms,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'RoomPolicy')
+          )
+        }
+      },
+      {
+        path: 'recordings',
+        name: 'settings.recordings',
+        component: SettingsRecordings,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'RecordingPolicy')
+          )
+        }
+      }
+    ]
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: NotFound
+  },
+  {
+    path: '*',
+    redirect: '/404'
+  }
+];
+
 const router = new VueRouter({
   mode: 'history',
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: Home
-    },
-    {
-      path: '/admin',
-      component: AdminIndex,
-      meta: { requiresAuth: true },
-      children: [
-        {
-          path: '/admin',
-          name: 'admin.index',
-          component: AdminUsers
-        },
-        {
-          path: '/admin/rooms',
-          name: 'admin.rooms',
-          component: AdminRooms
-        },
-        {
-          path: '/admin/recordings',
-          name: 'admin.recordings',
-          component: AdminRecordings
-        },
-        {
-          path: '/admin/site-settings',
-          name: 'admin.siteSettings',
-          component: AdminSiteSettings
-        },
-        {
-          path: '/admin/roles',
-          name: 'admin.roles',
-          component: AdminRoles
-        }
-      ]
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: Login
-    },
-    {
-      path: '/rooms',
-      name: 'rooms.index',
-      component: RoomsIndex,
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/rooms/:id',
-      name: 'rooms.view',
-      component: RoomView
-    },
-    {
-      path: '/404',
-      name: '404',
-      component: NotFound
-    },
-    {
-      path: '*',
-      redirect: '/404'
-    }
-  ]
+  routes
 });
 
 /**
@@ -97,7 +137,7 @@ const router = new VueRouter({
  * Since it may be that additional data must be requested from the server to perform the permission
  * check it must always be a promise.
  */
-router.beforeEach((to, from, next) => {
+export function beforeEachRoute (router, store, to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
   const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
@@ -118,6 +158,8 @@ router.beforeEach((to, from, next) => {
       next();
     }
   });
-});
+}
+
+router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
 
 export default router;

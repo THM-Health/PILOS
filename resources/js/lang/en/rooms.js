@@ -2,6 +2,7 @@ export default {
   myRooms: 'My rooms',
   noRoomsAvailable: 'No rooms available',
   rooms: 'Rooms',
+  roomLimit: 'Room limit: {has}/{max}',
   sharedBy: 'Shared by {name}',
   sharedRooms: 'Rooms shared with me',
   start: 'Start',
@@ -18,6 +19,14 @@ export default {
   placeholderName: 'John Doe',
   placeholderAccessCode: 'Access code',
   flash: {
+    roomLimitExceeded: {
+      message: 'You have reached the max. amount of rooms.',
+      title: 'Creating room failed'
+    },
+    noNewRoom: {
+      message: 'You do not have the necessary permission to create a new room.',
+      title: 'Permission denied'
+    },
     notRunning: {
       message: 'The room is currently closed.',
       title: 'Joining failed'
@@ -46,6 +55,11 @@ export default {
       message: 'The access to the requested file was forbidden.',
       title: 'Access forbidden'
     }
+  },
+  create: {
+    title: 'Create new room',
+    ok: 'Create',
+    cancel: 'Cancel'
   },
   files: {
     title: 'Files',

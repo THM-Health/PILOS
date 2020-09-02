@@ -1,6 +1,7 @@
 <template>
   <div>
-    <b-card no-body bg-variant="white" class="roomcard" @click="$router.push({ name: 'rooms.view', params: { id: id }})">
+    <b-overlay :show="loading" rounded="sm">
+    <b-card no-body bg-variant="white" class="roomcard" @click="open()">
       <b-card-body class="p-3">
       <b-media>
         <template v-slot:aside>
@@ -13,10 +14,16 @@
         <small><i class="fas fa-share"></i> {{ $t('rooms.sharedBy', { name: sharedBy }) }}</small>
       </template>
     </b-card>
+    </b-overlay>
   </div>
 </template>
 <script>
 export default {
+  data () {
+    return {
+      loading: false
+    };
+  },
   props: {
     id: String,
     name: String,
@@ -26,12 +33,17 @@ export default {
     },
     type: Object,
     sharedBy: String
+  },
+  methods: {
+
+    open: function () {
+      this.loading = true;
+      this.$router.push({ name: 'rooms.view', params: { id: this.id } });
+    }
+
   }
 };
 </script>
 <style scoped>
-.roomcard{
-  pointer-events: auto;
-  cursor: pointer;
-}
+
 </style>

@@ -1,6 +1,7 @@
 export default {
-  settings: 'Settings',
-
+  title: 'Settings',
+  description: 'Here you can manage the settings of the application.<br>' +
+    'Please select one of the menu items on the left to adjust the settings.',
   searchbar: {
     filter: 'Filter',
     placeholder: 'Search...'

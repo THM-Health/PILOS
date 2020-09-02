@@ -4,9 +4,11 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateRoom;
 use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
+use App\RoomType;
 use App\Room;
 use App\Server;
 use Auth;
@@ -29,8 +31,9 @@ class RoomController extends Controller
     {
         return response()->json([
                 'data' => [
-                    'myRooms'     => \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->get()),
-                    'sharedRooms' => \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->get())
+                    'myRooms'     => \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->orderBy('name')->get()),
+                    'sharedRooms' => \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->orderBy('name')->get()),
+                    'roomTypes'   => \App\Http\Resources\RoomType::collection(RoomType::all()),
                 ]
         ]);
     }
@@ -38,13 +41,24 @@ class RoomController extends Controller
     /**
      * Store a new created room
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \Illuminate\Http\Request                               $request
+     * @return \App\Http\Resources\Room|\Illuminate\Http\JsonResponse
      */
-    /*public function store(Request $request)
+    public function store(CreateRoom $request)
     {
-        //TODO implement
-    }*/
+        if (Auth::user()->room_limit !== -1 && Auth::user()->myRooms()->count() >= Auth::user()->room_limit) {
+            return response()->json('room_limit_exceeded', CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
+        }
+
+        $room             = new Room();
+        $room->name       = $request->name;
+        $room->accessCode = rand(111111111, 999999999);
+        $room->roomType()->associate($request->roomType);
+        $room->owner()->associate(Auth::user());
+        $room->save();
+
+        return new \App\Http\Resources\Room($room, true);
+    }
 
     /**
      * Return all general room details

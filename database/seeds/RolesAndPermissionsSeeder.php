@@ -1,10 +1,10 @@
 <?php
 
+use App\Permission;
 use App\Role;
 use App\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\PermissionRegistrar;
+
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -16,9 +16,22 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run()
     {
-        $userRole = Role::firstOrCreate([ 'name' => 'user', 'default' => true ]);
-        Role::firstOrCreate([ 'name' => 'admin', 'default' => true ]);
+        $adminPermissions = [];
+        $userPermissions = [];
 
-        $userRole->users()->syncWithoutDetaching(User::pluck('id'));
+        $adminPermissions[] = $userPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
+
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'recordings.viewAny' ])->id;
+
+        $userRole = Role::firstOrCreate([ 'name' => 'user', 'default' => true ]);
+        $adminRole = Role::firstOrCreate([ 'name' => 'admin', 'default' => true ]);
+
+        $userRole->permissions()->syncWithoutDetaching($userPermissions);
+        $adminRole->permissions()->syncWithoutDetaching($adminPermissions);
+        $userRole->users()->syncWithoutDetaching(User::has('roles', '=', 0)->pluck('id'));
     }
 }
