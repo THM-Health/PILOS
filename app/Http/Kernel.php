@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\RoomAuthenticate;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
@@ -71,5 +72,6 @@ class Kernel extends HttpKernel
         'verified'              => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'room.authenticate'     => RoomAuthenticate::class,
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
+        'check.stale'           => EnsureModelNotStale::class,
     ];
 }
