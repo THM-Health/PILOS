@@ -13,10 +13,10 @@ class EnsureModelNotStale
      * request parameters is older than the updated_at of the model in the database, a error response with the
      * status code 466 will be returned containing the actual model.
      *
-     * @param Request $request Request to get the model and parameters from
-     * @param Closure $next Next to call if everything is ok
-     * @param String $parameterName Name of the parameter to get the model from
-     * @param String $resourceClass Resource class to cast the new model with
+     * @param  Request $request       Request to get the model and parameters from
+     * @param  Closure $next          Next to call if everything is ok
+     * @param  String  $parameterName Name of the parameter to get the model from
+     * @param  String  $resourceClass Resource class to cast the new model with
      * @return mixed
      */
     public function handle($request, Closure $next, $parameterName, $resourceClass)
