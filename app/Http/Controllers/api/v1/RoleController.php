@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\Role as RoleResource;
 use App\Role;
-use App\Traits\EnsureModelNotStaleTrait;
 use Exception;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
@@ -15,11 +14,11 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
-    use EnsureModelNotStaleTrait;
 
     public function __construct()
     {
         $this->authorizeResource(Role::class, 'role');
+        $this->middleware('check.stale:role,\App\Http\Resources\Role', ['only' => 'update']);
     }
 
     /**
@@ -79,12 +78,6 @@ class RoleController extends Controller
      */
     public function update(RoleRequest $request, Role $role)
     {
-        $stale = $this->isStale(RoleResource::class, $role, $request->updated_at);
-
-        if ($stale !== false) {
-            return $stale;
-        }
-
         $old_role_permissions = $role->permissions()->pluck('permissions.id')->toArray();
 
         $role->permissions()->sync($request->permissions);

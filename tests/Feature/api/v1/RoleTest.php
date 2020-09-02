@@ -151,7 +151,7 @@ class RoleTest extends TestCase
             'name'        => $roleA->name,
             'permissions' => [$permission_ids[0], $permission_ids[1], $new_permission],
             'updated_at'  => $roleA->updated_at
-        ])->dump()->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
+        ])->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
 
         $roleA->unsetRelation('permissions');
         $this->assertEquals($permission_ids, $roleA->permissions()->pluck('permissions.id')->toArray());
