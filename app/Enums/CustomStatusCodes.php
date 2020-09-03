@@ -14,4 +14,5 @@ final class CustomStatusCodes extends Enum
     const NO_SERVER_AVAILABLE   =   461;
     const ROOM_START_FAILED     =   462;
     const ROOM_LIMIT_EXCEEDED   =   463;
+    const STALE_MODEL           =   466;
 }

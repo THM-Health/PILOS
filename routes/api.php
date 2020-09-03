@@ -91,6 +91,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
 });
 
-Route::any('/{any}', function () {
-    return response()->json([ 'message' => 'Not found!' ], 404);
-})->where('any', '.*');
+if (!env('DISABLE_CATCHALL_ROUTES')) {
+    Route::any('/{any}', function () {
+        return response()->json([ 'message' => 'Not found!' ], 404);
+    })->where('any', '.*');
+}
