@@ -95,7 +95,7 @@ export default {
       currentPage: undefined,
       total: undefined,
       perPage: undefined
-    }
+    };
   },
   computed: {
     tableFields () {
@@ -111,7 +111,7 @@ export default {
     fetchRoles (ctx, callback) {
       let data = [];
 
-      let config = {
+      const config = {
         params: {
           sort_by: ctx.sortBy,
           sort_direction: ctx.sortDesc ? 'desc' : 'asc',
@@ -134,7 +134,7 @@ export default {
       return null;
     }
   }
-}
+};
 </script>
 
 <style scoped>
