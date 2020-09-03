@@ -21,7 +21,8 @@ It is based on the experience of students, teachers and staff during the covid-1
 
 The interface is similar to another open-source project [Greenlight](https://github.com/bigbluebutton/greenlight).
 During the online semester 2020 many features araised that could not be solved or were hard to implement into Greenlight.
-The team behind Greenlight did an amzing job and we want to thank for their hard work!
+The team behind Greenlight did an amazing job and we want to thank for their hard work!
+
 However due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
 we decided to build a new system with another architecture.
 
@@ -97,7 +98,7 @@ Lastly you can run the following command in your host machine ``npm install `` t
 
 ## Contributing
 
-See how to contribute to the project here (CONTRIBUTE.MD) Insert TODO guideline here
+See how to contribute to the project check our [guidelines](CONTRIBUTE.MD)
 
 ## License
 
