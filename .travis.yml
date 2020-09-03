@@ -23,4 +23,4 @@ script:
   - vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
   - npm run ci
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_PHP_VERSION" == "7.3" ]; then bash <(curl -s https://codecov.io/bash); fi
