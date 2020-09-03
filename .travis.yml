@@ -1,0 +1,26 @@
+dist: bionic
+language: php
+php:
+  - 7.3
+  - 7.4
+services:
+  - mysql
+cache:
+  directories:
+    - node_modules
+    - vendor
+before_script:
+  - cp .env.travis .env
+  - sudo mysql -e 'create database testing;'
+  - composer self-update
+  - composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+  - php artisan key:generate
+  - chmod -R 777 storage bootstrap/cache
+  - php artisan migrate --no-interaction -vvv
+  - npm ci
+script:
+  - vendor/bin/phpunit --coverage-clover=coverage.xml
+  - vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
+  - npm run ci
+after_success:
+  - if [ "$TRAVIS_PHP_VERSION" == "7.3" ]; then bash <(curl -s https://codecov.io/bash); fi

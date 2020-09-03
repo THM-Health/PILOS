@@ -5,7 +5,6 @@ return [
         'role_delete_linked_users' => 'The role is linked to users and therefore it can\'t be deleted!',
         'role_update_permission_lost' => 'The changes of the role would lead to a lost of permissions to view and update roles for you!',
         'stale_model' => 'The :model entity was updated in the meanwhile!'
-
     ],
     'model' => [
         'roles' => 'role'
