@@ -20,6 +20,7 @@ class Role extends JsonResource
             'default'     => $this->default,
             'updated_at'  => $this->updated_at,
             'permissions' => Permission::collection($this->whenLoaded('permissions')),
+            'modelName'    => $this->modelName,
         ];
     }
 }

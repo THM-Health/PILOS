@@ -36,6 +36,22 @@ class RoleTest extends TestCase
         $response->assertJsonFragment(['name' => $roleA->name]);
         $response->assertJsonFragment(['per_page' => $page_size]);
         $response->assertJsonFragment(['total' => 2]);
+
+        $this->getJson(route('api.v1.roles.index') . '?page=2')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['name' => $roleB->name]);
+
+        $this->getJson(route('api.v1.roles.index') . '?page=2&sort_by=id&sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['name' => $roleA->name]);
+
+        // Wrong data for sort gets ignored and sorting doesn't get applied
+        $this->getJson(route('api.v1.roles.index') . '?page=2&sort_by=test&sort_direction=foo')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['name' => $roleB->name]);
     }
 
     public function testCreate()

@@ -38,5 +38,13 @@ export default {
     legalNoticeUrl: 'https://www.thm.de/ges/impressum',
     privacyPolicyUrl: 'https://www.thm.de/ges/datenschutz',
     separator: '|'
-  }
+  },
+
+  roles: {
+    admin: 'Administrator',
+    user: 'Nutzer'
+  },
+
+  true: 'Ja',
+  false: 'Nein'
 };

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Role extends Model
 {
+    use AddsModelNameTrait;
+
     /**
      * Fillable attributes.
      *

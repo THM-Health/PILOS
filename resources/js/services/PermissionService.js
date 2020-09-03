@@ -40,7 +40,7 @@ class PermissionService {
    * @return undefined
    */
   setCurrentUser (currentUser) {
-    this.currentUser = currentUser;
+    this.currentUser = $.isEmptyObject(currentUser) ? undefined : currentUser;
 
     /**
      * Triggers when new current user set on this service.

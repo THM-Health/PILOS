@@ -8,6 +8,7 @@ use App\Http\Requests\RoleRequest;
 use App\Http\Resources\Role as RoleResource;
 use App\Role;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -25,9 +26,20 @@ class RoleController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        $resource = Role::paginate(setting('pagination_page_size'));
+        $resource = Role::query();
+
+        if ($request->has('sort_by') && $request->has('sort_direction')) {
+            $by = $request->query('sort_by');
+            $dir = $request->query('sort_direction');
+
+            if (in_array($by, ['id', 'name', 'default']) && in_array($dir, ['asc', 'desc'])) {
+                $resource = $resource->orderBy($by, $dir);
+            }
+        }
+
+        $resource = $resource->paginate(setting('pagination_page_size'));
 
         return RoleResource::collection($resource);
     }
