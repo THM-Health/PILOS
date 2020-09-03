@@ -35,7 +35,8 @@
         "friendsofphp/php-cs-fixer": "2.*",
         "squizlabs/php_codesniffer": "3.*",
         "php-coveralls/php-coveralls": "~2.2.0",
-        "brainmaestro/composer-git-hooks": "^2.8"
+        "brainmaestro/composer-git-hooks": "^2.8",
+        "ext-json": "*"
     },
     "config": {
         "optimize-autoloader": true,

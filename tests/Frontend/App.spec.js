@@ -46,7 +46,8 @@ describe('App', function () {
       },
       stubs: {
         FlashMessage: true,
-        RouterView: true
+        RouterView: true,
+        LocaleSelector: true
       }
     });
 
