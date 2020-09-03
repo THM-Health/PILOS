@@ -22,3 +22,5 @@ script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml
   - vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
   - npm run ci
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
