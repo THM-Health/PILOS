@@ -96,13 +96,15 @@
               <b-col cols="9">{{ $t('settings.users.fields.delete') }}</b-col>
             </b-row>
           </b-dropdown-item>
-          <b-dropdown-item v-if="row.item.authenticator === 'ldap'" @click="populateSelectedUser(row.item);openLdapModal('update')">
+          <b-dropdown-item v-if="row.item.authenticator === 'ldap'"
+                           @click="populateSelectedUser(row.item);openLdapModal('update')">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-cog"></i></b-col>
               <b-col cols="9">{{ $t('settings.users.fields.ldapedit') }}</b-col>
             </b-row>
           </b-dropdown-item>
-          <b-dropdown-item v-if="row.item.authenticator === 'ldap'" @click="populateSelectedUser(row.item);openLdapModal('delete')">
+          <b-dropdown-item v-if="row.item.authenticator === 'ldap'"
+                           @click="populateSelectedUser(row.item);openLdapModal('delete')">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-times"></i></b-col>
               <b-col cols="9">{{ $t('settings.users.fields.ldapdelete') }}</b-col>
@@ -198,7 +200,7 @@
       @crud-ldap-delete="deleteUser(selectedUser.id)"
       v-bind:modal-id="'crud-ldap-modal'"
       v-bind:modal-type="ldapModalType"
-      v-bind:uid="selectedUser.username">
+      v-bind:crud-user="selectedUser">
     </crud-ldap-modal-component>
 
     <!-- Invite modal-->

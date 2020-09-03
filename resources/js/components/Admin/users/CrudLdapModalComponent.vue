@@ -17,7 +17,7 @@
           <div id="ldap-delete" v-if="modalType === 'delete'">
             <p>{{ $t('settings.users.modal.deleteContent') }}</p>
           </div>
-          <div id="ldap-create-update" v-if="modalType === 'update'">
+          <div id="ldap-update" v-if="modalType === 'update'">
             <b-form-group id="crud-ldap-mail"
                           label-for="crud-ldap-input-mail">
               <b-input-group>
@@ -134,7 +134,7 @@ import Base from '../../../api/base';
 export default {
   data () {
     return {
-      ldap: null,
+      uid: null,
       mail: null,
       cn: null,
       givenname: null,
@@ -144,7 +144,7 @@ export default {
     };
   },
   props: {
-    uid: String,
+    crudUser: Object,
     modalId: String,
     modalType: { type: String, validator: (val) => ['update', 'delete'].includes(val) }
   },
@@ -158,11 +158,11 @@ export default {
 
       Base.call('ldap/' + uid)
         .then((response) => {
-          this.ldap = response.data;
-          this.mail = this.ldap.mail[0];
-          this.cn = this.ldap.cn[0];
-          this.sn = this.ldap.sn[0];
-          this.givenname = this.ldap.givenname[0];
+          this.mail = response.data.mail[0];
+          this.cn = response.data.cn[0];
+          this.sn = response.data.sn[0];
+          this.givenname = response.data.givenname[0];
+          this.uid = response.data.uid[0];
         })
         .catch((error) => {
           this.ldap = null;
@@ -230,16 +230,25 @@ export default {
       });
     },
     resetModal () {
-      this.ldap = null;
+      this.uid = null;
       this.mail = null;
       this.sn = null;
       this.cn = null;
       this.givenname = null;
 
+      this.crudUser.id = null;
+      this.crudUser.firstname = null;
+      this.crudUser.lastname = null;
+      this.crudUser.email = null;
+      this.crudUser.password = null;
+      this.crudUser.username = null;
+      this.crudUser.guid = null;
+      this.crudUser.authenticator = null;
+
       this.errors = [];
     },
     shownModal () {
-      this.getUserLdapData(this.uid);
+      this.getUserLdapData(this.crudUser.username);
     }
   },
   computed: {

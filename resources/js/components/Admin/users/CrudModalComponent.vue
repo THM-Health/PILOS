@@ -29,6 +29,7 @@
                               v-model="crudUser.email"
                               :placeholder="$t('settings.users.fields.email')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.email && errors.email.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -51,6 +52,7 @@
                               v-model="crudUser.username"
                               :placeholder="$t('settings.users.fields.username')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.username && errors.username.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -75,6 +77,7 @@
                               :placeholder="$t('settings.users.fields.password')"
                               type="password"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.password && errors.password.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -97,6 +100,7 @@
                               v-model="crudUser.firstname"
                               :placeholder="$t('settings.users.fields.firstname')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.firstname && errors.firstname.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -119,6 +123,7 @@
                               v-model="crudUser.lastname"
                               :placeholder="$t('settings.users.fields.lastname')"
                               required
+                              :disabled="isBusy"
                               :state="errors !== null && errors.lastname && errors.lastname.length > 0 ? false: null">
                 </b-form-input>
               </b-input-group>
@@ -263,6 +268,8 @@ export default {
       this.crudUser.email = null;
       this.crudUser.password = null;
       this.crudUser.username = null;
+      this.crudUser.guid = null;
+      this.crudUser.authenticator = null;
 
       this.errors = [];
     }

@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import CrudModalComponent from '../../../../resources/js/components/Admin/users/CrudModalComponent';
+import CrudLdapModalComponent from '../../../../resources/js/components/Admin/users/CrudLdapModalComponent';
 import BootstrapVue, { IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
 import sinon from 'sinon';
@@ -8,7 +8,7 @@ const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
 
-describe('CrudModalComponent', function () {
+describe('CrudLdapModalComponent', function () {
   let wrapper;
 
   beforeEach(function () {
@@ -25,15 +25,15 @@ describe('CrudModalComponent', function () {
     const div = document.createElement('div');
     document.body.appendChild(div);
 
-    wrapper = mount(CrudModalComponent, {
+    wrapper = mount(CrudLdapModalComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         flashMessage: flashMessage
       },
       propsData: {
-        modalId: 'crud-modal',
-        modalType: 'create',
+        modalId: 'crud-ldap-modal',
+        modalType: 'update',
         crudUser: {
           id: 1,
           firstname: 'max',
@@ -44,6 +44,17 @@ describe('CrudModalComponent', function () {
           authenticator: 'ldap',
           guid: 'guid'
         }
+      },
+      data () {
+        return {
+          uid: 'mstttest',
+          mail: 'test@mail.com',
+          cn: 'cntest',
+          givenname: 'givennametest',
+          sn: 'sntest',
+          isBusy: false,
+          errors: []
+        };
       },
       attachTo: div
     });
@@ -56,38 +67,34 @@ describe('CrudModalComponent', function () {
   });
 
   it('shows different type of modal based on modalType props', async function () {
-    // Create Modal at the beginning
-    await wrapper.setProps({ modalType: 'create' });
+    // Update Modal
+    await wrapper.setProps({ modalType: 'update' });
 
-    const crudModal = wrapper.find('#crud-modal');
+    const crudModal = wrapper.find('#crud-ldap-modal');
     expect(crudModal.exists()).toBe(true);
 
-    let deleteDiv = wrapper.find('#user-delete');
-    let createUpdateDiv = wrapper.find('#user-create-update');
+    let deleteDiv = wrapper.find('#ldap-delete');
+    let updateDiv = wrapper.find('#ldap-update');
 
     expect(deleteDiv.exists()).toBe(false);
-    expect(createUpdateDiv.exists()).toBe(true);
+    expect(updateDiv.exists()).toBe(true);
 
     // Delete Modal
     await wrapper.setProps({ modalType: 'delete' });
 
-    createUpdateDiv = wrapper.find('#user-create-update');
-    deleteDiv = wrapper.find('#user-delete');
+    updateDiv = wrapper.find('#ldap-update');
+    deleteDiv = wrapper.find('#ldap-delete');
 
     expect(deleteDiv.exists()).toBe(true);
-    expect(createUpdateDiv.exists()).toBe(false);
-
-    // Update Modal
-    await wrapper.setProps({ modalType: 'update' });
-
-    createUpdateDiv = wrapper.find('#user-create-update');
-    deleteDiv = wrapper.find('#user-delete');
-
-    expect(deleteDiv.exists()).toBe(false);
-    expect(createUpdateDiv.exists()).toBe(true);
+    expect(updateDiv.exists()).toBe(false);
   });
 
   it('resets variables when resetModal is called', function () {
+    expect(wrapper.vm.uid).toBe('mstttest');
+    expect(wrapper.vm.mail).toBe('test@mail.com');
+    expect(wrapper.vm.cn).toBe('cntest');
+    expect(wrapper.vm.sn).toBe('sntest');
+    expect(wrapper.vm.givenname).toBe('givennametest');
     expect(wrapper.vm.crudUser.id).toBe(1);
     expect(wrapper.vm.crudUser.firstname).toBe('max');
     expect(wrapper.vm.crudUser.lastname).toBe('mustermann');
@@ -98,6 +105,11 @@ describe('CrudModalComponent', function () {
 
     wrapper.vm.resetModal();
 
+    expect(wrapper.vm.uid).toBe(null);
+    expect(wrapper.vm.mail).toBe(null);
+    expect(wrapper.vm.cn).toBe(null);
+    expect(wrapper.vm.sn).toBe(null);
+    expect(wrapper.vm.givenname).toBe(null);
     expect(wrapper.vm.crudUser.id).toBe(null);
     expect(wrapper.vm.crudUser.firstname).toBe(null);
     expect(wrapper.vm.crudUser.lastname).toBe(null);
@@ -107,50 +119,59 @@ describe('CrudModalComponent', function () {
     expect(wrapper.vm.crudUser.guid).toBe(null);
   });
 
-  it('emits (crud) when create user method is called', function (done) {
-    // Nothing emitted at the beginning
-    expect(wrapper.emitted().crud).toBeUndefined();
-
-    // Call create user axios function
-    wrapper.vm.createUser(wrapper.vm.crudUser);
-
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 201,
-        response: 'Mock create success'
-      }).then(function () {
-        expect(wrapper.emitted().crud).toBeTruthy();
-        done();
-      });
-    });
-  });
-
-  it('emits (crud) when update user method is called', function (done) {
-    // Nothing emitted at the beginning
-    expect(wrapper.emitted().crud).toBeUndefined();
-
-    // Call update user axios function
-    wrapper.vm.updateUser(wrapper.vm.crudUser.id, wrapper.vm.crudUser);
+  it('getUserLdapData should work properly', function (done) {
+    // Call get user ldap axios function
+    wrapper.vm.getUserLdapData(this.uid);
 
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       request.respondWith({
         status: 200,
-        response: 'Mock update success'
+        response: {
+          uid: ['getldap'],
+          mail: ['getldap@test.com'],
+          sn: ['Get'],
+          entryuuid: ['524e759a-6cdf-103a-92fc-5bc96496e6ce'],
+          givenname: ['Ldap'],
+          cn: ['Get Ldap']
+        }
       }).then(function () {
-        expect(wrapper.emitted().crud).toBeTruthy();
+        expect(wrapper.vm.uid).toBe('getldap');
+        expect(wrapper.vm.mail).toBe('getldap@test.com');
+        expect(wrapper.vm.cn).toBe('Get Ldap');
+        expect(wrapper.vm.sn).toBe('Get');
+        expect(wrapper.vm.givenname).toBe('Ldap');
         done();
       });
     });
   });
 
-  it('emits (crud) when delete user method are called', function (done) {
+  it('emits (crud-ldap) when update user method is called', function (done) {
     // Nothing emitted at the beginning
-    expect(wrapper.emitted().crud).toBeUndefined();
+    expect(wrapper.emitted('crud-ldap')).toBeUndefined();
 
-    // Call delete user axios function
-    wrapper.vm.deleteUser(wrapper.vm.crudUser.id);
+    // Call update ldap axios function
+    wrapper.vm.updateLdap(this.uid);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 202,
+        response: 'Mock update success'
+      }).then(function () {
+        expect(wrapper.emitted('crud-ldap')).toBeTruthy();
+        done();
+      });
+    });
+  });
+
+  it('emits (crud-ldap and crud-ldap-delete) when delete user method are called', function (done) {
+    // Nothing emitted at the beginning
+    expect(wrapper.emitted('crud-ldap')).toBeUndefined();
+    expect(wrapper.emitted('crud-ldap-delete')).toBeUndefined();
+
+    // Call delete ldap axios function
+    wrapper.vm.deleteLdap(this.uid);
 
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
@@ -158,7 +179,8 @@ describe('CrudModalComponent', function () {
         status: 204,
         response: 'Mock delete success'
       }).then(function () {
-        expect(wrapper.emitted().crud).toBeTruthy();
+        expect(wrapper.emitted('crud-ldap')).toBeTruthy();
+        expect(wrapper.emitted('crud-ldap-delete')).toBeTruthy();
         done();
       });
     });
