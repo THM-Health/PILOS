@@ -1,79 +1,105 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# PILOS
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+![Status](https://github.com/THM-Health/PILOS/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/master/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
 
-## About Laravel
+PILOS (Platform for Interactive Live-Online Seminars) is an easy to use frontend for [BigBlueButton](https://bigbluebutton.org/) developed at the TH Mittelhessen University of Applied Sciences ([THM](https://thm.de/)) Faculty of Health ([FB GES](https://www.thm.de/ges/)).
+It is based on the experience of students, teachers and staff during the covid-19 pandemic and the raised need for a modern and flexible video conferencing system for the use case of digital class rooms, group learning and other digital meetings. 
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**This Frontend uses BigBlueButton and is not endorsed or certified by BigBlueButton Inc. BigBlueButton and the BigBlueButton Logo are trademarks of BigBlueButton Inc.**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Table of Contents 
+* [About](#About)
+* [Architecture](#Architecture)
+* [Installation](#Installation)
+* [Stacks](#Stacks)
+* [Contributing](#Contributing)
+* [License](#License)
 
-## Learning Laravel
+## About 
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The interface is similar to another open-source project [Greenlight](https://github.com/bigbluebutton/greenlight).
+During the online semester 2020 many features araised that could not be solved or were hard to implement into Greenlight.
+The team behind Greenlight did an amazing job and we want to thank for their hard work!
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+However due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
+we decided to build a new system with another architecture.
 
-## Laravel Sponsors
+## Architecture
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework, [Laravel](https://laravel.com/) as a PHP based JSON API and littleredbutton's [bigbluebutton-api-php](https://github.com/littleredbutton/bigbluebutton-api-php) as the api for controlling BBB.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
-- [云软科技](http://www.yunruan.ltd/)
+## Installation
+
+[Laravel](https://laravel.com/) is the main framework that used to develop PILOS. Follow the documentation [here](https://laravel.com/docs/7.x/) to install it in your development machine. 
+
+A BigBlueButton server is necessary to use this application. See how to setup a BigBlueButton server [here](https://docs.bigbluebutton.org/).  
+
+### 1. How to run
+
+Laravel provides an easy way to setup the environment for PILOS with [Homestead](https://laravel.com/docs/7.x/homestead) and [Vagrant](https://www.vagrantup.com/).
+ 
+After you configured your Vagrant Box a Test LDAP Server is necessary as well to test LDAP-Login see the wiki [here](https://github.com/THM-Health/PILOS/wiki/Installing-OpenLDAP) to set it up in your vagrant box. 
+
+Then create an ```.env``` file inside your project and copy the content of ```.env.sample``` data inside it. 
+
+After that you need to generate Base64 ```APP_KEY``` as well using artisan command. 
+
+```
+php artisan key:generate
+```
+
+Next you want to configure your ``.env`` file accordingly to your vagrant box. The info about your vagrant box is inside ``Homestead.yaml`` file. It is important to configure your ``SANCTUM_STATEFUL_DOMAINS`` and ``SESSION_DOMAIN`` value inside your ``.env`` file with your vagrant box ip inside the ``Homestead.yaml`` file.
+
+```
+LDAP_LOGGING=true
+LDAP_CONNECTION=default
+LDAP_HOST=127.0.0.1
+LDAP_USERNAME="uid=mstt,ou=people,dc=local,dc=com"
+LDAP_PASSWORD="secret"
+LDAP_PORT=389
+LDAP_BASE_DN="dc=local,dc=com"
+LDAP_TIMEOUT=5
+LDAP_SSL=false
+LDAP_TLS=false
+
+SANCTUM_STATEFUL_DOMAINS=192.168.10.10
+SESSION_DOMAIN=192.168.10.10
+```
+
+You can check if the LDAP configured correctly using artisan command.
+
+```
+php artisan ldap:test
+```
+
+Next you want to migrate and seed the database using again another artisan command. 
+
+```
+php artisan migrate
+php artisan db:seed
+```
+
+Lastly you can run the following command in your host machine ``npm install `` then ``npm run watch`` or ``npm run dev``  also
+``composer install `` and ``php artisan serve`` inside your vagrant ssh terminal.
+
+
+## Stacks
+
+1. [BigBlueButton](https://bigbluebutton.org/) - BigBlueButton is an open source web conferencing system.
+2. [littleredbutton/bigbluebutton-api-php](https://github.com/littleredbutton/bigbluebutton-api-php) - An unofficial php api for BigBlueButton.
+3. [Laravel](https://laravel.com/) - Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.
+4. [Vue](https://vuejs.org/) -  a progressive Javascript framework for building user interfaces
+5. [Vuex](https://vuex.vuejs.org/) - Vuex is a state management pattern + library for Vue.js applications.
+6. [Vue Router](https://router.vuejs.org/) - Vue Router is the official router for Vue.js. It deeply integrates with Vue.js core to make building Single Page Applications with Vue.js a breeze. Features include
+7. [Vue Bootstrap](https://bootstrap-vue.org/) - With BootstrapVue you can build responsive, mobile-first, and ARIA accessible projects on the web using Vue.js and the world's most popular front-end CSS library — Bootstrap v4.
+
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+See how to contribute to the project check our [guidelines](CONTRIBUTE.MD)
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This PILOS project is open-sourced software licensed under the LGPL license.
