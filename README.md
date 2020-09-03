@@ -102,4 +102,4 @@ See how to contribute to the project check our [guidelines](CONTRIBUTE.MD)
 
 ## License
 
-This PILOS project is open-sourced software licensed under the MIT license.
+This PILOS project is open-sourced software licensed under the LGPL license.
