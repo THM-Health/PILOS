@@ -63,8 +63,7 @@
           <b-button
             :disabled='isBusy'
             variant='danger'
-          >
-            <!--          @click="showEditUserModal(data.item,data.index)"-->
+            @click='showDeleteModal(data.item)'>
             <i class='fas fa-trash'></i>
           </b-button>
         </can>
@@ -78,7 +77,28 @@
       aria-controls='roles-table'
       @input="$root.$emit('bv::refresh::table', 'roles-table')"
       align='center'
+      :disabled='isBusy'
     ></b-pagination>
+
+    <b-modal
+      :busy='isBusy'
+      ok-variant='danger'
+      cancel-variant='dark'
+      :cancel-title="$t('app.false')"
+      @ok='deleteRole'
+      @hidden='clearRoleToDelete'
+      ref='delete-role-modal'>
+      <template v-slot:modal-title>
+        {{ $t('settings.roles.delete.title') }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.true') }}
+      </template>
+      <span v-if="roleToDelete">
+        {{ $t('settings.roles.delete.confirm', { name: $te(`app.roles.${roleToDelete.name}`) ? $t(`app.roles.${roleToDelete.name}`) : roleToDelete.name }) }}
+      </span>
+
+    </b-modal>
   </div>
 </template>
 
@@ -94,7 +114,8 @@ export default {
       isBusy: false,
       currentPage: undefined,
       total: undefined,
-      perPage: undefined
+      perPage: undefined,
+      roleToDelete: undefined
     };
   },
   computed: {
@@ -132,6 +153,30 @@ export default {
       });
 
       return null;
+    },
+
+    showDeleteModal (role) {
+      this.roleToDelete = role;
+      this.$refs['delete-role-modal'].show();
+    },
+
+    deleteRole () {
+      this.isBusy = true;
+
+      Base.call(`roles/${this.roleToDelete.id}`, {
+        method: 'delete'
+      }).then(response => {
+        $root.$emit('bv::refresh::table', 'roles-table');
+      }).catch(error => {
+        Vue.config.errorHandler(error, this.$root, error.message);
+      }).finally(() => {
+        this.$refs['delete-role-modal'].hide();
+        this.isBusy = false;
+      });
+    },
+
+    clearRoleToDelete () {
+      this.roleToDelete = undefined;
     }
   }
 };

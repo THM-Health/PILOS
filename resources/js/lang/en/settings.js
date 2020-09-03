@@ -12,7 +12,12 @@ export default {
     name: 'Name',
     default: 'Default',
     actions: 'Actions',
-    nodata: 'Es sind keine Rollen vorhanden'
+    nodata: 'No roles found!',
+
+    delete: {
+      confirm: 'Are you really want to delete the role {name}?',
+      title: 'Delete role?'
+    }
   },
 
   users: {

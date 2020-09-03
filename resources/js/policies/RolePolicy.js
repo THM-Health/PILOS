@@ -25,6 +25,6 @@ export default {
   },
 
   delete (permissionService, role) {
-    return permissionService.currentUser && permissionService.currentUser.permissions.includes('roles.delete') && !role.default;
+    return permissionService.currentUser && permissionService.currentUser.permissions.includes('roles.delete');// && !role.default;
   }
 };
