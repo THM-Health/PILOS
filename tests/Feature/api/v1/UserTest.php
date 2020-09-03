@@ -168,6 +168,20 @@ class UserTest extends TestCase
     }
 
     /**
+     * Test user to delete itself when logged in
+     *
+     * @return void
+     */
+    public function testDeleteUserItself()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', $user->id));
+
+        $response->assertStatus(400);
+    }
+
+    /**
      * Test that update user with valid inputs and valid user id
      *
      * @return void
