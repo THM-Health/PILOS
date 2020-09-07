@@ -52,7 +52,7 @@ class RoomMemberController extends Controller
     public function update(Room $room, User $user, UpdateRoomMember $request)
     {
         if (!$room->members->contains($user)) {
-            abort(404, 'not_member_of_room');
+            abort(410, __('app.errors.not_member_of_room'));
         }
         $room->members()->updateExistingPivot($user, ['role' => $request->role]);
 
@@ -69,7 +69,7 @@ class RoomMemberController extends Controller
     public function destroy(Room $room, User $user)
     {
         if (!$room->members->contains($user)) {
-            abort(404, 'not_member_of_room');
+            abort(410, __('app.errors.not_member_of_room'));
         }
         $room->members()->detach($user);
 
@@ -78,14 +78,14 @@ class RoomMemberController extends Controller
 
     /**
      * User is self promoting to become a member
-     * @param  Room                      $room
-     * @return \Illuminate\Http\Response
+     * @param  Room                                                    $room
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function join(Room $room)
     {
         // Check if membership is enabled
         if (!$room->allowMembership) {
-            abort(403);
+            return response()->json(['message'=>__('app.errors.membership_disabled')], 403);
         }
         // Only add to members, if user isn't already a member
         if (!$room->members->contains(Auth::user())) {

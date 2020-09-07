@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Vue from 'vue';
 
 export default {
   call (path, config, loadCsrfCookie = false) {
@@ -7,6 +8,10 @@ export default {
     return promise.then(() => {
       return axios(`/api/v1/${path}`, config);
     });
+  },
+
+  error (error, vm, info) {
+    return Vue.config.errorHandler(error, vm, info);
   },
 
   getCsrfCookie () {

@@ -296,7 +296,7 @@ export default {
           this.errors = error.response.data.errors;
           return;
         }
-        throw error;
+        Base.error(error, this.$root);
       }).finally(() => {
         // Disable saving indicator
         this.saving = false;
@@ -364,6 +364,8 @@ export default {
       .then(response => {
         // fetch successful
         this.settings = response.data.data;
+      }).catch((error) => {
+        Base.error(error, this.$root);
       });
   }
 };

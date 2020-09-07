@@ -19,37 +19,17 @@ export default {
   placeholderName: 'Max Mustermann',
   placeholderAccessCode: 'Zugangscode',
   flash: {
-    roomLimitExceeded: {
-      message: 'Sie haben die max. Anzahl an Räumen erreicht.',
-      title: 'Raumerstellung fehlgeschlagen'
-    },
     noNewRoom: {
       message: 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
       title: 'Keine Berechtigung'
-    },
-    notRunning: {
-      message: 'Der Raum ist aktuell geschlossen.',
-      title: 'Teilnahme fehlgeschlagen'
     },
     startForbidden: {
       message: 'Der Raum kann von Ihnen nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
     },
-    errorRoomStart: {
-      message: 'Der Raum konnte nicht gestartet werden.',
-      title: 'Starten fehlgeschlagen'
-    },
     accessCodeChanged: {
       message: 'Der Zugangscode wurde in der Zwischenzeit geändert.',
       title: 'Zugangscode ungültig'
-    },
-    membershipDisabled: {
-      message: 'Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.',
-      title: 'Mitgliedschaft fehlgeschlagen'
-    },
-    fileGone: {
-      message: 'Die gesuchte Datei wurde nicht gefunden.',
-      title: 'Nicht gefunden'
     },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',

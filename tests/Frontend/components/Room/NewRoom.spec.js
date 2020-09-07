@@ -8,6 +8,7 @@ import _ from 'lodash';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import Base from '../../../../resources/js/api/base';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], modelName: 'User', room_limit: -1 };
 
@@ -250,23 +251,20 @@ describe('Create new rooms', function () {
   it('submit reached room limit', function (done) {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true }];
     const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+
+    sinon.stub(Base, 'error').callsFake(flashMessageSpy);
 
     const view = mount(NewRoomComponent, {
       localVue,
       mocks: {
-        $t: (key) => key,
-        flashMessage: flashMessage
+        $t: (key) => key
       },
       propsData: {
         roomTypes: roomTypes,
         modalStatic: true
       },
-      store
+      store,
+      Base
     });
 
     view.vm.handleSubmit();
@@ -276,12 +274,13 @@ describe('Create new rooms', function () {
       const request = moxios.requests.mostRecent();
       expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
       request.respondWith({
-        status: 463
+        status: 463,
+        response: { message: 'test' }
       })
         .then(function () {
           view.vm.$nextTick();
-          sinon.assert.calledOnce(flashMessageSpy);
-          sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.roomLimitExceeded');
+          expect(flashMessageSpy.calledOnce).toBeTruthy();
+          expect(flashMessageSpy.getCall(0).args[0].response.data.message).toEqual('test');
           expect(view.emitted().limitReached).toBeTruthy();
           view.destroy();
           done();
