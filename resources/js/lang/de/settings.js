@@ -93,6 +93,14 @@ export default {
     getLdapFailed: {
       message: 'Etwas ist schief gelaufen! Versuchen Sie es erneut!',
       title: 'LDAP Abfragen'
+    },
+    inviteSuccess: {
+      message: 'Die Einladung wurde erfolgreich geschickt!',
+      title: 'Einladung'
+    },
+    inviteFailed: {
+      message: 'Etwas ist schief gelaufen! Versuchen sie es erneut',
+      title: 'Einladung'
     }
   },
 

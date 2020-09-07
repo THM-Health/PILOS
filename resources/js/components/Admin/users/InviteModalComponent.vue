@@ -8,8 +8,8 @@
       header-text-variant="success"
       centered
       hide-footer
-      @show="resetInviteModal()"
-      @hidden="resetInviteModal()"
+      @show="resetInviteModal"
+      @hidden="resetInviteModal"
     >
       <b-container>
         <b-form @submit.stop.prevent="onSubmit(emails)" id="invite-user-form">
@@ -24,6 +24,7 @@
                             v-model="inputEmail"
                             :placeholder="$t('settings.users.modal.invitePlaceholder')"
                             @keydown.enter.prevent="addEmail(inputEmail)"
+                            :disabled="isBusy"
                             type="email"
                             :state="errors !== null && errors.email && errors.email.length > 0 ? false: null"
               >
@@ -67,6 +68,7 @@
           variant="success"
           type="submit"
           form="invite-user-form"
+          :disabled="isBusy || emails.length <= 0"
           block>
           {{ $t('settings.users.modal.submit') }}
         </b-button>
@@ -76,9 +78,12 @@
 </template>
 
 <script>
+import Base from '../../../api/base';
+
 export default {
   data () {
     return {
+      isBusy: false,
       inputEmail: '',
       emails: [],
       errors: []
@@ -92,7 +97,7 @@ export default {
       // TODO Cannot submit if emails array is empty
       // TODO Invite user with email function
       // TODO Show email input validation message when failed e.g. Duplicate Emails, Invalid email input, etc.
-      console.log('test submit');
+      this.inviteUsers();
     },
     addEmail (inputEmail) {
       if (this.isValidEmail(inputEmail)) {
@@ -100,6 +105,34 @@ export default {
         this.inputEmail = '';
         this.errors = [];
       }
+    },
+    inviteUsers () {
+      this.isBusy = true;
+
+      Base.call('invitation', {
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'post',
+        data: {
+          email: this.emails
+        }
+      }).then(response => {
+        this.flashMessage.success(this.$t('settings.users.inviteSuccess'));
+
+        this.$bvModal.hide(this.modalId);
+
+        this.errors = [];
+      }).catch((error) => {
+        // TODO error handling
+        // this.errors = error.response.data.errors;
+
+        this.flashMessage.error(this.$t('settings.users.inviteFailed'));
+
+        throw error;
+      }).finally(() => {
+        this.isBusy = false;
+      });
     },
     removeEmail (email) {
       this.emails = this.emails.filter(e => e !== email);

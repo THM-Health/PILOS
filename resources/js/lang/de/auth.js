@@ -1,7 +1,11 @@
 export default {
   login: 'Anmelden',
   logout: 'Abmelden',
+  register: 'Registrieren',
   password: 'Passwort',
+  firstname: 'Vorname',
+  lastname: 'Nachname',
+  username: 'Benutzername',
 
   ldap: {
     tabTitle: 'LDAP',
@@ -25,6 +29,16 @@ export default {
     logout: {
       message: 'Die Abmeldung verlief erfolgreich!',
       title: 'Erfolgreiche Abmeldung'
+    },
+
+    register: {
+      message: 'Die Registrierung verlief erfolgreich!',
+      title: 'Erfolgreiche Registrierung'
+    },
+
+    invitationTokenFailed: {
+      message: 'Sie haben keine gültige Einladungstoken!',
+      title: 'Ungültiger Einladungstoken'
     }
   }
 };

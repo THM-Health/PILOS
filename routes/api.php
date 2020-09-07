@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Auth;
 */
 
 Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
-
     Route::get('settings', 'ApplicationController@settings')->name('application');
     Route::get('currentUser', 'ApplicationController@currentUser')->name('currentUser');
     Route::post('setLocale', function (Request $request) {
@@ -39,6 +38,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 
+        Route::post('register/invitation', 'RegisterController@invitationRegister')->name('invitationRegister');
+
         // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');
 //
@@ -50,17 +51,19 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 
-    Route::middleware('auth:users,ldap')->group(function () {
+    Route::get('invitation/checktoken', 'InvitationController@checkInvitationToken')->name('checkInvitationToken');
 
+    Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('users', 'UserController');
         Route::apiResource('ldap', 'LdapController')->except(['store', 'index']);
+        Route::apiResource('invitation', 'InvitationController')->except(['index', 'show']);
 
-        Route::get('rooms','RoomController@index')->name('rooms.index');
-        Route::post('rooms','RoomController@store')->name('rooms.store');
-        Route::put('rooms/{room}','RoomController@update')->name('rooms.update');
-        Route::delete('rooms/{room}','RoomController@destroy')->name('rooms.destroy');
+        Route::get('rooms', 'RoomController@index')->name('rooms.index');
+        Route::post('rooms', 'RoomController@store')->name('rooms.store');
+        Route::put('rooms/{room}', 'RoomController@update')->name('rooms.update');
+        Route::delete('rooms/{room}', 'RoomController@destroy')->name('rooms.destroy');
 
-        Route::get('rooms/{room}/settings','RoomController@getSettings')->name('rooms.settings');
+        Route::get('rooms/{room}/settings', 'RoomController@getSettings')->name('rooms.settings');
 
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', 'RoomMemberController@join')->name('rooms.membership.join');
@@ -79,7 +82,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
             Route::delete('rooms/{room}/files/{file}', 'RoomFileController@destroy')->name('rooms.files.remove');
         });
 
-        Route::get('users/search','UserController@search')->name('users.search');
+        Route::get('users/search', 'UserController@search')->name('users.search');
     });
 
     Route::middleware('can:view,room')->group(function () {
@@ -89,9 +92,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
     });
 
-    Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
-
-
+    Route::get('meetings/{meeting}/endCallback', 'MeetingController@endMeetingCallback')->name('meetings.endcallback');
 });
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {

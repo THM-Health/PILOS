@@ -106,6 +106,14 @@ export default {
     getLdapFailed: {
       message: 'Something went wrong! Please check your connection!',
       title: 'LDAP Get'
+    },
+    inviteSuccess: {
+      message: 'Invitation sent successfully!',
+      title: 'Invitation'
+    },
+    inviteFailed: {
+      message: 'Something went wrong! Please check your connection!',
+      title: 'Invitation'
     }
   },
 

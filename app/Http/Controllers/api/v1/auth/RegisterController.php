@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserInvitation;
+use App\Invitation;
 use App\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -61,5 +65,40 @@ class RegisterController extends Controller
             'email'    => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    /**
+     * Create a new user through invitation register method
+     * @param  StoreUserInvitation $request
+     * @return JsonResponse
+     */
+    public function invitationRegister(StoreUserInvitation $request)
+    {
+        $user = new User();
+
+        $invitation = Invitation::query()
+            ->where('invitation_token', $request->invitation_token)
+            ->where('email', $request->email)
+            ->where('registered_at', null)
+            ->first();
+
+        // If invitation data not exist
+        if (!$invitation) {
+            return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
+        }
+
+        $user->firstname = $request->firstname;
+        $user->lastname  = $request->lastname;
+        $user->email     = $request->email;
+        $user->username  = $request->username;
+        $user->password  = Hash::make($request->password);
+
+        $store = $user->save();
+
+        // Update registered at value to now
+        $invitation->registered_at = now();
+        $updateInvitation          = $invitation->save();
+
+        return ($store === true && $updateInvitation === true) ? (response()->json($user, 201)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
     }
 }
