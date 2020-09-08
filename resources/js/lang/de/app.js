@@ -45,6 +45,34 @@ export default {
     user: 'Nutzer'
   },
 
+  permissions: {
+    rooms: {
+      create: 'Räume erstellen'
+    },
+
+    settings: {
+      manage: 'Einstellungen verwalten'
+    },
+
+    roles: {
+      create: 'Rollen erstellen',
+      delete: 'Rollen löschen',
+      update: 'Rollen bearbeiten',
+      view: 'Rollen anzeigen',
+      viewAny: 'Alle Rollen anzeigen'
+    },
+
+    users: {
+      viewAny: 'Alle Benutzer anzeigen'
+    }
+  },
+
+  overwrite: 'Überschreiben',
+  save: 'Speichern',
+  back: 'Zurück',
+  previousPage: 'Vorherige Seite',
+  nextPage: 'Nächste Seite',
+
   true: 'Ja',
   false: 'Nein'
 };

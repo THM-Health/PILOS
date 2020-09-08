@@ -7,12 +7,18 @@ export default {
     title: 'Rollen',
 
     new: 'Neue Rolle erstellen',
+    view: 'Detaillierte Informationen für die Rolle {name}',
+    edit: 'Rolle {name} bearbeiten',
 
     id: 'ID',
     name: 'Name',
+    permissions: 'Rechte',
+    roomLimit: 'Max. Anzahl an Räumen',
     default: 'Standard',
     actions: 'Aktionen',
     nodata: 'Es sind keine Rollen vorhanden!',
+
+    noOptions: 'Keine Berechtigungen vorhanden!',
 
     delete: {
       confirm: 'Wollen Sie die Rolle {name} wirklich löschen?',

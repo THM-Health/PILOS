@@ -45,6 +45,34 @@ export default {
     user: 'User'
   },
 
+  permissions: {
+    rooms: {
+      create: 'Create rooms'
+    },
+
+    settings: {
+      manage: 'Manage settings'
+    },
+
+    roles: {
+      create: 'Create roles',
+      delete: 'Delete roles',
+      update: 'Edit roles',
+      view: 'Show roles',
+      viewAny: 'Show all roles'
+    },
+
+    users: {
+      viewAny: 'Show all users'
+    }
+  },
+
+  overwrite: 'Overwrite',
+  save: 'Save',
+  back: 'Back',
+  previousPage: 'Previous page',
+  nextPage: 'Next page',
+
   true: 'Yes',
   false: 'No'
 };

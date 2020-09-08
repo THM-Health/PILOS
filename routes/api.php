@@ -51,6 +51,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
     Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('roles', 'RoleController');
+        Route::get('permissions', 'PermissionController@index')->name('permissions.index');
 
         Route::get('rooms','RoomController@index')->name('rooms.index');
         Route::post('rooms','RoomController@store')->name('rooms.store');

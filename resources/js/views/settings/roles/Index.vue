@@ -1,16 +1,17 @@
 <template>
   <div>
-      <h3>
-        {{ $t('settings.roles.title') }}
-        <can method='create' policy='RolePolicy'>
-          <b-button
-            class='float-right'
-            v-b-tooltip.hover
-            variant='success'
-            :title="$t('settings.roles.new')"
-          ><b-icon-plus></b-icon-plus></b-button>
-        </can>
-      </h3>
+    <h3>
+      {{ $t('settings.roles.title') }}
+      <can method='create' policy='RolePolicy'>
+        <b-button
+          class='float-right'
+          v-b-tooltip.hover
+          variant='success'
+          :title="$t('settings.roles.new')"
+          :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
+        ><b-icon-plus></b-icon-plus></b-button>
+      </can>
+    </h3>
     <hr>
 
     <b-table
@@ -45,8 +46,8 @@
           <b-button
             :disabled='isBusy'
             variant='primary'
+            :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
           >
-            <!--          @click="showEditUserModal(data.item,data.index)"-->
             <i class='fas fa-eye'></i>
           </b-button>
         </can>
@@ -54,8 +55,8 @@
           <b-button
             :disabled='isBusy'
             variant='dark'
+            :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
           >
-            <!--          @click="showEditUserModal(data.item,data.index)"-->
             <i class='fas fa-edit'></i>
           </b-button>
         </can>
@@ -103,9 +104,9 @@
 </template>
 
 <script>
-import Base from '../../api/base';
+import Base from '../../../api/base';
 import Vue from 'vue';
-import Can from '../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can';
 
 export default {
   components: { Can },
@@ -134,11 +135,14 @@ export default {
 
       const config = {
         params: {
-          sort_by: ctx.sortBy,
-          sort_direction: ctx.sortDesc ? 'desc' : 'asc',
           page: ctx.currentPage
         }
       };
+
+      if (ctx.sortBy) {
+        config.params.sort_by = ctx.sortBy;
+        config.params.sort_direction = ctx.sortDesc ? 'desc' : 'asc';
+      }
 
       Base.call('roles', config).then(response => {
         this.perPage = response.data.meta.per_page;
@@ -165,8 +169,8 @@ export default {
 
       Base.call(`roles/${this.roleToDelete.id}`, {
         method: 'delete'
-      }).then(response => {
-        $root.$emit('bv::refresh::table', 'roles-table');
+      }).then(() => {
+        this.$root.$emit('bv::refresh::table', 'roles-table');
       }).catch(error => {
         Vue.config.errorHandler(error, this.$root, error.message);
       }).finally(() => {

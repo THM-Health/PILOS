@@ -8,9 +8,11 @@ import Home from './views/Home';
 import Vue from 'vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
-import Roles from './views/settings/Roles';
+import RolesIndex from './views/settings/roles/Index';
+import RolesView from './views/settings/roles/View';
 import Users from './views/settings/Users';
 import SettingsHome from './views/settings/SettingsHome';
+import Base from './api/base';
 
 Vue.use(VueRouter);
 
@@ -64,7 +66,7 @@ export const routes = [
       {
         path: 'roles',
         name: 'settings.roles',
-        component: Roles,
+        component: RolesIndex,
         meta: {
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
@@ -72,7 +74,45 @@ export const routes = [
             PermissionService.can('viewAny', 'RolePolicy')
           )
         }
-      }
+      },
+      {
+        path: 'roles/:id',
+        name: 'settings.roles.view',
+        component: RolesView,
+        props: route => {
+          return {
+            id: route.params.id,
+            viewOnly: route.query.view === '1'
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'RolePolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', 'RolePolicy')
+              );
+            }
+
+            return Base.call(`roles/${id}`).then((response) => {
+              return PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('update', response.data.data);
+            }).catch((response) => {
+              Vue.config.errorHandler(response, vm, response.message);
+              return false;
+            });
+          }
+        }
+      },
     ]
   },
   {
@@ -109,11 +149,13 @@ export function beforeEachRoute (router, store, to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
   const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
+  store.commit('loading');
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
-      record.meta.accessPermitted ? record.meta.accessPermitted() : Promise.resolve(true)
+      record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
     ));
   }).then((recordsPermissions) => {
+    store.commit('loadingFinished');
     if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
       next({
         name: 'login',

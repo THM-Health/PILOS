@@ -16,7 +16,7 @@ export default {
     return permissionService.currentUser && permissionService.currentUser.permissions.includes('roles.create');
   },
 
-  view (permissionService, role) {
+  view (permissionService) {
     return permissionService.currentUser && permissionService.currentUser.permissions.includes('roles.view');
   },
 

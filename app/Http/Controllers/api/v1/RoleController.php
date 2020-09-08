@@ -18,7 +18,7 @@ class RoleController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Role::class, 'role');
-        $this->middleware('check.stale:role,\App\Http\Resources\Role', ['only' => 'update']);
+        $this->middleware('check.stale:role,\App\Http\Resources\Role,permissions', ['only' => 'update']);
     }
 
     /**
@@ -105,6 +105,9 @@ class RoleController extends Controller
                 'message' => trans('app.errors.role_update_permission_lost')
             ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
         }
+
+        // Ensure updated refreshed even if nothing was changed!
+        $role->touch();
 
         $role->room_limit = $request->room_limit;
         $role->name       = $request->name;

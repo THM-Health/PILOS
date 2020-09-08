@@ -21,6 +21,7 @@ class Role extends JsonResource
             'updated_at'   => $this->updated_at,
             'permissions'  => Permission::collection($this->whenLoaded('permissions')),
             'modelName'    => $this->modelName,
+            'room_limit'   => $this->room_limit
         ];
     }
 }
