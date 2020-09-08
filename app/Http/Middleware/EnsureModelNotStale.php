@@ -6,8 +6,6 @@ use App\Enums\CustomStatusCodes;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Log;
 
 class EnsureModelNotStale
 {
@@ -16,11 +14,11 @@ class EnsureModelNotStale
      * request parameters is older than the updated_at of the model in the database, a error response with the
      * status code 466 will be returned containing the actual model.
      *
-     * @param Request $request Request to get the model and parameters from
-     * @param Closure $next Next to call if everything is ok
-     * @param String $parameterName Name of the parameter to get the model from
-     * @param String $resourceClass Resource class to cast the new model with
-     * @param mixed ...$relationshipsToLoad Additional relationships to load for the updated model in the response
+     * @param  Request $request                Request to get the model and parameters from
+     * @param  Closure $next                   Next to call if everything is ok
+     * @param  String  $parameterName          Name of the parameter to get the model from
+     * @param  String  $resourceClass          Resource class to cast the new model with
+     * @param  mixed   ...$relationshipsToLoad Additional relationships to load for the updated model in the response
      * @return mixed
      */
     public function handle($request, Closure $next, $parameterName, $resourceClass, ...$relationshipsToLoad)

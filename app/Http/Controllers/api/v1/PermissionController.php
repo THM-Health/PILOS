@@ -13,7 +13,7 @@ class PermissionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
+     * @param  Request                     $request
      * @return AnonymousResourceCollection
      */
     public function index(Request $request)
