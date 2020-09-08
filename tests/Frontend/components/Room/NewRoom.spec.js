@@ -283,6 +283,7 @@ describe('Create new rooms', function () {
           expect(flashMessageSpy.getCall(0).args[0].response.data.message).toEqual('test');
           expect(view.emitted().limitReached).toBeTruthy();
           view.destroy();
+          Base.error.restore();
           done();
         });
     });
