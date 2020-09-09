@@ -1,6 +1,17 @@
 import axios from 'axios';
+import Vue from 'vue';
 
 export default {
+  /**
+   * Makes a request with the passed params.
+   *
+   * If `loadCsrfCookie` is set to true before the request a csrf cookie will be requested.
+   *
+   * @param path Path that should be called. The api slug will be automatically added.
+   * @param config Config object as it is passed to the axios function.
+   * @param loadCsrfCookie Boolean, that indicates whether a csrf cookie should be requested or not.
+   * @return {Promise<AxiosResponse<any>>} Promise that resolves to a axios response or rejects on errors.
+   */
   call (path, config, loadCsrfCookie = false) {
     const promise = loadCsrfCookie ? this.getCsrfCookie() : Promise.resolve();
 
@@ -9,6 +20,20 @@ export default {
     });
   },
 
+  /**
+   * Calls the vue global error handler with the passed params.
+   *
+   * @see Vue.config.errorHandler
+   */
+  error (error, vm, info) {
+    return Vue.config.errorHandler(error, vm, info);
+  },
+
+  /**
+   * Loads the csrf cookie from the backend.
+   *
+   * @return {Promise<AxiosResponse<any>>} Promise that resolves to a axios response or rejects on errors.
+   */
   getCsrfCookie () {
     return axios.get('/sanctum/csrf-cookie');
   },

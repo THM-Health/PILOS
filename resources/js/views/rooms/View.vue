@@ -270,8 +270,7 @@ export default {
             vm.room_id = to.params.id;
           });
         }
-
-        throw error;
+        Base.error(error, this.$root);
       }
     });
   },
@@ -340,7 +339,7 @@ export default {
               return;
             }
           }
-          throw error;
+          Base.error(error, this.$root);
         }).finally(() => {
         // Disable loading indicator
           this.loadingDownload = false;
@@ -389,7 +388,7 @@ export default {
               return;
             }
           }
-          throw error;
+          Base.error(error, this.$root);
         }).finally(() => {
           // Disable loading indicator
           this.loading = false;
@@ -425,14 +424,8 @@ export default {
               this.reload();
               return;
             }
-            // Starting of the room failed
-            if (error.response.status === 462) {
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.errorRoomStart'));
-              return;
-            }
           }
-          throw error;
+          Base.error(error, this.$root);
         }).finally(() => {
           // Disable loading indicator
           this.loadingJoinStart = false;
@@ -458,23 +451,12 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
-            // Room is not running
+            // Room is not running, update running status
             if (error.response.status === 460) {
-              // Update room running
               this.room.running = false;
-              // Display error message
-              this.flashMessage.error(this.$t('rooms.flash.notRunning'));
-              return;
-            }
-
-            // Starting of the room failed
-            if (error.response.status === 462) {
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.errorRoomStart'));
-              return;
             }
           }
-          throw error;
+          Base.error(error, this.$root);
         }).finally(() => {
           // Disable loading indicator
           this.loadingJoinStart = false;
@@ -511,15 +493,12 @@ export default {
               return;
             }
 
+            // Membership not allowed, update status
             if (error.response.status === 403) {
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.membershipDisabled'));
-              // reset the allow membership status, as it is no longer correct
               this.room.allowMembership = false;
-              return;
             }
           }
-          throw error;
+          Base.error(error, this.$root);
         });
     },
     /**
@@ -532,6 +511,8 @@ export default {
 
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'delete'
+      }).catch((error) => {
+        Base.error(error, this.$root);
       }).finally(() => {
         // Reload without membership
         this.reload();

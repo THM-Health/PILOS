@@ -62,7 +62,7 @@ class RoomFileController extends Controller
     public function show(Room $room, RoomFile $file)
     {
         if (!$file->room->is($room)) {
-            abort(404);
+            abort(404, __('app.errors.file_not_found'));
         }
 
         return response()->json(['url' => $file->getDownloadLink(1)]);
@@ -79,7 +79,7 @@ class RoomFileController extends Controller
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
         if (!$file->room->is($room)) {
-            abort(404);
+            abort(404, __('app.errors.file_not_found'));
         }
 
         if ($request->has('useinmeeting')) {
@@ -116,7 +116,7 @@ class RoomFileController extends Controller
     public function destroy(Room $room, RoomFile $file)
     {
         if (!$file->room->is($room)) {
-            abort(404);
+            abort(404, __('app.errors.file_not_found'));
         }
 
         $file->delete();
