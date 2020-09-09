@@ -18,7 +18,7 @@
             <b-form-input :state='errors.name ? false : null' id='name' type='text' v-model='model.name' :disabled='isBusy || viewOnly'></b-form-input>
             <b-form-invalid-feedback>
               <ul>
-                <li v-for="error in errors.name">
+                <li v-for="(error, index) in errors.name" :key='index'>
                   {{ error }}
                 </li>
               </ul>
@@ -33,7 +33,7 @@
             <b-form-input :state='errors.room_limit ? false : null' id='room-limit' type='number' v-model='model.room_limit' min='-1' :disabled='isBusy || viewOnly'></b-form-input>
             <b-form-invalid-feedback>
               <ul>
-                <li v-for="error in errors.room_limit">
+                <li v-for="(error, index) in errors.room_limit" :key='index'>
                   {{ error }}
                 </li>
               </ul>
@@ -84,7 +84,7 @@
             </multiselect>
             <b-form-invalid-feedback>
               <ul>
-                <li v-for="error in Object.keys(errors).filter(key => key.startsWith('permissions')).map(key => errors[key]).flat()">
+                <li v-for="(error, index) in Object.keys(errors).filter(key => key.startsWith('permissions')).map(key => errors[key]).flat()" :key='index'>
                   {{ error }}
                 </li>
               </ul>
@@ -200,12 +200,12 @@ export default {
         this.currentPage = page;
         this.hasNextPage = page < response.data.meta.last_page;
       })
-      .catch(error => {
-        Vue.config.errorHandler(error, this.$root, error.message);
-      })
-      .finally(() => {
-        this.permissionsLoading = false;
-      });
+        .catch(error => {
+          Vue.config.errorHandler(error, this.$root, error.message);
+        })
+        .finally(() => {
+          this.permissionsLoading = false;
+        });
     },
 
     back () {
@@ -245,9 +245,9 @@ export default {
           Vue.config.errorHandler(error, this.$root, error.message);
         }
       })
-      .finally(() => {
-        this.isBusy = false;
-      });
+        .finally(() => {
+          this.isBusy = false;
+        });
     },
 
     forceOverwrite () {

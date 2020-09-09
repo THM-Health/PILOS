@@ -24,18 +24,17 @@ class RoleTest extends TestCase
         $roleB      = factory(Role::class)->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
-        $this->getJson(route('api.v1.roles.index'))->assertStatus(401);
+        $this->getJson(route('api.v1.roles.index'))->assertUnauthorized();
         $this->actingAs($user)->getJson(route('api.v1.roles.index'))->assertStatus(403);
 
         $roleA->permissions()->attach(Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id);
 
-        $response = $this->getJson(route('api.v1.roles.index'));
-        $response->assertStatus(200);
-
-        $response->assertJsonCount($page_size, 'data');
-        $response->assertJsonFragment(['name' => $roleA->name]);
-        $response->assertJsonFragment(['per_page' => $page_size]);
-        $response->assertJsonFragment(['total' => 2]);
+        $this->getJson(route('api.v1.roles.index'))
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['name' => $roleA->name])
+            ->assertJsonFragment(['per_page' => $page_size])
+            ->assertJsonFragment(['total' => 2]);
 
         $this->getJson(route('api.v1.roles.index') . '?page=2')
             ->assertSuccessful()
@@ -99,6 +98,7 @@ class RoleTest extends TestCase
     {
         $user       = factory(User::class)->create();
         $roleA      = factory(Role::class)->create(['default' => true, 'room_limit' => 20]);
+        $roleB      = factory(Role::class)->create(['default' => true, 'room_limit' => 20]);
         $user->roles()->attach([$roleA->id]);
 
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
@@ -111,7 +111,7 @@ class RoleTest extends TestCase
         ];
 
         $changes = [
-            'name'        => 'Test',
+            'name'        => $roleB->name,
             'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $new_permission],
             'default'     => true,
             'room_limit'  => null
@@ -135,7 +135,13 @@ class RoleTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors('updated_at');
 
-        $changes['updated_at'] = now();
+        $changes['updated_at'] = strftime(now());
+
+        $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('name');
+
+        $changes['name'] = $roleA->name;
 
         $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
             ->assertSuccessful();
@@ -180,7 +186,7 @@ class RoleTest extends TestCase
         $roleB      = factory(Role::class)->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
-        $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))->assertStatus(401);
+        $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))->assertUnauthorized();
         $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => $roleA]))->assertStatus(403);
 
         $permission = Permission::firstOrCreate([ 'name' => 'roles.view' ]);

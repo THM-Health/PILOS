@@ -112,7 +112,7 @@ export const routes = [
             });
           }
         }
-      },
+      }
     ]
   },
   {

@@ -21,7 +21,7 @@ class RoleRequest extends FormRequest
             'permissions.*' => 'distinct|exists:App\Permission,id'
         ];
 
-        if ($this->method() === 'PUT' || $this->method() === 'PATCH') {
+        if ($this->role) {
             $rules['name']       = ['required', 'string', 'alpha_dash', 'max:255', Rule::unique('roles', 'name')->ignore($this->role->id)];
             $rules['updated_at'] = 'required|date';
         }
