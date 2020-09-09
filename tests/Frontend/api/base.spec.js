@@ -29,10 +29,10 @@ describe('base', function () {
     });
 
     it('makes an call to the passed route with the passed parameters', function (done) {
-      Base.call('test', { method: 'put', data: { a: 'test' }});
+      Base.call('test', { method: 'put', data: { a: 'test' } });
 
       moxios.wait(function () {
-        let request = moxios.requests.mostRecent();
+        const request = moxios.requests.mostRecent();
 
         expect(request.config.url).toBe('/api/v1/test');
         expect(request.config.method).toBe('put');
@@ -41,9 +41,9 @@ describe('base', function () {
         request.respondWith({
           status: 200
         })
-        .then(function () {
-          done();
-        });
+          .then(function () {
+            done();
+          });
       });
     });
 
