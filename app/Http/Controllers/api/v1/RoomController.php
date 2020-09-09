@@ -190,6 +190,7 @@ class RoomController extends Controller
     public function destroy(Room $room)
     {
         $room->delete();
+
         return response()->noContent();
     }
 }
