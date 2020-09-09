@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#38]: https://github.com/THM-Health/PILOS/issues/38
 [#40]: https://github.com/THM-Health/PILOS/issues/40
 [#41]: https://github.com/THM-Health/PILOS/pull/41
-[#40]: https://github.com/THM-Health/PILOS/issues/43
-[#41]: https://github.com/THM-Health/PILOS/pull/44
+[#43]: https://github.com/THM-Health/PILOS/issues/43
+[#44]: https://github.com/THM-Health/PILOS/pull/44
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
