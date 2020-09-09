@@ -11,7 +11,8 @@ describe('Router', function () {
         },
         state: {
           initialized: true
-        }
+        },
+        commit: () => {}
       };
 
       const to = {
@@ -40,7 +41,8 @@ describe('Router', function () {
         },
         state: {
           initialized: true
-        }
+        },
+        commit: () => {}
       };
 
       const to = {
@@ -79,7 +81,8 @@ describe('Router', function () {
         },
         state: {
           initialized: true
-        }
+        },
+        commit: () => {}
       };
 
       const to = {
