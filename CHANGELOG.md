@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16],[#44],[#43])
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
-- Roles and permissions concept ([#12], [#22])
+- Roles and permissions concept and management of roles ([#12], [#22], [#45])
 - Added page to create and view room, start/join meetings, change settings ([#4], [#18],[#32],[#33])
 - Added file upload for room owner and file download for participants ([#4], [#18])
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
@@ -45,5 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#41]: https://github.com/THM-Health/PILOS/pull/41
 [#43]: https://github.com/THM-Health/PILOS/issues/43
 [#44]: https://github.com/THM-Health/PILOS/pull/44
+[#45]: https://github.com/THM-Health/PILOS/pull/45
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
