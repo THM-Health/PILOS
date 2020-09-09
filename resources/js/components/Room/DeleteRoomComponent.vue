@@ -78,7 +78,7 @@ export default {
       }).catch((error) => {
         this.isDeleting = false;
         this.$bvModal.hide('remove-modal');
-        throw error;
+        Base.error(error, this.$root);
       });
     }
   }
