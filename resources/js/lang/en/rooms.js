@@ -19,37 +19,17 @@ export default {
   placeholderName: 'John Doe',
   placeholderAccessCode: 'Access code',
   flash: {
-    roomLimitExceeded: {
-      message: 'You have reached the max. amount of rooms.',
-      title: 'Creating room failed'
-    },
     noNewRoom: {
       message: 'You do not have the necessary permission to create a new room.',
       title: 'Permission denied'
-    },
-    notRunning: {
-      message: 'The room is currently closed.',
-      title: 'Joining failed'
     },
     startForbidden: {
       message: 'The room could not be started by you.',
       title: 'Starting failed'
     },
-    errorRoomStart: {
-      message: 'The room could not be started.',
-      title: 'Starting failed'
-    },
     accessCodeChanged: {
       message: 'The access code was changed in the meantime.',
       title: 'Access code invalid'
-    },
-    membershipDisabled: {
-      message: 'A room membership is not available at the moment.',
-      title: 'Membership failed'
-    },
-    fileGone: {
-      message: 'The requested file was not found.',
-      title: 'Not found'
     },
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',

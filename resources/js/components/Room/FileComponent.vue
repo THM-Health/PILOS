@@ -164,14 +164,11 @@ export default {
         }).catch((error) => {
           if (error.response) {
             if (error.response.status === 404) {
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
               // Remove file from list
               this.files.files.splice(index, 1);
-              return;
             }
           }
-          throw error;
+          Base.error(error, this.$root);
         }).finally(() => {
           this.loadingDownload = null;
         });
@@ -203,6 +200,12 @@ export default {
             }).then(response => {
               // Fetch successful
               this.files = response.data.data;
+            }).catch((error) => {
+              if (error.response.status === 404) {
+                // Remove file from list
+                this.files.files.splice(index, 1);
+              }
+              Base.error(error, this.$root);
             }).finally(() => {
               this.isBusy = false;
             });
@@ -244,7 +247,7 @@ export default {
             return;
           }
         }
-        throw error;
+        Base.error(error, this.$root);
       }).finally(() => {
         // Clear file field and busy status
         this.isBusy = false;
@@ -262,6 +265,8 @@ export default {
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
+        }).catch((error) => {
+          Base.error(error, this.$root);
         }).finally(() => {
           this.isBusy = false;
         });
@@ -287,6 +292,11 @@ export default {
       }).then(response => {
         // Fetch successful
         this.files = response.data.data;
+      }).catch((error) => {
+        if (error.response.status === 404) {
+          this.reload();
+        }
+        Base.error(error, this.$root);
       }).finally(() => {
         this.isBusy = false;
       });

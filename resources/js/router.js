@@ -11,6 +11,7 @@ import Settings from './views/settings/Settings';
 import Roles from './views/settings/Roles';
 import Users from './views/settings/Users';
 import SettingsHome from './views/settings/SettingsHome';
+import Base from './api/base';
 
 Vue.use(VueRouter);
 
@@ -129,5 +130,11 @@ export function beforeEachRoute (router, store, to, from, next) {
 }
 
 router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
+
+router.onError(error => {
+  if (error.response) {
+    Base.error(error, router.app.$root);
+  }
+});
 
 export default router;

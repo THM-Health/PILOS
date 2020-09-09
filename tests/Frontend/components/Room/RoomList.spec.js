@@ -9,6 +9,7 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
+import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -110,6 +111,65 @@ describe('RoomList', function () {
       }
     ]
   };
+
+  it('server error with route', function (done) {
+    moxios.stubRequest('/api/v1/rooms', {
+      status: 500
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store
+    });
+
+    const from = { matched: ['test'] };
+
+    RoomList.beforeRouteEnter.call(view.vm, undefined, from, async error => {
+      expect(error.response.status).toBe(500);
+      done();
+    });
+  });
+
+  it('server error without route', function (done) {
+    moxios.stubRequest('/api/v1/rooms', {
+      status: 500,
+      response: { message: 'test' }
+    });
+
+    const flashMessageSpy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(flashMessageSpy);
+
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const view = mount(RoomList, {
+      localVue,
+      router,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      Base
+    });
+
+    const from = { matched: [] };
+
+    RoomList.beforeRouteEnter.call(view.vm, undefined, from, async next => {
+      next(view.vm);
+      expect(flashMessageSpy.calledOnce).toBeTruthy();
+      expect(flashMessageSpy.getCall(0).args[0].response.data.message).toEqual('test');
+
+      sinon.assert.calledOnce(routerSpy);
+      sinon.assert.calledWith(routerSpy, '/');
+
+      Base.error.restore();
+      done();
+    });
+  });
 
   it('check list of rooms', function (done) {
     moxios.stubRequest('/api/v1/rooms', {

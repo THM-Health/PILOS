@@ -231,10 +231,11 @@ export default {
       Base.call('users/search?query=' + query).then(response => {
         // query executed
         this.users = response.data.data;
-      })
-        .finally(() => {
-          this.isLoadingSearch = false;
-        });
+      }).catch((error) => {
+        Base.error(error, this.$root);
+      }).finally(() => {
+        this.isLoadingSearch = false;
+      });
     },
 
     /**
@@ -262,6 +263,11 @@ export default {
       }).then(response => {
         // remove user entry from list
         this.members.splice(this.deleteUser.index, 1);
+      }).catch((error) => {
+        if (error.response.status === 410) {
+          this.members.splice(this.deleteUser.index, 1);
+        }
+        Base.error(error, this.$root);
       }).finally(() => {
         this.$refs['remove-user-modal'].hide();
         this.isLoadingAction = false;
@@ -303,6 +309,11 @@ export default {
       }).then(response => {
         // user role was saved
         this.members[this.editUser.index].role = this.editUser.role;
+      }).catch((error) => {
+        if (error.response.status === 410) {
+          this.members.splice(this.editUser.index, 1);
+        }
+        Base.error(error, this.$root);
       }).finally(() => {
         this.$refs['edit-user-modal'].hide();
         this.isLoadingAction = false;
@@ -341,7 +352,7 @@ export default {
           }
         }
         this.$refs['add-user-modal'].hide();
-        throw error;
+        Base.error(error, this.$root);
       })
         .finally(() => {
           this.isLoadingAction = false;
@@ -358,6 +369,9 @@ export default {
         .then(response => {
           // fetching successfull
           this.members = response.data.data;
+        })
+        .catch((error) => {
+          Base.error(error, this.$root);
         })
         .finally(() => {
           this.isBusy = false;

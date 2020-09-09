@@ -179,7 +179,7 @@ class MembershipTest extends TestCase
 
         // Try to remove user again
         $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
-            ->assertNotFound();
+            ->assertStatus(410);
 
         // Check if user is no member
         $this->actingAs($user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -220,7 +220,7 @@ class MembershipTest extends TestCase
 
         // Update role for wrong user
         $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$otherUser]), ['role' => RoomUserRole::MODERATOR])
-            ->assertNotFound();
+            ->assertStatus(410);
 
         // Check member list
         $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
