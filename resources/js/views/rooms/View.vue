@@ -3,13 +3,14 @@
     <template v-if="room">
 
       <!-- Delete button and modal -->
-      <delete-room-component
-        @roomDeleted="$router.push({ name: 'rooms.index' })"
-        v-if="room.isOwner"
-        :room="room"
-        :disabled="loading"
-        button-class="float-right"
-      ></delete-room-component>
+      <can method="delete" :policy="{ modelName: 'Room', isOwner: room.isOwner  }">
+        <delete-room-component
+          @roomDeleted="$router.push({ name: 'rooms.index' })"
+          :room="room"
+          :disabled="loading"
+          button-class="float-right"
+        ></delete-room-component>
+      </can>
 
       <!-- Reload general room settings/details -->
       <b-button
@@ -227,6 +228,7 @@ import Base from '../../api/base';
 import RoomAdmin from '../../components/Room/AdminComponent';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
+import Can from '../../components/Permissions/Can';
 
 export default {
   directives: {
@@ -234,7 +236,8 @@ export default {
   },
   components: {
     DeleteRoomComponent,
-    RoomAdmin
+    RoomAdmin,
+    Can
   },
 
   data () {

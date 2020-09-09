@@ -21,14 +21,14 @@
       :hide-header-close="isDeleting"
       ok-variant="danger"
       cancel-variant="dark"
-      :cancel-title="$t('rooms.modals.delete.no')"
+      :cancel-title="$t('app.no')"
       @ok="deleteRoom"
       id="remove-modal" >
       <template v-slot:modal-title>
         {{ $t('rooms.modals.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isDeleting"></b-spinner>  {{ $t('rooms.modals.delete.yes') }}
+        <b-spinner small v-if="isDeleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       {{ $t('rooms.modals.delete.confirm',{name: room.name}) }}
     </b-modal>

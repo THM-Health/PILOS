@@ -39,9 +39,7 @@ export default {
   modals: {
     delete: {
       title: 'Raum löschen',
-      confirm: 'Soll der Raum "{name}" gelöscht werden?',
-      yes: 'Ja',
-      no: 'Nein'
+      confirm: 'Soll der Raum "{name}" gelöscht werden?'
     }
   },
   create: {
@@ -62,9 +60,7 @@ export default {
     modals: {
       delete: {
         title: 'Datei löschen',
-        confirm: 'Soll die Datei {filename} gelöscht werden?',
-        yes: 'Ja',
-        no: 'Nein'
+        confirm: 'Soll die Datei {filename} gelöscht werden?'
       }
     },
     formats: 'Erlaubte Dateiformate: {formats}',
@@ -115,9 +111,7 @@ export default {
       },
       delete: {
         title: 'Mitglied aus dem Raum entfernen',
-        confirm: 'Soll {firstname} {lastname} aus dem Raum entfernt werden?',
-        yes: 'Ja',
-        no: 'Nein'
+        confirm: 'Soll {firstname} {lastname} aus dem Raum entfernt werden?'
       }
     }
   },

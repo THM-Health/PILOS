@@ -4,6 +4,8 @@ export default {
   notFound: '404 | The requested route doesn\'t exists!',
   selectLocale: 'Please select a language',
   reload: 'Reload',
+  yes: 'Yes',
+  no: 'No',
   flash: {
     clientError: {
       message: 'An unknown error occurred in the application!',

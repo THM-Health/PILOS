@@ -128,14 +128,14 @@
       :busy="isLoadingAction"
       ok-variant="danger"
       cancel-variant="dark"
-      :cancel-title="$t('rooms.members.modals.delete.no')"
+      :cancel-title="$t('app.no')"
       @ok="saveRemoveUser"
       ref="remove-user-modal" >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.delete.yes') }}
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="deleteUser">
         {{ $t('rooms.members.modals.delete.confirm',{firstname: deleteUser.firstname,lastname: deleteUser.lastname}) }}
