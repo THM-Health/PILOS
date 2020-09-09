@@ -37,6 +37,7 @@
 </template>
 <script>
 import Base from '../../api/base';
+import store from '../../store';
 
 export default {
   props: {
@@ -90,18 +91,16 @@ export default {
           if (error.response.status === 403) {
             this.flashMessage.error(this.$t('rooms.flash.noNewRoom'));
             this.$bvModal.hide('new-room');
+            store.dispatch('session/getCurrentUser');
             return;
           }
           // room limit exceeded
           if (error.response.status === 463) {
-            this.flashMessage.error(this.$t('rooms.flash.roomLimitExceeded'));
             this.$emit('limitReached');
-            this.$bvModal.hide('new-room');
-            return;
           }
         }
         this.$bvModal.hide('new-room');
-        throw error;
+        Base.error(error, this.$root);
       });
     }
 

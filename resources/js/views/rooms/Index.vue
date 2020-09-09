@@ -65,6 +65,8 @@ export default {
     reload () {
       Base.call('rooms').then(response => {
         this.rooms = response.data.data;
+      }).catch((error) => {
+        Base.error(error, this.$root);
       });
     }
   },
@@ -81,6 +83,15 @@ export default {
       next(vm => {
         vm.rooms = response.data.data;
       });
+    }).catch((error) => {
+      if (from.matched.length !== 0) {
+        next(error);
+      } else {
+        next(vm => {
+          Base.error(error, vm);
+          vm.$router.push('/');
+        });
+      }
     });
   }
 };

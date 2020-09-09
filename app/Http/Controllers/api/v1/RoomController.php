@@ -47,7 +47,7 @@ class RoomController extends Controller
     public function store(CreateRoom $request)
     {
         if (Auth::user()->room_limit !== -1 && Auth::user()->myRooms()->count() >= Auth::user()->room_limit) {
-            return response()->json('room_limit_exceeded', CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
+            abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED, __('app.errors.room_limit_exceeded'));
         }
 
         $room             = new Room();
@@ -104,7 +104,7 @@ class RoomController extends Controller
             try {
                 $server = $servers->random();
             } catch (InvalidArgumentException $ex) {
-                return response()->json('no_server_available', CustomStatusCodes::NO_SERVER_AVAILABLE);
+                abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
             }
 
             $meeting = $room->meetings()->create();
@@ -115,7 +115,7 @@ class RoomController extends Controller
             $meeting->save();
 
             if (!$meeting->start()) {
-                abort(CustomStatusCodes::ROOM_START_FAILED);
+                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
         }
 
@@ -134,12 +134,13 @@ class RoomController extends Controller
         $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
 
         $meeting = $room->runningMeeting();
+
         if ($meeting == null) {
-            return response()->json('not_running', CustomStatusCodes::MEETING_NOT_RUNNING);
+            abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
         if (!$meeting->start()) {
-            abort(CustomStatusCodes::ROOM_START_FAILED);
+            abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
         }
 
         return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
@@ -148,6 +149,7 @@ class RoomController extends Controller
     /**
      * Update room settings
      * @param  UpdateRoomSettings $request
+     * @param  Room               $room
      * @param  Room               $room
      * @return RoomSettings
      */

@@ -172,4 +172,10 @@ export function beforeEachRoute (router, store, to, from, next) {
 
 router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
 
+router.onError(error => {
+  if (error.response) {
+    Base.error(error, router.app.$root);
+  }
+});
+
 export default router;
