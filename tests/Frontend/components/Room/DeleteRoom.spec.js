@@ -5,6 +5,7 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent';
 import sinon from 'sinon';
+import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 
@@ -95,6 +96,47 @@ describe('Delete room', function () {
         .then(function () {
           component.vm.$nextTick();
           expect(component.emitted().roomDeleted).toBeTruthy();
+          done();
+        });
+    });
+  });
+
+  it('failed delete room not found', function (done) {
+    const flashMessageSpy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(flashMessageSpy);
+
+    const component = mount(DeleteRoomComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room: exampleRoom,
+        disabled: true
+      },
+      attachTo: createContainer(),
+      Base
+    });
+
+    const bvModalEvt = {
+      preventDefault () {
+        return sinon.spy();
+      }
+    };
+
+    component.vm.deleteRoom(bvModalEvt);
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      expect(request.config.method).toMatch('delete');
+      expect(request.config.url).toContain(exampleRoom.id);
+      request.respondWith({
+        status: 404
+      })
+        .then(function () {
+          component.vm.$nextTick();
+          expect(flashMessageSpy.calledOnce).toBeTruthy();
+          expect(flashMessageSpy.getCall(0).args[0].response.status).toBe(404);
+          Base.error.restore();
           done();
         });
     });
