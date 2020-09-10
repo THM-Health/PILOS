@@ -57,12 +57,16 @@ class Meeting extends Model
     }
 
     /**
-     * Callback-hash for his meeting and server, required to validate incoming end of meeting request
+     * Callback-salt for his meeting and server, required to validate incoming end of meeting request
+     * @param $hash boolean Hash the callback salt
      * @return string
      */
-    public function getCallbackHash()
+    public function getCallbackSalt($hash = false)
     {
-        return Hash::make( $this->id.$this->server->salt);
+        if($hash) {
+            return Hash::make( $this->id.$this->server->salt);
+        }
+        return $this->id.$this->server->salt;
     }
 
     /**
@@ -77,7 +81,7 @@ class Meeting extends Model
         $meetingParams->setModeratorPassword($this->moderatorPW)
            ->setAttendeePassword($this->attendeePW)
             ->setLogoutUrl(url('rooms/'.$this->room->id))
-            ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackHash()]))
+            ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
             ->setWelcomeMessage($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
