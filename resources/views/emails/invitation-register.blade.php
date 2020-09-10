@@ -1,9 +1,12 @@
-<div>
+<!--Warning! Don't use any indentation! See Laravel docs Mail!-->
+@component('mail::message')
 
-    <p>Hi {{$invitation->email}},</p>
+@lang('email.invite.greetings') {{$invitation->email}},
 
-    <p>You are invited to access PILOS!</p>
+@lang('email.invite.message')
 
-    <a href="{{env('APP_URL') . '/register/invitation?invitation_token=' . $invitation->invitation_token }}">Click here</a> to register!
+@component('mail::button', ['url' => env('APP_URL') . '/register/invitation?invitation_token=' . $invitation->invitation_token, 'color' => 'success'])
+@lang('email.invite.register')
+@endcomponent
 
-</div>
+@endcomponent

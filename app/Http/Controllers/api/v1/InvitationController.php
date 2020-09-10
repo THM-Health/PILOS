@@ -48,7 +48,7 @@ class InvitationController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  StoreInvitation $request
-     * @return Response
+     * @return JsonResponse
      */
     public function store(StoreInvitation $request)
     {
@@ -63,13 +63,13 @@ class InvitationController extends Controller
             $store = $invitation->save();
 
             if ($store === false) {
-                return response(['message' => Lang::get('validation.custom.request.400')], 400);
+                return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
             }
 
             Mail::to($email)->send(new InvitationRegister($invitation));
         }
 
-        response()->json(201);
+        return response()->json($emails, 201);
     }
 
     /**

@@ -35,6 +35,6 @@ class InvitationRegister extends Mailable
      */
     public function build()
     {
-        return $this->from('pilos@test.com')->view('emails.invitation-register');
+        return $this->from('pilos@test.com')->markdown('emails.invitation-register');
     }
 }

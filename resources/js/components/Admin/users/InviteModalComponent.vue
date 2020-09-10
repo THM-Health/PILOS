@@ -12,7 +12,7 @@
       @hidden="resetInviteModal"
     >
       <b-container>
-        <b-form @submit.stop.prevent="onSubmit(emails)" id="invite-user-form">
+        <b-form @submit.stop.prevent="inviteUsers" id="invite-user-form">
           <b-form-group id="invite-email"
                         label-for="invite-input-email">
             <b-input-group>
@@ -93,12 +93,6 @@ export default {
     modalId: String
   },
   methods: {
-    onSubmit (emails) {
-      // TODO Cannot submit if emails array is empty
-      // TODO Invite user with email function
-      // TODO Show email input validation message when failed e.g. Duplicate Emails, Invalid email input, etc.
-      this.inviteUsers();
-    },
     addEmail (inputEmail) {
       if (this.isValidEmail(inputEmail)) {
         this.emails.push(inputEmail);
@@ -109,7 +103,7 @@ export default {
     inviteUsers () {
       this.isBusy = true;
 
-      Base.call('invitation', {
+      Base.call('invitations', {
         headers: {
           'content-type': 'application/json'
         },
@@ -125,7 +119,7 @@ export default {
         this.errors = [];
       }).catch((error) => {
         // TODO error handling
-        // this.errors = error.response.data.errors;
+        this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.inviteFailed'));
 

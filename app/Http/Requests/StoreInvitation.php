@@ -24,7 +24,7 @@ class StoreInvitation extends FormRequest
     public function rules()
     {
         return [
-            'email.*' => 'required|email|unique:invitations,email'
+            'email.*' => 'required|email|unique:invitations,email|unique:users,email'
         ];
     }
 }

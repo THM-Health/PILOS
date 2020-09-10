@@ -33,6 +33,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         }
     })->name('setLocale');
 
+    Route::get('invitation/checktoken', 'InvitationController@checkInvitationToken')->name('checkInvitationToken');
+
     Route::namespace('auth')->group(function () {
         Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
@@ -51,12 +53,10 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 
-    Route::get('invitation/checktoken', 'InvitationController@checkInvitationToken')->name('checkInvitationToken');
-
     Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('users', 'UserController');
         Route::apiResource('ldap', 'LdapController')->except(['store', 'index']);
-        Route::apiResource('invitation', 'InvitationController')->except(['index', 'show']);
+        Route::apiResource('invitations', 'InvitationController')->except(['index', 'show']);
 
         Route::get('rooms', 'RoomController@index')->name('rooms.index');
         Route::post('rooms', 'RoomController@store')->name('rooms.store');

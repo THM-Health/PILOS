@@ -76,6 +76,7 @@ class RegisterController extends Controller
     {
         $user = new User();
 
+        // Find the invitation record based on requests
         $invitation = Invitation::query()
             ->where('invitation_token', $request->invitation_token)
             ->where('email', $request->email)

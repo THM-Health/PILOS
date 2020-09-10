@@ -193,7 +193,7 @@ export default {
         this.$router.push('/login');
       }).catch((error) => {
         // TODO error handling
-        // this.errors = error.response.data.errors;
+        this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.createFailed'));
 
@@ -213,7 +213,7 @@ export default {
         this.errors = [];
       }).catch((error) => {
         // TODO error handling
-        // this.errors = error.response.data.errors;
+        this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('auth.flash.invitationTokenFailed'));
 
