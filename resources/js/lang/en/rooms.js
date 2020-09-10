@@ -36,6 +36,12 @@ export default {
       title: 'Access forbidden'
     }
   },
+  modals: {
+    delete: {
+      title: 'Delete room',
+      confirm: 'Should the room \'{name}\' be deleted?'
+    }
+  },
   create: {
     title: 'Create new room',
     ok: 'Create',
@@ -54,9 +60,7 @@ export default {
     modals: {
       delete: {
         title: 'Delete file',
-        confirm: 'Do you want to delete this file {filename}?',
-        yes: 'Yes',
-        no: 'No'
+        confirm: 'Do you want to delete this file {filename}?'
       }
     },
     formats: 'Allowed file formats: {formats}',
@@ -107,9 +111,7 @@ export default {
       },
       delete: {
         title: 'Remove member from this room',
-        confirm: 'Do you want to remove {firstname} {lastname} from this room?',
-        yes: 'Yes',
-        no: 'No'
+        confirm: 'Do you want to remove {firstname} {lastname} from this room?'
       }
     }
   },

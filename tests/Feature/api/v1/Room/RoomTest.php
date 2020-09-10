@@ -43,7 +43,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>$this->faker->word];
+        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => $this->faker->word];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -55,7 +55,7 @@ class RoomTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name'=>'rooms.create']);
+        $permission = factory(Permission::class)->create(['name' => 'rooms.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -66,14 +66,14 @@ class RoomTest extends TestCase
         // -- Try different invalid requests --
 
         // empty name and invalid roomtype
-        $room = ['roomType'=>0,'name'=>''];
+        $room = ['roomType' => 0, 'name' => ''];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name','roomType']);
+            ->assertJsonValidationErrors(['name', 'roomType']);
 
         // missing parameters
         $room = [];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name','roomType']);
+            ->assertJsonValidationErrors(['name', 'roomType']);
     }
 
     /**
@@ -97,6 +97,44 @@ class RoomTest extends TestCase
         // Create second room, expect reach of limit
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_2)
             ->assertStatus(CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
+    }
+
+    /**
+     * Test to delete a room
+     */
+    public function testDeleteRoom()
+    {
+        $room_1 = factory(Room::class)->create();
+        $room_2 = factory(Room::class)->create();
+
+        // Test unauthenticated user
+        $this->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertUnauthorized();
+
+        // Test with normal user
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertForbidden();
+
+        $room_1->owner()->associate($this->user);
+        $room_1->save();
+
+        // Test with owner
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertNoContent();
+
+        // Try again after deleted
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertNotFound();
+
+        // Authorize user to delete any room
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'rooms.delete']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Test with general room delete permission
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_2]))
+            ->assertNoContent();
     }
 
     /**

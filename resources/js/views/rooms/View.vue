@@ -1,6 +1,17 @@
 <template>
   <div class="container mt-5 mb-5" v-cloak>
     <template v-if="room">
+
+      <!-- Delete button and modal -->
+      <can method="delete" :policy="{ modelName: 'Room', isOwner: room.isOwner  }">
+        <delete-room-component
+          @roomDeleted="$router.push({ name: 'rooms.index' })"
+          :room="room"
+          :disabled="loading"
+          button-class="float-right"
+        ></delete-room-component>
+      </can>
+
       <!-- Reload general room settings/details -->
       <b-button
         class="float-right"
@@ -216,13 +227,17 @@ import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
 import RoomAdmin from '../../components/Room/AdminComponent';
 import env from './../../env.js';
+import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
+import Can from '../../components/Permissions/Can';
 
 export default {
   directives: {
     mask: AwesomeMask
   },
   components: {
-    RoomAdmin
+    DeleteRoomComponent,
+    RoomAdmin,
+    Can
   },
 
   data () {
