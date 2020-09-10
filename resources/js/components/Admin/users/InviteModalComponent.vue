@@ -30,7 +30,7 @@
               >
               </b-form-input>
               <b-input-group-append>
-                <b-button id="invite-add-email" variant="success" @click="addEmail(inputEmail)">
+                <b-button id="invite-add-email-button" variant="success" @click="addEmail(inputEmail)">
                   <i class="fa fas fa-plus-circle"></i>
                 </b-button>
               </b-input-group-append>
@@ -44,7 +44,7 @@
           </b-form-group>
         </b-form>
         <hr>
-        <b-container fluid>
+        <b-container fluid ref="invite-email-badge-container">
           <b-row align-h="around">
             <h5>
               <b-badge
@@ -65,6 +65,7 @@
         <p class="text-center">{{ $t('settings.users.modal.inviteFooterMessage') }}</p>
         <!--Submit Button-->
         <b-button
+          id="invite-submit-button"
           variant="success"
           type="submit"
           form="invite-user-form"
@@ -100,6 +101,9 @@ export default {
         this.errors = [];
       }
     },
+    removeEmail (email) {
+      this.emails = this.emails.filter(e => e !== email);
+    },
     inviteUsers () {
       this.isBusy = true;
 
@@ -128,9 +132,6 @@ export default {
         this.isBusy = false;
       });
     },
-    removeEmail (email) {
-      this.emails = this.emails.filter(e => e !== email);
-    },
     isValidEmail (email) {
       const isEmailDuplicate = this.emails.indexOf(email) > -1;
 
@@ -140,6 +141,7 @@ export default {
       return !isEmailDuplicate && isEmailValid;
     },
     resetInviteModal () {
+      this.isBusy = false;
       this.inputEmail = '';
       this.emails = [];
       this.errors = [];
