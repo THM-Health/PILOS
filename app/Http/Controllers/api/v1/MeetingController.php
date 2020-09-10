@@ -32,7 +32,7 @@ class MeetingController extends Controller
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
         // Validate request
-        if (!Hash::check($meeting->getCallbackHash(), $request->salt)) {
+        if (!Hash::check($meeting->getCallbackSalt(), $request->salt)) {
             abort(401);
         }
 
