@@ -18,7 +18,7 @@ export default {
     serverError: {
       message: '{message}',
       emptyMessage: 'Es ist ein Fehler auf dem Server aufgetreten!',
-      title: 'Server-Fehler: {statusCode}'
+      title: 'Fehlercode: {statusCode}'
     },
 
     unauthenticated: {

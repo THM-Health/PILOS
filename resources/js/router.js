@@ -9,11 +9,10 @@ import Home from './views/Home';
 import Vue from 'vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
-import SettingsRoles from './views/settings/Roles';
-import SettingsUsers from './views/settings/Users';
-import SettingsRooms from './views/settings/Rooms';
-import SettingsRecordings from './views/settings/Recordings';
-import SettingsSite from './views/settings/Site';
+import Roles from './views/settings/Roles';
+import Users from './views/settings/Users';
+import SettingsHome from './views/settings/SettingsHome';
+import Base from './api/base';
 
 Vue.use(VueRouter);
 
@@ -54,18 +53,12 @@ export const routes = [
     children: [
       {
         path: '',
-        name: 'settings',
-        component: SettingsSite,
-        meta: {
-          requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy')
-          )
-        }
+        component: SettingsHome,
+        name: 'settings'
       },
       {
         path: 'users',
-        component: SettingsUsers,
+        component: Users,
         name: 'settings.users',
         meta: {
           requiresAuth: true,
@@ -78,36 +71,12 @@ export const routes = [
       {
         path: 'roles',
         name: 'settings.roles',
-        component: SettingsRoles,
+        component: Roles,
         meta: {
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
             PermissionService.can('viewAny', 'RolePolicy')
-          )
-        }
-      },
-      {
-        path: 'rooms',
-        name: 'settings.rooms',
-        component: SettingsRooms,
-        meta: {
-          requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'RoomPolicy')
-          )
-        }
-      },
-      {
-        path: 'recordings',
-        name: 'settings.recordings',
-        component: SettingsRecordings,
-        meta: {
-          requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'RecordingPolicy')
           )
         }
       }
@@ -167,5 +136,11 @@ export function beforeEachRoute (router, store, to, from, next) {
 }
 
 router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
+
+router.onError(error => {
+  if (error.response) {
+    Base.error(error, router.app.$root);
+  }
+});
 
 export default router;

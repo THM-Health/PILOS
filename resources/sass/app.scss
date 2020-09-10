@@ -60,10 +60,16 @@
             font-size: $h5-font-size;
         }
 
-        padding-top: 10px;
+        padding: 10px;
     }
 
-    &._vue-flash-msg-body_success {
+    & .flash_small_title._vue-flash-msg-body__content h3 {
+        border-top: 1px solid #FFF !important;
+        padding-top: 10px;
+        font-size: inherit;
+    }
+
+    & ._vue-flash-msg-body_success {
         border: 1px solid $green !important;
         background-color: rgba($green, 0.68) !important;
         &:hover {
