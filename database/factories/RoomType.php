@@ -8,7 +8,7 @@ use Faker\Generator as Faker;
 
 $factory->define(RoomType::class, function (Faker $faker) {
     return [
-        'short' => $faker->word,
+        'short' => $faker->randomLetter."".$faker->randomLetter,
         'description' => $faker->word,
         'color' => $faker->hexColor,
         'default' => $faker->boolean,

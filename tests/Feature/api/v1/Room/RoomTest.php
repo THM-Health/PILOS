@@ -214,6 +214,52 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id'=>$rooms[3]->id]);
     }
 
+    /*
+     * Test callback route for meetings
+     */
+    public function testEndMeetingCallback()
+    {
+        $room = factory(Room::class)->create();
+
+        $server              = new Server();
+        $server->baseUrl     = $this->faker->url;
+        $server->salt        = $this->faker->sha1;
+        $server->status      = true;
+        $server->description = $this->faker->word;
+        $server->save();
+
+        $meeting = $room->meetings()->create();
+        $meeting->server()->associate($server);
+        $meeting->start       = date('Y-m-d H:i:s');
+        $meeting->attendeePW  = bin2hex(random_bytes(5));
+        $meeting->moderatorPW = bin2hex(random_bytes(5));
+        $meeting->save();
+
+        self::assertNull($meeting->end);
+
+        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
+
+        // check with invalid salt
+        $this->getJson($url.'test')
+            ->assertUnauthorized();
+
+        $this->getJson($url)
+            ->assertSuccessful();
+
+        // Check if timestamp was set
+        $meeting->refresh();
+        self::assertNotNull($meeting->end);
+        $end = $meeting->end;
+
+        // Check if second call doesn't change timestamp
+        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
+        $this->getJson($url)
+            ->assertSuccessful();
+
+        $meeting->refresh();
+        self::assertEquals($meeting->end, $end);
+    }
+
     public function testSettingsAccess()
     {
         $room = factory(Room::class)->create();
@@ -426,7 +472,7 @@ class RoomTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**
@@ -501,7 +547,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**
@@ -539,7 +585,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**
@@ -576,7 +622,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**

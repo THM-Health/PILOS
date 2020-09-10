@@ -63,9 +63,10 @@ class Meeting extends Model
      */
     public function getCallbackSalt($hash = false)
     {
-        if($hash) {
+        if ($hash) {
             return Hash::make( $this->id.$this->server->salt);
         }
+
         return $this->id.$this->server->salt;
     }
 
@@ -73,7 +74,7 @@ class Meeting extends Model
      * Start this meeting with the properties saved for this meeting and room
      * @return boolean Meeting was successfully started
      */
-    public function start()
+    public function startMeeting()
     {
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
@@ -132,7 +133,7 @@ class Meeting extends Model
      * End meeting
      * @return boolean
      */
-    public function end()
+    public function endMeeting()
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
 
