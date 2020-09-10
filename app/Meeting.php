@@ -57,19 +57,24 @@ class Meeting extends Model
     }
 
     /**
-     * Callback-hash for his meeting and server, required to validate incoming end of meeting request
+     * Callback-salt for his meeting and server, required to validate incoming end of meeting request
+     * @param $hash boolean Hash the callback salt
      * @return string
      */
-    public function getCallbackHash()
+    public function getCallbackSalt($hash = false)
     {
-        return Hash::make( $this->id.$this->server->salt);
+        if ($hash) {
+            return Hash::make( $this->id.$this->server->salt);
+        }
+
+        return $this->id.$this->server->salt;
     }
 
     /**
      * Start this meeting with the properties saved for this meeting and room
      * @return boolean Meeting was successfully started
      */
-    public function start()
+    public function startMeeting()
     {
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
@@ -77,7 +82,7 @@ class Meeting extends Model
         $meetingParams->setModeratorPassword($this->moderatorPW)
            ->setAttendeePassword($this->attendeePW)
             ->setLogoutUrl(url('rooms/'.$this->room->id))
-            ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackHash()]))
+            ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
             ->setWelcomeMessage($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
@@ -128,7 +133,7 @@ class Meeting extends Model
      * End meeting
      * @return boolean
      */
-    public function end()
+    public function endMeeting()
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
 
