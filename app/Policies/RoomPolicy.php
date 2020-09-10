@@ -103,7 +103,7 @@ class RoomPolicy
      */
     public function delete(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $room->owner->is($user) || $user->can('rooms.delete');
     }
 
     /**
