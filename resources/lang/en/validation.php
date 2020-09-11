@@ -147,6 +147,10 @@ return [
         ],
         'room' => [
             'already_member' => 'The user is already member of the room.'
+        ],
+        'invitation' => [
+            'token_valid' => 'The invitation token is valid!',
+            'token_invalid'=> 'The invitation token is invalid!'
         ]
     ],
 

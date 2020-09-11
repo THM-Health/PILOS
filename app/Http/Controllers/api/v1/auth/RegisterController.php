@@ -77,11 +77,7 @@ class RegisterController extends Controller
         $user = new User();
 
         // Find the invitation record based on requests
-        $invitation = Invitation::query()
-            ->where('invitation_token', $request->invitation_token)
-            ->where('email', $request->email)
-            ->where('registered_at', null)
-            ->first();
+        $invitation = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->first();
 
         // If invitation data not exist
         if (!$invitation) {

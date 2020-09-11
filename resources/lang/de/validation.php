@@ -146,6 +146,10 @@ return [
         ],
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.'
+        ],
+        'invitation' => [
+            'token_valid' => 'Der Einladungstoken ist gültig!',
+            'token_invalid'=> 'Der Einladungstoken ist ungültig!'
         ]
     ],
 

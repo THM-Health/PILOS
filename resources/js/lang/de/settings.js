@@ -25,9 +25,7 @@ export default {
       edit: 'Bearbeiten',
       delete: 'Löschen',
       details: 'Details',
-      password: 'Kenntwort',
-      ldapedit: 'Bearbeiten LDAP',
-      ldapdelete: 'Löschen LDAP'
+      password: 'Kennwort'
     },
     modal: {
       create: 'Benutzer erstellen',

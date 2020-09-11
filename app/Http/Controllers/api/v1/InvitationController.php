@@ -30,13 +30,10 @@ class InvitationController extends Controller
         $invitationTokenValid = false;
 
         if ($request->has('invitation_token')) {
-            $invitationTokenValid = Invitation::query()
-                ->where('invitation_token', $request->invitation_token)
-                ->where('registered_at', null)
-                ->exists();
+            $invitationTokenValid = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->exists();
         }
 
-        return ($invitationTokenValid === true) ? response()->json(['message' => 'Invitation Token is valid!'], 200) : response()->json(['message' => 'Invitation Token is invalid'], 401);
+        return ($invitationTokenValid === true) ? response()->json(['message' => Lang::get('validation.custom.invitation.token_valid')], 200) : response()->json(['message' => Lang::get('custom.validation.invitation_token_invalid')], 401);
     }
 
     /**
@@ -62,7 +59,7 @@ class InvitationController extends Controller
         foreach ($emails as $email) {
             $invitation = new Invitation();
 
-            $invitation->invitation_token = Str::uuid();
+            $invitation->invitation_token = Str::random(36);
             $invitation->email            = $email;
 
             $store = $invitation->save();

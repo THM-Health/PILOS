@@ -58,29 +58,6 @@ class RegisterTest extends TestCase
     }
 
     /**
-     * Test register invitation method with valid invitation token and with different email input from invitation record
-     *
-     * @return void
-     */
-    public function testRegisterInvitationWithValidInvitationTokenAndWithDifferentEmail()
-    {
-        $invitation = factory(Invitation::class)->create([
-            'email' => 'max.mustermann@local.com'
-        ]);
-
-        $response = $this->postJson(route('api.v1.invitationRegister'), [
-            'firstname'        => 'New',
-            'lastname'         => 'User',
-            'password'         => 'secret',
-            'username'         => 'newuser',
-            'email'            => 'different@email.com',
-            'invitation_token' => $invitation->invitation_token
-        ]);
-
-        $response->assertStatus(400);
-    }
-
-    /**
      * Test register invitation method with used invitation token
      *
      * @return void

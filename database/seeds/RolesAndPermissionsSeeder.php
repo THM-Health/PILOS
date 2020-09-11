@@ -42,7 +42,5 @@ class RolesAndPermissionsSeeder extends Seeder
         $userRole->permissions()->syncWithoutDetaching($userPermissions);
         $adminRole->permissions()->syncWithoutDetaching($adminPermissions);
         $userRole->users()->syncWithoutDetaching(User::has('roles', '=', 0)->pluck('id'));
-
-        $adminRole->users()->syncWithoutDetaching(User::pluck('id'));
     }
 }
