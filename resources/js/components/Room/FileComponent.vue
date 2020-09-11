@@ -184,8 +184,8 @@ export default {
       this.$bvModal.msgBoxConfirm(this.$t('rooms.files.modals.delete.confirm', { filename: file.filename }), {
         title: this.$t('rooms.files.modals.delete.title'),
         okVariant: 'danger',
-        okTitle: this.$t('rooms.files.modals.delete.yes'),
-        cancelTitle: this.$t('rooms.files.modals.delete.no'),
+        okTitle: this.$t('app.yes'),
+        cancelTitle: this.$t('app.no'),
         footerClass: 'p-2',
         centered: true
       })

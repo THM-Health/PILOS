@@ -118,7 +118,7 @@ class RoomController extends Controller
             $meeting->moderatorPW = bin2hex(random_bytes(5));
             $meeting->save();
 
-            if (!$meeting->start()) {
+            if (!$meeting->startMeeting()) {
                 abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
         }
@@ -143,7 +143,7 @@ class RoomController extends Controller
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
-        if (!$meeting->start()) {
+        if (!$meeting->startMeeting()) {
             abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
         }
 
@@ -193,8 +193,10 @@ class RoomController extends Controller
      * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
-    /*public function destroy(Room $room)
+    public function destroy(Room $room)
     {
-        //TODO implement; maybe keep some statistical data
-    }*/
+        $room->delete();
+
+        return response()->noContent();
+    }
 }
