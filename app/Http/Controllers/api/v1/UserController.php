@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUser;
 use App\Http\Resources\User as UserResource;
 use App\User;
-use Auth;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +15,11 @@ use Illuminate\Support\Facades\Lang;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(User::class, 'user');
+    }
+
     /**
      * Display a listing of the resource.
      * @param  Request                     $request
@@ -94,12 +98,6 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $currentLoggedInUser = Auth::user();
-
-        if ($user->id === $currentLoggedInUser->id) {
-            return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
-        }
-
         $delete = $user->delete();
 
         return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));

@@ -1,7 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import AdminUser from '../../../../resources/js/views/settings/Users';
 import CrudModalComponent from '../../../../resources/js/components/Admin/users/CrudModalComponent';
-import CrudLdapModalComponent from '../../../../resources/js/components/Admin/users/CrudLdapModalComponent';
 import InviteModalComponent from '../../../../resources/js/components/Admin/users/InviteModalComponent';
 import BootstrapVue, { BPagination, BTable } from 'bootstrap-vue';
 import moxios from 'moxios';
@@ -44,14 +43,6 @@ describe('AdminUser', function () {
   it('contains a searchbar component', function () {
     const searchBar = wrapper.find('#filterInput');
     expect(searchBar.exists()).toBe(true);
-  });
-
-  it('contains a crud ldap modal component', function () {
-    const crudLdapModal = wrapper.findComponent(CrudLdapModalComponent);
-    expect(crudLdapModal.exists()).toBe(true);
-
-    const crudLdapModalElement = wrapper.find('#crud-ldap-modal');
-    expect(crudLdapModalElement.exists()).toBe(true);
   });
 
   it('contains a crud user modal component', function () {

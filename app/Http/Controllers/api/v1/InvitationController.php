@@ -15,6 +15,11 @@ use Illuminate\Support\Str;
 
 class InvitationController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Invitation::class, 'invitation');
+    }
+
     /**
      * Check if the invitation token exists in the table
      * @param  Request      $request

@@ -10,15 +10,19 @@ localVue.use(IconsPlugin);
 
 describe('CrudModalComponent', function () {
   let wrapper;
+  let flashMessageSpySuccess;
+  let flashMessageSpyError;
+  let flashMessage;
 
   beforeEach(function () {
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
+    flashMessageSpyError = sinon.spy();
+    flashMessageSpySuccess = sinon.spy();
+    flashMessage = {
       error (param) {
-        flashMessageSpy(param);
+        flashMessageSpyError(param);
       },
       success (param) {
-        flashMessageSpy(param);
+        flashMessageSpySuccess(param);
       }
     };
 
@@ -159,6 +163,114 @@ describe('CrudModalComponent', function () {
         response: 'Mock delete success'
       }).then(function () {
         expect(wrapper.emitted().crud).toBeTruthy();
+        done();
+      });
+    });
+  });
+
+  it('shows flash message when create user method is called', function (done) {
+    // Flash message is not called at the beginning
+    expect(flashMessageSpyError.callCount).toBe(0);
+    expect(flashMessageSpySuccess.callCount).toBe(0);
+
+    // Call create user axios function
+    wrapper.vm.createUser(wrapper.vm.crudUser);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 400,
+        response: 'Mock create user failed'
+      }).then(function () {
+        expect(flashMessageSpyError.callCount).toBe(1);
+        expect(flashMessageSpySuccess.callCount).toBe(0);
+        done();
+      });
+    });
+
+    // Call create user axios function
+    wrapper.vm.createUser(wrapper.vm.crudUser);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 200,
+        response: 'Mock create user success'
+      }).then(function () {
+        expect(flashMessageSpyError.callCount).toBe(1);
+        expect(flashMessageSpySuccess.callCount).toBe(1);
+        done();
+      });
+    });
+  });
+
+  it('shows flash message when update user method is called', function (done) {
+    // Flash message is not called at the beginning
+    expect(flashMessageSpyError.callCount).toBe(0);
+    expect(flashMessageSpySuccess.callCount).toBe(0);
+
+    // Call update user axios function
+    wrapper.vm.updateUser(wrapper.vm.crudUser.id, wrapper.vm.crudUser);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 400,
+        response: 'Mock update user failed'
+      }).then(function () {
+        expect(flashMessageSpyError.callCount).toBe(1);
+        expect(flashMessageSpySuccess.callCount).toBe(0);
+        done();
+      });
+    });
+
+    // Call update user axios function
+    wrapper.vm.updateUser(wrapper.vm.crudUser.id, wrapper.vm.crudUser);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 201,
+        response: 'Mock update user success'
+      }).then(function () {
+        expect(flashMessageSpyError.callCount).toBe(1);
+        expect(flashMessageSpySuccess.callCount).toBe(1);
+        done();
+      });
+    });
+  });
+
+  it('shows flash message when delete user method is called', function (done) {
+    // Flash message is not called at the beginning
+    expect(flashMessageSpyError.callCount).toBe(0);
+    expect(flashMessageSpySuccess.callCount).toBe(0);
+
+    // Call delete user axios function
+    wrapper.vm.deleteUser(wrapper.vm.crudUser.id);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 400,
+        response: 'Mock delete user failed'
+      }).then(function () {
+        expect(flashMessageSpyError.callCount).toBe(1);
+        expect(flashMessageSpySuccess.callCount).toBe(0);
+        done();
+      });
+    });
+
+    // Call delete user axios function
+    wrapper.vm.deleteUser(wrapper.vm.crudUser.id);
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 204,
+        response: 'Mock delete user success'
+      }).then(function () {
+        expect(flashMessageSpyError.callCount).toBe(1);
+        expect(flashMessageSpySuccess.callCount).toBe(1);
         done();
       });
     });

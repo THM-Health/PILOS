@@ -3,6 +3,8 @@
 namespace Tests\Feature\api\v1;
 
 use App\Invitation;
+use App\Permission;
+use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -11,6 +13,25 @@ use Tests\TestCase;
 class InvitationTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
+
+    protected $user;
+    protected $role;
+    protected $permission;
+
+    /**
+     * Setup resources for all tests
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = factory(User::class)->create();
+
+        // Authorize user
+        $this->role       = factory(Role::class)->create(['name' => 'admin']);
+        $this->permission = factory(Permission::class)->create(['name'=>'invitations.create']);
+        $this->role->permissions()->attach($this->permission);
+        $this->user->roles()->attach($this->role);
+    }
 
     /**
      * Test that check whether an invitation token for register is valid
@@ -51,15 +72,25 @@ class InvitationTest extends TestCase
      */
     public function testCreateInvitationWithValidInputs()
     {
-        $user = factory(User::class)->create();
-
         $emails = ['max.muster@local.com'];
 
-        $response = $this->actingAs($user)->postJson(route('api.v1.invitations.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
         ]);
 
         $response->assertStatus(201);
+
+        $emails = ['mustermann.max@local.com'];
+
+        // Detach the created user roles
+        $this->user->roles()->detach(1);
+
+        // Test unauthorized
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
+            'email' => $emails
+        ]);
+
+        $response->assertStatus(403);
     }
 
     /**
@@ -69,11 +100,9 @@ class InvitationTest extends TestCase
      */
     public function testCreateInvitationWithValidInputsAndMultipleEmails()
     {
-        $user = factory(User::class)->create();
-
         $emails = ['max.muster@local.com', 'muster.max@local.com', 'max.mustermann@local.com'];
 
-        $response = $this->actingAs($user)->postJson(route('api.v1.invitations.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
         ]);
 
@@ -87,11 +116,9 @@ class InvitationTest extends TestCase
      */
     public function testCreateInvitationWithInvalidInputs()
     {
-        $user = factory(User::class)->create();
-
         $emails = ['test'];
 
-        $response = $this->actingAs($user)->postJson(route('api.v1.invitations.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
         ]);
 
@@ -111,7 +138,7 @@ class InvitationTest extends TestCase
 
         $emails = ['max.muster@local.com'];
 
-        $response = $this->actingAs($user)->postJson(route('api.v1.invitations.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
         ]);
 
@@ -129,11 +156,9 @@ class InvitationTest extends TestCase
             'email' => 'max.muster@local.com'
         ]);
 
-        $user = factory(User::class)->create();
-
         $emails = ['max.muster@local.com'];
 
-        $response = $this->actingAs($user)->postJson(route('api.v1.invitations.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
         ]);
 

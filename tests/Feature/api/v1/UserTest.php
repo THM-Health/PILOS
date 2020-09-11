@@ -2,14 +2,47 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Permission;
+use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
+
+    protected $user;
+    protected $role;
+    protected $permission;
+
+    /**
+     * Setup resources for all tests
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = factory(User::class)->create();
+
+        // Authorize user
+        $this->role       = factory(Role::class)->create(['name' => 'admin']);
+
+        $this->permission = factory(Permission::class)->create(['name'=>'users.viewAny']);
+        $this->role->permissions()->attach($this->permission);
+
+        $this->permission = factory(Permission::class)->create(['name'=>'users.create']);
+        $this->role->permissions()->attach($this->permission);
+
+        $this->permission = factory(Permission::class)->create(['name'=>'users.update']);
+        $this->role->permissions()->attach($this->permission);
+
+        $this->permission = factory(Permission::class)->create(['name'=>'users.delete']);
+        $this->role->permissions()->attach($this->permission);
+
+        $this->user->roles()->attach($this->role);
+    }
 
     /**
      * Test that get users data
@@ -18,9 +51,7 @@ class UserTest extends TestCase
      */
     public function testGetUsers()
     {
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($user)->get(route('api.v1.users.index'));
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.index'));
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -42,6 +73,20 @@ class UserTest extends TestCase
                 ]
             ]
         ]);
+
+        // Detach the created user roles
+        $this->user->roles()->detach(1);
+
+        // Test Forbidden
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.index'));
+        $response->assertForbidden();
+
+        // Logout
+        Auth::logout();
+
+        // Test unauthorized
+        $response = $this->getJson(route('api.v1.users.index'));
+        $response->assertUnauthorized();
     }
 
     /**
@@ -49,8 +94,6 @@ class UserTest extends TestCase
      */
     public function testGetUserWithValidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
             'id'        => 32,
             'firstname' => 'Max',
@@ -59,9 +102,23 @@ class UserTest extends TestCase
             'email'     => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.users.show', 32));
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.show', 32));
 
         $response->assertOk();
+
+        // Detach the created user roles
+        $this->user->roles()->detach(1);
+
+        // Test Forbidden
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.show', 32));
+        $response->assertForbidden();
+
+        // Logout
+        Auth::logout();
+
+        // Test unauthorized
+        $response = $this->getJson(route('api.v1.users.show', 32));
+        $response->assertUnauthorized();
     }
 
     /**
@@ -69,8 +126,6 @@ class UserTest extends TestCase
      */
     public function testGetUserWithInvalidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
             'id'        => 32,
             'firstname' => 'Max',
@@ -79,7 +134,7 @@ class UserTest extends TestCase
             'email'     => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.users.show', 77));
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.show', 77));
 
         $response->assertStatus(404);
     }
@@ -91,9 +146,7 @@ class UserTest extends TestCase
      */
     public function testCreateUserWithValidInputs()
     {
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($user)->postJson(route('api.v1.users.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
             'firstname' => 'New',
             'lastname'  => 'User',
             'password'  => 'secret',
@@ -102,6 +155,32 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+
+        // Detach the created user roles
+        $this->user->roles()->detach(1);
+
+        // Test Forbidden
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
+            'firstname' => 'New',
+            'lastname'  => 'User',
+            'password'  => 'secret',
+            'username'  => 'newuser',
+            'email'     => 'new@user.com'
+        ]);
+        $response->assertForbidden();
+
+        // Logout
+        Auth::logout();
+
+        // Test unauthorized
+        $response = $this->postJson(route('api.v1.users.store'), [
+            'firstname' => 'New',
+            'lastname'  => 'User',
+            'password'  => 'secret',
+            'username'  => 'newuser',
+            'email'     => 'new@user.com'
+        ]);
+        $response->assertUnauthorized();
     }
 
     /**
@@ -111,9 +190,7 @@ class UserTest extends TestCase
      */
     public function testCreateUserWithInvalidInputs()
     {
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($user)->postJson(route('api.v1.users.store'), [
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
             'firstname' => 'Max',
             'lastname'  => 'Mustermann',
             'password'  => 'secret',
@@ -130,8 +207,6 @@ class UserTest extends TestCase
      */
     public function testDeleteUserWithValidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
            'id'        => 32,
            'firstname' => 'Max',
@@ -140,9 +215,32 @@ class UserTest extends TestCase
             'email'    => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', 32));
+        $response = $this->actingAs($this->user)->deleteJson(route('api.v1.users.destroy', 32));
 
         $response->assertStatus(204);
+
+        //recreate user
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ])->save();
+
+        // Detach the created user roles
+        $this->user->roles()->detach(1);
+
+        // Test Forbidden
+        $response = $this->actingAs($this->user)->deleteJson(route('api.v1.users.destroy', 32));
+        $response->assertForbidden();
+
+        // Logout
+        Auth::logout();
+
+        // Test unauthorized
+        $response = $this->deleteJson(route('api.v1.users.destroy', 32));
+        $response->assertUnauthorized();
     }
 
     /**
@@ -152,8 +250,6 @@ class UserTest extends TestCase
      */
     public function testDeleteUserWithInvalidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
             'id'        => 32,
             'firstname' => 'Max',
@@ -162,7 +258,7 @@ class UserTest extends TestCase
             'email'     => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', 77));
+        $response = $this->actingAs($this->user)->deleteJson(route('api.v1.users.destroy', 77));
 
         $response->assertStatus(404);
     }
@@ -174,11 +270,9 @@ class UserTest extends TestCase
      */
     public function testDeleteUserItself()
     {
-        $user = factory(User::class)->create();
+        $response = $this->actingAs($this->user)->deleteJson(route('api.v1.users.destroy', $this->user->id));
 
-        $response = $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', $user->id));
-
-        $response->assertStatus(400);
+        $response->assertStatus(403);
     }
 
     /**
@@ -188,8 +282,6 @@ class UserTest extends TestCase
      */
     public function testUpdateUserWithValidInputsAndValidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
             'id'        => 32,
             'firstname' => 'Max',
@@ -198,7 +290,7 @@ class UserTest extends TestCase
             'email'     => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->putJson(route('api.v1.users.update', 32), [
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.users.update', 32), [
             'firstname' => 'updatemax',
             'lastname'  => 'updatemustermann',
             'username'  => 'updatemtm',
@@ -206,6 +298,30 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(202);
+
+        // Detach the created user roles
+        $this->user->roles()->detach(1);
+
+        // Test Forbidden
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.users.update', 32), [
+            'firstname' => 'updatemax',
+            'lastname'  => 'updatemustermann',
+            'username'  => 'updatemtm',
+            'email'     => 'update@mail.com'
+        ]);
+        $response->assertForbidden();
+
+        // Logout
+        Auth::logout();
+
+        // Test unauthorized
+        $response = $this->putJson(route('api.v1.users.update', 32), [
+            'firstname' => 'updatemax',
+            'lastname'  => 'updatemustermann',
+            'username'  => 'updatemtm',
+            'email'     => 'update@mail.com'
+        ]);
+        $response->assertUnauthorized();
     }
 
     /**
@@ -215,8 +331,6 @@ class UserTest extends TestCase
      */
     public function testUpdateUserWithValidInputsAndInvalidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
             'id'        => 32,
             'firstname' => 'Max',
@@ -225,7 +339,7 @@ class UserTest extends TestCase
             'email'     => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->putJson(route('api.v1.users.update', 77), [
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.users.update', 77), [
             'firstname' => 'updatemax',
             'lastname'  => 'updatemustermann',
             'username'  => 'updatemtm',
@@ -242,8 +356,6 @@ class UserTest extends TestCase
      */
     public function testUpdateUserWithInvalidInputsAndValidUserId()
     {
-        $user = factory(User::class)->create();
-
         factory(User::class)->create([
             'id'        => 32,
             'firstname' => 'Max',
@@ -252,7 +364,7 @@ class UserTest extends TestCase
             'email'     => 'max@mustermann.com'
         ])->save();
 
-        $response = $this->actingAs($user)->putJson(route('api.v1.users.update', 32), [
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.users.update', 32), [
             'firstname' => 'updatemax',
             'lastname'  => 'updatemustermann',
             'username'  => 'updatemtm'

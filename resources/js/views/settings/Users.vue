@@ -96,20 +96,6 @@
               <b-col cols="9">{{ $t('settings.users.fields.delete') }}</b-col>
             </b-row>
           </b-dropdown-item>
-          <b-dropdown-item v-if="row.item.authenticator === 'ldap'"
-                           @click="populateSelectedUser(row.item);openLdapModal('update')">
-            <b-row class="text-muted">
-              <b-col cols="3"><i class="fas fa fa-user-cog"></i></b-col>
-              <b-col cols="9">{{ $t('settings.users.fields.ldapedit') }}</b-col>
-            </b-row>
-          </b-dropdown-item>
-          <b-dropdown-item v-if="row.item.authenticator === 'ldap'"
-                           @click="populateSelectedUser(row.item);openLdapModal('delete')">
-            <b-row class="text-muted">
-              <b-col cols="3"><i class="fas fa fa-user-times"></i></b-col>
-              <b-col cols="9">{{ $t('settings.users.fields.ldapdelete') }}</b-col>
-            </b-row>
-          </b-dropdown-item>
           <b-dropdown-item @click="toggleRowDetails(row.item)">
             <b-row class="text-muted">
               <b-col cols="3"><i class="fas fa fa-user-check"></i></b-col>
@@ -193,16 +179,6 @@
       v-bind:modal-type="modalType">
     </crud-modal-component>
 
-    <!-- CRUD LDAP modal -->
-    <crud-ldap-modal-component
-      ref="crudUserLdapModal"
-      @crud-ldap="getUsers(currentPage)"
-      @crud-ldap-delete="deleteUser(selectedUser.id)"
-      v-bind:modal-id="'crud-ldap-modal'"
-      v-bind:modal-type="ldapModalType"
-      v-bind:crud-user="selectedUser">
-    </crud-ldap-modal-component>
-
     <!-- Invite modal-->
     <invite-modal-component v-bind:modal-id="'invite-modal'"></invite-modal-component>
   </div>
@@ -213,13 +189,11 @@ import Base from '../../api/base';
 import moment from 'moment';
 import CrudModalComponent from '../../components/Admin/users/CrudModalComponent';
 import InviteModalComponent from '../../components/Admin/users/InviteModalComponent';
-import CrudLdapModalComponent from '../../components/Admin/users/CrudLdapModalComponent';
 
 export default {
   components: {
     CrudModalComponent,
-    InviteModalComponent,
-    CrudLdapModalComponent
+    InviteModalComponent
   },
   data () {
     return {
@@ -301,10 +275,6 @@ export default {
     openModal (modalType) {
       this.modalType = modalType;
       this.$bvModal.show('crud-modal');
-    },
-    openLdapModal (ldapModalType) {
-      this.ldapModalType = ldapModalType;
-      this.$bvModal.show('crud-ldap-modal');
     },
     populateSelectedUser (user) {
       this.selectedUser.id = user.id;

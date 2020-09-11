@@ -21,9 +21,7 @@ export default {
     tooltip: {
       create: 'Create an user.',
       invite: 'Invite an user.',
-      removeEmail: 'click to remove',
-      deleteLdap: 'Delete LDAP Data',
-      updateLdap: 'Update LDAP Data'
+      removeEmail: 'click to remove'
     },
     fields: {
       id: 'User ID',
@@ -40,23 +38,13 @@ export default {
       edit: 'Edit',
       delete: 'Delete',
       details: 'Details',
-      password: 'Password',
-      ldapedit: 'Edit LDAP',
-      ldapdelete: 'Delete LDAP',
-      uid: 'uid',
-      mail: 'mail',
-      cn: 'cn',
-      givenname: 'givenname',
-      sn: 'sn',
-      entryuuid: 'entryuuid'
+      password: 'Password'
     },
     modal: {
       create: 'Create User',
       update: 'Update User',
       delete: 'Delete Confirmation',
       deleteContent: 'Are you sure? This action cannot be undone!',
-      updateLdap: 'LDAP edit',
-      deleteLdap: 'Delete Confirmation for LDAP Data',
       invite: 'Invite User',
       invitePlaceholder: 'Email address of a user',
       inviteButton: 'Send invitation email',
@@ -86,26 +74,6 @@ export default {
     editFailed: {
       message: 'Something went wrong! Please check your connection!',
       title: 'Edit'
-    },
-    deleteLdapSuccess: {
-      message: 'LDAP data deleted successfully!',
-      title: 'LDAP Delete'
-    },
-    deleteLdapFailed: {
-      message: 'Something went wrong! Please check your connection!',
-      title: 'LDAP Delete'
-    },
-    editLdapSuccess: {
-      message: 'LDAP data edited successfully',
-      title: 'LDAP Edit'
-    },
-    editLdapFailed: {
-      message: 'Something went wrong! Please check your connection!',
-      title: 'LDAP Edit'
-    },
-    getLdapFailed: {
-      message: 'Something went wrong! Please check your connection!',
-      title: 'LDAP Get'
     },
     inviteSuccess: {
       message: 'Invitation sent successfully!',

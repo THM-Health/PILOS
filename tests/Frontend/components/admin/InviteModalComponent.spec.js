@@ -10,15 +10,19 @@ localVue.use(IconsPlugin);
 
 describe('InviteModalComponent', function () {
   let wrapper;
+  let flashMessageSpySuccess;
+  let flashMessageSpyError;
+  let flashMessage;
 
   beforeEach(function () {
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
+    flashMessageSpyError = sinon.spy();
+    flashMessageSpySuccess = sinon.spy();
+    flashMessage = {
       error (param) {
-        flashMessageSpy(param);
+        flashMessageSpyError(param);
       },
       success (param) {
-        flashMessageSpy(param);
+        flashMessageSpySuccess(param);
       }
     };
 
@@ -126,5 +130,45 @@ describe('InviteModalComponent', function () {
     expect(wrapper.vm.inputEmail).toBe('');
     expect(wrapper.vm.emails.length).toBe(0);
     expect(wrapper.vm.errors.length).toBe(0);
+  });
+
+  it('shows error flash message when invite users failed', function (done) {
+    // Flash message is not called at the beginning
+    expect(flashMessageSpySuccess.callCount).toBe(0);
+
+    // Call invite users axios function
+    wrapper.vm.inviteUsers();
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 422,
+        response: { message: 'failed', errors: { email: ['Mock invite users failed.'] } }
+      }).then(function () {
+        expect(flashMessageSpySuccess.callCount).toBe(0);
+        expect(flashMessageSpyError.callCount).toBe(1);
+        done();
+      });
+    });
+  });
+
+  it('shows success flash message when invite users succeeded', function (done) {
+    // Flash message is not called at the beginning
+    expect(flashMessageSpySuccess.callCount).toBe(0);
+
+    // Call invite users axios function
+    wrapper.vm.inviteUsers();
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 200,
+        response: 'Mock invite users success'
+      }).then(function () {
+        expect(flashMessageSpySuccess.callCount).toBe(1);
+        expect(flashMessageSpyError.callCount).toBe(0);
+        done();
+      });
+    });
   });
 });
