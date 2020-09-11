@@ -8,10 +8,10 @@ use App\Http\Requests\CreateRoom;
 use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
-use App\RoomType;
 use App\Room;
 use App\Server;
 use Auth;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
@@ -25,17 +25,21 @@ class RoomController extends Controller
     /**
      * Return a json array with all rooms the user owners or is member of
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([
-                'data' => [
-                    'myRooms'     => \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->orderBy('name')->get()),
-                    'sharedRooms' => \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->orderBy('name')->get()),
-                    'roomTypes'   => \App\Http\Resources\RoomType::collection(RoomType::all()),
-                ]
-        ]);
+        if ($request->has('filter')) {
+            if ($request->filter === 'own') {
+                return \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->orderBy('name')->get());
+            }
+
+            if ($request->filter === 'shared') {
+                return \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->orderBy('name')->get());
+            }
+        }
+
+        return response()->noContent();
     }
 
     /**
