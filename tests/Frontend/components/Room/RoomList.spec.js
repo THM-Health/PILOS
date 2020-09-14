@@ -9,7 +9,6 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
