@@ -29,17 +29,33 @@ class RoomController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->has('filter')) {
-            if ($request->filter === 'own') {
-                return \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->orderBy('name')->get());
-            }
+        $collection = null;
 
-            if ($request->filter === 'shared') {
-                return \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->orderBy('name')->get());
+        if ($request->has('filter')) {
+            switch ($request->filter) {
+                case 'own':
+                    $collection = Auth::user()->myRooms()->with('owner');
+
+                    break;
+                case 'shared':
+                    $collection =  Auth::user()->sharedRooms()->with('owner');
+
+                    break;
+                default:
+                    abort(400);
             }
+        } else {
+            //TODO implement public room list
+            abort(400);
         }
 
-        return response()->noContent();
+        if ($request->has('search') && trim($request->search) != '') {
+            $collection = $collection->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+
+        return \App\Http\Resources\Room::collection($collection);
     }
 
     /**

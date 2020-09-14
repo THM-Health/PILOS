@@ -69,8 +69,8 @@ describe('RoomList', function () {
     moxios.uninstall();
   });
 
-  const exampleRoomListResponse = {
-    myRooms: [
+  const exampleOwnRoomResponse = {
+    data: [
       {
         id: 'abc-def-123',
         name: 'Meeting One',
@@ -84,7 +84,17 @@ describe('RoomList', function () {
         }
       }
     ],
-    sharedRooms: [
+    meta: {
+      current_page: 1,
+      from: 1,
+      last_page: 1,
+      per_page: 10,
+      to: 1,
+      total: 1
+    }
+  };
+  const exampleSharedRoomResponse = {
+    data: [
       {
         id: 'def-abc-123',
         name: 'Meeting Two',
@@ -109,72 +119,37 @@ describe('RoomList', function () {
           default: false
         }
       }
+    ],
+    meta: {
+      current_page: 1,
+      from: 1,
+      last_page: 1,
+      per_page: 10,
+      to: 5,
+      total: 2
+    }
+  };
+  const exampleRoomTypeResponse = {
+    data: [
+      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27', default: false },
+      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true },
+      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E', default: false },
+      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4', default: false }
     ]
   };
 
-  it('server error with route', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
-      status: 500
-    });
-
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store
-    });
-
-    const from = { matched: ['test'] };
-
-    RoomList.beforeRouteEnter.call(view.vm, undefined, from, async error => {
-      expect(error.response.status).toBe(500);
-      done();
-    });
-  });
-
-  it('server error without route', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
-      status: 500,
-      response: { message: 'test' }
-    });
-
-    const flashMessageSpy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(flashMessageSpy);
-
-    const routerSpy = sinon.spy();
-    const router = new VueRouter();
-    router.push = routerSpy;
-
-    const view = mount(RoomList, {
-      localVue,
-      router,
-      mocks: {
-        $t: (key) => key
-      },
-      store,
-      Base
-    });
-
-    const from = { matched: [] };
-
-    RoomList.beforeRouteEnter.call(view.vm, undefined, from, async next => {
-      next(view.vm);
-      expect(flashMessageSpy.calledOnce).toBeTruthy();
-      expect(flashMessageSpy.getCall(0).args[0].response.data.message).toEqual('test');
-
-      sinon.assert.calledOnce(routerSpy);
-      sinon.assert.calledWith(routerSpy, '/');
-
-      Base.error.restore();
-      done();
-    });
-  });
-
   it('check list of rooms', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
+    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
-      response: { data: exampleRoomListResponse }
+      response: exampleOwnRoomResponse
+    });
+    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+      status: 200,
+      response: exampleSharedRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
     });
 
     const view = mount(RoomList, {
@@ -185,13 +160,12 @@ describe('RoomList', function () {
       store
     });
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
+    moxios.wait(async () => {
       await view.vm.$nextTick();
 
-      expect(view.vm.rooms).toEqual(exampleRoomListResponse);
+      expect(view.vm.ownRooms).toEqual(exampleOwnRoomResponse);
+      expect(view.vm.sharedRooms).toEqual(exampleSharedRoomResponse);
       const rooms = view.findAllComponents(RoomComponent);
-      expect(rooms.length).toBe(3);
 
       expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
       expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
@@ -242,27 +216,17 @@ describe('RoomList', function () {
   });
 
   it('test reload function and room limit reach event', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
+    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
-      response: {
-        data: {
-          myRooms: [
-            {
-              id: 'abc-def-123',
-              name: 'Meeting One',
-              owner: 'John Doe',
-              type: {
-                id: 2,
-                short: 'ME',
-                description: 'Meeting',
-                color: '#4a5c66',
-                default: false
-              }
-            }
-          ],
-          sharedRooms: []
-        }
-      }
+      response: exampleOwnRoomResponse
+    });
+    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+      status: 200,
+      response: exampleSharedRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
     });
 
     const newUser = _.cloneDeep(exampleUser);
@@ -277,45 +241,49 @@ describe('RoomList', function () {
       store
     });
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
+    moxios.wait(async () => {
       await view.vm.$nextTick();
       // find current amount of rooms
       const rooms = view.findAllComponents(RoomComponent);
-      expect(rooms.length).toBe(1);
+      expect(rooms.length).toBe(3);
 
       // change response and fire event
-      overrideStub('/api/v1/rooms', {
+      overrideStub('/api/v1/rooms?filter=own&page=1', {
         status: 200,
         response: {
-          data: {
-            myRooms: [
-              {
-                id: 'abc-def-123',
-                name: 'Meeting One',
-                owner: 'John Doe',
-                type: {
-                  id: 2,
-                  short: 'ME',
-                  description: 'Meeting',
-                  color: '#4a5c66',
-                  default: false
-                }
-              },
-              {
-                id: 'abc-def-456',
-                name: 'Meeting Two',
-                owner: 'John Doe',
-                type: {
-                  id: 2,
-                  short: 'ME',
-                  description: 'Meeting',
-                  color: '#4a5c66',
-                  default: false
-                }
+          data: [
+            {
+              id: 'abc-def-123',
+              name: 'Meeting One',
+              owner: 'John Doe',
+              type: {
+                id: 2,
+                short: 'ME',
+                description: 'Meeting',
+                color: '#4a5c66',
+                default: false
               }
-            ],
-            sharedRooms: []
+            },
+            {
+              id: 'abc-def-345',
+              name: 'Meeting Two',
+              owner: 'John Doe',
+              type: {
+                id: 2,
+                short: 'ME',
+                description: 'Meeting',
+                color: '#4a5c66',
+                default: false
+              }
+            }
+          ],
+          meta: {
+            current_page: 1,
+            from: 1,
+            last_page: 1,
+            per_page: 10,
+            to: 1,
+            total: 1
           }
         }
       });
@@ -329,7 +297,7 @@ describe('RoomList', function () {
         view.vm.$nextTick();
         // check if now two rooms are displayed
         const rooms = view.findAllComponents(RoomComponent);
-        expect(rooms.length).toBe(2);
+        expect(rooms.length).toBe(4);
 
         // try to find new room component, should be missing as the limit is reached
         const newRoomComponent = view.findComponent(NewRoomComponent);

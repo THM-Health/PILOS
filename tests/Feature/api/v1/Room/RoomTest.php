@@ -224,17 +224,16 @@ class RoomTest extends TestCase
         $rooms = factory(Room::class, 4)->create();
 
         // Testing guests access
-        $this->getJson(route('api.v1.rooms.index'))
+        $this->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertUnauthorized();
 
-        // Testing authorized users access, structure and empty list
+        // Testing authorized users access
+        // Missing filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
-            ->assertOk()
-            ->assertJsonStructure(['data' => [
-                'myRooms',
-                'sharedRooms'
-            ]])
-            ->assertJsonMissing(['id'=>$rooms[0]->id]);
+            ->assertStatus(400);
+        // Invalid filter
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
+            ->assertStatus(400);
 
         // Testing ownership and membership
         $rooms[0]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
@@ -244,12 +243,16 @@ class RoomTest extends TestCase
         $rooms[3]->owner()->associate($this->user);
         $rooms[3]->save();
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+        // Testing working filter
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$rooms[0]->id])
-            ->assertJsonFragment(['id'=>$rooms[1]->id])
             ->assertJsonFragment(['id'=>$rooms[2]->id])
             ->assertJsonFragment(['id'=>$rooms[3]->id]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$rooms[0]->id])
+            ->assertJsonFragment(['id'=>$rooms[1]->id]);
     }
 
     /*
