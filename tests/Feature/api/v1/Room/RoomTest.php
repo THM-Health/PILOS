@@ -255,6 +255,43 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id'=>$rooms[1]->id]);
     }
 
+    /**
+     * Test search for rooms
+     */
+    public function testRoomSearch()
+    {
+        $room = factory(Room::class)->create(['name'=>'Meeting One']);
+
+        // Testing ownership and membership
+        $room->owner()->associate($this->user);
+        $room->save();
+
+        // Testing without query
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with empty query
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with fragment of the room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=One')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with full name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting One')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with invalid name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting Two')
+            ->assertOk()
+            ->assertJsonMissing(['id'=>$room->id]);
+    }
+
     /*
      * Test callback route for meetings
      */
