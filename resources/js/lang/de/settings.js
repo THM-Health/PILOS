@@ -25,7 +25,8 @@ export default {
       edit: 'Bearbeiten',
       delete: 'Löschen',
       details: 'Details',
-      password: 'Kennwort'
+      password: 'Kennwort',
+      passwordConfirmation: 'Kennwort Bestätigung'
     },
     modal: {
       create: 'Benutzer erstellen',

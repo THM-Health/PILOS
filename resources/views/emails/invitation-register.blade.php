@@ -5,7 +5,7 @@
 
 @lang('email.invite.message')
 
-@component('mail::button', ['url' => env('APP_URL') . '/register/invitation?invitation_token=' . $invitation->invitation_token, 'color' => 'success'])
+@component('mail::button', ['url' => env('APP_URL') . '/register?invitation_token=' . $invitation->invitation_token, 'color' => 'success'])
 @lang('email.invite.register')
 @endcomponent
 

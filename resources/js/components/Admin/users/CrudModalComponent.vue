@@ -88,6 +88,31 @@
                 </template>
               </b-form-invalid-feedback>
             </b-form-group>
+            <b-form-group id="crud-password-confirmation"
+                          label-for="crud-input-password-confirmation"
+                          v-if="modalType !== 'update'">
+              <b-input-group>
+                <b-input-group-prepend v-b-tooltip.hover :title="$t('settings.users.fields.passwordConfirmation')">
+                  <b-input-group-text class="bg-success text-white">
+                    <b-icon icon="shield-lock-fill"></b-icon>
+                  </b-input-group-text>
+                </b-input-group-prepend>
+                <b-form-input id="crud-input-password-confirmation"
+                              v-model="crudUser.password_confirmation"
+                              :placeholder="$t('settings.users.fields.passwordConfirmation')"
+                              type="password"
+                              required
+                              :disabled="isBusy"
+                              :state="errors !== null && errors.password_confirmation && errors.password_confirmation.length > 0 ? false: null">
+                </b-form-input>
+              </b-input-group>
+              <b-form-invalid-feedback
+                :state="errors !== null && errors.password_confirmation && errors.password_confirmation.length > 0 ? false: null">
+                <template v-for="error in errors.password_confirmation">
+                  {{ error }}
+                </template>
+              </b-form-invalid-feedback>
+            </b-form-group>
             <b-form-group id="crud-firstname"
                           label-for="crud-input-firstname">
               <b-input-group>
@@ -185,6 +210,7 @@ export default {
           firstname: user.firstname,
           lastname: user.lastname,
           password: user.password,
+          password_confirmation: user.password_confirmation,
           email: user.email,
           username: user.username
         }
@@ -196,7 +222,7 @@ export default {
         this.errors = [];
       }).catch((error) => {
         // TODO error handling
-        // this.errors = error.response.data.errors;
+        this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.createFailed'));
 
@@ -228,7 +254,7 @@ export default {
         this.errors = [];
       }).catch(error => {
         // TODO error handling
-        // this.errors = error.response.data.errors;
+        this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.editFailed'));
 
@@ -251,7 +277,7 @@ export default {
         this.errors = [];
       }).catch((error) => {
         // TODO error handling
-        // this.errors = error.response.data.errors;
+        this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.deleteFailed'));
 
@@ -267,6 +293,7 @@ export default {
       this.crudUser.lastname = null;
       this.crudUser.email = null;
       this.crudUser.password = null;
+      this.crudUser.password_confirmation = null;
       this.crudUser.username = null;
       this.crudUser.guid = null;
       this.crudUser.authenticator = null;

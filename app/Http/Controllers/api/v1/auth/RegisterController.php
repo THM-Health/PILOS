@@ -3,68 +3,33 @@
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUser;
 use App\Http\Requests\StoreUserInvitation;
 use App\Invitation;
 use App\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
-    use RegistersUsers;
-
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * Create a new user
+     * @param StoreUser $request
+     * @return JsonResponse
      */
-    public function __construct()
-    {
-        $this->middleware('guest');
-    }
+    public function register(StoreUser $request){
+        $user = new User();
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array                                      $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-    }
+        $user->firstname = $request->firstname;
+        $user->lastname  = $request->lastname;
+        $user->username  = $request->username;
+        $user->email     = $request->email;
+        $user->password  = Hash::make($request->password);
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array     $data
-     * @return \App\User
-     */
-    protected function create(array $data)
-    {
-        return User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        $store = $user->save();
+
+        return ($store === true) ? (response()->json($user, 201)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
     }
 
     /**
@@ -92,7 +57,12 @@ class RegisterController extends Controller
 
         $store = $user->save();
 
-        // Update registered at value to now
+        // If save failed
+        if (!$store) {
+            return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
+        }
+
+        // Update registered at value to current time, make it not reusable anymore
         $invitation->registered_at = now();
         $updateInvitation          = $invitation->save();
 

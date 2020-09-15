@@ -143,7 +143,8 @@ return [
             'exists' => 'The LDAP Model could not be found.'
         ],
         'user' => [
-            'exists' => 'The selected user could not be found.'
+            'exists' => 'The selected user could not be found.',
+            'password' => 'The password must contain at least one character from the following four categories: Uppercase letter (A - Z), lowercase letter (a - z), number (0 - 9), non-alphanumeric character (for example: !, $, #, or %).'
         ],
         'room' => [
             'already_member' => 'The user is already member of the room.'

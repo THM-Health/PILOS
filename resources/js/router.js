@@ -1,6 +1,6 @@
 import VueRouter from 'vue-router';
 import Login from './views/Login';
-import RegisterInvitation from './views/RegisterInvitation';
+import Register from './views/Register';
 import NotFound from './views/NotFound';
 import RoomsIndex from './views/rooms/Index';
 import RoomView from './views/rooms/View';
@@ -28,9 +28,9 @@ export const routes = [
     component: Login
   },
   {
-    path: '/register/invitation',
-    name: 'register-invitation',
-    component: RegisterInvitation
+    path: '/register',
+    name: 'register',
+    component: Register
   },
   {
     path: '/rooms',

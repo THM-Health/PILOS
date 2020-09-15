@@ -3,6 +3,7 @@ export default {
   logout: 'Logout',
   register: 'Register',
   password: 'Password',
+  passwordConfirmation: 'Password confirmation',
   firstname: 'Firstname',
   lastname: 'Lastname',
   username: 'Username',

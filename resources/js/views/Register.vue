@@ -81,6 +81,30 @@
                       </template>
                     </b-form-invalid-feedback>
                   </b-form-group>
+                  <b-form-group id="register-password-confirmation"
+                                label-for="register-input-password-confirmation">
+                    <b-input-group>
+                      <b-input-group-prepend v-b-tooltip.hover :title="$t('auth.passwordConfirmation')">
+                        <b-input-group-text class="bg-success text-white">
+                          <b-icon icon="shield-lock-fill"></b-icon>
+                        </b-input-group-text>
+                      </b-input-group-prepend>
+                      <b-form-input id="register-input-password-confirmation"
+                                    v-model="passwordConfirmation"
+                                    :placeholder="$t('auth.passwordConfirmation')"
+                                    type="password"
+                                    required
+                                    :disabled="isBusy"
+                                    :state="errors !== null && errors.password_confirmation && errors.password_confirmation.length > 0 ? false: null">
+                      </b-form-input>
+                    </b-input-group>
+                    <b-form-invalid-feedback
+                      :state="errors !== null && errors.password_confirmation && errors.password_confirmation.length > 0 ? false: null">
+                      <template v-for="error in errors.password_confirmation">
+                        {{ error }}
+                      </template>
+                    </b-form-invalid-feedback>
+                  </b-form-group>
                   <b-form-group id="register-firstname"
                                 label-for="register-input-firstname">
                     <b-input-group>
@@ -149,23 +173,61 @@
 
 <script>
 import Base from '../api/base';
+import { mapGetters } from 'vuex';
 
 export default {
   data () {
     return {
       email: null,
       password: null,
+      passwordConfirmation: null,
       firstname: null,
       lastname: null,
       username: null,
       invitationToken: null,
-      isBusy: true,
+      isBusy: false,
+      isPublicRegistration: null,
       errors: []
     };
   },
   methods: {
     onSubmit () {
-      this.invitationRegister();
+      (this.isPublicRegistration === true) ? this.register() : this.invitationRegister();
+    },
+    register () {
+      this.isBusy = true;
+
+      Base.call('register', {
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'post',
+        data: {
+          firstname: this.firstname,
+          lastname: this.lastname,
+          email: this.email,
+          username: this.username,
+          password: this.password,
+          password_confirmation: this.passwordConfirmation
+        }
+      }).then(response => {
+        this.flashMessage.success(this.$t('settings.users.createSuccess'));
+
+        this.$bvModal.hide(this.modalId);
+
+        this.errors = [];
+
+        this.$router.push('/login');
+      }).catch((error) => {
+        // TODO error handling
+        this.errors = error.response.data.errors;
+
+        this.flashMessage.error(this.$t('settings.users.createFailed'));
+
+        throw error;
+      }).finally(() => {
+        this.isBusy = false;
+      });
     },
     invitationRegister () {
       this.isBusy = true;
@@ -181,6 +243,7 @@ export default {
           email: this.email,
           username: this.username,
           password: this.password,
+          password_confirmation: this.passwordConfirmation,
           invitation_token: this.invitationToken
         }
       }).then(response => {
@@ -203,6 +266,7 @@ export default {
       });
     },
     checkInvitationToken () {
+      this.isBusy = true;
       this.invitationToken = this.$route.query.invitation_token;
 
       Base.call('invitation/checktoken', {
@@ -226,7 +290,16 @@ export default {
     }
   },
   mounted () {
-    this.checkInvitationToken();
+    this.isPublicRegistration = this.settings('open_registration');
+
+    if (!this.isPublicRegistration) {
+      this.checkInvitationToken();
+    }
+  },
+  computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    })
   }
 };
 </script>

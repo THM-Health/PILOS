@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Lang;
 
 class StoreUserInvitation extends FormRequest
 {
@@ -24,12 +25,21 @@ class StoreUserInvitation extends FormRequest
     public function rules()
     {
         return [
-            'firstname'        => 'required|string|max:255',
-            'lastname'         => 'required|string|max:255',
-            'email'            => 'required|email|max:255|unique:users,email',
-            'username'         => 'required|string|max:255|unique:users,username',
-            'password'         => 'required|password|string|max:255',
-            'invitation_token' => 'required|uuid|max:255'
+            'firstname'             => 'required|string|max:255',
+            'lastname'              => 'required|string|max:255',
+            'email'                 => 'required|email|max:255|unique:users,email',
+            'username'              => 'required|string|max:255|unique:users,username',
+            'password'              => ['required','string', 'confirmed','regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/','min:8','max:20'],
+            'password_confirmation' => 'required|string|max:255',
+            'invitation_token'      => 'required|string|max:255'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            // Password should have at least 1 lowercase AND 1 uppercase AND 1 number AND 1 symbol
+            'password.regex' => Lang::get('validation.custom.user.password')
         ];
     }
 }

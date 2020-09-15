@@ -23,12 +23,13 @@ class RegisterTest extends TestCase
         ]);
 
         $response = $this->postJson(route('api.v1.invitationRegister'), [
-            'firstname'        => 'New',
-            'lastname'         => 'User',
-            'password'         => 'secret',
-            'username'         => 'newuser',
-            'email'            => $invitation->email,
-            'invitation_token' => $invitation->invitation_token
+            'firstname'             => 'New',
+            'lastname'              => 'User',
+            'password'              => 'N3wUser.',
+            'password_confirmation' => 'N3wUser.',
+            'username'              => 'newuser',
+            'email'                 => 'newuser@local.com',
+            'invitation_token'      => $invitation->invitation_token
         ]);
 
         $response->assertStatus(201);
@@ -46,15 +47,16 @@ class RegisterTest extends TestCase
         ]);
 
         $response = $this->postJson(route('api.v1.invitationRegister'), [
-            'firstname'        => 'New',
-            'lastname'         => 'User',
-            'password'         => 'secret',
-            'username'         => 'newuser',
-            'email'            => $invitation->email,
-            'invitation_token' => 'invalidtoken'
+            'firstname'             => 'New',
+            'lastname'              => 'User',
+            'password'              => 'N3wUser.',
+            'password_confirmation' => 'N3wUser.',
+            'username'              => 'newuser',
+            'email'                 => $invitation->email,
+            'invitation_token'      => 'invalidtoken'
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(400);
     }
 
     /**
@@ -71,12 +73,13 @@ class RegisterTest extends TestCase
         ]);
 
         $response = $this->postJson(route('api.v1.invitationRegister'), [
-            'firstname'        => 'New',
-            'lastname'         => 'User',
-            'password'         => 'secret',
-            'username'         => 'newuser',
-            'email'            => $invitation->email,
-            'invitation_token' => $invitation->invitation_token
+            'firstname'             => 'New',
+            'lastname'              => 'User',
+            'password'              => 'N3wUser.',
+            'password_confirmation' => 'N3wUser.',
+            'username'              => 'newuser',
+            'email'                 => $invitation->email,
+            'invitation_token'      => $invitation->invitation_token
         ]);
 
         $response->assertStatus(400);

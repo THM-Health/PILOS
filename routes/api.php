@@ -40,11 +40,10 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 
+        Route::post('register', 'RegisterController@register')->name('register');
         Route::post('register/invitation', 'RegisterController@invitationRegister')->name('invitationRegister');
 
         // TODO: Implement or remove this completely
-//        Route::post('register', 'RegisterController@register');
-//
 //        Route::post('password/reset', 'ResetPasswordController@reset');
 //        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
 //        Route::post('password/confirm', 'ConfirmPasswordController@confirm');

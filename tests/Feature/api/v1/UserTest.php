@@ -147,11 +147,12 @@ class UserTest extends TestCase
     public function testCreateUserWithValidInputs()
     {
         $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
-            'firstname' => 'New',
-            'lastname'  => 'User',
-            'password'  => 'secret',
-            'username'  => 'newuser',
-            'email'     => 'new@user.com'
+            'firstname'              => 'New',
+            'lastname'               => 'User',
+            'password'               => 'N3wUser.',
+            'password_confirmation'  => 'N3wUser.',
+            'username'               => 'newuser',
+            'email'                  => 'new@user.com'
         ]);
 
         $response->assertStatus(201);
@@ -161,11 +162,12 @@ class UserTest extends TestCase
 
         // Test Forbidden
         $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
-            'firstname' => 'New',
-            'lastname'  => 'User',
-            'password'  => 'secret',
-            'username'  => 'newuser',
-            'email'     => 'new@user.com'
+            'firstname'              => 'New',
+            'lastname'               => 'User',
+            'password'               => 'N3wUser.',
+            'password_confirmation'  => 'N3wUser.',
+            'username'               => 'newuser',
+            'email'                  => 'new@user.com'
         ]);
         $response->assertForbidden();
 
@@ -174,11 +176,12 @@ class UserTest extends TestCase
 
         // Test unauthorized
         $response = $this->postJson(route('api.v1.users.store'), [
-            'firstname' => 'New',
-            'lastname'  => 'User',
-            'password'  => 'secret',
-            'username'  => 'newuser',
-            'email'     => 'new@user.com'
+            'firstname'              => 'New',
+            'lastname'               => 'User',
+            'password'               => 'N3wUser.',
+            'password_confirmation'  => 'N3wUser.',
+            'username'               => 'newuser',
+            'email'                  => 'new@user.com'
         ]);
         $response->assertUnauthorized();
     }
@@ -190,11 +193,24 @@ class UserTest extends TestCase
      */
     public function testCreateUserWithInvalidInputs()
     {
+        // False password format test
         $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
-            'firstname' => 'Max',
-            'lastname'  => 'Mustermann',
-            'password'  => 'secret',
-            'email'     => 'max@mustermann.com',
+            'firstname'              => 'Max',
+            'lastname'               => 'Mustermann',
+            'password'               => 'falsepassword',
+            'password_confirmation'  => 'falsepassword',
+            'email'                  => 'max@mustermann.com',
+        ]);
+
+        $response->assertStatus(422);
+
+        // Password confirmation not same test
+        $response = $this->actingAs($this->user)->postJson(route('api.v1.users.store'), [
+            'firstname'              => 'Max',
+            'lastname'               => 'Mustermann',
+            'password'               => 'N3wUser.',
+            'password_confirmation'  => 'N3wUser,',
+            'email'                  => 'max@mustermann.com',
         ]);
 
         $response->assertStatus(422);

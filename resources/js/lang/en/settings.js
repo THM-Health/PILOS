@@ -38,7 +38,8 @@ export default {
       edit: 'Edit',
       delete: 'Delete',
       details: 'Details',
-      password: 'Password'
+      password: 'Password',
+      passwordConfirmation: 'Password confirmation'
     },
     modal: {
       create: 'Create User',

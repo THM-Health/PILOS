@@ -70,5 +70,6 @@ return [
     'defaults' => [
         'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
         'room_limit' => env('DEFAULT_ROOM_LIMIT',-1),
+        'open_registration' => env('DEFAULT_OPEN_REGISTRATION', true)
     ]
 ];
