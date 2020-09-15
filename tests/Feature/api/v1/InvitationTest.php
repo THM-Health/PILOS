@@ -72,7 +72,7 @@ class InvitationTest extends TestCase
      */
     public function testCreateInvitationWithValidInputs()
     {
-        $emails = ['max.muster@local.com'];
+        $emails = ['maxmuster@local.com'];
 
         $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
@@ -80,7 +80,7 @@ class InvitationTest extends TestCase
 
         $response->assertStatus(201);
 
-        $emails = ['mustermann.max@local.com'];
+        $emails = ['mustermannmax@local.com'];
 
         // Detach the created user roles
         $this->user->roles()->detach(1);
@@ -100,7 +100,7 @@ class InvitationTest extends TestCase
      */
     public function testCreateInvitationWithValidInputsAndMultipleEmails()
     {
-        $emails = ['max.muster@local.com', 'muster.max@local.com', 'max.mustermann@local.com'];
+        $emails = ['maxmuster@local.com', 'mustermax@local.com', 'maxmustermann@local.com'];
 
         $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
@@ -126,26 +126,6 @@ class InvitationTest extends TestCase
     }
 
     /**
-     * Test that create an invitation for register with emails which already existed in users table
-     *
-     * @return void
-     */
-    public function testCreateInvitationWithEmailsExistedInUserTable()
-    {
-        $user = factory(User::class)->create([
-            'email' => 'max.muster@local.com'
-        ]);
-
-        $emails = ['max.muster@local.com'];
-
-        $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
-            'email' => $emails
-        ]);
-
-        $response->assertStatus(422);
-    }
-
-    /**
      * Test that create an invitation for register with emails which already existed in invitations table
      *
      * @return void
@@ -153,10 +133,10 @@ class InvitationTest extends TestCase
     public function testCreateInvitationWithEmailsExistedInInvitationTable()
     {
         $invitation = factory(Invitation::class)->create([
-            'email' => 'max.muster@local.com'
+            'email' => 'maxmuster@local.com'
         ]);
 
-        $emails = ['max.muster@local.com'];
+        $emails = ['maxmuster@local.com'];
 
         $response = $this->actingAs($this->user)->postJson(route('api.v1.invitations.store'), [
             'email' => $emails
