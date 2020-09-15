@@ -2,7 +2,7 @@
     <b-container class="mt-3 mb-5">
       <b-row class="mb-3">
         <b-col md="3" offset-md="9"><b-input-group>
-          <b-form-input @change="search" placeholder="Suchen" v-model="rawSearchQuery"></b-form-input>
+          <b-form-input @change="search" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
           <b-input-group-append>
             <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="success"><b-icon icon="search"></b-icon></b-button>
           </b-input-group-append>

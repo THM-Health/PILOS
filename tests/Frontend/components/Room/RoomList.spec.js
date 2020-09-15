@@ -306,4 +306,54 @@ describe('RoomList', function () {
       });
     });
   });
+
+  it('test search', function (done) {
+    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+      status: 200,
+      response: exampleOwnRoomResponse
+    });
+    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+      status: 200,
+      response: exampleSharedRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      const searchField = view.findComponent({ ref: 'search' });
+      expect(searchField.exists()).toBeTruthy();
+
+      // Enter search query
+      await searchField.setValue('test');
+      searchField.trigger('change');
+
+      // Check room pagination reset
+      expect(view.vm.$data.ownRooms.meta.current_page).toBe(1);
+      expect(view.vm.$data.sharedRooms.meta.current_page).toBe(1);
+
+      moxios.requests.reset();
+
+      moxios.wait(function () {
+        // Check if requests use the search string
+        const firstRequest = moxios.requests.at(0);
+        const secondRequest = moxios.requests.at(1);
+        expect(firstRequest.config.url).toEqual(expect.stringContaining('&search=test'));
+        expect(secondRequest.config.url).toEqual(expect.stringContaining('&search=test'));
+
+        done();
+      });
+    });
+  });
 });
