@@ -18,6 +18,7 @@
       hover
       stacked='md'
       show-empty
+      :busy.sync='isBusy'
       :fields='tableFields'
       :items='fetchRoles'
       id='roles-table'
@@ -105,11 +106,11 @@
 
 <script>
 import Base from '../../../api/base';
-import Vue from 'vue';
 import Can from '../../../components/Permissions/Can';
 
 export default {
   components: { Can },
+
   data () {
     return {
       isBusy: false,
@@ -119,7 +120,11 @@ export default {
       roleToDelete: undefined
     };
   },
+
   computed: {
+    /**
+     * Returns array with table fields and their labels.
+     */
     tableFields () {
       return [
         { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
@@ -129,7 +134,15 @@ export default {
       ];
     }
   },
+
   methods: {
+    /**
+     * Loads the roles from the backend and calls on finish the callback function.
+     *
+     * @param ctx Context information e.g. the sort field and direction and the page.
+     * @param callback
+     * @return {null}
+     */
     fetchRoles (ctx, callback) {
       let data = [];
 
@@ -151,7 +164,7 @@ export default {
 
         data = response.data.data;
       }).catch(error => {
-        Vue.config.errorHandler(error, this.$root, error.message);
+        Base.error(error, this.$root, error.message);
       }).finally(() => {
         callback(data);
       });
@@ -159,11 +172,19 @@ export default {
       return null;
     },
 
+    /**
+     * Shows the delete modal with the passed role.
+     *
+     * @param role Role that should be deleted.
+     */
     showDeleteModal (role) {
       this.roleToDelete = role;
       this.$refs['delete-role-modal'].show();
     },
 
+    /**
+     * Deletes the role that is set in the property `roleToDelete`.
+     */
     deleteRole () {
       this.isBusy = true;
 
@@ -172,13 +193,17 @@ export default {
       }).then(() => {
         this.$root.$emit('bv::refresh::table', 'roles-table');
       }).catch(error => {
-        Vue.config.errorHandler(error, this.$root, error.message);
+        Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.$refs['delete-role-modal'].hide();
         this.isBusy = false;
       });
     },
 
+    /**
+     * Clears the temporary property `roleToDelete` on canceling or
+     * after success delete when the modal gets hidden.
+     */
     clearRoleToDelete () {
       this.roleToDelete = undefined;
     }

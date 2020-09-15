@@ -139,7 +139,6 @@
 
 <script>
 import Base from '../../../api/base';
-import Vue from 'vue';
 import Multiselect from 'vue-multiselect';
 
 export default {
@@ -150,6 +149,7 @@ export default {
       type: [String, Number],
       required: true
     },
+
     viewOnly: {
       type: Boolean,
       required: true
@@ -169,6 +169,9 @@ export default {
     };
   },
 
+  /**
+   * Loads the role from the backend and also a part of permissions that can be selected.
+   */
   mounted () {
     this.loadPermissions();
 
@@ -178,7 +181,7 @@ export default {
       Base.call(`roles/${this.id}`).then(response => {
         this.model = response.data.data;
       }).catch(response => {
-        Vue.config.errorHandler(response, this.$root, response.message);
+        Base.error(response, this.$root, response.message);
       }).finally(() => {
         this.isBusy = false;
       });
@@ -186,6 +189,9 @@ export default {
   },
 
   methods: {
+    /**
+     * Loads partially the permissions that can be selected through the multiselect.
+     */
     loadPermissions (page = 1) {
       this.permissionsLoading = true;
 
@@ -199,23 +205,35 @@ export default {
         this.permissions = response.data.data;
         this.currentPage = page;
         this.hasNextPage = page < response.data.meta.last_page;
-      })
-        .catch(error => {
-          Vue.config.errorHandler(error, this.$root, error.message);
-        })
-        .finally(() => {
-          this.permissionsLoading = false;
-        });
+      }).catch(error => {
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.permissionsLoading = false;
+      });
     },
 
+    /**
+     * Goes back to the role overview page.
+     */
     back () {
-      this.$router.back();
+      this.$router.push({ name: 'settings.roles' });
     },
 
+    /**
+     * Returns the translated permission.
+     *
+     * @param name
+     * @return {string}
+     */
     permissionsLabel ({ name }) {
       return this.$t(`app.permissions.${name}`);
     },
 
+    /**
+     * Saves the changes of the role to the database by making a api call.
+     *
+     * @param evt
+     */
     saveRole (evt) {
       if (evt) {
         evt.preventDefault();
@@ -242,14 +260,16 @@ export default {
           this.staleError = error.response.data;
           this.$refs['stale-role-modal'].show();
         } else {
-          Vue.config.errorHandler(error, this.$root, error.message);
+          Base.error(error, this.$root, error.message);
         }
-      })
-        .finally(() => {
-          this.isBusy = false;
-        });
+      }).finally(() => {
+        this.isBusy = false;
+      });
     },
 
+    /**
+     * Force a overwrite of the role in the database by setting the `updated_at` field to the new one.
+     */
     forceOverwrite () {
       this.model.updated_at = this.staleError.new_model.updated_at;
       this.staleError = {};
@@ -257,6 +277,9 @@ export default {
       this.saveRole();
     },
 
+    /**
+     * Refreshes the current model with the new passed from the stale error response.
+     */
     refreshRole () {
       this.model = this.staleError.new_model;
       this.staleError = {};
