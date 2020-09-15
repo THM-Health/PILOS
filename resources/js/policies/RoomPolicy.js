@@ -9,7 +9,7 @@ export default {
    * @return {boolean}
    */
   create (permissionService) {
-    return permissionService.currentUser && permissionService.currentUser.permissions.includes('rooms.create');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('rooms.create');
   }
 
 };

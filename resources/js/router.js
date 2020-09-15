@@ -107,7 +107,7 @@ export const routes = [
               return PermissionService.can('manage', 'SettingPolicy') &&
                 PermissionService.can('update', response.data.data);
             }).catch((response) => {
-              Vue.config.errorHandler(response, vm, response.message);
+              Base.error(response, vm, response.message);
               return false;
             });
           }
