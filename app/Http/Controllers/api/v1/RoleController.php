@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
@@ -48,7 +49,7 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  RoleRequest       $request
-     * @return JsonResponse|void
+     * @return JsonResponse|Response
      */
     public function store(RoleRequest $request)
     {
@@ -57,14 +58,10 @@ class RoleController extends Controller
         $role->room_limit = $request->room_limit;
         $role->default    = false;
 
-        if (!$role->save()) {
-            return response()->json([
-                'error'   => 400,
-                'message' => trans('app.save_failed', ['model' => trans('app.model.roles')])
-            ], 400);
-        }
-
+        $role->save();
         $role->permissions()->sync($request->permissions);
+
+        return response()->noContent(200);
     }
 
     /**
@@ -85,7 +82,7 @@ class RoleController extends Controller
      *
      * @param  RoleRequest       $request
      * @param  Role              $role
-     * @return JsonResponse|void
+     * @return JsonResponse|Response
      */
     public function update(RoleRequest $request, Role $role)
     {
@@ -111,19 +108,16 @@ class RoleController extends Controller
 
         $role->room_limit = $request->room_limit;
         $role->name       = $request->name;
-        if (!$role->save()) {
-            return response()->json([
-                'error'   => 400,
-                'message' => trans('app.save_failed', ['model' => trans('app.model.roles')])
-            ], 400);
-        }
+        $role->save();
+
+        return response()->noContent(200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  Role              $role
-     * @return JsonResponse|void
+     * @return JsonResponse|Response
      * @throws Exception
      */
     public function destroy(Role $role)
@@ -136,11 +130,8 @@ class RoleController extends Controller
             ], CustomStatusCodes::ROLE_DELETE_LINKED_USERS);
         }
 
-        if (!$role->delete()) {
-            return response()->json([
-                'error'   => 400,
-                'message' => trans('app.delete_failed', ['model' => trans('app.model.roles')])
-            ], 400);
-        }
+        $role->delete();
+
+        return response()->noContent();
     }
 }
