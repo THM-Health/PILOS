@@ -2,8 +2,10 @@ import { beforeEachRoute, routes } from '../../resources/js/router';
 import PermissionService from '../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import sinon from 'sinon';
-import Vue from 'vue';
 import Base from '../../resources/js/api/base';
+
+const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
 
 describe('Router', function () {
   beforeEach(function () {
@@ -124,22 +126,19 @@ describe('Router', function () {
   });
 
   describe('accessPermitted', function () {
-    const accessPermitted = routes.filter(route => route.path === '/settings')[0]
-      .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
-
     it('for role detail view returns true if user has the necessary permissions', function (done) {
       const oldUser = PermissionService.currentUser;
 
-      accessPermitted({ id: 1 }, { view: '1' }).then(result => {
+      accessPermittedRolesView({ id: 1 }, { view: '1' }).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['roles.view'] });
-        return accessPermitted({ id: 1 }, { view: '1' });
+        return accessPermittedRolesView({ id: 1 }, { view: '1' });
       }).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['roles.view', 'settings.manage'] });
-        return accessPermitted({ id: 1 }, { view: '1' });
+        return accessPermittedRolesView({ id: 1 }, { view: '1' });
       }).then(result => {
         expect(result).toBe(true);
 
@@ -151,16 +150,16 @@ describe('Router', function () {
     it('for role new view returns true if user has the necessary permissions', function (done) {
       const oldUser = PermissionService.currentUser;
 
-      accessPermitted({ id: 'new' }, {}).then(result => {
+      accessPermittedRolesView({ id: 'new' }, {}).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['roles.create'] });
-        return accessPermitted({ id: 'new' }, {});
+        return accessPermittedRolesView({ id: 'new' }, {});
       }).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['roles.create', 'settings.manage'] });
-        return accessPermitted({ id: 'new' }, {});
+        return accessPermittedRolesView({ id: 'new' }, {});
       }).then(result => {
         expect(result).toBe(true);
 
@@ -172,7 +171,7 @@ describe('Router', function () {
     it('for role update view returns true if user has necessary permissions and role is not a default role', function (done) {
       const oldUser = PermissionService.currentUser;
       const respond = function () {
-        let request = moxios.requests.mostRecent()
+        const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 200,
           response: {
@@ -187,25 +186,25 @@ describe('Router', function () {
 
       moxios.wait(respond);
 
-      accessPermitted({ id: 1 }, {}).then(result => {
+      accessPermittedRolesView({ id: 1 }, {}).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['roles.update'] });
         moxios.wait(respond);
 
-        return accessPermitted({ id: 1 }, {});
+        return accessPermittedRolesView({ id: 1 }, {});
       }).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['roles.update', 'settings.manage'] });
         moxios.wait(respond);
 
-        return accessPermitted({ id: 1 }, {});
+        return accessPermittedRolesView({ id: 1 }, {});
       }).then(result => {
         expect(result).toBe(false);
 
         moxios.wait(function () {
-          let request = moxios.requests.mostRecent()
+          const request = moxios.requests.mostRecent();
           return request.respondWith({
             status: 200,
             response: {
@@ -218,7 +217,7 @@ describe('Router', function () {
           });
         });
 
-        return accessPermitted({ id: 1 }, {});
+        return accessPermittedRolesView({ id: 1 }, {});
       }).then(result => {
         expect(result).toBe(true);
 
@@ -228,11 +227,11 @@ describe('Router', function () {
     });
 
     it('for role update view calls error handler returns false on error in request', function (done) {
-      let spy = sinon.spy();
+      const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
 
       moxios.wait(function () {
-        let request = moxios.requests.mostRecent()
+        const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 500,
           response: {
@@ -241,7 +240,7 @@ describe('Router', function () {
         });
       });
 
-      accessPermitted({ id: 1 }, {}).then(result => {
+      accessPermittedRolesView({ id: 1 }, {}).then(result => {
         expect(result).toBe(false);
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
