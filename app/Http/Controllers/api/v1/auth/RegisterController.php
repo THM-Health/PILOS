@@ -15,10 +15,11 @@ class RegisterController extends Controller
 {
     /**
      * Create a new user
-     * @param StoreUser $request
+     * @param  StoreUser    $request
      * @return JsonResponse
      */
-    public function register(StoreUser $request){
+    public function register(StoreUser $request)
+    {
         $user = new User();
 
         $user->firstname = $request->firstname;

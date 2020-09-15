@@ -33,7 +33,7 @@ class InvitationController extends Controller
             $invitationTokenValid = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->exists();
         }
 
-        return ($invitationTokenValid === true) ? response()->json(['message' => Lang::get('validation.custom.invitation.token_valid')], 200) : response()->json(['message' => Lang::get('custom.validation.invitation_token_invalid')], 401);
+        return ($invitationTokenValid === true) ? response()->json(['message' => Lang::get('validation.custom.invitation.token_valid')], 200) : response()->json(['message' => Lang::get('custom.validation.invitation.token_invalid')], 401);
     }
 
     /**
