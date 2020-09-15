@@ -566,6 +566,6 @@ class FileTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 }

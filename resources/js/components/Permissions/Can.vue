@@ -74,6 +74,19 @@ export default {
     };
   },
 
+  watch: {
+    /**
+     * Re-evaluates on policy change, eg. object attributes
+     *
+     */
+    policy: {
+      handler () {
+        this.evaluatePermissions();
+      },
+      deep: true
+    }
+  },
+
   methods: {
     /**
      * Re-evaluates on permission change whether the slot content should be shown or not.

@@ -10,6 +10,10 @@ export default {
    */
   create (permissionService) {
     return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('rooms.create');
+  },
+
+  delete (permissionService, model) {
+    return model.isOwner || permissionService.currentUser.permissions.includes('rooms.delete');
   }
 
 };

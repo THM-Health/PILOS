@@ -1,15 +1,15 @@
 <template>
     <b-container class="mt-3 mb-5">
       <h2>{{ $t('rooms.myRooms') }}</h2>
-      <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:rooms.myRooms.length,max:currentUser.room_limit}) }}</b-badge>
+      <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:rooms.myRooms.length,max:currentUser.room_limit}) }}</b-badge><br>
+
+      <em v-if="rooms.myRooms && !rooms.myRooms.length">{{ $t('rooms.noRoomsAvailable') }}</em>
 
       <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" v-if="rooms.myRooms">
         <b-col v-for="room in rooms.myRooms" :key="room.id" class="pt-2">
           <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
         </b-col>
-        <b-col v-if="!rooms.myRooms.length" class="pt-2">
-          <em>{{ $t('rooms.noRoomsAvailable') }}</em>
-        </b-col>
+
         <can method="create" policy="RoomPolicy" v-if="!limitReached">
 
         <b-col class="pt-2">
