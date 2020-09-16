@@ -69,7 +69,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/member/{user}', 'RoomMemberController@destroy')->name('rooms.member.remove')->middleware('can:manageMembers,room');
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
-            Route::get('rooms/{room}/files', 'RoomFileController@index')->name('rooms.files.get');
+
             Route::post('rooms/{room}/files', 'RoomFileController@store')->name('rooms.files.add');
 
             Route::put('rooms/{room}/files/{file}', 'RoomFileController@update')->name('rooms.files.update');
@@ -83,6 +83,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}', 'RoomController@show')->name('rooms.show')->middleware('room.authenticate:true');
         Route::get('rooms/{room}/start', 'RoomController@start')->name('rooms.start')->middleware('room.authenticate');
         Route::get('rooms/{room}/join', 'RoomController@join')->name('rooms.join')->middleware('room.authenticate');
+        Route::get('rooms/{room}/files', 'RoomFileController@index')->name('rooms.files.get')->middleware(['room.authenticate']);
         Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
     });
 

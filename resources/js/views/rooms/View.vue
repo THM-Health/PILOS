@@ -148,26 +148,13 @@
         </b-row>
 
         <!-- Show file list for non-owner users (owner has it's own more detailed file list -->
-        <template v-if="room.files && room.files.length > 0 && !room.isOwner">
-          <b-row><b-col>
-            <hr>
-            <h4>{{ $t('rooms.files.title') }}</h4>
-            <!-- Table with all files -->
-            <b-table :fields="filefields" :items="room.files" hover>
-              <!-- Render action column-->
-              <template v-slot:cell(actions)="data">
-                <!-- Download file button -->
-                <b-button
-                  class="float-right"
-                  variant="dark"
-                  @click="downloadFile(data.item,data.index)"
-                  target="_blank"
-                >
-                  <i class="fas fa-eye"></i>
-                </b-button>
-              </template>
-            </b-table>
-          </b-col></b-row>
+        <template v-if="!room.isOwner">
+          <b-row>
+            <b-col>
+              <hr>
+              <public-files-component :access-code="accessCode" :room-id="room_id"></public-files-component>
+            </b-col>
+          </b-row>
         </template>
 
         <!-- Show admin settings (owners only)-->
@@ -229,12 +216,14 @@ import RoomAdmin from '../../components/Room/AdminComponent';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
 import Can from '../../components/Permissions/Can';
+import PublicFilesComponent from "../../components/Room/PublicFilesComponent";
 
 export default {
   directives: {
     mask: AwesomeMask
   },
   components: {
+    PublicFilesComponent,
     DeleteRoomComponent,
     RoomAdmin,
     Can
@@ -250,7 +239,8 @@ export default {
       room: null, // Room object
       accessCode: null, // Access code to use for requests
       accessCodeInput: null, // Access code input modal
-      accessCodeValid: null // Is access code valid
+      accessCodeValid: null, // Is access code valid
+      downloadAgreement: 'not_accepted'
     };
   },
   // Component not loaded yet
@@ -283,71 +273,6 @@ export default {
   },
   methods: {
 
-    /**
-     * Request file download url
-     * @param file file object
-     * @param index integer index in filelist
-     * @return string url
-     */
-    downloadFile: function (file, index) {
-      this.loadingDownload = true;
-      // Update value for the setting and the effected file
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
-      Base.call('rooms/' + this.room.id + '/files/' + file.id, config)
-        .then(response => {
-          if (response.data.url !== undefined) {
-            window.open(response.data.url, '_blank');
-          }
-        }).catch((error) => {
-          if (error.response) {
-          // Access code invalid
-            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
-            // Show access code is valid
-              this.accessCodeValid = false;
-              // Reset access code (not the form input) to load the general room details again
-              this.accessCode = null;
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
-              this.reload();
-              return;
-            }
-
-            // Forbidden, require access code
-            if (error.response.status === 403 && error.response.data.message === 'require_code') {
-            // Show access code is valid
-              this.accessCodeValid = false;
-              // Reset access code (not the form input) to load the general room details again
-              this.accessCode = null;
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
-              this.reload();
-              return;
-            }
-
-            // Forbidden, not allowed to download this file
-            if (error.response.status === 403) {
-            // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
-              // Remove file from list
-              this.room.files.splice(index, 1);
-              return;
-            }
-
-            // File gone
-            if (error.response.status === 404) {
-            // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
-              // Remove file from list
-              this.room.files.splice(index, 1);
-              return;
-            }
-          }
-          Base.error(error, this.$root);
-        }).finally(() => {
-        // Disable loading indicator
-          this.loadingDownload = false;
-        });
-    },
 
     /**
      * Reload the room details/settings

@@ -14,20 +14,22 @@ class RoomFileController extends Controller
     /**
      * Return a list of all files of a room and id of the default file
      * @param  Room                          $room
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Room $room)
     {
-        $default = $room->files()->where('default', true)->first();
-
-        return response()->json([
-            'data'=> [
-                'files'      => PrivateRoomFile::collection($room->files),
-                'default'    => $default ? $default->id : null,
-                'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
-                'file_size'  => config('bigbluebutton.max_filesize') / 1000,
-            ]
-        ]);
+        if(\Gate::allows('manageFiles',Room::class)) {
+            $default = $room->files()->where('default', true)->first();
+            return response()->json([
+                'data' => [
+                    'files' => PrivateRoomFile::collection($room->files),
+                    'default' => $default ? $default->id : null,
+                    'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
+                    'file_size' => config('bigbluebutton.max_filesize') / 1000,
+                ]
+            ]);
+        }
+        return \App\Http\Resources\RoomFile::collection($room->files()->where('download', true)->get());
     }
 
     /**
