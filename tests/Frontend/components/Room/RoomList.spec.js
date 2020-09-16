@@ -349,8 +349,9 @@ describe('RoomList', function () {
         // Check if requests use the search string
         const firstRequest = moxios.requests.at(0);
         const secondRequest = moxios.requests.at(1);
-        expect(firstRequest.config.url).toEqual(expect.stringContaining('&search=test'));
-        expect(secondRequest.config.url).toEqual(expect.stringContaining('&search=test'));
+
+        expect(firstRequest.url).toEqual(expect.stringContaining('&search=test'));
+        expect(secondRequest.url).toEqual(expect.stringContaining('&search=test'));
 
         done();
       });

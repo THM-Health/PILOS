@@ -77,6 +77,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         });
 
         Route::get('users/search','UserController@search')->name('users.search');
+
+        Route::get('roomTypes', 'RoomTypeController@index')->name('roomTypes.index');
     });
 
     Route::middleware('can:view,room')->group(function () {
@@ -87,7 +89,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     });
 
 
-    Route::get('roomTypes', 'RoomTypeController@index')->name('roomTypes.index');
+
 
 
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');

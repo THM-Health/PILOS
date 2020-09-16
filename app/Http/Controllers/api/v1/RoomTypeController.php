@@ -14,7 +14,7 @@ class RoomTypeController extends Controller
     }
 
     /**
-     * Return a json array with all rooms the user owners or is member of
+     * Return a json array with all room types
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */

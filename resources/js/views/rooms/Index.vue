@@ -2,7 +2,7 @@
     <b-container class="mt-3 mb-5">
       <b-row class="mb-3">
         <b-col md="3" offset-md="9"><b-input-group>
-          <b-form-input @change="search" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
+          <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
           <b-input-group-append>
             <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="success"><b-icon icon="search"></b-icon></b-button>
           </b-input-group-append>
@@ -85,9 +85,6 @@ export default {
     },
     limitReached: function () {
       return this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.data.length >= this.currentUser.room_limit;
-    },
-    searchQuery: function () {
-      return this.rawSearchQuery.trim() === '' ? '' : '&search=' + this.rawSearchQuery.trim();
     }
   },
   mounted: function () {
@@ -115,9 +112,22 @@ export default {
     // Load the rooms shared with the current user
     loadSharedRooms () {
       this.loadingShared = true;
-      const page = this.ownRooms !== null ? this.ownRooms.meta.current_page : 1;
-      Base.call('rooms?filter=shared&page=' + page + this.searchQuery).then(response => {
+
+      const config = {
+        params: {
+          filter: 'shared',
+          page: this.sharedRooms !== null ? this.sharedRooms.meta.current_page : 1
+        }
+      };
+
+      if (this.rawSearchQuery.trim() !== '') {
+        config.params.search = this.rawSearchQuery.trim();
+      }
+
+      Base.call('rooms', config).then(response => {
         this.sharedRooms = response.data;
+      }).catch(error => {
+        Base.error(error, this);
       }).finally(() => {
         this.loadingShared = false;
       });
@@ -125,9 +135,22 @@ export default {
     // Load the rooms of the current user
     loadOwnRooms () {
       this.loadingOwn = true;
-      const page = this.ownRooms !== null ? this.ownRooms.meta.current_page : 1;
-      Base.call('rooms?filter=own&page=' + page + this.searchQuery).then(response => {
+
+      const config = {
+        params: {
+          filter: 'own',
+          page: this.ownRooms !== null ? this.ownRooms.meta.current_page : 1
+        }
+      };
+
+      if (this.rawSearchQuery.trim() !== '') {
+        config.params.search = this.rawSearchQuery.trim();
+      }
+
+      Base.call('rooms', config).then(response => {
         this.ownRooms = response.data;
+      }).catch(error => {
+        Base.error(error, this);
       }).finally(() => {
         this.loadingOwn = false;
       });
@@ -136,6 +159,8 @@ export default {
     loadRoomTypes () {
       Base.call('roomTypes').then(response => {
         this.roomTypes = response.data.data;
+      }).catch(error => {
+        Base.error(error, this);
       });
     }
   },
