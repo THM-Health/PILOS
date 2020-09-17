@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Lang;
 
 class UserController extends Controller
 {
@@ -37,7 +36,7 @@ class UserController extends Controller
             $query = $query->withName($request->query('name'));
         }
 
-        $query = $query->paginate(env('MIX_PAGINATION_PAGE_SIZE', 15));
+        $query = $query->paginate(config('settings.defaults.pagination_page_size'));
 
         return UserResource::collection($query);
     }
@@ -45,7 +44,7 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      * @param  StoreUser    $request
-     * @return JsonResponse
+     * @return UserResource
      */
     public function store(StoreUser $request)
     {
@@ -57,26 +56,28 @@ class UserController extends Controller
         $user->username  = $request->username;
         $user->password  = Hash::make($request->password);
 
-        $store = $user->save();
+        if (!$user->save()) {
+            abort(400, __('validation.custom.request.400'));
+        }
 
-        return ($store === true) ? (response()->json($user, 201)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
+        return new UserResource($user);
     }
 
     /**
      * Display the specified resource.
      * @param  User         $user
-     * @return JsonResponse
+     * @return UserResource
      */
     public function show(User $user)
     {
-        return response()->json($user, 200);
+        return new UserResource($user);
     }
 
     /**
      * Update the specified resource in storage.
      * @param  StoreUser    $request
      * @param  User         $user
-     * @return JsonResponse
+     * @return UserResource
      */
     public function update(StoreUser $request, User $user)
     {
@@ -85,9 +86,11 @@ class UserController extends Controller
         $user->email     = $request->email;
         $user->username  = $request->username;
 
-        $update = $user->save();
+        if (!$user->save()) {
+            abort(400);
+        }
 
-        return ($update === true) ? (response()->json($user, 202)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
+        return new UserResource($user);
     }
 
     /**
@@ -98,9 +101,11 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $delete = $user->delete();
+        if (!$user->delete()) {
+            abort(400);
+        }
 
-        return ($delete === true) ? (response()->json([], 204)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
+        return response()->json([], 204);
     }
 
     /**

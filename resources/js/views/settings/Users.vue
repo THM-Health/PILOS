@@ -65,6 +65,7 @@
              @row-clicked="toggleRowDetails"
              @sort-changed="sortChanged"
     >
+
       <!--Table Loading Spinner-->
       <template v-slot:table-busy>
         <div class="text-center text-success my-2">
@@ -72,6 +73,7 @@
           <strong>{{ $t('app.wait') }}</strong>
         </div>
       </template>
+
       <!--Action Dropdown Button-->
       <template v-slot:cell(action)="row">
         <b-dropdown id="user-action-dropdown"
@@ -186,7 +188,6 @@
 
 <script>
 import Base from '../../api/base';
-import moment from 'moment';
 import CrudModalComponent from '../../components/Admin/users/CrudModalComponent';
 import InviteModalComponent from '../../components/Admin/users/InviteModalComponent';
 
@@ -293,13 +294,14 @@ export default {
       this.orderBy = (ctx.sortDesc === false) ? 'asc' : 'desc';
       this.getUsers(this.currentPage);
     },
-    formatDate (value) {
-      return moment(value).format('DD-MM-YYYY HH:mm UTC');
-    },
     onFiltered (filteredItems) { // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;
       this.users.count = filteredItems.length;
       this.currentPage = 1;
+    },
+    formatDate (value) {
+      value = value.replace('T', ' ').replace('.000000Z', ' UTC');
+      return value;
     },
     toggleRowDetails (user) {
       this.$set(user, '_showDetails', !user._showDetails);

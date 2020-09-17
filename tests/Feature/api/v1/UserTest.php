@@ -313,7 +313,7 @@ class UserTest extends TestCase
             'email'     => 'update@mail.com'
         ]);
 
-        $response->assertStatus(202);
+        $response->assertStatus(200);
 
         // Detach the created user roles
         $this->user->roles()->detach(1);

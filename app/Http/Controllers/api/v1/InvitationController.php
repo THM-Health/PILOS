@@ -33,7 +33,11 @@ class InvitationController extends Controller
             $invitationTokenValid = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->exists();
         }
 
-        return ($invitationTokenValid === true) ? response()->json(['message' => Lang::get('validation.custom.invitation.token_valid')], 200) : response()->json(['message' => Lang::get('custom.validation.invitation.token_invalid')], 401);
+        if (!$invitationTokenValid) {
+            abort(401, __('validation.custom.invitation.token_invalid'));
+        }
+
+        return response()->json(['message' => Lang::get('validation.custom.invitation.token_valid')], 200);
     }
 
     /**
@@ -65,7 +69,7 @@ class InvitationController extends Controller
             $store = $invitation->save();
 
             if ($store === false) {
-                return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
+                abort(400, __('validation.custom.request.400'));
             }
 
             Mail::to($email)->send(new InvitationRegister($invitation));

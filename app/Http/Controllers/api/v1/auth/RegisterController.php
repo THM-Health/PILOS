@@ -4,50 +4,41 @@ namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUser;
-use App\Http\Requests\StoreUserInvitation;
 use App\Invitation;
 use App\User;
-use Illuminate\Http\JsonResponse;
+use App\Http\Resources\User as UserResource;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Lang;
 
 class RegisterController extends Controller
 {
     /**
-     * Create a new user
+     * Create a new user through invitation register or open register method
      * @param  StoreUser    $request
-     * @return JsonResponse
+     * @return UserResource
      */
     public function register(StoreUser $request)
     {
         $user = new User();
 
-        $user->firstname = $request->firstname;
-        $user->lastname  = $request->lastname;
-        $user->username  = $request->username;
-        $user->email     = $request->email;
-        $user->password  = Hash::make($request->password);
+        $isPublicRegistration = Config::get('settings.defaults.open_registration');
 
-        $store = $user->save();
+        // If registration is invitation only, then check the invitation token validity first
+        if ($isPublicRegistration === false) {
+            $invitation = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->first();
 
-        return ($store === true) ? (response()->json($user, 201)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
-    }
+            // If invitation data not exist
+            if (!$invitation) {
+                abort(400);
+            }
 
-    /**
-     * Create a new user through invitation register method
-     * @param  StoreUserInvitation $request
-     * @return JsonResponse
-     */
-    public function invitationRegister(StoreUserInvitation $request)
-    {
-        $user = new User();
+            // Update registered at value to current time, make it not reusable anymore
+            $invitation->registered_at = now();
+            $updateInvitation          = $invitation->save();
 
-        // Find the invitation record based on requests
-        $invitation = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->first();
-
-        // If invitation data not exist
-        if (!$invitation) {
-            return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
+            if (!$updateInvitation) {
+                abort(400);
+            }
         }
 
         $user->firstname = $request->firstname;
@@ -55,18 +46,12 @@ class RegisterController extends Controller
         $user->email     = $request->email;
         $user->username  = $request->username;
         $user->password  = Hash::make($request->password);
-
-        $store = $user->save();
 
         // If save failed
-        if (!$store) {
-            return response()->json(['message' => Lang::get('validation.custom.request.400')], 400);
+        if (!$user->save()) {
+            abort(400);
         }
 
-        // Update registered at value to current time, make it not reusable anymore
-        $invitation->registered_at = now();
-        $updateInvitation          = $invitation->save();
-
-        return ($store === true && $updateInvitation === true) ? (response()->json($user, 201)) : (response()->json(['message' => Lang::get('validation.custom.request.400')], 400));
+        return new UserResource($user);
     }
 }

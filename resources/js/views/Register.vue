@@ -192,47 +192,12 @@ export default {
   },
   methods: {
     onSubmit () {
-      (this.isPublicRegistration === true) ? this.register() : this.invitationRegister();
+      this.register();
     },
     register () {
       this.isBusy = true;
 
       Base.call('register', {
-        headers: {
-          'content-type': 'application/json'
-        },
-        method: 'post',
-        data: {
-          firstname: this.firstname,
-          lastname: this.lastname,
-          email: this.email,
-          username: this.username,
-          password: this.password,
-          password_confirmation: this.passwordConfirmation
-        }
-      }).then(response => {
-        this.flashMessage.success(this.$t('settings.users.createSuccess'));
-
-        this.$bvModal.hide(this.modalId);
-
-        this.errors = [];
-
-        this.$router.push('/login');
-      }).catch((error) => {
-        // TODO error handling
-        this.errors = error.response.data.errors;
-
-        this.flashMessage.error(this.$t('settings.users.createFailed'));
-
-        throw error;
-      }).finally(() => {
-        this.isBusy = false;
-      });
-    },
-    invitationRegister () {
-      this.isBusy = true;
-
-      Base.call('register/invitation', {
         headers: {
           'content-type': 'application/json'
         },

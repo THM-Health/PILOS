@@ -65,6 +65,6 @@ class InvitationPolicy
      */
     public function delete(User $user, Invitation $invitation)
     {
-        return $user->can('invitation.delete');
+        return $user->can('invitations.delete');
     }
 }

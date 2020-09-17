@@ -6,7 +6,6 @@ import App from './views/App';
 import router from './router';
 import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
-import moment from 'moment';
 import Clipboard from 'v-clipboard';
 
 Vue.use(Clipboard);
@@ -59,9 +58,6 @@ Vue.config.errorHandler = function (error, vm, info) {
     console.error(`Error: ${error.toString()}\nInfo: ${info}`);
   }
 };
-
-// Moment JS for date formatting
-Vue.prototype.moment = moment;
 
 export default new Vue({
   el: '#app',

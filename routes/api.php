@@ -41,7 +41,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('logout', 'LoginController@logout')->name('logout');
 
         Route::post('register', 'RegisterController@register')->name('register');
-        Route::post('register/invitation', 'RegisterController@invitationRegister')->name('invitationRegister');
 
         // TODO: Implement or remove this completely
 //        Route::post('password/reset', 'ResetPasswordController@reset');
@@ -54,7 +53,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
     Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('users', 'UserController');
-        Route::apiResource('ldap', 'LdapController')->except(['store', 'index']);
         Route::apiResource('invitations', 'InvitationController')->except(['index', 'show']);
 
         Route::get('rooms', 'RoomController@index')->name('rooms.index');

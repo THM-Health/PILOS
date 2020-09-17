@@ -67,7 +67,6 @@
         "bootstrap-vue": "^2.15.0",
         "es6-promise": "^4.2.8",
         "laravel-mix-merge-manifest": "^0.1.2",
-        "moment": "^2.27.0",
         "v-clipboard": "^2.2.3",
         "vue-fragment": "^1.5.1",
         "vue-i18n": "^8.18.2",
