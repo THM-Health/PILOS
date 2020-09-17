@@ -36,7 +36,8 @@ const actions = {
   },
 
   async getCurrentUser ({ commit }) {
-    const currentUser = await auth.getCurrentUser();
+    let currentUser = await auth.getCurrentUser();
+    if (currentUser.length === 0) { currentUser = null; }
     commit('setCurrentUser', currentUser);
   },
 

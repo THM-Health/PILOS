@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5 mb-5" v-cloak>
-    <template v-if="room">
+    <template v-if="room !== null">
 
       <!-- Delete button and modal -->
       <can method="delete" :policy="{ modelName: 'Room', isOwner: room.isOwner  }">
@@ -152,7 +152,7 @@
           <b-row>
             <b-col>
               <hr>
-              <public-files-component :access-code="accessCode" :room-id="room_id"></public-files-component>
+              <file-component ref="publicFileList" :access-code="accessCode" :room-id="room_id" :is-owner="room.isOwner" :show-title="true" :require-agreement="true" :hide-reload="true"></file-component>
             </b-col>
           </b-row>
         </template>
@@ -216,14 +216,14 @@ import RoomAdmin from '../../components/Room/AdminComponent';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
 import Can from '../../components/Permissions/Can';
-import PublicFilesComponent from "../../components/Room/PublicFilesComponent";
+import FileComponent from '../../components/Room/FileComponent';
 
 export default {
   directives: {
     mask: AwesomeMask
   },
   components: {
-    PublicFilesComponent,
+    FileComponent,
     DeleteRoomComponent,
     RoomAdmin,
     Can
@@ -273,7 +273,6 @@ export default {
   },
   methods: {
 
-
     /**
      * Reload the room details/settings
      */
@@ -292,6 +291,10 @@ export default {
           // If logged in, reset the access code valid
           if (this.room.authenticated) {
             this.accessCodeValid = null;
+          }
+
+          if (this.$refs.publicFileList) {
+            this.$refs.publicFileList.reload();
           }
         })
         .catch((error) => {

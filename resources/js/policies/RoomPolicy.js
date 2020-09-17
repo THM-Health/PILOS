@@ -13,7 +13,11 @@ export default {
   },
 
   delete (permissionService, model) {
-    return model.isOwner || permissionService.currentUser.permissions.includes('rooms.delete');
+    return model.isOwner || (permissionService.currentUser && permissionService.currentUser.permissions.includes('rooms.delete'));
+  },
+
+  manageFiles (permissionService, model) {
+    return model.isOwner;
   }
 
 };

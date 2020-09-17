@@ -1,29 +1,49 @@
 <template>
   <div>
     <b-overlay :show="isBusy" >
+      <h4 v-if="showTitle">{{ $t('rooms.files.title') }}</h4>
+
+      <b-alert show v-if="requireAgreement" >
+        <strong>{{ $t('rooms.files.termsOfUse.title')}}</strong><br>
+        {{ $t('rooms.files.termsOfUse.content')}}
+        <hr>
+        <b-form-checkbox
+          v-model="downloadAgreement"
+          value="accepted"
+          unchecked-value="not_accepted"
+        >
+          {{ $t('rooms.files.termsOfUse.accept')}}
+        </b-form-checkbox>
+      </b-alert>
+
     <div class="row mb-3">
       <div class="col-10">
-        <!-- Upload new file -->
-        <b-form-file
-          :disabled="isBusy"
-          :state="fieldState('file')"
-          :placeholder="$t('rooms.files.selectordrag')"
-          v-on:change="uploadFile($event)"
-          v-model="fileUpload"
-          v-bind:multiple="false"
-        >
-        </b-form-file>
 
-        <b-form-invalid-feedback>
-          {{ fieldError('file') }}
-        </b-form-invalid-feedback>
+        <can method="manageFiles" :policy="{ modelName: 'Room', isOwner: isOwner }">
 
-        <b-form-text>{{ $t('rooms.files.formats',{formats: files.file_mimes}) }}<br>{{ $t('rooms.files.size',{size: files.file_size}) }}</b-form-text>
+          <!-- Upload new file -->
+          <b-form-file
+            :disabled="isBusy"
+            :state="fieldState('file')"
+            :placeholder="$t('rooms.files.selectordrag')"
+            v-on:change="uploadFile($event)"
+            v-model="fileUpload"
+            v-bind:multiple="false"
+          >
+          </b-form-file>
 
+          <b-form-invalid-feedback>
+            {{ fieldError('file') }}
+          </b-form-invalid-feedback>
+
+          <b-form-text>{{ $t('rooms.files.formats',{formats: files.file_mimes}) }}<br>{{ $t('rooms.files.size',{size: files.file_size}) }}</b-form-text>
+
+        </can>
       </div>
       <div class="col-2">
         <!-- Reload file list -->
         <b-button
+          v-if="!hideReload"
           class="float-right"
           variant="dark"
           :disabled="isBusy"
@@ -60,6 +80,7 @@
       <!-- Render action column -->
       <template v-slot:cell(actions)="data">
         <b-button-group class="float-md-right">
+          <can method="manageFiles" :policy="{ modelName: 'Room', isOwner: isOwner }">
           <!-- Delete file -->
           <b-button
             variant="danger"
@@ -68,11 +89,12 @@
           >
             <i class="fas fa-trash"></i>
           </b-button>
+          </can>
           <!-- View file -->
           <b-button
             variant="dark"
             @click="downloadFile(data.item,data.index)"
-            :disabled="loadingDownload!==null"
+            :disabled="disableDownload"
             target="_blank"
           >
             <b-spinner small v-if="loadingDownload===data.index"></b-spinner> <i v-else class="fas fa-eye"></i>
@@ -114,16 +136,43 @@
           v-model="files.default"
         ></b-form-radio>
       </template>
+
     </b-table>
     </b-overlay>
   </div>
 </template>
 <script>
 import Base from '../../api/base';
+import Can from '../Permissions/Can';
+import PermissionService from '../../services/PermissionService';
 
 export default {
+
+  components: {
+    Can
+  },
   props: {
-    room: Object
+    roomId: String,
+    isOwner: Boolean,
+    accessCode: {
+      type: String,
+      required: false
+    },
+    showTitle: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    hideReload: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    requireAgreement: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
   },
   data () {
     return {
@@ -134,7 +183,8 @@ export default {
       fileUpload: null,
       // file list from api
       files: [],
-      errors: {}
+      errors: {},
+      downloadAgreement: false
     };
   },
   methods: {
@@ -156,7 +206,7 @@ export default {
     downloadFile: function (file, index) {
       this.loadingDownload = index;
       // Update value for the setting and the effected file
-      Base.call('rooms/' + this.room.id + '/files/' + file.id)
+      Base.call('rooms/' + this.roomId + '/files/' + file.id)
         .then(response => {
           if (response.data.url !== undefined) {
             window.open(response.data.url, '_blank');
@@ -195,7 +245,7 @@ export default {
             // Change table to busy state
             this.isBusy = true;
             // Remove file from room with api call
-            Base.call('rooms/' + this.room.id + '/files/' + file.id, {
+            Base.call('rooms/' + this.roomId + '/files/' + file.id, {
               method: 'delete'
             }).then(response => {
               // Fetch successful
@@ -227,7 +277,7 @@ export default {
       formData.append('file', event.target.files[0]);
 
       // Send new file to api
-      Base.call('rooms/' + this.room.id + '/files', {
+      Base.call('rooms/' + this.roomId + '/files', {
         method: 'post',
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -261,7 +311,10 @@ export default {
       // Change table to busy state
       this.isBusy = true;
       // Fetch file list
-      Base.call('rooms/' + this.room.id + '/files')
+
+      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+
+      Base.call('rooms/' + this.roomId + '/files', config)
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
@@ -286,7 +339,7 @@ export default {
       }
 
       // Update value for the setting and the effected file
-      Base.call('rooms/' + this.room.id + '/files/' + file.id, {
+      Base.call('rooms/' + this.roomId + '/files/' + file.id, {
         method: 'put',
         data: { [setting]: value }
       }).then(response => {
@@ -303,8 +356,26 @@ export default {
     }
   },
   computed: {
+    disableDownload () {
+      return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');
+    },
+
     // file table lables for columns
     filefields () {
+      if (PermissionService.cannot('manageFiles', { modelName: 'Room', isOwner: this.isOwner })) {
+        return [
+          {
+            key: 'filename',
+            label: this.$t('rooms.files.filename'),
+            sortable: true
+          },
+          {
+            key: 'actions',
+            label: this.$t('rooms.files.actions')
+          }
+        ];
+      }
+
       return [
         {
           key: 'filename',
