@@ -56,8 +56,50 @@
       </div>
     </div>
 
+      <b-row>
+        <b-col md="6" class="my-1">
+
+            <b-input-group>
+              <b-form-input
+                v-model="filter"
+                type="search"
+                id="filterInput"
+                placeholder="Type to Search"
+              ></b-form-input>
+              <b-input-group-append>
+                <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+              </b-input-group-append>
+            </b-input-group>
+
+        </b-col>
+
+        <b-col md="6" class="my-1">
+
+            <b-form-select
+              v-model="perPage"
+              id="perPageSelect"
+              size="sm"
+              :options="pageOptions"
+            ></b-form-select>
+        </b-col>
+
+        <b-col cols="12" class="my-1">
+          <b-pagination
+            v-model="currentPage"
+            :total-rows="totalRows"
+            :per-page="perPage"
+            align="fill"
+            size="sm"
+            class="my-0"
+          ></b-pagination>
+        </b-col>
+      </b-row>
+
     <!-- Display files -->
     <b-table
+      :current-page="currentPage"
+      @filtered="onFiltered"
+      :per-page="perPage"
       :fields="filefields"
       v-if="files"
       :items="files.files"
@@ -184,10 +226,20 @@ export default {
       // file list from api
       files: [],
       errors: {},
-      downloadAgreement: false
+      downloadAgreement: false,
+      totalRows: 0,
+      currentPage: 1,
+      perPage: 1,
+      pageOptions: [1,5, 10, 15],
     };
   },
   methods: {
+
+    onFiltered(filteredItems) {
+      // Trigger pagination to update the number of buttons/pages due to filtering
+      this.totalRows = filteredItems.length
+      this.currentPage = 1
+    },
 
     fieldState (field) {
       return this.errors[field] === undefined ? null : false;
@@ -318,6 +370,7 @@ export default {
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
+          this.totalRows = this.files.files.length;
         }).catch((error) => {
           Base.error(error, this.$root);
         }).finally(() => {
@@ -356,6 +409,7 @@ export default {
     }
   },
   computed: {
+
     disableDownload () {
       return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');
     },
