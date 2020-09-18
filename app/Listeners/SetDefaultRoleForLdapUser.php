@@ -4,7 +4,6 @@ namespace App\Listeners;
 
 use App\Role;
 use App\User;
-use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Events\Imported;
 
 class SetDefaultRoleForLdapUser

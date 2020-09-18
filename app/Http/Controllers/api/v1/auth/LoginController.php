@@ -79,7 +79,7 @@ class LoginController extends Controller
         if ($this->guard !== null) {
             $guard = Auth::guard($this->guard);
 
-            if($this->guard === 'ldap'){
+            if ($this->guard === 'ldap') {
                 $authenticator = $guard->getProvider()->getLdapUserAuthenticator();
                 $authenticator->authenticateUsing(function ($user, $password) {
                     return $user->getConnection()->auth()->attempt($user->getDn(), $password, true);
