@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Role;
 use App\User;
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Events\Imported;
 
 class SetDefaultRoleForLdapUser
@@ -20,8 +21,10 @@ class SetDefaultRoleForLdapUser
     {
         $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
 
-        if ($event->user->hasAttribute($ldapRoleAttribute)) {
-            $ldapRoles = $event->user->getAttribute($ldapRoleAttribute);
+        $ldapUser = \LdapRecord\Models\OpenLDAP\User::find($event->user->getDn());
+
+        if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
+            $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
             $user      = $event->model;
             $roleIds   = [];
 
