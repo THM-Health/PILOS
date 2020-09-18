@@ -91,23 +91,51 @@ class FileTest extends TestCase
         \Auth::logout();
         // Testing access for room owners only file list
 
-        // Testing guests
+        // Testing guests without guest access
         $this->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
-            ->assertUnauthorized();
+            ->assertForbidden();
+
+        $this->room->allowGuests = true;
+        $this->room->save();
+
+        // Testing guests with guest access
+        $this->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+            ->assertSuccessful();
 
         // Testing users
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertForbidden();
+        \Auth::logout();
+
+        $this->room->accessCode = $this->faker->numberBetween(111111111, 999999999);
+        $this->room->save();
+
+        // Testing guests without access code
+        $this->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+            ->assertForbidden();
+
+        // Testing users without access code
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+            ->assertForbidden();
+        \Auth::logout();
+
+        // Testing guests with access code
+        $this->withHeaders(['Access-Code' => $this->room->accessCode])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+            ->assertSuccessful();
+
+        // Testing users with access code
+        $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->accessCode])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+            ->assertSuccessful();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
-            ->assertForbidden();
+            ->assertSuccessful();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
-            ->assertForbidden();
+            ->assertSuccessful();
 
         // Testing owner
         $this->actingAs($this->room->owner)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
@@ -117,7 +145,7 @@ class FileTest extends TestCase
         // -- Testing file list shared with all users that have access to the room --
 
         // File not shared
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$this->room]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertJsonCount(0, 'data.files');
 
         $room_file           = $this->room->files()->where('filename', $this->file_valid->name)->first();
@@ -125,7 +153,7 @@ class FileTest extends TestCase
         $room_file->save();
 
         // File shared
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$this->room]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertJsonCount(1, 'data.files')
             ->assertJsonFragment(['filename'=>$this->file_valid->name]);
     }

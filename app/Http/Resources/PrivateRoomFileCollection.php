@@ -24,7 +24,7 @@ class PrivateRoomFileCollection extends ResourceCollection
         return [
             'data' => [
                 'files'      => $this->resource,
-                'default'    => $this->default ? $this->id : null,
+                'default'    => $this->default ? $this->default->id : null,
                 'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
                 'file_size'  => config('bigbluebutton.max_filesize') / 1000,
             ],
