@@ -3,12 +3,10 @@
     <b-overlay :show="loading" rounded="sm">
     <b-card no-body bg-variant="white" class="roomcard" @click="open()">
       <b-card-body class="p-3">
-      <b-media>
-        <template v-slot:aside>
-          <div v-if="type" class="roomicon" :style="{ 'background-color': type.color}">{{type.short}}</div>
-        </template>
-        <h4 class="mt-2 ">{{name}}</h4>
-      </b-media>
+        <b-row>
+          <b-col cols="3" sm="3"><div v-if="type" class="roomicon" :style="{ 'background-color': type.color}">{{type.short}}</div></b-col>
+          <b-col col><h5 class="mt-2 text-break " style="width: 100%">{{name}}</h5></b-col>
+        </b-row>
       </b-card-body>
       <template v-slot:footer v-if="shared">
         <small><i class="fas fa-share"></i> {{ $t('rooms.sharedBy', { name: sharedBy }) }}</small>

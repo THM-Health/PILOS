@@ -2,10 +2,7 @@
   <div>
     <b-card no-body class="roomcard" @click="$bvModal.show('new-room')">
       <b-card-body class="p-3">
-      <b-media>
-
-        <h4 class="mt-2 "><b-icon-plus></b-icon-plus> {{ $t('rooms.create.title') }}</h4>
-      </b-media>
+       <h5 class="mt-2"><b-icon-plus class="mr-3"></b-icon-plus> {{ $t('rooms.create.title') }}</h5>
       </b-card-body>
     </b-card>
 
