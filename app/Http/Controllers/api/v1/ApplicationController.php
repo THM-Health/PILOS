@@ -15,7 +15,8 @@ class ApplicationController extends Controller
     public function settings()
     {
         return response()->json(['data' => [
-              'logo'       => setting('logo'),
+              'logo'                 => setting('logo'),
+              'pagination_page_size' => setting('pagination_page_size'),
           ]
         ]);
     }

@@ -55,131 +55,100 @@
         </b-button>
       </div>
     </div>
+      <!-- Display files -->
+      <b-table
+        :current-page="currentPage"
+        :per-page="settings('pagination_page_size')"
+        :fields="filefields"
+        v-if="files.files"
+        :items="files.files"
+        hover
+        stacked="md"
+        show-empty
+      >
+        <!-- Show message on empty file list -->
+        <template v-slot:empty>
+          <i>{{ $t('rooms.files.nodata') }}</i>
+        </template>
 
-      <b-row>
-        <b-col md="6" class="my-1">
+        <!-- Show spinner while table is loading -->
+        <template v-slot:table-busy>
+          <div class="text-center my-2">
+            <b-spinner class="align-middle"></b-spinner>
+          </div>
+        </template>
 
-            <b-input-group>
-              <b-form-input
-                v-model="filter"
-                type="search"
-                id="filterInput"
-                placeholder="Type to Search"
-              ></b-form-input>
-              <b-input-group-append>
-                <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
-              </b-input-group-append>
-            </b-input-group>
+        <!-- Render action column -->
+        <template v-slot:cell(actions)="data">
+          <b-button-group class="float-md-right">
+            <can method="manageFiles" :policy="{ modelName: 'Room', isOwner: isOwner }">
+              <!-- Delete file -->
+              <b-button
+                variant="danger"
+                :disabled="loadingDownload===data.index"
+                @click="deleteFile(data.item,data.index)"
+              >
+                <i class="fas fa-trash"></i>
+              </b-button>
+            </can>
+            <!-- View file -->
+            <b-button
+              variant="dark"
+              @click="downloadFile(data.item,data.index)"
+              :disabled="disableDownload"
+              target="_blank"
+            >
+              <b-spinner small v-if="loadingDownload===data.index"></b-spinner> <i v-else class="fas fa-eye"></i>
+            </b-button>
+          </b-button-group>
+        </template>
 
-        </b-col>
+        <!-- Checkbox if file should be downloadable by all room participants -->
+        <template v-slot:cell(download)="data">
+          <b-form-checkbox
+            size="lg"
+            switch
+            @change="changeSettings(data.item,'download',$event)"
+            v-model="data.item.download"
+          ></b-form-checkbox>
+        </template>
 
-        <b-col md="6" class="my-1">
+        <!--
+        Checkbox if file should be send to the api on the next meeting start,
+        setting can't be changed manually if the file is the default presentation
+        -->
+        <template v-slot:cell(useinmeeting)="data">
+          <b-form-checkbox
+            size="lg"
+            switch
+            @change="changeSettings(data.item,'useinmeeting',$event)"
+            v-model="data.item.useinmeeting"
+          ></b-form-checkbox>
+        </template>
 
-            <b-form-select
-              v-model="perPage"
-              id="perPageSelect"
-              size="sm"
-              :options="pageOptions"
-            ></b-form-select>
-        </b-col>
+        <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
+        <template v-slot:cell(default)="data">
+          <b-form-radio
+            size="lg"
+            name="default"
+            :value="data.item.id"
+            :disabled="data.item.useinmeeting !== true"
+            @change="changeSettings(data.item,'default',$event)"
+            v-model="files.default"
+          ></b-form-radio>
+        </template>
 
+      </b-table>
+      <b-row v-if="files.files">
         <b-col cols="12" class="my-1">
           <b-pagination
+            v-if="files.files.length>settings('pagination_page_size')"
             v-model="currentPage"
-            :total-rows="totalRows"
-            :per-page="perPage"
-            align="fill"
-            size="sm"
-            class="my-0"
+            :total-rows="files.files.length"
+            :per-page="settings('pagination_page_size')"
           ></b-pagination>
         </b-col>
       </b-row>
-
-    <!-- Display files -->
-    <b-table
-      :current-page="currentPage"
-      @filtered="onFiltered"
-      :per-page="perPage"
-      :fields="filefields"
-      v-if="files"
-      :items="files.files"
-      hover
-      stacked="md"
-      show-empty
-    >
-      <!-- Show message on empty file list -->
-      <template v-slot:empty>
-        <i>{{ $t('rooms.files.nodata') }}</i>
-      </template>
-
-      <!-- Show spinner while table is loading -->
-      <template v-slot:table-busy>
-        <div class="text-center my-2">
-          <b-spinner class="align-middle"></b-spinner>
-        </div>
-      </template>
-
-      <!-- Render action column -->
-      <template v-slot:cell(actions)="data">
-        <b-button-group class="float-md-right">
-          <can method="manageFiles" :policy="{ modelName: 'Room', isOwner: isOwner }">
-          <!-- Delete file -->
-          <b-button
-            variant="danger"
-            :disabled="loadingDownload===data.index"
-            @click="deleteFile(data.item,data.index)"
-          >
-            <i class="fas fa-trash"></i>
-          </b-button>
-          </can>
-          <!-- View file -->
-          <b-button
-            variant="dark"
-            @click="downloadFile(data.item,data.index)"
-            :disabled="disableDownload"
-            target="_blank"
-          >
-            <b-spinner small v-if="loadingDownload===data.index"></b-spinner> <i v-else class="fas fa-eye"></i>
-          </b-button>
-        </b-button-group>
-      </template>
-
-      <!-- Checkbox if file should be downloadable by all room participants -->
-      <template v-slot:cell(download)="data">
-        <b-form-checkbox
-          size="lg"
-          switch
-          @change="changeSettings(data.item,'download',$event)"
-          v-model="data.item.download"
-        ></b-form-checkbox>
-      </template>
-
-      <!--
-      Checkbox if file should be send to the api on the next meeting start,
-      setting can't be changed manually if the file is the default presentation
-      -->
-      <template v-slot:cell(useinmeeting)="data">
-        <b-form-checkbox
-          size="lg"
-          switch
-          @change="changeSettings(data.item,'useinmeeting',$event)"
-          v-model="data.item.useinmeeting"
-        ></b-form-checkbox>
-      </template>
-
-      <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
-      <template v-slot:cell(default)="data">
-        <b-form-radio
-          size="lg"
-          name="default"
-          :value="data.item.id"
-          :disabled="data.item.useinmeeting !== true"
-          @change="changeSettings(data.item,'default',$event)"
-          v-model="files.default"
-        ></b-form-radio>
-      </template>
-
-    </b-table>
     </b-overlay>
   </div>
 </template>
@@ -187,6 +156,7 @@
 import Base from '../../api/base';
 import Can from '../Permissions/Can';
 import PermissionService from '../../services/PermissionService';
+import {mapGetters} from "vuex";
 
 export default {
 
@@ -227,19 +197,10 @@ export default {
       files: [],
       errors: {},
       downloadAgreement: false,
-      totalRows: 0,
-      currentPage: 1,
-      perPage: 1,
-      pageOptions: [1,5, 10, 15],
+      currentPage: 1
     };
   },
   methods: {
-
-    onFiltered(filteredItems) {
-      // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length
-      this.currentPage = 1
-    },
 
     fieldState (field) {
       return this.errors[field] === undefined ? null : false;
@@ -370,7 +331,6 @@ export default {
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
-          this.totalRows = this.files.files.length;
         }).catch((error) => {
           Base.error(error, this.$root);
         }).finally(() => {
@@ -409,6 +369,10 @@ export default {
     }
   },
   computed: {
+
+    ...mapGetters({
+      settings: 'session/settings'
+    }),
 
     disableDownload () {
       return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');

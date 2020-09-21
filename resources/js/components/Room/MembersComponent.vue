@@ -39,6 +39,8 @@
       <div class="col-12">
         <!-- table with all room members -->
         <b-table
+          :current-page="currentPage"
+          :per-page="settings('pagination_page_size')"
           :fields="tablefields"
           :items="members"
           hover
@@ -93,6 +95,16 @@
             </b-badge>
           </template>
         </b-table>
+        <b-row>
+          <b-col cols="12" class="my-1">
+            <b-pagination
+              v-if="members.length>settings('pagination_page_size')"
+              v-model="currentPage"
+              :total-rows="members.length"
+              :per-page="settings('pagination_page_size')"
+            ></b-pagination>
+          </b-col>
+        </b-row>
       </div>
     </div>
 
@@ -200,6 +212,7 @@
 import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
+import {mapGetters} from "vuex";
 
 export default {
   components: { Multiselect },
@@ -217,7 +230,8 @@ export default {
       createError: null, // error on adding new user as member
       editUser: null, // user to be edited
       deleteUser: null, // user to be deleted
-      errors: {}
+      errors: {},
+      currentPage: 1
     };
   },
   methods: {
@@ -388,6 +402,10 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    }),
+
     // check if new user input field is valid, local and server-side check
     newUserValid: function () {
       if (this.newUser.data == null || this.newUser.data.id == null || this.fieldState('user') === false) { return false; }
