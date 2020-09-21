@@ -156,7 +156,7 @@
 import Base from '../../api/base';
 import Can from '../Permissions/Can';
 import PermissionService from '../../services/PermissionService';
-import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
 

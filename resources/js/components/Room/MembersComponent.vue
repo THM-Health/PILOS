@@ -212,7 +212,7 @@
 import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
-import {mapGetters} from "vuex";
+import { mapGetters } from 'vuex';
 
 export default {
   components: { Multiselect },
