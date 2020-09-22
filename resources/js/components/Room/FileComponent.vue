@@ -87,8 +87,8 @@
               <!-- Delete file -->
               <b-button
                 variant="danger"
-                :disabled="loadingDownload===data.index"
-                @click="deleteFile(data.item,data.index)"
+                :disabled="loadingDownload===data.id"
+                @click="deleteFile(data.item)"
               >
                 <i class="fas fa-trash"></i>
               </b-button>
@@ -96,11 +96,11 @@
             <!-- View file -->
             <b-button
               variant="dark"
-              @click="downloadFile(data.item,data.index)"
+              @click="downloadFile(data.item)"
               :disabled="disableDownload"
               target="_blank"
             >
-              <b-spinner small v-if="loadingDownload===data.index"></b-spinner> <i v-else class="fas fa-eye"></i>
+              <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fas fa-eye"></i>
             </b-button>
           </b-button-group>
         </template>
@@ -218,13 +218,19 @@ export default {
     },
 
     /**
+     * Remove given file from the list
+     */
+    removeFile: function (file) {
+      this.files.files.splice(this.files.files.findIndex(item => item.id === file.id), 1);
+    },
+
+    /**
      * Request file download url
      * @param file file object
-     * @param index integer index in filelist
      * @return string url
      */
-    downloadFile: function (file, index) {
-      this.loadingDownload = index;
+    downloadFile: function (file) {
+      this.loadingDownload = file.id;
       // Update value for the setting and the effected file
       Base.call('rooms/' + this.roomId + '/files/' + file.id)
         .then(response => {
@@ -233,9 +239,31 @@ export default {
           }
         }).catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+              return this.$emit('error', error);
+            }
+
+            // Forbidden, require access code
+            if (error.response.status === 403 && error.response.data.message === 'require_code') {
+              return this.$emit('error', error);
+            }
+
+            // Forbidden, not allowed to download this file
+            if (error.response.status === 403) {
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
+              this.removeFile(file);
+              return;
+            }
+
+            // File gone
             if (error.response.status === 404) {
+              // Show error message
+              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
               // Remove file from list
-              this.files.files.splice(index, 1);
+              this.removeFile(file);
+              return;
             }
           }
           Base.error(error, this.$root);
@@ -247,9 +275,8 @@ export default {
     /**
      * Delete file
      * @param file file object
-     * @param index index in the table
      */
-    deleteFile: function (file, index) {
+    deleteFile: function (file) {
       // show delete confirmation modal
       this.$bvModal.msgBoxConfirm(this.$t('rooms.files.modals.delete.confirm', { filename: file.filename }), {
         title: this.$t('rooms.files.modals.delete.title'),
@@ -273,7 +300,7 @@ export default {
             }).catch((error) => {
               if (error.response.status === 404) {
                 // Remove file from list
-                this.files.files.splice(index, 1);
+                this.removeFile(file);
               }
               Base.error(error, this.$root);
             }).finally(() => {
@@ -381,6 +408,7 @@ export default {
       settings: 'session/settings'
     }),
 
+    // compute if the download buttons should be disabled
     disableDownload () {
       return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');
     },

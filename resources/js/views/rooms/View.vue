@@ -292,6 +292,11 @@ export default {
           return this.handleInvalidCode();
         }
 
+        // Access code invalid
+        if (error.response.status === 403 && error.response.data.message === 'require_code') {
+          return this.handleInvalidCode();
+        }
+
         // Forbidden, guests not allowed
         if (error.response.status === 403) {
           this.room = null;
@@ -304,7 +309,7 @@ export default {
     },
 
     /**
-     * Handle all 401 invalid_code errors
+     * Handle all 401 invalid_code and 403 require_code errors
      */
     handleInvalidCode: function () {
       // Show access code is valid

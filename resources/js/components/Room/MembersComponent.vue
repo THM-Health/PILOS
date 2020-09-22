@@ -66,7 +66,7 @@
               <b-button
                 :disabled="isBusy"
                 variant="dark"
-                @click="showEditUserModal(data.item,data.index)"
+                @click="showEditUserModal(data.item)"
               >
                 <i class="fas fa-user-edit"></i>
               </b-button>
@@ -74,7 +74,7 @@
               <b-button
                 :disabled="isBusy"
                 variant="danger"
-                @click="showRemoveUserModal(data.item,data.index)"
+                @click="showRemoveUserModal(data.item)"
               >
                 <i class="fas fa-trash"></i>
               </b-button>
@@ -235,6 +235,14 @@ export default {
     };
   },
   methods: {
+
+    /**
+     * Remove given member from the list
+     */
+    removeMember: function (member) {
+      this.users.splice(this.users.findIndex(item => item.id === member.id), 1);
+    },
+
     /**
      * Search for users in database
      * @param query
@@ -255,11 +263,10 @@ export default {
     /**
      * show modal to remove a member
      * @param user user object
-     * @param index index in the table
      */
-    showRemoveUserModal: function (user, index) {
+    showRemoveUserModal: function (user) {
       this.deleteUser = user;
-      this.deleteUser.index = index;
+      this.removeMember(user);
       this.$refs['remove-user-modal'].show();
     },
 
@@ -276,10 +283,10 @@ export default {
         method: 'delete'
       }).then(response => {
         // remove user entry from list
-        this.members.splice(this.deleteUser.index, 1);
+        this.removeMember(this.deleteUser);
       }).catch((error) => {
         if (error.response.status === 410) {
-          this.members.splice(this.deleteUser.index, 1);
+          this.removeMember(this.deleteUser);
         }
         Base.error(error, this.$root);
       }).finally(() => {
@@ -290,12 +297,11 @@ export default {
     /**
      * show modal to edit user role
      * @param user user object
-     * @param index index in the table
      */
-    showEditUserModal: function (user, index) {
+    showEditUserModal: function (user) {
       // Clone object to edit properties without displaying the changes in realtime in the members list
       this.editUser = _.cloneDeep(user);
-      this.editUser.index = index;
+      this.removeMember(this.editUser);
       this.$refs['edit-user-modal'].show();
     },
 
@@ -322,10 +328,10 @@ export default {
         data: { role: this.editUser.role }
       }).then(response => {
         // user role was saved
-        this.members[this.editUser.index].role = this.editUser.role;
+        this.members[this.members.findIndex(item => item.id === this.editUser.id)].role = this.editUser.role;
       }).catch((error) => {
         if (error.response.status === 410) {
-          this.members.splice(this.editUser.index, 1);
+          this.removeMember(this.editUser);
         }
         Base.error(error, this.$root);
       }).finally(() => {
