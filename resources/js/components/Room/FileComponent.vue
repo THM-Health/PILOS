@@ -60,6 +60,8 @@
         :current-page="currentPage"
         :per-page="settings('pagination_page_size')"
         :fields="filefields"
+        sort-by="uploaded"
+        :sort-desc="true"
         v-if="files.files"
         :items="files.files"
         hover
@@ -181,6 +183,11 @@ export default {
       required: false
     },
     requireAgreement: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    emitErrors: {
       type: Boolean,
       default: false,
       required: false
@@ -332,7 +339,7 @@ export default {
           // Fetch successful
           this.files = response.data.data;
         }).catch((error) => {
-          Base.error(error, this.$root);
+          if (this.emitErrors) { this.$emit('error', error); } else { Base.error(error, this.$root); }
         }).finally(() => {
           this.isBusy = false;
         });
@@ -378,13 +385,18 @@ export default {
       return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');
     },
 
-    // file table lables for columns
+    // file table labels for columns
     filefields () {
       if (PermissionService.cannot('manageFiles', { modelName: 'Room', isOwner: this.isOwner })) {
         return [
           {
             key: 'filename',
             label: this.$t('rooms.files.filename'),
+            sortable: true
+          },
+          {
+            key: 'uploaded',
+            label: this.$t('rooms.files.uploadedAt'),
             sortable: true
           },
           {

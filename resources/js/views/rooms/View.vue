@@ -152,7 +152,17 @@
           <b-row>
             <b-col>
               <hr>
-              <file-component ref="publicFileList" :access-code="accessCode" :room-id="room_id" :is-owner="room.isOwner" :show-title="true" :require-agreement="true" :hide-reload="true"></file-component>
+              <file-component
+                ref="publicFileList"
+                :emit-errors="true"
+                v-on:error="onFileListError"
+                :access-code="accessCode"
+                :room-id="room_id"
+                :is-owner="room.isOwner"
+                :show-title="true"
+                :require-agreement="true"
+                :hide-reload="true"
+              ></file-component>
             </b-col>
           </b-row>
         </template>
@@ -272,6 +282,39 @@ export default {
     setInterval(this.reload, env.REFRESH_RATE * 1000);
   },
   methods: {
+    /**
+     *  Handle errors of the file list
+     */
+    onFileListError: function (error) {
+      if (error.response) {
+        // Access code invalid
+        if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+          return this.handleInvalidCode();
+        }
+
+        // Forbidden, guests not allowed
+        if (error.response.status === 403) {
+          this.room = null;
+          // Remove a potential access code
+          this.accessCode = null;
+          return;
+        }
+      }
+      Base.error(error, this.$root);
+    },
+
+    /**
+     * Handle all 401 invalid_code errors
+     */
+    handleInvalidCode: function () {
+      // Show access code is valid
+      this.accessCodeValid = false;
+      // Reset access code (not the form input) to load the general room details again
+      this.accessCode = null;
+      // Show error message
+      this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+      this.reload();
+    },
 
     /**
      * Reload the room details/settings
@@ -301,14 +344,7 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
-              // Show access code is valid
-              this.accessCodeValid = false;
-              // Reset access code (not the form input) to load the general room details again
-              this.accessCode = null;
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
-              this.reload();
-              return;
+              return this.handleInvalidCode();
             }
 
             // Forbidden, guests not allowed
