@@ -20,7 +20,7 @@
                         </b-input-group-text>
                       </b-input-group-prepend>
                       <b-form-input id="register-input-email"
-                                    v-model="email"
+                                    v-model="user.email"
                                     :placeholder="$t('auth.email.email')"
                                     required
                                     :disabled="isBusy"
@@ -43,7 +43,7 @@
                         </b-input-group-text>
                       </b-input-group-prepend>
                       <b-form-input id="register-input-username"
-                                    v-model="username"
+                                    v-model="user.username"
                                     :placeholder="$t('auth.username')"
                                     required
                                     :disabled="isBusy"
@@ -66,7 +66,7 @@
                         </b-input-group-text>
                       </b-input-group-prepend>
                       <b-form-input id="register-input-password"
-                                    v-model="password"
+                                    v-model="user.password"
                                     :placeholder="$t('auth.password')"
                                     type="password"
                                     required
@@ -90,7 +90,7 @@
                         </b-input-group-text>
                       </b-input-group-prepend>
                       <b-form-input id="register-input-password-confirmation"
-                                    v-model="passwordConfirmation"
+                                    v-model="user.passwordConfirmation"
                                     :placeholder="$t('auth.passwordConfirmation')"
                                     type="password"
                                     required
@@ -114,7 +114,7 @@
                         </b-input-group-text>
                       </b-input-group-prepend>
                       <b-form-input id="register-input-firstname"
-                                    v-model="firstname"
+                                    v-model="user.firstname"
                                     :placeholder="$t('auth.firstname')"
                                     required
                                     :disabled="isBusy"
@@ -137,7 +137,7 @@
                         </b-input-group-text>
                       </b-input-group-prepend>
                       <b-form-input id="register-input-lastname"
-                                    v-model="lastname"
+                                    v-model="user.lastname"
                                     :placeholder="$t('auth.lastname')"
                                     required
                                     :disabled="isBusy"
@@ -173,18 +173,19 @@
 
 <script>
 import Base from '../api/base';
-import { mapGetters } from 'vuex';
 
 export default {
   data () {
     return {
-      email: null,
-      password: null,
-      passwordConfirmation: null,
-      firstname: null,
-      lastname: null,
-      username: null,
-      invitationToken: null,
+      user: {
+        email: null,
+        password: null,
+        passwordConfirmation: null,
+        firstname: null,
+        lastname: null,
+        username: null,
+        invitationToken: null
+      },
       isBusy: false,
       isPublicRegistration: null,
       errors: []
@@ -192,9 +193,9 @@ export default {
   },
   methods: {
     onSubmit () {
-      this.register();
+      this.register(this.user);
     },
-    register () {
+    register (user) {
       this.isBusy = true;
 
       Base.call('register', {
@@ -203,13 +204,13 @@ export default {
         },
         method: 'post',
         data: {
-          firstname: this.firstname,
-          lastname: this.lastname,
-          email: this.email,
-          username: this.username,
-          password: this.password,
-          password_confirmation: this.passwordConfirmation,
-          invitation_token: this.invitationToken
+          firstname: user.firstname,
+          lastname: user.lastname,
+          email: user.email,
+          username: user.username,
+          password: user.password,
+          password_confirmation: user.passwordConfirmation,
+          invitation_token: user.invitationToken
         }
       }).then(response => {
         this.flashMessage.success(this.$t('settings.users.createSuccess'));
@@ -232,11 +233,11 @@ export default {
     },
     checkInvitationToken () {
       this.isBusy = true;
-      this.invitationToken = this.$route.query.invitation_token;
+      this.user.invitationToken = this.$route.query.invitation_token;
 
       Base.call('invitation/checktoken', {
         params: {
-          invitation_token: this.invitationToken
+          invitation_token: this.user.invitationToken
         }
       }).then(response => {
         this.errors = [];
@@ -252,19 +253,25 @@ export default {
       }).finally(() => {
         this.isBusy = false;
       });
+    },
+    initializeRegister () {
+      // Added timeout as a temporary fix when settings data not fetched yet it returns null
+      setTimeout(() => {
+        this.isPublicRegistration = this.openRegistration;
+
+        if (this.isPublicRegistration === false) {
+          this.checkInvitationToken();
+        }
+      }, 1500);
     }
   },
   mounted () {
-    this.isPublicRegistration = this.settings('open_registration');
-
-    if (!this.isPublicRegistration) {
-      this.checkInvitationToken();
-    }
+    this.initializeRegister();
   },
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    })
+    openRegistration: function () {
+      return this.$store.getters['session/settings']('open_registration');
+    }
   }
 };
 </script>

@@ -5,6 +5,7 @@ namespace Tests\Feature\api\v1;
 use App\Invitation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
@@ -21,6 +22,8 @@ class RegisterTest extends TestCase
 
         // Set the registration to open registration
         config(['settings.defaults.open_registration' => true]);
+        // Set the invitation token expiration to 30 minutes from now
+        config(['settings.defaults.invitation_token_expiration' => 30]);
     }
 
     /**
@@ -70,8 +73,25 @@ class RegisterTest extends TestCase
             'password'              => 'N3wUser.',
             'password_confirmation' => 'N3wUser.',
             'username'              => 'newuser',
-            'email'                 => $invitation->email,
+            'email'                 => 'new@user.com',
             'invitation_token'      => 'invalidtoken'
+        ]);
+
+        $response->assertStatus(400);
+
+        // Expire the token by setting created_at back to 60 minutes from now
+        $invitation->created_at = Carbon::now()->subMinutes(60)->toDateTimeString();
+        $invitation->save();
+
+        // Test register with expired invitation token
+        $response = $this->postJson(route('api.v1.register'), [
+            'firstname'             => 'New',
+            'lastname'              => 'User',
+            'password'              => 'N3wUser.',
+            'password_confirmation' => 'N3wUser.',
+            'username'              => 'newuser',
+            'email'                 => 'new@user.com',
+            'invitation_token'      => $invitation->invitation_token
         ]);
 
         $response->assertStatus(400);

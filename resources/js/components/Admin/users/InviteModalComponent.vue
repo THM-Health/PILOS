@@ -99,6 +99,8 @@ export default {
         this.emails.push(inputEmail);
         this.inputEmail = '';
         this.errors = [];
+      } else {
+        this.errors = { email: [this.$t('settings.users.modal.inviteEmailError')] };
       }
     },
     removeEmail (email) {
@@ -126,6 +128,8 @@ export default {
         this.errors = error.response.data.errors;
 
         this.flashMessage.error(this.$t('settings.users.inviteFailed'));
+
+        this.emails = [];
 
         throw error;
       }).finally(() => {

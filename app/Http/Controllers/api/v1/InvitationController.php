@@ -9,6 +9,8 @@ use App\Mail\InvitationRegister;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -29,8 +31,16 @@ class InvitationController extends Controller
     {
         $invitationTokenValid = false;
 
+        // Get expiration date time from config
+        $expirationMinute              = (int) Config::get('settings.defaults.invitation_token_expiration');
+        $invitationTokenExpirationTime = Carbon::now()->subMinutes($expirationMinute)->toDateTimeString();
+
         if ($request->has('invitation_token')) {
-            $invitationTokenValid = Invitation::where([['invitation_token', $request->invitation_token], ['registered_at', null]])->exists();
+            $invitationTokenValid = Invitation::where([
+                ['invitation_token', $request->invitation_token],
+                ['created_at', '>', $invitationTokenExpirationTime],
+                ['registered_at', null]
+            ])->exists();
         }
 
         if (!$invitationTokenValid) {
@@ -69,7 +79,7 @@ class InvitationController extends Controller
             $store = $invitation->save();
 
             if ($store === false) {
-                abort(400, __('validation.custom.request.400'));
+                abort(400);
             }
 
             Mail::to($email)->send(new InvitationRegister($invitation));

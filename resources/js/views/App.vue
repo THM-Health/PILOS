@@ -26,10 +26,13 @@
             <!-- Right aligned nav items -->
             <b-navbar-nav class="ml-auto">
               <b-nav-item :to="{ name: 'login' }" v-if='!isAuthenticated' right>{{ $t('auth.login') }}</b-nav-item>
+              <b-nav-item :to="{ name: 'register' }" v-if="!isAuthenticated && settings('open_registration')" right>
+                {{ $t('auth.register') }}
+              </b-nav-item>
               <b-nav-item-dropdown right v-if='isAuthenticated'>
                 <!-- Using 'button-content' slot -->
                 <template v-slot:button-content>
-                  {{currentUser.firstname}} {{currentUser.lastname}}
+                  {{ currentUser.firstname }} {{ currentUser.lastname }}
                 </template>
 
                 <can method='manage' policy='SettingPolicy'>
@@ -92,11 +95,11 @@ export default {
 </script>
 
 <style scoped>
-  .mainnav {
-    border-bottom: 1px solid rgba(0, 40, 100, 0.12);
-  }
+.mainnav {
+  border-bottom: 1px solid rgba(0, 40, 100, 0.12);
+}
 
-  main {
-    min-height: calc(100vh - 80px);
-  }
+main {
+  min-height: calc(100vh - 80px);
+}
 </style>

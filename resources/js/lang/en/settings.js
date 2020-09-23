@@ -50,6 +50,7 @@ export default {
       invitePlaceholder: 'Email address of a user',
       inviteButton: 'Send invitation email',
       inviteFooterMessage: 'The user will receive an email with instructions on how to register',
+      inviteEmailError: 'Wrong email format and duplicate are not allowed!',
       submit: 'Submit'
     },
     createSuccess: {
@@ -91,7 +92,7 @@ export default {
   },
 
   recordings: {
-    title: 'Server records'
+    title: 'Server recordings'
   },
 
   siteSettings: {

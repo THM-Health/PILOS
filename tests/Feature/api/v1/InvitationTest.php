@@ -8,6 +8,8 @@ use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
 class InvitationTest extends TestCase
@@ -56,10 +58,24 @@ class InvitationTest extends TestCase
      */
     public function testCheckInvitationTokenWithInvalidInvitationToken()
     {
+        // Prepare invitation token expiration config to 30 minutes from now
+        config(['settings.defaults.invitation_token_expiration' => 30]);
+
         $invitation = factory(Invitation::class)->create();
 
+        // Invitation token not exist test
         $response = $this->getJson(route('api.v1.checkInvitationToken', [
             'invitation_token' => 'invalidtoken'
+        ]));
+
+        $response->assertStatus(401);
+
+        // Expire the token by setting created_at back to 60 minutes from now
+        $invitation->created_at = Carbon::now()->subMinutes(60)->toDateTimeString();
+        $invitation->save();
+
+        $response = $this->getJson(route('api.v1.checkInvitationToken', [
+            'invitation_token' => $invitation->invitation_token
         ]));
 
         $response->assertStatus(401);
@@ -142,6 +158,6 @@ class InvitationTest extends TestCase
             'email' => $emails
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(201);
     }
 }

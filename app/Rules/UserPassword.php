@@ -25,7 +25,7 @@ class UserPassword implements Rule
      */
     public function passes($attribute, $value)
     {
-        // Password should contain 1 uppercase letter, 1 lowercase letter, 1 symbol, 1 number
+        // Password should contain at least 1 uppercase letter, 1 lowercase letter, 1 symbol, 1 number
         return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $value);
     }
 
@@ -36,6 +36,6 @@ class UserPassword implements Rule
      */
     public function message()
     {
-        return __('validation.user.password');
+        return __('validation.custom.user.password');
     }
 }

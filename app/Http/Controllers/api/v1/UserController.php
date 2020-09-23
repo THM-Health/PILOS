@@ -7,9 +7,9 @@ use App\Http\Requests\StoreUser;
 use App\Http\Resources\User as UserResource;
 use App\User;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -95,8 +95,8 @@ class UserController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * @param  User         $user
-     * @return JsonResponse
+     * @param  User      $user
+     * @return Response
      * @throws Exception
      */
     public function destroy(User $user)
@@ -105,7 +105,7 @@ class UserController extends Controller
             abort(400);
         }
 
-        return response()->json([], 204);
+        return response()->noContent();
     }
 
     /**

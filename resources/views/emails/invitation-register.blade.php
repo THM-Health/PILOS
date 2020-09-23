@@ -1,12 +1,12 @@
 <!--Warning! Don't use any indentation! See Laravel docs Mail!-->
 @component('mail::message')
 
-@lang('email.invite.greetings') {{$invitation->email}},
+{{__('email.invite.greetings')}} {{$invitation->email}},
 
-@lang('email.invite.message')
+{{__('email.invite.message', ['minute' => config('settings.defaults.invitation_token_expiration')])}}
 
-@component('mail::button', ['url' => env('APP_URL') . '/register?invitation_token=' . $invitation->invitation_token, 'color' => 'success'])
-@lang('email.invite.register')
+@component('mail::button', ['url' => url('register?') .  http_build_query(['invitation_token' => $invitation->invitation_token]), 'color' => 'success'])
+{{__('email.invite.register')}}
 @endcomponent
 
 @endcomponent

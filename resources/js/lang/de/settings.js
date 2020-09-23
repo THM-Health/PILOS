@@ -37,6 +37,7 @@ export default {
       invitePlaceholder: 'Emailaddresse',
       inviteButton: 'Einladung schicken',
       inviteFooterMessage: 'Der Nutzer wird eine Email mit Anweisungen erhalten, wie er sich registrieren kann',
+      inviteEmailError: 'Falsches E-Mail-Format und Duplikate sind nicht erlaubt!',
       submit: 'Abschicken'
     },
     createSuccess: {
