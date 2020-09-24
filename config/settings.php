@@ -70,6 +70,6 @@ return [
     'defaults' => [
         'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
         'room_limit' => env('DEFAULT_ROOM_LIMIT',-1),
-        'pagination_page_size' => env('DEFAULT_PAGE_SIZE', 15),
+        'pagination_page_size' => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
     ]
 ];
