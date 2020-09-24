@@ -127,7 +127,7 @@ describe('RolesIndex', function () {
           total: 2
         }
       }
-    }
+    };
 
     const view = mount(Index, {
       localVue,
@@ -154,7 +154,6 @@ describe('RolesIndex', function () {
         expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
         expect(rows.at(1).findAllComponents(BButton).length).toEqual(1);
         expect(rows.at(1).findComponent(BButton).html()).toContain('settings.roles.view');
-
 
         view.destroy();
         PermissionService.setCurrentUser(oldUser);
