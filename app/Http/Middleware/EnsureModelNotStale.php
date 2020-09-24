@@ -34,7 +34,7 @@ class EnsureModelNotStale
 
             return response()->json([
                 'error'     => CustomStatusCodes::STALE_MODEL,
-                'message'   => trans('app.errors.stale_model', ['model' => trans('app.model.' . $model->getTable())]),
+                'message'   => __('app.errors.stale_model', ['model' => __('app.model.' . $model->getTable())]),
                 'new_model' => new $resourceClass($model)
             ], CustomStatusCodes::STALE_MODEL);
         }

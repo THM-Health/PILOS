@@ -178,7 +178,7 @@ describe('Router', function () {
             data: {
               id: 1,
               default: true,
-              modelName: 'Role'
+              model_name: 'Role'
             }
           }
         });
@@ -211,7 +211,7 @@ describe('Router', function () {
               data: {
                 id: 1,
                 default: false,
-                modelName: 'Role'
+                model_name: 'Role'
               }
             }
           });

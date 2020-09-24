@@ -17,7 +17,7 @@ describe('Cannot', function () {
     const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
-        policy: { modelName: 'Test' }
+        policy: { model_name: 'Test' }
       },
       slots: {
         default: testComponent
@@ -37,7 +37,7 @@ describe('Cannot', function () {
     const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
-        policy: { modelName: 'Test' }
+        policy: { model_name: 'Test' }
       },
       slots: {
         default: testComponent
@@ -58,7 +58,7 @@ describe('Cannot', function () {
     const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
-        policy: { modelName: 'Test' }
+        policy: { model_name: 'Test' }
       },
       slots: {
         default: testComponent
@@ -85,7 +85,7 @@ describe('Cannot', function () {
     const wrapper = shallowMount(Cannot, {
       propsData: {
         method: 'test',
-        policy: { modelName: 'Test' }
+        policy: { model_name: 'Test' }
       },
       slots: {
         default: testComponent

@@ -222,7 +222,7 @@ class RoleTest extends TestCase
             ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS)
             ->assertJsonFragment([
                 'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
-                'message' => trans('app.errors.role_delete_linked_users')
+                'message' => __('app.errors.role_delete_linked_users')
             ]);
 
         $roleB->users()->detach([$user->id]);

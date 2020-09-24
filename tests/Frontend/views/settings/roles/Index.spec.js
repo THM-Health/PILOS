@@ -41,7 +41,7 @@ describe('RolesIndex', function () {
             id: '1',
             name: 'Test',
             default: false,
-            modelName: 'Role'
+            model_name: 'Role'
           }],
           meta: {
             per_page: 1,
@@ -70,7 +70,7 @@ describe('RolesIndex', function () {
                 id: '2',
                 name: 'admin',
                 default: true,
-                modelName: 'Role'
+                model_name: 'Role'
               }],
               meta: {
                 per_page: 1,

@@ -49,7 +49,7 @@ class RoleController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  RoleRequest           $request
-     * @return JsonResponse|Response
+     * @return RoleResource
      */
     public function store(RoleRequest $request)
     {
@@ -61,7 +61,7 @@ class RoleController extends Controller
         $role->save();
         $role->permissions()->sync($request->permissions);
 
-        return response()->noContent(200);
+        return new RoleResource($role);
     }
 
     /**
@@ -99,7 +99,7 @@ class RoleController extends Controller
 
             return response()->json([
                 'error'   => CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST,
-                'message' => trans('app.errors.role_update_permission_lost')
+                'message' => __('app.errors.role_update_permission_lost')
             ], CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
         }
 
@@ -126,7 +126,7 @@ class RoleController extends Controller
         if ($role->users_count != 0) {
             return response()->json([
                 'error'   => CustomStatusCodes::ROLE_DELETE_LINKED_USERS,
-                'message' => trans('app.errors.role_delete_linked_users')
+                'message' => __('app.errors.role_delete_linked_users')
             ], CustomStatusCodes::ROLE_DELETE_LINKED_USERS);
         }
 

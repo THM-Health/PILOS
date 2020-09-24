@@ -3,7 +3,7 @@
     <template v-if="room">
 
       <!-- Delete button and modal -->
-      <can method="delete" :policy="{ modelName: 'Room', isOwner: room.isOwner  }">
+      <can method="delete" :policy="{ model_name: 'Room', isOwner: room.isOwner  }">
         <delete-room-component
           @roomDeleted="$router.push({ name: 'rooms.index' })"
           :room="room"

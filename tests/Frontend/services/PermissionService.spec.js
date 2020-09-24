@@ -46,21 +46,21 @@ describe('PermissionService', function () {
         expect(() => PermissionService.can({}, {})).toThrow(WrongTypeError);
       });
 
-      it('throws an error if the passed object hasn\'t set the `modelName` property', function () {
+      it('throws an error if the passed object hasn\'t set the `model_name` property', function () {
         expect(() => PermissionService.can('test', {})).toThrow(ParameterMissingError);
-        expect(() => PermissionService.can('test', { modelName: {} })).toThrow(ParameterMissingError);
+        expect(() => PermissionService.can('test', { model_name: {} })).toThrow(ParameterMissingError);
       });
 
       it('throws an error if the policy for the object or its method doesn\'t exists', function () {
         PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
-        expect(() => PermissionService.can('test', { modelName: 'test' })).toThrow(new PolicyDoesNotExistsError('testPolicy', 'test'));
-        expect(() => PermissionService.can('testA', { modelName: 'Test' })).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
+        expect(() => PermissionService.can('test', { model_name: 'test' })).toThrow(new PolicyDoesNotExistsError('testPolicy', 'test'));
+        expect(() => PermissionService.can('testA', { model_name: 'Test' })).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
         PermissionService.__ResetDependency__('Policies');
       });
 
       it('returns the boolean value returned by the policy method', function () {
         PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
-        expect(PermissionService.can('test', { modelName: 'Test' })).toEqual(true);
+        expect(PermissionService.can('test', { model_name: 'Test' })).toEqual(true);
         PermissionService.__ResetDependency__('Policies');
       });
     });
