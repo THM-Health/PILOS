@@ -21,6 +21,7 @@ export default {
     noOptions: 'Keine Berechtigungen vorhanden!',
 
     delete: {
+      item: 'Rolle {id} löschen',
       confirm: 'Wollen Sie die Rolle {name} wirklich löschen?',
       title: 'Rolle löschen?'
     }

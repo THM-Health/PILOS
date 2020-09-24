@@ -45,6 +45,8 @@
       <template v-slot:cell(actions)="data">
         <can method='view' :policy='data.item'>
           <b-button
+            v-b-tooltip.hover
+            :title="$t('settings.roles.view', { name: data.id })"
             :disabled='isBusy'
             variant='primary'
             :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
@@ -54,6 +56,8 @@
         </can>
         <can method='update' :policy='data.item'>
           <b-button
+            v-b-tooltip.hover
+            :title="$t('settings.roles.edit', { name: data.id })"
             :disabled='isBusy'
             variant='dark'
             :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
@@ -63,6 +67,8 @@
         </can>
         <can method='delete' :policy='data.item'>
           <b-button
+            v-b-tooltip.hover
+            :title="$t('settings.roles.delete.item', { id: data.id })"
             :disabled='isBusy'
             variant='danger'
             @click='showDeleteModal(data.item)'>
