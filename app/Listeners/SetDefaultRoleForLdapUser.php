@@ -15,7 +15,7 @@ class SetDefaultRoleForLdapUser
      * Adds the roles from the ldap user to the application user, which are mapped
      * in the config `ldap.roleMap`.
      *
-     * @param Authenticated $event
+     * @param  Authenticated          $event
      * @throws ModelNotFoundException
      */
     public function handle(Authenticated $event)
@@ -24,7 +24,7 @@ class SetDefaultRoleForLdapUser
 
         if ($user->authenticator === 'ldap') {
             $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
-            $ldapUser = User::findByGuidOrFail($user->getLdapGuid());
+            $ldapUser          = User::findByGuidOrFail($user->getLdapGuid());
 
             if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
                 $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
