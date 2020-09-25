@@ -214,9 +214,18 @@ class LdapRoleMappingTest extends TestCase
      */
     public function testMappingOnSecondLogin()
     {
+        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapAdmin', 'ldapSuperAdmin']);
+
+        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'user']);
+
         config([
             'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => $this->roleMap
+            'ldap.roleMap'           => [
+                'ldapAdmin'      => 'admin',
+                'ldapUser'       => 'user',
+                'ldapSuperAdmin' => 'admin'
+            ]
         ]);
 
         $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
@@ -232,7 +241,31 @@ class LdapRoleMappingTest extends TestCase
         }, $user->roles->all());
 
         $this->assertCount(1, $roleNames);
-        $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
+        $this->assertContains('admin', $roleNames);
+
+        $this->postJson(route('api.v1.logout'));
+
+        $this->assertFalse($this->isAuthenticated($this->guard));
+
+        $user->roles()->attach(Role::firstOrCreate(['name' => 'test'])->id);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $this->assertDatabaseCount('role_user', 2);
+        $user->load('roles');
+        $roleNames = array_map(function ($role) {
+            return $role->name;
+        }, $user->roles->all());
+
+        $this->assertCount(2, $roleNames);
+        $this->assertContains('admin', $roleNames);
+        $this->assertContains('test', $roleNames);
+
+        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapUser']);
 
         $this->postJson(route('api.v1.logout'));
 
@@ -244,7 +277,15 @@ class LdapRoleMappingTest extends TestCase
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertDatabaseCount('role_user', 1);
+        $this->assertDatabaseCount('role_user', 2);
+        $user->load('roles');
+        $roleNames = array_map(function ($role) {
+            return $role->name;
+        }, $user->roles->all());
+
+        $this->assertCount(2, $roleNames);
+        $this->assertContains('user', $roleNames);
+        $this->assertContains('test', $roleNames);
     }
 
     public function testMultipleRolesPartiallyMapped()
