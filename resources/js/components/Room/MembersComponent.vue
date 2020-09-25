@@ -200,8 +200,10 @@
 import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
   components: { Multiselect },
   props: {
     room: Object // room object
@@ -376,15 +378,6 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
-    },
-    // Check if field has server-side error
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    // Get server-side error for field
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
     }
   },
   computed: {

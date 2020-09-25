@@ -250,8 +250,11 @@
 <script>
 import Base from '../../api/base';
 import env from './../../env.js';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
+
   props: {
     room: Object
   },
@@ -322,13 +325,6 @@ export default {
     clearMaxParticipants () {
       this.settings.maxParticipants = null;
       this.save();
-    },
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
     }
   },
   computed: {

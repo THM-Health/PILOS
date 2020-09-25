@@ -120,8 +120,10 @@
 </template>
 <script>
 import Base from '../../api/base';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
   props: {
     room: Object
   },
@@ -138,15 +140,6 @@ export default {
     };
   },
   methods: {
-
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
-    },
-
     /**
      * Request file download url
      * @param file file object

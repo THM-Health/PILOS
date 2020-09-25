@@ -35,8 +35,11 @@
 <script>
 import Base from '../../api/base';
 import store from '../../store';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
+
   props: {
     roomTypes: Array,
     modalStatic: {
@@ -52,14 +55,6 @@ export default {
     };
   },
   methods: {
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
-    },
-
     handleOk: function (bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();

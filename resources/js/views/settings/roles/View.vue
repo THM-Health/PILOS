@@ -15,13 +15,9 @@
             <label for='name'>{{ $t('settings.roles.name') }}</label>
           </b-col>
           <b-col sm='9'>
-            <b-form-input :state='errors.name ? false : null' id='name' type='text' v-model='model.name' :disabled='isBusy || viewOnly'></b-form-input>
+            <b-form-input :state='fieldState("name")' id='name' type='text' v-model='model.name' :disabled='isBusy || viewOnly'></b-form-input>
             <b-form-invalid-feedback>
-              <ul>
-                <li v-for="(error, index) in errors.name" :key='index'>
-                  {{ error }}
-                </li>
-              </ul>
+              {{ fieldError('name') }}
             </b-form-invalid-feedback>
           </b-col>
         </b-row>
@@ -30,13 +26,9 @@
             <label for='room-limit'>{{ $t('settings.roles.roomLimit') }}</label>
           </b-col>
           <b-col sm='9'>
-            <b-form-input :state='errors.room_limit ? false : null' id='room-limit' type='number' v-model='model.room_limit' min='-1' :disabled='isBusy || viewOnly'></b-form-input>
+            <b-form-input :state='fieldState("room_limit")' id='room-limit' type='number' v-model='model.room_limit' min='-1' :disabled='isBusy || viewOnly'></b-form-input>
             <b-form-invalid-feedback>
-              <ul>
-                <li v-for="(error, index) in errors.room_limit" :key='index'>
-                  {{ error }}
-                </li>
-              </ul>
+              {{ fieldError('room_limit') }}
             </b-form-invalid-feedback>
           </b-col>
         </b-row>
@@ -140,8 +132,10 @@
 <script>
 import Base from '../../../api/base';
 import Multiselect from 'vue-multiselect';
+import FieldErrors from '../../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
   components: { Multiselect },
 
   props: {
