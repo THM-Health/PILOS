@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { createLocalVue, createWrapper, mount } from '@vue/test-utils';
 import AdminUser from '../../../../resources/js/views/settings/Users';
 import CrudModalComponent from '../../../../resources/js/components/Admin/users/CrudModalComponent';
 import InviteModalComponent from '../../../../resources/js/components/Admin/users/InviteModalComponent';
@@ -113,5 +113,34 @@ describe('AdminUser', function () {
         done();
       });
     });
+  });
+
+  it('formatDate method works properly', async function () {
+    let mockDateString = '2020-09-23T12:04:49.000000Z';
+    expect(mockDateString).toBe('2020-09-23T12:04:49.000000Z');
+
+    mockDateString = await wrapper.vm.formatDate(mockDateString);
+
+    expect(mockDateString).toBe('2020-09-23 12:04:49 UTC');
+  });
+
+  it('toggleRow method works properly', async function () {
+    const rootWrapper = createWrapper(wrapper.vm.$root);
+
+    expect(rootWrapper.emitted('bv::refresh::table')).toBeUndefined();
+
+    const mockUserShowDetails = { _showDetails: false };
+    expect(mockUserShowDetails._showDetails).toBeFalsy();
+
+    await wrapper.vm.toggleRowDetails(mockUserShowDetails);
+
+    // _showDetails should be toggled from false to true
+    expect(mockUserShowDetails._showDetails).toBeTruthy();
+
+    // Await emits bv::refresh::table
+    await wrapper.vm.$nextTick();
+
+    // Now the wrapper should be defined
+    expect(rootWrapper.emitted('bv::refresh::table')).toBeDefined();
   });
 });

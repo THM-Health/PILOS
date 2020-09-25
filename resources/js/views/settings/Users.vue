@@ -25,9 +25,9 @@
         </b-row>
       </b-col>
       <!--Search Bar-->
-      <b-col lg="6" class="my-1">
+      <b-col sm="6" class="my-1">
         <b-form-group
-          label-cols-sm="3"
+          label-cols-sm="4"
           label-align-sm="right"
           label-size="sm"
           label-for="filterInput"
@@ -61,7 +61,6 @@
              :no-local-sorting="true"
              responsive
              small
-             @filtered="onFiltered"
              @row-clicked="toggleRowDetails"
              @sort-changed="sortChanged"
     >
@@ -168,14 +167,14 @@
       class="mt-3"
       align="right"
       pills
-      @input="getUsers(currentPage)"
+      @input="getUsers(currentPage, filterInput)"
     >
     </b-pagination>
 
     <!-- CRUD modal -->
     <crud-modal-component
       ref="crudUserModal"
-      @crud="getUsers(currentPage)"
+      @crud="getUsers(currentPage, filterInput)"
       v-bind:modal-id="'crud-modal'"
       v-bind:crud-user="selectedUser"
       v-bind:modal-type="modalType">
@@ -217,7 +216,9 @@ export default {
         firstname: null,
         lastname: null,
         username: null,
-        email: null
+        email: null,
+        guid: null,
+        authenticator: null
       },
       modalType: null,
       ldapModalType: null
@@ -270,9 +271,6 @@ export default {
         });
       });
     },
-    deleteUser (id) {
-      this.$refs.crudUserModal.deleteUser(id);
-    },
     openModal (modalType) {
       this.modalType = modalType;
       this.$bvModal.show('crud-modal');
@@ -293,11 +291,6 @@ export default {
       this.sortBy = ctx.sortBy;
       this.orderBy = (ctx.sortDesc === false) ? 'asc' : 'desc';
       this.getUsers(this.currentPage);
-    },
-    onFiltered (filteredItems) { // Trigger pagination to update the number of buttons/pages due to filtering
-      this.totalRows = filteredItems.length;
-      this.users.count = filteredItems.length;
-      this.currentPage = 1;
     },
     formatDate (value) {
       value = value.replace('T', ' ').replace('.000000Z', ' UTC');

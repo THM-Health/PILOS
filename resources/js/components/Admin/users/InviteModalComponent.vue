@@ -44,21 +44,21 @@
           </b-form-group>
         </b-form>
         <hr>
-        <b-container fluid ref="invite-email-badge-container">
-          <b-row align-h="around">
-            <h5>
-              <b-badge
-                class="mb-2 mr-2 email-badge"
-                pill
-                variant="success"
-                @click="removeEmail(email)"
-                v-bind:key="index"
-                v-for="(email, index) in emails"
-                v-b-tooltip.hover
-                :title="$t('settings.users.tooltip.removeEmail')">
-                {{ email }}
-              </b-badge>
-            </h5>
+        <b-container ref="invite-email-badge-container" fluid>
+          <b-row align-h="around" class="h5">
+            <transition-group name="list" tag="span">
+              <span v-for="email in emails" v-bind:key="email" class="list-email">
+                <b-badge
+                  class="mb-2 mr-2 email-badge"
+                  pill
+                  variant="success"
+                  @click="removeEmail(email)"
+                  v-b-tooltip.hover
+                  :title="$t('settings.users.tooltip.removeEmail')">
+                  {{ email }}
+                </b-badge>
+              </span>
+            </transition-group>
           </b-row>
         </b-container>
         <hr>
@@ -158,5 +158,18 @@ export default {
 <style scoped>
 .email-badge {
   color: white;
+}
+
+.list-email {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+.list-enter, .list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>
