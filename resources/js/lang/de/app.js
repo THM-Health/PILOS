@@ -6,6 +6,7 @@ export default {
   reload: 'Neuladen',
   yes: 'Ja',
   no: 'Nein',
+  search: 'Suche',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',

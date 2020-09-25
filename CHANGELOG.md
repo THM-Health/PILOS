@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added authenticator type to users model ([#19], [#21])
 - Roles and permissions concept and management of roles ([#12], [#22], [#45])
 - Added page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
+- Add search field and pagination to the room overview page  ([#39], [#49])
 - Added file upload for room owner and file download for participants ([#4], [#18])
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
 - Added setting menu for administrators ([#35], [#38])
@@ -42,11 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#36]: https://github.com/THM-Health/PILOS/pull/36
 [#37]: https://github.com/THM-Health/PILOS/issues/37
 [#38]: https://github.com/THM-Health/PILOS/issues/38
+[#39]: https://github.com/THM-Health/PILOS/issues/39
 [#40]: https://github.com/THM-Health/PILOS/issues/40
 [#41]: https://github.com/THM-Health/PILOS/pull/41
 [#43]: https://github.com/THM-Health/PILOS/issues/43
 [#44]: https://github.com/THM-Health/PILOS/pull/44
 [#45]: https://github.com/THM-Health/PILOS/pull/45
 [#46]: https://github.com/THM-Health/PILOS/pull/46
+[#49]: https://github.com/THM-Health/PILOS/pull/49
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

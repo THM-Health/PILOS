@@ -1,32 +1,63 @@
 <template>
     <b-container class="mt-3 mb-5">
-      <h2>{{ $t('rooms.myRooms') }}</h2>
-      <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:rooms.myRooms.length,max:currentUser.room_limit}) }}</b-badge><br>
-
-      <em v-if="rooms.myRooms && !rooms.myRooms.length">{{ $t('rooms.noRoomsAvailable') }}</em>
-
-      <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" v-if="rooms.myRooms">
-        <b-col v-for="room in rooms.myRooms" :key="room.id" class="pt-2">
-          <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
-        </b-col>
-
-        <can method="create" policy="RoomPolicy" v-if="!limitReached">
-
-        <b-col class="pt-2">
-          <new-room-component @limitReached="onReachLimit" :room-types="rooms.roomTypes"></new-room-component>
-        </b-col>
-        </can>
+      <b-row class="mb-3">
+        <b-col md="3" offset-md="9"><b-input-group>
+          <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
+          <b-input-group-append>
+            <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="success"><b-icon icon="search"></b-icon></b-button>
+          </b-input-group-append>
+        </b-input-group></b-col>
       </b-row>
+      <h2>{{ $t('rooms.myRooms') }}</h2>
+      <b-overlay :show="loadingOwn" >
+        <template v-if="ownRooms">
+        <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.data.length,max:currentUser.room_limit}) }}</b-badge><br>
+
+        <em v-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailable') }}</em>
+
+        <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
+          <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
+            <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
+          </b-col>
+          <can method="create" policy="RoomPolicy" v-if="!limitReached">
+          <b-col class="pt-2">
+            <new-room-component  v-if="roomTypes" @limitReached="onReachLimit" :room-types="roomTypes"></new-room-component>
+          </b-col>
+          </can>
+        </b-row>
+
+        <b-pagination
+          class="mt-4"
+          v-if="ownRooms.meta.last_page != 1"
+          v-model="ownRooms.meta.current_page"
+          :total-rows="ownRooms.meta.total"
+          :per-page="ownRooms.meta.per_page"
+          @input="loadOwnRooms()"
+        ></b-pagination>
+        </template>
+      </b-overlay>
       <hr>
       <h2>{{ $t('rooms.sharedRooms') }}</h2>
-      <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" v-if="rooms.sharedRooms">
-        <b-col v-for="room in rooms.sharedRooms" :key="room.id" class="pt-2">
-          <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
-        </b-col>
-        <b-col v-if="!rooms.sharedRooms.length" class="pt-2">
-          <em>{{ $t('rooms.noRoomsAvailable') }}</em>
-        </b-col>
-      </b-row>
+      <b-overlay :show="loadingShared" >
+        <template v-if="sharedRooms">
+        <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
+          <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
+            <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
+          </b-col>
+          <b-col v-if="sharedRooms && !sharedRooms.data.length" class="pt-2">
+            <em>{{ $t('rooms.noRoomsAvailable') }}</em>
+          </b-col>
+        </b-row>
+        <b-pagination
+          class="mt-4"
+          v-if="sharedRooms.meta.last_page != 1"
+          v-model="sharedRooms.meta.current_page"
+          :total-rows="sharedRooms.meta.total"
+          :per-page="sharedRooms.meta.per_page"
+          @input="loadSharedRooms()"
+        ></b-pagination>
+        </template>
+      </b-overlay>
     </b-container>
 </template>
 
@@ -50,49 +81,98 @@ export default {
       currentUser: state => state.session.currentUser
     }),
     showLimit: function () {
-      return this.currentUser.room_limit !== -1 && this.rooms.myRooms !== undefined;
+      return this.currentUser.room_limit !== -1 && this.ownRooms !== null;
     },
     limitReached: function () {
-      return this.currentUser.room_limit !== -1 && this.rooms.myRooms !== undefined && this.rooms.myRooms.length >= this.currentUser.room_limit;
+      return this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.data.length >= this.currentUser.room_limit;
     }
+  },
+  mounted: function () {
+    this.reload();
   },
   methods: {
     // Handle event from new room component that the limit was reached
     onReachLimit () {
       store.dispatch('session/getCurrentUser');
-      this.reload();
+      this.loadOwnRooms();
     },
+    // Load all required resources
     reload () {
-      Base.call('rooms').then(response => {
-        this.rooms = response.data.data;
-      }).catch((error) => {
-        Base.error(error, this.$root);
+      this.loadOwnRooms();
+      this.loadSharedRooms();
+      this.loadRoomTypes();
+    },
+    // Reset page of pagination and reload resources with search query
+    search () {
+      this.ownRooms.meta.current_page = 1;
+      this.sharedRooms.meta.current_page = 1;
+      this.loadOwnRooms();
+      this.loadSharedRooms();
+    },
+    // Load the rooms shared with the current user
+    loadSharedRooms () {
+      this.loadingShared = true;
+
+      const config = {
+        params: {
+          filter: 'shared',
+          page: this.sharedRooms !== null ? this.sharedRooms.meta.current_page : 1
+        }
+      };
+
+      if (this.rawSearchQuery.trim() !== '') {
+        config.params.search = this.rawSearchQuery.trim();
+      }
+
+      Base.call('rooms', config).then(response => {
+        this.sharedRooms = response.data;
+      }).catch(error => {
+        Base.error(error, this);
+      }).finally(() => {
+        this.loadingShared = false;
+      });
+    },
+    // Load the rooms of the current user
+    loadOwnRooms () {
+      this.loadingOwn = true;
+
+      const config = {
+        params: {
+          filter: 'own',
+          page: this.ownRooms !== null ? this.ownRooms.meta.current_page : 1
+        }
+      };
+
+      if (this.rawSearchQuery.trim() !== '') {
+        config.params.search = this.rawSearchQuery.trim();
+      }
+
+      Base.call('rooms', config).then(response => {
+        this.ownRooms = response.data;
+      }).catch(error => {
+        Base.error(error, this);
+      }).finally(() => {
+        this.loadingOwn = false;
+      });
+    },
+    // Load the room types
+    loadRoomTypes () {
+      Base.call('roomTypes').then(response => {
+        this.roomTypes = response.data.data;
+      }).catch(error => {
+        Base.error(error, this);
       });
     }
   },
-
   data () {
     return {
-      rooms: []
+      loadingOwn: false,
+      loadingShared: false,
+      ownRooms: null,
+      sharedRooms: null,
+      roomTypes: null,
+      rawSearchQuery: ''
     };
-  },
-
-  // Component not loaded yet
-  beforeRouteEnter  (to, from, next) {
-    Base.call('rooms').then(response => {
-      next(vm => {
-        vm.rooms = response.data.data;
-      });
-    }).catch((error) => {
-      if (from.matched.length !== 0) {
-        next(error);
-      } else {
-        next(vm => {
-          Base.error(error, vm);
-          vm.$router.push('/');
-        });
-      }
-    });
   }
 };
 </script>

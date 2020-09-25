@@ -20,8 +20,10 @@ class SetDefaultRoleForLdapUser
     {
         $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
 
-        if ($event->user->hasAttribute($ldapRoleAttribute)) {
-            $ldapRoles = $event->user->getAttribute($ldapRoleAttribute);
+        $ldapUser = \LdapRecord\Models\OpenLDAP\User::find($event->user->getDn());
+
+        if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
+            $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
             $user      = $event->model;
             $roleIds   = [];
 

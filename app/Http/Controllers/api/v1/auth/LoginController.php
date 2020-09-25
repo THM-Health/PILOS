@@ -77,7 +77,16 @@ class LoginController extends Controller
     protected function guard()
     {
         if ($this->guard !== null) {
-            return Auth::guard($this->guard);
+            $guard = Auth::guard($this->guard);
+
+            if ($this->guard === 'ldap') {
+                $authenticator = $guard->getProvider()->getLdapUserAuthenticator();
+                $authenticator->authenticateUsing(function ($user, $password) {
+                    return $user->getConnection()->auth()->attempt($user->getDn(), $password, true);
+                });
+            }
+
+            return $guard;
         }
 
         return Auth::guard();

@@ -51,6 +51,11 @@
     font-weight: 600;
 }
 
+.page-item.active .page-link{
+    background-color: $green;
+    border-color: $green;
+}
+
 ._vue-flash-msg-body {
     width: 300px !important;
 

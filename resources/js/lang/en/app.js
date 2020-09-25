@@ -6,6 +6,7 @@ export default {
   reload: 'Reload',
   yes: 'Yes',
   no: 'No',
+  search: 'Search',
   flash: {
     clientError: {
       message: 'An unknown error occurred in the application!',
