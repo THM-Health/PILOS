@@ -28,7 +28,7 @@ describe('RolesIndex', function () {
   it('list of roles with pagination gets displayed', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view'] });
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
 
     const view = mount(Index, {
       localVue,
@@ -105,7 +105,7 @@ describe('RolesIndex', function () {
   it('update and delete buttons only shown if user has the permission and the role is not system default', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view'] });
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
 
     const response = {
       status: 200,
@@ -146,7 +146,7 @@ describe('RolesIndex', function () {
           expect(row.findAllComponents(BButton).length).toEqual(0);
         });
 
-        PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view', 'roles.update', 'roles.view', 'roles.delete'] });
+        PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.update', 'roles.view', 'roles.delete'] });
 
         return view.vm.$nextTick();
       }).then(() => {
@@ -195,7 +195,7 @@ describe('RolesIndex', function () {
   it('not system roles can be deleted', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view', 'roles.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
 
     const response = {
       status: 200,
@@ -255,7 +255,7 @@ describe('RolesIndex', function () {
   it('property gets cleared correctly if deletion gets aborted', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view', 'roles.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
 
     const response = {
       status: 200,
@@ -315,7 +315,7 @@ describe('RolesIndex', function () {
   it('new role button is displayed if the user has the corresponding permissions', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view', 'roles.create'] });
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.create'] });
 
     const view = mount(Index, {
       localVue,
