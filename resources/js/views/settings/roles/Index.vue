@@ -94,8 +94,10 @@
       cancel-variant='dark'
       :cancel-title="$t('app.false')"
       @ok='deleteRole'
-      @hidden='clearRoleToDelete'
-      ref='delete-role-modal'>
+      @cancel='clearRoleToDelete'
+      @close='clearRoleToDelete'
+      ref='delete-role-modal'
+      :static='modalStatic'>
       <template v-slot:modal-title>
         {{ $t('settings.roles.delete.title') }}
       </template>
@@ -116,6 +118,13 @@ import Can from '../../../components/Permissions/Can';
 
 export default {
   components: { Can },
+
+  props: {
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
+  },
 
   data () {
     return {
@@ -201,6 +210,7 @@ export default {
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
+        this.clearRoleToDelete();
         this.$refs['delete-role-modal'].hide();
         this.isBusy = false;
       });

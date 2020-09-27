@@ -2,7 +2,7 @@ import Index from '../../../../../resources/js/views/settings/roles/Index';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
-import BootstrapVue, { IconsPlugin, BTr, BTbody, BButton } from 'bootstrap-vue';
+import BootstrapVue, { IconsPlugin, BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 
@@ -192,12 +192,124 @@ describe('RolesIndex', function () {
     });
   });
 
-  it('not system roles can be deleted', function () {
+  it('not system roles can be deleted', function (done) {
+    const oldUser = PermissionService.currentUser;
 
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view', 'roles.delete'] });
+
+    const response = {
+      status: 200,
+      response: {
+        data: [{
+          id: '1',
+          name: 'Test',
+          default: false,
+          model_name: 'Role'
+        }],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 1
+        }
+      }
+    };
+
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: key => key === 'app.roles.admin'
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      }
+    });
+
+    moxios.wait(function () {
+      moxios.requests.mostRecent().respondWith(response).then(() => {
+        return view.vm.$nextTick();
+      }).then(() => {
+        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+        view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+
+        return view.vm.$nextTick();
+      }).then(() => {
+        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+        view.findComponent(BModal).vm.$refs['ok-button'].click();
+
+        moxios.wait(function () {
+          moxios.requests.mostRecent().respondWith({ status: 204 }).then(() => {
+            expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+            expect(view.vm.$data.roleToDelete).toBeUndefined();
+
+            view.destroy();
+            PermissionService.setCurrentUser(oldUser);
+            done();
+          });
+        });
+      });
+    });
   });
 
-  it('property gets cleared correctly if deletion gets aborted', function () {
+  it('property gets cleared correctly if deletion gets aborted', function (done) {
+    const oldUser = PermissionService.currentUser;
 
+    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.view', 'roles.delete'] });
+
+    const response = {
+      status: 200,
+      response: {
+        data: [{
+          id: '1',
+          name: 'Test',
+          default: false,
+          model_name: 'Role'
+        }],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 1
+        }
+      }
+    };
+
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: key => key === 'app.roles.admin'
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      }
+    });
+
+    moxios.wait(function () {
+      moxios.requests.mostRecent().respondWith(response).then(() => {
+        return view.vm.$nextTick();
+      }).then(() => {
+        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+        expect(view.vm.$data.roleToDelete).toBeUndefined();
+        view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+
+        return view.vm.$nextTick();
+      }).then(() => {
+        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+        expect(view.vm.$data.roleToDelete.id).toEqual('1');
+        view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+
+        return view.vm.$nextTick();
+      }).then(() => {
+        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+        expect(view.vm.$data.roleToDelete).toBeUndefined();
+
+        view.destroy();
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
   });
 
   it('new role button is displayed if the user has the corresponding permissions', function (done) {
