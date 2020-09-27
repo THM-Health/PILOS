@@ -12,7 +12,7 @@ localVue.use(IconsPlugin);
 let oldUser;
 
 const permissionsResponse1 = {
-  data: Array.from(Array(5).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` } }),
+  data: Array.from(Array(5).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; }),
   meta: {
     per_page: 5,
     current_page: 2,
@@ -22,7 +22,7 @@ const permissionsResponse1 = {
 };
 
 const permissionsResponse2 = {
-  data: Array.from(Array(5).keys()).map(item => { return { id: item + 6, name: `tests.test${item + 6}` } }),
+  data: Array.from(Array(5).keys()).map(item => { return { id: item + 6, name: `tests.test${item + 6}` }; }),
   meta: {
     per_page: 5,
     current_page: 2,
@@ -83,7 +83,7 @@ describe('RolesView', function () {
       localVue,
       mocks: {
         $t: (key, values) => key === 'settings.roles.view' ? `${key} ${values.name}` : key,
-        $te: key => key === 'app.roles.admin'  || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: true,
@@ -102,7 +102,7 @@ describe('RolesView', function () {
       localVue,
       mocks: {
         $t: (key, values) => key === 'settings.roles.edit' ? `${key} ${values.name}` : key,
-        $te: key => key === 'app.roles.admin'  || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: false,
@@ -121,7 +121,7 @@ describe('RolesView', function () {
       localVue,
       mocks: {
         $t: (key, values) => key === 'settings.roles.view' ? `${key} ${values.name}` : key,
-        $te: key => key === 'app.roles.admin'  || key.startsWith('app.permissions.tests.test')
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
       },
       propsData: {
         viewOnly: true,
