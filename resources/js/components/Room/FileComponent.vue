@@ -14,8 +14,7 @@
         >
         </b-form-file>
 
-        <b-form-invalid-feedback>
-          {{ fieldError('file') }}
+        <b-form-invalid-feedback v-html="fieldError('file')">
         </b-form-invalid-feedback>
 
         <b-form-text>{{ $t('rooms.files.formats',{formats: files.file_mimes}) }}<br>{{ $t('rooms.files.size',{size: files.file_size}) }}</b-form-text>
