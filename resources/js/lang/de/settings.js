@@ -13,7 +13,12 @@ export default {
     id: 'ID',
     name: 'Name',
     permissions: 'Rechte',
-    roomLimit: 'Max. Anzahl an Räumen',
+    roomLimit: {
+      label: 'Max. Anzahl an Räumen',
+      default: 'Systemstandard ({value})',
+      unlimited: 'Unbegrenzt'
+    },
+
     default: 'Standard',
     actions: 'Aktionen',
     nodata: 'Es sind keine Rollen vorhanden!',

@@ -50,14 +50,18 @@ export default {
 
   permissions: {
     rooms: {
-      create: 'Räume erstellen'
+      title: 'Räume',
+      create: 'Räume erstellen',
+      delete: 'Räume löschen'
     },
 
     settings: {
+      title: 'Einstellungen',
       manage: 'Einstellungen verwalten'
     },
 
     roles: {
+      title: 'Rollen',
       create: 'Rollen erstellen',
       delete: 'Rollen löschen',
       update: 'Rollen bearbeiten',
@@ -66,6 +70,7 @@ export default {
     },
 
     users: {
+      title: 'Benutzer',
       viewAny: 'Alle Benutzer anzeigen'
     }
   },
@@ -73,8 +78,6 @@ export default {
   overwrite: 'Überschreiben',
   save: 'Speichern',
   back: 'Zurück',
-  previousPage: 'Vorherige Seite',
-  nextPage: 'Nächste Seite',
 
   true: 'Ja',
   false: 'Nein'

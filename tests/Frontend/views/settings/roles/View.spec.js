@@ -11,18 +11,8 @@ localVue.use(IconsPlugin);
 
 let oldUser;
 
-const permissionsResponse1 = {
-  data: Array.from(Array(5).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; }),
-  meta: {
-    per_page: 5,
-    current_page: 2,
-    total: 10,
-    last_page: 2
-  }
-};
-
-const permissionsResponse2 = {
-  data: Array.from(Array(5).keys()).map(item => { return { id: item + 6, name: `tests.test${item + 6}` }; }),
+const permissionsResponse = {
+  data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; }),
   meta: {
     per_page: 5,
     current_page: 2,
@@ -57,13 +47,9 @@ describe('RolesView', function () {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['roles.view', 'roles.create', 'roles.update', 'settings.manage'] });
 
-    moxios.stubRequest('/api/v1/permissions?page=1', {
+    moxios.stubRequest('/api/v1/permissions', {
       status: 200,
-      response: permissionsResponse1
-    });
-    moxios.stubRequest('/api/v1/rooms?page=2', {
-      status: 200,
-      response: permissionsResponse2
+      response: permissionsResponse
     });
     moxios.stubRequest('/api/v1/roles/1', {
       status: 200,
@@ -165,10 +151,6 @@ describe('RolesView', function () {
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', function () {
-
-  });
-
-  it('permissions shown in pages in the multiselect', function () {
 
   });
 });

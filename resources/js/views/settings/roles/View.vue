@@ -10,79 +10,80 @@
 
     <b-form @submit='saveRole'>
       <b-container fluid>
-        <b-row class='my-1'>
-          <b-col sm='3'>
-            <label for='name'>{{ $t('settings.roles.name') }}</label>
-          </b-col>
-          <b-col sm='9'>
-            <b-form-input :state='fieldState("name")' id='name' type='text' v-model='model.name' :disabled='isBusy || viewOnly'></b-form-input>
-            <b-form-invalid-feedback>
-              {{ fieldError('name') }}
-            </b-form-invalid-feedback>
-          </b-col>
-        </b-row>
-        <b-row class='my-1'>
-          <b-col sm='3'>
-            <label for='room-limit'>{{ $t('settings.roles.roomLimit') }}</label>
-          </b-col>
-          <b-col sm='9'>
-            <b-form-input :state='fieldState("room_limit")' id='room-limit' type='number' v-model='model.room_limit' min='-1' :disabled='isBusy || viewOnly'></b-form-input>
-            <b-form-invalid-feedback>
-              {{ fieldError('room_limit') }}
-            </b-form-invalid-feedback>
-          </b-col>
-        </b-row>
-        <b-row class='my-1'>
-          <b-col sm='3'>
-            <label for='permissions'>{{ $t('settings.roles.permissions') }}</label>
-          </b-col>
-          <b-col sm='9'>
-            <multiselect v-model='model.permissions'
-                         track-by='id'
-                         open-direction='bottom'
-                         :multiple='true'
-                         :searchable='false'
-                         :internal-search='false'
-                         :clear-on-select='false'
-                         :close-on-select='true'
-                         :show-no-results='false'
-                         :showLabels='false'
-                         :options='permissions'
-                         :custom-label='permissionsLabel'
-                         :disabled='isBusy || viewOnly'
-                         id='permissions'
-                         :loading='permissionsLoading'
-                         :class="{ 'is-invalid' : Object.keys(errors).some(key => key === 'permissions' || key.startsWith('permissions.')) }">
-
-              <template slot='noOptions'>{{ $t('settings.roles.noOptions') }}</template>
-              <template slot='option' slot-scope="props">{{ $t(`app.permissions.${props.option.name}`) }}</template>
-              <template slot='singleLabel' slot-scope="props">{{ $t(`app.permissions.${props.option.name}`) }}</template>
-              <template slot='afterList'>
-                <li class='text-center mt-1'>
-                  <b-button
-                    :disabled='permissionsLoading || currentPage === 1'
-                    variant='outline-secondary'
-                    @click='loadPermissions(Math.max(1, currentPage - 1))'>
-                    <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
-                  </b-button>
-                  <b-button
-                    :disabled='permissionsLoading || !hasNextPage'
-                    variant='outline-secondary'
-                    @click='loadPermissions(currentPage + 1)'>
-                    <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
-                  </b-button>
-                </li>
+        <b-form-group
+          label-cols-sm='3'
+          :label="$t('settings.roles.name')"
+          label-for='name'
+          :state='fieldState("name")'
+        >
+          <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || viewOnly'></b-form-input>
+          <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+        </b-form-group>
+        <b-form-group
+          label-cols-sm='3'
+          :label="$t('settings.roles.roomLimit.label')"
+          label-for='room-limit'
+          :state='fieldState("room_limit")'
+        >
+          <b-form-input id='room-limit' type='number' :state='fieldState("room_limit")' v-model='model.room_limit' min='-1' :disabled='isBusy || viewOnly || model.room_limit === null || model.room_limit === -1'></b-form-input>
+          <b-form-checkbox
+            :checked='model.room_limit == null'
+            @change='(checked) => checked ? model.room_limit = null : model.room_limit = 0'
+            :disabled='isBusy || viewOnly'
+            inline
+          >
+            {{ $t('settings.roles.roomLimit.default', { value: settings('room_limit') === -1 ? $t('settings.roles.roomLimit.unlimited').toLowerCase() : settings('room_limit') }) }}
+          </b-form-checkbox>
+          <b-form-checkbox
+            :checked='model.room_limit == -1'
+            @change='(checked) => checked ? model.room_limit = -1 : model.room_limit = 0'
+            :disabled='isBusy || viewOnly'
+            inline
+          >
+            {{ $t('settings.roles.roomLimit.unlimited') }}
+          </b-form-checkbox>
+          <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
+        </b-form-group>
+        <b-form-group
+          :label="$t('settings.roles.permissions')"
+          label-size='lg'
+          label-class='font-weight-bold pt-0'
+          :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
+        >
+          <b-overlay class='row' :show='permissionsLoading'>
+            <b-form-group
+              class='col-lg-4 col-sm-12'
+              v-if='Object.keys(permissions).length > 0'
+              v-for="key in Object.keys(permissions)"
+              :key='key'
+            >
+              <template v-slot:label>
+                <b>{{ $t(`app.permissions.${key}.title`) }}</b>
               </template>
-            </multiselect>
-            <b-form-invalid-feedback>
-              <ul>
-                <li v-for="(error, index) in Object.keys(errors).filter(key => key.startsWith('permissions')).map(key => errors[key]).flat()" :key='index'>
-                  {{ error }}
-                </li>
-              </ul>
-            </b-form-invalid-feedback>
-          </b-col>
-        </b-row>
+
+              <b-form-checkbox-group
+                v-model='model.permissions'
+                :options='permissions[key]'
+                stacked
+                text-field='translatedName'
+                value-field='id'
+                :disabled='isBusy || viewOnly'
+                :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
+              ></b-form-checkbox-group>
+            </b-form-group>
+            <div v-else>
+              {{ $t('settings.roles.noOptions') }}
+            </div>
+          </b-overlay>
+
+          <template slot="invalid-feedback">
+            <ul>
+              <li v-for="(error, index) in Object.keys(errors).filter(key => key.startsWith('permissions')).map(key => errors[key]).flat()" :key='index'>
+                {{ error }}
+              </li>
+            </ul>
+          </template>
+        </b-form-group>
         <hr>
         <b-row class='my-1 float-right'>
           <b-col sm='12'>
@@ -131,12 +132,11 @@
 
 <script>
 import Base from '../../../api/base';
-import Multiselect from 'vue-multiselect';
 import FieldErrors from '../../../mixins/FieldErrors';
+import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors],
-  components: { Multiselect },
 
   props: {
     id: {
@@ -150,14 +150,18 @@ export default {
     }
   },
 
+  computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    })
+  },
+
   data () {
     return {
       isBusy: false,
       model: {},
       permissions: [],
       permissionsLoading: false,
-      hasNextPage: false,
-      currentPage: 0,
       errors: {},
       staleError: {}
     };
@@ -174,6 +178,7 @@ export default {
 
       Base.call(`roles/${this.id}`).then(response => {
         this.model = response.data.data;
+        this.model.permissions = this.model.permissions.map(permission => permission.id);
       }).catch(response => {
         Base.error(response, this.$root, response.message);
       }).finally(() => {
@@ -184,21 +189,23 @@ export default {
 
   methods: {
     /**
-     * Loads partially the permissions that can be selected through the multiselect.
+     * Loads the permissions that can be selected through checkboxes.
      */
-    loadPermissions (page = 1) {
+    loadPermissions () {
       this.permissionsLoading = true;
 
-      const config = {
-        params: {
-          page: page
-        }
-      };
+      Base.call('permissions').then(response => {
+        this.permissions = {};
+        response.data.data.forEach(permission => {
+          const group = permission.name.split('.')[0];
 
-      Base.call('permissions', config).then(response => {
-        this.permissions = response.data.data;
-        this.currentPage = page;
-        this.hasNextPage = page < response.data.meta.last_page;
+          if (!this.permissions[group]) {
+            this.permissions[group] = [];
+          }
+
+          permission.translatedName = this.$t(`app.permissions.${permission.name}`);
+          this.permissions[group].push(permission);
+        });
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
@@ -211,16 +218,6 @@ export default {
      */
     back () {
       this.$router.push({ name: 'settings.roles' });
-    },
-
-    /**
-     * Returns the translated permission.
-     *
-     * @param name
-     * @return {string}
-     */
-    permissionsLabel ({ name }) {
-      return this.$t(`app.permissions.${name}`);
     },
 
     /**
@@ -240,7 +237,7 @@ export default {
         data: {
           name: this.model.name,
           room_limit: this.model.room_limit || null,
-          permissions: this.model.permissions.map(permission => permission.id),
+          permissions: this.model.permissions,
           updated_at: this.model.updated_at
         }
       };

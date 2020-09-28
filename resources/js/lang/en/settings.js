@@ -13,7 +13,11 @@ export default {
     id: 'ID',
     name: 'Name',
     permissions: 'Permissions',
-    roomLimit: 'Room limit',
+    roomLimit: {
+      label: 'Room limit',
+      default: 'System default ({value})',
+      unlimited: 'Unlimited'
+    },
     default: 'Default',
     actions: 'Actions',
     nodata: 'No roles found!',
