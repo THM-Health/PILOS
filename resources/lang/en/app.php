@@ -1,6 +1,5 @@
 <?php
 return [
-    'delete_failed' => 'Deletion of the :model entity failed!',
     'errors' => [
         'stale_model' => 'The :model entity was updated in the meanwhile!',
         'room_start' => 'Starting failed! The room could not be started.',
@@ -15,6 +14,5 @@ return [
     ],
     'model' => [
         'roles' => 'role'
-    ],
-    'save_failed' => 'Persistence of the :model entity failed!',
+    ]
 ];

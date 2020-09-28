@@ -1,6 +1,5 @@
 <?php
 return [
-    'delete_failed' => 'Das Löschen vom :model-Datensatz ist fehlgeschlagen!',
     'errors' => [
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
         'room_start' => 'Starten fehlgeschlagen! Der Raum konnte nicht gestartet werden.',
@@ -15,6 +14,5 @@ return [
     ],
     'model' => [
         'roles' => 'Rollen'
-    ],
-    'save_failed' => 'Das Speichern vom :model-Datensatz ist fehlgeschlagen!',
+    ]
 ];
