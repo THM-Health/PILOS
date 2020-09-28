@@ -3,6 +3,7 @@ export default {
   logout: 'Logout',
   register: 'Register',
   password: 'Password',
+  passwordHint: 'The password must contain at least one Symbol, one Number, one small letter and one capital letter.',
   passwordConfirmation: 'Password confirmation',
   firstname: 'Firstname',
   lastname: 'Lastname',

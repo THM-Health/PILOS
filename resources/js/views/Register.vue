@@ -80,6 +80,10 @@
                         {{ error }}
                       </template>
                     </b-form-invalid-feedback>
+
+                    <b-form-text id="register-input-password-help">
+                      <b-icon icon="exclamation-circle" class="mr-1"></b-icon>{{ $t('auth.passwordHint') }}
+                    </b-form-text>
                   </b-form-group>
                   <b-form-group id="register-password-confirmation"
                                 label-for="register-input-password-confirmation">

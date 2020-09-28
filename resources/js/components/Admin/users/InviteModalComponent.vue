@@ -44,7 +44,7 @@
           </b-form-group>
         </b-form>
         <hr>
-        <b-container ref="invite-email-badge-container" fluid v-if="emails.length > 0">
+        <b-container ref="invite-email-badge-container" fluid>
           <b-row align-h="around" class="h5">
             <transition-group name="list" tag="span">
               <span v-for="email in emails" v-bind:key="email" class="list-email">
@@ -54,7 +54,8 @@
                   variant="success"
                   @click="removeEmail(email)"
                   v-b-tooltip.hover
-                  :title="$t('settings.users.tooltip.removeEmail')">
+                  :title="$t('settings.users.tooltip.removeEmail')"
+                >
                   {{ email }}
                 </b-badge>
               </span>
@@ -168,6 +169,7 @@ export default {
 .list-enter-active, .list-leave-active {
   transition: all 1s;
 }
+
 .list-enter, .list-leave-to {
   opacity: 0;
   transform: translateY(30px);

@@ -3,6 +3,7 @@ export default {
   logout: 'Abmelden',
   register: 'Registrieren',
   password: 'Kennwort',
+  passwordHint: 'Das Kennwort muss mindestens ein Symbol, eine Zahl, ein Kleinbuchstabe und ein Großbuchstabe enthalten.',
   passwordConfirmation: 'Kennwort Bestätigung',
   firstname: 'Vorname',
   lastname: 'Nachname',

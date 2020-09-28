@@ -7,6 +7,7 @@
       :static="true"
       header-class="modal-title"
       header-text-variant="success"
+      size="lg"
       centered
       hide-footer
       @hidden="resetModal()"
@@ -87,6 +88,10 @@
                   {{ error }}
                 </template>
               </b-form-invalid-feedback>
+
+              <b-form-text id="crud-input-password-help">
+                <b-icon icon="exclamation-circle" class="mr-1"></b-icon>{{ $t('auth.passwordHint') }}
+              </b-form-text>
             </b-form-group>
             <b-form-group id="crud-password-confirmation"
                           label-for="crud-input-password-confirmation"
