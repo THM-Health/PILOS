@@ -144,11 +144,11 @@
           </b-row>
           <b-row class="mb-2">
             <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.created') }}</b></b-col>
-            <b-col>{{ formatDate(row.item.createdAt) }}</b-col>
+            <b-col>{{ formatDate(row.item.created_at) }}</b-col>
           </b-row>
           <b-row class="mb-2">
             <b-col sm="3" class="text-sm-right"><b>{{ $t('settings.users.fields.updated') }}</b></b-col>
-            <b-col>{{ formatDate(row.item.updatedAt) }}</b-col>
+            <b-col>{{ formatDate(row.item.updated_at) }}</b-col>
           </b-row>
         </b-card>
       </template>

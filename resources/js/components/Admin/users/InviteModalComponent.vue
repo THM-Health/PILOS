@@ -44,7 +44,7 @@
           </b-form-group>
         </b-form>
         <hr>
-        <b-container ref="invite-email-badge-container" fluid>
+        <b-container ref="invite-email-badge-container" fluid v-if="emails.length > 0">
           <b-row align-h="around" class="h5">
             <transition-group name="list" tag="span">
               <span v-for="email in emails" v-bind:key="email" class="list-email">

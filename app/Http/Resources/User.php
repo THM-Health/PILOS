@@ -38,19 +38,19 @@ class User extends JsonResource
         }
 
         return [
-            'id'           => $this->id,
-            'authenticator'=> $this->authenticator,
-            'email'        => $this->email,
-            'firstname'    => $this->firstname,
-            'lastname'     => $this->lastname,
-            'username'     => $this->username,
-            'guid'         => $this->guid,
-            'locale'       => $this->locale,
-            'permissions'  => $this->when($this->withPermissions, $this->permissions),
-            'modelName'    => $this->modelName,
-            'room_limit'   => $this->room_limit,
-            'createdAt'    => $this->created_at,
-            'updatedAt'    => $this->updated_at,
+            'id'            => $this->id,
+            'authenticator' => $this->authenticator,
+            'email'         => $this->email,
+            'firstname'     => $this->firstname,
+            'lastname'      => $this->lastname,
+            'username'      => $this->username,
+            'guid'          => $this->guid,
+            'locale'        => $this->locale,
+            'permissions'   => $this->when($this->withPermissions, $this->permissions),
+            'modelName'     => $this->modelName,
+            'room_limit'    => $this->room_limit,
+            'created_at'    => $this->created_at,
+            'updated_at'    => $this->updated_at,
         ];
     }
 }

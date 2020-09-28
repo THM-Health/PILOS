@@ -67,8 +67,9 @@ class UserTest extends TestCase
                     'lastname',
                     'locale',
                     'username',
-                    'createdAt',
-                    'updatedAt',
+                    'created_at',
+                    'updated_at',
+                    'room_limit',
                     'modelName'
                 ]
             ]

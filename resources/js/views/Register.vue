@@ -253,20 +253,17 @@ export default {
       }).finally(() => {
         this.isBusy = false;
       });
-    },
-    initializeRegister () {
-      // Added timeout as a temporary fix when settings data not fetched yet it returns null
-      setTimeout(() => {
-        this.isPublicRegistration = this.openRegistration;
-
-        if (this.isPublicRegistration === false) {
-          this.checkInvitationToken();
-        }
-      }, 1500);
     }
   },
   mounted () {
-    this.initializeRegister();
+    // Added nextTick as a solution when settings data from store not fetched yet it returns null
+    this.$nextTick(() => {
+      this.isPublicRegistration = this.openRegistration;
+
+      if (this.isPublicRegistration === false) {
+        this.checkInvitationToken();
+      }
+    });
   },
   computed: {
     openRegistration: function () {
