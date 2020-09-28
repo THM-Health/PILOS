@@ -51,6 +51,7 @@
     font-weight: 600;
 }
 
+// Pagination current page background
 .page-item.active .page-link{
     background-color: $green;
     border-color: $green;
@@ -117,10 +118,4 @@
             border-left: 5px solid $orange !important;
         }
     }
-}
-
-// Pagination current page background
-.page-item.active .page-link {
-    background-color: #80BA27 !important;
-    border-color: #80BA27 !important;
 }

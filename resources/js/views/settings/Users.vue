@@ -4,24 +4,25 @@
       <b-col>
         <b-row>
           <h2 class="ml-3 text-success">{{ $t('settings.users.title') }}</h2>
-          <b-avatar
+          <b-button
             id="create-user-button"
-            class="text-white ml-2"
+            class="text-white ml-3 mb-1"
             variant="success"
             icon="person-plus"
             v-b-tooltip.hover.top="$t('settings.users.tooltip.create')"
             @click="openModal('create')"
-            button>
-          </b-avatar>
-          <b-avatar
+            >
+            <b-icon icon="person-plus"></b-icon>
+          </b-button>
+          <b-button
             id="invite-user-button"
-            class="text-white ml-2"
+            class="text-white ml-2 mb-1"
             variant="success"
-            icon="envelope"
             v-b-tooltip.hover.top="$t('settings.users.tooltip.invite')"
             v-b-modal.invite-modal
-            button>
-          </b-avatar>
+            >
+            <b-icon icon="envelope"></b-icon>
+          </b-button>
         </b-row>
       </b-col>
       <!--Search Bar-->
@@ -166,7 +167,6 @@
       :disabled="isBusy"
       class="mt-3"
       align="right"
-      pills
       @input="getUsers(currentPage, filterInput)"
     >
     </b-pagination>
