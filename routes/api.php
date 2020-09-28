@@ -52,6 +52,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
+        Route::get('users/search','UserController@search')->name('users.search');
+
         Route::apiResource('users', 'UserController');
         Route::apiResource('invitations', 'InvitationController')->except(['index', 'show']);
 
@@ -79,8 +81,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
             Route::delete('rooms/{room}/files/{file}', 'RoomFileController@destroy')->name('rooms.files.remove');
         });
 
-        Route::get('users/search','UserController@search')->name('users.search');
-
         Route::get('roomTypes', 'RoomTypeController@index')->name('roomTypes.index');
     });
 
@@ -91,13 +91,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
     });
 
-
-
-
-
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
-
-
 });
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {

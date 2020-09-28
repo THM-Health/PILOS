@@ -51,6 +51,24 @@ class UserTest extends TestCase
      */
     public function testGetUsers()
     {
+        factory(User::class)->create([
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ]);
+
+        // Generate extra dummy users
+        factory(User::class)->create([
+            'username'  => 'asd',
+            'email'     => 'abc@mustermann.com'
+        ]);
+
+        factory(User::class)->create([
+            'username'  => 'sdf',
+            'email'     => 'sdf@mustermann.com'
+        ]);
+
         $response = $this->actingAs($this->user)->getJson(route('api.v1.users.index'));
 
         $response->assertOk();
@@ -74,6 +92,18 @@ class UserTest extends TestCase
                 ]
             ]
         ]);
+
+        // Test get users with name
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.index'), ['name' => 'max']);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'firstname' => 'Max'
+        ]);
+
+        // Test get users sorted with email in ascending order
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.index'), ['sortBy' => 'email', 'orderBy' => 'asc']);
+        $response->assertOk();
 
         // Detach the created user roles
         $this->user->roles()->detach(1);
@@ -138,6 +168,44 @@ class UserTest extends TestCase
         $response = $this->actingAs($this->user)->getJson(route('api.v1.users.show', 77));
 
         $response->assertStatus(404);
+    }
+
+    /**
+     * Test that searches users with name
+     *
+     * @return void
+     */
+    public function testSearchUsers()
+    {
+        factory(User::class)->create([
+            'id'        => 32,
+            'firstname' => 'Max',
+            'lastname'  => 'Mustermann',
+            'username'  => 'mtm',
+            'email'     => 'max@mustermann.com'
+        ]);
+
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.users.search'), ['query' => 'max']);
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'authenticator',
+                    'email',
+                    'firstname',
+                    'guid',
+                    'lastname',
+                    'locale',
+                    'username',
+                    'created_at',
+                    'updated_at',
+                    'room_limit',
+                    'modelName'
+                ]
+            ]
+        ]);
     }
 
     /**
