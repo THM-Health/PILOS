@@ -54,8 +54,8 @@ describe('Create new rooms', function () {
     moxios.uninstall();
   });
 
-  const exampleRoomListResponse = {
-    myRooms: [
+  const exampleOwnRoomResponse = {
+    data: [
       {
         id: 'abc-def-123',
         name: 'Meeting One',
@@ -69,7 +69,17 @@ describe('Create new rooms', function () {
         }
       }
     ],
-    sharedRooms: [
+    meta: {
+      current_page: 1,
+      from: 1,
+      last_page: 1,
+      per_page: 10,
+      to: 1,
+      total: 1
+    }
+  };
+  const exampleSharedRoomResponse = {
+    data: [
       {
         id: 'def-abc-123',
         name: 'Meeting Two',
@@ -94,17 +104,40 @@ describe('Create new rooms', function () {
           default: false
         }
       }
+    ],
+    meta: {
+      current_page: 1,
+      from: 1,
+      last_page: 1,
+      per_page: 10,
+      to: 5,
+      total: 2
+    }
+  };
+  const exampleRoomTypeResponse = {
+    data: [
+      { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27', default: false },
+      { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: true },
+      { id: 3, short: 'PR', description: 'Pr\u00fcfung', color: '#9C132E', default: false },
+      { id: 4, short: '\u00dcB', description: '\u00dcbung', color: '#00B8E4', default: false }
     ]
   };
 
   it('frontend permission test', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
+    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
-      response: { data: exampleRoomListResponse }
+      response: exampleOwnRoomResponse
+    });
+    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+      status: 200,
+      response: exampleSharedRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
     });
 
     PermissionService.setCurrentUser(exampleUser);
-
     const view = mount(RoomList, {
       localVue,
       mocks: {
@@ -113,8 +146,7 @@ describe('Create new rooms', function () {
       store
     });
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
+    moxios.wait(async () => {
       await view.vm.$nextTick();
 
       const missingNewRoomComponent = view.findComponent(NewRoomComponent);
@@ -136,9 +168,17 @@ describe('Create new rooms', function () {
   });
 
   it('frontend room limit test', function (done) {
-    moxios.stubRequest('/api/v1/rooms', {
+    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
-      response: { data: exampleRoomListResponse }
+      response: exampleOwnRoomResponse
+    });
+    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+      status: 200,
+      response: exampleSharedRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
     });
 
     const newUser = _.cloneDeep(exampleUser);
@@ -154,8 +194,7 @@ describe('Create new rooms', function () {
       store
     });
 
-    RoomList.beforeRouteEnter.call(view.vm, undefined, undefined, async next => {
-      next(view.vm);
+    moxios.wait(async () => {
       await view.vm.$nextTick();
 
       const missingNewRoomComponent = view.findComponent(NewRoomComponent);

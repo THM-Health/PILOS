@@ -43,7 +43,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>$this->faker->word];
+        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => $this->faker->word];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -55,7 +55,7 @@ class RoomTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name'=>'rooms.create']);
+        $permission = factory(Permission::class)->create(['name' => 'rooms.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -66,14 +66,14 @@ class RoomTest extends TestCase
         // -- Try different invalid requests --
 
         // empty name and invalid roomtype
-        $room = ['roomType'=>0,'name'=>''];
+        $room = ['roomType' => 0, 'name' => ''];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name','roomType']);
+            ->assertJsonValidationErrors(['name', 'roomType']);
 
         // missing parameters
         $room = [];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name','roomType']);
+            ->assertJsonValidationErrors(['name', 'roomType']);
     }
 
     /**
@@ -97,6 +97,44 @@ class RoomTest extends TestCase
         // Create second room, expect reach of limit
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_2)
             ->assertStatus(CustomStatusCodes::ROOM_LIMIT_EXCEEDED);
+    }
+
+    /**
+     * Test to delete a room
+     */
+    public function testDeleteRoom()
+    {
+        $room_1 = factory(Room::class)->create();
+        $room_2 = factory(Room::class)->create();
+
+        // Test unauthenticated user
+        $this->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertUnauthorized();
+
+        // Test with normal user
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertForbidden();
+
+        $room_1->owner()->associate($this->user);
+        $room_1->save();
+
+        // Test with owner
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertNoContent();
+
+        // Try again after deleted
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+            ->assertNotFound();
+
+        // Authorize user to delete any room
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'rooms.delete']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Test with general room delete permission
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_2]))
+            ->assertNoContent();
     }
 
     /**
@@ -186,17 +224,16 @@ class RoomTest extends TestCase
         $rooms = factory(Room::class, 4)->create();
 
         // Testing guests access
-        $this->getJson(route('api.v1.rooms.index'))
+        $this->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertUnauthorized();
 
-        // Testing authorized users access, structure and empty list
+        // Testing authorized users access
+        // Missing filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
-            ->assertOk()
-            ->assertJsonStructure(['data' => [
-                'myRooms',
-                'sharedRooms'
-            ]])
-            ->assertJsonMissing(['id'=>$rooms[0]->id]);
+            ->assertStatus(400);
+        // Invalid filter
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
+            ->assertStatus(400);
 
         // Testing ownership and membership
         $rooms[0]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
@@ -206,12 +243,99 @@ class RoomTest extends TestCase
         $rooms[3]->owner()->associate($this->user);
         $rooms[3]->save();
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+        // Testing working filter
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$rooms[0]->id])
-            ->assertJsonFragment(['id'=>$rooms[1]->id])
             ->assertJsonFragment(['id'=>$rooms[2]->id])
             ->assertJsonFragment(['id'=>$rooms[3]->id]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$rooms[0]->id])
+            ->assertJsonFragment(['id'=>$rooms[1]->id]);
+    }
+
+    /**
+     * Test search for rooms
+     */
+    public function testRoomSearch()
+    {
+        $room = factory(Room::class)->create(['name'=>'Meeting One']);
+
+        // Testing ownership and membership
+        $room->owner()->associate($this->user);
+        $room->save();
+
+        // Testing without query
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with empty query
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with fragment of the room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=One')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with full name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting One')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room->id]);
+
+        // Testing with invalid name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting Two')
+            ->assertOk()
+            ->assertJsonMissing(['id'=>$room->id]);
+    }
+
+    /*
+     * Test callback route for meetings
+     */
+    public function testEndMeetingCallback()
+    {
+        $room = factory(Room::class)->create();
+
+        $server              = new Server();
+        $server->baseUrl     = $this->faker->url;
+        $server->salt        = $this->faker->sha1;
+        $server->status      = true;
+        $server->description = $this->faker->word;
+        $server->save();
+
+        $meeting = $room->meetings()->create();
+        $meeting->server()->associate($server);
+        $meeting->start       = date('Y-m-d H:i:s');
+        $meeting->attendeePW  = bin2hex(random_bytes(5));
+        $meeting->moderatorPW = bin2hex(random_bytes(5));
+        $meeting->save();
+
+        self::assertNull($meeting->end);
+
+        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
+
+        // check with invalid salt
+        $this->getJson($url.'test')
+            ->assertUnauthorized();
+
+        $this->getJson($url)
+            ->assertSuccessful();
+
+        // Check if timestamp was set
+        $meeting->refresh();
+        self::assertNotNull($meeting->end);
+        $end = $meeting->end;
+
+        // Check if second call doesn't change timestamp
+        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
+        $this->getJson($url)
+            ->assertSuccessful();
+
+        $meeting->refresh();
+        self::assertEquals($meeting->end, $end);
     }
 
     public function testSettingsAccess()
@@ -426,7 +550,7 @@ class RoomTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**
@@ -501,7 +625,7 @@ class RoomTest extends TestCase
             ->assertSuccessful();
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**
@@ -539,7 +663,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**
@@ -576,7 +700,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->end());
+        $this->assertTrue($room->runningMeeting()->endMeeting());
     }
 
     /**

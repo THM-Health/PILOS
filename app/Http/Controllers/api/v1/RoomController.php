@@ -8,10 +8,10 @@ use App\Http\Requests\CreateRoom;
 use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
-use App\RoomType;
 use App\Room;
 use App\Server;
 use Auth;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
@@ -25,17 +25,37 @@ class RoomController extends Controller
     /**
      * Return a json array with all rooms the user owners or is member of
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([
-                'data' => [
-                    'myRooms'     => \App\Http\Resources\Room::collection(Auth::user()->myRooms()->with('owner')->orderBy('name')->get()),
-                    'sharedRooms' => \App\Http\Resources\Room::collection(Auth::user()->sharedRooms()->with('owner')->orderBy('name')->get()),
-                    'roomTypes'   => \App\Http\Resources\RoomType::collection(RoomType::all()),
-                ]
-        ]);
+        $collection = null;
+
+        if ($request->has('filter')) {
+            switch ($request->filter) {
+                case 'own':
+                    $collection = Auth::user()->myRooms()->with('owner');
+
+                    break;
+                case 'shared':
+                    $collection =  Auth::user()->sharedRooms()->with('owner');
+
+                    break;
+                default:
+                    abort(400);
+            }
+        } else {
+            //TODO implement public room list
+            abort(400);
+        }
+
+        if ($request->has('search') && trim($request->search) != '') {
+            $collection = $collection->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+
+        return \App\Http\Resources\Room::collection($collection);
     }
 
     /**
@@ -114,7 +134,7 @@ class RoomController extends Controller
             $meeting->moderatorPW = bin2hex(random_bytes(5));
             $meeting->save();
 
-            if (!$meeting->start()) {
+            if (!$meeting->startMeeting()) {
                 abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
         }
@@ -139,7 +159,7 @@ class RoomController extends Controller
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
-        if (!$meeting->start()) {
+        if (!$meeting->startMeeting()) {
             abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
         }
 
@@ -189,8 +209,10 @@ class RoomController extends Controller
      * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
-    /*public function destroy(Room $room)
+    public function destroy(Room $room)
     {
-        //TODO implement; maybe keep some statistical data
-    }*/
+        $room->delete();
+
+        return response()->noContent();
+    }
 }

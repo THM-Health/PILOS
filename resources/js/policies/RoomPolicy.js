@@ -12,13 +12,8 @@ export default {
     return permissionService.currentUser && permissionService.currentUser.permissions.includes('rooms.create');
   },
 
-  /**
-   * Is user allowed to see any rooms
-   * @param permissionService
-   * @return {boolean}
-   */
-  viewAny (permissionService) {
-    return permissionService.currentUser && permissionService.currentUser.permissions.includes('rooms.viewAny');
+  delete (permissionService, model) {
+    return model.isOwner || permissionService.currentUser.permissions.includes('rooms.delete');
   }
 
 };

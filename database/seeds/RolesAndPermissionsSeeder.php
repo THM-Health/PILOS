@@ -19,7 +19,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $userPermissions  = [];
 
         $adminPermissions[] = $userPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
-
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.delete' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id;
 
