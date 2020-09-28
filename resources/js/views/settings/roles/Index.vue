@@ -115,6 +115,7 @@
 <script>
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
+import PermissionService from '../../../services/PermissionService';
 
 export default {
   components: { Can },
@@ -141,12 +142,17 @@ export default {
      * Returns array with table fields and their labels.
      */
     tableFields () {
-      return [
+      let fields = [
         { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
         { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
-        { key: 'default', label: this.$t('settings.roles.default'), sortable: true },
-        { key: 'actions', label: this.$t('settings.roles.actions') }
+        { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
       ];
+
+      if (PermissionService.currentUser && (['roles.view', 'roles.update', 'roles.delete'].some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
+        fields.push({ key: 'actions', label: this.$t('settings.roles.actions') });
+      }
+
+      return fields;
     }
   },
 
