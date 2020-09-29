@@ -39,42 +39,42 @@ function overrideStub (url, response) {
 
 let oldUser;
 
-const permissionsResponse = {
-  data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; }),
-  meta: {
-    per_page: 5,
-    current_page: 2,
-    total: 10,
-    last_page: 2
-  }
-};
-
-const roleResponse = {
-  data: {
-    id: '1',
-    name: 'admin',
-    default: false,
-    model_name: 'Role',
-    room_limit: null,
-    updated_at: '2020-09-08 15:13:26',
-    permissions: [
-      {
-        id: 1,
-        name: 'tests.test1'
-      },
-      {
-        id: 10,
-        name: 'tests.test10'
-      }
-    ]
-  }
-};
-
 describe('RolesView', function () {
   beforeEach(function () {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['roles.view', 'roles.create', 'roles.update', 'settings.manage'] });
     moxios.install();
+
+    const permissionsResponse = {
+      data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; }),
+      meta: {
+        per_page: 5,
+        current_page: 2,
+        total: 10,
+        last_page: 2
+      }
+    };
+
+    const roleResponse = {
+      data: {
+        id: '1',
+        name: 'admin',
+        default: false,
+        model_name: 'Role',
+        room_limit: null,
+        updated_at: '2020-09-08 15:13:26',
+        permissions: [
+          {
+            id: 1,
+            name: 'tests.test1'
+          },
+          {
+            id: 10,
+            name: 'tests.test10'
+          }
+        ]
+      }
+    };
 
     moxios.stubRequest('/api/v1/permissions', {
       status: 200,
@@ -225,13 +225,13 @@ describe('RolesView', function () {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
-    overrideStub('/api/v1/roles/1', {
+    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
       status: 500,
       response: {
         message: 'Test'
       }
     });
-    overrideStub('/api/v1/permissions', {
+    const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
       status: 500,
       response: {
         message: 'Test'
@@ -253,10 +253,12 @@ describe('RolesView', function () {
 
     moxios.wait(function () {
       sinon.assert.calledTwice(Base.error);
-      Base.error.restore();
       expect(view.vm.isBusy).toBe(false);
       expect(view.findComponent(BOverlay).props('show')).toBe(false);
       expect(view.html()).toContain('settings.roles.noOptions');
+      Base.error.restore();
+      restoreRoleResponse();
+      restorePermissionsResponse();
       done();
     });
   });
