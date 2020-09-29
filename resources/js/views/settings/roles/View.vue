@@ -108,6 +108,7 @@
     </b-form>
 
     <b-modal
+      :static='modalStatic'
       :busy='isBusy'
       ok-variant='danger'
       cancel-variant='dark'
@@ -149,6 +150,11 @@ export default {
     viewOnly: {
       type: Boolean,
       required: true
+    },
+
+    modalStatic: {
+      type: Boolean,
+      default: false
     }
   },
 

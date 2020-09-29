@@ -2,15 +2,26 @@ import View from '../../../../../resources/js/views/settings/roles/View';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
-import BootstrapVue, { IconsPlugin, BFormInput, BFormCheckbox, BOverlay } from 'bootstrap-vue';
+import BootstrapVue, {
+  IconsPlugin,
+  BFormInput,
+  BFormCheckbox,
+  BOverlay,
+  BForm,
+  BFormInvalidFeedback, BButton, BModal
+} from 'bootstrap-vue';
 import Vuex from 'vuex';
 import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
+import VueRouter from 'vue-router';
+import env from '../../../../../resources/js/env';
+import _ from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
 localVue.use(Vuex);
+localVue.use(VueRouter);
 
 const store = new Vuex.Store({
   modules: {
@@ -263,23 +274,252 @@ describe('RolesView', function () {
     });
   });
 
-  it('back button causes a back navigation without persistence', function () {
+  it('back button causes a back navigation without persistence', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.push = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => {
+          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
+          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          return key;
+        },
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    const requestCount = moxios.requests.count();
+
+    view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
+      expect(moxios.requests.count()).toBe(requestCount);
+      sinon.assert.calledOnce(spy);
+      done();
+    });
   });
 
-  it('request with updates get send during saving the role', function () {
+  it('request with updates get send during saving the role', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.back = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => {
+          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
+          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          return key;
+        },
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      let roomLimitDefaultCx;
+      const permissionsCxs = [];
+
+      view.findAllComponents(BFormCheckbox).wrappers.forEach(checkbox => {
+        if (checkbox.text().startsWith('settings.roles.roomLimit.default')) {
+          roomLimitDefaultCx = checkbox;
+        } else if (!checkbox.text().startsWith('settings.roles.roomLimit.unlimited')) {
+          permissionsCxs.push(checkbox);
+        }
+      });
+
+      roomLimitDefaultCx.get('input').trigger('click');
+      permissionsCxs[0].get('input').trigger('click');
+      permissionsCxs[1].get('input').trigger('click');
+
+      view.vm.$nextTick().then(() => {
+        const inputs = view.findAllComponents(BFormInput).wrappers;
+
+        return inputs[0].setValue('Test').then(() => {
+          return inputs[1].setValue(10);
+        });
+      }).then(() => {
+        view.findComponent(BForm).trigger('submit');
+
+        let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+          status: env.HTTP_UNPROCESSABLE_ENTITY,
+          response: {
+            message: 'The given data was invalid.',
+            errors: {
+              name: ['Test name'],
+              room_limit: ['Test room limit'],
+              permissions: ['Test permissions'],
+              'permissions.0': ['Test permissions 0']
+            }
+          }
+        });
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          const data = JSON.parse(request.config.data);
+
+          expect(data.name).toBe('Test');
+          expect(data.room_limit).toBe('10');
+          expect(data.permissions).toEqual([10, 2]);
+
+          const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
+          expect(feedback[0].html()).toContain('Test name');
+          expect(feedback[1].html()).toContain('Test room limit');
+          expect(feedback[2].html()).toContain('Test permissions');
+          expect(feedback[2].html()).toContain('Test permissions 0');
+
+          restoreRoleResponse();
+          restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+            status: 204
+          });
+
+          view.findComponent(BForm).trigger('submit');
+
+          moxios.wait(function () {
+            sinon.assert.calledOnce(spy);
+            restoreRoleResponse();
+            done();
+          });
+        });
+      });
+    });
   });
 
-  it('validation errors gets shown for the appropriate fields', function () {
+  it('modal gets shown for stale errors and a overwrite can be forced', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.back = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => {
+          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
+          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          return key;
+        },
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1',
+        modalStatic: true
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      const newModel = _.cloneDeep(view.vm.model);
+      newModel.updated_at = '2020-09-08 16:13:26';
+
+      let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+        status: env.HTTP_STALE_MODEL,
+        response: {
+          error: env.HTTP_STALE_MODEL,
+          message: 'test',
+          new_model: newModel
+        }
+      });
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(function () {
+        const staleModelModal = view.findComponent(BModal);
+        expect(staleModelModal.vm.$data.isVisible).toBe(true);
+
+        restoreRoleResponse();
+        restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+          status: 204
+        });
+
+        staleModelModal.vm.$refs['ok-button'].click();
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          const data = JSON.parse(request.config.data);
+
+          expect(data.updated_at).toBe(newModel.updated_at);
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+
+          done();
+        });
+      });
+    });
   });
 
-  it('modal gets shown for stale errors and a overwrite can be forced', function () {
+  it('modal gets shown for stale errors and the new model can be applied to current form', function (done) {
+    const spy = sinon.spy();
 
-  });
+    const router = new VueRouter();
+    router.back = spy;
 
-  it('modal gets shown for stale errors and the new model can be applied to current form', function () {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => {
+          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
+          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          return key;
+        },
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1',
+        modalStatic: true
+      },
+      store,
+      router
+    });
 
+    moxios.wait(function () {
+      const newModel = _.cloneDeep(view.vm.model);
+      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.name = 'Test';
+
+      const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+        status: env.HTTP_STALE_MODEL,
+        response: {
+          error: env.HTTP_STALE_MODEL,
+          message: 'test',
+          new_model: newModel
+        }
+      });
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(function () {
+        const staleModelModal = view.findComponent(BModal);
+        expect(staleModelModal.vm.$data.isVisible).toBe(true);
+        expect(view.findComponent(BFormInput).element.value).toBe('admin');
+
+        restoreRoleResponse();
+
+        staleModelModal.vm.$refs['cancel-button'].click();
+
+        view.vm.$nextTick().then(() => {
+          expect(view.findComponent(BFormInput).element.value).toBe('Test');
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          done();
+        });
+      });
+    });
   });
 });
