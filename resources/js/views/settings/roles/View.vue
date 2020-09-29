@@ -71,7 +71,7 @@
                 :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
               ></b-form-checkbox-group>
             </b-form-group>
-            <div v-else>
+            <div class="ml-3" v-if="Object.keys(permissions).length === 0">
               {{ $t('settings.roles.noOptions') }}
             </div>
           </b-overlay>
@@ -160,7 +160,7 @@ export default {
     return {
       isBusy: false,
       model: {},
-      permissions: [],
+      permissions: {},
       permissionsLoading: false,
       errors: {},
       staleError: {}
@@ -273,6 +273,7 @@ export default {
      */
     refreshRole () {
       this.model = this.staleError.new_model;
+      this.model.permissions = this.model.permissions.map(permission => permission.id);
       this.staleError = {};
       this.$refs['stale-role-modal'].hide();
     }
