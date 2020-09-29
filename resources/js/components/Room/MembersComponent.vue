@@ -203,6 +203,7 @@ import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
 import FieldErrors from '../../mixins/FieldErrors';
+import env from '../../env';
 
 export default {
   mixins: [FieldErrors],
@@ -268,7 +269,7 @@ export default {
         // remove user entry from list
         this.members.splice(this.deleteUser.index, 1);
       }).catch((error) => {
-        if (error.response.status === 410) {
+        if (error.response.status === env.HTTP_GONE) {
           this.members.splice(this.deleteUser.index, 1);
         }
         Base.error(error, this.$root);
@@ -314,7 +315,7 @@ export default {
         // user role was saved
         this.members[this.editUser.index].role = this.editUser.role;
       }).catch((error) => {
-        if (error.response.status === 410) {
+        if (error.response.status === env.HTTP_GONE) {
           this.members.splice(this.editUser.index, 1);
         }
         Base.error(error, this.$root);
@@ -350,7 +351,7 @@ export default {
         // adding failed
         if (error.response) {
           // failed due to form validation errors
-          if (error.response.status === 422) {
+          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
             return;
           }

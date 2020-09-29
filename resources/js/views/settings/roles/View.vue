@@ -135,6 +135,7 @@
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import { mapGetters } from 'vuex';
+import env from '../../../env';
 
 export default {
   mixins: [FieldErrors],
@@ -246,9 +247,9 @@ export default {
       Base.call(this.id === 'new' ? 'roles' : `roles/${this.id}`, config).then(() => {
         this.$router.back();
       }).catch(error => {
-        if (error.response && error.response.status === 422) {
+        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
-        } else if (error.response && error.response.status === 466) {
+        } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
           this.staleError = error.response.data;
           this.$refs['stale-role-modal'].show();
         } else {

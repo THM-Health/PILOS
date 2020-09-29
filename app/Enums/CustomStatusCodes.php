@@ -16,5 +16,5 @@ final class CustomStatusCodes extends Enum
     const ROOM_LIMIT_EXCEEDED         =   463;
     const ROLE_DELETE_LINKED_USERS    =   464;
     const ROLE_UPDATE_PERMISSION_LOST =   465;
-    const STALE_MODEL                 =   466;
+    const STALE_MODEL                 =   428;
 }
