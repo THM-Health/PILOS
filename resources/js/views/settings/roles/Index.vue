@@ -116,6 +116,7 @@
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
 import PermissionService from '../../../services/PermissionService';
+import EventBus from '../../../services/EventBus';
 
 export default {
   components: { Can },
@@ -133,27 +134,13 @@ export default {
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
-      roleToDelete: undefined
-    };
-  },
-
-  computed: {
-    /**
-     * Returns array with table fields and their labels.
-     */
-    tableFields () {
-      const fields = [
+      roleToDelete: undefined,
+      tableFields: [
         { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
         { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
         { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
-      ];
-
-      if (PermissionService.currentUser && (['roles.view', 'roles.update', 'roles.delete'].some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
-        fields.push({ key: 'actions', label: this.$t('settings.roles.actions') });
-      }
-
-      return fields;
-    }
+      ]
+    };
   },
 
   methods: {
@@ -228,7 +215,42 @@ export default {
      */
     clearRoleToDelete () {
       this.roleToDelete = undefined;
+    },
+
+    /**
+     * Adds or removes the actions column to the field depending on the users permissions.
+     */
+    toggleActionsColumn () {
+      if (PermissionService.currentUser && (['roles.view', 'roles.update', 'roles.delete'].some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
+        if (this.tableFields[this.tableFields.length - 1].key !== 'actions') {
+          this.tableFields.push({ key: 'actions', label: this.$t('settings.roles.actions') });
+        }
+      } else if (this.tableFields[this.tableFields.length - 1].key === 'actions') {
+        this.tableFields.pop();
+      }
     }
+  },
+
+  /**
+   * Sets the event listener for current user change to re-evaluate whether the
+   * action column should be shown or not.
+   *
+   * @method mounted
+   * @return undefined
+   */
+  mounted () {
+    EventBus.$on('currentUserChangedEvent', this.toggleActionsColumn);
+    this.toggleActionsColumn();
+  },
+
+  /**
+   * Removes the listener for current user change on destroy of this component.
+   *
+   * @method beforeDestroy
+   * @return undefined
+   */
+  beforeDestroy () {
+    EventBus.$off('currentUserChangedEvent', this.toggleActionsColumn);
   }
 };
 </script>
