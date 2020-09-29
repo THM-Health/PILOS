@@ -40,8 +40,11 @@ Vue.config.errorHandler = function (error, vm, info) {
   const errorMessage = error.response.data ? error.response.data.message : undefined;
 
   if (responseStatus === 401) { // 401 => unauthorized, redirect and show error messages as flash!
-    vm.flashMessage.info(vm.$t('app.flash.unauthenticated'));
-    vm.$router.replace({ name: 'login' });
+    if (vm.$store.getters['session/isAuthenticated']) {
+      vm.flashMessage.info(vm.$t('app.flash.unauthenticated'));
+      vm.$store.commit('session/setCurrentUser', null);
+      vm.$router.replace({ name: 'login' });
+    }
   } else if (responseStatus === 403 && errorMessage === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
     vm.flashMessage.error(vm.$t('app.flash.unauthorized'));
   } else if (responseStatus === 420) { // 420 => only for guests, redirect to home route
