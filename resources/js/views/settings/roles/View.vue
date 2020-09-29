@@ -50,28 +50,29 @@
           label-class='font-weight-bold pt-0'
           :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
         >
-          <b-overlay class='row' :show='permissionsLoading'>
-            <b-form-group
-              class='col-lg-4 col-sm-12'
-              v-if='Object.keys(permissions).length > 0'
-              v-for="key in Object.keys(permissions)"
-              :key='key'
-            >
-              <template v-slot:label>
-                <b>{{ $t(`app.permissions.${key}.title`) }}</b>
-              </template>
+          <b-overlay :show='permissionsLoading'>
+            <div class='row' v-if='!permissionsLoading && Object.keys(permissions).length > 0'>
+              <b-form-group
+                class='col-lg-4 col-sm-12'
+                v-for="key in Object.keys(permissions)"
+                :key='key'
+              >
+                <template v-slot:label>
+                  <b>{{ $t(`app.permissions.${key}.title`) }}</b>
+                </template>
 
-              <b-form-checkbox-group
-                v-model='model.permissions'
-                :options='permissions[key]'
-                stacked
-                text-field='translatedName'
-                value-field='id'
-                :disabled='isBusy || viewOnly'
-                :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
-              ></b-form-checkbox-group>
-            </b-form-group>
-            <div class="ml-3" v-if="Object.keys(permissions).length === 0">
+                <b-form-checkbox-group
+                  v-model='model.permissions'
+                  :options='permissions[key]'
+                  stacked
+                  text-field='translatedName'
+                  value-field='id'
+                  :disabled='isBusy || viewOnly'
+                  :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
+                ></b-form-checkbox-group>
+              </b-form-group>
+            </div>
+            <div class="ml-3" v-if="!permissionsLoading && Object.keys(permissions).length === 0">
               {{ $t('settings.roles.noOptions') }}
             </div>
           </b-overlay>

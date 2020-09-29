@@ -180,7 +180,7 @@ describe('RolesView', function () {
 
         let roomLimitDefaultCx;
         let roomLimitUnlimitedCx;
-        let permissionsCxs = [];
+        const permissionsCxs = [];
 
         view.findAllComponents(BFormCheckbox).wrappers.forEach(checkbox => {
           if (checkbox.text().startsWith('settings.roles.roomLimit.default')) {
