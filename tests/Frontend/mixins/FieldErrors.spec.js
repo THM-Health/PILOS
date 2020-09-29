@@ -17,7 +17,7 @@ describe('FieldErrors', function () {
     it('returns null if the error object does not contain errors for the passed field and false for existing errors', function () {
       const Test = {
         mixins: [FieldErrors],
-        data() {
+        data () {
           return {
             errors: {
               foo: []
@@ -49,7 +49,7 @@ describe('FieldErrors', function () {
     it('returns empty string if the error object does not contain errors for the passed field and html list for existing errors', function () {
       const Test = {
         mixins: [FieldErrors],
-        data() {
+        data () {
           return {
             errors: {
               foo: ['a', 'b']
