@@ -219,6 +219,156 @@ describe('RoomFile', function () {
     expect(view.vm.$data.files.files).toHaveLength(2);
   });
 
+  it('delete file', function (done) {
+    const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
+    const baseError = sinon.stub(Base, 'error');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      data () {
+        return {
+          deleteFile: {
+            id: 3,
+            filename: 'File3.pdf',
+            download: false,
+            useinmeeting: false,
+            default: false,
+            uploaded: '21.09.2020 07:09'
+          },
+          files: {
+            files: [
+              {
+                id: 1,
+                filename: 'File1.pdf',
+                download: true,
+                useinmeeting: false,
+                default: false,
+                uploaded: '21.09.2020 07:08'
+              },
+              {
+                id: 2,
+                filename: 'File2.pdf',
+                download: true,
+                useinmeeting: true,
+                default: true,
+                uploaded: '21.09.2020 07:08'
+              },
+              {
+                id: 3,
+                filename: 'File3.pdf',
+                download: false,
+                useinmeeting: false,
+                default: false,
+                uploaded: '21.09.2020 07:09'
+              }
+            ],
+            default: 2,
+            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+            file_size: 30
+          }
+        };
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const bvModalEvt = {
+      preventDefault () {
+        return sinon.spy();
+      }
+    };
+
+    expect(view.vm.$data.files.files).toHaveLength(3);
+
+    view.vm.confirmDeleteFile(bvModalEvt);
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      moxios.requests.mostRecent().respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [
+              {
+                id: 1,
+                filename: 'File1.pdf',
+                download: true,
+                useinmeeting: false,
+                default: false,
+                uploaded: '21.09.2020 07:08'
+              },
+              {
+                id: 2,
+                filename: 'File2.pdf',
+                download: true,
+                useinmeeting: true,
+                default: true,
+                uploaded: '21.09.2020 07:08'
+              }
+            ],
+            default: 2,
+            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+            file_size: 30
+          }
+        }
+      })
+        .then(function () {
+          view.vm.$nextTick();
+          expect(view.vm.$data.files.files).toHaveLength(2);
+
+          // Test 404
+          view.setData({ deleteFile: view.vm.$data.files.files[0] });
+          view.vm.confirmDeleteFile(bvModalEvt);
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            moxios.requests.mostRecent().respondWith({
+              status: 404,
+              response: {
+                message: 'No query results for model'
+              }
+            })
+              .then(function () {
+                view.vm.$nextTick();
+                expect(flashMessageSpy.calledOnce).toBeTruthy();
+                expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileGone');
+                expect(removeFile.calledWith(view.vm.$data.files.files[0])).toBeTruthy();
+
+                // Test 500
+                view.setData({ deleteFile: view.vm.$data.files.files[0] });
+                view.vm.confirmDeleteFile(bvModalEvt);
+                moxios.wait(async () => {
+                  await view.vm.$nextTick();
+                  moxios.requests.mostRecent().respondWith({
+                    status: 500,
+                    response: {
+                      message: 'Internal server error'
+                    }
+                  })
+                    .then(function () {
+                      view.vm.$nextTick();
+                      expect(baseError.calledOnce).toBeTruthy();
+                      expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+
+                      removeFile.restore();
+                      baseError.restore();
+                      done();
+                    });
+                });
+              });
+          });
+        });
+    });
+  });
+
   it('download file', function (done) {
     const openStub = sinon.stub(window, 'open');
     const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
