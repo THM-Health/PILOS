@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === 'development') {
  */
 Vue.config.errorHandler = function (error, vm, info) {
   const responseStatus = error.response !== undefined ? error.response.status : undefined;
-  const errorMessage = error.response.data ? error.response.data.message : undefined;
+  const errorMessage = error.response && error.response.data ? error.response.data.message : undefined;
 
   if (responseStatus === env.HTTP_UNAUTHORIZED) { // 401 => unauthorized, redirect and show error messages as flash!
     vm.flashMessage.info(vm.$t('app.flash.unauthenticated'));
