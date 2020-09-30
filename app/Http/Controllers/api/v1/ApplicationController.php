@@ -16,6 +16,7 @@ class ApplicationController extends Controller
     {
         return response()->json(['data' => [
               'logo'              => setting('logo'),
+              'room_limit'        => setting('room_limit'),
               'open_registration' => setting('open_registration')
           ]
         ]);

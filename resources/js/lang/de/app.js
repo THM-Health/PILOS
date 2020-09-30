@@ -43,6 +43,45 @@ export default {
     separator: '|'
   },
 
+  roles: {
+    admin: 'Administrator',
+    user: 'Nutzer'
+  },
+
+  permissions: {
+    rooms: {
+      title: 'Räume',
+      create: 'Räume erstellen',
+      delete: 'Räume löschen'
+    },
+
+    settings: {
+      title: 'Einstellungen',
+      manage: 'Einstellungen verwalten'
+    },
+
+    roles: {
+      title: 'Rollen',
+      create: 'Rollen erstellen',
+      delete: 'Rollen löschen',
+      update: 'Rollen bearbeiten',
+      view: 'Rollen anzeigen',
+      viewAny: 'Alle Rollen anzeigen'
+    },
+
+    users: {
+      title: 'Benutzer',
+      viewAny: 'Alle Benutzer anzeigen'
+    }
+  },
+
+  overwrite: 'Überschreiben',
+  save: 'Speichern',
+  back: 'Zurück',
+
+  true: 'Ja',
+  false: 'Nein',
+
   searchbar: {
     filter: 'Filter',
     placeholder: 'Suche...'

@@ -40,7 +40,7 @@ class PermissionService {
    * @return undefined
    */
   setCurrentUser (currentUser) {
-    this.currentUser = currentUser;
+    this.currentUser = $.isEmptyObject(currentUser) ? undefined : currentUser;
 
     /**
      * Triggers when new current user set on this service.
@@ -54,7 +54,7 @@ class PermissionService {
    * Checks whether the current user of the application has the passed rights.
    *
    * A method and the name of the policy that contains the method should be passed. Instead of the policy name
-   * a object can also be passed that must contain a `modelName` from which the policy gets derived.
+   * a object can also be passed that must contain a `model_name` from which the policy gets derived.
    *
    * If a model object was passed it also gets passed as a parameter to the policy method along to the
    * instance of the PermissionService that gets also passed as the first parameter when a policy is
@@ -85,14 +85,14 @@ class PermissionService {
    *   PermissionService.can('viewAll', 'TestPolicy')
    *
    *   // Call a policy method by passing a model object and a method
-   *   PermissionService.can('view', { modelName: 'Test', id: 1 })
+   *   PermissionService.can('view', { model_name: 'Test', id: 1 })
    *
    * @method can
    * @param method {String} Name of the method in the policy that should be called to check the permissions.
    * @param policy {String|Object} Name of the policy where the `method` should be called (e.g. test for TestPolicy) or
-   *    model object containing a `modelName` from which the policy name get derived.
+   *    model object containing a `model_name` from which the policy name get derived.
    * @throws WrongTypeError If the passed parameter has a wrong type.
-   * @throws ParameterMissingError If the model object has no modelName.
+   * @throws ParameterMissingError If the model object has no model_name.
    * @throws PolicyDoesNotExistsError If the policy doesn't exists.
    * @return boolean Indicating whether the action is permitted or not.
    */
@@ -106,8 +106,8 @@ class PermissionService {
         throw new WrongTypeError('method', 'string');
       }
 
-      if (typeof policy === 'object' && (!Object.prototype.hasOwnProperty.call(policy, 'modelName') || typeof policy.modelName !== 'string')) {
-        throw new ParameterMissingError('The passed object for `policy` has no `modelName` or it is not of type string!');
+      if (typeof policy === 'object' && (!Object.prototype.hasOwnProperty.call(policy, 'model_name') || typeof policy.model_name !== 'string')) {
+        throw new ParameterMissingError('The passed object for `policy` has no `model_name` or it is not of type string!');
       }
     }
 
@@ -122,7 +122,7 @@ class PermissionService {
       return Policies[policy][method](this);
     }
 
-    const policyName = `${policy.modelName}Policy`;
+    const policyName = `${policy.model_name}Policy`;
     if (process.env.NODE_ENV !== 'production' && (
       !Object.prototype.hasOwnProperty.call(Policies, policyName) ||
       !Object.prototype.hasOwnProperty.call(Policies[policyName], method)
@@ -139,9 +139,9 @@ class PermissionService {
    * @method cannot
    * @param method {String} Name of the method in the policy that should be called to check the permissions.
    * @param policy {String|Object} Name of the policy where the `method` should be called (e.g. test for TestPolicy) or
-   *    model object containing a `modelName` from which the policy name get derived.
+   *    model object containing a `model_name` from which the policy name get derived.
    * @throws WrongTypeError If the passed parameter has a wrong type.
-   * @throws ParameterMissingError If the model object has no modelName.
+   * @throws ParameterMissingError If the model object has no model_name.
    * @throws PolicyDoesNotExistsError If the policy doesn't exists.
    * @return boolean Indicating whether the action isn't permitted.
    */

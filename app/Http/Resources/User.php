@@ -47,7 +47,7 @@ class User extends JsonResource
             'guid'          => $this->guid,
             'locale'        => $this->locale,
             'permissions'   => $this->when($this->withPermissions, $this->permissions),
-            'modelName'     => $this->modelName,
+            'model_name'    => $this->model_name,
             'room_limit'    => $this->room_limit,
             'created_at'    => $this->created_at,
             'updated_at'    => $this->updated_at,

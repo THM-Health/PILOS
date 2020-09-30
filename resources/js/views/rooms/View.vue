@@ -3,7 +3,7 @@
     <template v-if="room">
 
       <!-- Delete button and modal -->
-      <can method="delete" :policy="{ modelName: 'Room', isOwner: room.isOwner  }">
+      <can method="delete" :policy="{ model_name: 'Room', isOwner: room.isOwner  }">
         <delete-room-component
           @roomDeleted="$router.push({ name: 'rooms.index' })"
           :room="room"
@@ -264,11 +264,11 @@ export default {
     }).catch((error) => {
       if (error.response) {
         // Room not found
-        if (error.response.status === 404) {
+        if (error.response.status === env.HTTP_NOT_FOUND) {
           return next('/404');
         }
         // Room is not open for guests
-        if (error.response.status === 403) {
+        if (error.response.status === env.HTTP_FORBIDDEN) {
           return next(vm => {
             vm.room_id = to.params.id;
           });
@@ -301,7 +301,7 @@ export default {
         }).catch((error) => {
           if (error.response) {
           // Access code invalid
-            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
             // Show access code is valid
               this.accessCodeValid = false;
               // Reset access code (not the form input) to load the general room details again
@@ -313,7 +313,7 @@ export default {
             }
 
             // Forbidden, require access code
-            if (error.response.status === 403 && error.response.data.message === 'require_code') {
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
             // Show access code is valid
               this.accessCodeValid = false;
               // Reset access code (not the form input) to load the general room details again
@@ -325,7 +325,7 @@ export default {
             }
 
             // Forbidden, not allowed to download this file
-            if (error.response.status === 403) {
+            if (error.response.status === env.HTTP_FORBIDDEN) {
             // Show error message
               this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
               // Remove file from list
@@ -334,7 +334,7 @@ export default {
             }
 
             // File gone
-            if (error.response.status === 404) {
+            if (error.response.status === env.HTTP_NOT_FOUND) {
             // Show error message
               this.flashMessage.error(this.$t('rooms.flash.fileGone'));
               // Remove file from list
@@ -372,7 +372,7 @@ export default {
         .catch((error) => {
           if (error.response) {
             // Access code invalid
-            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
               // Show access code is valid
               this.accessCodeValid = false;
               // Reset access code (not the form input) to load the general room details again
@@ -384,7 +384,7 @@ export default {
             }
 
             // Forbidden, guests not allowed
-            if (error.response.status === 403) {
+            if (error.response.status === env.HTTP_FORBIDDEN) {
               this.room = null;
               // Remove a potential access code
               this.accessCode = null;
@@ -418,7 +418,7 @@ export default {
         .catch((error) => {
           if (error.response) {
             // Forbidden, use can't start the room
-            if (error.response.status === 403) {
+            if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.startForbidden'));
               // Disable room start button and reload the room settings, as there was obviously
@@ -455,7 +455,7 @@ export default {
         .catch((error) => {
           if (error.response) {
             // Room is not running, update running status
-            if (error.response.status === 460) {
+            if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;
             }
           }
@@ -486,7 +486,7 @@ export default {
 
           if (error.response) {
             // Access code invalid
-            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
               // reset the logged in status, as it is no longer correct
               this.room.authenticated = false;
               // set the access code input invalid
@@ -497,7 +497,7 @@ export default {
             }
 
             // Membership not allowed, update status
-            if (error.response.status === 403) {
+            if (error.response.status === env.HTTP_FORBIDDEN) {
               this.room.allowMembership = false;
             }
           }

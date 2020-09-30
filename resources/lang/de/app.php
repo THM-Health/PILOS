@@ -9,8 +9,10 @@ return [
         'file_not_found' => 'Die Datei konnte nicht gefunden werden.',
         'no_server_available' => 'Zur Zeit sind keine Server verfügbar.',
         'room_limit_exceeded' => 'Raumerstellung fehlgeschlagen! Sie haben die max. Anzahl an Räumen erreicht.',
+        'role_delete_linked_users' => 'Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!',
+        'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
     ],
     'model' => [
         'roles' => 'Rollen'
-    ],
+    ]
 ];

@@ -12,14 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16],[#44],[#43])
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
-- Added Initial Admin Pages (users, rooms, records, roles, etc. management)([#10], [#23])
-- Roles and permissions concept ([#12], [#22])
+- Roles and permissions concept and management of roles ([#12], [#22], [#45])
 - Added page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
 - Add search field and pagination to the room overview page  ([#39], [#49])
 - Added file upload for room owner and file download for participants ([#4], [#18])
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
 - Added setting menu for administrators ([#35], [#38])
 - Added a middleware to check whether the request is in sync with model of the database and not stale ([#40], [#41])
+- Added management pages for users ([#10], [#57])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -38,7 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#19]: https://github.com/THM-Health/PILOS/issues/19
 [#21]: https://github.com/THM-Health/PILOS/pull/21
 [#22]: https://github.com/THM-Health/PILOS/pull/22
-[#23]: https://github.com/THM-Health/PILOS/pull/23
 [#32]: https://github.com/THM-Health/PILOS/issues/32
 [#33]: https://github.com/THM-Health/PILOS/pull/33
 [#34]: https://github.com/THM-Health/PILOS/issues/34
@@ -53,5 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#44]: https://github.com/THM-Health/PILOS/pull/44
 [#46]: https://github.com/THM-Health/PILOS/pull/46
 [#49]: https://github.com/THM-Health/PILOS/pull/49
+[#57]: https://github.com/THM-Health/PILOS/pull/57
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

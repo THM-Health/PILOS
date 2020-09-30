@@ -119,3 +119,7 @@
         }
     }
 }
+
+.multiselect.is-invalid .multiselect__tags {
+    border-color: $danger;
+}

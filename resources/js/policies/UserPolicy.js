@@ -9,6 +9,6 @@ export default {
    * @return {boolean}
    */
   viewAny (permissionService) {
-    return permissionService.currentUser && permissionService.currentUser.permissions.includes('users.viewAny');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.viewAny');
   }
 };

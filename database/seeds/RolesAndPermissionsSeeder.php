@@ -21,14 +21,21 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions[] = $userPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.delete' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
+
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.view' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.create' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.update' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.delete' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.view' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.update' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.delete' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'invitations.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'invitations.view' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'invitations.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'invitations.update' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'invitations.delete' ])->id;

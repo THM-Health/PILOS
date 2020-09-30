@@ -40,7 +40,7 @@ return [
 	'table' => 'settings',
 	// If you want to use custom column names in database store you could
 	// set them in this configuration
-	'keyColumn'   => 'key',
+	'keyColumn' => 'key',
 	'valueColumn' => 'value',
 
     /*
@@ -71,8 +71,8 @@ return [
         'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
         'room_limit' => env('DEFAULT_ROOM_LIMIT',-1),
         'own_rooms_pagination_page_size' => env('OWN_ROOMS_PAGINATION_PAGE_SIZE',5),
-        'open_registration'           => env('DEFAULT_OPEN_REGISTRATION', true),
-        'pagination_page_size'        => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
+        'pagination_page_size' => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
+        'open_registration' => env('DEFAULT_OPEN_REGISTRATION', true),
         'invitation_token_expiration' => env('DEFAULT_INVITATION_TOKEN_EXPIRATION', 15)
     ]
 ];

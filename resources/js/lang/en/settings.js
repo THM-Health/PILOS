@@ -2,17 +2,33 @@ export default {
   title: 'Settings',
   description: 'Here you can manage the settings of the application.<br>' +
     'Please select one of the menu items on the left to adjust the settings.',
-  searchbar: {
-    filter: 'Filter',
-    placeholder: 'Search...'
-  },
 
-  pagination: {
-    first: 'First',
-    last: 'Last',
-    prev: 'Prev',
-    next: 'Next',
-    page: 'Page'
+  roles: {
+    title: 'Roles',
+
+    new: 'Create new role',
+    view: 'Detailed information for {name}',
+    edit: 'Edit role {name}',
+
+    id: 'ID',
+    name: 'Name',
+    permissions: 'Permissions',
+    roomLimit: {
+      label: 'Room limit',
+      default: 'System default ({value})',
+      unlimited: 'Unlimited',
+      custom: 'Custom amount'
+    },
+    default: 'Default',
+    actions: 'Actions',
+    nodata: 'No roles found!',
+
+    noOptions: 'No permissions found!',
+
+    delete: {
+      confirm: 'Are you really want to delete the role {name}?',
+      title: 'Delete role?'
+    }
   },
 
   users: {
@@ -86,20 +102,4 @@ export default {
       title: 'Invitation'
     }
   },
-
-  rooms: {
-    title: 'Server rooms'
-  },
-
-  recordings: {
-    title: 'Server recordings'
-  },
-
-  siteSettings: {
-    title: 'Site settings'
-  },
-
-  roles: {
-    title: 'Roles'
-  }
 };

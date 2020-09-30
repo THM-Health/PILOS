@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -11,12 +12,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Role extends Model
 {
+    use AddsModelNameTrait;
+
     /**
      * Fillable attributes.
      *
      * @var string[]
      */
     protected $fillable = ['name'];
+
+    protected $casts = [
+        'default' => 'boolean'
+    ];
 
     /**
      * Users that have the role.
@@ -25,7 +32,7 @@ class Role extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\User');
+        return $this->belongsToMany('App\User')->withPivot('automatic');
     }
 
     /**
@@ -36,22 +43,5 @@ class Role extends Model
     public function permissions()
     {
         return $this->belongsToMany('App\Permission');
-    }
-
-    /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        // Prevent deletion of application default roles.
-        static::deleting(function ($role) {
-            if ($role->default) {
-                return false;
-            }
-
-            return true;
-        });
     }
 }
