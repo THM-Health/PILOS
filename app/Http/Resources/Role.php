@@ -15,11 +15,13 @@ class Role extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'          => $this->id,
-            'name'        => $this->name,
-            'default'     => $this->default,
-            'updated_at'  => $this->updated_at,
-            'permissions' => Permission::collection($this->whenLoaded('permissions')),
+            'id'            => $this->id,
+            'name'          => $this->name,
+            'default'       => $this->default,
+            'updated_at'    => $this->updated_at,
+            'permissions'   => Permission::collection($this->whenLoaded('permissions')),
+            'model_name'    => $this->model_name,
+            'room_limit'    => $this->room_limit
         ];
     }
 }

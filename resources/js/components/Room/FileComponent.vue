@@ -19,7 +19,7 @@
     <div class="row mb-3">
       <div class="col-10">
 
-        <can method="manageFiles" :policy="{ modelName: 'Room', isOwner: isOwner }">
+        <can method="manageFiles" :policy="{ model_name: 'Room', isOwner: isOwner }">
 
           <!-- Upload new file -->
           <b-form-file
@@ -83,7 +83,7 @@
         <!-- Render action column -->
         <template v-slot:cell(actions)="data">
           <b-button-group class="float-md-right">
-            <can method="manageFiles" :policy="{ modelName: 'Room', isOwner: isOwner }">
+            <can method="manageFiles" :policy="{ model_name: 'Room', isOwner: isOwner }">
               <!-- Delete file -->
               <b-button
                 variant="danger"
@@ -179,12 +179,14 @@ import Base from '../../api/base';
 import Can from '../Permissions/Can';
 import PermissionService from '../../services/PermissionService';
 import { mapGetters } from 'vuex';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
 
   components: {
     Can
   },
+  mixins: [FieldErrors],
   props: {
     roomId: String,
     isOwner: Boolean,
@@ -230,15 +232,6 @@ export default {
     };
   },
   methods: {
-
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
-    },
-
     /**
      * Remove given file from the list
      */
@@ -440,7 +433,7 @@ export default {
 
     // file table labels for columns
     filefields () {
-      if (PermissionService.cannot('manageFiles', { modelName: 'Room', isOwner: this.isOwner })) {
+      if (PermissionService.cannot('manageFiles', { model_name: 'Room', isOwner: this.isOwner })) {
         return [
           {
             key: 'filename',

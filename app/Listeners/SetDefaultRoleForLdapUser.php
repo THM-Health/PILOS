@@ -3,8 +3,9 @@
 namespace App\Listeners;
 
 use App\Role;
-use App\User;
-use LdapRecord\Laravel\Events\Imported;
+use Illuminate\Auth\Events\Authenticated;
+use LdapRecord\Models\ModelNotFoundException;
+use LdapRecord\Models\OpenLDAP\User;
 
 class SetDefaultRoleForLdapUser
 {
@@ -14,30 +15,34 @@ class SetDefaultRoleForLdapUser
      * Adds the roles from the ldap user to the application user, which are mapped
      * in the config `ldap.roleMap`.
      *
-     * @param Imported $event
+     * @param  Authenticated          $event
+     * @throws ModelNotFoundException
      */
-    public function handle(Imported $event)
+    public function handle(Authenticated $event)
     {
-        $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
+        $user = $event->user;
 
-        $ldapUser = \LdapRecord\Models\OpenLDAP\User::find($event->user->getDn());
+        if ($user->authenticator === 'ldap') {
+            $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
+            $ldapUser          = User::findByGuidOrFail($user->getLdapGuid());
 
-        if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
-            $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
-            $user      = $event->model;
-            $roleIds   = [];
+            if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
+                $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
+                $roleIds   = [];
 
-            foreach ($ldapRoles as $ldapRole) {
-                if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
-                    $role = Role::where('name', config('ldap.roleMap')[$ldapRole])->first();
+                foreach ($ldapRoles as $ldapRole) {
+                    if (array_key_exists($ldapRole, config('ldap.roleMap'))) {
+                        $role = Role::where('name', config('ldap.roleMap')[$ldapRole])->first();
 
-                    if (!empty($role)) {
-                        array_push($roleIds, $role->id);
+                        if (!empty($role)) {
+                            $roleIds[$role->id] = ['automatic' => true];
+                        }
                     }
                 }
-            }
 
-            $user->roles()->syncWithoutDetaching($roleIds);
+                $user->roles()->syncWithoutDetaching($roleIds);
+                $user->roles()->detach($user->roles()->wherePivot('automatic', '=', true)->whereNotIn('role_id', array_keys($roleIds))->pluck('role_id')->toArray());
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ class AddsModelNameTraitTest extends TestCase
 {
     /**
      * Check that the model class name gets returned on calling the `getModelNameAttribute()`
-     * method which can be accessed on real model by the attribute `modelName`.
+     * method which can be accessed on real model by the attribute `model_name`.
      *
      * @return void
      */

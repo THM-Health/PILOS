@@ -16,7 +16,7 @@ localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
+const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
 const store = new Vuex.Store({
   modules: {

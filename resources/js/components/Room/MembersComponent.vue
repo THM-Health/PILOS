@@ -171,7 +171,7 @@
       <!-- show server validation errors -->
       <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <!-- select user -->
-      <b-form-group :label="$t('rooms.members.modals.add.user')" :invalid-feedback="userValidationError" :state="newUserValid">
+      <b-form-group :label="$t('rooms.members.modals.add.user')" :state="newUserValid">
         <multiselect v-model="newUser.data"
                      label="lastname"
                      track-by="id"
@@ -194,15 +194,17 @@
           <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
           <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
         </multiselect>
+        <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :invalid-feedback="roleValidationError" :state="newUserRoleValid">
+      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :state="newUserRoleValid">
         <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
         <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="5">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
+        <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
       </b-form-group>
     </b-modal>
 
@@ -213,8 +215,11 @@ import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
 import { mapGetters } from 'vuex';
+import FieldErrors from '../../mixins/FieldErrors';
+import env from '../../env';
 
 export default {
+  mixins: [FieldErrors],
   components: { Multiselect },
   props: {
     room: Object // room object
@@ -284,7 +289,7 @@ export default {
         // remove user entry from list
         this.removeMember(this.deleteUser);
       }).catch((error) => {
-        if (error.response.status === 410) {
+        if (error.response.status === env.HTTP_GONE) {
           this.removeMember(this.deleteUser);
         }
         Base.error(error, this.$root);
@@ -328,7 +333,7 @@ export default {
         // user role was saved
         this.members[this.members.findIndex(item => item.id === this.editUser.id)].role = this.editUser.role;
       }).catch((error) => {
-        if (error.response.status === 410) {
+        if (error.response.status === env.HTTP_GONE) {
           this.removeMember(this.editUser);
         }
         Base.error(error, this.$root);
@@ -364,7 +369,7 @@ export default {
         // adding failed
         if (error.response) {
           // failed due to form validation errors
-          if (error.response.status === 422) {
+          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
             return;
           }
@@ -394,15 +399,6 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
-    },
-    // Check if field has server-side error
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    // Get server-side error for field
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
     }
   },
   computed: {
