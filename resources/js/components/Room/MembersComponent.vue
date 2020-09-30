@@ -266,7 +266,6 @@ export default {
      */
     showRemoveUserModal: function (user) {
       this.deleteUser = user;
-      this.removeMember(user);
       this.$refs['remove-user-modal'].show();
     },
 
@@ -301,7 +300,6 @@ export default {
     showEditUserModal: function (user) {
       // Clone object to edit properties without displaying the changes in realtime in the members list
       this.editUser = _.cloneDeep(user);
-      this.removeMember(this.editUser);
       this.$refs['edit-user-modal'].show();
     },
 
