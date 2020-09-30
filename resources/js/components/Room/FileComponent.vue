@@ -299,8 +299,11 @@ export default {
               this.files = response.data.data;
             }).catch((error) => {
               if (error.response.status === 404) {
+                // Show error message
+                this.flashMessage.error(this.$t('rooms.flash.fileGone'));
                 // Remove file from list
                 this.removeFile(file);
+                return;
               }
               Base.error(error, this.$root);
             }).finally(() => {
@@ -372,7 +375,7 @@ export default {
         });
     },
     /**
-     * Change a setting for a files
+     * Change a setting for a file
      * @param file effected file
      * @param setting setting name
      * @param value new value
@@ -394,7 +397,11 @@ export default {
         this.files = response.data.data;
       }).catch((error) => {
         if (error.response.status === 404) {
-          this.reload();
+          // Show error message
+          this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+          // Remove file from list
+          this.removeFile(file);
+          return;
         }
         Base.error(error, this.$root);
       }).finally(() => {

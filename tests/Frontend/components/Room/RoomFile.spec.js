@@ -330,7 +330,7 @@ describe('RoomFile', function () {
                                   view.vm.$nextTick();
                                   expect(flashMessageSpy.calledTwice).toBeTruthy();
                                   expect(flashMessageSpy.getCall(1).args[0]).toBe('rooms.flash.fileGone');
-                                  expect(removeFile.calledWith({ id: 1, filename: 'File1.pdf', uploaded: '21.09.2020 07:08' })).toBeTruthy();
+                                  expect(removeFile.calledWith(view.vm.$data.files.files[0])).toBeTruthy();
 
                                   // Test 500
                                   view.vm.downloadFile(view.vm.$data.files.files[0]);
@@ -355,6 +355,109 @@ describe('RoomFile', function () {
                             });
                           });
                       });
+                    });
+                });
+              });
+          });
+        });
+    });
+  });
+
+  it('change file setting', function (done) {
+    const baseError = sinon.stub(Base, 'error');
+    const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      propsData: {
+        roomId: '123-456-789'
+      },
+      data () {
+        return {
+          files: {
+            files: [
+              {
+                id: 1,
+                filename: 'File1.pdf',
+                download: false,
+                useinmeeting: true,
+                default: true,
+                uploaded: '21.09.2020 07:08'
+              }
+            ]
+          }
+        };
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    view.vm.changeSettings(view.vm.$data.files.files[0], 'download', true);
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.config.method).toEqual('put');
+      expect(request.config.data).toEqual('{"download":true}');
+      request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [
+              { id: 1, filename: 'File1.pdf', download: true, useinmeeting: true, default: false, uploaded: '21.09.2020 07:08' }
+            ],
+            default: 1,
+            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+            file_size: 30
+          }
+        }
+      })
+        .then(function () {
+          view.vm.$nextTick();
+          expect(view.vm.$data.files.files[0].download).toBeTruthy();
+
+          // Test 404
+          view.vm.changeSettings(view.vm.$data.files.files[0]);
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            moxios.requests.mostRecent().respondWith({
+              status: 404,
+              response: {
+                message: 'No query results for model'
+              }
+            })
+              .then(function () {
+                view.vm.$nextTick();
+                expect(flashMessageSpy.calledOnce).toBeTruthy();
+                expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileGone');
+                expect(removeFile.calledWith(view.vm.$data.files.files[0])).toBeTruthy();
+
+                // Test unknown error
+                view.vm.changeSettings(view.vm.$data.files.files[0], 'download', true);
+                moxios.wait(async () => {
+                  await view.vm.$nextTick();
+                  moxios.requests.mostRecent().respondWith({
+                    status: 500,
+                    response: {
+                      message: 'Internal server error'
+                    }
+                  })
+                    .then(function () {
+                      view.vm.$nextTick();
+                      expect(baseError.calledOnce).toBeTruthy();
+                      expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+                      Base.error.restore();
+                      FileComponent.methods.removeFile.restore();
+                      done();
                     });
                 });
               });
