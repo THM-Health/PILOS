@@ -21,7 +21,7 @@ import { Fragment } from 'vue-fragment';
  *     Hello World!
  *   </can>
  *   <!-- or -->
- *   <can method="viewAll" :policy="{ modelName: 'User', id: 1 ... }">
+ *   <can method="viewAll" :policy="{ model_name: 'User', id: 1 ... }">
  *     Hello World!
  *   </can>
  *   ```

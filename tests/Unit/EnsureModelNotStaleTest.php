@@ -20,7 +20,7 @@ class EnsureModelNotStaleTest extends TestCase
         parent::setUp();
 
         \Route::post('api/test/{role}', [
-            'middleware' => ['api', 'check.stale:role,\App\Http\Resources\Role'],
+            'middleware' => ['api', 'check.stale:role,\App\Http\Resources\Role,permissions'],
             'as'         => 'test.stale.check',
             function (Role $role) {
                 return 'OK';
@@ -52,7 +52,7 @@ class EnsureModelNotStaleTest extends TestCase
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at->sub(new DateInterval('P1D'))])
             ->assertStatus(CustomStatusCodes::STALE_MODEL)
-            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)))->toJson(), true)]);
+            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)->load('permissions')))->toJson(), true)]);
     }
 
     public function testActualModel()

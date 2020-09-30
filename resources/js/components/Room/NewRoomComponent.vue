@@ -17,16 +17,18 @@
       @ok="handleOk"
       @hidden="handleCancel"
     >
-      <b-form-group :state="fieldState('roomType')" :invalid-feedback="fieldError('roomType')" :label="$t('rooms.settings.general.type')">
+      <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
         <b-input-group>
           <b-form-select :state="fieldState('roomType')" v-model.number="room.roomType" :options="roomTypeSelect"></b-form-select>
         </b-input-group>
+        <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
       </b-form-group>
       <!-- Room name -->
-      <b-form-group :state="fieldState('name')" :invalid-feedback="fieldError('name')" :label="$t('rooms.settings.general.roomName')">
+      <b-form-group :state="fieldState('name')" :label="$t('rooms.settings.general.roomName')">
         <b-input-group>
           <b-form-input :state="fieldState('name')" v-model="room.name"></b-form-input>
         </b-input-group>
+        <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
       </b-form-group>
     </b-modal>
 
@@ -35,8 +37,11 @@
 <script>
 import Base from '../../api/base';
 import store from '../../store';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
+
   props: {
     roomTypes: Array,
     modalStatic: {
@@ -52,14 +57,6 @@ export default {
     };
   },
   methods: {
-    fieldState (field) {
-      return this.errors[field] === undefined ? null : false;
-    },
-    fieldError (field) {
-      if (this.fieldState(field) !== false) { return ''; }
-      return this.errors[field].join('<br>');
-    },
-
     handleOk: function (bvModalEvt) {
       bvModalEvt.preventDefault();
       this.handleSubmit();

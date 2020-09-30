@@ -1,3 +1,4 @@
+require('array-flat-polyfill');
 window._ = require('lodash');
 
 /**

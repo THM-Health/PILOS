@@ -38,6 +38,7 @@
 <script>
 import EmailLoginComponent from './EmailLoginComponent';
 import LdapLoginComponent from './LdapLoginComponent';
+import env from '../../env';
 
 export default {
   components: {
@@ -62,7 +63,7 @@ export default {
         this.flashMessage.success(this.$t('auth.flash.login'));
         await this.$router.push({ name: 'rooms.index' });
       } catch (error) {
-        if (error.response !== undefined && error.response.status === 422) {
+        if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors[id] = error.response.data.errors;
         } else {
           this.loading = false;

@@ -41,5 +41,44 @@ export default {
     legalNoticeUrl: 'https://www.thm.de/ges/en/about',
     privacyPolicyUrl: 'https://www.thm.de/ges/en/datenschutz',
     separator: '|'
-  }
+  },
+
+  roles: {
+    admin: 'Administrator',
+    user: 'User'
+  },
+
+  permissions: {
+    rooms: {
+      title: 'Rooms',
+      create: 'Create rooms',
+      delete: 'Delete rooms'
+    },
+
+    settings: {
+      title: 'Settings',
+      manage: 'Manage settings'
+    },
+
+    roles: {
+      title: 'Roles',
+      create: 'Create roles',
+      delete: 'Delete roles',
+      update: 'Edit roles',
+      view: 'Show roles',
+      viewAny: 'Show all roles'
+    },
+
+    users: {
+      title: 'Users',
+      viewAny: 'Show all users'
+    }
+  },
+
+  overwrite: 'Overwrite',
+  save: 'Save',
+  back: 'Back',
+
+  true: 'Yes',
+  false: 'No'
 };

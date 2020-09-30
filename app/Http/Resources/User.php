@@ -38,13 +38,13 @@ class User extends JsonResource
         }
 
         return [
-            'id'           => $this->id,
-            'firstname'    => $this->firstname,
-            'lastname'     => $this->lastname,
-            'locale'       => $this->locale,
-            'permissions'  => $this->when($this->withPermissions, $this->permissions),
-            'modelName'    => $this->modelName,
-            'room_limit'   => $this->room_limit,
+            'id'            => $this->id,
+            'firstname'     => $this->firstname,
+            'lastname'      => $this->lastname,
+            'locale'        => $this->locale,
+            'permissions'   => $this->when($this->withPermissions, $this->permissions),
+            'model_name'    => $this->model_name,
+            'room_limit'    => $this->room_limit,
         ];
     }
 }
