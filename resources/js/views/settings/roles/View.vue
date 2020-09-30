@@ -91,7 +91,7 @@
             <b-button
               :disabled='isBusy || permissionsLoading'
               variant='secondary'
-              @click='back'>
+              @click="$router.push({ name: 'settings.roles' })">
               <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
             </b-button>
             <b-button
@@ -167,7 +167,11 @@ export default {
   data () {
     return {
       isBusy: false,
-      model: {},
+      model: {
+        name: null,
+        room_limit: null,
+        permissions: []
+      },
       permissions: {},
       permissionsLoading: false,
       errors: {},
@@ -219,13 +223,6 @@ export default {
       }).finally(() => {
         this.permissionsLoading = false;
       });
-    },
-
-    /**
-     * Goes back to the role overview page.
-     */
-    back () {
-      this.$router.push({ name: 'settings.roles' });
     },
 
     /**
