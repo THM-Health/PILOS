@@ -5,6 +5,7 @@ import FileComponent from '../../../../resources/js/components/Room/FileComponen
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import sinon from 'sinon';
+import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 
@@ -220,11 +221,20 @@ describe('RoomFile', function () {
 
   it('download file', function (done) {
     const openStub = sinon.stub(window, 'open');
+    const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
+    const baseError = sinon.stub(Base, 'error');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        flashMessage: flashMessage
       },
       propsData: {
         roomId: '123-456-789'
@@ -245,7 +255,7 @@ describe('RoomFile', function () {
       store,
       attachTo: createContainer()
     });
-
+    // Test valid download
     view.vm.downloadFile(view.vm.$data.files.files[0]);
     moxios.wait(async () => {
       await view.vm.$nextTick();
@@ -261,7 +271,94 @@ describe('RoomFile', function () {
           view.vm.$nextTick();
           expect(openStub.calledWith('download-link.pdf', '_blank')).toBeTruthy();
           window.open.restore();
-          done();
+
+          // Test 401 error, invalid code
+          view.vm.downloadFile(view.vm.$data.files.files[0]);
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            moxios.requests.mostRecent().respondWith({
+              status: 401,
+              response: {
+                message: 'invalid_code'
+              }
+            })
+              .then(function () {
+                expect(view.emitted().error).toBeTruthy();
+                expect(view.emitted().error[0][0].response.status).toBe(401);
+
+                // Test 403, require code
+                view.vm.downloadFile(view.vm.$data.files.files[0]);
+                moxios.wait(async () => {
+                  await view.vm.$nextTick();
+                  moxios.requests.mostRecent().respondWith({
+                    status: 403,
+                    response: {
+                      message: 'require_code'
+                    }
+                  })
+                    .then(function () {
+                      expect(view.emitted().error).toBeTruthy();
+                      expect(view.emitted().error[1][0].response.status).toBe(403);
+
+                      // Test 403
+                      view.vm.downloadFile(view.vm.$data.files.files[0]);
+                      moxios.wait(async () => {
+                        await view.vm.$nextTick();
+                        moxios.requests.mostRecent().respondWith({
+                          status: 403,
+                          response: {
+                            message: 'This action is unauthorized.'
+                          }
+                        })
+                          .then(function () {
+                            view.vm.$nextTick();
+                            expect(flashMessageSpy.calledOnce).toBeTruthy();
+                            expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileForbidden');
+                            expect(removeFile.calledWith({ id: 1, filename: 'File1.pdf', uploaded: '21.09.2020 07:08' })).toBeTruthy();
+
+                            // Test 404
+                            view.vm.downloadFile(view.vm.$data.files.files[0]);
+                            moxios.wait(async () => {
+                              await view.vm.$nextTick();
+                              moxios.requests.mostRecent().respondWith({
+                                status: 404,
+                                response: {
+                                  message: 'No query results for model'
+                                }
+                              })
+                                .then(function () {
+                                  view.vm.$nextTick();
+                                  expect(flashMessageSpy.calledTwice).toBeTruthy();
+                                  expect(flashMessageSpy.getCall(1).args[0]).toBe('rooms.flash.fileGone');
+                                  expect(removeFile.calledWith({ id: 1, filename: 'File1.pdf', uploaded: '21.09.2020 07:08' })).toBeTruthy();
+
+                                  // Test 500
+                                  view.vm.downloadFile(view.vm.$data.files.files[0]);
+                                  moxios.wait(async () => {
+                                    await view.vm.$nextTick();
+                                    moxios.requests.mostRecent().respondWith({
+                                      status: 500,
+                                      response: {
+                                        message: 'Internal server error'
+                                      }
+                                    })
+                                      .then(function () {
+                                        view.vm.$nextTick();
+                                        expect(baseError.calledOnce).toBeTruthy();
+                                        expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+                                        Base.error.restore();
+                                        FileComponent.methods.removeFile.restore();
+                                        done();
+                                      });
+                                  });
+                                });
+                            });
+                          });
+                      });
+                    });
+                });
+              });
+          });
         });
     });
   });
