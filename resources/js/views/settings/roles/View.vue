@@ -25,23 +25,24 @@
           label-for='room-limit'
           :state='fieldState("room_limit")'
         >
-          <b-form-input id='room-limit' type='number' :state='fieldState("room_limit")' v-model='model.room_limit' min='-1' :disabled='isBusy || viewOnly || model.room_limit === null || model.room_limit === -1'></b-form-input>
-          <b-form-checkbox
-            :checked='model.room_limit == null'
-            @change='(checked) => checked ? model.room_limit = null : model.room_limit = 0'
+          <b-form-input
+            id='room-limit'
+            type='number'
+            :state='fieldState("room_limit")'
+            v-model='model.room_limit'
+            min='0'
             :disabled='isBusy || viewOnly'
-            inline
-          >
-            {{ $t('settings.roles.roomLimit.default', { value: settings('room_limit') === -1 ? $t('settings.roles.roomLimit.unlimited').toLowerCase() : settings('room_limit') }) }}
-          </b-form-checkbox>
-          <b-form-checkbox
-            :checked='model.room_limit == -1'
-            @change='(checked) => checked ? model.room_limit = -1 : model.room_limit = 0'
-            :disabled='isBusy || viewOnly'
-            inline
-          >
-            {{ $t('settings.roles.roomLimit.unlimited') }}
-          </b-form-checkbox>
+            v-if="roomLimitMode === 'custom'">
+          </b-form-input>
+          <b-form-group>
+            <b-form-radio-group
+              v-model='roomLimitMode'
+              :options='roomLimitModeOptions'
+              :disabled='isBusy || viewOnly'
+              :state='fieldState("room_limit")'
+              @change="roomLimitModeChanged"
+            ></b-form-radio-group>
+          </b-form-group>
           <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
         </b-form-group>
         <b-form-group
@@ -161,7 +162,21 @@ export default {
   computed: {
     ...mapGetters({
       settings: 'session/settings'
-    })
+    }),
+
+    /**
+     * Options for the room limit mode radio button group.
+     */
+    roomLimitModeOptions () {
+      return [
+        { text: this.$t('settings.roles.roomLimit.default', { value: this.settings('room_limit') === -1 ?
+              this.$t('settings.roles.roomLimit.unlimited').toLowerCase() : this.settings('room_limit') }),
+          value: 'default'
+        },
+        { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
+        { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' },
+      ];
+    }
   },
 
   data () {
@@ -175,7 +190,8 @@ export default {
       permissions: {},
       permissionsLoading: false,
       errors: {},
-      staleError: {}
+      staleError: {},
+      roomLimitMode: 'default'
     };
   },
 
@@ -191,6 +207,7 @@ export default {
       Base.call(`roles/${this.id}`).then(response => {
         this.model = response.data.data;
         this.model.permissions = this.model.permissions.map(permission => permission.id);
+        this.roomLimitMode = this.model.room_limit === null ? 'default' : (this.model.room_limit === -1 ? 'unlimited' : 'custom');
       }).catch(response => {
         Base.error(response, this.$root, response.message);
       }).finally(() => {
@@ -281,6 +298,25 @@ export default {
       this.model.permissions = this.model.permissions.map(permission => permission.id);
       this.staleError = {};
       this.$refs['stale-role-modal'].hide();
+    },
+
+    /**
+     * Sets the room_limit on the model depending on the selected radio button.
+     *
+     * @param value Value of the radio button that was selected.
+     */
+    roomLimitModeChanged (value) {
+      switch (value) {
+        case 'default':
+          this.model.room_limit = null;
+          break;
+        case 'unlimited':
+          this.model.room_limit = -1;
+          break;
+        case 'custom':
+          this.model.room_limit = 0;
+          break;
+      }
     }
   }
 };

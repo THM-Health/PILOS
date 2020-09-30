@@ -8,7 +8,7 @@ import BootstrapVue, {
   BFormCheckbox,
   BOverlay,
   BForm,
-  BFormInvalidFeedback, BButton, BModal
+  BFormInvalidFeedback, BButton, BModal, BFormRadio
 } from 'bootstrap-vue';
 import Vuex from 'vuex';
 import sinon from 'sinon';
@@ -159,6 +159,7 @@ describe('RolesView', function () {
     moxios.wait(function () {
       expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
       expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.isDisabled)).toBe(true);
+      expect(view.findAllComponents(BFormRadio).wrappers.every(input => input.vm.isDisabled)).toBe(true);
       done();
     });
   });
@@ -189,41 +190,46 @@ describe('RolesView', function () {
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
-        let roomLimitDefaultCx;
-        let roomLimitUnlimitedCx;
-        const permissionsCxs = [];
+        let roomLimitDefaultRadio;
+        let roomLimitUnlimitedRadio;
+        let roomLimitCustomRadio;
+        const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
 
-        view.findAllComponents(BFormCheckbox).wrappers.forEach(checkbox => {
-          if (checkbox.text().startsWith('settings.roles.roomLimit.default')) {
-            roomLimitDefaultCx = checkbox;
-          } else if (checkbox.text().startsWith('settings.roles.roomLimit.unlimited')) {
-            roomLimitUnlimitedCx = checkbox;
+        view.findAllComponents(BFormRadio).wrappers.forEach(radio => {
+          if (radio.text().startsWith('settings.roles.roomLimit.default')) {
+            roomLimitDefaultRadio = radio;
+          } else if (radio.text().startsWith('settings.roles.roomLimit.unlimited')) {
+            roomLimitUnlimitedRadio = radio;
           } else {
-            permissionsCxs.push(checkbox);
+            roomLimitCustomRadio = radio;
           }
         });
 
-        expect(roomLimitDefaultCx.text()).toContain('settings.roles.roomlimit.unlimited');
-        expect(roomLimitDefaultCx.vm.isChecked).toBe(true);
-        expect(roomLimitUnlimitedCx.vm.isChecked).toBe(false);
+        expect(roomLimitDefaultRadio.text()).toContain('settings.roles.roomlimit.unlimited');
+        console.log(roomLimitDefaultRadio.vm.isChecked);
+        expect(roomLimitDefaultRadio.vm.isChecked).toBe(true);
+        expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
+        expect(roomLimitCustomRadio.vm.isChecked).toBe(false);
         permissionsCxs.forEach(checkbox => {
           expect(checkbox.text()).toBe(`app.permissions.tests.test${checkbox.props('value')}`);
         });
         expect(permissionsCxs[0].vm.isChecked).toBe(true);
         expect(permissionsCxs[9].vm.isChecked).toBe(true);
 
-        roomLimitUnlimitedCx.get('input').trigger('click');
+        roomLimitUnlimitedRadio.get('input').trigger('click');
 
         view.vm.$nextTick().then(() => {
-          expect(roomLimitDefaultCx.vm.isChecked).toBe(false);
-          expect(roomLimitUnlimitedCx.vm.isChecked).toBe(true);
+          expect(roomLimitDefaultRadio.vm.isChecked).toBe(false);
+          expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(true);
+          expect(roomLimitCustomRadio.vm.isChecked).toBe(false);
           expect(view.vm.model.room_limit).toBe(-1);
 
-          roomLimitUnlimitedCx.get('input').trigger('click');
+          roomLimitCustomRadio.get('input').trigger('click');
 
           view.vm.$nextTick().then(() => {
-            expect(roomLimitDefaultCx.vm.isChecked).toBe(false);
-            expect(roomLimitUnlimitedCx.vm.isChecked).toBe(false);
+            expect(roomLimitDefaultRadio.vm.isChecked).toBe(false);
+            expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
+            expect(roomLimitCustomRadio.vm.isChecked).toBe(true);
             expect(view.vm.model.room_limit).toBe(0);
             done();
           });
@@ -333,17 +339,17 @@ describe('RolesView', function () {
 
     moxios.wait(function () {
       let roomLimitDefaultCx;
-      const permissionsCxs = [];
+      const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
 
-      view.findAllComponents(BFormCheckbox).wrappers.forEach(checkbox => {
-        if (checkbox.text().startsWith('settings.roles.roomLimit.default')) {
-          roomLimitDefaultCx = checkbox;
-        } else if (!checkbox.text().startsWith('settings.roles.roomLimit.unlimited')) {
-          permissionsCxs.push(checkbox);
+      let roomLimitCustomRadio;
+
+      view.findAllComponents(BFormRadio).wrappers.forEach(radio => {
+        if (radio.text().startsWith('settings.roles.roomLimit.custom')) {
+          roomLimitCustomRadio = radio;
         }
       });
 
-      roomLimitDefaultCx.get('input').trigger('click');
+      roomLimitCustomRadio.get('input').trigger('click');
       permissionsCxs[0].get('input').trigger('click');
       permissionsCxs[1].get('input').trigger('click');
 

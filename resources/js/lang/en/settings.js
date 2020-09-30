@@ -16,7 +16,8 @@ export default {
     roomLimit: {
       label: 'Room limit',
       default: 'System default ({value})',
-      unlimited: 'Unlimited'
+      unlimited: 'Unlimited',
+      custom: 'Custom amount'
     },
     default: 'Default',
     actions: 'Actions',

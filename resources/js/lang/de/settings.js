@@ -16,7 +16,8 @@ export default {
     roomLimit: {
       label: 'Max. Anzahl an Räumen',
       default: 'Systemstandard ({value})',
-      unlimited: 'Unbegrenzt'
+      unlimited: 'Unbegrenzt',
+      custom: 'Benutzerdefinierter Wert'
     },
 
     default: 'Standard',
