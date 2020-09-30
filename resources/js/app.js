@@ -7,6 +7,7 @@ import router from './router';
 import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
+import env from './env';
 
 Vue.use(Clipboard);
 // Install BootstrapVue

@@ -338,9 +338,7 @@ describe('RolesView', function () {
     });
 
     moxios.wait(function () {
-      let roomLimitDefaultCx;
       const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
-
       let roomLimitCustomRadio;
 
       view.findAllComponents(BFormRadio).wrappers.forEach(radio => {

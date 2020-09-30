@@ -169,12 +169,15 @@ export default {
      */
     roomLimitModeOptions () {
       return [
-        { text: this.$t('settings.roles.roomLimit.default', { value: this.settings('room_limit') === -1 ?
-              this.$t('settings.roles.roomLimit.unlimited').toLowerCase() : this.settings('room_limit') }),
+        {
+          text: this.$t('settings.roles.roomLimit.default', {
+            value: this.settings('room_limit') === -1
+              ? this.$t('settings.roles.roomLimit.unlimited').toLowerCase() : this.settings('room_limit')
+          }),
           value: 'default'
         },
         { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
-        { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' },
+        { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' }
       ];
     }
   },
