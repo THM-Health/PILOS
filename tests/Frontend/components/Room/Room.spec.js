@@ -5,6 +5,8 @@ import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
+import sinon from 'sinon';
+import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 
@@ -244,5 +246,79 @@ describe('Room', function () {
         done();
       });
     });
+  });
+
+  it('handle invalid code', function () {
+    const reload = sinon.stub(RoomView.methods, 'reload');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      propsData: {
+        accessCodeValid: null,
+        accessCode: 123456789
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    view.vm.handleInvalidCode();
+    expect(view.vm.$data.accessCodeValid).toBeFalsy();
+    expect(view.vm.$data.accessCode).toBeNull();
+    expect(flashMessageSpy.calledOnce).toBeTruthy();
+    expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.accessCodeChanged');
+    expect(reload.calledOnce).toBeTruthy();
+    reload.restore();
+  });
+
+  it('handle file list errors', function () {
+    const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
+    const baseError = sinon.stub(Base, 'error');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      propsData: {
+        room: { id: 'cba-fed-234', name: 'Meeting Two', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: false, isModerator: false, canStart: false, running: false, accessCode: 123456789 },
+        accessCode: 123456789
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    view.vm.onFileListError({ response: { status: 401, data: { message: 'invalid_code' } } });
+    expect(handleInvalidCode.calledOnce).toBeTruthy();
+
+    view.vm.onFileListError({ response: { status: 403, data: { message: 'require_code' } } });
+    expect(handleInvalidCode.calledTwice).toBeTruthy();
+
+    view.vm.onFileListError({ response: { status: 403, data: { message: 'This action is unauthorized.' } } });
+    expect(view.vm.$data.accessCode).toBeNull();
+    expect(view.vm.$data.room).toBeNull();
+
+    view.vm.onFileListError({ response: { status: 500, data: { message: 'Internal server error' } } });
+    expect(baseError.calledOnce).toBeTruthy();
+    expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+
+    Base.error.restore();
+    handleInvalidCode.restore();
   });
 });
