@@ -88,7 +88,7 @@
               <b-button
                 variant="danger"
                 :disabled="loadingDownload===data.id"
-                @click="deleteFile(data.item)"
+                @click="showDeleteFileModal(data.item)"
               >
                 <i class="fas fa-trash"></i>
               </b-button>
@@ -152,6 +152,26 @@
         </b-col>
       </b-row>
     </b-overlay>
+
+    <!-- remove file modal -->
+    <b-modal
+      :busy="isLoadingAction"
+      ok-variant="danger"
+      cancel-variant="dark"
+      :cancel-title="$t('app.no')"
+      @ok="confirmDeleteFile"
+      ref="delete-file-modal" >
+      <template v-slot:modal-title>
+        {{ $t('rooms.files.modals.delete.title') }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
+      </template>
+      <span v-if="deleteFile">
+        {{ $t('rooms.files.modals.delete.confirm', { filename: deleteFile.filename }) }}
+      </span>
+    </b-modal>
+
   </div>
 </template>
 <script>
@@ -197,6 +217,8 @@ export default {
     return {
       // file list fetching from api
       isBusy: false,
+      deleteFile: null, // file to be deleted
+      isLoadingAction: false, // data is processed
       loadingDownload: null,
       // file upload model
       fileUpload: null,
@@ -273,44 +295,40 @@ export default {
     },
 
     /**
-     * Delete file
-     * @param file file object
+     * show modal to remove a file
+     * @param file file to be deleted
      */
-    deleteFile: function (file) {
-      // show delete confirmation modal
-      this.$bvModal.msgBoxConfirm(this.$t('rooms.files.modals.delete.confirm', { filename: file.filename }), {
-        title: this.$t('rooms.files.modals.delete.title'),
-        okVariant: 'danger',
-        okTitle: this.$t('app.yes'),
-        cancelTitle: this.$t('app.no'),
-        footerClass: 'p-2',
-        centered: true
-      })
-        .then(function (value) {
-          // Delete confirmed
-          if (value === true) {
-            // Change table to busy state
-            this.isBusy = true;
-            // Remove file from room with api call
-            Base.call('rooms/' + this.roomId + '/files/' + file.id, {
-              method: 'delete'
-            }).then(response => {
-              // Fetch successful
-              this.files = response.data.data;
-            }).catch((error) => {
-              if (error.response.status === 404) {
-                // Show error message
-                this.flashMessage.error(this.$t('rooms.flash.fileGone'));
-                // Remove file from list
-                this.removeFile(file);
-                return;
-              }
-              Base.error(error, this.$root);
-            }).finally(() => {
-              this.isBusy = false;
-            });
-          }
-        }.bind(this));
+    showDeleteFileModal: function (file) {
+      this.deleteFile = file;
+      this.$refs['delete-file-modal'].show();
+    },
+
+    /**
+     * Delete file
+     */
+    confirmDeleteFile: function (bvModalEvt) {
+      // prevent modal from closing
+      bvModalEvt.preventDefault();
+      this.isLoadingAction = true;
+      // Remove file from room with api call
+      Base.call('rooms/' + this.roomId + '/files/' + this.deleteFile.id, {
+        method: 'delete'
+      }).then(response => {
+        // Fetch successful
+        this.files = response.data.data;
+      }).catch((error) => {
+        if (error.response.status === 404) {
+          // Show error message
+          this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+          // Remove file from list
+          this.removeFile(this.deleteFile);
+          return;
+        }
+        Base.error(error, this.$root);
+      }).finally(() => {
+        this.$refs['delete-file-modal'].hide();
+        this.isLoadingAction = false;
+      });
     },
     /**
      * Handle file upload event on file select or drag'n'drop
