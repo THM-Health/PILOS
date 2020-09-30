@@ -25,6 +25,14 @@
           label-for='room-limit'
           :state='fieldState("room_limit")'
         >
+          <b-form-radio-group
+            class='mb-2'
+            v-model='roomLimitMode'
+            :options='roomLimitModeOptions'
+            :disabled='isBusy || viewOnly'
+            :state='fieldState("room_limit")'
+            @change="roomLimitModeChanged"
+          ></b-form-radio-group>
           <b-form-input
             id='room-limit'
             type='number'
@@ -34,15 +42,6 @@
             :disabled='isBusy || viewOnly'
             v-if="roomLimitMode === 'custom'">
           </b-form-input>
-          <b-form-group>
-            <b-form-radio-group
-              v-model='roomLimitMode'
-              :options='roomLimitModeOptions'
-              :disabled='isBusy || viewOnly'
-              :state='fieldState("room_limit")'
-              @change="roomLimitModeChanged"
-            ></b-form-radio-group>
-          </b-form-group>
           <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
         </b-form-group>
         <b-form-group
