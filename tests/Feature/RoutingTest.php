@@ -28,6 +28,7 @@ class RoutingTest extends TestCase
      */
     public function testOtherExistingRoute()
     {
+        $this->withoutMix();
         $response = $this->get('/login');
         $response->assertOk();
         $response->assertViewIs('application');

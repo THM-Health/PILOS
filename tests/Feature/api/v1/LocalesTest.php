@@ -17,6 +17,7 @@ class LocalesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMix();
 
         config([
             'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
