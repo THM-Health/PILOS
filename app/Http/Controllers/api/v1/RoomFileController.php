@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRoomFile;
 use App\Http\Requests\UpdateRoomFile;
 use App\Http\Resources\PrivateRoomFile;
+use App\Http\Resources\PrivateRoomFileCollection;
+use App\Http\Resources\RoomFileCollection;
 use App\Room;
 use App\RoomFile;
 
@@ -13,21 +15,18 @@ class RoomFileController extends Controller
 {
     /**
      * Return a list of all files of a room and id of the default file
-     * @param  Room                          $room
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Room                                         $room
+     * @return PrivateRoomFileCollection|RoomFileCollection
      */
     public function index(Room $room)
     {
-        $default = $room->files()->where('default', true)->first();
+        if (\Gate::allows('manageFiles', $room)) {
+            $default = $room->files()->where('default', true)->first();
 
-        return response()->json([
-            'data'=> [
-                'files'      => PrivateRoomFile::collection($room->files),
-                'default'    => $default ? $default->id : null,
-                'file_mimes' => config('bigbluebutton.allowed_file_mimes'),
-                'file_size'  => config('bigbluebutton.max_filesize') / 1000,
-            ]
-        ]);
+            return new PrivateRoomFileCollection($room->files, $default);
+        }
+
+        return new RoomFileCollection($room->files()->where('download', true)->get());
     }
 
     /**

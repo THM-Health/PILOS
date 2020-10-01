@@ -67,6 +67,11 @@ export default {
     size: 'Max. file size: {size} MB',
     validation: {
       tooLarge: 'The selected file is too large.'
+    },
+    termsOfUse: {
+      title: 'Terms of Use',
+      content: 'Files that can be downloaded here are for personal study only. The files, or parts of them, may not be shared or distributed.',
+      accept: 'I accept the terms of use'
     }
   },
   invitation: {

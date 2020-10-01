@@ -34,7 +34,7 @@ export default {
      */
     fieldError (field) {
       if (this.fieldState(field) !== false) { return ''; }
-      return '<ul><li>' + this.errors[field].join('</li><li>') + '</li></ul>';
+      return this.errors[field].length > 1 ? ('<ul><li>' + this.errors[field].join('</li><li>') + '</li></ul>') : this.errors[field][0];
     }
   }
 };

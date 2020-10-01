@@ -48,7 +48,7 @@ Vue.config.errorHandler = function (error, vm, info) {
     }
   } else if (responseStatus === env.HTTP_FORBIDDEN && errorMessage === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
     vm.flashMessage.error(vm.$t('app.flash.unauthorized'));
-  } else if (responseStatus === 420) { // 420 => only for guests, redirect to home route
+  } else if (responseStatus === env.HTTP_GUESTS_ONLY) { // 420 => only for guests, redirect to home route
     vm.flashMessage.info(vm.$t('app.flash.guestsOnly'));
     vm.$router.replace({ name: 'home' });
   } else if (responseStatus !== undefined) { // Another error on server

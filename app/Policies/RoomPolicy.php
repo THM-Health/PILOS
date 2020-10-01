@@ -137,7 +137,7 @@ class RoomPolicy
      * @param  Room $room
      * @return bool
      */
-    public function manageFiles(User $user, Room $room)
+    public function manageFiles(?User $user, Room $room)
     {
         return $room->owner->is($user);
     }
@@ -152,6 +152,6 @@ class RoomPolicy
      */
     public function downloadFile(?User $user, Room $room, RoomFile $roomFile)
     {
-        return $room->owner->is(\Auth::user()) || $roomFile->download === true;
+        return $room->owner->is($user) || $roomFile->download === true;
     }
 }

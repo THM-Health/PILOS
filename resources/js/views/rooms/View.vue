@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5 mb-5" v-cloak>
-    <template v-if="room">
+    <template v-if="room !== null">
 
       <!-- Delete button and modal -->
       <can method="delete" :policy="{ model_name: 'Room', isOwner: room.isOwner  }">
@@ -148,26 +148,23 @@
         </b-row>
 
         <!-- Show file list for non-owner users (owner has it's own more detailed file list -->
-        <template v-if="room.files && room.files.length > 0 && !room.isOwner">
-          <b-row><b-col>
-            <hr>
-            <h4>{{ $t('rooms.files.title') }}</h4>
-            <!-- Table with all files -->
-            <b-table :fields="filefields" :items="room.files" hover>
-              <!-- Render action column-->
-              <template v-slot:cell(actions)="data">
-                <!-- Download file button -->
-                <b-button
-                  class="float-right"
-                  variant="dark"
-                  @click="downloadFile(data.item,data.index)"
-                  target="_blank"
-                >
-                  <i class="fas fa-eye"></i>
-                </b-button>
-              </template>
-            </b-table>
-          </b-col></b-row>
+        <template v-if="!room.isOwner">
+          <b-row>
+            <b-col>
+              <hr>
+              <file-component
+                ref="publicFileList"
+                :emit-errors="true"
+                v-on:error="onFileListError"
+                :access-code="accessCode"
+                :room-id="room_id"
+                :is-owner="room.isOwner"
+                :show-title="true"
+                :require-agreement="true"
+                :hide-reload="true"
+              ></file-component>
+            </b-col>
+          </b-row>
         </template>
 
         <!-- Show admin settings (owners only)-->
@@ -229,12 +226,14 @@ import RoomAdmin from '../../components/Room/AdminComponent';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
 import Can from '../../components/Permissions/Can';
+import FileComponent from '../../components/Room/FileComponent';
 
 export default {
   directives: {
     mask: AwesomeMask
   },
   components: {
+    FileComponent,
     DeleteRoomComponent,
     RoomAdmin,
     Can
@@ -282,71 +281,49 @@ export default {
     setInterval(this.reload, env.REFRESH_RATE * 1000);
   },
   methods: {
+    /**
+     *  Handle errors of the file list
+     */
+    onFileListError: function (error) {
+      if (error.response) {
+        // Access code invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+          return this.handleInvalidCode();
+        }
+
+        // Access code invalid
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+          return this.handleInvalidCode();
+        }
+
+        // Forbidden, guests not allowed
+        if (error.response.status === env.HTTP_FORBIDDEN) {
+          return this.handleGuestsNotAllowed();
+        }
+      }
+      Base.error(error, this.$root);
+    },
 
     /**
-     * Request file download url
-     * @param file file object
-     * @param index integer index in filelist
-     * @return string url
+     * Reset room access code and details
      */
-    downloadFile: function (file, index) {
-      this.loadingDownload = true;
-      // Update value for the setting and the effected file
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
-      Base.call('rooms/' + this.room.id + '/files/' + file.id, config)
-        .then(response => {
-          if (response.data.url !== undefined) {
-            window.open(response.data.url, '_blank');
-          }
-        }).catch((error) => {
-          if (error.response) {
-          // Access code invalid
-            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-            // Show access code is valid
-              this.accessCodeValid = false;
-              // Reset access code (not the form input) to load the general room details again
-              this.accessCode = null;
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
-              this.reload();
-              return;
-            }
+    handleGuestsNotAllowed: function () {
+      this.room = null;
+      // Remove a potential access code
+      this.accessCode = null;
+    },
 
-            // Forbidden, require access code
-            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
-            // Show access code is valid
-              this.accessCodeValid = false;
-              // Reset access code (not the form input) to load the general room details again
-              this.accessCode = null;
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
-              this.reload();
-              return;
-            }
-
-            // Forbidden, not allowed to download this file
-            if (error.response.status === env.HTTP_FORBIDDEN) {
-            // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
-              // Remove file from list
-              this.room.files.splice(index, 1);
-              return;
-            }
-
-            // File gone
-            if (error.response.status === env.HTTP_NOT_FOUND) {
-            // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
-              // Remove file from list
-              this.room.files.splice(index, 1);
-              return;
-            }
-          }
-          Base.error(error, this.$root);
-        }).finally(() => {
-        // Disable loading indicator
-          this.loadingDownload = false;
-        });
+    /**
+     * Reset access code due to errors, show error and reload room details
+     */
+    handleInvalidCode: function () {
+      // Show access code is valid
+      this.accessCodeValid = false;
+      // Reset access code (not the form input) to load the general room details again
+      this.accessCode = null;
+      // Show error message
+      this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+      this.reload();
     },
 
     /**
@@ -368,27 +345,21 @@ export default {
           if (this.room.authenticated) {
             this.accessCodeValid = null;
           }
+
+          if (this.$refs.publicFileList) {
+            this.$refs.publicFileList.reload();
+          }
         })
         .catch((error) => {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
-              // Show access code is valid
-              this.accessCodeValid = false;
-              // Reset access code (not the form input) to load the general room details again
-              this.accessCode = null;
-              // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
-              this.reload();
-              return;
+              return this.handleInvalidCode();
             }
 
             // Forbidden, guests not allowed
             if (error.response.status === env.HTTP_FORBIDDEN) {
-              this.room = null;
-              // Remove a potential access code
-              this.accessCode = null;
-              return;
+              return this.handleGuestsNotAllowed();
             }
           }
           Base.error(error, this.$root);

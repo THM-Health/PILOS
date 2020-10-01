@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
 - Add search field and pagination to the room overview page  ([#39], [#49])
 - Added file upload for room owner and file download for participants ([#4], [#18])
+- Added agreement check before file download ([#50],[#54])
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
 - Added setting menu for administrators ([#35], [#38])
 - Added a middleware to check whether the request is in sync with model of the database and not stale ([#40], [#41])
@@ -51,5 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#45]: https://github.com/THM-Health/PILOS/pull/45
 [#46]: https://github.com/THM-Health/PILOS/pull/46
 [#49]: https://github.com/THM-Health/PILOS/pull/49
+[#50]: https://github.com/THM-Health/PILOS/issues/50
+[#54]: https://github.com/THM-Health/PILOS/pull/54
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

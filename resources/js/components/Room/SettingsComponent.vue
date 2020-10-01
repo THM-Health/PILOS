@@ -305,7 +305,7 @@ export default {
         this.errors = {};
       }).catch((error) => {
         // Settings couldn't be saved
-        if (error.response.status === 422) {
+        if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
           return;
         }

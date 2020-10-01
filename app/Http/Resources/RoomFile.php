@@ -17,6 +17,7 @@ class RoomFile extends JsonResource
         return [
             'id'            => $this->id,
             'filename'      => $this->filename,
+            'uploaded'      => $this->created_at
         ];
     }
 }

@@ -206,7 +206,6 @@ describe('RolesView', function () {
         });
 
         expect(roomLimitDefaultRadio.text()).toContain('settings.roles.roomlimit.unlimited');
-        console.log(roomLimitDefaultRadio.vm.isChecked);
         expect(roomLimitDefaultRadio.vm.isChecked).toBe(true);
         expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
         expect(roomLimitCustomRadio.vm.isChecked).toBe(false);

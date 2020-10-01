@@ -2,6 +2,7 @@ import auth from '../../api/auth';
 import base from '../../api/base';
 import { loadLanguageAsync } from '../../i18n';
 import PermissionService from '../../services/PermissionService';
+import _ from 'lodash';
 
 const state = () => ({
   settings: null,
@@ -13,8 +14,9 @@ const getters = {
   isAuthenticated: state => {
     return !$.isEmptyObject(state.currentUser);
   },
+
   settings: (state) => (setting) => {
-    return $.isEmptyObject(state.settings) || !(setting in state.settings) ? null : state.settings[setting];
+    return $.isEmptyObject(state.settings) ? undefined : _.get(state.settings, setting);
   }
 };
 
@@ -36,7 +38,8 @@ const actions = {
   },
 
   async getCurrentUser ({ commit }) {
-    const currentUser = await auth.getCurrentUser();
+    let currentUser = await auth.getCurrentUser();
+    if ($.isEmptyObject(currentUser)) { currentUser = null; }
     commit('setCurrentUser', currentUser);
   },
 
