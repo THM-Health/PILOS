@@ -249,8 +249,7 @@ export default {
       room: null, // Room object
       accessCode: null, // Access code to use for requests
       accessCodeInput: null, // Access code input modal
-      accessCodeValid: null, // Is access code valid
-      downloadAgreement: 'not_accepted'
+      accessCodeValid: null // Is access code valid
     };
   },
   // Component not loaded yet

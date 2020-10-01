@@ -230,7 +230,7 @@ export default {
       // file list from api
       files: [],
       errors: {},
-      downloadAgreement: false,
+      downloadAgreement: 'not_accepted',
       currentPage: 1
     };
   },
