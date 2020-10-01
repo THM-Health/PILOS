@@ -26,6 +26,7 @@
 <script>
 import { loadLanguageAsync } from '../i18n';
 import { mapState } from 'vuex';
+import env from './../env.js';
 
 const localeMap = {
   de: 'Deutsch',
@@ -73,7 +74,7 @@ export default {
         await this.$store.dispatch('session/setLocale', { locale });
         await loadLanguageAsync(locale);
       } catch (error) {
-        if (error.response !== undefined && error.response.status === 422) {
+        if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors.locale;
         } else {
           this.$store.commit('loadingFinished');

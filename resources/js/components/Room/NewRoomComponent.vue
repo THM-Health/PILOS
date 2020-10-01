@@ -38,6 +38,7 @@
 import Base from '../../api/base';
 import store from '../../store';
 import FieldErrors from '../../mixins/FieldErrors';
+import env from './../../env.js';
 
 export default {
   mixins: [FieldErrors],
@@ -77,19 +78,19 @@ export default {
         this.isLoadingAction = false;
         if (error.response) {
           // failed due to form validation errors
-          if (error.response.status === 422) {
+          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
             return;
           }
           // permission denied
-          if (error.response.status === 403) {
+          if (error.response.status === env.HTTP_FORBIDDEN) {
             this.flashMessage.error(this.$t('rooms.flash.noNewRoom'));
             this.$bvModal.hide('new-room');
             store.dispatch('session/getCurrentUser');
             return;
           }
           // room limit exceeded
-          if (error.response.status === 463) {
+          if (error.response.status === env.HTTP_ROOM_LIMIT_EXCEEDED) {
             this.$emit('limitReached');
           }
         }

@@ -54,7 +54,8 @@ describe('RoomFile', function () {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
       },
       propsData: {
         roomId: '123-456-789',
@@ -139,7 +140,8 @@ describe('RoomFile', function () {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
       },
       propsData: {
         roomId: '123-456-789',
@@ -174,7 +176,8 @@ describe('RoomFile', function () {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
       },
       data () {
         return {
@@ -233,6 +236,7 @@ describe('RoomFile', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: (date, format) => date.toDateString(),
         flashMessage: flashMessage
       },
       data () {
@@ -384,6 +388,7 @@ describe('RoomFile', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: (date, format) => date.toDateString(),
         flashMessage: flashMessage
       },
       propsData: {
@@ -527,6 +532,7 @@ describe('RoomFile', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: (date, format) => date.toDateString(),
         flashMessage: flashMessage
       },
       propsData: {

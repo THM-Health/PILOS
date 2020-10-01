@@ -288,32 +288,34 @@ export default {
     onFileListError: function (error) {
       if (error.response) {
         // Access code invalid
-        if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
           return this.handleInvalidCode();
         }
 
         // Access code invalid
-        if (error.response.status === 403 && error.response.data.message === 'require_code') {
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
           return this.handleInvalidCode();
         }
 
         // Forbidden, guests not allowed
-        if (error.response.status === 403) {
-          this.room = null;
-          // Remove a potential access code
-          this.accessCode = null;
-          return;
+        if (error.response.status === env.HTTP_FORBIDDEN) {
+          return this.handleGuestsNotAllowed();
         }
       }
       Base.error(error, this.$root);
     },
 
     /**
-     * Request file download url
-     * @param file file object
-     * @param index integer index in filelist
-     * @return string url
-     * Handle all 401 invalid_code and 403 require_code errors
+     * Reset room access code and details
+     */
+    handleGuestsNotAllowed: function () {
+      this.room = null;
+      // Remove a potential access code
+      this.accessCode = null;
+    },
+
+    /**
+     * Reset access code due to errors, show error and reload room details
      */
     handleInvalidCode: function () {
       // Show access code is valid
@@ -358,10 +360,7 @@ export default {
 
             // Forbidden, guests not allowed
             if (error.response.status === env.HTTP_FORBIDDEN) {
-              this.room = null;
-              // Remove a potential access code
-              this.accessCode = null;
-              return;
+              return this.handleGuestsNotAllowed();
             }
           }
           Base.error(error, this.$root);

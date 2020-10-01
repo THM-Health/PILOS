@@ -15,9 +15,15 @@ class ApplicationController extends Controller
     public function settings()
     {
         return response()->json(['data' => [
-              'logo'       => setting('logo'),
-              'room_limit' => setting('room_limit'),
+              'logo'                 => setting('logo'),
+              'room_limit'           => setting('room_limit'),
               'pagination_page_size' => setting('pagination_page_size'),
+              'bbb'                  => [
+                  'file_mimes'              => config('bigbluebutton.allowed_file_mimes'),
+                  'max_filesize'            => config('bigbluebutton.max_filesize'),
+                  'room_name_limit'         => config('bigbluebutton.room_name_limit'),
+                  'welcome_message_limit'   => config('bigbluebutton.welcome_message_limit')
+              ]
           ]
         ]);
     }

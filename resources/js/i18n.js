@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
+import dateTimeFormats from './lang/date-time-formats';
 
 const defaultLocale = process.env.MIX_DEFAULT_LOCALE;
 
@@ -10,6 +11,7 @@ messages[defaultLocale] = require(`./lang/${process.env.MIX_DEFAULT_LOCALE}`).de
 Vue.use(VueI18n);
 
 const i18n = new VueI18n({
+  dateTimeFormats,
   locale: defaultLocale,
   fallbackLocale: defaultLocale,
   availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(','),

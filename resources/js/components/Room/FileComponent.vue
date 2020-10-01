@@ -31,12 +31,9 @@
             v-bind:multiple="false"
           >
           </b-form-file>
+          <b-form-invalid-feedback :state="fieldState('file')" v-html="fieldError('file')"></b-form-invalid-feedback>
 
-          <b-form-invalid-feedback>
-            {{ fieldError('file') }}
-          </b-form-invalid-feedback>
-
-          <b-form-text>{{ $t('rooms.files.formats',{formats: files.file_mimes}) }}<br>{{ $t('rooms.files.size',{size: files.file_size}) }}</b-form-text>
+          <b-form-text>{{ $t('rooms.files.formats',{formats: settings('bbb.file_mimes')}) }}<br>{{ $t('rooms.files.size',{size: settings('bbb.max_filesize')}) }}</b-form-text>
 
         </can>
       </div>
@@ -140,6 +137,11 @@
           ></b-form-radio>
         </template>
 
+        <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
+        <template v-slot:cell(uploaded)="data">
+         {{ $d(new Date(data.item.uploaded), 'long') }}
+        </template>
+
       </b-table>
       <b-row v-if="files.files">
         <b-col cols="12" class="my-1">
@@ -180,6 +182,7 @@ import Can from '../Permissions/Can';
 import PermissionService from '../../services/PermissionService';
 import { mapGetters } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';
+import env from './../../env.js';
 
 export default {
 
@@ -255,17 +258,17 @@ export default {
         }).catch((error) => {
           if (error.response) {
             // Access code invalid
-            if (error.response.status === 401 && error.response.data.message === 'invalid_code') {
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
               return this.$emit('error', error);
             }
 
             // Forbidden, require access code
-            if (error.response.status === 403 && error.response.data.message === 'require_code') {
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
               return this.$emit('error', error);
             }
 
             // Forbidden, not allowed to download this file
-            if (error.response.status === 403) {
+            if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
               this.removeFile(file);
@@ -273,7 +276,7 @@ export default {
             }
 
             // File gone
-            if (error.response.status === 404) {
+            if (error.response.status === env.HTTP_NOT_FOUND) {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.fileGone'));
               // Remove file from list
@@ -310,7 +313,7 @@ export default {
         // Fetch successful
         this.files = response.data.data;
       }).catch((error) => {
-        if (error.response.status === 404) {
+        if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
           this.flashMessage.error(this.$t('rooms.flash.fileGone'));
           // Remove file from list
@@ -349,11 +352,11 @@ export default {
         this.files = response.data.data;
       }).catch((error) => {
         if (error.response) {
-          if (error.response.status === 413) {
+          if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
             this.errors = { file: [this.$t('rooms.files.validation.tooLarge')] };
             return;
           }
-          if (error.response.status === 422) {
+          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
             return;
           }
@@ -407,7 +410,7 @@ export default {
         // Fetch successful
         this.files = response.data.data;
       }).catch((error) => {
-        if (error.response.status === 404) {
+        if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
           this.flashMessage.error(this.$t('rooms.flash.fileGone'));
           // Remove file from list
