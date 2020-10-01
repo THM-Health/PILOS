@@ -46,13 +46,14 @@ describe('FieldErrors', function () {
       expect(view.vm.fieldError('test')).toBe('');
     });
 
-    it('returns empty string if the error object does not contain errors for the passed field and html list for existing errors', function () {
+    it('returns empty string if the error object does not contain errors for the passed field, html list for multiple existing errors and just text if only one', function () {
       const Test = {
         mixins: [FieldErrors],
         data () {
           return {
             errors: {
-              foo: ['a', 'b']
+              foo: ['a', 'b'],
+              baa: ['a']
             }
           };
         },
@@ -63,6 +64,7 @@ describe('FieldErrors', function () {
 
       expect(view.vm.fieldError('test')).toBe('');
       expect(view.vm.fieldError('foo')).toBe('<ul><li>a</li><li>b</li></ul>');
+      expect(view.vm.fieldError('baa')).toBe('a');
     });
   });
 });
