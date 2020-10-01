@@ -9,7 +9,7 @@
           <b-button
             variant="dark"
             :disabled="isBusy"
-            @click="showAddUserModal"
+            @click="showAddMemberModal"
           >
             <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
@@ -66,7 +66,7 @@
               <b-button
                 :disabled="isBusy"
                 variant="dark"
-                @click="showEditUserModal(data.item)"
+                @click="showEditMemberModal(data.item)"
               >
                 <i class="fas fa-user-edit"></i>
               </b-button>
@@ -74,7 +74,7 @@
               <b-button
                 :disabled="isBusy"
                 variant="danger"
-                @click="showRemoveUserModal(data.item)"
+                @click="showRemoveMemberModal(data.item)"
               >
                 <i class="fas fa-trash"></i>
               </b-button>
@@ -117,19 +117,19 @@
       :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.edit.cancel')"
-      @ok="saveEditUser"
+      @ok="saveEditMember"
       ref="edit-user-modal" >
       <template v-slot:modal-title>
-        {{ $t('rooms.members.modals.edit.title',{firstname: editUser.firstname,lastname: editUser.lastname}) }}
+        {{ $t('rooms.members.modals.edit.title',{firstname: editMember.firstname,lastname: editMember.lastname}) }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
       </template>
-      <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editUser">
-        <b-form-radio v-model.number="editUser.role" name="some-radios" value="1">
+      <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
+        <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="editUser.role" name="some-radios" value="2">
+        <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
       </b-form-group>
@@ -141,16 +141,16 @@
       ok-variant="danger"
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
-      @ok="saveRemoveUser"
-      ref="remove-user-modal" >
+      @ok="confirmRemoveMember"
+      ref="remove-member-modal" >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.delete.title') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
       </template>
-      <span v-if="deleteUser">
-        {{ $t('rooms.members.modals.delete.confirm',{firstname: deleteUser.firstname,lastname: deleteUser.lastname}) }}
+      <span v-if="deleteMember">
+        {{ $t('rooms.members.modals.delete.confirm',{firstname: deleteMember.firstname,lastname: deleteMember.lastname}) }}
       </span>
 
     </b-modal>
@@ -160,8 +160,8 @@
       :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.add.cancel')"
-      @ok="saveNewUser"
-      ref="add-user-modal" >
+      @ok="saveNewMember"
+      ref="add-member-modal" >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.add.title') }}
       </template>
@@ -171,8 +171,8 @@
       <!-- show server validation errors -->
       <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <!-- select user -->
-      <b-form-group :label="$t('rooms.members.modals.add.user')" :state="newUserValid">
-        <multiselect v-model="newUser.data"
+      <b-form-group :label="$t('rooms.members.modals.add.user')" :state="newMemberValid">
+        <multiselect v-model="newMember.data"
                      label="lastname"
                      track-by="id"
                      :placeholder="$t('rooms.members.modals.add.name')"
@@ -197,11 +197,11 @@
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newUser.data" :state="newUserRoleValid">
-        <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="1">
+      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newMember.data" :state="newMemberRoleValid">
+        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newUser.data.role" name="adduser-role-radios" value="5">
+        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="5">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
@@ -227,14 +227,14 @@ export default {
   data () {
     return {
       isBusy: false, // table is fetching data from api
-      newUser: { data: null, feedback: { user: null, role: null } }, // object user to be added
+      newMember: { data: null, feedback: { user: null, role: null } }, // object user to be added as member
       users: [], // list of all found users
       isLoadingSearch: false, // is user search active
       isLoadingAction: false, // is user search active
       members: [], // list of all members
       createError: null, // error on adding new user as member
-      editUser: null, // user to be edited
-      deleteUser: null, // user to be deleted
+      editMember: null, // member to be edited
+      deleteMember: null, // member to be deleted
       errors: {},
       currentPage: 1
     };
@@ -242,10 +242,10 @@ export default {
   methods: {
 
     /**
-     * Remove given user from the list
+     * Remove given member from member list
      */
-    removeUser: function (user) {
-      this.users.splice(this.users.findIndex(item => item.id === user.id), 1);
+    removeMemberItem: function (member) {
+      this.members.splice(this.members.findIndex(item => item.id === member.id), 1);
     },
 
     /**
@@ -267,34 +267,34 @@ export default {
 
     /**
      * show modal to remove a member
-     * @param user user object
+     * @param member member object
      */
-    showRemoveUserModal: function (user) {
-      this.deleteUser = user;
-      this.$refs['remove-user-modal'].show();
+    showRemoveMemberModal: function (member) {
+      this.deleteMember = member;
+      this.$refs['remove-member-modal'].show();
     },
 
     /**
      * Remove a member
      */
-    saveRemoveUser: function (bvModalEvt) {
+    confirmRemoveMember: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
       this.isLoadingAction = true;
 
-      Base.call('rooms/' + this.room.id + '/member/' + this.deleteUser.id, {
+      Base.call('rooms/' + this.room.id + '/member/' + this.deleteMember.id, {
         method: 'delete'
       }).then(response => {
         // remove user entry from list
-        this.removeUser(this.deleteUser);
+        this.removeMemberItem(this.deleteMember);
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeUser(this.deleteUser);
+          this.removeMemberItem(this.deleteMember);
         }
         Base.error(error, this.$root);
       }).finally(() => {
-        this.$refs['remove-user-modal'].hide();
+        this.$refs['remove-member-modal'].hide();
         this.isLoadingAction = false;
       });
     },
@@ -302,43 +302,43 @@ export default {
      * show modal to edit user role
      * @param user user object
      */
-    showEditUserModal: function (user) {
+    showEditMemberModal: function (member) {
       // Clone object to edit properties without displaying the changes in realtime in the members list
-      this.editUser = _.cloneDeep(user);
-      this.$refs['edit-user-modal'].show();
+      this.editMember = _.cloneDeep(member);
+      this.$refs['edit-member-modal'].show();
     },
 
     /**
      * show modal to add a new user as member
      */
-    showAddUserModal: function () {
-      this.newUser = { data: null, feedback: { user: null, role: null } };
+    showAddMemberModal: function () {
+      this.newMember = { data: null, feedback: { user: null, role: null } };
       this.createError = null;
-      this.$refs['add-user-modal'].show();
+      this.$refs['add-member-modal'].show();
     },
 
     /**
      * save new user role
      */
-    saveEditUser: function (bvModalEvt) {
+    saveEditMember: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
       this.isLoadingAction = true;
 
-      Base.call('rooms/' + this.room.id + '/member/' + this.editUser.id, {
+      Base.call('rooms/' + this.room.id + '/member/' + this.editMember.id, {
         method: 'put',
-        data: { role: this.editUser.role }
+        data: { role: this.editMember.role }
       }).then(response => {
         // user role was saved
-        this.members[this.members.findIndex(item => item.id === this.editUser.id)].role = this.editUser.role;
+        this.members[this.members.findIndex(item => item.id === this.editMember.id)].role = this.editMember.role;
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeUser(this.editUser);
+          this.removeMemberItem(this.editMember);
         }
         Base.error(error, this.$root);
       }).finally(() => {
-        this.$refs['edit-user-modal'].hide();
+        this.$refs['edit-member-modal'].hide();
         this.isLoadingAction = false;
       });
     },
@@ -346,7 +346,7 @@ export default {
      * add a user as a room member
      * @param bvModalEvt
      */
-    saveNewUser: function (bvModalEvt) {
+    saveNewMember: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
@@ -360,10 +360,10 @@ export default {
       // post new user as room members
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'post',
-        data: { user: this.newUser.data.id, role: this.newUser.data.role }
+        data: { user: this.newMember.data.id, role: this.newMember.data.role }
       }).then(response => {
         // operation successfull, close modal and reload list
-        this.$refs['add-user-modal'].hide();
+        this.$refs['add-member-modal'].hide();
         this.reload();
       }).catch((error) => {
         // adding failed
@@ -374,7 +374,7 @@ export default {
             return;
           }
         }
-        this.$refs['add-user-modal'].hide();
+        this.$refs['add-member-modal'].hide();
         Base.error(error, this.$root);
       })
         .finally(() => {
@@ -407,13 +407,13 @@ export default {
     }),
 
     // check if new user input field is valid, local and server-side check
-    newUserValid: function () {
-      if (this.newUser.data == null || this.newUser.data.id == null || this.fieldState('user') === false) { return false; }
+    newMemberValid: function () {
+      if (this.newMember.data == null || this.newMember.data.id == null || this.fieldState('user') === false) { return false; }
       return null;
     },
     // check if new user role input field is valid, local and server-side check
-    newUserRoleValid: function () {
-      if ((this.newUser.data != null && this.newUser.data.role == null) || this.fieldState('role') === false) { return false; }
+    newMemberRoleValid: function () {
+      if ((this.newMember.data != null && this.newMember.data.role == null) || this.fieldState('role') === false) { return false; }
       return null;
     },
     // return error message for user, local or server-side
@@ -461,10 +461,10 @@ export default {
     'member.length': function () {
       this.$emit('membersChanged', this.members.length);
     },
-    'newUser.data.id': function () {
+    'newMember.data.id': function () {
       this.errors = {};
     },
-    'newUser.data.role': function () {
+    'newMember.data.role': function () {
       this.errors = {};
     }
   },
