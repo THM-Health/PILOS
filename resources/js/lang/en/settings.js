@@ -7,7 +7,7 @@ export default {
     title: 'Roles',
 
     new: 'Create new role',
-    view: 'Detailed information for {name}',
+    view: 'Detailed information for the role {name}',
     edit: 'Edit role {name}',
 
     id: 'ID',
@@ -26,6 +26,7 @@ export default {
     noOptions: 'No permissions found!',
 
     delete: {
+      item: 'Delete role {id}',
       confirm: 'Are you really want to delete the role {name}?',
       title: 'Delete role?'
     }
