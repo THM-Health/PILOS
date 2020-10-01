@@ -170,7 +170,7 @@ export default {
       return [
         {
           text: this.$t('settings.roles.roomLimit.default', {
-            value: this.settings('room_limit') === -1
+            value: parseInt(this.settings('room_limit'), 10) === -1
               ? this.$t('settings.roles.roomLimit.unlimited').toLowerCase() : this.settings('room_limit')
           }),
           value: 'default'
