@@ -16,7 +16,7 @@ const getters = {
   },
 
   settings: (state) => (setting) => {
-    return $.isEmptyObject(state.settings) || _.get(state.settings, setting);
+    return $.isEmptyObject(state.settings) ? undefined : _.get(state.settings, setting);
   }
 };
 

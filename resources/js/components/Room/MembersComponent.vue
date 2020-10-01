@@ -242,10 +242,10 @@ export default {
   methods: {
 
     /**
-     * Remove given member from the list
+     * Remove given user from the list
      */
-    removeMember: function (member) {
-      this.users.splice(this.users.findIndex(item => item.id === member.id), 1);
+    removeUser: function (user) {
+      this.users.splice(this.users.findIndex(item => item.id === user.id), 1);
     },
 
     /**
@@ -287,10 +287,10 @@ export default {
         method: 'delete'
       }).then(response => {
         // remove user entry from list
-        this.removeMember(this.deleteUser);
+        this.removeUser(this.deleteUser);
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeMember(this.deleteUser);
+          this.removeUser(this.deleteUser);
         }
         Base.error(error, this.$root);
       }).finally(() => {
@@ -334,7 +334,7 @@ export default {
         this.members[this.members.findIndex(item => item.id === this.editUser.id)].role = this.editUser.role;
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeMember(this.editUser);
+          this.removeUser(this.editUser);
         }
         Base.error(error, this.$root);
       }).finally(() => {
