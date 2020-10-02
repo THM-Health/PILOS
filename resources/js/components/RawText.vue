@@ -1,5 +1,12 @@
 <template>
-  <div>
+  <fragment>
     <slot></slot>
-  </div>
+  </fragment>
 </template>
+
+<script>
+import { Fragment } from 'vue-fragment';
+export default {
+  components: { Fragment }
+};
+</script>
