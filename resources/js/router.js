@@ -11,6 +11,7 @@ import Settings from './views/settings/Settings';
 import RolesIndex from './views/settings/roles/Index';
 import RolesView from './views/settings/roles/View';
 import Users from './views/settings/Users';
+import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
 import Base from './api/base';
 
@@ -111,6 +112,17 @@ export const routes = [
               return false;
             });
           }
+        }
+      },
+      {
+        path: 'application',
+        name: 'settings.application',
+        component: Application,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy')
+          )
         }
       }
     ]
