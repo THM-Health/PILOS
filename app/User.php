@@ -74,8 +74,11 @@ class User extends Authenticatable
         if ($role_limits->contains(-1)) {
             return -1;
         }
+
         // otherwise try to find highest room limit, if none defined (=null) use global limit
-        return intval($role_limits->max() ?: setting('room_limit'));
+        $max = $role_limits->max();
+
+        return intval($max === null ? setting('room_limit') : $max);
     }
 
     /**
