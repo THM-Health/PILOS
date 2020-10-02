@@ -10,7 +10,8 @@ import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
 import RolesIndex from './views/settings/roles/Index';
 import RolesView from './views/settings/roles/View';
-import Users from './views/settings/Users';
+import UsersIndex from './views/settings/users/Index';
+import UsersView from './views/settings/users/View';
 import SettingsHome from './views/settings/SettingsHome';
 import Base from './api/base';
 
@@ -53,7 +54,7 @@ export const routes = [
       },
       {
         path: 'users',
-        component: Users,
+        component: UsersIndex,
         name: 'settings.users',
         meta: {
           requiresAuth: true,
@@ -61,6 +62,44 @@ export const routes = [
             PermissionService.can('manage', 'SettingPolicy') &&
             PermissionService.can('viewAny', 'UserPolicy')
           )
+        }
+      },
+      {
+        path: 'users/:id',
+        name: 'settings.users.view',
+        component: UsersView,
+        props: route => {
+          return {
+            id: route.params.id,
+            viewOnly: route.query.view === '1'
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'UserPolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', 'UserPolicy')
+              );
+            }
+
+            return Base.call(`users/${id}`).then((response) => {
+              return PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('update', response.data.data);
+            }).catch((response) => {
+              Base.error(response, vm, response.message);
+              return false;
+            });
+          }
         }
       },
       {

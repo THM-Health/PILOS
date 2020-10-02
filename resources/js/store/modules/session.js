@@ -25,9 +25,9 @@ const actions = {
     await auth.login(credentials, method);
     await dispatch('getCurrentUser');
 
-    if (state.currentUser.locale !== null) {
-      await loadLanguageAsync(state.currentUser.locale);
-      commit('setCurrentLocale', state.currentUser.locale);
+    if (state.currentUser.user_locale !== null) {
+      await loadLanguageAsync(state.currentUser.user_locale);
+      commit('setCurrentLocale', state.currentUser.user_locale);
     }
   },
 

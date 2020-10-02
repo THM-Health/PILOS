@@ -33,6 +33,8 @@ export default {
   },
 
   users: {
-    title: 'Users'
+    title: 'Users',
+
+    new: 'Create new user',
   }
 };

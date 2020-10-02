@@ -71,7 +71,11 @@ export default {
 
     users: {
       title: 'Users',
-      viewAny: 'Show all users'
+      viewAny: 'Show all users',
+      view: 'Show users',
+      create: 'Create users',
+      update: 'Edit users',
+      delete: 'Delete users'
     }
   },
 

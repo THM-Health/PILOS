@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <!-- TODO: Implement -->
-  </div>
+
 </template>
 
 <script>

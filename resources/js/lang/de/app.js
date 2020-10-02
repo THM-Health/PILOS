@@ -71,7 +71,11 @@ export default {
 
     users: {
       title: 'Benutzer',
-      viewAny: 'Alle Benutzer anzeigen'
+      viewAny: 'Alle Benutzer anzeigen',
+      view: 'Benutzer anzeigen',
+      create: 'Benutzer erstellen',
+      update: 'Benutzer bearbeiten',
+      delete: 'Benutzer löschen'
     }
   },
 

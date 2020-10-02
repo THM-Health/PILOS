@@ -34,6 +34,8 @@ export default {
   },
 
   users: {
-    title: 'Benutzer'
+    title: 'Benutzer',
+
+    new: 'Neuen Benutzer erstellen',
   }
 };

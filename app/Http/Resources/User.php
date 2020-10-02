@@ -39,12 +39,16 @@ class User extends JsonResource
 
         return [
             'id'            => $this->id,
+            'authenticator' => $this->authenticator,
+            'email'         => $this->email,
             'firstname'     => $this->firstname,
             'lastname'      => $this->lastname,
-            'locale'        => $this->locale,
+            'user_locale'   => $this->locale,
             'permissions'   => $this->when($this->withPermissions, $this->permissions),
             'model_name'    => $this->model_name,
             'room_limit'    => $this->room_limit,
+            'updated_at'    => $this->updated_at,
+            'roles'         => Role::collection($this->whenLoaded('roles')),
         ];
     }
 }

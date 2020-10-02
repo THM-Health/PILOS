@@ -48,6 +48,11 @@ describe('App', function () {
         FlashMessage: true,
         RouterView: true,
         LocaleSelector: true
+      },
+      data () {
+        return {
+          availableLocales: []
+        };
       }
     });
 
