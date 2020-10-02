@@ -71,10 +71,10 @@ class UserController extends Controller
         $user = new User();
 
         $user->firstname = $request->firstname;
-        $user->lastname = $request->lastname;
-        $user->email = $request->email;
-        $user->locale = $request->user_locale;
-        $user->password = Hash::make($request->password);
+        $user->lastname  = $request->lastname;
+        $user->email     = $request->email;
+        $user->locale    = $request->user_locale;
+        $user->password  = Hash::make($request->password);
 
         // TODO: email verification
         $user->email_verified_at = $user->freshTimestamp();
@@ -101,8 +101,8 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param UserRequest $request
-     * @param User $user
+     * @param  UserRequest            $request
+     * @param  User                   $user
      * @return UserResource
      * @throws AuthorizationException
      */
@@ -110,8 +110,8 @@ class UserController extends Controller
     {
         if ($user->authenticator === 'users') {
             $user->firstname = $request->firstname;
-            $user->lastname = $request->lastname;
-            $user->email = $request->email;
+            $user->lastname  = $request->lastname;
+            $user->email     = $request->email;
 
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
