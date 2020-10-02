@@ -52,7 +52,7 @@ describe('App', function () {
       data () {
         return {
           availableLocales: []
-        }
+        };
       }
     });
 
