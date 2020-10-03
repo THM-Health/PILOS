@@ -8,6 +8,7 @@ use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\IsMeetingRunningParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
+use BigBlueButton\Responses\JoinMeetingResponse;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
@@ -156,5 +157,9 @@ class Meeting extends Model
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
+    }
+
+    public function stats(){
+        return $this->hasMany(MeetingStat::class);
     }
 }
