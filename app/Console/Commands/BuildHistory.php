@@ -7,13 +7,7 @@ use App\MeetingStat;
 use App\ServerStat;
 use App\Room;
 use App\Server;
-use App\User;
-use DateTime;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Hash;
-use LdapRecord\Models\OpenLDAP\User as OpenLDAPUser;
 
 class BuildHistory extends Command
 {
@@ -31,7 +25,6 @@ class BuildHistory extends Command
      */
     protected $description = 'Check server status and capture usage data for live data and statistics';
 
-
     /**
      * Execute the console command.
      *
@@ -43,24 +36,26 @@ class BuildHistory extends Command
 
         $servers = Server::all();
 
-        foreach ($servers as $server){
-            if($server->status==0)
+        foreach ($servers as $server) {
+            if ($server->status == 0) {
                 continue;
+            }
             $bbbMeetings = $server->getMeetings();
-            if($bbbMeetings == null){
-                $server->participant_count = null;
-                $server->listener_count = null;
+            if ($bbbMeetings == null) {
+                $server->participant_count       = null;
+                $server->listener_count          = null;
                 $server->voice_participant_count = null;
-                $server->video_count = null;
-                $server->meeting_count = null;
-                $server->offline = true;
+                $server->video_count             = null;
+                $server->meeting_count           = null;
+                $server->offline                 = true;
                 $server->save();
+
                 continue;
             }
 
             $serverStat = new ServerStat();
 
-            foreach ($bbbMeetings as $bbbMeeting){
+            foreach ($bbbMeetings as $bbbMeeting) {
 
                 // Get usage for server statistics
                 $serverStat->participant_count += $bbbMeeting->getParticipantCount();
@@ -70,28 +65,28 @@ class BuildHistory extends Command
                 $serverStat->meeting_count++;
 
                 $meeting = Meeting::find($bbbMeeting->getMeetingId());
-                if($meeting === null){
+                if ($meeting === null) {
                     // Meeting was created via a different system, ignore
                     continue;
                 }
 
                 // Save current live room status
-                $roomStat = new MeetingStat();
-                $roomStat->participant_count = $bbbMeeting->getParticipantCount();
-                $roomStat->listener_count = $bbbMeeting->getListenerCount();
+                $roomStat                          = new MeetingStat();
+                $roomStat->participant_count       = $bbbMeeting->getParticipantCount();
+                $roomStat->listener_count          = $bbbMeeting->getListenerCount();
                 $roomStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
-                $roomStat->video_count = $bbbMeeting->getVideoCount();
+                $roomStat->video_count             = $bbbMeeting->getVideoCount();
 
                 $meeting->stats()->save($roomStat);
             }
 
             // Save current live server status
-            $server->participant_count = $serverStat->participant_count;
-            $server->listener_count = $serverStat->listener_count;
+            $server->participant_count       = $serverStat->participant_count;
+            $server->listener_count          = $serverStat->listener_count;
             $server->voice_participant_count = $serverStat->voice_participant_count;
-            $server->video_count = $serverStat->video_count;
-            $server->meeting_count = $serverStat->meeting_count;
-            $server->offline = false;
+            $server->video_count             = $serverStat->video_count;
+            $server->meeting_count           = $serverStat->meeting_count;
+            $server->offline                 = false;
             $server->save();
 
             $server->stats()->save($serverStat);
