@@ -522,11 +522,14 @@ class RoomTest extends TestCase
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
-            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+
+        $server->refresh();
+        $this->assertTrue($server->offline);
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room]))
-            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
     }
 
     /**

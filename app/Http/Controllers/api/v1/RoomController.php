@@ -119,23 +119,30 @@ class RoomController extends Controller
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
-            $servers = Server::where('status', true)->get();
-
-            try {
-                $server = $servers->random();
-            } catch (InvalidArgumentException $ex) {
-                abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
-            }
-
-            $meeting = $room->meetings()->create();
-            $meeting->server()->associate($server);
+            $meeting              = $room->meetings()->create();
             $meeting->start       = date('Y-m-d H:i:s');
             $meeting->attendeePW  = bin2hex(random_bytes(5));
             $meeting->moderatorPW = bin2hex(random_bytes(5));
             $meeting->save();
 
-            if (!$meeting->startMeeting()) {
-                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+            while (true) {
+                try {
+                    // TODO implement load balancer here
+                    $servers = Server::where('status', true)->where('offline', false)->get();
+                    $server  = $servers->random();
+                } catch (InvalidArgumentException $ex) {
+                    $meeting->forceDelete();
+                    abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
+                }
+
+                $meeting->server()->associate($server);
+                $meeting->save();
+                if (!$meeting->startMeeting()) {
+                    $server->offline = true;
+                    $server->save();
+                } else {
+                    break;
+                }
             }
         }
 
@@ -160,7 +167,11 @@ class RoomController extends Controller
         }
 
         if (!$meeting->startMeeting()) {
-            abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+            $meeting->end = date('Y-m-d H:i:s');
+            $meeting->save();
+            $meeting->server->offline = true;
+            $meeting->server->save();
+            abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
         return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
