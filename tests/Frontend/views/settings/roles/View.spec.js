@@ -444,7 +444,7 @@ describe('RolesView', function () {
       view.findComponent(BForm).trigger('submit');
 
       moxios.wait(function () {
-        const staleModelModal = view.findComponent(BModal);
+        const staleModelModal = view.findComponent({ ref: 'stale-role-modal' });
         expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
         restoreRoleResponse();
@@ -509,7 +509,7 @@ describe('RolesView', function () {
       view.findComponent(BForm).trigger('submit');
 
       moxios.wait(function () {
-        const staleModelModal = view.findComponent(BModal);
+        const staleModelModal = view.findComponent({ ref: 'stale-role-modal' });
         expect(staleModelModal.vm.$data.isVisible).toBe(true);
         expect(view.findComponent(BFormInput).element.value).toBe('admin');
 
