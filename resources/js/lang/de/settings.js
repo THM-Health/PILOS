@@ -40,57 +40,42 @@ export default {
   application: {
     title: 'Anwendung',
     save: 'Abspeichern',
+    preview: 'Vorschauen',
 
-    brandImage: {
-      title: 'Markenbild',
-      description: 'Sie können hier das Markenbild, das in der linken oberen Ecke erscheint, ändern.'
+    numberOptions: {
+      one: '1',
+      five: '5',
+      ten: '10',
+      fifteen: '15',
+      thirty: '30',
+      fifty: '50',
+      unlimited: 'Unbegrenzt'
     },
 
-    themeColor: {
-      title: 'Themenfarbe',
-      regularTitle: 'Regulär',
-      lightenTitle: 'Hell',
-      darkenTitle: 'Dunkel',
-      description: 'Hier können Sie die Themenfarbe ändern.'
+    updateSettingsSuccess: {
+      message: 'Einstellung erfolgreich aktualisiert!',
+      title: 'Einstellung'
     },
 
-    registrationMethod: {
-      title: 'Registrierungsmethode',
-      open: 'offene Registrierung',
-      invitation: 'Beitritt auf Einladung',
-      description: 'Sie können hier die Registrierungsmethode ändern.'
+    logo: {
+      title: 'Logo',
+      description: 'Das Anwendungslogo ändern. Bild URL eingeben',
+      hint: 'Bild URL'
     },
 
-    roomAuthentication: {
-      title: 'Raum-Authentifizierung',
-      enabled: 'Aktiviert',
-      disabled: 'Deaktiviert',
-      description: 'Nur authentifizierte Benutzer dürfen einem Raum beitreten.'
-    },
-
-    roomShare: {
-      title: 'Benutzer erlauben, den Raum zu verteilen.',
-      enabled: 'Aktiviert',
-      disabled: 'Deaktiviert',
-      description: 'Wenn Sie auf deaktiviert setzen, wird die Schaltfläche aus der Dropdown-Liste Raumoptionen entfernt, wodurch Benutzer daran gehindert werden, Räume zu verteilen.'
-    },
-
-    recordingVisibility: {
-      title: 'Standard-Sichtbarkeit für die Aufzeichnung',
-      public: 'öffentlich',
-      unlisted: 'nicht aufgelistet',
-      description: 'Sie können hier die Standard-Sichtbarkeit von Aufzeichnungen für neue Aufzeichnungen festlegen.'
-    },
-
-    roomsPerUser: {
+    roomLimit: {
       title: 'Anzahl der Räume pro Benutzer',
-      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung gilt nicht für Administratoren.',
-      option: {
-        one: '1',
-        five: '5',
-        ten: '10',
-        unlimited: 'Unbegrenzt'
-      }
+      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung gilt nicht für Administratoren'
+    },
+
+    paginationPageSize: {
+      title: 'Größe der Paginierung',
+      description: 'Begrenzt die Seitengrößen für die Paginierung der Datentabellen'
+    },
+
+    ownRoomsPaginationPageSize: {
+      title: 'Größe der Paginierung für eigene Räume',
+      description: 'Begrenzt die Seitengrößen für die Paginierung der eigenen Räume'
     }
   }
 };

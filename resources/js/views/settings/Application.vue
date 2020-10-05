@@ -1,184 +1,123 @@
 <template>
   <div>
     <b-container fluid>
-      <h3>
-        {{ $t('settings.application.title') }}
-      </h3>
+      <b-row>
+        <b-col cols="3">
+          <h3>
+            {{ $t('settings.application.title') }}
+          </h3>
+        </b-col>
+        <b-col offset="6" cols="3" class="text-right">
+          <b-button variant="success" @click="updateSettings(settings)">
+            <span><i class="fas fa-save mr-2"></i>{{$t('settings.application.save')}}</span>
+          </b-button>
+        </b-col>
+      </b-row>
       <hr>
 
-      <!--Brand Image Settings-->
+      <!--Logo Settings-->
       <b-form-group
-        :label="$t('settings.application.brandImage.title')"
-        label-for="application-brand-image-input"
-        :description="$t('settings.application.brandImage.description')"
-        class="mt-3 mb-3"
+        label-for="application-logo-input"
+        :description="$t('settings.application.logo.description')"
+        class="mt-3 mb-5"
       >
-        <b-input-group>
-          <b-form-input id="application-brand-image-input"></b-form-input>
-          <b-input-group-append>
-            <b-button id="application-brand-image-button" variant="success">
-              {{ $t('settings.application.save') }}
-            </b-button>
-          </b-input-group-append>
-        </b-input-group>
-      </b-form-group>
 
-      <!--Theme Color Settings-->
-      <b-form-group
-        class="mb-3"
-        :label="$t('settings.application.themeColor.title')"
-        label-for="application-theme-color-row"
-        :description="$t('settings.application.themeColor.description')"
-      >
-        <b-row id="application-theme-color-row">
-          <b-col>
-            <b-form-group
-              :label="$t('settings.application.themeColor.regularTitle')"
-              label-for="application-theme-color-regular-input"
+        <template v-slot:label>
+          <span><i class="fas fa-camera-retro mr-3"></i></span>
+          {{ $t('settings.application.logo.title') }}
+        </template>
+
+        <b-row align-v="baseline" class="my-2">
+          <b-col sm="6" lg="3" class="text-center">
+            <b-img
+              :src="settings.logo"
+              rounded="0"
+              alt="application-logo-preview"
+              width="150"
+              height="100"
             >
-              <b-input-group>
-                <b-form-input id="application-theme-color-regular-input" type="color"></b-form-input>
-                <b-input-group-append>
-                  <b-button id="application-theme-color-regular-button"
-                            variant="success"
-                            v-b-tooltip.hover="$t('settings.application.save')"
-                  >
-                    <span><i class="fas fa-save"></i></span>
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-            </b-form-group>
+            </b-img>
           </b-col>
-          <b-col>
-            <b-form-group
-              :label="$t('settings.application.themeColor.lightenTitle')"
-              label-for="application-theme-color-lighten-input"
-            >
-              <b-input-group>
-                <b-form-input id="application-theme-color-lighten-input" type="color"></b-form-input>
-                <b-input-group-append>
-                  <b-button id="application-theme-color-lighten-button"
-                            variant="success"
-                            v-b-tooltip.hover="$t('settings.application.save')"
-                  >
-                    <span><i class="fas fa-save"></i></span>
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-            </b-form-group>
-          </b-col>
-          <b-col>
-            <b-form-group
-              :label="$t('settings.application.themeColor.darkenTitle')"
-              label-for="application-theme-color-darken-input"
-            >
-              <b-input-group>
-                <b-form-input id="application-theme-color-darken-input" type="color"></b-form-input>
-                <b-input-group-append>
-                  <b-button id="application-theme-color-darken-button"
-                            variant="success"
-                            v-b-tooltip.hover="$t('settings.application.save')">
-                    <span><i class="fas fa-save"></i></span>
-                  </b-button>
-                </b-input-group-append>
-              </b-input-group>
-            </b-form-group>
+          <b-col sm="6" lg="9">
+            <b-input-group>
+              <b-form-input id="application-logo-input"
+                            :placeholder="$t('settings.application.logo.hint')"
+                            v-model="settings.logo"
+                            :disabled="isBusy"
+              >
+              </b-form-input>
+            </b-input-group>
           </b-col>
         </b-row>
       </b-form-group>
 
-      <!--Registration Method Settings-->
+      <!--Room limit settings-->
       <b-form-group
-        :label="$t('settings.application.registrationMethod.title')"
-        label-for="application-registration-method-dropdown"
-        :description="$t('settings.application.registrationMethod.description')"
+        :label="$t('settings.application.roomLimit.title')"
+        label-for="application-room-limit-radio"
+        :description="$t('settings.application.roomLimit.description')"
       >
-        <b-dropdown
-          id="application-registration-method-dropdown"
-          :text="$t('settings.application.registrationMethod.title')"
-          block
-          split
-          variant="success"
-          class="mt-2 mb-2"
-          menu-class="w-100"
+
+        <template v-slot:label>
+          <span><i class="fas fa-person-booth mr-3"></i></span>
+          {{ $t('settings.application.roomLimit.title') }}
+        </template>
+
+        <b-form-radio-group
+          id="application-room-limit-radio"
+          v-model="settings.roomLimit.selected"
+          :options="settings.roomLimit.options"
+          buttons
+          button-variant="success"
+          :disabled="isBusy"
         >
-          <b-dropdown-item>{{ $t('settings.application.registrationMethod.open') }}</b-dropdown-item>
-          <b-dropdown-item>{{ $t('settings.application.registrationMethod.invitation') }}</b-dropdown-item>
-        </b-dropdown>
+        </b-form-radio-group>
       </b-form-group>
 
-      <!--Room Authentication Settings-->
+      <!--Pagination page size settings-->
       <b-form-group
-        :label="$t('settings.application.roomAuthentication.title')"
-        label-for="application-room-authentication-dropdown"
-        :description="$t('settings.application.roomAuthentication.description')"
+        :label="$t('settings.application.paginationPageSize.title')"
+        label-for="application-pagination-page-size-radio"
+        :description="$t('settings.application.paginationPageSize.description')"
       >
-        <b-dropdown
-          id="application-room-authentication-dropdown"
-          :text="$t('settings.application.roomAuthentication.title')"
-          block
-          split
-          variant="success"
-          class="mt-2 mb-2"
-          menu-class="w-100"
+
+        <template v-slot:label>
+          <span><i class="fas fa-clone mr-3"></i></span>
+          {{ $t('settings.application.paginationPageSize.title') }}
+        </template>
+
+        <b-form-radio-group
+          id="application-pagination-page-size-radio"
+          v-model="settings.paginationPageSize.selected"
+          :options="settings.paginationPageSize.options"
+          buttons
+          button-variant="success"
+          :disabled="isBusy"
         >
-          <b-dropdown-item>{{ $t('settings.application.roomAuthentication.enabled') }}</b-dropdown-item>
-          <b-dropdown-item>{{ $t('settings.application.roomAuthentication.disabled') }}</b-dropdown-item>
-        </b-dropdown>
+        </b-form-radio-group>
       </b-form-group>
 
-      <!--Room Share Settings-->
+      <!--Own rooms pagination page size settings-->
       <b-form-group
-        :label="$t('settings.application.roomShare.title')"
-        label-for="application-room-share-dropdown"
-        :description="$t('settings.application.roomShare.description')"
+        :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
+        label-for="application-pagination-own-room-page-size-radio"
+        :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
       >
-        <b-dropdown
-          id="application-room-share-dropdown"
-          :text="$t('settings.application.roomShare.title')"
-          block
-          split
-          variant="success"
-          class="mt-2 mb-2"
-          menu-class="w-100"
-        >
-          <b-dropdown-item>{{ $t('settings.application.roomShare.enabled') }}</b-dropdown-item>
-          <b-dropdown-item>{{ $t('settings.application.roomShare.disabled') }}</b-dropdown-item>
-        </b-dropdown>
-      </b-form-group>
 
-      <!--Recording Visibility Settings-->
-      <b-form-group
-        :label="$t('settings.application.recordingVisibility.title')"
-        label-for="application-recording-visibility-dropdown"
-        :description="$t('settings.application.recordingVisibility.description')"
-      >
-        <b-dropdown
-          id="application-recording-visibility-dropdown"
-          :text="$t('settings.application.recordingVisibility.title')"
-          block
-          split
-          variant="success"
-          class="mt-2 mb-2"
-          menu-class="w-100"
-        >
-          <b-dropdown-item>{{ $t('settings.application.recordingVisibility.public') }}</b-dropdown-item>
-          <b-dropdown-item>{{ $t('settings.application.recordingVisibility.unlisted') }}</b-dropdown-item>
-        </b-dropdown>
-      </b-form-group>
+        <template v-slot:label>
+          <span><i class="fas fa-window-restore mr-3"></i></span>
+          {{ $t('settings.application.ownRoomsPaginationPageSize.title') }}
+        </template>
 
-      <!--Rooms per user settings-->
-      <b-form-group
-        :label="$t('settings.application.roomsPerUser.title')"
-        label-for="application-recording-visibility-dropdown"
-        :description="$t('settings.application.roomsPerUser.description')"
-      >
-      <b-button-group>
-        <b-button>{{$t('settings.application.roomsPerUser.option.one')}}</b-button>
-        <b-button>{{$t('settings.application.roomsPerUser.option.five')}}</b-button>
-        <b-button>{{$t('settings.application.roomsPerUser.option.ten')}}</b-button>
-        <b-button>{{$t('settings.application.roomsPerUser.option.unlimited')}}</b-button>
-      </b-button-group>
+        <b-form-radio-group
+          id="application-pagination-own-room-page-size-radio"
+          v-model="settings.ownRoomsPaginationPageSize.selected"
+          :options="settings.ownRoomsPaginationPageSize.options"
+          buttons
+          button-variant="success"
+          :disabled="isBusy"
+        >
+        </b-form-radio-group>
       </b-form-group>
 
     </b-container>
@@ -186,6 +125,98 @@
 </template>
 
 <script>
+import Base from '../../api/base';
+
+export default {
+  data () {
+    return {
+      isBusy: false,
+      settings: {
+        logo: null,
+        roomLimit: {
+          selected: -1,
+          options: [
+            { text: this.$t('settings.application.numberOptions.one'), value: 1 },
+            { text: this.$t('settings.application.numberOptions.five'), value: 5 },
+            { text: this.$t('settings.application.numberOptions.ten'), value: 10 },
+            { text: this.$t('settings.application.numberOptions.unlimited'), value: -1 }
+          ]
+        },
+        paginationPageSize: {
+          selected: 15,
+          options: [
+            { text: this.$t('settings.application.numberOptions.five'), value: 5 },
+            { text: this.$t('settings.application.numberOptions.ten'), value: 10 },
+            { text: this.$t('settings.application.numberOptions.fifteen'), value: 15 },
+            { text: this.$t('settings.application.numberOptions.thirty'), value: 30 },
+            { text: this.$t('settings.application.numberOptions.fifty'), value: 50 }
+          ]
+        },
+        ownRoomsPaginationPageSize: {
+          selected: 5,
+          options: [
+            { text: this.$t('settings.application.numberOptions.five'), value: 5 },
+            { text: this.$t('settings.application.numberOptions.ten'), value: 10 },
+            { text: this.$t('settings.application.numberOptions.fifteen'), value: 15 },
+            { text: this.$t('settings.application.numberOptions.thirty'), value: 30 },
+            { text: this.$t('settings.application.numberOptions.fifty'), value: 50 }
+          ]
+        }
+      }
+    };
+  },
+  methods: {
+    /**
+     * Handle get settings data
+     */
+    getSettings () {
+      this.isBusy = true;
+      Base.call('settings')
+        .then(response => {
+          this.settings.logo = response.data.data.logo;
+          this.settings.roomLimit.selected = response.data.data.room_limit;
+          this.settings.ownRoomsPaginationPageSize.selected = response.data.data.own_rooms_pagination_page_size;
+          this.settings.paginationPageSize.selected = response.data.data.pagination_page_size;
+        })
+        .catch((error) => {
+          Base.error(error, this.$root);
+        })
+        .finally(() => {
+          this.isBusy = false;
+        });
+    },
+
+    /**
+     * Handle update settings data
+     */
+    updateSettings (settings) {
+      this.isBusy = true;
+      Base.call('settings',
+        {
+          method: 'put',
+          data: {
+            logo: settings.logo,
+            room_limit: settings.roomLimit.selected,
+            pagination_page_size: settings.paginationPageSize.selected,
+            own_rooms_pagination_page_size: settings.ownRoomsPaginationPageSize.selected
+          }
+        })
+        .then(response => {
+          this.flashMessage.success(this.$t('settings.application.updateSettingsSuccess'));
+        })
+        .catch((error) => {
+          Base.error(error, this.$root);
+        })
+        .finally(() => {
+          // reload browser page
+          window.location.reload(false);
+        });
+    }
+  },
+  mounted () {
+    this.getSettings();
+  }
+};
 </script>
 
 <style scoped>
