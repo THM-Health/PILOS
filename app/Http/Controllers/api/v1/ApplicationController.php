@@ -38,6 +38,11 @@ class ApplicationController extends Controller
      */
     public function updateSettings(UpdateSetting $request)
     {
+        // Check whether logged in user has permission to manage settings
+        if (Auth::user()->cant('settings.manage')) {
+            abort(403);
+        }
+
         $data = $request->all();
 
         foreach ($data as $key => $value) {

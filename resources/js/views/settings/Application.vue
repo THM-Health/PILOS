@@ -188,9 +188,12 @@ export default {
 
     /**
      * Handle update settings data
+     *
+     * @param settings Settings object to fill the payload
      */
     updateSettings (settings) {
       this.isBusy = true;
+
       Base.call('settings',
         {
           method: 'put',
@@ -208,8 +211,8 @@ export default {
           Base.error(error, this.$root);
         })
         .finally(() => {
-          // reload browser page
-          window.location.reload(false);
+          this.$store.dispatch('session/getSettings');
+          this.isBusy = false;
         });
     }
   },

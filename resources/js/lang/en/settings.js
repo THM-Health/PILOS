@@ -57,7 +57,7 @@ export default {
     },
 
     logo: {
-      title: 'Brand image',
+      title: 'Logo',
       description: 'Change the application logo. Enter the image URL',
       hint: 'Image URL'
     },
