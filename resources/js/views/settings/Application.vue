@@ -8,7 +8,10 @@
           </h3>
         </b-col>
         <b-col offset="6" cols="3" class="text-right">
-          <b-button variant="success" @click="updateSettings(settings)">
+          <b-button id="application-save-button"
+                    variant="success"
+                    @click="updateSettings(settings)"
+                    :disabled="isBusy">
             <span><i class="fas fa-save mr-2"></i>{{$t('settings.application.save')}}</span>
           </b-button>
         </b-col>
@@ -132,7 +135,7 @@ export default {
     return {
       isBusy: false,
       settings: {
-        logo: null,
+        logo: '/images/logo.svg',
         roomLimit: {
           selected: -1,
           options: [
@@ -205,14 +208,14 @@ export default {
           }
         })
         .then(response => {
+          this.$store.dispatch('session/getSettings');
           this.flashMessage.success(this.$t('settings.application.updateSettingsSuccess'));
         })
         .catch((error) => {
           Base.error(error, this.$root);
         })
         .finally(() => {
-          this.$store.dispatch('session/getSettings');
-          this.isBusy = false;
+          this.getSettings();
         });
     }
   },

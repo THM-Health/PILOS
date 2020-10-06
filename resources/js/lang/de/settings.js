@@ -53,7 +53,7 @@ export default {
     },
 
     updateSettingsSuccess: {
-      message: 'Einstellung erfolgreich aktualisiert!',
+      message: 'Einstellung wurde erfolgreich aktualisiert!',
       title: 'Einstellung'
     },
 
