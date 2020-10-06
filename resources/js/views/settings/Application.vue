@@ -1,28 +1,23 @@
 <template>
   <div>
     <b-container fluid>
-      <b-row>
-        <b-col cols="3">
-          <h3>
-            {{ $t('settings.application.title') }}
-          </h3>
-        </b-col>
-        <b-col offset="6" cols="3" class="text-right">
-          <b-button id="application-save-button"
-                    variant="success"
-                    @click="updateSettings(settings)"
-                    :disabled="isBusy">
-            <span><i class="fas fa-save mr-2"></i>{{$t('settings.application.save')}}</span>
-          </b-button>
-        </b-col>
-      </b-row>
+      <h3>
+        {{ $t('settings.application.title') }}
+        <b-button id="application-save-button"
+                  class="float-right"
+                  variant="success"
+                  @click="updateSettings(settings)"
+                  :disabled="isBusy">
+          <span><i class="fas fa-save mr-2"></i>{{ $t('settings.application.save') }}</span>
+        </b-button>
+      </h3>
+
       <hr>
 
       <!--Logo Settings-->
       <b-form-group
         label-for="application-logo-input"
         :description="$t('settings.application.logo.description')"
-        class="mt-3 mb-5"
       >
 
         <template v-slot:label>
@@ -30,14 +25,16 @@
           {{ $t('settings.application.logo.title') }}
         </template>
 
-        <b-row align-v="baseline" class="my-2">
+        <b-row align-v="baseline" class="my-3">
           <b-col sm="6" lg="3" class="text-center">
             <b-img
               :src="settings.logo"
+              class="my-2"
               rounded="0"
               alt="application-logo-preview"
               width="150"
               height="100"
+              fluid
             >
             </b-img>
           </b-col>
@@ -56,7 +53,6 @@
 
       <!--Room limit settings-->
       <b-form-group
-        :label="$t('settings.application.roomLimit.title')"
         label-for="application-room-limit-radio"
         :description="$t('settings.application.roomLimit.description')"
       >
@@ -79,7 +75,6 @@
 
       <!--Pagination page size settings-->
       <b-form-group
-        :label="$t('settings.application.paginationPageSize.title')"
         label-for="application-pagination-page-size-radio"
         :description="$t('settings.application.paginationPageSize.description')"
       >
@@ -102,7 +97,6 @@
 
       <!--Own rooms pagination page size settings-->
       <b-form-group
-        :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
         label-for="application-pagination-own-room-page-size-radio"
         :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
       >
