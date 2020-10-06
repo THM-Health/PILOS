@@ -15,7 +15,7 @@ class User extends JsonResource
     /**
      * User resource constructor.
      *
-     * @param \App\User $resource        The user model that should be transformed.
+     * @param \App\User $resource The user model that should be transformed.
      */
     public function __construct($resource)
     {
@@ -27,8 +27,10 @@ class User extends JsonResource
      *
      * @return $this The user resource instance.
      */
-    public function withPermissions() {
+    public function withPermissions()
+    {
         $this->withPermissions = true;
+
         return $this;
     }
 

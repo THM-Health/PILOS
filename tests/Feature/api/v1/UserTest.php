@@ -23,11 +23,11 @@ class UserTest extends TestCase
         // Create Users + Ldap User with roles
         $users  = factory(User::class, 10)->create([
             'firstname' => 'Darth',
-            'lastname' => 'Vader'
+            'lastname'  => 'Vader'
         ]);
         $user   = factory(User::class)->create([
             'firstname' => 'John',
-            'lastname' => 'Doe'
+            'lastname'  => 'Doe'
         ]);
 
         DirectoryEmulator::setup('default');
@@ -43,7 +43,6 @@ class UserTest extends TestCase
             'provider' => 'ldap',
             '--no-interaction'
         ])->assertExitCode(0);
-
 
         $this->assertDatabaseCount('users', 12);
 
@@ -170,13 +169,13 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles', 'username']);
 
         $request = [
-            'firstname' => str_repeat('a', 256),
-            'lastname' => str_repeat('a', 256),
+            'firstname'   => str_repeat('a', 256),
+            'lastname'    => str_repeat('a', 256),
             'user_locale' => 451,
-            'username' => str_repeat('a', 256),
-            'email' => 'test',
-            'password' => 'aT2wqw_2',
-            'roles' => [99]
+            'username'    => str_repeat('a', 256),
+            'email'       => 'test',
+            'password'    => 'aT2wqw_2',
+            'roles'       => [99]
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
@@ -188,34 +187,34 @@ class UserTest extends TestCase
         ]);
 
         $request = [
-            'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'user_locale' => 'hr',
-            'email' => $user->email,
-            'username' => $user->username,
-            'password' => 'aT2wqw_2',
+            'firstname'             => $this->faker->firstName,
+            'lastname'              => $this->faker->lastName,
+            'user_locale'           => 'hr',
+            'email'                 => $user->email,
+            'username'              => $user->username,
+            'password'              => 'aT2wqw_2',
             'password_confirmation' => 'aT2wqw_2',
-            'roles' => [$role->id],
-            'authenticator' => 'ldap'
+            'roles'                 => [$role->id],
+            'authenticator'         => 'ldap'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['email', 'user_locale']);
 
-        $request['email'] = $this->faker->email;
+        $request['email']       = $this->faker->email;
         $request['user_locale'] = 'de';
-        $request['username'] = $this->faker->userName;
+        $request['username']    = $this->faker->userName;
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname' => $request['firstname'],
-                'lastname' => $request['lastname'],
-                'user_locale' => $request['user_locale'],
-                'email' => $request['email'],
-                'username' => $request['username'],
-                'roles' => [[ 'id' => $role->id, 'name' => $role->name ]],
+                'firstname'     => $request['firstname'],
+                'lastname'      => $request['lastname'],
+                'user_locale'   => $request['user_locale'],
+                'email'         => $request['email'],
+                'username'      => $request['username'],
+                'roles'         => [[ 'id' => $role->id, 'name' => $role->name ]],
                 'authenticator' => 'users'
             ]);
     }
@@ -231,11 +230,11 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $changes = [
-            'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'email'    => $user->email,
-            'roles'    => [$newRole->id],
-            'username' => $user->username,
+            'firstname'   => $this->faker->firstName,
+            'lastname'    => $this->faker->lastName,
+            'email'       => $user->email,
+            'roles'       => [$newRole->id],
+            'username'    => $user->username,
             'user_locale' => 'de'
         ];
 
@@ -278,7 +277,7 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors('updated_at');
 
         $changes['updated_at'] = strftime(now());
-        $changes['password'] = 'Test2_34T';
+        $changes['password']   = 'Test2_34T';
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
@@ -304,13 +303,13 @@ class UserTest extends TestCase
 
         // Existing user valid normal user
         $this->putJson(route('api.v1.users.update', ['user' => $userToUpdate]), [
-            'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'email'    => $userToUpdate->email,
-            'roles'    => [$newRole->id],
-            'username' => $userToUpdate->username,
+            'firstname'   => $this->faker->firstName,
+            'lastname'    => $this->faker->lastName,
+            'email'       => $userToUpdate->email,
+            'roles'       => [$newRole->id],
+            'username'    => $userToUpdate->username,
             'user_locale' => 'de',
-            'updated_at' => $userToUpdate->updated_at
+            'updated_at'  => $userToUpdate->updated_at
         ])
         ->assertSuccessful()
         ->assertJsonFragment(['roles' => [['id' => $newRole->id, 'name' => $newRole->name]]]);
@@ -318,23 +317,23 @@ class UserTest extends TestCase
         // Existing user valid ldap user
         $ldapUserToUpdate->roles()->sync([$role->id => ['automatic' => true]]);
         $this->putJson(route('api.v1.users.update', ['user' => $ldapUserToUpdate]), [
-            'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'email'    => $this->faker->email,
-            'roles'    => [$newRole->id],
-            'username' => $this->faker->userName,
-            'updated_at' => $ldapUserToUpdate->updated_at,
-            'user_locale' => 'de',
+            'firstname'     => $this->faker->firstName,
+            'lastname'      => $this->faker->lastName,
+            'email'         => $this->faker->email,
+            'roles'         => [$newRole->id],
+            'username'      => $this->faker->userName,
+            'updated_at'    => $ldapUserToUpdate->updated_at,
+            'user_locale'   => 'de',
             'authenticator' => 'users'
         ])
         ->assertSuccessful()
         ->assertJsonFragment([
-            'roles' => [['id' => $role->id, 'name' => $role->name], ['id' => $newRole->id, 'name' => $newRole->name]],
-            'user_locale' => 'de',
-            'firstname' => $ldapUserToUpdate->firstname,
-            'lastname' => $ldapUserToUpdate->lastname,
-            'email' => $ldapUserToUpdate->email,
-            'username' => $ldapUserToUpdate->username,
+            'roles'         => [['id' => $role->id, 'name' => $role->name], ['id' => $newRole->id, 'name' => $newRole->name]],
+            'user_locale'   => 'de',
+            'firstname'     => $ldapUserToUpdate->firstname,
+            'lastname'      => $ldapUserToUpdate->lastname,
+            'email'         => $ldapUserToUpdate->email,
+            'username'      => $ldapUserToUpdate->username,
             'authenticator' => 'ldap'
         ]);
     }
@@ -372,8 +371,8 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $user]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname' => $user->firstname,
-                'lastname' => $user->lastname,
+                'firstname'     => $user->firstname,
+                'lastname'      => $user->lastname,
                 'authenticator' => 'users'
             ]);
 
@@ -392,17 +391,17 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $ldapUser]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'firstname' => $ldapUser->firstname,
-                'lastname' => $ldapUser->lastname,
+                'firstname'     => $ldapUser->firstname,
+                'lastname'      => $ldapUser->lastname,
                 'authenticator' => 'ldap',
-                'roles' => [['id' => $role->id, 'name' => $role->name]]
+                'roles'         => [['id' => $role->id, 'name' => $role->name]]
             ]);
     }
 
     public function testDelete()
     {
         $userToDelete = factory(User::class)->create();
-        $user = factory(User::class)->create();
+        $user         = factory(User::class)->create();
 
         DirectoryEmulator::setup('default');
         LdapUser::create([
