@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -40,7 +41,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $resource = User::query();
+        $resource = User::without('roles');
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
@@ -74,6 +75,7 @@ class UserController extends Controller
         $user->lastname  = $request->lastname;
         $user->email     = $request->email;
         $user->locale    = $request->user_locale;
+        $user->username  = $request->username;
         $user->password  = Hash::make($request->password);
 
         // TODO: email verification
@@ -81,6 +83,10 @@ class UserController extends Controller
 
         $user->save();
         $user->roles()->sync($request->roles);
+
+        // Load user data from database to load also the defaults from the database
+        $user->refresh();
+        $user->load('roles');
 
         return new UserResource($user);
     }
@@ -112,6 +118,7 @@ class UserController extends Controller
             $user->firstname = $request->firstname;
             $user->lastname  = $request->lastname;
             $user->email     = $request->email;
+            $user->username  = $request->username;
 
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
@@ -127,11 +134,14 @@ class UserController extends Controller
         $user->touch();
         $user->save();
 
-        if ($this->authorize('editUserRole', $user)) {
+        if (Auth::user()->can('editUserRole', $user)) {
             $user->roles()->syncWithoutDetaching($request->roles);
             $user->roles()->detach($user->roles()->wherePivot('automatic', '=', false)
-                ->whereNotIn('role_id', array_keys($request->roles))->pluck('role_id')->toArray());
+                ->whereNotIn('role_id', $request->roles)->pluck('role_id')->toArray());
         }
+
+        $user->refresh();
+        $user->load('roles');
 
         return new UserResource($user);
     }

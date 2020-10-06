@@ -16,12 +16,13 @@ class UserRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'user_locale'  => 'required|string|', Rule::in(config('app.available_locales')),
+            'user_locale'  => ['required', 'string', Rule::in(config('app.available_locales'))],
             'roles'        => 'required|array',
-            'roles.*'      => 'distinct|exists:App\Roles,id'
+            'roles.*'      => 'distinct|exists:App\Role,id'
         ];
 
         if (!$this->user || $this->user->authenticator === 'users') {
+            $rules['username']  = 'required|string|max:255|unique:users,username' . ($this->user ? ',' . $this->user->id : '');
             $rules['firstname'] = 'required|string|max:255';
             $rules['lastname']  = 'required|string|max:255';
             $rules['email']     = 'required|string|email|max:255|unique:users,email' . ($this->user ? ',' . $this->user->id : '');

@@ -76,7 +76,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         });
 
         Route::get('users/search','UserController@search')->name('users.search');
-        Route::apiResource('users', 'UsersController');
+        Route::apiResource('users', 'UserController');
 
         Route::get('roomTypes', 'RoomTypeController@index')->name('roomTypes.index');
     });

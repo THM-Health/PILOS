@@ -10,19 +10,26 @@ class User extends JsonResource
     /**
      * @var bool Indicates whether user permissions should be included or not.
      */
-    private $withPermissions;
+    private $withPermissions = false;
 
     /**
      * User resource constructor.
      *
      * @param \App\User $resource        The user model that should be transformed.
-     * @param bool      $withPermissions Indicates whether user permissions should be included or not (Default false).
      */
-    public function __construct($resource, $withPermissions = false)
+    public function __construct($resource)
     {
         parent::__construct($resource);
+    }
 
-        $this->withPermissions = $withPermissions;
+    /**
+     * Sets the flag to also load the permissions of the user model.
+     *
+     * @return $this The user resource instance.
+     */
+    public function withPermissions() {
+        $this->withPermissions = true;
+        return $this;
     }
 
     /**
@@ -41,14 +48,17 @@ class User extends JsonResource
             'id'            => $this->id,
             'authenticator' => $this->authenticator,
             'email'         => $this->email,
+            'username'      => $this->username,
             'firstname'     => $this->firstname,
             'lastname'      => $this->lastname,
             'user_locale'   => $this->locale,
-            'permissions'   => $this->when($this->withPermissions, $this->permissions),
+            'permissions'   => $this->when($this->withPermissions, function () {
+                return $this->permissions;
+            }),
             'model_name'    => $this->model_name,
             'room_limit'    => $this->room_limit,
             'updated_at'    => $this->updated_at,
-            'roles'         => Role::collection($this->whenLoaded('roles')),
+            'roles'         => new RoleCollection($this->whenLoaded('roles')),
         ];
     }
 }
