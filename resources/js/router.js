@@ -119,10 +119,7 @@ export const routes = [
         name: 'settings.application',
         component: Application,
         meta: {
-          requiresAuth: true,
-          accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy')
-          )
+          requiresAuth: true
         }
       }
     ]
