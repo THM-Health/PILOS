@@ -7,6 +7,7 @@ export default {
   yes: 'Yes',
   no: 'No',
   search: 'Search',
+  actions: 'Actions',
   flash: {
     clientError: {
       message: 'An unknown error occurred in the application!',

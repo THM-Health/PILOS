@@ -20,7 +20,6 @@ export default {
       custom: 'Custom amount'
     },
     default: 'Default',
-    actions: 'Actions',
     nodata: 'No roles found!',
 
     noOptions: 'No permissions found!',
@@ -36,5 +35,26 @@ export default {
     title: 'Users',
 
     new: 'Create new user',
+    view: 'Detailed information for the user {firstname} {lastname}',
+    edit: 'Edit user {firstname} {lastname}',
+
+    nodata: 'No users found!',
+    nodataFiltered: 'For the filter query no users were found!',
+
+    id: 'ID',
+    firstname: 'Firstname',
+    lastname: 'Lastname',
+    email: 'E-Mail',
+    authenticator: {
+      title: 'Authentication Type',
+      users: 'Registered User',
+      ldap: 'LDAP'
+    },
+
+    delete: {
+      item: 'Delete user {firstname} {lastname}',
+      confirm: 'Are you really want to delete the user {firstname} {lastname}?',
+      title: 'Delete user?'
+    }
   }
 };

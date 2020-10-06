@@ -21,7 +21,6 @@ export default {
     },
 
     default: 'Standard',
-    actions: 'Aktionen',
     nodata: 'Es sind keine Rollen vorhanden!',
 
     noOptions: 'Keine Berechtigungen vorhanden!',
@@ -37,5 +36,26 @@ export default {
     title: 'Benutzer',
 
     new: 'Neuen Benutzer erstellen',
+    view: 'Detaillierte Informationen für den Nutzer {firstname} {lastname}',
+    edit: 'Nutzer {firstname} {lastname} bearbeiten',
+
+    nodata: 'Es sind keine Benutzer vorhanden!',
+    nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
+
+    id: 'ID',
+    firstname: 'Vorname',
+    lastname: 'Nachname',
+    email: 'E-Mail',
+    authenticator: {
+      title: 'Anmeldeart',
+      users: 'Registrierter Nutzer',
+      ldap: 'LDAP'
+    },
+
+    delete: {
+      item: 'Benutzer {firstname} {lastname} löschen',
+      confirm: 'Wollen Sie den Benutzer {firstname} {lastname} wirklich löschen?',
+      title: 'Benutzer löschen?'
+    }
   }
 };

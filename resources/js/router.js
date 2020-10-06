@@ -92,13 +92,10 @@ export const routes = [
               );
             }
 
-            return Base.call(`users/${id}`).then((response) => {
-              return PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', response.data.data);
-            }).catch((response) => {
-              Base.error(response, vm, response.message);
-              return false;
-            });
+            return Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('update', { model_name: 'User', id })
+            );
           }
         }
       },
