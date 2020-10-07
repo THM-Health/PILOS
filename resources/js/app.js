@@ -20,10 +20,10 @@ Vue.use(FlashMessage, {
 });
 
 // Add accessibility check tools for development
-if (process.env.NODE_ENV === 'development') {
-  const VueAxe = require('vue-axe').default;
-  Vue.use(VueAxe);
-}
+// if (process.env.NODE_ENV === 'development') {
+//   const VueAxe = require('vue-axe').default;
+//   Vue.use(VueAxe);
+// }
 
 /**
  * Global error handler for unhandled errors that can occur in the application.
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === 'development') {
  */
 Vue.config.errorHandler = function (error, vm, info) {
   const responseStatus = error.response !== undefined ? error.response.status : undefined;
-  const errorMessage = error.response.data ? error.response.data.message : undefined;
+  const errorMessage = error.response && error.response.data ? error.response.data.message : undefined;
 
   if (responseStatus === env.HTTP_UNAUTHORIZED) { // 401 => unauthorized, redirect and show error messages as flash!
     if (vm.$store.getters['session/isAuthenticated']) {

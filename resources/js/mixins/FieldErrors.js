@@ -7,6 +7,7 @@ export default {
      * Returns the state for a field with the given name.
      *
      * @param field Name of field to get the error state for.
+     * TODO: Wildcard
      * @return {null|boolean} null if there is no errors object or there is no error
      *    for the passed field and otherwise false.
      */

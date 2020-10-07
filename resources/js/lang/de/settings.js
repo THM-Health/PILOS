@@ -36,8 +36,8 @@ export default {
     title: 'Benutzer',
 
     new: 'Neuen Benutzer erstellen',
-    view: 'Detaillierte Informationen für den Nutzer {firstname} {lastname}',
-    edit: 'Nutzer {firstname} {lastname} bearbeiten',
+    view: 'Detaillierte Informationen für den Benutzer {firstname} {lastname}',
+    edit: 'Benutzer {firstname} {lastname} bearbeiten',
 
     nodata: 'Es sind keine Benutzer vorhanden!',
     nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
@@ -46,6 +46,11 @@ export default {
     firstname: 'Vorname',
     lastname: 'Nachname',
     email: 'E-Mail',
+    username: 'Benutzername',
+    password: 'Passwort',
+    password_confirmation: 'Passwort bestätigen',
+    user_locale: 'Sprache',
+    roles: 'Rollen',
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',

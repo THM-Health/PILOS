@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\SetDefaultRoleForLdapUser;
+use App\Listeners\SetUserModelDefaultLocale;
 use App\Listeners\SetUserModelLdapAuthenticatorType;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Registered;
@@ -25,7 +26,8 @@ class EventServiceProvider extends ServiceProvider
             SetDefaultRoleForLdapUser::class
         ],
         Importing::class => [
-            SetUserModelLdapAuthenticatorType::class
+            SetUserModelLdapAuthenticatorType::class,
+            SetUserModelDefaultLocale::class
         ],
     ];
 

@@ -8,6 +8,7 @@ export default {
   no: 'Nein',
   search: 'Suche',
   actions: 'Aktionen',
+  profile: 'Profil',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',

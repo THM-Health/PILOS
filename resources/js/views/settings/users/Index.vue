@@ -43,6 +43,12 @@
       :filter='filter'
       >
 
+      <template v-slot:table-busy>
+        <div class="text-center my-2">
+          <b-spinner class="align-middle"></b-spinner>
+        </div>
+      </template>
+
       <template v-slot:empty>
         <i>{{ $t('settings.users.nodata') }}</i>
       </template>

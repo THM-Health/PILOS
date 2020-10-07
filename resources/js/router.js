@@ -24,6 +24,20 @@ export const routes = [
     component: Home
   },
   {
+    path: '/profile',
+    name: 'profile',
+    component: UsersView,
+    props: route => {
+      return {
+        config: {
+          id: store.state.session.currentUser ? store.state.session.currentUser.id : 0,
+          type: 'profile'
+        }
+      };
+    },
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/login',
     name: 'login',
     component: Login
@@ -70,8 +84,10 @@ export const routes = [
         component: UsersView,
         props: route => {
           return {
-            id: route.params.id,
-            viewOnly: route.query.view === '1'
+            config: {
+              id: route.params.id,
+              type: route.query.view === '1' ? 'view' : 'edit'
+            }
           };
         },
         meta: {
@@ -209,9 +225,7 @@ export function beforeEachRoute (router, store, to, from, next) {
 router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
 
 router.onError(error => {
-  if (error.response) {
-    Base.error(error, router.app.$root);
-  }
+  Base.error(error, router.app.$root);
 });
 
 export default router;
