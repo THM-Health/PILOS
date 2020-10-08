@@ -27,7 +27,7 @@ export const routes = [
     path: '/profile',
     name: 'profile',
     component: UsersView,
-    props: route => {
+    props: () => {
       return {
         config: {
           id: store.state.session.currentUser ? store.state.session.currentUser.id : 0,
@@ -35,7 +35,7 @@ export const routes = [
         }
       };
     },
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, passwordConfirmation: true }
   },
   {
     path: '/login',
@@ -104,7 +104,7 @@ export const routes = [
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'UserPolicy')
+                PermissionService.can('view', { model_name: 'User', id })
               );
             }
 
@@ -201,6 +201,7 @@ export function beforeEachRoute (router, store, to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
   const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
+  // TODO: Check and redirect to password verfication route if necessary
   store.commit('loading');
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>

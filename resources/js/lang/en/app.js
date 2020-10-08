@@ -86,5 +86,8 @@ export default {
   back: 'Back',
 
   true: 'Yes',
-  false: 'No'
+  false: 'No',
+
+  nextPage: 'Next page',
+  previousPage: 'Previous page'
 };

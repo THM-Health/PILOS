@@ -200,18 +200,13 @@ export default {
 
       Base.call(`roles/${this.roleToDelete.id}`, {
         method: 'delete'
-      }).then(() => {
-        this.$root.$emit('bv::refresh::table', 'roles-table');
       }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$root.$emit('bv::refresh::table', 'roles-table');
-        } else {
-          Base.error(error, this.$root, error.message);
-        }
+        Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.clearRoleToDelete();
         this.$refs['delete-role-modal'].hide();
         this.isBusy = false;
+        this.currentPage = 1;
       });
     },
 

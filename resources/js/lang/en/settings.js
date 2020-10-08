@@ -50,6 +50,8 @@ export default {
     password_confirmation: 'Password confirmation',
     user_locale: 'Language',
     roles: 'Roles',
+    select_locale: 'Please select a language',
+    removeRole: 'Remove role',
     authenticator: {
       title: 'Authentication Type',
       users: 'Registered User',

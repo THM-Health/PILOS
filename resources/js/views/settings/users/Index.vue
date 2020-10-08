@@ -87,9 +87,9 @@
         <can method='delete' :policy='data.item'>
           <b-button
             v-b-tooltip.hover
-            :title="$t('settings.users.delete.item', { id: data.item.id })"
+            :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
             :disabled='isBusy'
-            variant='danger'>
+            variant='danger'
             @click='showDeleteModal(data.item)'>
             <i class='fas fa-trash'></i>
           </b-button>
@@ -222,18 +222,13 @@ export default {
 
       Base.call(`users/${this.userToDelete.id}`, {
         method: 'delete'
-      }).then(() => {
-        this.$root.$emit('bv::refresh::table', 'users-table');
       }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$root.$emit('bv::refresh::table', 'users-table');
-        } else {
-          Base.error(error, this.$root, error.message);
-        }
+        Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.clearUserToDelete();
         this.$refs['delete-user-modal'].hide();
         this.isBusy = false;
+        this.currentPage = 1;
       });
     },
 

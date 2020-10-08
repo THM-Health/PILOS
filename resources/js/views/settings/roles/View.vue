@@ -68,7 +68,7 @@
                   text-field='translatedName'
                   value-field='id'
                   :disabled='isBusy || viewOnly'
-                  :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
+                  :state="fieldState('permissions', true)"
                 ></b-form-checkbox-group>
               </b-form-group>
             </div>
@@ -77,13 +77,7 @@
             </div>
           </b-overlay>
 
-          <template slot="invalid-feedback">
-            <ul>
-              <li v-for="(error, index) in Object.keys(errors).filter(key => key.startsWith('permissions')).map(key => errors[key]).flat()" :key='index'>
-                {{ error }}
-              </li>
-            </ul>
-          </template>
+          <template slot="invalid-feedback"><div v-html="fieldError('permissions', true)"></div></template>
         </b-form-group>
         <hr>
         <b-row class='my-1 float-right'>

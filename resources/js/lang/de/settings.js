@@ -51,6 +51,8 @@ export default {
     password_confirmation: 'Passwort bestätigen',
     user_locale: 'Sprache',
     roles: 'Rollen',
+    select_locale: 'Bitte wählen Sie eine Sprache aus',
+    removeRole: 'Rolle entfernen',
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',

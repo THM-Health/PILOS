@@ -65,5 +65,17 @@ export default {
    */
   delete (permissionService, user) {
     return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.delete') && user.id !== permissionService.currentUser.id;
+  },
+
+  /**
+   * Returns true if the user has permission to update users and the user model is not the
+   * current users model.
+   *
+   * @param permissionService
+   * @param user
+   * @return {boolean}
+   */
+  editUserRole(permissionService, user) {
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.update') && user.id !== permissionService.currentUser.id;
   }
 };

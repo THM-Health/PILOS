@@ -29,4 +29,9 @@ class ConfirmPasswordController extends Controller
     {
         $this->middleware('auth:users,ldap');
     }
+
+    public function passwordConfirmed()
+    {
+        return response()->noContent();
+    }
 }

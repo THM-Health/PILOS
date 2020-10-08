@@ -13,6 +13,7 @@ return [
         'role_update_permission_lost' => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
     ],
     'model' => [
-        'roles' => 'Rollen'
+        'roles' => 'Rollen',
+        'users' => 'Benutzer'
     ]
 ];

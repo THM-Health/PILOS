@@ -79,6 +79,75 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='3'
+            :label="$t('settings.users.user_locale')"
+            label-for='user_locale'
+            :state='fieldState("user_locale")'
+          >
+            <b-form-select
+              :options='locales'
+              id='user_locale'
+              v-model='model.user_locale'
+              :state='fieldState("user_locale")'
+              :disabled="isBusy || config.type === 'view'"
+            >
+              <template v-slot:first>
+                <b-form-select-option :value="null" disabled>{{ $t('settings.users.select_locale') }}</b-form-select-option>
+              </template>
+            </b-form-select>
+            <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
+          </b-form-group>
+          <b-form-group
+            label-cols-sm='3'
+            :label="$t('settings.users.roles')"
+            label-for='roles'
+            :state='fieldState("roles", true)'
+          >
+            <multiselect
+              v-model='model.roles'
+              track-by='id'
+              open-direction='bottom'
+              :multiple='true'
+              :searchable='false'
+              :internal-search='false'
+              :clear-on-select='false'
+              :close-on-select='false'
+              :show-no-results='false'
+              :showLabels='false'
+              :options='roles'
+              :disabled="isBusy || config.type === 'view' || !canEditRoles"
+              id='roles'
+              :loading='rolesLoading'
+              :allowEmpty='false'
+              :class="{ 'is-invalid': fieldState('roles', true) }">
+              <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
+              <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
+              <template slot='tag' slot-scope='{ option, remove }'>
+                <h5 class='d-inline mr-1 mb-1'>
+                  <b-badge variant='primary'>
+                    {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
+                    <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.users.removeRole')"></b-icon-x></span>
+                  </b-badge>
+                </h5>
+              </template>
+              <template slot='afterList'>
+                <b-button
+                  :disabled='rolesLoading || currentPage === 1'
+                  variant='outline-secondary'
+                  @click='loadRoles(Math.max(1, currentPage - 1))'>
+                  <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                </b-button>
+                <b-button
+                  :disabled='rolesLoading || !hasNextPage'
+                  variant='outline-secondary'
+                  @click='loadRoles(currentPage + 1)'>
+                  <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                </b-button>
+              </template>
+            </multiselect>
+            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+          </b-form-group>
+          <b-form-group
+            label-cols-sm='3'
             :label="$t('settings.users.password')"
             label-for='password'
             :state='fieldState("password")'
@@ -109,7 +178,6 @@
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
           </b-form-group>
-          <!-- TODO user_locale, roles-->
           <hr>
           <b-row class='my-1 float-right'>
             <b-col sm='12'>
@@ -132,6 +200,29 @@
           </b-row>
         </b-container>
       </b-form>
+
+      <b-modal
+        :static='modalStatic'
+        :busy='isBusy'
+        ok-variant='danger'
+        cancel-variant='dark'
+        @ok='forceOverwrite'
+        @cancel='refreshUser'
+        :hide-header-close='true'
+        :no-close-on-backdrop='true'
+        :no-close-on-esc='true'
+        ref='stale-user-modal'
+        :hide-header='true'>
+        <template v-slot:default>
+          <h5>{{ staleError.message }}</h5>
+        </template>
+        <template v-slot:modal-ok>
+          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
+        </template>
+        <template v-slot:modal-cancel>
+          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+        </template>
+      </b-modal>
     </component>
   </component>
 </template>
@@ -139,9 +230,31 @@
 <script>
 import FieldErrors from '../../../mixins/FieldErrors';
 import Base from '../../../api/base';
+import LocaleMap from '../../../lang/LocaleMap';
+import Multiselect from 'vue-multiselect';
+import EventBus from '../../../services/EventBus';
+import PermissionService from '../../../services/PermissionService';
+import env from '../../../env';
+import { loadLanguageAsync } from '../../../i18n';
 
 export default {
   mixins: [FieldErrors],
+  components: {Multiselect},
+
+  computed: {
+    locales () {
+      const availableLocales = process.env.MIX_AVAILABLE_LOCALES.split(',');
+
+      return Object.keys(LocaleMap)
+        .filter(key => availableLocales.includes(key))
+        .map(key => {
+          return {
+            value: key,
+            text: LocaleMap[key]
+          };
+        });
+    }
+  },
 
   props: {
     config: {
@@ -177,33 +290,178 @@ export default {
         user_locale: null,
         roles: []
       },
-      errors: {}
+      errors: {},
+      rolesLoading: false,
+      roles: [],
+      currentPage: 1,
+      hasNextPage: false,
+      modelLoadPromise: Promise.resolve(),
+      canEditRoles: false,
+      staleError: {}
     };
   },
 
+  beforeDestroy () {
+    EventBus.$off('currentUserChangedEvent', this.toggleRolesEditable);
+  },
+
   mounted () {
+    EventBus.$on('currentUserChangedEvent', this.toggleRolesEditable);
+
+    this.loadRoles();
+
     if (this.config.id !== 'new') {
-      Base.call(`users/${this.config.id}`).then(response => {
+      this.modelLoadPromise = Base.call(`users/${this.config.id}`).then(response => {
         this.model = response.data.data;
-        console.log(this.model.roles);
-      }).catch(response => {
-        // TODO: If not found and the user is the current user, then log him out!
+        this.model.roles.forEach(role => {
+          role.$isDisabled = role.automatic;
+        });
+        this.toggleRolesEditable();
+      }).catch(error => {
+        if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.$store.dispatch('session/logout').then(() => {
+            this.$router.push({ name: 'home' });
+          });
+        } else {
+          Base.error(error, this.$root, error.message);
+        }
       }).finally(() => {
         this.isBusy = false;
       });
+    } else {
+      this.model.authenticator = 'users';
+      this.canEditRoles = true;
     }
   },
 
   methods: {
-    // TODO: load roles
-    //    - saveUser => if it is the current, then renew also the currentUser by calling
-    //      getCurrentUser of the store
-    // If the user wasn't found and it is the current user log him out!
-    // handle stale errors
-    // don't change page on save on profile page
-    saveUser () {
+    loadRoles (page = 1) {
+      this.rolesLoading = true;
 
-    }
+      const config = {
+        params: {
+          page
+        }
+      };
+
+      Base.call('roles', config).then(response => {
+        this.roles = response.data.data;
+        this.currentPage = page;
+        this.hasNextPage = page < response.data.meta.last_page;
+        return this.modelLoadPromise;
+      }).then(() => {
+        this.roles.forEach(role => {
+          role.$isDisabled = !!this.model.roles.find(selectedRole => selectedRole.id === role.id && selectedRole.automatic);
+        });
+      }).catch(error => {
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.rolesLoading = false;
+      });
+    },
+
+    saveUser (evt) {
+      if (evt) {
+        evt.preventDefault();
+      }
+
+      this.isBusy = true;
+
+      const config = {
+        method: this.config.id === 'new' ? 'post' : 'put',
+        data: {
+          firstname: this.model.firstname,
+          lastname: this.model.lastname,
+          username: this.model.username,
+          email: this.model.email,
+          password: this.model.password,
+          password_confirmation: this.model.password_confirmation,
+          user_locale: this.model.user_locale,
+          roles: this.model.roles.map(role => role.id),
+          updated_at: this.model.updated_at
+        }
+      };
+
+      Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
+        // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
+        if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id) {
+          return this.$store.dispatch('session/getCurrentUser').then(() => {
+            if (this.$store.state.session.currentLocale !== config.data.user_locale) {
+              return loadLanguageAsync(config.data.user_locale).then(() => {
+                this.$store.commit('session/setCurrentLocale', config.data.user_locale);
+                return response;
+              });
+            }
+
+            return Promise.resolve(response);
+          });
+        }
+
+        return Promise.resolve(response);
+      }).then(response => {
+        // don't change page on save on profile page
+        if (this.config.type !== 'profile') {
+          this.$router.push({ name: 'settings.users' });
+        } else {
+          this.model = response.data.data;
+          this.roles.forEach(role => {
+            role.$isDisabled = !!this.model.roles.find(selectedRole => selectedRole.id === role.id && selectedRole.automatic);
+          });
+          this.model.roles.forEach(role => {
+            role.$isDisabled = role.automatic;
+          });
+        }
+      }).catch(error => {
+        // If the user wasn't found and it is the current user log him out!
+        if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.$store.dispatch('session/logout').then(() => {
+            this.$router.push({ name: 'home' });
+          });
+
+        // handle stale errors
+        } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          this.errors = error.response.data.errors;
+        } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+          this.staleError = error.response.data;
+          this.$refs['stale-user-modal'].show();
+        } else {
+          Base.error(error, this.$root, error.message);
+        }
+      }).finally(() => {
+        this.isBusy = false;
+      })
+    },
+
+    toggleRolesEditable () {
+      if (this.model.id && this.model.model_name) {
+        this.canEditRoles = PermissionService.can('editUserRole', this.model);
+      }
+    },
+
+    /**
+     * Force a overwrite of the user in the database by setting the `updated_at` field to the new one.
+     */
+    forceOverwrite () {
+      this.model.updated_at = this.staleError.new_model.updated_at;
+      this.staleError = {};
+      this.$refs['stale-user-modal'].hide();
+      this.saveUser();
+    },
+
+    /**
+     * Refreshes the current model with the new passed from the stale error response.
+     */
+    refreshUser () {
+      this.model = this.staleError.new_model;
+      this.roles.forEach(role => {
+        role.$isDisabled = !!this.model.roles.find(selectedRole => selectedRole.id === role.id && selectedRole.automatic);
+      });
+      this.model.roles.forEach(role => {
+        role.$isDisabled = role.automatic;
+      });
+      this.staleError = {};
+      this.$refs['stale-user-modal'].hide();
+    },
   }
 };
 
