@@ -22,6 +22,7 @@
       :fields='tableFields'
       :items='fetchRoles'
       id='roles-table'
+      ref='roles'
       :current-page='currentPage'>
 
       <template v-slot:empty>
@@ -89,7 +90,7 @@
     ></b-pagination>
 
     <b-modal
-      :busy='isBusy'
+      :busy='deleting'
       ok-variant='danger'
       cancel-variant='dark'
       :cancel-title="$t('app.false')"
@@ -102,7 +103,7 @@
         {{ $t('settings.roles.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.true') }}
       </template>
       <span v-if="roleToDelete">
         {{ $t('settings.roles.delete.confirm', { name: $te(`app.roles.${roleToDelete.name}`) ? $t(`app.roles.${roleToDelete.name}`) : roleToDelete.name }) }}
@@ -116,7 +117,6 @@
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
 import ActionsColumn from '../../../mixins/ActionsColumn';
-import env from '../../../env';
 
 export default {
   components: { Can },
@@ -132,6 +132,7 @@ export default {
   data () {
     return {
       isBusy: false,
+      deleting: false,
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
@@ -196,17 +197,18 @@ export default {
      * Deletes the role that is set in the property `roleToDelete`.
      */
     deleteRole () {
-      this.isBusy = true;
+      this.deleting = true;
 
       Base.call(`roles/${this.roleToDelete.id}`, {
         method: 'delete'
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
+        this.currentPage = 1;
+        this.$refs.roles.refresh();
         this.clearRoleToDelete();
         this.$refs['delete-role-modal'].hide();
-        this.isBusy = false;
-        this.currentPage = 1;
+        this.deleting = false;
       });
     },
 

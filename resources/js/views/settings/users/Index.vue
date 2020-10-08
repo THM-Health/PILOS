@@ -41,6 +41,7 @@
       id='users-table'
       :current-page='currentPage'
       :filter='filter'
+      ref='users'
       >
 
       <template v-slot:table-busy>
@@ -68,6 +69,7 @@
             :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
             :disabled='isBusy'
             variant='primary'
+            class='mb-1'
             :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
           >
             <i class='fas fa-eye'></i>
@@ -79,6 +81,7 @@
             :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
             :disabled='isBusy'
             variant='dark'
+            class='mb-1'
             :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
           >
             <i class='fas fa-edit'></i>
@@ -90,6 +93,7 @@
             :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
             :disabled='isBusy'
             variant='danger'
+            class='mb-1'
             @click='showDeleteModal(data.item)'>
             <i class='fas fa-trash'></i>
           </b-button>
@@ -108,7 +112,7 @@
     ></b-pagination>
 
     <b-modal
-      :busy='isBusy'
+      :busy='deleting'
       ok-variant='danger'
       cancel-variant='dark'
       :cancel-title="$t('app.false')"
@@ -121,7 +125,7 @@
         {{ $t('settings.users.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.true') }}
       </template>
       <span v-if="userToDelete">
         {{ $t('settings.users.delete.confirm', { firstname: userToDelete.firstname, lastname: userToDelete.lastname }) }}
@@ -134,7 +138,6 @@
 import ActionsColumn from '../../../mixins/ActionsColumn';
 import Can from '../../../components/Permissions/Can';
 import Base from '../../../api/base';
-import env from '../../../env';
 
 export default {
   components: { Can },
@@ -150,6 +153,7 @@ export default {
   data () {
     return {
       isBusy: false,
+      deleting: false,
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
@@ -218,17 +222,18 @@ export default {
      *
      */
     deleteUser () {
-      this.isBusy = true;
+      this.deleting = true;
 
       Base.call(`users/${this.userToDelete.id}`, {
         method: 'delete'
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
+        this.currentPage = 1;
+        this.$refs.users.refresh();
         this.clearUserToDelete();
         this.$refs['delete-user-modal'].hide();
-        this.isBusy = false;
-        this.currentPage = 1;
+        this.deleting = false;
       });
     },
 
