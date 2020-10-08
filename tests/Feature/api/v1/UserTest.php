@@ -214,7 +214,7 @@ class UserTest extends TestCase
                 'user_locale'   => $request['user_locale'],
                 'email'         => $request['email'],
                 'username'      => $request['username'],
-                'roles'         => [[ 'id' => $role->id, 'name' => $role->name ]],
+                'roles'         => [[ 'id' => $role->id, 'name' => $role->name, 'automatic' => false ]],
                 'authenticator' => 'users'
             ]);
     }
@@ -312,7 +312,7 @@ class UserTest extends TestCase
             'updated_at'  => $userToUpdate->updated_at
         ])
         ->assertSuccessful()
-        ->assertJsonFragment(['roles' => [['id' => $newRole->id, 'name' => $newRole->name]]]);
+        ->assertJsonFragment(['roles' => [['id' => $newRole->id, 'name' => $newRole->name, 'automatic' => false]]]);
 
         // Existing user valid ldap user
         $ldapUserToUpdate->roles()->sync([$role->id => ['automatic' => true]]);
@@ -328,7 +328,7 @@ class UserTest extends TestCase
         ])
         ->assertSuccessful()
         ->assertJsonFragment([
-            'roles'         => [['id' => $role->id, 'name' => $role->name], ['id' => $newRole->id, 'name' => $newRole->name]],
+            'roles'         => [['id' => $role->id, 'name' => $role->name, 'automatic' => true], ['id' => $newRole->id, 'name' => $newRole->name, 'automatic' => false]],
             'user_locale'   => 'de',
             'firstname'     => $ldapUserToUpdate->firstname,
             'lastname'      => $ldapUserToUpdate->lastname,
@@ -394,7 +394,7 @@ class UserTest extends TestCase
                 'firstname'     => $ldapUser->firstname,
                 'lastname'      => $ldapUser->lastname,
                 'authenticator' => 'ldap',
-                'roles'         => [['id' => $role->id, 'name' => $role->name]]
+                'roles'         => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]]
             ]);
     }
 
