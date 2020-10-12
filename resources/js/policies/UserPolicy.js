@@ -75,7 +75,7 @@ export default {
    * @param user
    * @return {boolean}
    */
-  editUserRole(permissionService, user) {
+  editUserRole (permissionService, user) {
     return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.update') && user.id !== permissionService.currentUser.id;
   }
 };

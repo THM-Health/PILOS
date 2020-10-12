@@ -163,7 +163,7 @@ export default {
         { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true },
         { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true },
         { key: 'email', label: this.$t('settings.users.email'), sortable: true },
-        { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true },
+        { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true }
       ],
       actionPermissions: ['users.view', 'users.update', 'users.delete'],
       filter: undefined

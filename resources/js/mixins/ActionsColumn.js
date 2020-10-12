@@ -38,4 +38,4 @@ export default {
   beforeDestroy () {
     EventBus.$off('currentUserChangedEvent', this.toggleActionsColumn);
   }
-}
+};

@@ -239,7 +239,7 @@ import { loadLanguageAsync } from '../../../i18n';
 
 export default {
   mixins: [FieldErrors],
-  components: {Multiselect},
+  components: { Multiselect },
 
   computed: {
     locales () {
@@ -431,7 +431,7 @@ export default {
         }
       }).finally(() => {
         this.isBusy = false;
-      })
+      });
     },
 
     toggleRolesEditable () {
@@ -463,7 +463,7 @@ export default {
       });
       this.staleError = {};
       this.$refs['stale-user-modal'].hide();
-    },
+    }
   }
 };
 
