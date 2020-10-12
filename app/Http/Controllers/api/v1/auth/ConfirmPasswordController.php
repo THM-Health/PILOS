@@ -56,7 +56,6 @@ class ConfirmPasswordController extends Controller
 
         if ($user->authenticator === 'ldap') {
             $credentials['uid'] = $user->username;
-
         } else {
             $credentials['email'] = $user->email;
         }
