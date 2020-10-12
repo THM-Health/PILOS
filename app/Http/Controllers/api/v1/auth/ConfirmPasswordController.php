@@ -7,7 +7,6 @@ use Illuminate\Foundation\Auth\ConfirmsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ConfirmPasswordController extends Controller
@@ -43,7 +42,7 @@ class ConfirmPasswordController extends Controller
     /**
      * Confirm the given user's password.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request $request
      * @return Response
      * @throws ValidationException
      */
@@ -51,10 +50,18 @@ class ConfirmPasswordController extends Controller
     {
         $user = Auth::user();
 
-        if (!Auth::guard($user->authenticator)->validate([
-            $user->authenticator === 'ldap' ? 'uid' : 'email' => $user->username,
+        $credentials = [
             'password' => $request->password
-        ])) {
+        ];
+
+        if ($user->authenticator === 'ldap') {
+            $credentials['uid'] = $user->username;
+
+        } else {
+            $credentials['email'] = $user->email;
+        }
+
+        if (!Auth::guard($user->authenticator)->validate($credentials)) {
             throw ValidationException::withMessages([
                 'password' => [trans('validation.password')],
             ]);
