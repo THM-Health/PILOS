@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -12,7 +11,7 @@ class PasswordConfirmation extends RequirePassword
     /**
      * Determine if the confirmation timeout has expired.
      *
-     * @param  Request  $request
+     * @param  Request $request
      * @return bool
      */
     protected function shouldConfirmPassword($request)
