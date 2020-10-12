@@ -12,7 +12,7 @@ export default {
      *    for the passed field and otherwise false.
      */
     fieldState (field, wildcard = false) {
-      if (wildcard) {
+      if (wildcard && this.errors) {
         return Object.keys(this.errors).some(error => error === field || error.startsWith(`${field}.`)) ? false : null;
       }
 

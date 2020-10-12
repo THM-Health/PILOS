@@ -1,6 +1,10 @@
 import EventBus from '../services/EventBus';
 import PermissionService from '../services/PermissionService';
 
+/**
+ * Mixin that adds automatically a actions column to the `tableFields` of a component
+ * if the current user has at least one of the defined `actionPermissions`.
+ */
 export default {
   methods: {
     /**
@@ -8,10 +12,10 @@ export default {
      */
     toggleActionsColumn () {
       if (PermissionService.currentUser && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
-        if (this.tableFields[this.tableFields.length - 1].key !== 'actions') {
+        if (this.tableFields.length === 0 || this.tableFields[this.tableFields.length - 1].key !== 'actions') {
           this.tableFields.push({ key: 'actions', label: this.$t('app.actions') });
         }
-      } else if (this.tableFields[this.tableFields.length - 1].key === 'actions') {
+      } else if (this.tableFields.length !== 0 && this.tableFields[this.tableFields.length - 1].key === 'actions') {
         this.tableFields.pop();
       }
     }

@@ -267,7 +267,7 @@ class UserTest extends TestCase
         // Own user
         $role = factory(Role::class)->create(['default' => true]);
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
+        $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
         $role->permissions()->attach($permission->id);
 
         $role->users()->attach([$user->id]);
@@ -291,6 +291,9 @@ class UserTest extends TestCase
         $user->refresh();
         $user->unsetRelation('roles');
         $this->assertEquals($role->id, $user->roles->first()->id);
+
+        $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
+        $role->permissions()->attach($permission->id);
 
         // Not existing user
         $this->putJson(route('api.v1.users.update', ['user' => 1337]), $changes)
