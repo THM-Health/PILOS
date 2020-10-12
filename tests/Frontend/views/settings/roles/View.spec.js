@@ -316,7 +316,7 @@ describe('RolesView', function () {
     const spy = sinon.spy();
 
     const router = new VueRouter();
-    router.back = spy;
+    router.push = spy;
 
     const view = mount(View, {
       localVue,
@@ -407,7 +407,7 @@ describe('RolesView', function () {
     const spy = sinon.spy();
 
     const router = new VueRouter();
-    router.back = spy;
+    router.push = spy;
 
     const view = mount(View, {
       localVue,
@@ -471,7 +471,7 @@ describe('RolesView', function () {
     const spy = sinon.spy();
 
     const router = new VueRouter();
-    router.back = spy;
+    router.push = spy;
 
     const view = mount(View, {
       localVue,
