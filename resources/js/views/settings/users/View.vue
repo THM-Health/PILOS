@@ -308,7 +308,9 @@ export default {
   mounted () {
     EventBus.$on('currentUserChangedEvent', this.toggleRolesEditable);
 
-    this.loadRoles();
+    if (this.config.type !== 'profile') {
+      this.loadRoles();
+    }
 
     if (this.config.id !== 'new') {
       this.modelLoadPromise = Base.call(`users/${this.config.id}`).then(response => {

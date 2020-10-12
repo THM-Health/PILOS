@@ -89,5 +89,10 @@ export default {
   false: 'Nein',
 
   nextPage: 'Nächste Seite',
-  previousPage: 'Vorherige Seite'
+  previousPage: 'Vorherige Seite',
+
+  confirmPassword: {
+    title: 'Password bestätigen',
+    description: 'Bestätigen Sie bitte Ihr Passwort bevor Sie fortfahren!'
+  }
 };

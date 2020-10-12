@@ -14,6 +14,8 @@ import UsersIndex from './views/settings/users/Index';
 import UsersView from './views/settings/users/View';
 import SettingsHome from './views/settings/SettingsHome';
 import Base from './api/base';
+import env from './env';
+import PasswordConfirmation from './views/PasswordConfirmation';
 
 Vue.use(VueRouter);
 
@@ -47,6 +49,17 @@ export const routes = [
     name: 'rooms.index',
     component: RoomsIndex,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/password/confirm',
+    name: 'password.confirm',
+    component: PasswordConfirmation,
+    meta: { requiresAuth: true },
+    props: route => {
+      return {
+        next: route.query.next
+      };
+    }
   },
   {
     path: '/rooms/:id',
@@ -201,7 +214,6 @@ export function beforeEachRoute (router, store, to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
   const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
-  // TODO: Check and redirect to password verfication route if necessary
   store.commit('loading');
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
@@ -217,6 +229,19 @@ export function beforeEachRoute (router, store, to, from, next) {
     } else if (!recordsPermissions.every(permission => permission)) {
       router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
       next(from.matched.length !== 0 ? false : '/');
+    } else if (to.matched.some(record => record.meta.passwordConfirmation)) {
+      Base.call('password/confirmed').then(() => {
+        next();
+      }).catch(error => {
+        if (error.response && error.response.status === env.HTTP_LOCKED && error.response.data.message === 'Password confirmation required.') {
+          next({
+            name: 'password.confirm',
+            query: { next: to.fullPath }
+          });
+        } else {
+          throw error;
+        }
+      });
     } else {
       next();
     }
