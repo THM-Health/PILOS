@@ -4,6 +4,11 @@ namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ConfirmsPasswords;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class ConfirmPasswordController extends Controller
 {
@@ -32,6 +37,31 @@ class ConfirmPasswordController extends Controller
 
     public function passwordConfirmed()
     {
+        return response()->noContent();
+    }
+
+    /**
+     * Confirm the given user's password.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return Response
+     * @throws ValidationException
+     */
+    public function confirm(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!Auth::guard($user->authenticator)->validate([
+            $user->authenticator === 'ldap' ? 'uid' : 'email' => $user->username,
+            'password' => $request->password
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => [trans('validation.password')],
+            ]);
+        }
+
+        $this->resetPasswordConfirmationTimeout($request);
+
         return response()->noContent();
     }
 }
