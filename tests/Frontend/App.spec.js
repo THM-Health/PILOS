@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import App from '../../resources/js/views/App';
 import Vuex from 'vuex';
-import BootstrapVue, { BDropdownDivider, BDropdownItem } from 'bootstrap-vue';
+import BootstrapVue, { BDropdownItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
 import Vue from 'vue';
 
