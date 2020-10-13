@@ -17,7 +17,17 @@ export default {
       label: 'Max. Anzahl an Räumen',
       default: 'Systemstandard ({value})',
       unlimited: 'Unbegrenzt',
-      custom: 'Benutzerdefinierter Wert'
+      custom: 'Benutzerdefinierter Wert',
+      helpModal: {
+        title: 'Max. Anzahl an Räumen',
+        info: 'Die max. Anzahl an eigenen Räumen ergibt sich aus dem Maximum der Begrenzungen der Rollen, welchen ein Benutzer angehört.',
+        examples: 'Beispiele',
+        systemDefault: 'Systemstandard',
+        roleA: 'Rolle A',
+        roleB: 'Rolle B',
+        maxAmount: 'Max. Anzahl',
+        note: 'X: Nutzer ist nicht Mitglied dieser Rolle'
+      }
     },
 
     default: 'Standard',
