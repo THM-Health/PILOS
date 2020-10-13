@@ -20,7 +20,7 @@ describe('ActionsColumn', function () {
 
     const view = mount(Test, {
       mocks: {
-        $t: key => key,
+        $t: key => key
       }
     });
 

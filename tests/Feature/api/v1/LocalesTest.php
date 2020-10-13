@@ -4,12 +4,15 @@ namespace Tests\Feature\api\v1;
 
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\TestCase;
 
 class LocalesTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
     /**
      * @see TestCase::setUp()
@@ -183,5 +186,31 @@ class LocalesTest extends TestCase
             'id'     => $user->id,
             'locale' => 'de'
         ]);
+    }
+
+    public function testDefaultLocaleSetAutomaticallyForLdapUsersOnLogin()
+    {
+        $fake = DirectoryEmulator::setup('default');
+
+        $ldapUser = LdapUser::create([
+            'givenName'              => $this->faker->firstName,
+            'sn'                     => $this->faker->lastName,
+            'cn'                     => $this->faker->name,
+            'mail'                   => $this->faker->unique()->safeEmail,
+            'uid'                    => $this->faker->unique()->userName,
+            'entryuuid'              => $this->faker->uuid,
+            'password'
+        ]);
+
+        $fake->actingAs($ldapUser);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $ldapUser = User::where(['authenticator' => 'ldap'])->first();
+
+        $this->assertEquals('en', $ldapUser->locale);
     }
 }
