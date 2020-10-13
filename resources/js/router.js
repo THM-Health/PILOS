@@ -205,6 +205,9 @@ const router = new VueRouter({
  * For routes where `meta.requiresAuth` and their child pages is set to `true` the user gets
  * redirected to the login page if he isn't authenticated.
  *
+ * For routes where `meta.passwordConfirmation` and their child pages is set to `true` the user gets
+ * redirected to a password confirmation page if the password wasn't confirmed in a specified time duration.
+ *
  * Also it is possible to specify a function `meta.accessPermitted` that must return a Promise
  * that resolves to a boolean value whether the current user is permitted to access the route.
  * Since it may be that additional data must be requested from the server to perform the permission

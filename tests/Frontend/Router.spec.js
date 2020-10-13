@@ -3,9 +3,13 @@ import PermissionService from '../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import sinon from 'sinon';
 import Base from '../../resources/js/api/base';
+import env from '../../resources/js/env';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
+
+const accessPermittedUsersView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.users.view')[0].meta.accessPermitted;
 
 describe('Router', function () {
   beforeEach(function () {
@@ -65,6 +69,7 @@ describe('Router', function () {
           path: '/foo',
           meta: {
             requiresAuth: true,
+            passwordConfirmation: true,
             accessPermitted: () => true
           }
         }]
@@ -105,6 +110,7 @@ describe('Router', function () {
           path: '/foo',
           meta: {
             requiresAuth: true,
+            passwordConfirmation: true,
             accessPermitted: () => false
           }
         }]
@@ -121,6 +127,100 @@ describe('Router', function () {
           expect(errors[1]).toBe('app.flash.unauthorized');
           done();
         });
+      });
+    });
+
+    it('beforeEachRoute calls next with the password confirmation route if a password confirmation is required and not done yet', function (done) {
+      const router = {
+        app: {
+          $t: (key) => key
+        }
+      };
+
+      const store = {
+        getters: {
+          'session/isAuthenticated': true
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
+
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            requiresAuth: true,
+            passwordConfirmation: true,
+            accessPermitted: () => true
+          }
+        }]
+      };
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: env.HTTP_LOCKED,
+          response: {
+            message: 'Password confirmation required.'
+          }
+        });
+      });
+
+      beforeEachRoute(router, store, to, { matched: [] }, (args) => {
+        expect(args.name).toBe('password.confirm');
+
+        done();
+      });
+    });
+
+    it('beforeEachRoute calls next if a password confirmation is required and already done', function (done) {
+      const router = {
+        app: {
+          $t: (key) => key
+        }
+      };
+
+      const store = {
+        getters: {
+          'session/isAuthenticated': true
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
+
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            requiresAuth: true,
+            passwordConfirmation: true,
+            accessPermitted: () => true
+          }
+        }]
+      };
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 204
+        });
+      });
+
+      let nextCalled = false;
+
+      new Promise((resolve) => {
+        beforeEachRoute(router, store, to, undefined, (args) => {
+          expect(args).toBeUndefined();
+          nextCalled = true;
+          resolve();
+        });
+      }).then(() => {
+        expect(nextCalled).toBe(true);
+        done();
       });
     });
   });
@@ -244,6 +344,69 @@ describe('Router', function () {
         expect(result).toBe(false);
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
+        done();
+      });
+    });
+
+    it('for users detail view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedUsersView({ id: 1 }, { view: '1' }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.view'] });
+        return accessPermittedUsersView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.view', 'settings.manage'] });
+        return accessPermittedUsersView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for users new view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedUsersView({ id: 'new' }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.create'] });
+        return accessPermittedUsersView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.create', 'settings.manage'] });
+        return accessPermittedUsersView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for users update view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedUsersView({ id: 1 }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.update'] });
+        return accessPermittedUsersView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.update', 'settings.manage'] });
+        return accessPermittedUsersView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });
