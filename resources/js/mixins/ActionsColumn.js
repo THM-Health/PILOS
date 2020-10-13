@@ -11,7 +11,7 @@ export default {
      * Adds or removes the actions column to the field depending on the users permissions.
      */
     toggleActionsColumn () {
-      if (PermissionService.currentUser && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
+      if (PermissionService.currentUser && PermissionService.currentUser.permissions && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
         if (this.tableFields.length === 0 || this.tableFields[this.tableFields.length - 1].key !== 'actions') {
           this.tableFields.push({ key: 'actions', label: this.$t('app.actions') });
         }

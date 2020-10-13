@@ -187,6 +187,7 @@ describe('RolesIndex', function () {
       }).then(() => {
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
+        view.destroy();
         done();
       });
     });
