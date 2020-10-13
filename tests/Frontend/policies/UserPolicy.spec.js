@@ -7,6 +7,7 @@ describe('UserPolicy', function () {
   });
 
   it('view returns true if the user has permission to view users or the user model to view is the own user', function () {
+    expect(UserPolicy.view({ }, { id: 1337, model_name: 'User' })).toBe(false);
     expect(UserPolicy.view({ currentUser: { permissions: [], id: 1 } }, { id: 1337, model_name: 'User' })).toBe(false);
     expect(UserPolicy.view({ currentUser: { permissions: [], id: 1 } }, { id: 1, model_name: 'User' })).toBe(true);
     expect(UserPolicy.view({ currentUser: { permissions: ['users.view'], id: 1 } }, { id: 1337, model_name: 'User' })).toBe(true);
@@ -18,6 +19,7 @@ describe('UserPolicy', function () {
   });
 
   it('update returns true if the user has permission to update users or the user model to update is the own user', function () {
+    expect(UserPolicy.update({ }, { id: 1337, model_name: 'User' })).toBe(false);
     expect(UserPolicy.update({ currentUser: { permissions: [], id: 1 } }, { id: 1337, model_name: 'User' })).toBe(false);
     expect(UserPolicy.update({ currentUser: { permissions: [], id: 1 } }, { id: 1, model_name: 'User' })).toBe(true);
     expect(UserPolicy.update({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1337, model_name: 'User' })).toBe(true);

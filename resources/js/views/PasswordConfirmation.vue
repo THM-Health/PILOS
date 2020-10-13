@@ -69,6 +69,9 @@ export default {
   },
 
   methods: {
+    /**
+     * Confirms the password and redirects the user to the protected page on success.
+     */
     confirm (evt) {
       if (evt) {
         evt.preventDefault();
