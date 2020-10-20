@@ -53,7 +53,7 @@
 
       <!--Room limit settings-->
       <b-form-group
-        label-for="application-room-limit-radio"
+        label-for="application-room-limit-input"
         :description="$t('settings.application.roomLimit.description')"
       >
 
@@ -62,20 +62,16 @@
           {{ $t('settings.application.roomLimit.title') }}
         </template>
 
-        <b-form-radio-group
-          id="application-room-limit-radio"
-          v-model="settings.roomLimit.selected"
-          :options="settings.roomLimit.options"
-          buttons
-          button-variant="success"
-          :disabled="isBusy"
-        >
-        </b-form-radio-group>
+        <b-form-input id="application-room-limit-input"
+                      v-model="settings.roomLimit"
+                      type="number"
+                      :disabled="isBusy">
+        </b-form-input>
       </b-form-group>
 
       <!--Pagination page size settings-->
       <b-form-group
-        label-for="application-pagination-page-size-radio"
+        label-for="application-pagination-page-size-input"
         :description="$t('settings.application.paginationPageSize.description')"
       >
 
@@ -84,20 +80,16 @@
           {{ $t('settings.application.paginationPageSize.title') }}
         </template>
 
-        <b-form-radio-group
-          id="application-pagination-page-size-radio"
-          v-model="settings.paginationPageSize.selected"
-          :options="settings.paginationPageSize.options"
-          buttons
-          button-variant="success"
-          :disabled="isBusy"
-        >
-        </b-form-radio-group>
+        <b-form-input id="application-pagination-page-size-input"
+                      v-model="settings.paginationPageSize"
+                      type="number"
+                      :disabled="isBusy">
+        </b-form-input>
       </b-form-group>
 
       <!--Own rooms pagination page size settings-->
       <b-form-group
-        label-for="application-pagination-own-room-page-size-radio"
+        label-for="application-pagination-own-room-page-size-input"
         :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
       >
 
@@ -106,15 +98,12 @@
           {{ $t('settings.application.ownRoomsPaginationPageSize.title') }}
         </template>
 
-        <b-form-radio-group
-          id="application-pagination-own-room-page-size-radio"
-          v-model="settings.ownRoomsPaginationPageSize.selected"
-          :options="settings.ownRoomsPaginationPageSize.options"
-          buttons
-          button-variant="success"
-          :disabled="isBusy"
-        >
-        </b-form-radio-group>
+        <b-form-input id="application-pagination-own-room-page-size-input"
+                      v-model="settings.ownRoomsPaginationPageSize"
+                      type="number"
+                      :disabled="isBusy">
+        </b-form-input>
+
       </b-form-group>
 
     </b-container>
@@ -130,35 +119,9 @@ export default {
       isBusy: false,
       settings: {
         logo: '/images/logo.svg',
-        roomLimit: {
-          selected: -1,
-          options: [
-            { text: this.$t('settings.application.numberOptions.one'), value: 1 },
-            { text: this.$t('settings.application.numberOptions.five'), value: 5 },
-            { text: this.$t('settings.application.numberOptions.ten'), value: 10 },
-            { text: this.$t('settings.application.numberOptions.unlimited'), value: -1 }
-          ]
-        },
-        paginationPageSize: {
-          selected: 15,
-          options: [
-            { text: this.$t('settings.application.numberOptions.five'), value: 5 },
-            { text: this.$t('settings.application.numberOptions.ten'), value: 10 },
-            { text: this.$t('settings.application.numberOptions.fifteen'), value: 15 },
-            { text: this.$t('settings.application.numberOptions.thirty'), value: 30 },
-            { text: this.$t('settings.application.numberOptions.fifty'), value: 50 }
-          ]
-        },
-        ownRoomsPaginationPageSize: {
-          selected: 5,
-          options: [
-            { text: this.$t('settings.application.numberOptions.five'), value: 5 },
-            { text: this.$t('settings.application.numberOptions.ten'), value: 10 },
-            { text: this.$t('settings.application.numberOptions.fifteen'), value: 15 },
-            { text: this.$t('settings.application.numberOptions.thirty'), value: 30 },
-            { text: this.$t('settings.application.numberOptions.fifty'), value: 50 }
-          ]
-        }
+        roomLimit: null,
+        paginationPageSize: null,
+        ownRoomsPaginationPageSize: null
       }
     };
   },
@@ -171,9 +134,9 @@ export default {
       Base.call('settings')
         .then(response => {
           this.settings.logo = response.data.data.logo;
-          this.settings.roomLimit.selected = response.data.data.room_limit;
-          this.settings.ownRoomsPaginationPageSize.selected = response.data.data.own_rooms_pagination_page_size;
-          this.settings.paginationPageSize.selected = response.data.data.pagination_page_size;
+          this.settings.roomLimit = response.data.data.room_limit;
+          this.settings.ownRoomsPaginationPageSize = response.data.data.own_rooms_pagination_page_size;
+          this.settings.paginationPageSize = response.data.data.pagination_page_size;
         })
         .catch((error) => {
           Base.error(error, this.$root);
@@ -196,9 +159,9 @@ export default {
           method: 'put',
           data: {
             logo: settings.logo,
-            room_limit: settings.roomLimit.selected,
-            pagination_page_size: settings.paginationPageSize.selected,
-            own_rooms_pagination_page_size: settings.ownRoomsPaginationPageSize.selected
+            room_limit: settings.roomLimit,
+            pagination_page_size: settings.paginationPageSize,
+            own_rooms_pagination_page_size: settings.ownRoomsPaginationPageSize
           }
         })
         .then(response => {

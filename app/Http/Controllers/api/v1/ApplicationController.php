@@ -38,15 +38,16 @@ class ApplicationController extends Controller
      */
     public function updateSettings(UpdateSetting $request)
     {
-        // Check whether logged in user has permission to manage settings
-        if (Auth::user()->cant('settings.manage')) {
-            abort(403);
-        }
-
         $data = $request->all();
 
+        // Settings defaults array keys for validation
+        $setting_keys = collect(config('settings.defaults'))->keys()->toArray();
+
         foreach ($data as $key => $value) {
-            setting([$key => $value])->save();
+            // If key exists in the settings array keys then update settings
+            if (in_array($key, $setting_keys)) {
+                setting([$key => $value])->save();
+            }
         }
 
         return response()->json(['data' => [

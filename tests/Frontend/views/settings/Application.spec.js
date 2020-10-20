@@ -67,9 +67,9 @@ describe('Application', function () {
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.roomLimit.selected).toBe(-1);
-        expect(view.vm.$data.settings.paginationPageSize.selected).toBe(10);
-        expect(view.vm.$data.settings.ownRoomsPaginationPageSize.selected).toBe(5);
+        expect(view.vm.$data.settings.roomLimit).toBe(-1);
+        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
+        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
         done();
       });
     });

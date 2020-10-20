@@ -41,16 +41,6 @@ export default {
     save: 'Save',
     preview: 'Preview',
 
-    numberOptions: {
-      one: '1',
-      five: '5',
-      ten: '10',
-      fifteen: '15',
-      thirty: '30',
-      fifty: '50',
-      unlimited: 'Unlimited'
-    },
-
     updateSettingsSuccess: {
       message: 'Settings updated successfully!',
       title: 'Settings'
@@ -64,7 +54,7 @@ export default {
 
     roomLimit: {
       title: 'Number of rooms per user',
-      description: 'Limits the number of rooms that a user can have. This setting does not apply to administrators'
+      description: 'Limits the number of rooms that a user can have. This setting does not apply to administrators.  Enter the value -1 for unlimited number of rooms'
     },
 
     paginationPageSize: {

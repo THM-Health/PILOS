@@ -57,7 +57,9 @@ export default {
 
     settings: {
       title: 'Einstellungen',
-      manage: 'Einstellungen verwalten'
+      manage: 'Einstellungen verwalten',
+      update: 'Einstellungen bearbeiten',
+      viewAny: 'Alle Einstellungen anzeigen'
     },
 
     roles: {

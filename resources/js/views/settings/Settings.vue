@@ -23,7 +23,7 @@
             </b-nav-item>
           </can>
 
-          <can method='manage' policy='SettingPolicy'>
+          <can method='viewAny' policy='SettingPolicy'>
             <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.application' }">
               <b-row>
                 <b-col cols='3'><span><i class='fas fa-cogs'></i></span></b-col>

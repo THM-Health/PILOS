@@ -42,16 +42,6 @@ export default {
     save: 'Abspeichern',
     preview: 'Vorschauen',
 
-    numberOptions: {
-      one: '1',
-      five: '5',
-      ten: '10',
-      fifteen: '15',
-      thirty: '30',
-      fifty: '50',
-      unlimited: 'Unbegrenzt'
-    },
-
     updateSettingsSuccess: {
       message: 'Einstellung wurde erfolgreich aktualisiert!',
       title: 'Einstellung'
@@ -65,7 +55,7 @@ export default {
 
     roomLimit: {
       title: 'Anzahl der Räume pro Benutzer',
-      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung gilt nicht für Administratoren'
+      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung gilt nicht für Administratoren. Der Wert -1 für unbegrenzte Anzahl der Räume eingeben'
     },
 
     paginationPageSize: {
