@@ -197,6 +197,7 @@ export default {
         .then(response => {
           this.$store.dispatch('session/getSettings');
           this.flashMessage.success(this.$t('settings.application.updateSettingsSuccess'));
+          this.errors = {};
         })
         .catch((error) => {
           Base.error(error, this.$root, error.message);
