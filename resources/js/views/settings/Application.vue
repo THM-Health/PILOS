@@ -18,6 +18,7 @@
       <b-form-group
         label-for="application-logo-input"
         :description="$t('settings.application.logo.description')"
+        :state='fieldState("logo")'
       >
 
         <template v-slot:label>
@@ -44,17 +45,23 @@
                             :placeholder="$t('settings.application.logo.hint')"
                             v-model="settings.logo"
                             :disabled="isBusy"
+                            :state='fieldState("logo")'
               >
               </b-form-input>
             </b-input-group>
           </b-col>
         </b-row>
+
+        <template slot='invalid-feedback'>
+          <div v-html="fieldError('logo')"></div>
+        </template>
       </b-form-group>
 
       <!--Room limit settings-->
       <b-form-group
         label-for="application-room-limit-input"
         :description="$t('settings.application.roomLimit.description')"
+        :state='fieldState("room_limit")'
       >
 
         <template v-slot:label>
@@ -65,14 +72,21 @@
         <b-form-input id="application-room-limit-input"
                       v-model="settings.roomLimit"
                       type="number"
-                      :disabled="isBusy">
+                      :disabled="isBusy"
+                      :state='fieldState("room_limit")'
+        >
         </b-form-input>
+
+        <template slot='invalid-feedback'>
+          <div v-html="fieldError('room_limit')"></div>
+        </template>
       </b-form-group>
 
       <!--Pagination page size settings-->
       <b-form-group
         label-for="application-pagination-page-size-input"
         :description="$t('settings.application.paginationPageSize.description')"
+        :state='fieldState("pagination_page_size")'
       >
 
         <template v-slot:label>
@@ -83,14 +97,21 @@
         <b-form-input id="application-pagination-page-size-input"
                       v-model="settings.paginationPageSize"
                       type="number"
-                      :disabled="isBusy">
+                      :disabled="isBusy"
+                      :state='fieldState("pagination_page_size")'
+        >
         </b-form-input>
+
+        <template slot='invalid-feedback'>
+          <div v-html="fieldError('pagination_page_size')"></div>
+        </template>
       </b-form-group>
 
       <!--Own rooms pagination page size settings-->
       <b-form-group
         label-for="application-pagination-own-room-page-size-input"
         :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
+        :state='fieldState("own_rooms_pagination_page_size")'
       >
 
         <template v-slot:label>
@@ -101,9 +122,14 @@
         <b-form-input id="application-pagination-own-room-page-size-input"
                       v-model="settings.ownRoomsPaginationPageSize"
                       type="number"
-                      :disabled="isBusy">
+                      :disabled="isBusy"
+                      :state='fieldState("own_rooms_pagination_page_size")'
+        >
         </b-form-input>
 
+        <template slot='invalid-feedback'>
+          <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
+        </template>
       </b-form-group>
 
     </b-container>
@@ -112,8 +138,11 @@
 
 <script>
 import Base from '../../api/base';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
+  mixins: [FieldErrors],
+
   data () {
     return {
       isBusy: false,
@@ -122,7 +151,8 @@ export default {
         roomLimit: null,
         paginationPageSize: null,
         ownRoomsPaginationPageSize: null
-      }
+      },
+      errors: {}
     };
   },
   methods: {
@@ -139,7 +169,7 @@ export default {
           this.settings.paginationPageSize = response.data.data.pagination_page_size;
         })
         .catch((error) => {
-          Base.error(error, this.$root);
+          Base.error(error, this.$root, error.message);
         })
         .finally(() => {
           this.isBusy = false;
@@ -169,7 +199,9 @@ export default {
           this.flashMessage.success(this.$t('settings.application.updateSettingsSuccess'));
         })
         .catch((error) => {
-          Base.error(error, this.$root);
+          Base.error(error, this.$root, error.message);
+
+          this.errors = error.response.data.errors;
         })
         .finally(() => {
           this.getSettings();
