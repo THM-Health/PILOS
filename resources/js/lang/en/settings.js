@@ -17,7 +17,17 @@ export default {
       label: 'Room limit',
       default: 'System default ({value})',
       unlimited: 'Unlimited',
-      custom: 'Custom amount'
+      custom: 'Custom amount',
+      helpModal: {
+        title: 'Room limit',
+        info: 'The room limit of a user results from the maximum of the room limits of the roles a user belongs to.',
+        examples: 'Examples',
+        systemDefault: 'System default',
+        roleA: 'Role A',
+        roleB: 'Role B',
+        maxAmount: 'Room limit',
+        note: 'X: User is not member of this role'
+      }
     },
     default: 'Default',
     actions: 'Actions',

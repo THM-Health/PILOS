@@ -11,7 +11,7 @@
     <b-form @submit='saveRole'>
       <b-container fluid>
         <b-form-group
-          label-cols-sm='3'
+          label-cols-sm='4'
           :label="$t('settings.roles.name')"
           label-for='name'
           :state='fieldState("name")'
@@ -19,12 +19,77 @@
           <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || viewOnly'></b-form-input>
           <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
         </b-form-group>
+
+        <b-modal id="modal-help-roomlimit" :hide-footer="true">
+          <template v-slot:modal-title>
+            <b-icon-info-circle></b-icon-info-circle> {{ $t('settings.roles.roomLimit.helpModal.title') }}
+          </template>
+          <p>{{ $t('settings.roles.roomLimit.helpModal.info') }}</p>
+
+          <strong>{{ $t('settings.roles.roomLimit.helpModal.examples') }}</strong>
+          <table class="table">
+            <thead>
+            <tr>
+              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</th>
+              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleA') }}</th>
+              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleB') }}</th>
+              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.maxAmount') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td><raw-text>5</raw-text></td>
+              <td><raw-text>X</raw-text></td>
+              <td><raw-text>X</raw-text></td>
+              <td><raw-text>5</raw-text></td>
+            </tr>
+            <tr>
+              <td><raw-text>1</raw-text></td>
+              <td><raw-text>5</raw-text></td>
+              <td><raw-text>X</raw-text></td>
+              <td><raw-text>5</raw-text></td>
+            </tr>
+            <tr>
+              <td><raw-text>5</raw-text></td>
+              <td><raw-text>1</raw-text></td>
+              <td><raw-text>X</raw-text></td>
+              <td><raw-text>1</raw-text></td>
+            </tr>
+            <tr>
+              <td><raw-text>5</raw-text></td>
+              <td><raw-text>1</raw-text></td>
+              <td><raw-text>2</raw-text></td>
+              <td><raw-text>2</raw-text></td>
+            </tr>
+            <tr>
+              <td><raw-text>5</raw-text></td>
+              <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
+              <td><raw-text>2</raw-text></td>
+              <td><raw-text>5</raw-text></td>
+            </tr>
+            <tr>
+              <td><raw-text>5</raw-text></td>
+              <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
+              <td><raw-text>10</raw-text></td>
+              <td><raw-text>10</raw-text></td>
+            </tr>
+            <tr>
+              <td><raw-text>5</raw-text></td>
+              <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
+              <td><raw-text>2</raw-text></td>
+              <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
+            </tr>
+            </tbody>
+          </table>
+          <p>{{ $t('settings.roles.roomLimit.helpModal.note') }}</p>
+        </b-modal>
+
         <b-form-group
-          label-cols-sm='3'
-          :label="$t('settings.roles.roomLimit.label')"
+          label-cols-sm='4'
           label-for='room-limit'
           :state='fieldState("room_limit")'
         >
+          <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="text-dark" v-b-modal.modal-help-roomlimit><b-icon-info-circle></b-icon-info-circle></b-button></template>
           <b-form-radio-group
             class='mb-2'
             v-model='roomLimitMode'
@@ -32,6 +97,7 @@
             :disabled='isBusy || viewOnly'
             :state='fieldState("room_limit")'
             @change="roomLimitModeChanged"
+            stacked
           ></b-form-radio-group>
           <b-form-input
             id='room-limit'
@@ -137,10 +203,13 @@ import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import { mapGetters } from 'vuex';
 import env from '../../../env';
+import RawText from '../../../components/RawText';
 
 export default {
   mixins: [FieldErrors],
-
+  components: {
+    RawText
+  },
   props: {
     id: {
       type: [String, Number],
