@@ -80,7 +80,7 @@ class Meeting extends Model
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
         $meetingParams->setModeratorPassword($this->moderatorPW)
-           ->setAttendeePassword($this->attendeePW)
+            ->setAttendeePassword($this->attendeePW)
             ->setLogoutUrl(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
@@ -110,11 +110,7 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
-        try {
-            return $this->server->bbb()->createMeeting($meetingParams)->success();
-        } catch (\Exception $exception) {
-            return false;
-        }
+        return $this->server->bbb()->createMeeting($meetingParams);
     }
 
     /**

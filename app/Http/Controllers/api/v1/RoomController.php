@@ -119,29 +119,65 @@ class RoomController extends Controller
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
+            // Create new meeting
             $meeting              = $room->meetings()->create();
             $meeting->start       = date('Y-m-d H:i:s');
             $meeting->attendeePW  = bin2hex(random_bytes(5));
             $meeting->moderatorPW = bin2hex(random_bytes(5));
             $meeting->save();
 
+            // Try to find server to host meeting
             while (true) {
                 try {
                     // TODO implement load balancer here
+
+                    // Find server that is online
                     $servers = Server::where('status', true)->where('offline', false)->get();
                     $server  = $servers->random();
                 } catch (InvalidArgumentException $ex) {
+                    // If no server online, room creation failed
                     $meeting->forceDelete();
                     abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
                 }
 
+                // Add found server to the meeting
                 $meeting->server()->associate($server);
                 $meeting->save();
-                if (!$meeting->startMeeting()) {
+
+                // Try to start meeting
+                try {
+                    $result = $meeting->startMeeting();
+                }
+                // Catch exceptions, e.g. network connection issues
+                catch (\Exception $exception) {
+                    // Remove meeting and set server to offline
+                    $meeting->forceDelete();
                     $server->offline = true;
                     $server->save();
-                } else {
-                    break;
+                }
+
+                if (isset($result)) {
+                    // Check server response for meeting creation
+                    if ($result->success()) {
+                        // Meeting created successfully
+                        break;
+                    } else {
+                        // Meeting creation failed, remove meeting
+                        $meeting->forceDelete();
+                        // Check for some errors
+                        switch ($result->getMessageKey()) {
+                            // checksum error, api token invalid, set server to offline, try to create on other server
+                            case 'checksumError':
+                                $server->offline = true;
+                                $server->save();
+
+                                break;
+                            // for other unknown reasons, just respond, that room creation failed
+                            // the error is probably server independent
+                            default:
+                                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+                        }
+                    }
                 }
             }
         }
@@ -150,7 +186,7 @@ class RoomController extends Controller
     }
 
     /**
-     * Join an existing meeting
+     * Join a running meeting
      * @param  Room                          $room
      * @param  Request                       $request
      * @return \Illuminate\Http\JsonResponse
@@ -160,17 +196,16 @@ class RoomController extends Controller
         $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
         $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
 
+        // Check if there is a meeting running for this room, accordingly to the local database
         $meeting = $room->runningMeeting();
-
         if ($meeting == null) {
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
-        if (!$meeting->startMeeting()) {
+        // Check if the meeting is actually running on the server
+        if (!$meeting->isRunning() ) {
             $meeting->end = date('Y-m-d H:i:s');
             $meeting->save();
-            $meeting->server->offline = true;
-            $meeting->server->save();
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
