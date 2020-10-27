@@ -241,6 +241,7 @@ export default {
 
   data () {
     return {
+      reloadInterval: null,
       loading: false, // Room settings/details loading
       loadingJoinStart: false, // Loading indicator on joining/starting a room
       loadingDownload: false, // Loading indicator for downloading file
@@ -278,7 +279,10 @@ export default {
   },
   mounted () {
     // Reload room details in a set inteval, change in the .env
-    setInterval(this.reload, env.REFRESH_RATE * 1000);
+    this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
+  },
+  destroyed () {
+    clearInterval(this.reloadInterval);
   },
   methods: {
     /**
