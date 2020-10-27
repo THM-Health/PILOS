@@ -42,6 +42,10 @@ class Server extends Model
         }
     }
 
+    /**
+     * Statistical data of this server
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function stats()
     {
         return $this->hasMany(ServerStat::class);
