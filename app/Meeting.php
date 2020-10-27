@@ -6,7 +6,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
-use BigBlueButton\Parameters\IsMeetingRunningParameters;
+use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 use Illuminate\Database\Eloquent\Model;
@@ -119,10 +119,12 @@ class Meeting extends Model
      */
     public function isRunning()
     {
-        $isMeetingRunningParams = new IsMeetingRunningParameters($this->id);
-        $response               = $this->server->bbb()->isMeetingRunning($isMeetingRunningParams);
+        // TODO Remove blank password, after PHP BBB library is updated
+        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id, null);
+        // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
+        $response               = $this->server->bbb()->getMeetingInfo($isMeetingRunningParams);
 
-        return $response->success() && $response->isRunning();
+        return $response->success();
     }
 
     /**
