@@ -21,6 +21,8 @@ class CreateMeetingStatsTable extends Migration
             $table->integer('listener_count');
             $table->integer('voice_participant_count');
             $table->integer('video_count');
+            // limit reached at about 3t attendees
+            $table->text('attendees')->nullable();
             $table->timestamps();
         });
     }

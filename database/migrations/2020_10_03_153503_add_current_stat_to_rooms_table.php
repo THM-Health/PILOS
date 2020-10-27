@@ -19,7 +19,10 @@ class AddCurrentStatToRoomsTable extends Migration
     public function down()
     {
         Schema::table('rooms', function (Blueprint $table) {
-            //
+            $table->dropColumn('participant_count');
+            $table->dropColumn('listener_count');
+            $table->dropColumn('voice_participant_count');
+            $table->dropColumn('video_count');
         });
     }
 }

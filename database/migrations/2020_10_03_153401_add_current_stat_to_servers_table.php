@@ -21,7 +21,13 @@ class AddCurrentStatToServersTable extends Migration
     public function down()
     {
         Schema::table('servers', function (Blueprint $table) {
-            //
+            $table->dropColumn('participant_count');
+            $table->dropColumn('listener_count');
+            $table->dropColumn('voice_participant_count');
+            $table->dropColumn('video_count');
+            $table->dropColumn('meeting_count');
+            $table->dropColumn('offline');
+
         });
     }
 }
