@@ -77,6 +77,14 @@ class BuildHistory extends Command
                 $roomStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
                 $roomStat->video_count             = $bbbMeeting->getVideoCount();
 
+                if (setting('log_attendance')) {
+                    $attendees = [];
+                    foreach ($bbbMeeting->getAttendees() as $attendee) {
+                        array_push($attendees, $attendee->getFullName());
+                    }
+                    $roomStat->attendees = json_encode($attendees);
+                }
+
                 $meeting->stats()->save($roomStat);
             }
 
