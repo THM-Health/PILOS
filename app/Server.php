@@ -24,6 +24,10 @@ class Server extends Model
         return new BigBlueButton($this->baseUrl, $this->salt);
     }
 
+    /**
+     * Get list of currently running meeting from the api
+     * @return \BigBlueButton\Core\Meeting[]|null
+     */
     public function getMeetings()
     {
         if ($this->status == 0) {
@@ -40,6 +44,15 @@ class Server extends Model
         } catch (\Exception $exception) {
             return null;
         }
+    }
+
+    /**
+     * Meetings that (have) run on this server
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function meetings()
+    {
+        return $this->hasMany(Meeting::class);
     }
 
     /**

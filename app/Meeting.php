@@ -158,6 +158,10 @@ class Meeting extends Model
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }
 
+    /**
+     * Statistical data of this meeting
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function stats()
     {
         return $this->hasMany(MeetingStat::class);
