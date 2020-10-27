@@ -50,6 +50,11 @@ class BuildHistory extends Command
                 $server->offline                 = true;
                 $server->save();
 
+                foreach ($server->meetings()->whereNull('end')->get() as $meeting) {
+                    $meeting->end = date('Y-m-d H:i:s');
+                    $meeting->save();
+                }
+
                 continue;
             }
 
