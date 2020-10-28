@@ -30,7 +30,7 @@ class Server extends Model
      */
     public function getMeetings()
     {
-        if ($this->status == 0) {
+        if ($this->status == 0 or $this->offline == 1) {
             return null;
         }
 
