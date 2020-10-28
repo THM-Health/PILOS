@@ -513,12 +513,7 @@ class RoomTest extends TestCase
         $room = factory(Room::class)->create();
 
         // Adding fake server(s)
-        $server              = new Server();
-        $server->baseUrl     = $this->faker->url;
-        $server->salt        = $this->faker->sha1;
-        $server->status      = true;
-        $server->description = $this->faker->word;
-        $server->save();
+        $server =  factory(Server::class)->create();
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
@@ -554,6 +549,15 @@ class RoomTest extends TestCase
 
         // Clear
         $this->assertTrue($room->runningMeeting()->endMeeting());
+
+        // Check with wrong salt/secret
+        foreach (Server::all() as $server) {
+            $server->salt = 'TEST';
+            $server->save();
+        }
+        $room2 = factory(Room::class)->create();
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2]))
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
     }
 
     /**
