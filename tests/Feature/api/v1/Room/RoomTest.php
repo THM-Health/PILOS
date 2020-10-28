@@ -577,6 +577,18 @@ class RoomTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
 
+        // Test to join a meeting marked in the db as running, but isn't running on the server
+        $meeting              = $room->meetings()->create();
+        $meeting->start       = date('Y-m-d H:i:s');
+        $meeting->attendeePW  = bin2hex(random_bytes(5));
+        $meeting->moderatorPW = bin2hex(random_bytes(5));
+        $meeting->server()->associate(Server::where('status', true)->where('offline', false)->get()->random());
+        $meeting->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+        $meeting->refresh();
+        $this->assertNotNull($meeting->end);
+
         // Start meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertSuccessful();
@@ -631,8 +643,12 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertSuccessful();
 
+        $runningMeeting = $room->runningMeeting();
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $this->assertNull($runningMeeting->end);
+        $this->assertTrue($runningMeeting->endMeeting());
+        $runningMeeting->refresh();
+        $this->assertNotNull($runningMeeting->end);
     }
 
     /**

@@ -134,8 +134,13 @@ class Meeting extends Model
     public function endMeeting()
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
+        $success   = $this->server->bbb()->endMeeting($endParams)->success();
+        if ($success) {
+            $this->end = date('Y-m-d H:i:s');
+            $this->save();
+        }
 
-        return $this->server->bbb()->endMeeting($endParams)->success();
+        return $success;
     }
 
     /**
