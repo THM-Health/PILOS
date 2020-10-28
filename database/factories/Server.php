@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Server::class, function (Faker $faker) {
     return [
-        'baseUrl' => $faker->url,
+        'baseUrl' => 'https://test.notld/bigbluebutton/',
         'salt' => $faker->sha1,
         'description' => $faker->text,
         'status' => 1,
