@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
 - Added setting menu for administrators ([#35], [#38])
 - Added a middleware to check whether the request is in sync with model of the database and not stale ([#40], [#41])
+- Added artisan command to check server and meeting status, build live and historical data ([#64], [#65])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -54,5 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#49]: https://github.com/THM-Health/PILOS/pull/49
 [#50]: https://github.com/THM-Health/PILOS/issues/50
 [#54]: https://github.com/THM-Health/PILOS/pull/54
+[#64]: https://github.com/THM-Health/PILOS/issues/64
+[#65]: https://github.com/THM-Health/PILOS/pull/65
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
