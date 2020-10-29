@@ -53,6 +53,15 @@ class BuildHistory extends Command
                 foreach ($server->meetings()->whereNull('end')->get() as $meeting) {
                     $meeting->end = date('Y-m-d H:i:s');
                     $meeting->save();
+
+                    // If no other meeting is running for this room, reset live room usage
+                    if ($meeting->room->runningMeeting() == null) {
+                        $meeting->room->participant_count       = null;
+                        $meeting->room->listener_count          = null;
+                        $meeting->room->voice_participant_count = null;
+                        $meeting->room->video_count             = null;
+                        $meeting->room->save();
+                    }
                 }
 
                 continue;
@@ -62,7 +71,7 @@ class BuildHistory extends Command
 
             foreach ($bbbMeetings as $bbbMeeting) {
 
-                // Get usage for server statistics
+                // Get usage for archival server statistics
                 $serverStat->participant_count += $bbbMeeting->getParticipantCount();
                 $serverStat->listener_count += $bbbMeeting->getListenerCount();
                 $serverStat->voice_participant_count += $bbbMeeting->getVoiceParticipantCount();
@@ -75,22 +84,23 @@ class BuildHistory extends Command
                     continue;
                 }
 
-                // Save current live room status
-                $roomStat                          = new MeetingStat();
-                $roomStat->participant_count       = $bbbMeeting->getParticipantCount();
-                $roomStat->listener_count          = $bbbMeeting->getListenerCount();
-                $roomStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
-                $roomStat->video_count             = $bbbMeeting->getVideoCount();
+                // Save current live room status and build archival data
+                $meetingStat                            = new MeetingStat();
+                $meeting->room->participant_count       = $meetingStat->participant_count       = $bbbMeeting->getParticipantCount();
+                $meeting->room->listener_count          = $meetingStat->listener_count          = $bbbMeeting->getListenerCount();
+                $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
+                $meeting->room->video_count             = $meetingStat->video_count             = $bbbMeeting->getVideoCount();
 
                 if (setting('log_attendance')) {
                     $attendees = [];
                     foreach ($bbbMeeting->getAttendees() as $attendee) {
                         array_push($attendees, $attendee->getFullName());
                     }
-                    $roomStat->attendees = json_encode($attendees);
+                    $meetingStat->attendees = json_encode($attendees);
                 }
 
-                $meeting->stats()->save($roomStat);
+                $meeting->stats()->save($meetingStat);
+                $meeting->room->save();
             }
 
             // Save current live server status
