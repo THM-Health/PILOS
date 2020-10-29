@@ -54,7 +54,7 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithResponse()
     {
-        $bbbReponseMock = Mockery::mock(GetMeetingsResponse::class, function ($mock) {
+        $bbbResponseMock = Mockery::mock(GetMeetingsResponse::class, function ($mock) {
             $mock->shouldReceive('failed')
                 ->once()
                 ->andReturn(false);
@@ -63,10 +63,10 @@ class ServerTest extends TestCase
                 ->andReturn('test-response');
         });
 
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($bbbReponseMock) {
+        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($bbbResponseMock) {
             $mock->shouldReceive('getMeetings')
                 ->once()
-                ->andReturn($bbbReponseMock);
+                ->andReturn($bbbResponseMock);
         });
 
         $serverMock = Mockery::mock(Server::class, function ($mock) use ($bbbMock) {
