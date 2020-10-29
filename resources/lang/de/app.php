@@ -2,8 +2,8 @@
 return [
     'errors' => [
         'stale_model' => 'Der :model-Datensatz wurde in der Zwischenzeit geändert!',
-        'not_running' => 'Teilnahme fehlgeschlagen! Der Raum ist aktuell geschlossen.',
         'room_start' => 'Starten fehlgeschlagen! Der Raum konnte nicht gestartet werden.',
+        'not_running' => 'Teilnahme fehlgeschlagen! Der Raum ist aktuell geschlossen.',
         'membership_disabled' => 'Mitgliedschaft fehlgeschlagen! Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.',
         'not_member_of_room' => 'Die Person ist nicht (mehr) Mitglied dieses Raums.',
         'file_not_found' => 'Die Datei konnte nicht gefunden werden.',
