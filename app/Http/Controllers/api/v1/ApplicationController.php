@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateSetting;
 use App\Http\Resources\User as UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
@@ -39,6 +40,12 @@ class ApplicationController extends Controller
     public function updateSettings(UpdateSetting $request)
     {
         $data = $request->all();
+
+        if ($request->has('logo_file')) {
+            $path         = $request->file('logo_file')->store('images', 'public');
+            $url          = Storage::url($path);
+            $data['logo'] = $url;
+        }
 
         // Settings defaults array keys for validation
         $setting_keys = collect(config('settings.defaults'))->keys()->toArray();

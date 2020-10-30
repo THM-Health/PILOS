@@ -25,6 +25,7 @@
           <b-form-file
             :disabled="isBusy"
             :state="fieldState('file')"
+            :browse-text="$t('app.browse')"
             :placeholder="$t('rooms.files.selectordrag')"
             v-on:change="uploadFile($event)"
             v-model="fileUpload"
@@ -353,7 +354,7 @@ export default {
       }).catch((error) => {
         if (error.response) {
           if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
-            this.errors = { file: [this.$t('rooms.files.validation.tooLarge')] };
+            this.errors = { file: [this.$t('app.validation.tooLarge')] };
             return;
           }
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

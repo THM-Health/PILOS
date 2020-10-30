@@ -80,7 +80,9 @@ export default {
   overwrite: 'Überschreiben',
   save: 'Speichern',
   back: 'Zurück',
+  browse: 'Durchsuchen',
+  validation: {
+    tooLarge: 'Die ausgewählte Datei ist zu groß.'
+  }
 
-  true: 'Ja',
-  false: 'Nein'
 };

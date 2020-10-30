@@ -49,33 +49,28 @@ export default {
 
   application: {
     title: 'Anwendung',
-    save: 'Abspeichern',
-    preview: 'Vorschauen',
-
-    updateSettingsSuccess: {
-      message: 'Einstellung wurde erfolgreich aktualisiert!',
-      title: 'Einstellung'
-    },
-
     logo: {
       title: 'Logo',
-      description: 'Das Anwendungslogo ändern. Bild URL eingeben',
-      hint: 'Bild URL'
+      uploadTitle: 'Logo hochladen (max. 500 KB)',
+      urlTitle: 'URL zu Logo-Datei',
+      description: 'URL zum Logo',
+      hint: 'https://domain.tld/path/logo.svg',
+      selectFile: 'Logo-Datei auswählen'
     },
 
     roomLimit: {
       title: 'Anzahl der Räume pro Benutzer',
-      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung gilt nicht für Administratoren. Der Wert -1 für unbegrenzte Anzahl der Räume eingeben'
+      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.'
     },
 
     paginationPageSize: {
       title: 'Größe der Paginierung',
-      description: 'Begrenzt die Seitengrößen für die Paginierung der Datentabellen'
+      description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Datensätze in Tabellen'
     },
 
     ownRoomsPaginationPageSize: {
       title: 'Größe der Paginierung für eigene Räume',
-      description: 'Begrenzt die Seitengrößen für die Paginierung der eigenen Räume'
+      description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
     }
   }
 };

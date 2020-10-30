@@ -8,7 +8,7 @@
                   variant="success"
                   @click="updateSettings(settings)"
                   :disabled="isBusy">
-          <span><i class="fas fa-save mr-2"></i>{{ $t('settings.application.save') }}</span>
+          <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
         </b-button>
       </h3>
 
@@ -17,8 +17,7 @@
       <!--Logo Settings-->
       <b-form-group
         label-for="application-logo-input"
-        :description="$t('settings.application.logo.description')"
-        :state='fieldState("logo")'
+        :state='(fieldState("logo") === null && fieldState("logo_file") === null) ? null : false'
       >
 
         <template v-slot:label>
@@ -26,10 +25,10 @@
           {{ $t('settings.application.logo.title') }}
         </template>
 
-        <b-row align-v="baseline" class="my-3">
+        <b-row  class="my-3">
           <b-col sm="6" lg="3" class="text-center">
             <b-img
-              :src="settings.logo"
+              :src="uploadLogoFileSrc ? uploadLogoFileSrc : settings.logo"
               class="my-2"
               rounded="0"
               alt="application-logo-preview"
@@ -40,20 +39,42 @@
             </b-img>
           </b-col>
           <b-col sm="6" lg="9">
+            <b-form-text v-if="!uploadLogoFile">{{ $t('settings.application.logo.urlTitle') }}</b-form-text>
             <b-input-group>
-              <b-form-input id="application-logo-input"
-                            :placeholder="$t('settings.application.logo.hint')"
-                            v-model="settings.logo"
-                            :disabled="isBusy"
-                            :state='fieldState("logo")'
+              <b-form-input
+                id="application-logo-input"
+                v-if="!uploadLogoFile"
+                :placeholder="$t('settings.application.logo.hint')"
+                v-model="settings.logo"
+                :disabled="isBusy"
+                class="my-2"
+                :state='fieldState("logo")'
               >
               </b-form-input>
+            </b-input-group>
+            <b-form-text>{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
+            <b-input-group>
+              <b-form-file
+                :state='fieldState("logo_file")'
+                :disabled="isBusy"
+                :browse-text="$t('app.browse')"
+                :placeholder="$t('settings.application.logo.selectFile')"
+                v-model="uploadLogoFile"
+                accept="image/jpeg, image/png, image/gif, image/svg+xml"
+              >
+              </b-form-file>
+              <template #append v-if="uploadLogoFile">
+                <b-button variant="danger" @click="uploadLogoFile = null">
+                  <b-icon-x></b-icon-x>
+                </b-button>
+              </template>
             </b-input-group>
           </b-col>
         </b-row>
 
         <template slot='invalid-feedback'>
           <div v-html="fieldError('logo')"></div>
+          <div v-html="fieldError('logo_file')"></div>
         </template>
       </b-form-group>
 
@@ -139,15 +160,31 @@
 <script>
 import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
+import env from '../../env';
+
+/**
+ * base64 encoder
+ * @param data
+ * @return {Promise<unknown>}
+ */
+const base64Encode = data =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(data);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
 
 export default {
   mixins: [FieldErrors],
 
   data () {
     return {
+      uploadLogoFile: null,
+      uploadLogoFileSrc: null,
       isBusy: false,
       settings: {
-        logo: '/images/logo.svg',
+        logo: null,
         roomLimit: null,
         paginationPageSize: null,
         ownRoomsPaginationPageSize: null
@@ -184,33 +221,75 @@ export default {
     updateSettings (settings) {
       this.isBusy = true;
 
+      // Build form data
+      const formData = new FormData();
+      if (this.uploadLogoFile) { formData.append('logo_file', this.uploadLogoFile); } else { formData.append('logo', settings.logo); }
+      formData.append('room_limit', settings.roomLimit);
+      formData.append('pagination_page_size', settings.paginationPageSize);
+      formData.append('own_rooms_pagination_page_size', settings.ownRoomsPaginationPageSize);
+      formData.append('_method', 'PUT');
+
       Base.call('settings',
         {
-          method: 'put',
-          data: {
-            logo: settings.logo,
-            room_limit: settings.roomLimit,
-            pagination_page_size: settings.paginationPageSize,
-            own_rooms_pagination_page_size: settings.ownRoomsPaginationPageSize
+          method: 'post',
+          data: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data'
           }
         })
         .then(response => {
           this.$store.dispatch('session/getSettings');
-          this.flashMessage.success(this.$t('settings.application.updateSettingsSuccess'));
           this.errors = {};
+          this.uploadLogoFile = null;
+
+          // update form input
+          this.settings.logo = response.data.data.logo;
+          this.settings.roomLimit = response.data.data.room_limit;
+          this.settings.ownRoomsPaginationPageSize = response.data.data.own_rooms_pagination_page_size;
+          this.settings.paginationPageSize = response.data.data.pagination_page_size;
         })
         .catch((error) => {
-          Base.error(error, this.$root, error.message);
-
-          this.errors = error.response.data.errors;
+          if (error.response) {
+            if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
+              this.errors = { logo_file: [this.$t('app.validation.tooLarge')] };
+              return;
+            }
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
+              return;
+            }
+          }
+          Base.error(error, this.$root);
         })
         .finally(() => {
-          this.getSettings();
+          this.isBusy = false;
         });
     }
   },
   mounted () {
     this.getSettings();
+  },
+  watch: {
+    /**
+     * watch for logo file select changes, encode to base64 and display image
+     * @param newValue
+     * @param oldValue
+     */
+    uploadLogoFile (newValue, oldValue) {
+      if (newValue !== oldValue) {
+        if (newValue) {
+          base64Encode(newValue)
+            .then(value => {
+              this.uploadLogoFileSrc = value;
+            })
+            .catch(() => {
+              this.uploadLogoFileSrc = null;
+            });
+        } else {
+          this.uploadLogoFileSrc = null;
+        }
+      }
+    }
   }
 };
 </script>

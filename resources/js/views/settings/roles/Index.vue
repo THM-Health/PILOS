@@ -92,7 +92,7 @@
       :busy='isBusy'
       ok-variant='danger'
       cancel-variant='dark'
-      :cancel-title="$t('app.false')"
+      :cancel-title="$t('app.no')"
       @ok='deleteRole'
       @cancel='clearRoleToDelete'
       @close='clearRoleToDelete'
@@ -102,7 +102,7 @@
         {{ $t('settings.roles.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="roleToDelete">
         {{ $t('settings.roles.delete.confirm', { name: $te(`app.roles.${roleToDelete.name}`) ? $t(`app.roles.${roleToDelete.name}`) : roleToDelete.name }) }}
