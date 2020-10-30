@@ -95,7 +95,7 @@ class SettingsTest extends TestCase
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
             [
-                'logo'                           => 'noturl',
+                'logo'                           => '',
                 'pagination_page_size'           => 'notnumber',
                 'own_rooms_pagination_page_size' => 'notnumber',
                 'room_limit'                     => 'notnumber',
