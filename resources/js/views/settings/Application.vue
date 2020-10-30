@@ -28,6 +28,7 @@
         <b-row  class="my-3">
           <b-col sm="6" lg="3" class="text-center">
             <b-img
+              v-if="uploadLogoFileSrc!==null || settings.logo!==null"
               :src="uploadLogoFileSrc ? uploadLogoFileSrc : settings.logo"
               class="my-2"
               rounded="0"
@@ -90,12 +91,23 @@
           {{ $t('settings.application.roomLimit.title') }}
         </template>
 
-        <b-form-input id="application-room-limit-input"
-                      v-model="settings.roomLimit"
-                      type="number"
-                      :disabled="isBusy"
-                      :state='fieldState("room_limit")'
-        >
+        <b-form-radio-group
+          class='mb-2'
+          v-model='roomLimitMode'
+          :options='roomLimitModeOptions'
+          :disabled='isBusy'
+          :state='fieldState("room_limit")'
+          @change="roomLimitModeChanged"
+          stacked
+        ></b-form-radio-group>
+        <b-form-input
+          id='room-limit'
+          type='number'
+          :state='fieldState("room_limit")'
+          v-model='settings.roomLimit'
+          min='0'
+          :disabled='isBusy'
+          v-if="roomLimitMode === 'custom'">
         </b-form-input>
 
         <template slot='invalid-feedback'>
@@ -180,6 +192,7 @@ export default {
 
   data () {
     return {
+      roomLimitMode: 'custom',
       uploadLogoFile: null,
       uploadLogoFileSrc: null,
       isBusy: false,
@@ -204,6 +217,7 @@ export default {
           this.settings.roomLimit = response.data.data.room_limit;
           this.settings.ownRoomsPaginationPageSize = response.data.data.own_rooms_pagination_page_size;
           this.settings.paginationPageSize = response.data.data.pagination_page_size;
+          this.roomLimitMode = (this.settings.roomLimit === -1 ? 'unlimited' : 'custom');
         })
         .catch((error) => {
           Base.error(error, this.$root, error.message);
@@ -247,6 +261,7 @@ export default {
           this.settings.roomLimit = response.data.data.room_limit;
           this.settings.ownRoomsPaginationPageSize = response.data.data.own_rooms_pagination_page_size;
           this.settings.paginationPageSize = response.data.data.pagination_page_size;
+          this.roomLimitMode = (this.settings.roomLimit === -1 ? 'unlimited' : 'custom');
         })
         .catch((error) => {
           if (error.response) {
@@ -264,10 +279,36 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
+    },
+    /**
+     * Sets the roomLimit on the model depending on the selected radio button.
+     *
+     * @param value Value of the radio button that was selected.
+     */
+    roomLimitModeChanged (value) {
+      switch (value) {
+        case 'unlimited':
+          this.settings.roomLimit = -1;
+          break;
+        case 'custom':
+          this.settings.roomLimit = 0;
+          break;
+      }
     }
   },
   mounted () {
     this.getSettings();
+  },
+  computed: {
+    /**
+     * Options for the room limit mode radio button group.
+     */
+    roomLimitModeOptions () {
+      return [
+        { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
+        { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' }
+      ];
+    }
   },
   watch: {
     /**
