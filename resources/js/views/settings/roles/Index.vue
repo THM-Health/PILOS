@@ -39,7 +39,8 @@
       </template>
 
       <template v-slot:cell(default)="data">
-        {{ $t(`app.${data.item.default}`) }}
+
+        {{ data.item.default ? $t('app.yes') : $t('app.no') }}
       </template>
 
       <template v-slot:cell(actions)="data">
