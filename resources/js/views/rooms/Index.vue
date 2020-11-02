@@ -11,7 +11,7 @@
       <h2>{{ $t('rooms.myRooms') }}</h2>
       <b-overlay :show="loadingOwn" >
         <template v-if="ownRooms">
-        <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.data.length,max:currentUser.room_limit}) }}</b-badge><br>
+        <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.meta.total,max:currentUser.room_limit}) }}</b-badge><br>
 
         <em v-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailable') }}</em>
 
