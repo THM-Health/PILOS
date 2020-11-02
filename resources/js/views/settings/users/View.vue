@@ -6,7 +6,6 @@
     <component
       v-bind:is="config.type === 'profile' ? 'b-card' : 'div'"
       v-bind:class="{ 'p-3': config.type === 'profile', border: config.type === 'profile', 'bg-white': config.type === 'profile' }">
-      <!-- TODO: Password confirmation for profile page -->
       <h3>
         {{ config.id === 'new' ? $t('settings.users.new') : (
           config.type === 'profile' ? $t('app.profile') :
@@ -242,6 +241,9 @@ export default {
   components: { Multiselect },
 
   computed: {
+    /**
+     * The available locales that the user can select from.
+     */
     locales () {
       const availableLocales = process.env.MIX_AVAILABLE_LOCALES.split(',');
 
@@ -301,10 +303,19 @@ export default {
     };
   },
 
+  /**
+   * Removes the event listener to enable or disable the edition of roles when
+   * the permissions of the current user gets changed.
+   */
   beforeDestroy () {
     EventBus.$off('currentUserChangedEvent', this.toggleRolesEditable);
   },
 
+  /**
+   * Loads the user, part of roles that can be selected and enables an event listener
+   * to enable or disable the edition of roles when the permissions of the current
+   * user gets changed.
+   */
   mounted () {
     EventBus.$on('currentUserChangedEvent', this.toggleRolesEditable);
 
@@ -337,6 +348,11 @@ export default {
   },
 
   methods: {
+    /**
+     * Loads the roles for the passed page, that can be selected through the multiselect.
+     *
+     * @param [page=1] The page to load the roles for.
+     */
     loadRoles (page = 1) {
       this.rolesLoading = true;
 
@@ -362,6 +378,11 @@ export default {
       });
     },
 
+    /**
+     * Saves the changes of the user to the database by making a api call.
+     *
+     * @param evt
+     */
     saveUser (evt) {
       if (evt) {
         evt.preventDefault();
@@ -434,6 +455,9 @@ export default {
       });
     },
 
+    /**
+     * Enable or disable the edition of roles depending on the permissions of the current user.
+     */
     toggleRolesEditable () {
       if (this.model.id && this.model.model_name) {
         this.canEditRoles = PermissionService.can('editUserRole', this.model);

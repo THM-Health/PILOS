@@ -172,8 +172,9 @@ export default {
 
   methods: {
     /**
+     * Loads the users from the backend and calls on finish the callback function.
      *
-     * @param ctx
+     * @param ctx Context information e.g. the sort field and direction, filter and the page.
      * @param callback
      * @return {null}
      */
@@ -211,7 +212,9 @@ export default {
     },
 
     /**
+     * Shows the delete modal with the passed user.
      *
+     * @param user The user that should be deleted.
      */
     showDeleteModal (user) {
       this.userToDelete = user;
@@ -219,7 +222,7 @@ export default {
     },
 
     /**
-     *
+     * Deletes the user that is set in the property `userToDelete`.
      */
     deleteUser () {
       this.deleting = true;
@@ -238,7 +241,8 @@ export default {
     },
 
     /**
-     *
+     * Clears the temporary property `userToDelete` on canceling or
+     * after success delete when the modal gets hidden.
      */
     clearUserToDelete () {
       this.userToDelete = undefined;

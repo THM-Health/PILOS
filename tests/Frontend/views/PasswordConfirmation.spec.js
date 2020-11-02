@@ -18,7 +18,7 @@ describe('PasswordConfirmation', function () {
 
   afterEach(function () {
     moxios.uninstall();
-  })
+  });
 
   it('confirms the password and redirects the user to the protected page on success', function (done) {
     const spy = sinon.spy();
