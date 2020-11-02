@@ -10,6 +10,8 @@ import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
 import RolesIndex from './views/settings/roles/Index';
 import RolesView from './views/settings/roles/View';
+import RoomTypesIndex from './views/settings/roomTypes/Index';
+import RoomTypesView from './views/settings/roomTypes/View';
 import Users from './views/settings/Users';
 import SettingsHome from './views/settings/SettingsHome';
 import Base from './api/base';
@@ -104,6 +106,56 @@ export const routes = [
             }
 
             return Base.call(`roles/${id}`).then((response) => {
+              return PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('update', response.data.data);
+            }).catch((response) => {
+              Base.error(response, vm, response.message);
+              return false;
+            });
+          }
+        }
+      },
+      {
+        path: 'room_types',
+        name: 'settings.room_types',
+        component: RoomTypesIndex,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'RoomTypePolicy')
+          )
+        }
+      },
+      {
+        path: 'room_types/:id',
+        name: 'settings.room_types.view',
+        component: RoomTypesView,
+        props: route => {
+          return {
+            id: route.params.id,
+            viewOnly: route.query.view === '1'
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'RoomTypePolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', 'RoomTypePolicy')
+              );
+            }
+
+            return Base.call(`room_types/${id}`).then((response) => {
               return PermissionService.can('manage', 'SettingPolicy') &&
                 PermissionService.can('update', response.data.data);
             }).catch((response) => {

@@ -2,11 +2,14 @@
 
 namespace App;
 
+use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class RoomType extends Model
 {
+    use AddsModelNameTrait;
+
     protected $fillable = ['short','description','color','default'];
 
     protected $casts = [

@@ -132,7 +132,7 @@ describe('Create new rooms', function () {
       status: 200,
       response: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/room_types', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -176,7 +176,7 @@ describe('Create new rooms', function () {
       status: 200,
       response: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/room_types', {
       status: 200,
       response: exampleRoomTypeResponse
     });

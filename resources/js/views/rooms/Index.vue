@@ -157,7 +157,7 @@ export default {
     },
     // Load the room types
     loadRoomTypes () {
-      Base.call('roomTypes').then(response => {
+      Base.call('room_types').then(response => {
         this.roomTypes = response.data.data;
       }).catch(error => {
         Base.error(error, this);

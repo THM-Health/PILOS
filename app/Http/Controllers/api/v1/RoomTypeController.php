@@ -22,4 +22,15 @@ class RoomTypeController extends Controller
     {
         return RoomTypeResource::collection(RoomType::all());
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  RoomType         $roomType
+     * @return RoomTypeResource
+     */
+    public function show(RoomType $roomType)
+    {
+        return new RoomTypeResource($roomType);
+    }
 }

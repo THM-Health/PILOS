@@ -51,6 +51,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
     Route::middleware('auth:users,ldap')->group(function () {
         Route::apiResource('roles', 'RoleController');
+        Route::apiResource('room_types', 'RoomTypeController');
+
         Route::get('permissions', 'PermissionController@index')->name('permissions.index');
 
         Route::get('rooms','RoomController@index')->name('rooms.index');
@@ -79,7 +81,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
         Route::get('users/search','UserController@search')->name('users.search');
 
-        Route::get('roomTypes', 'RoomTypeController@index')->name('roomTypes.index');
+
+
     });
 
     Route::middleware('can:view,room')->group(function () {

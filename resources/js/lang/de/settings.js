@@ -45,5 +45,51 @@ export default {
 
   users: {
     title: 'Benutzer'
+  },
+
+  roomTypes: {
+    title: 'Raumarten',
+    icon: 'Icon',
+    description: 'Beschreibung',
+    short: 'Icon Text',
+    color: 'Icon Farbe',
+    customColor: 'Eigene Farbe',
+    preview: 'Vorschau',
+
+    new: 'Neue Raumart erstellen',
+    view: 'Detaillierte Informationen für die Raumart {name}',
+    edit: 'Raumart {name} bearbeiten',
+
+    id: 'ID',
+    name: 'Name',
+    permissions: 'Rechte',
+    roomLimit: {
+      label: 'Max. Anzahl an Räumen',
+      default: 'Systemstandard ({value})',
+      unlimited: 'Unbegrenzt',
+      custom: 'Benutzerdefinierter Wert',
+      helpModal: {
+        title: 'Max. Anzahl an Räumen',
+        info: 'Die max. Anzahl an eigenen Räumen ergibt sich aus dem Maximum der Begrenzungen der Rollen, welchen ein Benutzer angehört.',
+        examples: 'Beispiele',
+        systemDefault: 'Systemstandard',
+        roleA: 'Rolle A',
+        roleB: 'Rolle B',
+        maxAmount: 'Max. Anzahl',
+        note: 'X: Nutzer ist nicht Mitglied dieser Rolle'
+      }
+    },
+
+    default: 'Standard',
+    actions: 'Aktionen',
+    nodata: 'Es sind keine Rollen vorhanden!',
+
+    noOptions: 'Keine Berechtigungen vorhanden!',
+
+    delete: {
+      item: 'Rolle {id} löschen',
+      confirm: 'Wollen Sie die Rolle {name} wirklich löschen?',
+      title: 'Rolle löschen?'
+    }
   }
 };

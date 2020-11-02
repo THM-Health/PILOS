@@ -1,0 +1,211 @@
+<template>
+  <div>
+    <h3>
+      {{ id === 'new' ? $t('settings.roomTypes.new') : (
+        viewOnly ? $t('settings.roomTypes.view', { name: model.description })
+          : $t('settings.roomTypes.edit', { name: model.description })
+      ) }}
+    </h3>
+    <hr>
+
+    <b-form @submit='saveRole'>
+      <b-container fluid>
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.roomTypes.description')"
+          label-for='name'
+          :state='fieldState("description")'
+        >
+          <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || viewOnly'></b-form-input>
+          <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+        </b-form-group>
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.roomTypes.short')"
+          label-for='short'
+          :state='fieldState("short")'
+        >
+          <b-form-input id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || viewOnly'></b-form-input>
+          <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
+        </b-form-group>
+
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.roomTypes.color')"
+          label-for='color'
+          :state='fieldState("color")'
+        >
+          <v-swatches class="my-2" :disabled='isBusy || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
+          <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+          <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || viewOnly'></b-form-input>
+
+          <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
+        </b-form-group>
+
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.roomTypes.preview')"
+        >
+          <div class="roomicon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+        </b-form-group>
+
+        <hr>
+        <b-row class='my-1 float-right'>
+          <b-col sm='12'>
+            <b-button
+              :disabled='isBusy'
+              variant='secondary'
+              @click="$router.push({ name: 'settings.room_types' })">
+              <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
+            </b-button>
+            <b-button
+              :disabled='isBusy'
+              variant='success'
+              type='submit'
+              class='ml-1'
+              v-if='!viewOnly'>
+              <i class='fas fa-save'></i> {{ $t('app.save') }}
+            </b-button>
+          </b-col>
+        </b-row>
+      </b-container>
+    </b-form>
+
+  </div>
+</template>
+
+<script>
+import Base from '../../../api/base';
+import FieldErrors from '../../../mixins/FieldErrors';
+import { mapGetters } from 'vuex';
+import env from '../../../env';
+import VSwatches from 'vue-swatches';
+import 'vue-swatches/dist/vue-swatches.css';
+
+export default {
+  mixins: [FieldErrors],
+  components: {
+    VSwatches
+  },
+  props: {
+    id: {
+      type: [String, Number],
+      required: true
+    },
+
+    viewOnly: {
+      type: Boolean,
+      required: true
+    },
+
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    })
+
+  },
+
+  data () {
+    return {
+      isBusy: false,
+      errors: {},
+      staleError: {},
+      model: {
+        description: null,
+        short: null,
+        color: '#4a5c66'
+      },
+      swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878']
+    };
+  },
+
+  /**
+   * Loads the role from the backend and also a part of permissions that can be selected.
+   */
+  mounted () {
+    if (this.id !== 'new') {
+      this.isBusy = true;
+
+      Base.call(`room_types/${this.id}`).then(response => {
+        this.model = response.data.data;
+      }).catch(response => {
+        Base.error(response, this.$root, response.message);
+      }).finally(() => {
+        this.isBusy = false;
+      });
+    }
+  },
+
+  methods: {
+
+    /**
+     * Saves the changes of the role to the database by making a api call.
+     *
+     * @param evt
+     */
+    saveRole (evt) {
+      if (evt) {
+        evt.preventDefault();
+      }
+
+      this.isBusy = true;
+
+      const config = {
+        method: this.id === 'new' ? 'post' : 'put',
+        data: {
+          name: this.model.name,
+          room_limit: this.model.room_limit || null,
+          permissions: this.model.permissions,
+          updated_at: this.model.updated_at
+        }
+      };
+
+      Base.call(this.id === 'new' ? 'roles' : `roles/${this.id}`, config).then(() => {
+        this.$router.back();
+      }).catch(error => {
+        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          this.errors = error.response.data.errors;
+        } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+          this.staleError = error.response.data;
+          this.$refs['stale-role-modal'].show();
+        } else {
+          Base.error(error, this.$root, error.message);
+        }
+      }).finally(() => {
+        this.isBusy = false;
+      });
+    },
+
+    /**
+     * Force a overwrite of the role in the database by setting the `updated_at` field to the new one.
+     */
+    forceOverwrite () {
+      this.model.updated_at = this.staleError.new_model.updated_at;
+      this.staleError = {};
+      this.$refs['stale-role-modal'].hide();
+      this.saveRole();
+    },
+
+    /**
+     * Refreshes the current model with the new passed from the stale error response.
+     */
+    refreshRole () {
+      this.model = this.staleError.new_model;
+      this.model.permissions = this.model.permissions.map(permission => permission.id);
+      this.staleError = {};
+      this.$refs['stale-role-modal'].hide();
+    }
+
+  }
+};
+</script>
+
+<style scoped>
+
+</style>
