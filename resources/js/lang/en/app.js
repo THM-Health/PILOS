@@ -76,11 +76,11 @@ export default {
       viewAny: 'Show all users'
     }
   },
-
   overwrite: 'Overwrite',
   save: 'Save',
   back: 'Back',
-
-  true: 'Yes',
-  false: 'No'
+  browse: 'Browse',
+  validation: {
+    tooLarge: 'The selected file is too large.'
+  }
 };

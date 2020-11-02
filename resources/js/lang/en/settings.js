@@ -48,18 +48,13 @@ export default {
 
   application: {
     title: 'Application',
-    save: 'Save',
-    preview: 'Preview',
-
-    updateSettingsSuccess: {
-      message: 'Settings updated successfully!',
-      title: 'Settings'
-    },
-
     logo: {
       title: 'Logo',
+      uploadTitle: 'Upload a logo (max. 500 KB)',
+      urlTitle: 'URL to logo file',
       description: 'Change the application logo. Enter the image URL',
-      hint: 'Image URL'
+      hint: 'Image URL',
+      selectFile: 'Select logo file'
     },
 
     roomLimit: {

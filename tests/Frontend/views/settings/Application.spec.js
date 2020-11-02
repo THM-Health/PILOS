@@ -64,8 +64,7 @@ describe('Application', function () {
           }
         }
       }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
+        view.vm.$nextTick();
         expect(view.vm.$data.settings.logo).toBe('test.svg');
         expect(view.vm.$data.settings.roomLimit).toBe(-1);
         expect(view.vm.$data.settings.paginationPageSize).toBe(10);
@@ -116,12 +115,20 @@ describe('Application', function () {
       request.respondWith({
         status: 201,
         response: {
-          message: 'Test update settings success'
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5
+          }
         }
       }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(flashMessageSpySuccess.callCount).toBe(1);
+        view.vm.$nextTick();
+        expect(view.vm.$data.settings.logo).toBe('test.svg');
+        expect(view.vm.$data.settings.roomLimit).toBe(-1);
+        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
+        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.isBusy).toBeFalsy();
         done();
       });
     });
@@ -147,8 +154,7 @@ describe('Application', function () {
           message: 'Test'
         }
       }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
+        view.vm.$nextTick();
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
         done();
@@ -182,8 +188,7 @@ describe('Application', function () {
           message: 'Test'
         }
       }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
+        view.vm.$nextTick();
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
         done();
