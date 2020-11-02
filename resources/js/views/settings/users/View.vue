@@ -245,7 +245,7 @@ export default {
      * The available locales that the user can select from.
      */
     locales () {
-      const availableLocales = process.env.MIX_AVAILABLE_LOCALES.split(',');
+      const availableLocales = this.availableLocales;
 
       return Object.keys(LocaleMap)
         .filter(key => availableLocales.includes(key))
@@ -276,6 +276,13 @@ export default {
     modalStatic: {
       type: Boolean,
       default: false
+    },
+
+    availableLocales: {
+      type: Array,
+      default: function () {
+        return process.env.MIX_AVAILABLE_LOCALES.split(',');
+      }
     }
   },
 
@@ -406,10 +413,12 @@ export default {
       };
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
+        const localeChanged = this.$store.state.session.currentLocale !== config.data.user_locale;
+
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
         if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id) {
           return this.$store.dispatch('session/getCurrentUser').then(() => {
-            if (this.$store.state.session.currentLocale !== config.data.user_locale) {
+            if (localeChanged) {
               return loadLanguageAsync(config.data.user_locale).then(() => {
                 this.$store.commit('session/setCurrentLocale', config.data.user_locale);
                 return response;
