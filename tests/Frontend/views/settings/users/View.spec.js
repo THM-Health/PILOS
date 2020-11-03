@@ -1,13 +1,42 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { IconsPlugin, BFormSelect, BFormSelectOption, BButton } from 'bootstrap-vue';
+import BootstrapVue, {
+  IconsPlugin,
+  BFormSelect,
+  BFormSelectOption,
+  BButton,
+  BForm,
+  BModal,
+  BFormInput
+} from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
+import sinon from 'sinon';
+import VueRouter from 'vue-router';
+import _ from 'lodash';
+import env from '../../../../../resources/js/env';
+import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
+localVue.use(Vuex);
 
+function overrideStub (url, response) {
+  const l = moxios.stubs.count();
+  for (let i = 0; i < l; i++) {
+    const stub = moxios.stubs.at(i);
+    if (stub.url === url) {
+      const oldResponse = stub.response;
+      const restoreFunc = () => { stub.response = oldResponse; };
+
+      stub.response = response;
+      return restoreFunc;
+    }
+  }
+}
+
+let store;
 let oldUser;
 let rolesResponse1;
 
@@ -96,6 +125,37 @@ describe('UsersView', function () {
       status: 200,
       response: userResponse
     });
+
+    store = new Vuex.Store({
+      modules: {
+        session: {
+          namespaced: true,
+          mutations: {
+            setCurrentLocale (state, currentLocale) {
+              state.currentLocale = currentLocale;
+            },
+            increaseCallCount (state, name) {
+              state[name] += 1;
+            }
+          },
+          state: () => ({
+            currentLocale: 'en',
+            logoutCount: 0,
+            getCurrentUserCount: 0
+          }),
+          actions: {
+            async getCurrentUser ({ commit }) {
+              await Promise.resolve();
+              commit('increaseCallCount', 'getCurrentUserCount');
+            },
+            async logout ({ commit }) {
+              await Promise.resolve();
+              commit('increaseCallCount', 'getCurrentUserCount');
+            }
+          }
+        }
+      }
+    });
   });
 
   afterEach(function () {
@@ -146,7 +206,11 @@ describe('UsersView', function () {
   });
 
   it('throws an error if the config property is not passed or contains wrong data', function () {
-
+    expect(View.props.config.validator({})).toBe(false);
+    expect(View.props.config.validator({ id: '1' })).toBe(false);
+    expect(View.props.config.validator({ type: '1' })).toBe(false);
+    expect(View.props.config.validator({ type: 'edit' })).toBe(false);
+    expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
   });
 
   it('the configured locales should be selectable in the corresponding select', function (done) {
@@ -249,11 +313,128 @@ describe('UsersView', function () {
 
   });
 
-  it('modal gets shown for stale errors and a overwrite can be forced', function () {
+  it('modal gets shown for stale errors and a overwrite can be forced', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.push = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'profile'
+        },
+        modalStatic: true
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      const newModel = _.cloneDeep(view.vm.model);
+      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.firstname = 'Tester';
+
+      let restoreUserResponse = overrideStub('/api/v1/users/1', {
+        status: env.HTTP_STALE_MODEL,
+        response: {
+          error: env.HTTP_STALE_MODEL,
+          message: 'test',
+          new_model: newModel
+        }
+      });
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(function () {
+        const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
+        expect(staleModelModal.vm.$data.isVisible).toBe(true);
+
+        restoreUserResponse();
+        restoreUserResponse = overrideStub('/api/v1/users/1', {
+          status: 204,
+          response: {
+            data: newModel
+          }
+        });
+
+        staleModelModal.vm.$refs['ok-button'].click();
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          const data = JSON.parse(request.config.data);
+
+          expect(data.updated_at).toBe(newModel.updated_at);
+          expect(data.firstname).toBe('Darth');
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+
+          restoreUserResponse();
+          done();
+        });
+      });
+    });
   });
 
-  it('modal gets shown for stale errors and the new model can be applied to current form', function () {
+  it('modal gets shown for stale errors and the new model can be applied to current form', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.push = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'profile'
+        },
+        modalStatic: true
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      const newModel = _.cloneDeep(view.vm.model);
+      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.firstname = 'Test';
+
+      const restoreUserResponse = overrideStub('/api/v1/users/1', {
+        status: env.HTTP_STALE_MODEL,
+        response: {
+          error: env.HTTP_STALE_MODEL,
+          message: 'test',
+          new_model: newModel
+        }
+      });
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(function () {
+        const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
+        expect(staleModelModal.vm.$data.isVisible).toBe(true);
+        expect(view.findComponent(BFormInput).element.value).toBe('Darth');
+
+        restoreUserResponse();
+
+        staleModelModal.vm.$refs['cancel-button'].click();
+
+        view.vm.$nextTick().then(() => {
+          expect(view.findComponent(BFormInput).element.value).toBe('Test');
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          done();
+        });
+      });
+    });
   });
 });

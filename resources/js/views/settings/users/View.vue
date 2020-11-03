@@ -262,6 +262,9 @@ export default {
     config: {
       type: Object,
       required: true,
+      default: function () {
+        return {};
+      },
       validator ({ id, type }) {
         if (['string', 'number'].indexOf(typeof id) === -1) {
           return false;
