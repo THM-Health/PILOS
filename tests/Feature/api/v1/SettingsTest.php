@@ -7,6 +7,7 @@ use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class SettingsTest extends TestCase
@@ -55,8 +56,10 @@ class SettingsTest extends TestCase
      */
     public function testUpdateApplicationSettingsWithValidInputs()
     {
+        $imageFile = UploadedFile::fake()->image('logo.svg');
+
         $payload = [
-            'logo'                           => 'http://pilos.com/images/logo.svg',
+            'logo_file'                      => $imageFile,
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',

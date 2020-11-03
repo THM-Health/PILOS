@@ -25,7 +25,7 @@
           {{ $t('settings.application.logo.title') }}
         </template>
 
-        <b-row  class="my-3">
+        <b-row class="my-3">
           <b-col sm="6" lg="3" class="text-center">
             <b-img
               v-if="uploadLogoFileSrc!==null || settings.logo!==null"
@@ -56,6 +56,7 @@
             <b-form-text>{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
             <b-input-group>
               <b-form-file
+                id="application-logo-form-file"
                 :state='fieldState("logo_file")'
                 :disabled="isBusy"
                 :browse-text="$t('app.browse')"
@@ -65,7 +66,7 @@
               >
               </b-form-file>
               <template #append v-if="uploadLogoFile">
-                <b-button variant="danger" @click="uploadLogoFile = null">
+                <b-button id="application-upload-button" variant="danger" @click="uploadLogoFile = null">
                   <b-icon-x></b-icon-x>
                 </b-button>
               </template>
@@ -93,6 +94,7 @@
 
         <b-form-radio-group
           class='mb-2'
+          id="application-room-limit-radio-group"
           v-model='roomLimitMode'
           :options='roomLimitModeOptions'
           :disabled='isBusy'
@@ -100,8 +102,9 @@
           @change="roomLimitModeChanged"
           stacked
         ></b-form-radio-group>
+
         <b-form-input
-          id='room-limit'
+          id='application-room-limit-input'
           type='number'
           :state='fieldState("room_limit")'
           v-model='settings.roomLimit'
@@ -174,19 +177,6 @@ import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 
-/**
- * base64 encoder
- * @param data
- * @return {Promise<unknown>}
- */
-const base64Encode = data =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(data);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-
 export default {
   mixins: [FieldErrors],
 
@@ -237,7 +227,11 @@ export default {
 
       // Build form data
       const formData = new FormData();
-      if (this.uploadLogoFile) { formData.append('logo_file', this.uploadLogoFile); } else { formData.append('logo', settings.logo); }
+      if (this.uploadLogoFile) {
+        formData.append('logo_file', this.uploadLogoFile);
+      } else {
+        formData.append('logo', settings.logo);
+      }
       formData.append('room_limit', settings.roomLimit);
       formData.append('pagination_page_size', settings.paginationPageSize);
       formData.append('own_rooms_pagination_page_size', settings.ownRoomsPaginationPageSize);
@@ -294,10 +288,29 @@ export default {
           this.settings.roomLimit = 0;
           break;
       }
+    },
+
+    /**
+     * base64 encoder for file
+     * @param data
+     * @return {Promise<unknown>}
+     */
+    base64Encode (data) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(data);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
     }
   },
   mounted () {
     this.getSettings();
+
+    setInterval(() => {
+      console.log(this.uploadLogoFile);
+      // console.log(this.uploadLogoFileSrc);
+    }, 5000);
   },
   computed: {
     /**
@@ -319,7 +332,7 @@ export default {
     uploadLogoFile (newValue, oldValue) {
       if (newValue !== oldValue) {
         if (newValue) {
-          base64Encode(newValue)
+          this.base64Encode(newValue)
             .then(value => {
               this.uploadLogoFileSrc = value;
             })
