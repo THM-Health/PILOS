@@ -25,7 +25,7 @@
           label-for='short'
           :state='fieldState("short")'
         >
-          <b-form-input id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || viewOnly'></b-form-input>
+          <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || viewOnly'></b-form-input>
           <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
         </b-form-group>
 
@@ -159,49 +159,24 @@ export default {
       const config = {
         method: this.id === 'new' ? 'post' : 'put',
         data: {
-          name: this.model.name,
-          room_limit: this.model.room_limit || null,
-          permissions: this.model.permissions,
-          updated_at: this.model.updated_at
+          description: this.model.description,
+          short: this.model.short,
+          color: this.model.color
         }
       };
 
-      Base.call(this.id === 'new' ? 'roles' : `roles/${this.id}`, config).then(() => {
+      Base.call(this.id === 'new' ? 'room_types' : `room_types/${this.id}`, config).then(() => {
         this.$router.back();
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
-        } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-          this.staleError = error.response.data;
-          this.$refs['stale-role-modal'].show();
         } else {
           Base.error(error, this.$root, error.message);
         }
       }).finally(() => {
         this.isBusy = false;
       });
-    },
-
-    /**
-     * Force a overwrite of the role in the database by setting the `updated_at` field to the new one.
-     */
-    forceOverwrite () {
-      this.model.updated_at = this.staleError.new_model.updated_at;
-      this.staleError = {};
-      this.$refs['stale-role-modal'].hide();
-      this.saveRole();
-    },
-
-    /**
-     * Refreshes the current model with the new passed from the stale error response.
-     */
-    refreshRole () {
-      this.model = this.staleError.new_model;
-      this.model.permissions = this.model.permissions.map(permission => permission.id);
-      this.staleError = {};
-      this.$refs['stale-role-modal'].hide();
     }
-
   }
 };
 </script>
