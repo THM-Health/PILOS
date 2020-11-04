@@ -141,7 +141,12 @@ return [
         ],
         'room' => [
             'already_member' => 'The user is already member of the room.'
-        ]
+        ],
+        'replacement_room_type' => [
+            'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
+            'exists' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+            'not_in' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+        ],
     ],
 
     /*

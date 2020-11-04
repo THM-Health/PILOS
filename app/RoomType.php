@@ -63,4 +63,9 @@ class RoomType extends Model
     {
         return $query->where('default', true)->first();
     }
+
+    public function rooms()
+    {
+        return $this->hasMany(Room::class);
+    }
 }

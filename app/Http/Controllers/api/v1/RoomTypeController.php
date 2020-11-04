@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoomTypeDestroyRequest;
 use App\Http\Requests\RoomTypeRequest;
 use App\RoomType;
 use App\Http\Resources\RoomType as RoomTypeResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class RoomTypeController extends Controller
 {
     public function __construct()
     {
-        //$this->authorizeResource(RoomType::class, 'roomType');
+        $this->authorizeResource(RoomType::class, 'room_type');
     }
 
     /**
@@ -67,5 +70,30 @@ class RoomTypeController extends Controller
         $roomType->save();
 
         return new RoomTypeResource($roomType);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  RoomTypeDestroyRequest $request
+     * @param  RoomType               $roomType
+     * @return JsonResponse|Response
+     * @throws \Exception
+     */
+    public function destroy(RoomTypeDestroyRequest $request, RoomType $roomType)
+    {
+        $roomType->loadCount('rooms');
+
+        if ($request->has('replacement_room_type')) {
+            // Replace room type
+            foreach ($roomType->rooms as $room) {
+                $room->roomType()->associate($request->replacement_room_type);
+                $room->save();
+            }
+        }
+
+        $roomType->delete();
+
+        return response()->noContent();
     }
 }

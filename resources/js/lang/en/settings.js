@@ -37,12 +37,34 @@ export default {
 
     delete: {
       item: 'Delete role {id}',
-      confirm: 'Are you really want to delete the role {name}?',
+      confirm: 'Do you really want to delete the role {name}?',
       title: 'Delete role?'
     }
   },
 
   users: {
     title: 'Users'
+  },
+  roomTypes: {
+    title: 'Room types',
+    icon: 'Icon',
+    description: 'Description',
+    short: 'Icon text',
+    color: 'Icon color',
+    customColor: 'Custom color',
+    preview: 'Preview',
+    new: 'Create new room type',
+    view: 'Detailed information for the room type {name}',
+    edit: 'Edit room type {name}',
+    actions: 'Actions',
+    nodata: 'No room types found!',
+    delete: {
+      item: 'Delete room type {id}',
+      confirm: 'Do you really want to delete the room type {name}?',
+      title: 'Delete room type?',
+      replacement: 'Room type replacement',
+      noReplacement: '-- No replacement --',
+      replacementInfo: 'If there are rooms associated with this room type, you need to select a replacement room type.'
+    }
   }
 };

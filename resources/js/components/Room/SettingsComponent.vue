@@ -306,6 +306,7 @@ export default {
       }).catch((error) => {
         // Settings couldn't be saved
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          // TODO Reload room type list on error
           this.errors = error.response.data.errors;
           return;
         }

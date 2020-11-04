@@ -79,6 +79,7 @@ export default {
         if (error.response) {
           // failed due to form validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+            // TODO reload room type list if failed
             this.errors = error.response.data.errors;
             return;
           }
@@ -111,11 +112,6 @@ export default {
           var entry = {};
           entry.value = roomtype.id;
           entry.text = roomtype.description;
-
-          if (this.room.roomType == null && roomtype.default) {
-            this.room.roomType = roomtype.id;
-          }
-
           return entry;
         });
       }
