@@ -56,10 +56,9 @@ class SettingsTest extends TestCase
      */
     public function testUpdateApplicationSettingsWithValidInputs()
     {
-        $imageFile = UploadedFile::fake()->image('logo.svg');
-
         $payload = [
-            'logo_file'                      => $imageFile,
+            'logo'                           => '/storage/image/asd.svg',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
@@ -99,6 +98,7 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
             [
                 'logo'                           => '',
+                'logo_file'                      => 'notimagefile',
                 'pagination_page_size'           => 'notnumber',
                 'own_rooms_pagination_page_size' => 'notnumber',
                 'room_limit'                     => 'notnumber',
@@ -107,6 +107,7 @@ class SettingsTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'logo',
+                'logo_file',
                 'pagination_page_size',
                 'own_rooms_pagination_page_size',
                 'room_limit'

@@ -43,7 +43,7 @@ describe('Application', function () {
     expect(spy.calledOnce).toBeTruthy();
   });
 
-  it('getSettings method works properly', function (done) {
+  it('getSettings method works properly with response data room_limit is -1', function (done) {
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -76,7 +76,7 @@ describe('Application', function () {
     });
   });
 
-  it('roomLimitModeChanged method works properly', async function () {
+  it('getSettings method works properly with response data room_limit is not -1', function (done) {
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -85,23 +85,84 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    // Room limit radio group value set to 'custom' by default
-    const roomLimitRadioGroup = view.find('#application-room-limit-radio-group');
-    expect(roomLimitRadioGroup.exists()).toBeTruthy();
-    expect(roomLimitRadioGroup.props('checked')).toBe('custom');
-
-    // Simulate radio group check to 'unlimited' option, set room limit value to '-1' and hide roomLimitInput
-    await view.vm.roomLimitModeChanged('unlimited');
-
-    expect(view.vm.$data.settings.roomLimit).toBe(-1);
-
-    // Simulate radio group check back to 'custom' option
-    await view.vm.roomLimitModeChanged('custom');
-
-    expect(view.vm.$data.settings.roomLimit).toBe(0);
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: 32,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5
+          }
+        }
+      }).then(() => {
+        view.vm.$nextTick();
+        expect(view.vm.$data.settings.logo).toBe('test.svg');
+        expect(view.vm.$data.settings.roomLimit).toBe(32);
+        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
+        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.roomLimitMode).toBe('custom');
+        done();
+      });
+    });
   });
 
-  it('updateSettings method works properly', function (done) {
+  it('updateSettings method works properly with response data room_limit is not -1', function (done) {
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    // Save button, which triggers updateSettings method when clicked
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    view.vm.$nextTick();
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 201,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: 32,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5
+          }
+        }
+      }).then(() => {
+        view.vm.$nextTick();
+        expect(view.vm.$data.settings.logo).toBe('test.svg');
+        expect(view.vm.$data.settings.roomLimit).toBe(32);
+        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
+        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.roomLimitMode).toBe('custom');
+        expect(view.vm.$data.isBusy).toBeFalsy();
+        done();
+      });
+    });
+  });
+
+  it('updateSettings method works properly with response data room_limit is -1', function (done) {
     const actions = {
       getSettings () {
       }
@@ -147,10 +208,36 @@ describe('Application', function () {
         expect(view.vm.$data.settings.roomLimit).toBe(-1);
         expect(view.vm.$data.settings.paginationPageSize).toBe(10);
         expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.roomLimitMode).toBe('unlimited');
         expect(view.vm.$data.isBusy).toBeFalsy();
         done();
       });
     });
+  });
+
+  it('roomLimitModeChanged method works properly', async function () {
+    const view = mount(Application, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    // Room limit radio group value set to 'custom' by default
+    const roomLimitRadioGroup = view.find('#application-room-limit-radio-group');
+    expect(roomLimitRadioGroup.exists()).toBeTruthy();
+    expect(roomLimitRadioGroup.props('checked')).toBe('custom');
+
+    // Simulate radio group check to 'unlimited' option, set room limit value to '-1' and hide roomLimitInput
+    await view.vm.roomLimitModeChanged('unlimited');
+
+    expect(view.vm.$data.settings.roomLimit).toBe(-1);
+
+    // Simulate radio group check back to 'custom' option
+    await view.vm.roomLimitModeChanged('custom');
+
+    expect(view.vm.$data.settings.roomLimit).toBe(0);
   });
 
   it('getSettings error handler', function (done) {

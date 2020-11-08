@@ -25,7 +25,7 @@
           {{ $t('settings.application.logo.title') }}
         </template>
 
-        <b-row class="my-3">
+        <b-row class="my-3" align-v="center">
           <b-col sm="6" lg="3" class="text-center">
             <b-img
               v-if="uploadLogoFileSrc!==null || settings.logo!==null"
@@ -237,6 +237,8 @@ export default {
       formData.append('own_rooms_pagination_page_size', settings.ownRoomsPaginationPageSize);
       formData.append('_method', 'PUT');
 
+      console.log(formData.get('logo'));
+
       Base.call('settings',
         {
           method: 'post',
@@ -306,11 +308,6 @@ export default {
   },
   mounted () {
     this.getSettings();
-
-    setInterval(() => {
-      console.log(this.uploadLogoFile);
-      // console.log(this.uploadLogoFileSrc);
-    }, 5000);
   },
   computed: {
     /**
