@@ -150,14 +150,14 @@
             :label="$t('settings.users.password')"
             label-for='password'
             :state='fieldState("password")'
-            v-if="model.authenticator === 'users'"
+            v-if="model.authenticator === 'users' && config.type !== 'view'"
           >
             <b-form-input
               id='password'
               type='password'
               v-model='model.password'
               :state='fieldState("password")'
-              :disabled="isBusy || config.type === 'view'"
+              :disabled="isBusy"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
           </b-form-group>
@@ -166,14 +166,14 @@
             :label="$t('settings.users.password_confirmation')"
             label-for='password_confirmation'
             :state='fieldState("password_confirmation")'
-            v-if="model.authenticator === 'users'"
+            v-if="model.authenticator === 'users' && config.type !== 'view'"
           >
             <b-form-input
               id='password_confirmation'
               type='password'
               v-model='model.password_confirmation'
               :state='fieldState("password_confirmation")'
-              :disabled="isBusy || config.type === 'view'"
+              :disabled="isBusy"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
           </b-form-group>

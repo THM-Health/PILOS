@@ -6,7 +6,8 @@ import BootstrapVue, {
   BButton,
   BForm,
   BModal,
-  BFormInput
+  BFormInput,
+  BBadge
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
@@ -16,6 +17,7 @@ import VueRouter from 'vue-router';
 import _ from 'lodash';
 import env from '../../../../../resources/js/env';
 import Vuex from 'vuex';
+import Multiselect from 'vue-multiselect';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -89,10 +91,34 @@ describe('UsersView', function () {
       }
     };
 
+    const ldapUserResponse = {
+      data: {
+        id: 3,
+        authenticator: 'ldap',
+        email: 'max@mustermann.de',
+        username: 'mx',
+        firstname: 'Max',
+        lastname: 'Mustermann',
+        user_locale: 'en',
+        model_name: 'User',
+        room_limit: -1,
+        updated_at: '2020-01-01 01:00:00',
+        roles: [{
+          id: 1,
+          name: 'Test 1',
+          automatic: true
+        }, {
+          id: 2,
+          name: 'Test 2',
+          automatic: false
+        }]
+      }
+    };
+
     const ownUserResponse = {
       data: {
         id: 1,
-        authenticator: 'ldap',
+        authenticator: 'users',
         email: 'darth@vader.com',
         username: 'dva',
         firstname: 'Darth',
@@ -124,6 +150,10 @@ describe('UsersView', function () {
     moxios.stubRequest('/api/v1/users/2', {
       status: 200,
       response: userResponse
+    });
+    moxios.stubRequest('/api/v1/users/3', {
+      status: 200,
+      response: ldapUserResponse
     });
 
     store = new Vuex.Store({
@@ -245,20 +275,119 @@ describe('UsersView', function () {
     });
   });
 
-  it('roles can not be modified for the own user', function () {
+  it('roles can not be modified for the own user', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'edit'
+        }
+      }
+    });
 
+    moxios.wait(function () {
+      expect(view.findComponent(Multiselect).vm.disabled).toBe(true);
+      done();
+    });
   });
 
-  it('automatic assigned roles can not be deselected', function () {
+  it('automatic assigned roles can not be deselected', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'edit'
+        }
+      }
+    });
 
+    moxios.wait(function () {
+      const multiselect = view.findComponent(Multiselect);
+
+      expect(multiselect.vm.value[0].$isDisabled).toBe(true);
+      expect(multiselect.vm.value[1].$isDisabled).toBe(false);
+      done();
+    });
   });
 
-  it('input fields gets disabled when viewing the user in view only mode', function () {
+  it('input fields gets disabled when viewing the user in view only mode', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'view'
+        }
+      }
+    });
 
+    moxios.wait(function () {
+      const inputs = view.findAllComponents(BFormInput);
+      expect(inputs.length).toBe(4);
+      inputs.wrappers.forEach((input) => {
+        expect(input.vm.disabled).toBe(true);
+      });
+      const selects = view.findAllComponents(BFormSelect);
+      expect(selects.length).toBe(1);
+      selects.wrappers.forEach((select) => {
+        expect(select.vm.disabled).toBe(true);
+      });
+      const multiSelects = view.findAllComponents(Multiselect);
+      expect(multiSelects.length).toBe(1);
+      multiSelects.wrappers.forEach((select) => {
+        expect(select.vm.disabled).toBe(true);
+      });
+      done();
+    });
   });
 
-  it('all inputs fields shown and enabled on new page', function () {
+  it('all inputs fields shown and enabled on new page', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 'new',
+          type: 'edit'
+        }
+      }
+    });
 
+    view.vm.$nextTick().then(() => {
+      const inputs = view.findAllComponents(BFormInput);
+      expect(inputs.length).toBe(6);
+      inputs.wrappers.forEach((input) => {
+        expect(input.vm.disabled).toBe(false);
+      });
+      const selects = view.findAllComponents(BFormSelect);
+      expect(selects.length).toBe(1);
+      selects.wrappers.forEach((select) => {
+        expect(select.vm.disabled).toBe(false);
+      });
+      const multiSelects = view.findAllComponents(Multiselect);
+      expect(multiSelects.length).toBe(1);
+      multiSelects.wrappers.forEach((select) => {
+        expect(select.vm.disabled).toBe(false);
+      });
+      done();
+    });
   });
 
   it('specific fields gets disabled for not database users', function () {
