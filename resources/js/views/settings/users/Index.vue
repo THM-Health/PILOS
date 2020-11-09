@@ -152,13 +152,19 @@ export default {
 
   computed: {
     tableFields () {
-      return [
+      const fields = [
         { key: 'id', label: this.$t('settings.users.id'), sortable: true },
         { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true },
         { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true },
         { key: 'email', label: this.$t('settings.users.email'), sortable: true },
         { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true }
       ];
+
+      if (this.actionColumnVisible) {
+        fields.push(this.actionColumnDefinition);
+      }
+
+      return fields;
     }
   },
 

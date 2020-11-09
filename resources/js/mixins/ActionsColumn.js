@@ -8,7 +8,8 @@ import PermissionService from '../services/PermissionService';
 export default {
   data () {
     return {
-      editingTableFields: false
+      editingTableFields: false,
+      actionColumnVisible: false
     };
   },
 
@@ -20,18 +21,25 @@ export default {
     }
   },
 
+  computed: {
+    actionColumnDefinition () {
+      return { key: 'actions', label: this.$t('app.actions') };
+    }
+  },
+
   methods: {
     /**
      * Adds or removes the actions column to the field depending on the users permissions.
      */
     toggleActionsColumn () {
       this.editingTableFields = true;
+      console.log('toggleActionsColumn', PermissionService.currentUser, this.actionPermissions);
       if (PermissionService.currentUser && PermissionService.currentUser.permissions && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
         if (this.tableFields.length === 0 || this.tableFields[this.tableFields.length - 1].key !== 'actions') {
-          this.tableFields.push({ key: 'actions', label: this.$t('app.actions') });
+          this.actionColumnVisible = true;
         }
       } else if (this.tableFields.length !== 0 && this.tableFields[this.tableFields.length - 1].key === 'actions') {
-        this.tableFields.pop();
+        this.actionColumnVisible = false;
       }
       this.editingTableFields = false;
     }

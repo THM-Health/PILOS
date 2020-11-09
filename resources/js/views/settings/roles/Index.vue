@@ -131,11 +131,17 @@ export default {
 
   computed: {
     tableFields () {
-      return [
+      const fields = [
         { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
         { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
         { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
       ];
+
+      if (this.actionColumnVisible) {
+        fields.push(this.actionColumnDefinition);
+      }
+
+      return fields;
     }
   },
 

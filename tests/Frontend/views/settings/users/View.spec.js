@@ -389,8 +389,39 @@ describe('UsersView', function () {
     });
   });
 
-  it('specific fields gets disabled for not database users', function () {
+  it('specific fields gets disabled for not database users', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 3,
+          type: 'edit'
+        }
+      }
+    });
 
+    moxios.wait(function () {
+      const inputs = view.findAllComponents(BFormInput);
+      expect(inputs.length).toBe(4);
+      inputs.wrappers.forEach((input) => {
+        expect(input.vm.disabled).toBe(true);
+      });
+      const selects = view.findAllComponents(BFormSelect);
+      expect(selects.length).toBe(1);
+      selects.wrappers.forEach((select) => {
+        expect(select.vm.disabled).toBe(false);
+      });
+      const multiSelects = view.findAllComponents(Multiselect);
+      expect(multiSelects.length).toBe(1);
+      multiSelects.wrappers.forEach((select) => {
+        expect(select.vm.disabled).toBe(true);
+      });
+      done();
+    });
   });
 
   it('back button is not shown on the profile page of an user', function (done) {
