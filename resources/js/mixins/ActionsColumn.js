@@ -33,7 +33,6 @@ export default {
      */
     toggleActionsColumn () {
       this.editingTableFields = true;
-      console.log('toggleActionsColumn', PermissionService.currentUser, this.actionPermissions);
       if (PermissionService.currentUser && PermissionService.currentUser.permissions && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
         if (this.tableFields.length === 0 || this.tableFields[this.tableFields.length - 1].key !== 'actions') {
           this.actionColumnVisible = true;

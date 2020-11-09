@@ -10,9 +10,17 @@ describe('ActionsColumn', function () {
     const Test = {
       mixins: [ActionsColumn],
       render () {},
+      computed: {
+        tableFields () {
+          if (this.actionColumnVisible) {
+            return [this.actionColumnDefinition];
+          }
+
+          return [];
+        }
+      },
       data () {
         return {
-          tableFields: [],
           actionPermissions: ['users.delete', 'users.update']
         };
       }
