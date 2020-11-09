@@ -6,8 +6,7 @@ import BootstrapVue, {
   BButton,
   BForm,
   BModal,
-  BFormInput,
-  BBadge
+  BFormInput
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
