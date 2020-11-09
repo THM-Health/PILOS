@@ -129,6 +129,16 @@ export default {
     }
   },
 
+  computed: {
+    tableFields () {
+      return [
+        { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
+        { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
+        { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
+      ];
+    }
+  },
+
   data () {
     return {
       isBusy: false,
@@ -137,11 +147,6 @@ export default {
       total: undefined,
       perPage: undefined,
       roleToDelete: undefined,
-      tableFields: [
-        { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
-        { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
-      ],
       actionPermissions: ['roles.view', 'roles.update', 'roles.delete']
     };
   },
