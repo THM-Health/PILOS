@@ -6,11 +6,26 @@ import PermissionService from '../services/PermissionService';
  * if the current user has at least one of the defined `actionPermissions`.
  */
 export default {
+  data () {
+    return {
+      editingTableFields: false
+    };
+  },
+
+  watch: {
+    tableFields () {
+      if (!this.editingTableFields) {
+        this.toggleActionsColumn();
+      }
+    }
+  },
+
   methods: {
     /**
      * Adds or removes the actions column to the field depending on the users permissions.
      */
     toggleActionsColumn () {
+      this.editingTableFields = true;
       if (PermissionService.currentUser && PermissionService.currentUser.permissions && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
         if (this.tableFields.length === 0 || this.tableFields[this.tableFields.length - 1].key !== 'actions') {
           this.tableFields.push({ key: 'actions', label: this.$t('app.actions') });
@@ -18,6 +33,7 @@ export default {
       } else if (this.tableFields.length !== 0 && this.tableFields[this.tableFields.length - 1].key === 'actions') {
         this.tableFields.pop();
       }
+      this.editingTableFields = false;
     }
   },
 
