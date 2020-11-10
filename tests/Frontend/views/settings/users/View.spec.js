@@ -157,11 +157,9 @@ describe('UsersView', function () {
       response: ldapUserResponse
     });
 
-    let resolve;
-    let reject;
-    let promise = new Promise((res, rej) => {
-      resolve = res;
-      reject = rej;
+    let res;
+    const promise = new Promise((resolve) => {
+      res = resolve;
     });
 
     store = new Vuex.Store({
@@ -171,7 +169,7 @@ describe('UsersView', function () {
           mutations: {
             setCurrentLocale (state, currentLocale) {
               state.currentLocale = currentLocale;
-              resolve();
+              res();
             },
             increaseCallCount (state, name) {
               state[name] += 1;
@@ -490,7 +488,7 @@ describe('UsersView', function () {
 
       const multiSelects = view.findAllComponents(Multiselect);
       expect(multiSelects.length).toBe(1);
-      expect(multiSelects.at(0).vm.value.map(val => val.id)).toStrictEqual([1,2]);
+      expect(multiSelects.at(0).vm.value.map(val => val.id)).toStrictEqual([1, 2]);
       done();
     });
   });
