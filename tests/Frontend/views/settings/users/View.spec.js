@@ -17,11 +17,13 @@ import _ from 'lodash';
 import env from '../../../../../resources/js/env';
 import Vuex from 'vuex';
 import Multiselect from 'vue-multiselect';
+import Base from '../../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(IconsPlugin);
 localVue.use(Vuex);
+localVue.use(VueRouter);
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -138,7 +140,7 @@ describe('UsersView', function () {
       }
     };
 
-    moxios.stubRequest('/api/v1/roles', {
+    moxios.stubRequest('/api/v1/roles?page=1', {
       status: 200,
       response: rolesResponse1
     });
@@ -155,6 +157,13 @@ describe('UsersView', function () {
       response: ldapUserResponse
     });
 
+    let resolve;
+    let reject;
+    let promise = new Promise((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+
     store = new Vuex.Store({
       modules: {
         session: {
@@ -162,6 +171,7 @@ describe('UsersView', function () {
           mutations: {
             setCurrentLocale (state, currentLocale) {
               state.currentLocale = currentLocale;
+              resolve();
             },
             increaseCallCount (state, name) {
               state[name] += 1;
@@ -170,7 +180,8 @@ describe('UsersView', function () {
           state: () => ({
             currentLocale: 'en',
             logoutCount: 0,
-            getCurrentUserCount: 0
+            getCurrentUserCount: 0,
+            runningPromise: promise
           }),
           actions: {
             async getCurrentUser ({ commit }) {
@@ -179,7 +190,7 @@ describe('UsersView', function () {
             },
             async logout ({ commit }) {
               await Promise.resolve();
-              commit('increaseCallCount', 'getCurrentUserCount');
+              commit('increaseCallCount', 'logoutCount');
             }
           }
         }
@@ -448,28 +459,237 @@ describe('UsersView', function () {
     });
   });
 
-  it('persisted data gets loaded and shown', function () {
+  it('persisted data gets loaded and shown', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'edit'
+        }
+      }
+    });
 
+    moxios.wait(function () {
+      const inputs = view.findAllComponents(BFormInput);
+      expect(inputs.length).toBe(6);
+      expect(inputs.at(0).element.value).toBe('John');
+      expect(inputs.at(1).element.value).toBe('Doe');
+      expect(inputs.at(2).element.value).toBe('jdo');
+      expect(inputs.at(3).element.value).toBe('john@doe.com');
+      expect(inputs.at(4).element.value).toBe('');
+      expect(inputs.at(5).element.value).toBe('');
+
+      const selects = view.findAllComponents(BFormSelect);
+      expect(selects.length).toBe(1);
+      expect(selects.at(0).element.value).toBe('en');
+
+      const multiSelects = view.findAllComponents(Multiselect);
+      expect(multiSelects.length).toBe(1);
+      expect(multiSelects.at(0).vm.value.map(val => val.id)).toStrictEqual([1,2]);
+      done();
+    });
   });
 
-  it('error handler gets called if an error occurs during load of data', function () {
+  it('request with the updates gets send during saving the user', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.push = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'edit'
+        }
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      const inputs = view.findAllComponents(BFormInput);
+      inputs.at(0).setValue('Max').then(() => {
+        return inputs.at(1).setValue('Mustermann');
+      }).then(() => {
+        return inputs.at(2).setValue('mm1');
+      }).then(() => {
+        return inputs.at(3).setValue('max@mustermann.de');
+      }).then(() => {
+        return inputs.at(4).setValue('Test_123');
+      }).then(() => {
+        return inputs.at(5).setValue('Test_123');
+      }).then(() => {
+        const selects = view.findAllComponents(BFormSelect);
+        return selects.at(0).setValue('de');
+      }).then(() => {
+        view.vm.model.roles.push(rolesResponse1.data[2]);
+        return view.vm.$nextTick();
+      }).then(() => {
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          const data = JSON.parse(request.config.data);
+
+          expect(data.firstname).toBe('Max');
+          expect(data.lastname).toBe('Mustermann');
+          expect(data.username).toBe('mm1');
+          expect(data.email).toBe('max@mustermann.de');
+          expect(data.password).toBe('Test_123');
+          expect(data.password_confirmation).toBe('Test_123');
+          expect(data.roles).toStrictEqual([1, 2, 3]);
+          expect(data.user_locale).toBe('de');
+
+          const restoreUserResponse = overrideStub('/api/v1/users/2', {
+            status: 204
+          });
+
+          moxios.wait(function () {
+            store.state.session.runningPromise.then(() => {
+              // check that the application locale gets changed
+              expect(store.state.session.currentLocale).toBe('de');
+              sinon.assert.calledOnce(spy);
+              sinon.assert.calledWith(spy, { name: 'settings.users' });
+              restoreUserResponse();
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
-  it('if the user model to load is the current user and is not found the user gets logged and redirected', function () {
+  it('error handler gets called if an error occurs during load of data', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
 
+    const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+    const restoreUserResponse = overrideStub('/api/v1/users/1', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'edit'
+        }
+      },
+      store
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledTwice(Base.error);
+      expect(view.html()).toContain('settings.roles.nodata');
+      Base.error.restore();
+      restoreRolesResponse();
+      restoreUserResponse();
+      done();
+    });
   });
 
-  it('request with the updates gets send during saving the user', function () {
+  it('if the user model to load is the current user and is not found the user gets logged and redirected', function (done) {
+    const spy = sinon.spy();
 
+    const router = new VueRouter();
+    router.push = spy;
+
+    const restoreUserResponse = overrideStub('/api/v1/users/1', {
+      status: env.HTTP_NOT_FOUND,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'edit'
+        }
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      expect(store.state.session.logoutCount).toBe(1);
+      sinon.assert.calledOnce(spy);
+      sinon.assert.calledWith(spy, { name: 'home' });
+      restoreUserResponse();
+      done();
+    });
   });
 
-  it('current user get logged out if the user to update is the current user and not gets found during persistence', function () {
+  it('current user get logged out if the user to update is the current user and not gets found during persistence', function (done) {
+    const spy = sinon.spy();
 
-  });
+    const router = new VueRouter();
+    router.push = spy;
 
-  it('changes the application locale if the updated user is the current user and locale was modified', function () {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'edit'
+        }
+      },
+      store,
+      router
+    });
 
+    moxios.wait(function () {
+      const restoreUserResponse = overrideStub('/api/v1/users/1', {
+        status: env.HTTP_NOT_FOUND,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(function () {
+        expect(store.state.session.logoutCount).toBe(1);
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledWith(spy, { name: 'home' });
+        restoreUserResponse();
+        done();
+      });
+    });
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', function (done) {
