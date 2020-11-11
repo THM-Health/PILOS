@@ -130,6 +130,7 @@ export default {
     general: {
       title: 'General',
       type: 'Type',
+      selectType: '-- Select room type --',
       roomName: 'Room name',
       welcomeMessage: 'Welcome message',
       maxDuration: 'Max. duration',

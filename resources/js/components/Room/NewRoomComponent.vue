@@ -19,7 +19,11 @@
     >
       <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
         <b-input-group>
-          <b-form-select :state="fieldState('roomType')" v-model.number="room.roomType" :options="roomTypeSelect"></b-form-select>
+          <b-form-select :state="fieldState('roomType')" v-model.number="room.roomType" :options="roomTypeSelect">
+            <template #first>
+              <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
+            </template>
+          </b-form-select>
         </b-input-group>
         <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
       </b-form-group>
@@ -53,7 +57,9 @@ export default {
   data () {
     return {
       isLoadingAction: false,
-      room: {},
+      room: {
+        roomType: null
+      },
       errors: {}
     };
   },
@@ -64,7 +70,7 @@ export default {
     },
 
     handleCancel: function () {
-      this.room = {};
+      this.room = { roomType: null };
     },
 
     handleSubmit () {

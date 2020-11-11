@@ -130,6 +130,7 @@ export default {
     general: {
       title: 'Allgemein',
       type: 'Art',
+      selectType: '-- Raumart auswählen --',
       roomName: 'Raumname',
       welcomeMessage: 'Begrüßungsnachricht',
       maxDuration: 'Max. Dauer',

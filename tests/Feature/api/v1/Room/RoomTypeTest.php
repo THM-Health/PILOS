@@ -42,7 +42,7 @@ class RoomTypeTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.room_types.index'))
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color,'default'=>$roomType->default]
+                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
             );
     }
 }
