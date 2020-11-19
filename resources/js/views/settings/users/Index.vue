@@ -39,7 +39,7 @@
       :fields='tableFields'
       :items='fetchUsers'
       id='users-table'
-      :current-page='currentPage'
+      :current-page='meta.current_page'
       :filter='filter'
       ref='users'
       >
@@ -102,9 +102,9 @@
     </b-table>
 
     <b-pagination
-      v-model='currentPage'
-      :total-rows='total'
-      :per-page='perPage'
+      v-model='meta.current_page'
+      :total-rows='meta.total'
+      :per-page='meta.per_page'
       aria-controls='users-table'
       @input="$root.$emit('bv::refresh::table', 'users-table')"
       align='center'
@@ -116,7 +116,7 @@
       ok-variant='danger'
       cancel-variant='dark'
       :cancel-title="$t('app.false')"
-      @ok='deleteUser'
+      @ok='deleteUser($event)'
       @cancel='clearUserToDelete'
       @close='clearUserToDelete'
       ref='delete-user-modal'
@@ -172,9 +172,7 @@ export default {
     return {
       isBusy: false,
       deleting: false,
-      currentPage: undefined,
-      total: undefined,
-      perPage: undefined,
+      meta: {},
       userToDelete: undefined,
       actionPermissions: ['users.view', 'users.update', 'users.delete'],
       filter: undefined
@@ -208,10 +206,7 @@ export default {
       }
 
       Base.call('users', config).then(response => {
-        this.perPage = response.data.meta.per_page;
-        this.currentPage = response.data.meta.current_page;
-        this.total = response.data.meta.total;
-
+        this.meta = response.data.meta;
         data = response.data.data;
       }).catch(error => {
         Base.error(error, this.$root, error.message);
@@ -235,7 +230,8 @@ export default {
     /**
      * Deletes the user that is set in the property `userToDelete`.
      */
-    deleteUser () {
+    deleteUser (evt) {
+      evt.preventDefault();
       this.deleting = true;
 
       Base.call(`users/${this.userToDelete.id}`, {
@@ -243,7 +239,7 @@ export default {
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
-        this.currentPage = 1;
+        this.meta = {};
         this.$refs.users.refresh();
         this.clearUserToDelete();
         this.$refs['delete-user-modal'].hide();

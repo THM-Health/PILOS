@@ -88,7 +88,7 @@ class UserController extends Controller
         $user->refresh();
         $user->load('roles');
 
-        return new UserResource($user);
+        return (new UserResource($user))->withRoles();
     }
 
     /**
@@ -101,7 +101,7 @@ class UserController extends Controller
     {
         $user->load('roles');
 
-        return new UserResource($user);
+        return (new UserResource($user))->withRoles();
     }
 
     /**
@@ -143,7 +143,7 @@ class UserController extends Controller
         $user->refresh();
         $user->load('roles');
 
-        return new UserResource($user);
+        return (new UserResource($user))->withRoles();
     }
 
     /**

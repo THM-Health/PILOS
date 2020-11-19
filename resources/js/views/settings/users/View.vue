@@ -235,6 +235,7 @@ import EventBus from '../../../services/EventBus';
 import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
+import _ from 'lodash';
 
 export default {
   mixins: [FieldErrors],
@@ -402,18 +403,9 @@ export default {
 
       const config = {
         method: this.config.id === 'new' ? 'post' : 'put',
-        data: {
-          firstname: this.model.firstname,
-          lastname: this.model.lastname,
-          username: this.model.username,
-          email: this.model.email,
-          password: this.model.password,
-          password_confirmation: this.model.password_confirmation,
-          user_locale: this.model.user_locale,
-          roles: this.model.roles.map(role => role.id),
-          updated_at: this.model.updated_at
-        }
+        data: _.cloneDeep(this.model)
       };
+      config.data.roles = config.data.roles.map(role => role.id);
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
         const localeChanged = this.$store.state.session.currentLocale !== config.data.user_locale;
@@ -452,11 +444,10 @@ export default {
           this.$store.dispatch('session/logout').then(() => {
             this.$router.push({ name: 'home' });
           });
-
-        // handle stale errors
         } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
         } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+          // handle stale errors
           this.staleError = error.response.data;
           this.$refs['stale-user-modal'].show();
         } else {

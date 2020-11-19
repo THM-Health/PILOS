@@ -94,7 +94,7 @@
       ok-variant='danger'
       cancel-variant='dark'
       :cancel-title="$t('app.false')"
-      @ok='deleteRole'
+      @ok='deleteRole($event)'
       @cancel='clearRoleToDelete'
       @close='clearRoleToDelete'
       ref='delete-role-modal'
@@ -207,7 +207,8 @@ export default {
     /**
      * Deletes the role that is set in the property `roleToDelete`.
      */
-    deleteRole () {
+    deleteRole (evt) {
+      evt.preventDefault();
       this.deleting = true;
 
       Base.call(`roles/${this.roleToDelete.id}`, {

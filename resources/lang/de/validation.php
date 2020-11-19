@@ -141,7 +141,7 @@ return [
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.'
         ],
-        'password' => 'Das Passwort muss ein Zeichen mindestens aus der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).'
+        'password' => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).'
     ],
 
     /*
