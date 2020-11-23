@@ -37,8 +37,6 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
-        Route::post('password/confirm', 'ConfirmPasswordController@confirm')->name('password.confirm');
-        Route::get('password/confirmed', 'ConfirmPasswordController@passwordConfirmed')->middleware('password.confirm')->name('password.confirmed');
 
 // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');

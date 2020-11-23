@@ -14,8 +14,6 @@ import UsersIndex from './views/settings/users/Index';
 import UsersView from './views/settings/users/View';
 import SettingsHome from './views/settings/SettingsHome';
 import Base from './api/base';
-import env from './env';
-import PasswordConfirmation from './views/PasswordConfirmation';
 
 Vue.use(VueRouter);
 
@@ -37,7 +35,7 @@ export const routes = [
         }
       };
     },
-    meta: { requiresAuth: true, passwordConfirmation: true }
+    meta: { requiresAuth: true }
   },
   {
     path: '/login',
@@ -49,17 +47,6 @@ export const routes = [
     name: 'rooms.index',
     component: RoomsIndex,
     meta: { requiresAuth: true }
-  },
-  {
-    path: '/password/confirm',
-    name: 'password.confirm',
-    component: PasswordConfirmation,
-    meta: { requiresAuth: true },
-    props: route => {
-      return {
-        next: route.query.next
-      };
-    }
   },
   {
     path: '/rooms/:id',
@@ -205,9 +192,6 @@ const router = new VueRouter({
  * For routes where `meta.requiresAuth` and their child pages is set to `true` the user gets
  * redirected to the login page if he isn't authenticated.
  *
- * For routes where `meta.passwordConfirmation` and their child pages is set to `true` the user gets
- * redirected to a password confirmation page if the password wasn't confirmed in a specified time duration.
- *
  * Also it is possible to specify a function `meta.accessPermitted` that must return a Promise
  * that resolves to a boolean value whether the current user is permitted to access the route.
  * Since it may be that additional data must be requested from the server to perform the permission
@@ -232,19 +216,6 @@ export function beforeEachRoute (router, store, to, from, next) {
     } else if (!recordsPermissions.every(permission => permission)) {
       router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
       next(from.matched.length !== 0 ? false : '/');
-    } else if (to.matched.some(record => record.meta.passwordConfirmation)) {
-      Base.call('password/confirmed').then(() => {
-        next();
-      }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_LOCKED && error.response.data.message === 'Password confirmation required.') {
-          next({
-            name: 'password.confirm',
-            query: { next: to.fullPath }
-          });
-        } else {
-          throw error;
-        }
-      });
     } else {
       next();
     }
