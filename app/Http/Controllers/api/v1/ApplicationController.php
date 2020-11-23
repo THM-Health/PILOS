@@ -27,23 +27,19 @@ class ApplicationController extends Controller
      */
     public function updateSettings(UpdateSetting $request)
     {
-        $data = $request->all();
-
         if ($request->has('logo_file')) {
-            $path         = $request->file('logo_file')->store('images', 'public');
-            $url          = Storage::url($path);
-            $data['logo'] = $url;
+            $path = $request->file('logo_file')->store('images', 'public');
+            $url  = Storage::url($path);
+            $logo = $url;
+        } else {
+            $logo = $request->logo;
         }
 
-        // Settings defaults array keys for validation
-        $setting_keys = collect(config('settings.defaults'))->keys()->toArray();
-
-        foreach ($data as $key => $value) {
-            // If key exists in the settings array keys then update settings
-            if (in_array($key, $setting_keys)) {
-                setting([$key => $value])->save();
-            }
-        }
+        setting()->set('logo', $logo);
+        setting()->set('room_limit', $request->room_limit);
+        setting()->set('own_rooms_pagination_page_size', $request->own_rooms_pagination_page_size);
+        setting()->set('pagination_page_size', $request->pagination_page_size);
+        setting()->save();
 
         return new ApplicationSettings();
     }

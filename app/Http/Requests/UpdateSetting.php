@@ -14,11 +14,11 @@ class UpdateSetting extends FormRequest
     public function rules()
     {
         return [
-            'room_limit'                     => 'sometimes|required|numeric|max:255',
-            'logo'                           => 'sometimes|required|string|max:255',
-            'logo_file'                      => 'sometimes|required|image|max:500', // 500 KB, larger files are bad for loading times
-            'own_rooms_pagination_page_size' => 'sometimes|required|numeric|max:255',
-            'pagination_page_size'           => 'sometimes|required|numeric|max:255'
+            'room_limit'                     => 'required|numeric|max:255',
+            'logo'                           => 'required_without:logo_file|string|max:255',
+            'logo_file'                      => 'required_without:logo|image|max:500', // 500 KB, larger files are bad for loading times
+            'own_rooms_pagination_page_size' => 'required|numeric|max:255',
+            'pagination_page_size'           => 'required|numeric|max:255'
         ];
     }
 }
