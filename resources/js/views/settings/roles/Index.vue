@@ -44,38 +44,40 @@
       </template>
 
       <template v-slot:cell(actions)="data">
-        <can method='view' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.roles.view', { name: data.item.id })"
-            :disabled='isBusy'
-            variant='primary'
-            :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
-          >
-            <i class='fas fa-eye'></i>
-          </b-button>
-        </can>
-        <can method='update' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.roles.edit', { name: data.item.id })"
-            :disabled='isBusy'
-            variant='dark'
-            :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
-          >
-            <i class='fas fa-edit'></i>
-          </b-button>
-        </can>
-        <can method='delete' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.roles.delete.item', { id: data.item.id })"
-            :disabled='isBusy'
-            variant='danger'
-            @click='showDeleteModal(data.item)'>
-            <i class='fas fa-trash'></i>
-          </b-button>
-        </can>
+        <b-button-group>
+          <can method='view' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.roles.view', { name: data.item.id })"
+              :disabled='isBusy'
+              variant='primary'
+              :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
+            >
+              <i class='fas fa-eye'></i>
+            </b-button>
+          </can>
+          <can method='update' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.roles.edit', { name: data.item.id })"
+              :disabled='isBusy'
+              variant='dark'
+              :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
+            >
+              <i class='fas fa-edit'></i>
+            </b-button>
+          </can>
+          <can method='delete' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.roles.delete.item', { id: data.item.id })"
+              :disabled='isBusy'
+              variant='danger'
+              @click='showDeleteModal(data.item)'>
+              <i class='fas fa-trash'></i>
+            </b-button>
+          </can>
+        </b-button-group>
       </template>
     </b-table>
 

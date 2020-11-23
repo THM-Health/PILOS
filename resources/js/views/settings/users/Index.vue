@@ -63,41 +63,43 @@
       </template>
 
       <template v-slot:cell(actions)="data">
-        <can method='view' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
-            :disabled='isBusy'
-            variant='primary'
-            class='mb-1'
-            :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
-          >
-            <i class='fas fa-eye'></i>
-          </b-button>
-        </can>
-        <can method='update' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
-            :disabled='isBusy'
-            variant='dark'
-            class='mb-1'
-            :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
-          >
-            <i class='fas fa-edit'></i>
-          </b-button>
-        </can>
-        <can method='delete' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
-            :disabled='isBusy'
-            variant='danger'
-            class='mb-1'
-            @click='showDeleteModal(data.item)'>
-            <i class='fas fa-trash'></i>
-          </b-button>
-        </can>
+        <b-button-group>
+          <can method='view' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :disabled='isBusy'
+              variant='primary'
+              class='mb-1'
+              :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
+            >
+              <i class='fas fa-eye'></i>
+            </b-button>
+          </can>
+          <can method='update' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :disabled='isBusy'
+              variant='dark'
+              class='mb-1'
+              :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
+            >
+              <i class='fas fa-edit'></i>
+            </b-button>
+          </can>
+          <can method='delete' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :disabled='isBusy'
+              variant='danger'
+              class='mb-1'
+              @click='showDeleteModal(data.item)'>
+              <i class='fas fa-trash'></i>
+            </b-button>
+          </can>
+        </b-button-group>
       </template>
     </b-table>
 
