@@ -86,7 +86,6 @@ class UserController extends Controller
 
         // Load user data from database to load also the defaults from the database
         $user->refresh();
-        $user->load('roles');
 
         return (new UserResource($user))->withRoles();
     }
@@ -99,8 +98,6 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->load('roles');
-
         return (new UserResource($user))->withRoles();
     }
 
@@ -141,7 +138,6 @@ class UserController extends Controller
         }
 
         $user->refresh();
-        $user->load('roles');
 
         return (new UserResource($user))->withRoles();
     }
