@@ -69,7 +69,6 @@ describe('Router', function () {
           path: '/foo',
           meta: {
             requiresAuth: true,
-            passwordConfirmation: true,
             accessPermitted: () => true
           }
         }]
@@ -110,7 +109,6 @@ describe('Router', function () {
           path: '/foo',
           meta: {
             requiresAuth: true,
-            passwordConfirmation: true,
             accessPermitted: () => false
           }
         }]
@@ -127,100 +125,6 @@ describe('Router', function () {
           expect(errors[1]).toBe('app.flash.unauthorized');
           done();
         });
-      });
-    });
-
-    it('beforeEachRoute calls next with the password confirmation route if a password confirmation is required and not done yet', function (done) {
-      const router = {
-        app: {
-          $t: (key) => key
-        }
-      };
-
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        state: {
-          initialized: true
-        },
-        commit: () => {}
-      };
-
-      const to = {
-        matched: [{
-          path: '/foo',
-          meta: {
-            requiresAuth: true,
-            passwordConfirmation: true,
-            accessPermitted: () => true
-          }
-        }]
-      };
-
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: env.HTTP_LOCKED,
-          response: {
-            message: 'Password confirmation required.'
-          }
-        });
-      });
-
-      beforeEachRoute(router, store, to, { matched: [] }, (args) => {
-        expect(args.name).toBe('password.confirm');
-
-        done();
-      });
-    });
-
-    it('beforeEachRoute calls next if a password confirmation is required and already done', function (done) {
-      const router = {
-        app: {
-          $t: (key) => key
-        }
-      };
-
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        state: {
-          initialized: true
-        },
-        commit: () => {}
-      };
-
-      const to = {
-        matched: [{
-          path: '/foo',
-          meta: {
-            requiresAuth: true,
-            passwordConfirmation: true,
-            accessPermitted: () => true
-          }
-        }]
-      };
-
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 204
-        });
-      });
-
-      let nextCalled = false;
-
-      new Promise((resolve) => {
-        beforeEachRoute(router, store, to, undefined, (args) => {
-          expect(args).toBeUndefined();
-          nextCalled = true;
-          resolve();
-        });
-      }).then(() => {
-        expect(nextCalled).toBe(true);
-        done();
       });
     });
   });
