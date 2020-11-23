@@ -41,7 +41,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $resource = User::without('roles');
+        $resource = User::all();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
