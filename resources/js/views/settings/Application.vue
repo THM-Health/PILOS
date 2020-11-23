@@ -7,6 +7,7 @@
                   class="float-right"
                   variant="success"
                   @click="updateSettings(settings)"
+                  v-if="!viewOnly"
                   :disabled="isBusy">
           <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
         </b-button>
@@ -47,14 +48,14 @@
                 v-if="!uploadLogoFile"
                 :placeholder="$t('settings.application.logo.hint')"
                 v-model="settings.logo"
-                :disabled="isBusy"
+                :disabled="isBusy || viewOnly"
                 class="my-2"
                 :state='fieldState("logo")'
               >
               </b-form-input>
             </b-input-group>
-            <b-form-text>{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
-            <b-input-group>
+            <b-form-text v-if="!viewOnly">{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
+            <b-input-group v-if="!viewOnly">
               <b-form-file
                 id="application-logo-form-file"
                 :state='fieldState("logo_file")'
@@ -97,7 +98,7 @@
           id="application-room-limit-radio-group"
           v-model='roomLimitMode'
           :options='roomLimitModeOptions'
-          :disabled='isBusy'
+          :disabled='isBusy || viewOnly'
           :state='fieldState("room_limit")'
           @change="roomLimitModeChanged"
           stacked
@@ -109,7 +110,7 @@
           :state='fieldState("room_limit")'
           v-model='settings.roomLimit'
           min='0'
-          :disabled='isBusy'
+          :disabled='isBusy || viewOnly'
           v-if="roomLimitMode === 'custom'">
         </b-form-input>
 
@@ -133,7 +134,7 @@
         <b-form-input id="application-pagination-page-size-input"
                       v-model="settings.paginationPageSize"
                       type="number"
-                      :disabled="isBusy"
+                      :disabled="isBusy || viewOnly"
                       :state='fieldState("pagination_page_size")'
         >
         </b-form-input>
@@ -158,7 +159,7 @@
         <b-form-input id="application-pagination-own-room-page-size-input"
                       v-model="settings.ownRoomsPaginationPageSize"
                       type="number"
-                      :disabled="isBusy"
+                      :disabled="isBusy || viewOnly"
                       :state='fieldState("own_rooms_pagination_page_size")'
         >
         </b-form-input>
@@ -176,6 +177,7 @@
 import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
+import PermissionService from '../../services/PermissionService';
 
 export default {
   mixins: [FieldErrors],
@@ -236,8 +238,6 @@ export default {
       formData.append('pagination_page_size', settings.paginationPageSize);
       formData.append('own_rooms_pagination_page_size', settings.ownRoomsPaginationPageSize);
       formData.append('_method', 'PUT');
-
-      console.log(formData.get('logo'));
 
       Base.call('settings',
         {
@@ -310,6 +310,14 @@ export default {
     this.getSettings();
   },
   computed: {
+
+    /**
+     * Check if user is only allowed to read settings
+     */
+    viewOnly () {
+      return PermissionService.cannot('update', 'SettingPolicy');
+    },
+
     /**
      * Options for the room limit mode radio button group.
      */

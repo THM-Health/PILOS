@@ -122,8 +122,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'SettingPolicy') &&
-            PermissionService.can('update', 'SettingPolicy')
+            PermissionService.can('viewAny', 'SettingPolicy')
           )
         }
       }

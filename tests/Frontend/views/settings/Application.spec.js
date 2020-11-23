@@ -6,6 +6,7 @@ import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application';
 import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
+import PermissionService from '../../../../resources/js/services/PermissionService';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -20,6 +21,7 @@ const createContainer = (tag = 'div') => {
 
 describe('Application', function () {
   beforeEach(function () {
+    PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.update', 'settings.manage'] });
     moxios.install();
   });
 
@@ -412,5 +414,35 @@ describe('Application', function () {
 
     // baseEncode64 method should be called after value change of uploadLogoFileSrc
     expect(spy.calledOnce).toBeTruthy();
+  });
+
+  it('disable edit button if user does not have permission', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    // Save button should be missing
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeFalsy();
+    done();
   });
 });
