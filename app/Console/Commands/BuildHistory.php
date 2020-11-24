@@ -72,7 +72,11 @@ class BuildHistory extends Command
             foreach ($bbbMeetings as $bbbMeeting) {
 
                 // Get usage for archival server statistics
-                $serverStat->participant_count += $bbbMeeting->getParticipantCount();
+                if (!$bbbMeeting->isBreakout()) {
+                    // exclude breakout room to prevent users to be counted twice:
+                    // first in the main room, second on the breakout room
+                    $serverStat->participant_count += $bbbMeeting->getParticipantCount();
+                }
                 $serverStat->listener_count += $bbbMeeting->getListenerCount();
                 $serverStat->voice_participant_count += $bbbMeeting->getVoiceParticipantCount();
                 $serverStat->video_count += $bbbMeeting->getVideoCount();

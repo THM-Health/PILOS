@@ -15,6 +15,31 @@ class Server extends Model
     ];
 
     /**
+     * Find server with the lowest usage
+     * @return Server|null
+     */
+    public static function lowestUsage()
+    {
+        $servers = self::where('status', true)->where('offline', false)->get();
+        $sorted  = $servers->sortBy(function ($server, $key) {
+            return $server->usage();
+        });
+
+        return $sorted->first();
+    }
+
+    /**
+     * Return usage of a server, based on video, audio and participants
+     * @return int
+     */
+    public function usage()
+    {
+        // Experimental
+        // Have video factor 3, audio factor 2 and just listening factor 1
+        return ($this->video_count * 3) + $this->voice_participant_count * 2 + ($this->participant_count - $this->voice_participant_count);
+    }
+
+    /**
      * Get bigbluebutton api instance with the url and secret stored in the database fields
      * @return BigBlueButton
      * @throws \Exception
@@ -30,7 +55,7 @@ class Server extends Model
      */
     public function getMeetings()
     {
-        if (!$this->status or $this->offline) {
+        if (!$this->status) {
             return null;
         }
 

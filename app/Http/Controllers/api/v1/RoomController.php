@@ -8,12 +8,12 @@ use App\Http\Requests\CreateRoom;
 use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
+use App\Meeting;
 use App\Room;
 use App\Server;
 use Auth;
 use http\Env\Response;
 use Illuminate\Http\Request;
-use InvalidArgumentException;
 
 class RoomController extends Controller
 {
@@ -120,65 +120,59 @@ class RoomController extends Controller
         $meeting = $room->runningMeeting();
         if (!$meeting) {
             // Create new meeting
-            $meeting              = $room->meetings()->create();
+            $meeting              = new Meeting();
             $meeting->start       = date('Y-m-d H:i:s');
             $meeting->attendeePW  = bin2hex(random_bytes(5));
             $meeting->moderatorPW = bin2hex(random_bytes(5));
+
+            // Basic load balancing, get server with lowest usage
+            $server = Server::lowestUsage();
+
+            // If no server found, throw error
+            if ($server == null) {
+                abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
+            }
+
+            $meeting->server()->associate($server);
+            $meeting->room()->associate($room);
             $meeting->save();
 
-            // Try to find server to host meeting
-            while (true) {
-                try {
-                    // TODO implement load balancer here
+            // Try to start meeting
+            try {
+                $result = $meeting->startMeeting();
+            } // Catch exceptions, e.g. network connection issues
+            catch (\Exception $exception) {
+                // Remove meeting and set server to offline
+                $meeting->forceDelete();
+                $server->offline = true;
+                $server->save();
+                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+            }
 
-                    // Find server that is online
-                    $servers = Server::where('status', true)->where('offline', false)->get();
-                    $server  = $servers->random();
-                } catch (InvalidArgumentException $ex) {
-                    // If no server online, room creation failed
-                    $meeting->forceDelete();
-                    abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
-                }
+            // Unkown error with the bbb api, that results in meeting not starting
+            if (!isset($result)) {
+                $meeting->forceDelete();
+                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+            }
 
-                // Add found server to the meeting
-                $meeting->server()->associate($server);
-                $meeting->save();
+            // Check server response for meeting creation
+            if (!$result->success()) {
+                // Meeting creation failed, remove meeting
+                $meeting->forceDelete();
+                // Check for some errors
+                switch ($result->getMessageKey()) {
+                    // checksum error, api token invalid, set server to offline, try to create on other server
+                    case 'checksumError':
+                        $server->offline = true;
+                        $server->save();
 
-                // Try to start meeting
-                try {
-                    $result = $meeting->startMeeting();
-                }
-                // Catch exceptions, e.g. network connection issues
-                catch (\Exception $exception) {
-                    // Remove meeting and set server to offline
-                    $meeting->forceDelete();
-                    $server->offline = true;
-                    $server->save();
-                }
-
-                if (isset($result)) {
-                    // Check server response for meeting creation
-                    if ($result->success()) {
-                        // Meeting created successfully
                         break;
-                    } else {
-                        // Meeting creation failed, remove meeting
-                        $meeting->forceDelete();
-                        // Check for some errors
-                        switch ($result->getMessageKey()) {
-                            // checksum error, api token invalid, set server to offline, try to create on other server
-                            case 'checksumError':
-                                $server->offline = true;
-                                $server->save();
-
-                                break;
-                            // for other unknown reasons, just respond, that room creation failed
-                            // the error is probably server independent
-                            default:
-                                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
-                        }
-                    }
+                    // for other unknown reasons, just respond, that room creation failed
+                    // the error is probably server independent
+                    default:
+                        break;
                 }
+                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
         }
 

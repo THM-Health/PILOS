@@ -517,7 +517,7 @@ class RoomTest extends TestCase
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
 
         $server->refresh();
         $this->assertTrue($server->offline);
@@ -557,7 +557,7 @@ class RoomTest extends TestCase
         }
         $room2 = factory(Room::class)->create();
         $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2]))
-            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
     }
 
     /**
