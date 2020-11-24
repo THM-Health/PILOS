@@ -37,7 +37,7 @@ class BuildHistory extends Command
         $servers = Server::all();
 
         foreach ($servers as $server) {
-            if ($server->status == 0) {
+            if (!$server->status) {
                 continue;
             }
             $bbbMeetings = $server->getMeetings();

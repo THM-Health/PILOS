@@ -10,7 +10,7 @@ $factory->define(Server::class, function (Faker $faker) {
         'baseUrl' => 'https://test.notld/bigbluebutton/',
         'salt' => $faker->sha1,
         'description' => $faker->text,
-        'status' => 1,
-        'offline' => 0
+        'status' => true,
+        'offline' => false
     ];
 });
