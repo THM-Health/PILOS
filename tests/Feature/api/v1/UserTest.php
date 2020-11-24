@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Permission;
 use App\Role;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
@@ -276,7 +277,7 @@ class UserTest extends TestCase
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(CustomStatusCodes::STALE_MODEL);
 
-        $changes['updated_at'] = strftime(now());
+        $changes['updated_at'] = Carbon::now();
         $changes['password']   = 'Test2_34T';
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
