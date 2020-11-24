@@ -40,7 +40,7 @@ const actions = {
   async getCurrentUser ({ commit }) {
     let currentUser = await auth.getCurrentUser();
     if ($.isEmptyObject(currentUser)) { currentUser = null; }
-     commit('setCurrentUser', { currentUser });
+    commit('setCurrentUser', { currentUser });
   },
 
   async logout ({ commit }) {
