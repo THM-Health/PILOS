@@ -40,13 +40,13 @@ const actions = {
   async getCurrentUser ({ commit }) {
     let currentUser = await auth.getCurrentUser();
     if ($.isEmptyObject(currentUser)) { currentUser = null; }
-    commit('setCurrentUser', currentUser);
+     commit('setCurrentUser', { currentUser });
   },
 
   async logout ({ commit }) {
     commit('loading', null, { root: true });
     await auth.logout();
-    commit('setCurrentUser', null);
+    commit('setCurrentUser', { currentUser: null, emit: false });
     commit('loadingFinished', null, { root: true });
   },
 
@@ -66,9 +66,10 @@ const mutations = {
     state.settings = settings;
   },
 
-  setCurrentUser (state, currentUser) {
+  setCurrentUser (state, { currentUser, emit = true }) {
+    console.log('test', currentUser, emit);
     state.currentUser = currentUser;
-    PermissionService.setCurrentUser(state.currentUser, false);
+    PermissionService.setCurrentUser(state.currentUser, emit);
   }
 };
 

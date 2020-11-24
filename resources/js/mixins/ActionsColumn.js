@@ -2,45 +2,71 @@ import EventBus from '../services/EventBus';
 import PermissionService from '../services/PermissionService';
 
 /**
- * Mixin that adds automatically a actions column to the `tableFields` of a component
- * if the current user has at least one of the defined `actionPermissions`.
+ * Mixin that provides necessary functionality for showing and hiding action columns in tables depending on the
+ * permissions of the current user. If the user has not at least one permission of the list `actionPermissions`
+ * defined in the component or view, the flag `actionColumnVisible` will be set to false.
+ *
+ * @example
+ *    export default {
+ *      mixins: [ActionsColumn],
+ *
+ *      data () {
+ *        actionPermissions: ['foo', 'bar', 'qux']
+ *      },
+ *
+ *      computed: {
+ *        tableFields () {
+ *          const fields = [
+ *            // ...
+ *          ];
+ *
+ *          if (this.actionColumnVisible) {
+ *            fields.push(this.actionColumnDefinition);
+ *          }
+ *
+ *          return fields;
+ *        }
+ *      }
+ *    };
  */
 export default {
   data () {
     return {
-      editingTableFields: false,
+      /**
+       * Flag that indicates whether the action column should be visible or
+       * not, due to missing permissions of the user.
+       *
+       * @type boolean
+       * @property actionColumnVisible
+       * @default false
+       */
       actionColumnVisible: false
     };
   },
 
-  watch: {
-    tableFields () {
-      if (!this.editingTableFields) {
-        this.toggleActionsColumn();
-      }
-    }
-  },
-
   computed: {
+    /**
+     * Object containing the definition for the action column,
+     * that could be pushed to the fields array.
+     *
+     * @type Object
+     * @property actionColumnDefinition
+     */
     actionColumnDefinition () {
-      return { key: 'actions', label: this.$t('app.actions') };
+      return { key: 'actions', label: this.$t('app.actions'), sortable: false };
     }
   },
 
   methods: {
     /**
-     * Adds or removes the actions column to the field depending on the users permissions.
+     * Sets the flag `actionColumnVisible` to true if the user has at least one permission
+     * of the defined `actionPermissions` and false otherwise.
+     *
+     * @method toggleActionsColumn
      */
     toggleActionsColumn () {
-      this.editingTableFields = true;
-      if (PermissionService.currentUser && PermissionService.currentUser.permissions && (this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
-        if (this.tableFields.length === 0 || this.tableFields[this.tableFields.length - 1].key !== 'actions') {
-          this.actionColumnVisible = true;
-        }
-      } else if (this.tableFields.length !== 0 && this.tableFields[this.tableFields.length - 1].key === 'actions') {
-        this.actionColumnVisible = false;
-      }
-      this.editingTableFields = false;
+      this.actionColumnVisible = PermissionService.currentUser && PermissionService.currentUser.permissions &&
+        this.actionPermissions.some(permission => PermissionService.currentUser.permissions.includes(permission));
     }
   },
 
