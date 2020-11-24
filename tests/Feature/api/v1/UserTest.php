@@ -291,6 +291,18 @@ class UserTest extends TestCase
         $user->refresh();
         $user->unsetRelation('roles');
         $this->assertEquals($role->id, $user->roles->first()->id);
+        $this->assertNotEquals($user->firstname, $changes['firstname']);
+
+        $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
+        $role->permissions()->attach($permission->id);
+
+        $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+
+        $user->refresh();
+        $user->unsetRelation('roles');
+        $this->assertEquals($role->id, $user->roles->first()->id);
+        $this->assertEquals($user->firstname, $changes['firstname']);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
         $role->permissions()->attach($permission->id);

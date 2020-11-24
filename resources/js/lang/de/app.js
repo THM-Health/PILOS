@@ -77,7 +77,8 @@ export default {
       view: 'Benutzer anzeigen',
       create: 'Benutzer erstellen',
       update: 'Benutzer bearbeiten',
-      delete: 'Benutzer löschen'
+      delete: 'Benutzer löschen',
+      updateOwnAttributes: 'Eigenen Vornamen, Nachnamen, E-Mail und Benutzernamen bearbeiten'
     }
   },
 

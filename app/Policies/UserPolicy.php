@@ -79,4 +79,18 @@ class UserPolicy
     {
         return $user->can('users.update') && $model->id !== $user->id;
     }
+
+    /**
+     * Returns true if the user has permission to update specific user attributes.
+     *
+     * @param  User $user
+     * @param  User $model
+     * @return bool
+     */
+    public function updateAttributes(User $user, User $model)
+    {
+        return $model->authenticator === 'users'
+            && $user->can('update', $model)
+            && ($user->can('users.updateOwnAttributes') || $model->id !== $user->id);
+    }
 }

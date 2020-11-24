@@ -27,7 +27,7 @@
               type='text'
               v-model='model.firstname'
               :state='fieldState("firstname")'
-              :disabled="isBusy || config.type === 'view' || model.authenticator !== 'users'"
+              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
           </b-form-group>
@@ -42,7 +42,7 @@
               type='text'
               v-model='model.lastname'
               :state='fieldState("lastname")'
-              :disabled="isBusy || config.type === 'view' || model.authenticator !== 'users'"
+              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
           </b-form-group>
@@ -57,7 +57,7 @@
               type='text'
               v-model='model.username'
               :state='fieldState("username")'
-              :disabled="isBusy || config.type === 'view' || model.authenticator !== 'users'"
+              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('username')"></div></template>
           </b-form-group>
@@ -72,7 +72,7 @@
               type='email'
               v-model='model.email'
               :state='fieldState("email")'
-              :disabled="isBusy || config.type === 'view' || model.authenticator !== 'users'"
+              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
           </b-form-group>
@@ -310,25 +310,26 @@ export default {
       hasNextPage: false,
       modelLoadPromise: Promise.resolve(),
       canEditRoles: false,
+      canUpdateAttributes: false,
       staleError: {}
     };
   },
 
   /**
-   * Removes the event listener to enable or disable the edition of roles when
-   * the permissions of the current user gets changed.
+   * Removes the event listener to enable or disable the edition of roles
+   * and attributes when the permissions of the current user gets changed.
    */
   beforeDestroy () {
-    EventBus.$off('currentUserChangedEvent', this.toggleRolesEditable);
+    EventBus.$off('currentUserChangedEvent', this.togglePermissionFlags);
   },
 
   /**
    * Loads the user, part of roles that can be selected and enables an event listener
-   * to enable or disable the edition of roles when the permissions of the current
-   * user gets changed.
+   * to enable or disable the edition of roles and attributes when the permissions
+   * of the current user gets changed.
    */
   mounted () {
-    EventBus.$on('currentUserChangedEvent', this.toggleRolesEditable);
+    EventBus.$on('currentUserChangedEvent', this.togglePermissionFlags);
 
     if (this.config.type !== 'profile') {
       this.loadRoles();
@@ -340,7 +341,7 @@ export default {
         this.model.roles.forEach(role => {
           role.$isDisabled = role.automatic;
         });
-        this.toggleRolesEditable();
+        this.togglePermissionFlags();
       }).catch(error => {
         if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
           this.$store.dispatch('session/logout').then(() => {
@@ -355,6 +356,7 @@ export default {
     } else {
       this.model.authenticator = 'users';
       this.canEditRoles = true;
+      this.canUpdateAttributes = true;
     }
   },
 
@@ -459,11 +461,12 @@ export default {
     },
 
     /**
-     * Enable or disable the edition of roles depending on the permissions of the current user.
+     * Enable or disable the edition of roles and attributes depending on the permissions of the current user.
      */
-    toggleRolesEditable () {
+    togglePermissionFlags () {
       if (this.model.id && this.model.model_name) {
         this.canEditRoles = PermissionService.can('editUserRole', this.model);
+        this.canUpdateAttributes = PermissionService.can('updateAttributes', this.model);
       }
     },
 

@@ -77,7 +77,8 @@ export default {
       view: 'Show users',
       create: 'Create users',
       update: 'Edit users',
-      delete: 'Delete users'
+      delete: 'Delete users',
+      updateOwnAttributes: 'Update own firstname, lastname, username and email'
     }
   },
 

@@ -38,4 +38,16 @@ describe('UserPolicy', function () {
     expect(UserPolicy.editUserRole({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1, model_name: 'User' })).toBe(false);
     expect(UserPolicy.editUserRole({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1337, model_name: 'User' })).toBe(true);
   });
+
+  it('updateAttributes return true if the user has permission to update own attributes or the model to update is not the own user', function () {
+    expect(UserPolicy.updateAttributes({ currentUser: null }, { id: 1337, model_name: 'User', authenticator: 'users' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: null }, { id: 1, model_name: 'User', authenticator: 'users' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: [], id: 1 } }, { id: 1337, model_name: 'User', authenticator: 'users' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: [], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'users' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1337, model_name: 'User', authenticator: 'users' })).toBe(true);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'users' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'users' })).toBe(true);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1337, model_name: 'User', authenticator: 'ldap' })).toBe(false);
+    expect(UserPolicy.updateAttributes({ currentUser: { permissions: ['users.update', 'users.updateOwnAttributes'], id: 1 } }, { id: 1, model_name: 'User', authenticator: 'ldap' })).toBe(false);
+  });
 });

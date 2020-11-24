@@ -3,7 +3,6 @@ import PermissionService from '../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import sinon from 'sinon';
 import Base from '../../resources/js/api/base';
-import env from '../../resources/js/env';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;

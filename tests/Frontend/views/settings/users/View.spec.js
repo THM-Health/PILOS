@@ -46,7 +46,7 @@ let rolesResponse1;
 describe('UsersView', function () {
   beforeEach(function () {
     oldUser = PermissionService.currentUser;
-    PermissionService.setCurrentUser({ id: 1, permissions: ['roles.view', 'roles.create', 'roles.update', 'settings.manage'] });
+    PermissionService.setCurrentUser({ id: 1, permissions: ['users.view', 'users.create', 'users.update', 'users.updateOwnAttributes', 'settings.manage'] });
     moxios.install();
 
     rolesResponse1 = {
@@ -427,7 +427,7 @@ describe('UsersView', function () {
       const multiSelects = view.findAllComponents(Multiselect);
       expect(multiSelects.length).toBe(1);
       multiSelects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(true);
+        expect(select.vm.disabled).toBe(false);
       });
       done();
     });

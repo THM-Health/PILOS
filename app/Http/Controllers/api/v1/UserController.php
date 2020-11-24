@@ -111,19 +111,21 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user)
     {
-        if ($user->authenticator === 'users') {
+        if (Auth::user()->can('updateAttributes', $user)) {
             $user->firstname = $request->firstname;
             $user->lastname  = $request->lastname;
             $user->email     = $request->email;
             $user->username  = $request->username;
 
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-            }
-
             // TODO: email verification
             if ($user->wasChanged('email')) {
                 $user->email_verified_at = $user->freshTimestamp();
+            }
+        }
+
+        if ($user->authenticator === 'users') {
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
             }
         }
 

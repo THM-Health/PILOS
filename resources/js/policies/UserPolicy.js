@@ -77,5 +77,24 @@ export default {
    */
   editUserRole (permissionService, user) {
     return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('users.update') && user.id !== permissionService.currentUser.id;
+  },
+
+  /**
+   * Returns true if the user has permissions to update users specific attributes (firstname, lastname, username and
+   * email). Either the user to update is not the current user or the user has the permission to change his own
+   * attributes.
+   *
+   * @param permissionService
+   * @param user
+   * @return {boolean|boolean|*}
+   */
+  updateAttributes (permissionService, user) {
+    if (!permissionService.currentUser || user.authenticator !== 'users') {
+      return false;
+    }
+
+    return this.update(permissionService, user)
+      && (permissionService.currentUser.permissions.includes('users.updateOwnAttributes')
+        || user.id !== permissionService.currentUser.id);
   }
 };
