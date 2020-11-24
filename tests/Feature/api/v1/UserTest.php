@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Permission;
 use App\Role;
 use App\User;
@@ -273,8 +274,7 @@ class UserTest extends TestCase
         $role->users()->attach([$user->id]);
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('updated_at');
+            ->assertStatus(CustomStatusCodes::STALE_MODEL);
 
         $changes['updated_at'] = strftime(now());
         $changes['password']   = 'Test2_34T';

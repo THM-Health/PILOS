@@ -132,8 +132,7 @@ class RoleTest extends TestCase
         $roleA->save();
 
         $this->putJson(route('api.v1.roles.update', ['role'=>$roleA]), $changes)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('updated_at');
+            ->assertStatus(CustomStatusCodes::STALE_MODEL);
 
         $changes['updated_at'] = strftime(now());
 
