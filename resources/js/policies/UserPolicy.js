@@ -93,8 +93,8 @@ export default {
       return false;
     }
 
-    return this.update(permissionService, user)
-      && (permissionService.currentUser.permissions.includes('users.updateOwnAttributes')
-        || user.id !== permissionService.currentUser.id);
+    return this.update(permissionService, user) &&
+      (permissionService.currentUser.permissions.includes('users.updateOwnAttributes') ||
+        user.id !== permissionService.currentUser.id);
   }
 };
