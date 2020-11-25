@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <b-container fluid>
+  <b-container fluid>
       <h3>
         {{ $t('settings.application.title') }}
         <b-button id="application-save-button"
@@ -170,7 +169,6 @@
       </b-form-group>
 
     </b-container>
-  </div>
 </template>
 
 <script>

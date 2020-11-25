@@ -254,16 +254,21 @@ describe('Router', function () {
     it('for application settings update view returns true if user has the necessary permissions', function (done) {
       const oldUser = PermissionService.currentUser;
 
-      accessPermittedSettingsView({ id: 1 }, { view: '1' }).then(result => {
+      accessPermittedSettingsView().then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['settings.viewAny'] });
-        return accessPermittedSettingsView({ id: 1 }, { view: '1' });
+        return accessPermittedSettingsView();
       }).then(result => {
         expect(result).toBe(false);
 
         PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.update', 'settings.manage'] });
-        return accessPermittedSettingsView({ id: 1 }, { view: '1' });
+        return accessPermittedSettingsView();
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.manage'] });
+        return accessPermittedSettingsView();
       }).then(result => {
         expect(result).toBe(true);
 
