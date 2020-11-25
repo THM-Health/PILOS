@@ -358,10 +358,6 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
-            if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
-              this.errors = { logo_file: [this.$t('app.validation.tooLarge')] };
-              return;
-            }
             if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
               this.errors = error.response.data.errors;
               return;

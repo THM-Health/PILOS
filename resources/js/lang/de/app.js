@@ -13,6 +13,11 @@ export default {
       title: 'Fehler'
     },
 
+    tooLarge: {
+      message: 'Die übertragenen Daten waren zu groß!',
+      title: 'Fehler'
+    },
+
     guestsOnly: {
       message: 'Die Anfrage ist nur für nicht angemeldete Nutzer gestattet!',
       title: 'Nür für Gäste'

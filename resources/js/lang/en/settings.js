@@ -52,9 +52,23 @@ export default {
       title: 'Logo',
       uploadTitle: 'Upload a logo (max. 500 KB)',
       urlTitle: 'URL to logo file',
-      description: 'Change the application logo. Enter the image URL',
+      description: 'Changes the application logo. Enter the image URL',
       hint: 'Image URL',
       selectFile: 'Select logo file'
+    },
+
+    favicon: {
+      title: 'Favicon',
+      uploadTitle: 'Upload a favicon (max. 500 KB, Format: .ico)',
+      urlTitle: 'URL to favicon file',
+      description: 'Changes the application favicon. Enter the favicon URL',
+      hint: 'https://domain.tld/path/favicon.ico',
+      selectFile: 'Select favicon file'
+    },
+
+    name: {
+      title: 'Name of the application',
+      description: 'Changes the site title'
     },
 
     roomLimit: {

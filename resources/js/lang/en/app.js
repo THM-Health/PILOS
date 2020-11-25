@@ -13,6 +13,11 @@ export default {
       title: 'Error'
     },
 
+    tooLarge: {
+      message: 'The transmitted data was too large!',
+      title: 'Error'
+    },
+
     guestsOnly: {
       message: 'The request can only be done by guests!',
       title: 'Only for guests'

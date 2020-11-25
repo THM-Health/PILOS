@@ -334,10 +334,7 @@ describe('Application', function () {
         }
       }).then(() => {
         view.vm.$nextTick();
-
-        // Errors data 'logo_file' array is populated for this error code
-        expect(view.vm.$data.errors.logo_file.length).toBeGreaterThan(0);
-
+        sinon.assert.calledOnce(Base.error);
         Base.error.restore();
         done();
       });
