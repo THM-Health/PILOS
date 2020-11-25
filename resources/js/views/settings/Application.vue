@@ -357,7 +357,11 @@ export default {
           this.roomLimitMode = (this.settings.roomLimit === -1 ? 'unlimited' : 'custom');
         })
         .catch((error) => {
-          if (error.response) {
+          if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+            this.errors = error.response.data.errors;
+          } else {
+            Base.error(error, this.$root);
+          }
             if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
               this.errors = error.response.data.errors;
               return;
