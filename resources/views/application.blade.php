@@ -6,8 +6,8 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'PILOS') }}</title>
+    <link type="image/x-icon" rel="icon" href="{{ setting('favicon') }}">
+    <title>{{ setting('name') }}</title>
 
     <!-- Scripts -->
     <script src="{{ mix('js/app.js') }}" defer></script>

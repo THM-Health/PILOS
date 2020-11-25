@@ -18,7 +18,9 @@ class ApplicationSettings extends JsonResource
     public function toArray($request)
     {
         return [
+            'name'                           => setting('name'),
             'logo'                           => setting('logo'),
+            'favicon'                        => setting('favicon'),
             'room_limit'                     => intval(setting('room_limit')),
             'pagination_page_size'           => intval(setting('pagination_page_size')),
             'own_rooms_pagination_page_size' => intval(setting('own_rooms_pagination_page_size')),

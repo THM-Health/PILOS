@@ -14,6 +14,95 @@
 
       <hr>
 
+    <!--Pagination page size settings-->
+    <b-form-group
+      label-for="application-name-input"
+      :description="$t('settings.application.name.description')"
+      :state='fieldState("name")'
+    >
+
+      <template v-slot:label>
+        {{ $t('settings.application.name.title') }}
+      </template>
+
+      <b-form-input id="application-name-input"
+                    v-model="settings.name"
+                    type="text"
+                    :disabled="isBusy || viewOnly"
+                    :state='fieldState("name")'
+      >
+      </b-form-input>
+
+      <template slot='invalid-feedback'>
+        <div v-html="fieldError('name')"></div>
+      </template>
+    </b-form-group>
+
+    <!--Favicon Settings-->
+    <b-form-group
+      label-for="application-favicon-input"
+      :state='(fieldState("favicon") === null && fieldState("favicon_file") === null) ? null : false'
+    >
+
+      <template v-slot:label>
+        {{ $t('settings.application.favicon.title') }}
+      </template>
+
+      <b-row class="my-3" align-v="center">
+        <b-col sm="6" lg="3" class="text-center">
+          <b-img
+            v-if="uploadFaviconFileSrc!==null || settings.favicon!==null"
+            :src="uploadFaviconFileSrc ? uploadFaviconFileSrc : settings.favicon"
+            class="my-2"
+            rounded="0"
+            alt="application-favicon-preview"
+            width="32"
+            height="32"
+            fluid
+          >
+          </b-img>
+        </b-col>
+        <b-col sm="6" lg="9">
+          <b-form-text v-if="!uploadFaviconFile">{{ $t('settings.application.favicon.urlTitle') }}</b-form-text>
+          <b-input-group>
+            <b-form-input
+              id="application-favicon-input"
+              v-if="!uploadLogoFile"
+              :placeholder="$t('settings.application.favicon.hint')"
+              v-model="settings.favicon"
+              :disabled="isBusy || viewOnly"
+              class="my-2"
+              :state='fieldState("favicon")'
+            >
+            </b-form-input>
+          </b-input-group>
+          <b-form-text v-if="!viewOnly">{{ $t('settings.application.favicon.uploadTitle') }}</b-form-text>
+          <b-input-group v-if="!viewOnly">
+            <b-form-file
+              id="application-favicon-form-file"
+              :state='fieldState("favicon_file")'
+              :disabled="isBusy"
+              :browse-text="$t('app.browse')"
+              :placeholder="$t('settings.application.favicon.selectFile')"
+              v-model="uploadFaviconFile"
+              accept="image/x-icon"
+            >
+            </b-form-file>
+            <template #append v-if="uploadFaviconFile">
+              <b-button variant="danger" @click="uploadFaviconFile = null">
+                <b-icon-x></b-icon-x>
+              </b-button>
+            </template>
+          </b-input-group>
+        </b-col>
+      </b-row>
+
+      <template slot='invalid-feedback'>
+        <div v-html="fieldError('favicon')"></div>
+        <div v-html="fieldError('favicon_file')"></div>
+      </template>
+    </b-form-group>
+
       <!--Logo Settings-->
       <b-form-group
         label-for="application-logo-input"
@@ -21,7 +110,6 @@
       >
 
         <template v-slot:label>
-          <span><i class="fas fa-camera-retro mr-3"></i></span>
           {{ $t('settings.application.logo.title') }}
         </template>
 
@@ -88,7 +176,6 @@
       >
 
         <template v-slot:label>
-          <span><i class="fas fa-person-booth mr-3"></i></span>
           {{ $t('settings.application.roomLimit.title') }}
         </template>
 
@@ -126,7 +213,6 @@
       >
 
         <template v-slot:label>
-          <span><i class="fas fa-clone mr-3"></i></span>
           {{ $t('settings.application.paginationPageSize.title') }}
         </template>
 
@@ -151,7 +237,6 @@
       >
 
         <template v-slot:label>
-          <span><i class="fas fa-window-restore mr-3"></i></span>
           {{ $t('settings.application.ownRoomsPaginationPageSize.title') }}
         </template>
 
@@ -185,9 +270,13 @@ export default {
       roomLimitMode: 'custom',
       uploadLogoFile: null,
       uploadLogoFileSrc: null,
+      uploadFaviconFile: null,
+      uploadFaviconFileSrc: null,
       isBusy: false,
       settings: {
+        name: null,
         logo: null,
+        favicon: null,
         roomLimit: null,
         paginationPageSize: null,
         ownRoomsPaginationPageSize: null
@@ -203,7 +292,9 @@ export default {
       this.isBusy = true;
       Base.call('settings')
         .then(response => {
+          this.settings.name = response.data.data.name;
           this.settings.logo = response.data.data.logo;
+          this.settings.favicon = response.data.data.favicon;
           this.settings.roomLimit = response.data.data.room_limit;
           this.settings.ownRoomsPaginationPageSize = response.data.data.own_rooms_pagination_page_size;
           this.settings.paginationPageSize = response.data.data.pagination_page_size;
@@ -232,6 +323,12 @@ export default {
       } else {
         formData.append('logo', settings.logo);
       }
+      if (this.uploadFaviconFile) {
+        formData.append('favicon_file', this.uploadFaviconFile);
+      } else {
+        formData.append('favicon', settings.favicon);
+      }
+      formData.append('name', settings.name);
       formData.append('room_limit', settings.roomLimit);
       formData.append('pagination_page_size', settings.paginationPageSize);
       formData.append('own_rooms_pagination_page_size', settings.ownRoomsPaginationPageSize);
@@ -252,6 +349,8 @@ export default {
 
           // update form input
           this.settings.logo = response.data.data.logo;
+          this.settings.favicon = response.data.data.favicon;
+          this.settings.name = response.data.data.name;
           this.settings.roomLimit = response.data.data.room_limit;
           this.settings.ownRoomsPaginationPageSize = response.data.data.own_rooms_pagination_page_size;
           this.settings.paginationPageSize = response.data.data.pagination_page_size;
@@ -344,6 +443,26 @@ export default {
             });
         } else {
           this.uploadLogoFileSrc = null;
+        }
+      }
+    },
+    /**
+     * watch for favicon file select changes, encode to base64 and display image
+     * @param newValue
+     * @param oldValue
+     */
+    uploadFaviconFile (newValue, oldValue) {
+      if (newValue !== oldValue) {
+        if (newValue) {
+          this.base64Encode(newValue)
+            .then(value => {
+              this.uploadFaviconFileSrc = value;
+            })
+            .catch(() => {
+              this.uploadFaviconFileSrc = null;
+            });
+        } else {
+          this.uploadFaviconFileSrc = null;
         }
       }
     }

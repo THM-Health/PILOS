@@ -57,7 +57,9 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithValidInputsImageFile()
     {
         $payload = [
+            'name'                           => 'test',
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
@@ -89,6 +91,8 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithValidInputsImageUrl()
     {
         $payload = [
+            'name'                           => 'test',
+            'favicon'                        => '/storage/image/favicon.ico',
             'logo'                           => '/storage/image/testfile.svg',
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
@@ -122,8 +126,11 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithValidInputsImageFileAndUrl()
     {
         $payload = [
+            'name'                           => 'test',
             'logo'                           => '/storage/image/testfile.svg',
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon'                        => '/storage/image/favicon.ico',
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
@@ -156,6 +163,9 @@ class SettingsTest extends TestCase
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
             [
+                'name'                           => '',
+                'favicon'                        => '',
+                'favicon_file'                   => 'notimagefile',
                 'logo'                           => '',
                 'logo_file'                      => 'notimagefile',
                 'pagination_page_size'           => 'notnumber',
@@ -165,6 +175,9 @@ class SettingsTest extends TestCase
         )
             ->assertStatus(422)
             ->assertJsonValidationErrors([
+                'name',
+                'favicon_file',
+                'favicon',
                 'logo',
                 'logo_file',
                 'pagination_page_size',

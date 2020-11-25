@@ -58,6 +58,20 @@ export default {
       selectFile: 'Logo-Datei auswählen'
     },
 
+    favicon: {
+      title: 'Favicon',
+      uploadTitle: 'Favicon hochladen (max. 500 KB, Format: .ico)',
+      urlTitle: 'URL zu Favicon-Datei',
+      description: 'URL zum Favicon',
+      hint: 'https://domain.tld/path/favicon.ico',
+      selectFile: 'Favicon-Datei auswählen'
+    },
+
+    name: {
+      title: 'Name der Anwendung',
+      description: 'Ändert den Seitentitel'
+    },
+
     roomLimit: {
       title: 'Anzahl der Räume pro Benutzer',
       description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.'

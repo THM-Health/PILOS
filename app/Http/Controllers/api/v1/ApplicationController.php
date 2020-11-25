@@ -35,7 +35,17 @@ class ApplicationController extends Controller
             $logo = $request->logo;
         }
 
+        if ($request->has('favicon_file')) {
+            $path    = $request->file('favicon_file')->store('images', 'public');
+            $url     = Storage::url($path);
+            $favicon = $url;
+        } else {
+            $favicon = $request->favicon;
+        }
+
         setting()->set('logo', $logo);
+        setting()->set('favicon', $favicon);
+        setting()->set('name', $request->name);
         setting()->set('room_limit', $request->room_limit);
         setting()->set('own_rooms_pagination_page_size', $request->own_rooms_pagination_page_size);
         setting()->set('pagination_page_size', $request->pagination_page_size);
