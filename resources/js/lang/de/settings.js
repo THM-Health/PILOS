@@ -55,7 +55,8 @@ export default {
       urlTitle: 'URL zu Logo-Datei',
       description: 'URL zum Logo',
       hint: 'https://domain.tld/path/logo.svg',
-      selectFile: 'Logo-Datei auswählen'
+      selectFile: 'Logo-Datei auswählen',
+      alt: 'Favicon Vorschau'
     },
 
     favicon: {
@@ -64,7 +65,8 @@ export default {
       urlTitle: 'URL zu Favicon-Datei',
       description: 'URL zum Favicon',
       hint: 'https://domain.tld/path/favicon.ico',
-      selectFile: 'Favicon-Datei auswählen'
+      selectFile: 'Favicon-Datei auswählen',
+      alt: 'Favicon Vorschau'
     },
 
     name: {

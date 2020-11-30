@@ -53,8 +53,9 @@ export default {
       uploadTitle: 'Upload a logo (max. 500 KB)',
       urlTitle: 'URL to logo file',
       description: 'Changes the application logo. Enter the image URL',
-      hint: 'Image URL',
-      selectFile: 'Select logo file'
+      hint: 'https://domain.tld/path/logo.svg',
+      selectFile: 'Select logo file',
+      alt: 'Logo preview'
     },
 
     favicon: {
@@ -63,7 +64,8 @@ export default {
       urlTitle: 'URL to favicon file',
       description: 'Changes the application favicon. Enter the favicon URL',
       hint: 'https://domain.tld/path/favicon.ico',
-      selectFile: 'Select favicon file'
+      selectFile: 'Select favicon file',
+      alt: 'Favicon preview'
     },
 
     name: {
