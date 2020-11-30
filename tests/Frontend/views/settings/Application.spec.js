@@ -69,9 +69,9 @@ describe('Application', function () {
       }).then(() => {
         view.vm.$nextTick();
         expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.roomLimit).toBe(-1);
-        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
-        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.settings.room_limit).toBe(-1);
+        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('unlimited');
         done();
       });
@@ -102,9 +102,9 @@ describe('Application', function () {
       }).then(() => {
         view.vm.$nextTick();
         expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.roomLimit).toBe(32);
-        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
-        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.settings.room_limit).toBe(32);
+        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('custom');
         done();
       });
@@ -154,9 +154,9 @@ describe('Application', function () {
       }).then(() => {
         view.vm.$nextTick();
         expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.roomLimit).toBe(32);
-        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
-        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.settings.room_limit).toBe(32);
+        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('custom');
         expect(view.vm.$data.isBusy).toBeFalsy();
         done();
@@ -207,9 +207,9 @@ describe('Application', function () {
       }).then(() => {
         view.vm.$nextTick();
         expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.roomLimit).toBe(-1);
-        expect(view.vm.$data.settings.paginationPageSize).toBe(10);
-        expect(view.vm.$data.settings.ownRoomsPaginationPageSize).toBe(5);
+        expect(view.vm.$data.settings.room_limit).toBe(-1);
+        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('unlimited');
         expect(view.vm.$data.isBusy).toBeFalsy();
         done();
@@ -234,12 +234,12 @@ describe('Application', function () {
     // Simulate radio group check to 'unlimited' option, set room limit value to '-1' and hide roomLimitInput
     await view.vm.roomLimitModeChanged('unlimited');
 
-    expect(view.vm.$data.settings.roomLimit).toBe(-1);
+    expect(view.vm.$data.settings.room_limit).toBe(-1);
 
     // Simulate radio group check back to 'custom' option
     await view.vm.roomLimitModeChanged('custom');
 
-    expect(view.vm.$data.settings.roomLimit).toBe(0);
+    expect(view.vm.$data.settings.room_limit).toBe(0);
   });
 
   it('getSettings error handler', function (done) {
