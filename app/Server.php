@@ -9,8 +9,8 @@ class Server extends Model
 {
     public $timestamps = false;
 
-    const VIDEO_WEIGHT = 3;
-    const AUDIO_WEIGHT = 2;
+    const VIDEO_WEIGHT       = 3;
+    const AUDIO_WEIGHT       = 2;
     const PARTICIPANT_WEIGHT = 1;
 
     protected $casts = [
