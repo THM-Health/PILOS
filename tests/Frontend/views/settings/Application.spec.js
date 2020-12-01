@@ -67,7 +67,8 @@ describe('Application', function () {
           }
         }
       }).then(() => {
-        view.vm.$nextTick();
+        return view.vm.$nextTick();
+      }).then(() => {
         expect(view.vm.$data.settings.logo).toBe('test.svg');
         expect(view.vm.$data.settings.room_limit).toBe(-1);
         expect(view.vm.$data.settings.pagination_page_size).toBe(10);
@@ -100,7 +101,8 @@ describe('Application', function () {
           }
         }
       }).then(() => {
-        view.vm.$nextTick();
+        return view.vm.$nextTick();
+      }).then(() => {
         expect(view.vm.$data.settings.logo).toBe('test.svg');
         expect(view.vm.$data.settings.room_limit).toBe(32);
         expect(view.vm.$data.settings.pagination_page_size).toBe(10);
@@ -133,16 +135,10 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    // Save button, which triggers updateSettings method when clicked
-    const saveSettingsButton = view.find('#application-save-button');
-    expect(saveSettingsButton.exists()).toBeTruthy();
-    saveSettingsButton.trigger('click');
-    view.vm.$nextTick();
-
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       request.respondWith({
-        status: 201,
+        status: 200,
         response: {
           data: {
             logo: 'test.svg',
@@ -152,14 +148,36 @@ describe('Application', function () {
           }
         }
       }).then(() => {
-        view.vm.$nextTick();
-        expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.room_limit).toBe(32);
-        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
-        expect(view.vm.$data.roomLimitMode).toBe('custom');
-        expect(view.vm.$data.isBusy).toBeFalsy();
-        done();
+        // Save button, which triggers updateSettings method when clicked
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
+        return view.vm.$nextTick();
+      }).then(() => {
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                logo: 'test1.svg',
+                room_limit: 33,
+                pagination_page_size: 11,
+                own_rooms_pagination_page_size: 6
+              }
+            }
+          }).then(() => {
+            return view.vm.$nextTick();
+          }).then(() => {
+            expect(view.vm.$data.settings.logo).toBe('test1.svg');
+            expect(view.vm.$data.settings.room_limit).toBe(33);
+            expect(view.vm.$data.settings.pagination_page_size).toBe(11);
+            expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
+            expect(view.vm.$data.roomLimitMode).toBe('custom');
+            expect(view.vm.$data.isBusy).toBeFalsy();
+            done();
+          });
+        });
       });
     });
   });
@@ -186,33 +204,49 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    // Save button, which triggers updateSettings method when clicked
-    const saveSettingsButton = view.find('#application-save-button');
-    expect(saveSettingsButton.exists()).toBeTruthy();
-    saveSettingsButton.trigger('click');
-    view.vm.$nextTick();
-
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       request.respondWith({
-        status: 201,
+        status: 200,
         response: {
           data: {
             logo: 'test.svg',
-            room_limit: -1,
+            room_limit: 32,
             pagination_page_size: 10,
             own_rooms_pagination_page_size: 5
           }
         }
       }).then(() => {
-        view.vm.$nextTick();
-        expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.room_limit).toBe(-1);
-        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
-        expect(view.vm.$data.roomLimitMode).toBe('unlimited');
-        expect(view.vm.$data.isBusy).toBeFalsy();
-        done();
+        // Save button, which triggers updateSettings method when clicked
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
+        return view.vm.$nextTick();
+      }).then(() => {
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                logo: 'test1.svg',
+                room_limit: -1,
+                pagination_page_size: 11,
+                own_rooms_pagination_page_size: 6
+              }
+            }
+          }).then(() => {
+            return view.vm.$nextTick();
+          }).then(() => {
+            expect(view.vm.$data.settings.logo).toBe('test1.svg');
+            expect(view.vm.$data.settings.room_limit).toBe(-1);
+            expect(view.vm.$data.settings.pagination_page_size).toBe(11);
+            expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
+            expect(view.vm.$data.roomLimitMode).toBe('unlimited');
+            expect(view.vm.$data.isBusy).toBeFalsy();
+            done();
+          });
+        });
       });
     });
   });
@@ -282,24 +316,39 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    // Save button, which triggers updateSettings method when clicked
-    const saveSettingsButton = view.find('#application-save-button');
-    expect(saveSettingsButton.exists()).toBeTruthy();
-    saveSettingsButton.trigger('click');
-    view.vm.$nextTick();
-
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       request.respondWith({
-        status: 500,
+        status: 200,
         response: {
-          message: 'Test'
+          data: {
+            logo: 'test.svg',
+            room_limit: 32,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5
+          }
         }
       }).then(() => {
-        view.vm.$nextTick();
-        sinon.assert.calledOnce(Base.error);
-        Base.error.restore();
-        done();
+        // Save button, which triggers updateSettings method when clicked
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
+        return view.vm.$nextTick();
+      }).then(() => {
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          request.respondWith({
+            status: 500,
+            response: {
+              message: 'Test'
+            }
+          }).then(() => {
+            view.vm.$nextTick();
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
+            done();
+          });
+        });
       });
     });
   });
@@ -316,27 +365,43 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    // Errors data 'logo_file' array is undefined at the beginning
-    expect(view.vm.$data.errors.logo_file).toBeUndefined();
-
-    // Save button, which triggers updateSettings method when clicked
-    const saveSettingsButton = view.find('#application-save-button');
-    expect(saveSettingsButton.exists()).toBeTruthy();
-    saveSettingsButton.trigger('click');
-    view.vm.$nextTick();
-
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
       request.respondWith({
-        status: env.HTTP_PAYLOAD_TOO_LARGE,
+        status: 200,
         response: {
-          message: 'Test'
+          data: {
+            logo: 'test.svg',
+            room_limit: 32,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5
+          }
         }
       }).then(() => {
-        view.vm.$nextTick();
-        sinon.assert.calledOnce(Base.error);
-        Base.error.restore();
-        done();
+        // Errors data 'logo_file' array is undefined at the beginning
+        expect(view.vm.$data.errors.logo_file).toBeUndefined();
+
+        // Save button, which triggers updateSettings method when clicked
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
+        return view.vm.$nextTick();
+      }).then(() => {
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          request.respondWith({
+            status: env.HTTP_PAYLOAD_TOO_LARGE,
+            response: {
+              message: 'Test'
+            }
+          }).then(() => {
+            return view.vm.$nextTick();
+          }).then(() => {
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
+            done();
+          });
+        });
       });
     });
   });
@@ -426,6 +491,13 @@ describe('Application', function () {
 
     // baseEncode64 method should be called after value change of uploadLogoFileSrc
     expect(spy.calledOnce).toBeTruthy();
+
+    expect(view.vm.$data.uploadFaviconFile).toBe(null);
+    expect(view.vm.$data.uploadFaviconFileSrc).toBe(null);
+
+    await view.setData({ uploadFaviconFile: [] });
+
+    expect(spy.calledTwice).toBeTruthy();
   });
 
   it('disable edit button if user does not have permission', function (done) {
