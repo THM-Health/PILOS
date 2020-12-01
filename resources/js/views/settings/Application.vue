@@ -5,7 +5,7 @@
       </h3>
 
       <hr>
-
+    <b-overlay :show="!loaded">
     <b-form @submit="onSubmit">
 
     <!--Application name-->
@@ -254,7 +254,7 @@
     </b-button>
 
     </b-form>
-
+    </b-overlay>
     </b-container>
 </template>
 
@@ -269,20 +269,14 @@ export default {
 
   data () {
     return {
+      loaded: false,
       roomLimitMode: 'custom',
       uploadLogoFile: null,
       uploadLogoFileSrc: null,
       uploadFaviconFile: null,
       uploadFaviconFileSrc: null,
       isBusy: false,
-      settings: {
-        name: null,
-        logo: null,
-        favicon: null,
-        room_limit: null,
-        pagination_page_size: null,
-        own_rooms_pagination_page_size: null
-      },
+      settings: {},
       errors: {}
     };
   },
@@ -296,6 +290,7 @@ export default {
         .then(response => {
           this.settings = response.data.data;
           this.roomLimitMode = (this.settings.room_limit === -1 ? 'unlimited' : 'custom');
+          this.loaded = true;
         })
         .catch((error) => {
           Base.error(error, this.$root, error.message);
