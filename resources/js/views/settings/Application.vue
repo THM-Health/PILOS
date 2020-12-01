@@ -6,256 +6,270 @@
 
       <hr>
     <b-overlay :show="!loaded">
-    <b-form @submit="onSubmit">
 
-    <!--Application name-->
-    <b-form-group
-      label-class="font-weight-bold"
-      class="mb-4"
-      label-for="application-name-input"
-      :description="$t('settings.application.name.description')"
-      :state='fieldState("name")'
-      :label="$t('settings.application.name.title')"
-    >
-      <b-form-input id="application-name-input"
-                    v-model="settings.name"
-                    type="text"
-                    required
-                    :disabled="isBusy || viewOnly"
-                    :state='fieldState("name")'
-      >
-      </b-form-input>
-
-      <template slot='invalid-feedback'>
-        <div v-html="fieldError('name')"></div>
-      </template>
-    </b-form-group>
-
-    <!--Favicon Settings-->
-    <b-form-group
-      label-class="font-weight-bold"
-      class="mb-4"
-      label-for="application-favicon-input"
-      :state='(fieldState("favicon") == null && fieldState("favicon_file") == null) ? null : false'
-      :label="$t('settings.application.favicon.title')"
-    >
-      <b-row class="my-3" align-v="center">
-        <b-col sm="6" lg="3" class="text-center">
-          <b-img
-            v-if="uploadFaviconFileSrc!==null || settings.favicon!==null"
-            :src="uploadFaviconFileSrc ? uploadFaviconFileSrc : settings.favicon"
-            class="my-2"
-            rounded="0"
-            :alt="$t('settings.application.favicon.alt')"
-            width="32"
-            height="32"
-            fluid
+      <template #overlay>
+        <div class="text-center">
+          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-button
+           v-else
+            @click="getSettings()"
           >
-          </b-img>
-        </b-col>
-        <b-col sm="6" lg="9">
-          <b-form-text v-if="!uploadFaviconFile">{{ $t('settings.application.favicon.urlTitle') }}</b-form-text>
-          <b-form-input
-            id="application-favicon-input"
-            v-if="!uploadFaviconFile"
-            required
-            :placeholder="$t('settings.application.favicon.hint')"
-            v-model="settings.favicon"
-            :disabled="isBusy || viewOnly"
-            class="my-2"
-            :state='fieldState("favicon")'
+            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+          </b-button>
+        </div>
+      </template>
+
+      <b-form @submit="onSubmit">
+
+        <!--Application name-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-name-input"
+          :description="$t('settings.application.name.description')"
+          :state='fieldState("name")'
+          :label="$t('settings.application.name.title')"
+        >
+          <b-form-input id="application-name-input"
+                        v-model="settings.name"
+                        type="text"
+                        required
+                        :disabled="isBusy || viewOnly"
+                        :state='fieldState("name")'
           >
           </b-form-input>
-          <b-form-text v-if="!viewOnly">{{ $t('settings.application.favicon.uploadTitle') }}</b-form-text>
-          <b-input-group v-if="!viewOnly">
-            <b-form-file
-              id="application-favicon-form-file"
-              :state='fieldState("favicon_file")'
-              :disabled="isBusy || viewOnly"
-              :browse-text="$t('app.browse')"
-              :placeholder="$t('settings.application.favicon.selectFile')"
-              v-model="uploadFaviconFile"
-              accept="image/x-icon"
-            >
-            </b-form-file>
-            <template #append v-if="uploadFaviconFile">
-              <b-button variant="danger" @click="uploadFaviconFile = null">
-                <b-icon-x></b-icon-x>
-              </b-button>
-            </template>
-          </b-input-group>
-        </b-col>
-      </b-row>
 
-      <template slot='invalid-feedback'>
-        <div v-html="fieldError('favicon')"></div>
-        <div v-html="fieldError('favicon_file')"></div>
-      </template>
-    </b-form-group>
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('name')"></div>
+          </template>
+        </b-form-group>
 
-      <!--Logo Settings-->
-      <b-form-group
-        label-class="font-weight-bold"
-        class="mb-4"
-        label-for="application-logo-input"
-        :state='(fieldState("logo") == null && fieldState("logo_file") == null) ? null : false'
-        :label="$t('settings.application.logo.title')"
-      >
-        <b-row class="my-3" align-v="center">
-          <b-col sm="6" lg="3" class="text-center">
-            <b-img
-              v-if="uploadLogoFileSrc!==null || settings.logo!==null"
-              :src="uploadLogoFileSrc ? uploadLogoFileSrc : settings.logo"
-              class="my-2"
-              rounded="0"
-              :alt="$t('settings.application.logo.alt')"
-              width="150"
-              height="100"
-              fluid
-            >
-            </b-img>
-          </b-col>
-          <b-col sm="6" lg="9">
-            <b-form-text v-if="!uploadLogoFile">{{ $t('settings.application.logo.urlTitle') }}</b-form-text>
-            <b-form-input
-              id="application-logo-input"
-              v-if="!uploadLogoFile"
-              required
-              :placeholder="$t('settings.application.logo.hint')"
-              v-model="settings.logo"
-              :disabled="isBusy || viewOnly"
-              class="my-2"
-              :state='fieldState("logo")'
-            >
-            </b-form-input>
-            <b-form-text v-if="!viewOnly">{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
-            <b-input-group v-if="!viewOnly">
-              <b-form-file
-                id="application-logo-form-file"
-                :state='fieldState("logo_file")'
-                :disabled="isBusy || viewOnly"
-                :browse-text="$t('app.browse')"
-                :placeholder="$t('settings.application.logo.selectFile')"
-                v-model="uploadLogoFile"
-                accept="image/jpeg, image/png, image/gif, image/svg+xml"
+        <!--Favicon Settings-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-favicon-input"
+          :state='(fieldState("favicon") == null && fieldState("favicon_file") == null) ? null : false'
+          :label="$t('settings.application.favicon.title')"
+        >
+          <b-row class="my-3" align-v="center">
+            <b-col sm="6" lg="3" class="text-center">
+              <b-img
+                v-if="uploadFaviconFileSrc!==null || settings.favicon!==null"
+                :src="uploadFaviconFileSrc ? uploadFaviconFileSrc : settings.favicon"
+                class="my-2"
+                rounded="0"
+                :alt="$t('settings.application.favicon.alt')"
+                width="32"
+                height="32"
+                fluid
               >
-              </b-form-file>
-              <template #append v-if="uploadLogoFile">
-                <b-button id="application-upload-button" variant="danger" @click="uploadLogoFile = null">
-                  <b-icon-x></b-icon-x>
-                </b-button>
-              </template>
-            </b-input-group>
-          </b-col>
-        </b-row>
+              </b-img>
+            </b-col>
+            <b-col sm="6" lg="9">
+              <b-form-text v-if="!uploadFaviconFile">{{ $t('settings.application.favicon.urlTitle') }}</b-form-text>
+              <b-form-input
+                id="application-favicon-input"
+                v-if="!uploadFaviconFile"
+                required
+                :placeholder="$t('settings.application.favicon.hint')"
+                v-model="settings.favicon"
+                :disabled="isBusy || viewOnly"
+                class="my-2"
+                :state='fieldState("favicon")'
+              >
+              </b-form-input>
+              <b-form-text v-if="!viewOnly">{{ $t('settings.application.favicon.uploadTitle') }}</b-form-text>
+              <b-input-group v-if="!viewOnly">
+                <b-form-file
+                  id="application-favicon-form-file"
+                  :state='fieldState("favicon_file")'
+                  :disabled="isBusy || viewOnly"
+                  :browse-text="$t('app.browse')"
+                  :placeholder="$t('settings.application.favicon.selectFile')"
+                  v-model="uploadFaviconFile"
+                  accept="image/x-icon"
+                >
+                </b-form-file>
+                <template #append v-if="uploadFaviconFile">
+                  <b-button variant="danger" @click="uploadFaviconFile = null">
+                    <b-icon-x></b-icon-x>
+                  </b-button>
+                </template>
+              </b-input-group>
+            </b-col>
+          </b-row>
 
-        <template slot='invalid-feedback'>
-          <div v-html="fieldError('logo')"></div>
-          <div v-html="fieldError('logo_file')"></div>
-        </template>
-      </b-form-group>
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('favicon')"></div>
+            <div v-html="fieldError('favicon_file')"></div>
+          </template>
+        </b-form-group>
 
-      <!--Room limit settings-->
-      <b-form-group
-        label-class="font-weight-bold"
-        class="mb-4"
-        label-for="application-room-limit-input"
-        :description="$t('settings.application.roomLimit.description')"
-        :state='fieldState("room_limit")'
-        :label="$t('settings.application.roomLimit.title')"
-      >
-        <b-form-radio-group
-          class='mb-2'
-          id="application-room-limit-radio-group"
-          v-model='roomLimitMode'
-          :options='roomLimitModeOptions'
-          :disabled='isBusy || viewOnly'
-          required
-          :state='fieldState("room_limit")'
-          @change="roomLimitModeChanged"
-          stacked
-        ></b-form-radio-group>
-
-        <b-form-input
-          id='application-room-limit-input'
-          type='number'
-          :state='fieldState("room_limit")'
-          v-model='settings.room_limit'
-          min='0'
-          max="100"
-          required
-          :disabled='isBusy || viewOnly'
-          v-if="roomLimitMode === 'custom'">
-        </b-form-input>
-
-        <template slot='invalid-feedback'>
-          <div v-html="fieldError('room_limit')"></div>
-        </template>
-      </b-form-group>
-
-      <!--Pagination page size settings-->
-      <b-form-group
-        label-class="font-weight-bold"
-        class="mb-4"
-        label-for="application-pagination-page-size-input"
-        :description="$t('settings.application.paginationPageSize.description')"
-        :state='fieldState("pagination_page_size")'
-        :label="$t('settings.application.paginationPageSize.title')"
-      >
-        <b-form-input id="application-pagination-page-size-input"
-                      v-model="settings.pagination_page_size"
-                      type="number"
-                      :disabled="isBusy || viewOnly"
-                      min="1"
-                      max="100"
-                      required
-                      :state='fieldState("pagination_page_size")'
+        <!--Logo Settings-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-logo-input"
+          :state='(fieldState("logo") == null && fieldState("logo_file") == null) ? null : false'
+          :label="$t('settings.application.logo.title')"
         >
-        </b-form-input>
+          <b-row class="my-3" align-v="center">
+            <b-col sm="6" lg="3" class="text-center">
+              <b-img
+                v-if="uploadLogoFileSrc!==null || settings.logo!==null"
+                :src="uploadLogoFileSrc ? uploadLogoFileSrc : settings.logo"
+                class="my-2"
+                rounded="0"
+                :alt="$t('settings.application.logo.alt')"
+                width="150"
+                height="100"
+                fluid
+              >
+              </b-img>
+            </b-col>
+            <b-col sm="6" lg="9">
+              <b-form-text v-if="!uploadLogoFile">{{ $t('settings.application.logo.urlTitle') }}</b-form-text>
+              <b-form-input
+                id="application-logo-input"
+                v-if="!uploadLogoFile"
+                required
+                :placeholder="$t('settings.application.logo.hint')"
+                v-model="settings.logo"
+                :disabled="isBusy || viewOnly"
+                class="my-2"
+                :state='fieldState("logo")'
+              >
+              </b-form-input>
+              <b-form-text v-if="!viewOnly">{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
+              <b-input-group v-if="!viewOnly">
+                <b-form-file
+                  id="application-logo-form-file"
+                  :state='fieldState("logo_file")'
+                  :disabled="isBusy || viewOnly"
+                  :browse-text="$t('app.browse')"
+                  :placeholder="$t('settings.application.logo.selectFile')"
+                  v-model="uploadLogoFile"
+                  accept="image/jpeg, image/png, image/gif, image/svg+xml"
+                >
+                </b-form-file>
+                <template #append v-if="uploadLogoFile">
+                  <b-button id="application-upload-button" variant="danger" @click="uploadLogoFile = null">
+                    <b-icon-x></b-icon-x>
+                  </b-button>
+                </template>
+              </b-input-group>
+            </b-col>
+          </b-row>
 
-        <template slot='invalid-feedback'>
-          <div v-html="fieldError('pagination_page_size')"></div>
-        </template>
-      </b-form-group>
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('logo')"></div>
+            <div v-html="fieldError('logo_file')"></div>
+          </template>
+        </b-form-group>
 
-      <!--Own rooms pagination page size settings-->
-      <b-form-group
-        label-class="font-weight-bold"
-        class="mb-4"
-        label-for="application-pagination-own-room-page-size-input"
-        :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
-        :state='fieldState("own_rooms_pagination_page_size")'
-        :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
-      >
-        <b-form-input id="application-pagination-own-room-page-size-input"
-                      v-model="settings.own_rooms_pagination_page_size"
-                      type="number"
-                      min="1"
-                      max="25"
-                      required
-                      :disabled="isBusy || viewOnly"
-                      :state='fieldState("own_rooms_pagination_page_size")'
+        <!--Room limit settings-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-room-limit-input"
+          :description="$t('settings.application.roomLimit.description')"
+          :state='fieldState("room_limit")'
+          :label="$t('settings.application.roomLimit.title')"
         >
-        </b-form-input>
+          <b-form-radio-group
+            class='mb-2'
+            id="application-room-limit-radio-group"
+            v-model='roomLimitMode'
+            :options='roomLimitModeOptions'
+            :disabled='isBusy || viewOnly'
+            required
+            :state='fieldState("room_limit")'
+            @change="roomLimitModeChanged"
+            stacked
+          ></b-form-radio-group>
 
-        <template slot='invalid-feedback'>
-          <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
-        </template>
-      </b-form-group>
+          <b-form-input
+            id='application-room-limit-input'
+            type='number'
+            :state='fieldState("room_limit")'
+            v-model='settings.room_limit'
+            min='0'
+            max="100"
+            required
+            :disabled='isBusy || viewOnly'
+            v-if="roomLimitMode === 'custom'">
+          </b-form-input>
 
-    <hr>
-    <b-button id="application-save-button"
-              class="float-right"
-              variant="success"
-              type="submit"
-              v-if="!viewOnly"
-              :disabled="isBusy">
-      <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
-    </b-button>
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('room_limit')"></div>
+          </template>
+        </b-form-group>
 
-    </b-form>
+        <!--Pagination page size settings-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-pagination-page-size-input"
+          :description="$t('settings.application.paginationPageSize.description')"
+          :state='fieldState("pagination_page_size")'
+          :label="$t('settings.application.paginationPageSize.title')"
+        >
+          <b-form-input id="application-pagination-page-size-input"
+                        v-model="settings.pagination_page_size"
+                        type="number"
+                        :disabled="isBusy || viewOnly"
+                        min="1"
+                        max="100"
+                        required
+                        :state='fieldState("pagination_page_size")'
+          >
+          </b-form-input>
+
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('pagination_page_size')"></div>
+          </template>
+        </b-form-group>
+
+        <!--Own rooms pagination page size settings-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-pagination-own-room-page-size-input"
+          :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
+          :state='fieldState("own_rooms_pagination_page_size")'
+          :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
+        >
+          <b-form-input id="application-pagination-own-room-page-size-input"
+                        v-model="settings.own_rooms_pagination_page_size"
+                        type="number"
+                        min="1"
+                        max="25"
+                        required
+                        :disabled="isBusy || viewOnly"
+                        :state='fieldState("own_rooms_pagination_page_size")'
+          >
+          </b-form-input>
+
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
+          </template>
+        </b-form-group>
+
+        <hr>
+        <div class="clearfix">
+          <b-button id="application-save-button"
+                    class="float-right"
+                    variant="success"
+                    type="submit"
+                    v-if="!viewOnly"
+                    :disabled="isBusy">
+            <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
+          </b-button>
+        </div>
+      </b-form>
     </b-overlay>
-    </b-container>
+  </b-container>
 </template>
 
 <script>
