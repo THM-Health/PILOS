@@ -165,6 +165,21 @@ class UserTest extends TestCase
 
         $role->users()->attach([$user->id]);
 
+        $ldapUserMail = $this->faker->unique()->safeEmail;
+        DirectoryEmulator::setup('default');
+        LdapUser::create([
+            'givenName'              => 'Jane',
+            'sn'                     => 'Doe',
+            'cn'                     => $this->faker->name,
+            'mail'                   => $ldapUserMail,
+            'uid'                    => $this->faker->unique()->userName,
+            'entryuuid'              => $this->faker->uuid,
+        ]);
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap',
+            '--no-interaction'
+        ])->assertExitCode(0);
+
         // Empty request
         $this->actingAs($user)->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
@@ -203,7 +218,7 @@ class UserTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['email', 'user_locale']);
 
-        $request['email']       = $this->faker->email;
+        $request['email']       = $ldapUserMail;
         $request['user_locale'] = 'de';
         $request['username']    = $this->faker->userName;
 

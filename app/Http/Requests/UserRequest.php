@@ -24,7 +24,15 @@ class UserRequest extends FormRequest
         if (!$this->user || $this->user->authenticator === 'users') {
             $rules['firstname'] = 'required|string|max:255';
             $rules['lastname']  = 'required|string|max:255';
-            $rules['email']     = 'required|string|email|max:255|unique:users,email' . ($this->user ? ',' . $this->user->id : '');
+            $rules['email']     = ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where(function ($query) {
+                $query = $query->where('authenticator', '=', 'users');
+
+                if ($this->user) {
+                    $query = $query->where('id', '!=', $this->user->id);
+                }
+
+                return $query;
+            })];
             $rules['password']  = [!$this->user ? 'required' : 'nullable', 'string', 'min:8', 'confirmed', new Password()];
         }
 
