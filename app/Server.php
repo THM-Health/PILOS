@@ -9,6 +9,10 @@ class Server extends Model
 {
     public $timestamps = false;
 
+    const VIDEO_WEIGHT = 3;
+    const AUDIO_WEIGHT = 2;
+    const PARTICIPANT_WEIGHT = 1;
+
     protected $casts = [
         'offline'    => 'boolean',
         'status'     => 'boolean',
@@ -20,23 +24,23 @@ class Server extends Model
      */
     public static function lowestUsage()
     {
-        $servers = self::where('status', true)->where('offline', false)->get();
-        $sorted  = $servers->sortBy(function ($server, $key) {
-            return $server->usage();
-        });
-
-        return $sorted->first();
+        return self::where('status', true)
+            ->where('offline', false)
+            // Experimental
+            // Have video factor 3, audio factor 2 and just listening factor 1
+            ->orderByRaw('(video_count*'.self::VIDEO_WEIGHT.' + voice_participant_count*'.self::AUDIO_WEIGHT.' + (participant_count-voice_participant_count) * '.self::PARTICIPANT_WEIGHT.') ASC')
+            ->first();
     }
 
     /**
      * Return usage of a server, based on video, audio and participants
      * @return int
      */
-    public function usage()
+    public function getUsageAttribute()
     {
         // Experimental
         // Have video factor 3, audio factor 2 and just listening factor 1
-        return ($this->video_count * 3) + $this->voice_participant_count * 2 + ($this->participant_count - $this->voice_participant_count);
+        return $this->video_count * self::VIDEO_WEIGHT + $this->voice_participant_count * self::AUDIO_WEIGHT + ($this->participant_count - $this->voice_participant_count) * self::PARTICIPANT_WEIGHT;
     }
 
     /**
