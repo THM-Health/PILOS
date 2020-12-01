@@ -185,4 +185,54 @@ class SettingsTest extends TestCase
                 'room_limit'
             ]);
     }
+
+    /**
+     * Tests that updates application settings with invalid inputs for numeric input
+     *
+     * @return void
+     */
+    public function testUpdateApplicationSettingsMinMax()
+    {
+        // Add necessary role and permission to user to update application settings
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // inputs lower than allowed minimum
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
+            [
+                'name'                           => 'test',
+                'favicon'                        => '/storage/image/favicon.ico',
+                'logo'                           => '/storage/image/testfile.svg',
+                'pagination_page_size'           => '0',
+                'own_rooms_pagination_page_size' => '0',
+                'room_limit'                     => '-2',
+            ]
+        )
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'pagination_page_size',
+                'own_rooms_pagination_page_size',
+                'room_limit'
+            ]);
+
+        // inputs higher than allowed minimum
+        $this->putJson(route('api.v1.application.update'),
+            [
+                'name'                           => 'test',
+                'favicon'                        => '/storage/image/favicon.ico',
+                'logo'                           => '/storage/image/testfile.svg',
+                'pagination_page_size'           => '101',
+                'own_rooms_pagination_page_size' => '26',
+                'room_limit'                     => '101',
+            ]
+        )
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'pagination_page_size',
+                'own_rooms_pagination_page_size',
+                'room_limit'
+            ]);
+    }
 }
