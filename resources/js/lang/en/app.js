@@ -7,6 +7,8 @@ export default {
   yes: 'Yes',
   no: 'No',
   search: 'Search',
+  actions: 'Actions',
+  profile: 'Profile',
   flash: {
     clientError: {
       message: 'An unknown error occurred in the application!',
@@ -78,12 +80,29 @@ export default {
 
     users: {
       title: 'Users',
-      viewAny: 'Show all users'
+      viewAny: 'Show all users',
+      view: 'Show users',
+      create: 'Create users',
+      update: 'Edit users',
+      delete: 'Delete users',
+      updateOwnAttributes: 'Update own firstname, lastname and email'
     }
   },
   overwrite: 'Overwrite',
   save: 'Save',
   back: 'Back',
+
+  true: 'Yes',
+  false: 'No',
+
+  nextPage: 'Next page',
+  previousPage: 'Previous page',
+
+  confirmPassword: {
+    title: 'Confirm password',
+    description: 'Please confirm your password before continuing!'
+  },
+
   browse: 'Browse',
   validation: {
     tooLarge: 'The selected file is too large.'

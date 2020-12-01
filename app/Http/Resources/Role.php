@@ -21,7 +21,10 @@ class Role extends JsonResource
             'updated_at'    => $this->updated_at,
             'permissions'   => Permission::collection($this->whenLoaded('permissions')),
             'model_name'    => $this->model_name,
-            'room_limit'    => $this->room_limit
+            'room_limit'    => $this->room_limit,
+            'automatic'     => $this->whenPivotLoaded('role_user', function () {
+                return $this->pivot->automatic;
+            })
         ];
     }
 }

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
 - Added setting menu for administrators ([#35], [#38])
 - Added a middleware to check whether the request is in sync with model of the database and not stale ([#40], [#41])
+- Added management of users and profile page ([#10], [#66])
 - Added management of application settings ([#55], [#60])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
@@ -29,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#7]: https://github.com/THM-Health/PILOS/issues/7
 [#8]: https://github.com/THM-Health/PILOS/issues/8
 [#9]: https://github.com/THM-Health/PILOS/issues/9
+[#10]: https://github.com/THM-Health/PILOS/issues/10
 [#11]: https://github.com/THM-Health/PILOS/pull/11
 [#12]: https://github.com/THM-Health/PILOS/issues/12
 [#13]: https://github.com/THM-Health/PILOS/pull/13
@@ -57,5 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#54]: https://github.com/THM-Health/PILOS/pull/54
 [#55]: https://github.com/THM-Health/PILOS/issues/55
 [#60]: https://github.com/THM-Health/PILOS/pull/60
+[#66]: https://github.com/THM-Health/PILOS/pull/66
+
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

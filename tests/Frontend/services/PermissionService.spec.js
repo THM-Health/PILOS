@@ -3,21 +3,34 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
 import EventBus from '../../../resources/js/services/EventBus';
+import sinon from 'sinon';
+import Vue from 'vue';
 
 describe('PermissionService', function () {
   describe('setCurrentUser', function () {
-    it('fires an event if the current user gets set and passes the newly set user as parameter', function (done) {
+    it('fires an event if the current user gets set and passes the newly set user as parameter', async function () {
       const oldUser = PermissionService.currentUser;
       const newUser = { permissions: ['foo', 'bar'] };
-      const handleUserChanged = function () {
-        expect(arguments.length).toEqual(1);
-        expect(arguments[0]).toEqual(newUser);
-        PermissionService.setCurrentUser(oldUser);
-        done();
-      };
+      const handleUserChanged = sinon.spy();
 
-      EventBus.$once('currentUserChangedEvent', handleUserChanged);
+      EventBus.$on('currentUserChangedEvent', handleUserChanged);
       PermissionService.setCurrentUser(newUser);
+      await Vue.nextTick();
+
+      sinon.assert.calledOnce(handleUserChanged);
+      sinon.assert.calledWith(handleUserChanged, newUser);
+
+      EventBus.$off('currentUserChangedEvent', handleUserChanged);
+
+      const spy = sinon.spy();
+      EventBus.$on('currentUserChangedEvent', spy);
+      PermissionService.setCurrentUser(newUser, false);
+      await Vue.nextTick();
+
+      sinon.assert.notCalled(spy);
+
+      EventBus.$off('currentUserChangedEvent', spy);
+      PermissionService.setCurrentUser(oldUser);
     });
   });
 

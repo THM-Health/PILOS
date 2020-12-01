@@ -9,7 +9,7 @@ localVue.use(BootstrapVue);
 
 describe('LocaleSelector', function () {
   beforeEach(function () {
-    LocaleSelector.__set__('localeMap', {
+    LocaleSelector.__set__('LocaleMap', {
       de: 'German',
       en: 'English',
       ru: 'Russian'
@@ -18,7 +18,7 @@ describe('LocaleSelector', function () {
   });
 
   afterEach(function () {
-    LocaleSelector.__ResetDependency__('localeMap');
+    LocaleSelector.__ResetDependency__('LocaleMap');
     moxios.uninstall();
   });
 

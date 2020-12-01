@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import App from '../../resources/js/views/App';
 import Vuex from 'vuex';
-import BootstrapVue, { BDropdownDivider, BDropdownItem } from 'bootstrap-vue';
+import BootstrapVue, { BDropdownItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
 import Vue from 'vue';
 
@@ -34,7 +34,7 @@ const store = new Vuex.Store({
 });
 
 describe('App', function () {
-  it('settings menu item and divider gets only shown if the user has permissions to manage settings', async function () {
+  it('settings menu item gets only shown if the user has permissions to manage settings', async function () {
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
 
@@ -57,7 +57,6 @@ describe('App', function () {
     });
 
     await Vue.nextTick();
-    expect(wrapper.findAllComponents(BDropdownDivider).length).toBe(0);
     expect(wrapper.findAllComponents(BDropdownItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(0);
@@ -65,7 +64,6 @@ describe('App', function () {
     currentUser.permissions = ['settings.manage'];
     PermissionService.setCurrentUser(currentUser);
     await Vue.nextTick();
-    expect(wrapper.findAllComponents(BDropdownDivider).length).toBe(1);
     expect(wrapper.findAllComponents(BDropdownItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(1);
