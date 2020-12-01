@@ -353,38 +353,53 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    // Errors data logo file array is undefined at the beginning
-    expect(view.vm.$data.errors.pagination_page_size).toBeUndefined();
-
-    // Save button, which triggers updateSettings method when clicked
-    const saveSettingsButton = view.find('#application-save-button');
-    expect(saveSettingsButton.exists()).toBeTruthy();
-    saveSettingsButton.trigger('click');
-    view.vm.$nextTick();
-
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
+
       request.respondWith({
-        status: env.HTTP_UNPROCESSABLE_ENTITY,
+        status: 200,
         response: {
-          errors: {
-            logo: ['logo error'],
-            room_limit: ['room limit error'],
-            pagination_page_size: ['pagination page size error.'],
-            own_rooms_pagination_page_size: ['own rooms pagination page size error']
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5
           }
         }
       }).then(() => {
-        view.vm.$nextTick();
+        // Errors data logo file array is undefined at the beginning
+        expect(view.vm.$data.errors.pagination_page_size).toBeUndefined();
 
-        // Errors data populated accordingly to error response for this code
-        expect(view.vm.$data.errors.logo.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.room_limit.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.pagination_page_size.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.own_rooms_pagination_page_size.length).toBeGreaterThan(0);
+        // Save button, which triggers updateSettings method when clicked
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
 
-        Base.error.restore();
-        done();
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          request.respondWith({
+            status: env.HTTP_UNPROCESSABLE_ENTITY,
+            response: {
+              errors: {
+                logo: ['logo error'],
+                room_limit: ['room limit error'],
+                pagination_page_size: ['pagination page size error.'],
+                own_rooms_pagination_page_size: ['own rooms pagination page size error']
+              }
+            }
+          }).then(() => {
+            return view.vm.$nextTick();
+          }).then(() => {
+            // Errors data populated accordingly to error response for this code
+            expect(view.vm.$data.errors.logo.length).toBeGreaterThan(0);
+            expect(view.vm.$data.errors.room_limit.length).toBeGreaterThan(0);
+            expect(view.vm.$data.errors.pagination_page_size.length).toBeGreaterThan(0);
+            expect(view.vm.$data.errors.own_rooms_pagination_page_size.length).toBeGreaterThan(0);
+
+            Base.error.restore();
+            done();
+          });
+        });
       });
     });
   });
