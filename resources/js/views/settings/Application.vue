@@ -1,11 +1,11 @@
 <template>
   <b-container fluid>
-      <h3>
-        {{ $t('settings.application.title') }}
-      </h3>
+    <h3>
+      {{ $t('settings.application.title') }}
+    </h3>
 
-      <hr>
-    <b-overlay :show="!loaded">
+    <hr>
+    <b-overlay :show="isBusy || !loaded">
 
       <template #overlay>
         <div class="text-center">
@@ -259,7 +259,7 @@
         <hr>
         <div class="clearfix">
           <b-button id="application-save-button"
-                    class="float-right"
+                    class="float-right mr-1 mb-1"
                     variant="success"
                     type="submit"
                     v-if="!viewOnly"
@@ -428,11 +428,6 @@ export default {
     }
   },
   watch: {
-
-    room_limit (newValue, oldValue) {
-
-    },
-
     /**
      * watch for logo file select changes, encode to base64 and display image
      * @param newValue
