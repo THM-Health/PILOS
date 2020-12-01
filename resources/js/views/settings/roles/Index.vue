@@ -40,7 +40,7 @@
       </template>
 
       <template v-slot:cell(default)="data">
-        {{ $t(`app.${data.item.default}`) }}
+        {{ $t(`app.${data.item.default ? 'yes' : 'no'}`) }}
       </template>
 
       <template v-slot:cell(actions)="data">
@@ -95,7 +95,7 @@
       :busy='deleting'
       ok-variant='danger'
       cancel-variant='dark'
-      :cancel-title="$t('app.false')"
+      :cancel-title="$t('app.no')"
       @ok='deleteRole($event)'
       @cancel='clearRoleToDelete'
       @close='clearRoleToDelete'
@@ -105,7 +105,7 @@
         {{ $t('settings.roles.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="roleToDelete">
         {{ $t('settings.roles.delete.confirm', { name: $te(`app.roles.${roleToDelete.name}`) ? $t(`app.roles.${roleToDelete.name}`) : roleToDelete.name }) }}

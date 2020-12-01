@@ -117,7 +117,7 @@
       :busy='deleting'
       ok-variant='danger'
       cancel-variant='dark'
-      :cancel-title="$t('app.false')"
+      :cancel-title="$t('app.no')"
       @ok='deleteUser($event)'
       @cancel='clearUserToDelete'
       @close='clearUserToDelete'
@@ -127,7 +127,7 @@
         {{ $t('settings.users.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="userToDelete">
         {{ $t('settings.users.delete.confirm', { firstname: userToDelete.firstname, lastname: userToDelete.lastname }) }}

@@ -15,6 +15,11 @@ export default {
       title: 'Fehler'
     },
 
+    tooLarge: {
+      message: 'Die übertragenen Daten waren zu groß!',
+      title: 'Fehler'
+    },
+
     guestsOnly: {
       message: 'Die Anfrage ist nur für nicht angemeldete Nutzer gestattet!',
       title: 'Nür für Gäste'
@@ -59,7 +64,9 @@ export default {
 
     settings: {
       title: 'Einstellungen',
-      manage: 'Einstellungen verwalten'
+      manage: 'Einstellungen verwalten',
+      update: 'Einstellungen bearbeiten',
+      viewAny: 'Alle Einstellungen anzeigen'
     },
 
     roles: {
@@ -85,9 +92,10 @@ export default {
   overwrite: 'Überschreiben',
   save: 'Speichern',
   back: 'Zurück',
-
-  true: 'Ja',
-  false: 'Nein',
+  browse: 'Durchsuchen',
+  validation: {
+    tooLarge: 'Die ausgewählte Datei ist zu groß.'
+  },
 
   nextPage: 'Nächste Seite',
   previousPage: 'Vorherige Seite',

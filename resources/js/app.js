@@ -51,6 +51,8 @@ Vue.config.errorHandler = function (error, vm, info) {
   } else if (responseStatus === env.HTTP_GUESTS_ONLY) { // 420 => only for guests, redirect to home route
     vm.flashMessage.info(vm.$t('app.flash.guestsOnly'));
     vm.$router.replace({ name: 'home' });
+  } else if (responseStatus === env.HTTP_PAYLOAD_TOO_LARGE) { // 413 => payload to large
+    vm.flashMessage.error(vm.$t('app.flash.tooLarge'));
   } else if (responseStatus !== undefined) { // Another error on server
     vm.flashMessage.error({
       message: errorMessage ? vm.$t('app.flash.serverError.message', { message: errorMessage }) : vm.$t('app.flash.serverError.emptyMessage'),

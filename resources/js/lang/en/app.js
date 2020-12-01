@@ -15,6 +15,11 @@ export default {
       title: 'Error'
     },
 
+    tooLarge: {
+      message: 'The transmitted data was too large!',
+      title: 'Error'
+    },
+
     guestsOnly: {
       message: 'The request can only be done by guests!',
       title: 'Only for guests'
@@ -59,7 +64,9 @@ export default {
 
     settings: {
       title: 'Settings',
-      manage: 'Manage settings'
+      manage: 'Manage settings',
+      update: 'Edit settings',
+      viewAny: 'Show all settings'
     },
 
     roles: {
@@ -81,13 +88,9 @@ export default {
       updateOwnAttributes: 'Update own firstname, lastname and email'
     }
   },
-
   overwrite: 'Overwrite',
   save: 'Save',
   back: 'Back',
-
-  true: 'Yes',
-  false: 'No',
 
   nextPage: 'Next page',
   previousPage: 'Previous page',
@@ -95,5 +98,10 @@ export default {
   confirmPassword: {
     title: 'Confirm password',
     description: 'Please confirm your password before continuing!'
+  },
+
+  browse: 'Browse',
+  validation: {
+    tooLarge: 'The selected file is too large.'
   }
 };

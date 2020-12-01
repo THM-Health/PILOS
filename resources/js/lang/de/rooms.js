@@ -65,9 +65,6 @@ export default {
     },
     formats: 'Erlaubte Dateiformate: {formats}',
     size: 'Max. Dateigröße: {size} MB',
-    validation: {
-      tooLarge: 'Die ausgewählte Datei ist zu groß.'
-    },
     termsOfUse: {
       title: 'Nutzungsbedingungen',
       content: 'Dateien, welche hier zum Download angeboten werden, sind ausschließlich für das persönliche Studium. Die Dateien, oder Inhalte aus diesen, dürfen nicht geteilt oder weiterverbreitet werden.',
