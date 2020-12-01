@@ -92,9 +92,6 @@ export default {
   save: 'Save',
   back: 'Back',
 
-  true: 'Yes',
-  false: 'No',
-
   nextPage: 'Next page',
   previousPage: 'Previous page',
 

@@ -97,9 +97,6 @@ export default {
     tooLarge: 'Die ausgewählte Datei ist zu groß.'
   },
 
-  true: 'Ja',
-  false: 'Nein',
-
   nextPage: 'Nächste Seite',
   previousPage: 'Vorherige Seite',
 
