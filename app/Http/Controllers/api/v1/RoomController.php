@@ -11,7 +11,6 @@ use App\Http\Resources\RoomSettings;
 use App\Room;
 use App\Server;
 use Auth;
-use http\Env\Response;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
@@ -114,8 +113,8 @@ class RoomController extends Controller
     {
         $this->authorize('start', $room);
 
-        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
-        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
+        $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
@@ -150,8 +149,8 @@ class RoomController extends Controller
      */
     public function join(Room $room, StartJoinMeeting $request)
     {
-        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
-        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
+        $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
         $meeting = $room->runningMeeting();
 
