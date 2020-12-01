@@ -19,7 +19,7 @@
         </div>
       </template>
 
-      <b-form @submit="onSubmit">
+      <b-form @submit="onSubmit" :aria-hidden="!loaded">
 
         <!--Application name-->
         <b-form-group
@@ -34,7 +34,7 @@
                         v-model="settings.name"
                         type="text"
                         required
-                        :disabled="isBusy || viewOnly"
+                        :disabled="isBusy || viewOnly || !loaded"
                         :state='fieldState("name")'
           >
           </b-form-input>
@@ -74,7 +74,7 @@
                 required
                 :placeholder="$t('settings.application.favicon.hint')"
                 v-model="settings.favicon"
-                :disabled="isBusy || viewOnly"
+                :disabled="isBusy || viewOnly || !loaded"
                 class="my-2"
                 :state='fieldState("favicon")'
               >
@@ -84,7 +84,7 @@
                 <b-form-file
                   id="application-favicon-form-file"
                   :state='fieldState("favicon_file")'
-                  :disabled="isBusy || viewOnly"
+                  :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
                   :placeholder="$t('settings.application.favicon.selectFile')"
                   v-model="uploadFaviconFile"
@@ -136,7 +136,7 @@
                 required
                 :placeholder="$t('settings.application.logo.hint')"
                 v-model="settings.logo"
-                :disabled="isBusy || viewOnly"
+                :disabled="isBusy || viewOnly || !loaded"
                 class="my-2"
                 :state='fieldState("logo")'
               >
@@ -146,7 +146,7 @@
                 <b-form-file
                   id="application-logo-form-file"
                   :state='fieldState("logo_file")'
-                  :disabled="isBusy || viewOnly"
+                  :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
                   :placeholder="$t('settings.application.logo.selectFile')"
                   v-model="uploadLogoFile"
@@ -182,7 +182,7 @@
             id="application-room-limit-radio-group"
             v-model='roomLimitMode'
             :options='roomLimitModeOptions'
-            :disabled='isBusy || viewOnly'
+            :disabled='isBusy || viewOnly || !loaded'
             required
             :state='fieldState("room_limit")'
             @change="roomLimitModeChanged"
@@ -197,7 +197,7 @@
             min='0'
             max="100"
             required
-            :disabled='isBusy || viewOnly'
+            :disabled='isBusy || viewOnly || !loaded'
             v-if="roomLimitMode === 'custom'">
           </b-form-input>
 
@@ -218,7 +218,7 @@
           <b-form-input id="application-pagination-page-size-input"
                         v-model="settings.pagination_page_size"
                         type="number"
-                        :disabled="isBusy || viewOnly"
+                        :disabled="isBusy || viewOnly || !loaded"
                         min="1"
                         max="100"
                         required
@@ -246,7 +246,7 @@
                         min="1"
                         max="25"
                         required
-                        :disabled="isBusy || viewOnly"
+                        :disabled="isBusy || viewOnly || !loaded"
                         :state='fieldState("own_rooms_pagination_page_size")'
           >
           </b-form-input>
@@ -263,7 +263,7 @@
                     variant="success"
                     type="submit"
                     v-if="!viewOnly"
-                    :disabled="isBusy">
+                    :disabled="isBusy || !loaded">
             <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
           </b-button>
         </div>
