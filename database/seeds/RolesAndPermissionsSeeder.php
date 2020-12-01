@@ -27,6 +27,11 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.update' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.delete' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.view' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.create' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.update' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.delete' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ])->id;
 
         $adminRole = Role::firstOrCreate([ 'name' => 'admin', 'default' => true, 'room_limit' => -1 ]);
         $adminRole->permissions()->syncWithoutDetaching($adminPermissions);

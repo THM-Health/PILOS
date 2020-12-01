@@ -7,6 +7,8 @@ export default {
   yes: 'Ja',
   no: 'Nein',
   search: 'Suche',
+  actions: 'Aktionen',
+  profile: 'Profil',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
@@ -71,7 +73,12 @@ export default {
 
     users: {
       title: 'Benutzer',
-      viewAny: 'Alle Benutzer anzeigen'
+      viewAny: 'Alle Benutzer anzeigen',
+      view: 'Benutzer anzeigen',
+      create: 'Benutzer erstellen',
+      update: 'Benutzer bearbeiten',
+      delete: 'Benutzer löschen',
+      updateOwnAttributes: 'Eigenen Vornamen, Nachnamen und E-Mail bearbeiten'
     }
   },
 
@@ -80,5 +87,13 @@ export default {
   back: 'Zurück',
 
   true: 'Ja',
-  false: 'Nein'
+  false: 'Nein',
+
+  nextPage: 'Nächste Seite',
+  previousPage: 'Vorherige Seite',
+
+  confirmPassword: {
+    title: 'Password bestätigen',
+    description: 'Bestätigen Sie bitte Ihr Passwort bevor Sie fortfahren!'
+  }
 };

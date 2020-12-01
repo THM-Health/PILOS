@@ -3,7 +3,6 @@
 namespace Tests\Feature\api\v1;
 
 use App\Role;
-use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;

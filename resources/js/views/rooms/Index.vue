@@ -81,10 +81,10 @@ export default {
       currentUser: state => state.session.currentUser
     }),
     showLimit: function () {
-      return this.currentUser.room_limit !== -1 && this.ownRooms !== null;
+      return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null;
     },
     limitReached: function () {
-      return this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.data.length >= this.currentUser.room_limit;
+      return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.data.length >= this.currentUser.room_limit;
     }
   },
   mounted: function () {

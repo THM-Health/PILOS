@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Enums\CustomStatusCodes;
 use App\Role;
+use Carbon\Carbon;
 use DateInterval;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\CreatesApplication;
@@ -37,9 +38,6 @@ class EnsureModelNotStaleTest extends TestCase
     public function testInvalidUpdatedAt()
     {
         $role = factory(Role::class)->create();
-        $this->postJson(route('test.stale.check', ['role' => $role]))
-            ->assertStatus(422)
-            ->assertJsonValidationErrors('updated_at');
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['updated_at' => 'test'])
             ->assertStatus(422)
@@ -53,13 +51,27 @@ class EnsureModelNotStaleTest extends TestCase
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at->sub(new DateInterval('P1D'))])
             ->assertStatus(CustomStatusCodes::STALE_MODEL)
             ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)->load('permissions')))->toJson(), true)]);
+
+        $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => null])
+            ->assertStatus(CustomStatusCodes::STALE_MODEL)
+            ->assertJsonFragment(['new_model' => json_decode((new \App\HTTP\Resources\Role(Role::find($role->id)->load('permissions')))->toJson(), true)]);
     }
 
     public function testActualModel()
     {
-        $role = factory(Role::class)->create();
+        $role = factory(Role::class)->create(['updated_at' => null]);
 
-        $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at])
+        $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => null])
+            ->assertSuccessful()
+            ->assertSeeText('OK');
+
+        $now = Carbon::now();
+        $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $now])
+            ->assertSuccessful()
+            ->assertSeeText('OK');
+
+        $role->update(['updated_at' => $now]);
+        $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $now])
             ->assertSuccessful()
             ->assertSeeText('OK');
     }

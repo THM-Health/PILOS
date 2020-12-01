@@ -1,8 +1,8 @@
-import Index from '../../../../../resources/js/views/settings/roles/Index';
 import { createLocalVue, mount } from '@vue/test-utils';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import BootstrapVue, { BButton, BButtonClose, BModal, BTbody, BTr, IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
-import BootstrapVue, { IconsPlugin, BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
+import PermissionService from '../../../../../resources/js/services/PermissionService';
+import Index from '../../../../../resources/js/views/settings/users/Index';
 import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 
@@ -16,7 +16,7 @@ const createContainer = (tag = 'div') => {
   return container;
 };
 
-describe('RolesIndex', function () {
+describe('UsersIndex', function () {
   beforeEach(function () {
     moxios.install();
   });
@@ -25,16 +25,15 @@ describe('RolesIndex', function () {
     moxios.uninstall();
   });
 
-  it('list of roles with pagination gets displayed', function (done) {
+  it('list of users with pagination gets displayed', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
 
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key,
-        $te: key => key === 'app.roles.admin'
+        $t: key => key
       }
     });
 
@@ -46,10 +45,16 @@ describe('RolesIndex', function () {
         status: 200,
         response: {
           data: [{
-            id: '1',
-            name: 'Test',
-            default: false,
-            model_name: 'Role'
+            id: 1,
+            authenticator: 'users',
+            email: 'john@doe.com',
+            username: 'jdo',
+            firstname: 'John',
+            lastname: 'Doe',
+            user_locale: 'en',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01 01:00:00'
           }],
           meta: {
             per_page: 1,
@@ -61,11 +66,13 @@ describe('RolesIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         let html = view.findComponent(BTbody).findComponent(BTr).html();
-        expect(html).toContain('Test');
-        expect(html).toContain('app.false');
         expect(html).toContain('1');
+        expect(html).toContain('John');
+        expect(html).toContain('Doe');
+        expect(html).toContain('john@doe.com');
+        expect(html).toContain('settings.users.authenticator.users');
 
-        view.vm.$root.$emit('bv::refresh::table', 'roles-table');
+        view.vm.$root.$emit('bv::refresh::table', 'users-table');
 
         moxios.wait(function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
@@ -75,10 +82,16 @@ describe('RolesIndex', function () {
             status: 200,
             response: {
               data: [{
-                id: '2',
-                name: 'admin',
-                default: true,
-                model_name: 'Role'
+                id: 2,
+                authenticator: 'ldap',
+                email: 'darth@vader.com',
+                username: 'dvr',
+                firstname: 'Darth',
+                lastname: 'Vader',
+                user_locale: 'de',
+                model_name: 'User',
+                room_limit: 0,
+                updated_at: '2020-01-01 01:00:00'
               }],
               meta: {
                 per_page: 1,
@@ -88,10 +101,11 @@ describe('RolesIndex', function () {
             }
           }).then(() => {
             html = view.findComponent(BTbody).findComponent(BTr).html();
-
-            expect(html).toContain('app.roles.admin');
-            expect(html).toContain('app.true');
             expect(html).toContain('2');
+            expect(html).toContain('Darth');
+            expect(html).toContain('Vader');
+            expect(html).toContain('darth@vader.com');
+            expect(html).toContain('settings.users.authenticator.ldap');
 
             view.destroy();
             PermissionService.setCurrentUser(oldUser);
@@ -102,24 +116,36 @@ describe('RolesIndex', function () {
     });
   });
 
-  it('update and delete buttons only shown if user has the permission and the role is not system default', function (done) {
+  it('update and delete buttons only shown if user has the permission', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
+    PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
 
     const response = {
       status: 200,
       response: {
         data: [{
-          id: '1',
-          name: 'Test',
-          default: false,
-          model_name: 'Role'
+          id: 1,
+          authenticator: 'users',
+          email: 'john@doe.com',
+          username: 'jdo',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'en',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01 01:00:00'
         }, {
-          id: '2',
-          name: 'admin',
-          default: true,
-          model_name: 'Role'
+          id: 2,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01 01:00:00'
         }],
         meta: {
           per_page: 2,
@@ -132,8 +158,7 @@ describe('RolesIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key,
-        $te: key => key === 'app.roles.admin'
+        $t: key => key
       },
       attachTo: createContainer()
     });
@@ -146,14 +171,13 @@ describe('RolesIndex', function () {
           expect(row.findAllComponents(BButton).length).toEqual(0);
         });
 
-        PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.update', 'roles.view', 'roles.delete'] });
+        PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete'] });
 
         return view.vm.$nextTick();
       }).then(() => {
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(1);
-        expect(rows.at(1).findComponent(BButton).html()).toContain('settings.roles.view');
+        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+        expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
 
         view.destroy();
         PermissionService.setCurrentUser(oldUser);
@@ -169,8 +193,7 @@ describe('RolesIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key,
-        $te: key => key === 'app.roles.admin'
+        $t: key => key
       },
       attachTo: createContainer()
     });
@@ -193,19 +216,25 @@ describe('RolesIndex', function () {
     });
   });
 
-  it('not system roles can be deleted', function (done) {
+  it('not own users can be deleted', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
+    PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
 
     const response = {
       status: 200,
       response: {
         data: [{
-          id: '1',
-          name: 'Test',
-          default: false,
-          model_name: 'Role'
+          id: 2,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01 01:00:00'
         }],
         meta: {
           per_page: 2,
@@ -218,8 +247,7 @@ describe('RolesIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key,
-        $te: key => key === 'app.roles.admin'
+        $t: key => key
       },
       attachTo: createContainer(),
       propsData: {
@@ -256,16 +284,22 @@ describe('RolesIndex', function () {
   it('property gets cleared correctly if deletion gets aborted', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
 
     const response = {
       status: 200,
       response: {
         data: [{
-          id: '1',
-          name: 'Test',
-          default: false,
-          model_name: 'Role'
+          id: 2,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01 01:00:00'
         }],
         meta: {
           per_page: 2,
@@ -278,8 +312,7 @@ describe('RolesIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key,
-        $te: key => key === 'app.roles.admin'
+        $t: key => key
       },
       attachTo: createContainer(),
       propsData: {
@@ -292,19 +325,19 @@ describe('RolesIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.roleToDelete).toBeUndefined();
+        expect(view.vm.$data.userToDelete).toBeUndefined();
         view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
 
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        expect(view.vm.$data.roleToDelete.id).toEqual('1');
+        expect(view.vm.$data.userToDelete.id).toEqual(2);
         view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
 
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.roleToDelete).toBeUndefined();
+        expect(view.vm.$data.userToDelete).toBeUndefined();
 
         view.destroy();
         PermissionService.setCurrentUser(oldUser);
@@ -313,16 +346,15 @@ describe('RolesIndex', function () {
     });
   });
 
-  it('new role button is displayed if the user has the corresponding permissions', function (done) {
+  it('new user button is displayed if the user has the corresponding permissions', function (done) {
     const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.create'] });
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
 
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key,
-        $te: key => key === 'app.roles.admin'
+        $t: key => key
       },
       attachTo: createContainer()
     });
@@ -342,7 +374,7 @@ describe('RolesIndex', function () {
       }).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
-        expect(view.findComponent(BButton).html()).toContain('settings.roles.new');
+        expect(view.findComponent(BButton).html()).toContain('settings.users.new');
 
         view.destroy();
         PermissionService.setCurrentUser(oldUser);
