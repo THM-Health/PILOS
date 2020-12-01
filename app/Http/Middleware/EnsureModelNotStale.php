@@ -31,8 +31,6 @@ class EnsureModelNotStale
 
         if ($model->updated_at != null && ($request->updated_at == null || $model->updated_at->gt(Carbon::parse($request->updated_at)))) {
             $model->load($relationshipsToLoad);
-            var_dump($model->updated_at);
-            var_dump($request->updated_at);
 
             return response()->json([
                 'error'     => CustomStatusCodes::STALE_MODEL,

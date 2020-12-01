@@ -311,6 +311,7 @@ class UserTest extends TestCase
         $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
         $role->permissions()->attach($permission->id);
 
+        $changes['updated_at'] = Carbon::now();
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
 
