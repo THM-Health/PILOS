@@ -6,6 +6,8 @@
 
       <hr>
 
+    <b-form @submit="onSubmit">
+
     <!--Application name-->
     <b-form-group
       label-class="font-weight-bold"
@@ -18,6 +20,7 @@
       <b-form-input id="application-name-input"
                     v-model="settings.name"
                     type="text"
+                    required
                     :disabled="isBusy || viewOnly"
                     :state='fieldState("name")'
       >
@@ -55,6 +58,7 @@
           <b-form-input
             id="application-favicon-input"
             v-if="!uploadFaviconFile"
+            required
             :placeholder="$t('settings.application.favicon.hint')"
             v-model="settings.favicon"
             :disabled="isBusy || viewOnly"
@@ -116,6 +120,7 @@
             <b-form-input
               id="application-logo-input"
               v-if="!uploadLogoFile"
+              required
               :placeholder="$t('settings.application.logo.hint')"
               v-model="settings.logo"
               :disabled="isBusy || viewOnly"
@@ -165,6 +170,7 @@
           v-model='roomLimitMode'
           :options='roomLimitModeOptions'
           :disabled='isBusy || viewOnly'
+          required
           :state='fieldState("room_limit")'
           @change="roomLimitModeChanged"
           stacked
@@ -176,6 +182,8 @@
           :state='fieldState("room_limit")'
           v-model='settings.room_limit'
           min='0'
+          max="100"
+          required
           :disabled='isBusy || viewOnly'
           v-if="roomLimitMode === 'custom'">
         </b-form-input>
@@ -198,6 +206,9 @@
                       v-model="settings.pagination_page_size"
                       type="number"
                       :disabled="isBusy || viewOnly"
+                      min="1"
+                      max="100"
+                      required
                       :state='fieldState("pagination_page_size")'
         >
         </b-form-input>
@@ -219,6 +230,9 @@
         <b-form-input id="application-pagination-own-room-page-size-input"
                       v-model="settings.own_rooms_pagination_page_size"
                       type="number"
+                      min="1"
+                      max="25"
+                      required
                       :disabled="isBusy || viewOnly"
                       :state='fieldState("own_rooms_pagination_page_size")'
         >
@@ -233,11 +247,13 @@
     <b-button id="application-save-button"
               class="float-right"
               variant="success"
-              @click="updateSettings(settings)"
+              type="submit"
               v-if="!viewOnly"
               :disabled="isBusy">
       <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
     </b-button>
+
+    </b-form>
 
     </b-container>
 </template>
@@ -290,11 +306,18 @@ export default {
     },
 
     /**
+     * Handle form submit event, prevent default form submission, instead call updateSettings to send data to server
+     */
+    onSubmit (evt) {
+      evt.preventDefault();
+      this.updateSettings();
+    },
+
+    /**
      * Handle update settings data
      *
-     * @param settings Settings object to fill the payload
      */
-    updateSettings (settings) {
+    updateSettings () {
       this.isBusy = true;
 
       // Build form data
@@ -302,17 +325,17 @@ export default {
       if (this.uploadLogoFile) {
         formData.append('logo_file', this.uploadLogoFile);
       } else {
-        formData.append('logo', settings.logo);
+        formData.append('logo', this.settings.logo);
       }
       if (this.uploadFaviconFile) {
         formData.append('favicon_file', this.uploadFaviconFile);
       } else {
-        formData.append('favicon', settings.favicon);
+        formData.append('favicon', this.settings.favicon);
       }
-      formData.append('name', settings.name);
-      formData.append('room_limit', settings.roomLimit);
-      formData.append('pagination_page_size', settings.paginationPageSize);
-      formData.append('own_rooms_pagination_page_size', settings.ownRoomsPaginationPageSize);
+      formData.append('name', this.settings.name);
+      formData.append('room_limit', this.settings.room_limit);
+      formData.append('pagination_page_size', this.settings.pagination_page_size);
+      formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
       formData.append('_method', 'PUT');
 
       Base.call('settings',
