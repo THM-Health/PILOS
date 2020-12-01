@@ -78,7 +78,7 @@ export default {
       create: 'Benutzer erstellen',
       update: 'Benutzer bearbeiten',
       delete: 'Benutzer löschen',
-      updateOwnAttributes: 'Eigenen Vornamen, Nachnamen, E-Mail und Benutzernamen bearbeiten'
+      updateOwnAttributes: 'Eigenen Vornamen, Nachnamen und E-Mail bearbeiten'
     }
   },
 

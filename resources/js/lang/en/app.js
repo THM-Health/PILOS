@@ -78,7 +78,7 @@ export default {
       create: 'Create users',
       update: 'Edit users',
       delete: 'Delete users',
-      updateOwnAttributes: 'Update own firstname, lastname, username and email'
+      updateOwnAttributes: 'Update own firstname, lastname and email'
     }
   },
 

@@ -345,7 +345,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const inputs = view.findAllComponents(BFormInput);
-      expect(inputs.length).toBe(4);
+      expect(inputs.length).toBe(3);
       inputs.wrappers.forEach((input) => {
         expect(input.vm.disabled).toBe(true);
       });
@@ -380,7 +380,7 @@ describe('UsersView', function () {
 
     view.vm.$nextTick().then(() => {
       const inputs = view.findAllComponents(BFormInput);
-      expect(inputs.length).toBe(6);
+      expect(inputs.length).toBe(5);
       inputs.wrappers.forEach((input) => {
         expect(input.vm.disabled).toBe(false);
       });
@@ -474,13 +474,12 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const inputs = view.findAllComponents(BFormInput);
-      expect(inputs.length).toBe(6);
+      expect(inputs.length).toBe(5);
       expect(inputs.at(0).element.value).toBe('John');
       expect(inputs.at(1).element.value).toBe('Doe');
-      expect(inputs.at(2).element.value).toBe('jdo');
-      expect(inputs.at(3).element.value).toBe('john@doe.com');
+      expect(inputs.at(2).element.value).toBe('john@doe.com');
+      expect(inputs.at(3).element.value).toBe('');
       expect(inputs.at(4).element.value).toBe('');
-      expect(inputs.at(5).element.value).toBe('');
 
       const selects = view.findAllComponents(BFormSelect);
       expect(selects.length).toBe(1);
@@ -520,13 +519,11 @@ describe('UsersView', function () {
       inputs.at(0).setValue('Max').then(() => {
         return inputs.at(1).setValue('Mustermann');
       }).then(() => {
-        return inputs.at(2).setValue('mm1');
+        return inputs.at(2).setValue('max@mustermann.de');
       }).then(() => {
-        return inputs.at(3).setValue('max@mustermann.de');
+        return inputs.at(3).setValue('Test_123');
       }).then(() => {
         return inputs.at(4).setValue('Test_123');
-      }).then(() => {
-        return inputs.at(5).setValue('Test_123');
       }).then(() => {
         const selects = view.findAllComponents(BFormSelect);
         return selects.at(0).setValue('de');
@@ -542,7 +539,6 @@ describe('UsersView', function () {
 
           expect(data.firstname).toBe('Max');
           expect(data.lastname).toBe('Mustermann');
-          expect(data.username).toBe('mm1');
           expect(data.email).toBe('max@mustermann.de');
           expect(data.password).toBe('Test_123');
           expect(data.password_confirmation).toBe('Test_123');

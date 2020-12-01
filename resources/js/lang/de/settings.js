@@ -56,7 +56,6 @@ export default {
     firstname: 'Vorname',
     lastname: 'Nachname',
     email: 'E-Mail',
-    username: 'Benutzername',
     password: 'Passwort',
     password_confirmation: 'Passwort bestätigen',
     user_locale: 'Sprache',

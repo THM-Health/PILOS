@@ -22,7 +22,6 @@ class UserRequest extends FormRequest
         ];
 
         if (!$this->user || $this->user->authenticator === 'users') {
-            $rules['username']  = 'required|string|max:255|unique:users,username' . ($this->user ? ',' . $this->user->id : '');
             $rules['firstname'] = 'required|string|max:255';
             $rules['lastname']  = 'required|string|max:255';
             $rules['email']     = 'required|string|email|max:255|unique:users,email' . ($this->user ? ',' . $this->user->id : '');

@@ -158,7 +158,7 @@ return [
     'attributes' => [
         'name'                              => 'Name',
         'user'                              => 'Benutzer',
-        'username'                          => 'Benutzername',
+        'username'                          => 'Benutzerkennung',
         'email'                             => 'E-Mail Adresse',
         'first_name'                        => 'Vorname',
         'last_name'                         => 'Nachname',

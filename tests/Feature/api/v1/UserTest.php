@@ -168,13 +168,12 @@ class UserTest extends TestCase
         // Empty request
         $this->actingAs($user)->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles', 'username']);
+            ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles']);
 
         $request = [
             'firstname'   => str_repeat('a', 256),
             'lastname'    => str_repeat('a', 256),
             'user_locale' => 451,
-            'username'    => str_repeat('a', 256),
             'email'       => 'test',
             'password'    => 'aT2wqw_2',
             'roles'       => [99]
@@ -182,7 +181,7 @@ class UserTest extends TestCase
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles.0', 'username']);
+            ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles.0']);
 
         config([
             'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
@@ -193,7 +192,7 @@ class UserTest extends TestCase
             'lastname'              => $this->faker->lastName,
             'user_locale'           => 'hr',
             'email'                 => $user->email,
-            'username'              => $user->username,
+            'username'              => $this->faker->userName,
             'password'              => 'aT2wqw_2',
             'password_confirmation' => 'aT2wqw_2',
             'roles'                 => [$role->id],
@@ -215,7 +214,7 @@ class UserTest extends TestCase
                 'lastname'      => $request['lastname'],
                 'user_locale'   => $request['user_locale'],
                 'email'         => $request['email'],
-                'username'      => $request['username'],
+                'username'      => null,
                 'roles'         => [[ 'id' => $role->id, 'name' => $role->name, 'automatic' => false ]],
                 'authenticator' => 'users'
             ]);
@@ -315,7 +314,7 @@ class UserTest extends TestCase
         // Existing user invalid
         $this->putJson(route('api.v1.users.update', ['user' => $userToUpdate]), $changes)
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['username', 'email']);
+            ->assertJsonValidationErrors(['email']);
 
         // Existing user valid normal user
         $this->putJson(route('api.v1.users.update', ['user' => $userToUpdate]), [

@@ -48,16 +48,17 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='3'
-            :label="$t('settings.users.username')"
+            :label="$t('auth.ldap.username')"
             label-for='username'
             :state='fieldState("username")'
+            v-if="model.authenticator === 'ldap'"
           >
             <b-form-input
               id='username'
               type='text'
               v-model='model.username'
               :state='fieldState("username")'
-              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
+              :disabled="true"
             ></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('username')"></div></template>
           </b-form-group>

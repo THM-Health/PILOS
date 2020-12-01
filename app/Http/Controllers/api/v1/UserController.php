@@ -75,7 +75,6 @@ class UserController extends Controller
         $user->lastname  = $request->lastname;
         $user->email     = $request->email;
         $user->locale    = $request->user_locale;
-        $user->username  = $request->username;
         $user->password  = Hash::make($request->password);
 
         // TODO: email verification
@@ -115,7 +114,6 @@ class UserController extends Controller
             $user->firstname = $request->firstname;
             $user->lastname  = $request->lastname;
             $user->email     = $request->email;
-            $user->username  = $request->username;
 
             // TODO: email verification
             if ($user->wasChanged('email')) {
