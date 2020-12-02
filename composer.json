@@ -22,7 +22,8 @@
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "littleredbutton/bigbluebutton-api-php": "^3.2.0"
+        "littleredbutton/bigbluebutton-api-php": "^3.2.0",
+        "ext-json": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",
@@ -35,8 +36,7 @@
         "friendsofphp/php-cs-fixer": "2.*",
         "squizlabs/php_codesniffer": "3.*",
         "php-coveralls/php-coveralls": "~2.2.0",
-        "brainmaestro/composer-git-hooks": "^2.8",
-        "ext-json": "*"
+        "brainmaestro/composer-git-hooks": "^2.8"
     },
     "config": {
         "optimize-autoloader": true,

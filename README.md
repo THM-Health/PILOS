@@ -85,6 +85,12 @@ Lastly you can run the following command in your host machine ``npm install `` t
 ``composer install `` and ``php artisan serve`` inside your vagrant ssh terminal.
 
 
+To log the status of all meetings and servers and to keep the database up to date, setup a cronjob on your server.
+
+```
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
 ## Stacks
 
 1. [BigBlueButton](https://bigbluebutton.org/) - BigBlueButton is an open source web conferencing system.
