@@ -8,6 +8,7 @@ use App\ServerStat;
 use App\Room;
 use App\Server;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class BuildHistory extends Command
 {
@@ -32,7 +33,10 @@ class BuildHistory extends Command
      */
     public function handle()
     {
-        // TODO End meetings marked in database as still running but not found on server api calls
+        // Get list with all meetings marked in the db as running and collect meetings
+        // that are currently running on the server
+        $allRunningMeetingsInDb      = Meeting::whereNull('end')->pluck('id');
+        $allRunningMeetingsOnServers = new Collection();
 
         $servers = Server::all();
 
@@ -41,6 +45,8 @@ class BuildHistory extends Command
                 continue;
             }
             $bbbMeetings = $server->getMeetings();
+
+            // Server is offline, end all meetings  in database
             if ($bbbMeetings == null) {
                 $server->participant_count       = null;
                 $server->listener_count          = null;
@@ -82,6 +88,8 @@ class BuildHistory extends Command
                 $serverStat->video_count += $bbbMeeting->getVideoCount();
                 $serverStat->meeting_count++;
 
+                $allRunningMeetingsOnServers->add($bbbMeeting->getMeetingId());
+
                 $meeting = Meeting::find($bbbMeeting->getMeetingId());
                 if ($meeting === null) {
                     // Meeting was created via a different system, ignore
@@ -117,6 +125,17 @@ class BuildHistory extends Command
             $server->save();
 
             $server->stats()->save($serverStat);
+        }
+
+        // find meetings that are marked as running in the database, but have not been found on the servers
+        // fix the end date in the database to current timestamp
+        $meetingsNotRunningOnServers = $allRunningMeetingsInDb->diff($allRunningMeetingsOnServers);
+        foreach ($meetingsNotRunningOnServers as $meetingId) {
+            $meeting = Meeting::find($meetingId);
+            if ($meeting != null && $meeting->end == null) {
+                $meeting->end = date('Y-m-d H:i:s');
+                $meeting->save();
+            }
         }
     }
 }
