@@ -27,11 +27,7 @@
 import { loadLanguageAsync } from '../i18n';
 import { mapState } from 'vuex';
 import env from './../env.js';
-
-const localeMap = {
-  de: 'Deutsch',
-  en: 'English'
-};
+import LocaleMap from '../lang/LocaleMap';
 
 export default {
   props: {
@@ -39,17 +35,17 @@ export default {
       type: Array,
       required: true,
       validator: prop => prop.every(element => {
-        return typeof element === 'string' && Object.keys(localeMap).includes(element);
+        return typeof element === 'string' && Object.keys(LocaleMap).includes(element);
       })
     }
   },
 
   computed: {
     locales () {
-      return Object.keys(localeMap)
+      return Object.keys(LocaleMap)
         .filter(key => this.availableLocales.includes(key))
         .reduce((object, key) => {
-          object[key] = localeMap[key];
+          object[key] = LocaleMap[key];
           return object;
         }, {});
     },

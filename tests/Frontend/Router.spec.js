@@ -7,6 +7,12 @@ import Base from '../../resources/js/api/base';
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
 
+const accessPermittedUsersView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.users.view')[0].meta.accessPermitted;
+
+const accessPermittedSettingsView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.application')[0].meta.accessPermitted;
+
 describe('Router', function () {
   beforeEach(function () {
     moxios.install();
@@ -244,6 +250,95 @@ describe('Router', function () {
         expect(result).toBe(false);
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
+        done();
+      });
+    });
+
+    it('for users detail view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedUsersView({ id: 1 }, { view: '1' }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.view'] });
+        return accessPermittedUsersView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.view', 'settings.manage'] });
+        return accessPermittedUsersView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for users new view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedUsersView({ id: 'new' }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.create'] });
+        return accessPermittedUsersView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.create', 'settings.manage'] });
+        return accessPermittedUsersView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for users update view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedUsersView({ id: 1 }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.update'] });
+        return accessPermittedUsersView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['users.update', 'settings.manage'] });
+        return accessPermittedUsersView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for application settings update view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedSettingsView().then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['settings.viewAny'] });
+        return accessPermittedSettingsView();
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.update', 'settings.manage'] });
+        return accessPermittedSettingsView();
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.manage'] });
+        return accessPermittedSettingsView();
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });

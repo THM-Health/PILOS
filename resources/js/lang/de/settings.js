@@ -31,7 +31,6 @@ export default {
     },
 
     default: 'Standard',
-    actions: 'Aktionen',
     nodata: 'Es sind keine Rollen vorhanden!',
 
     noOptions: 'Keine Berechtigungen vorhanden!',
@@ -44,6 +43,78 @@ export default {
   },
 
   users: {
-    title: 'Benutzer'
+    title: 'Benutzer',
+
+    new: 'Neuen Benutzer erstellen',
+    view: 'Detaillierte Informationen für den Benutzer {firstname} {lastname}',
+    edit: 'Benutzer {firstname} {lastname} bearbeiten',
+
+    nodata: 'Es sind keine Benutzer vorhanden!',
+    nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
+
+    id: 'ID',
+    firstname: 'Vorname',
+    lastname: 'Nachname',
+    email: 'E-Mail',
+    password: 'Passwort',
+    password_confirmation: 'Passwort bestätigen',
+    user_locale: 'Sprache',
+    roles: 'Rollen',
+    select_locale: 'Bitte wählen Sie eine Sprache aus',
+    removeRole: 'Rolle entfernen',
+    authenticator: {
+      title: 'Anmeldeart',
+      users: 'Registrierter Nutzer',
+      ldap: 'LDAP'
+    },
+
+    delete: {
+      item: 'Benutzer {firstname} {lastname} löschen',
+      confirm: 'Wollen Sie den Benutzer {firstname} {lastname} wirklich löschen?',
+      title: 'Benutzer löschen?'
+    }
+  },
+
+  application: {
+    title: 'Anwendung',
+    logo: {
+      title: 'Logo',
+      uploadTitle: 'Logo hochladen (max. 500 KB)',
+      urlTitle: 'URL zu Logo-Datei',
+      description: 'URL zum Logo',
+      hint: 'https://domain.tld/path/logo.svg',
+      selectFile: 'Logo-Datei auswählen',
+      alt: 'Favicon Vorschau'
+    },
+
+    favicon: {
+      title: 'Favicon',
+      uploadTitle: 'Favicon hochladen (max. 500 KB, Format: .ico)',
+      urlTitle: 'URL zu Favicon-Datei',
+      description: 'URL zum Favicon',
+      hint: 'https://domain.tld/path/favicon.ico',
+      selectFile: 'Favicon-Datei auswählen',
+      alt: 'Favicon Vorschau'
+    },
+
+    name: {
+      title: 'Name der Anwendung',
+      description: 'Ändert den Seitentitel'
+    },
+
+    roomLimit: {
+      title: 'Anzahl der Räume pro Benutzer',
+      description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.'
+    },
+
+    paginationPageSize: {
+      title: 'Größe der Paginierung',
+      description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Datensätze in Tabellen'
+    },
+
+    ownRoomsPaginationPageSize: {
+      title: 'Größe der Paginierung für eigene Räume',
+      description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
+    }
   }
 };

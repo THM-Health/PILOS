@@ -62,7 +62,7 @@ describe('RolesIndex', function () {
       }).then(() => {
         let html = view.findComponent(BTbody).findComponent(BTr).html();
         expect(html).toContain('Test');
-        expect(html).toContain('app.false');
+        expect(html).toContain('app.no');
         expect(html).toContain('1');
 
         view.vm.$root.$emit('bv::refresh::table', 'roles-table');
@@ -90,7 +90,7 @@ describe('RolesIndex', function () {
             html = view.findComponent(BTbody).findComponent(BTr).html();
 
             expect(html).toContain('app.roles.admin');
-            expect(html).toContain('app.true');
+            expect(html).toContain('app.yes');
             expect(html).toContain('2');
 
             view.destroy();
@@ -187,6 +187,7 @@ describe('RolesIndex', function () {
       }).then(() => {
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
+        view.destroy();
         done();
       });
     });

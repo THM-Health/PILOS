@@ -12,7 +12,6 @@ use App\Meeting;
 use App\Room;
 use App\Server;
 use Auth;
-use http\Env\Response;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -114,8 +113,8 @@ class RoomController extends Controller
     {
         $this->authorize('start', $room);
 
-        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
-        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
+        $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
@@ -187,8 +186,8 @@ class RoomController extends Controller
      */
     public function join(Room $room, StartJoinMeeting $request)
     {
-        $name = Auth::guest() ? $request->name : Auth::user()->firstname.' '.Auth::user()->lastname;
-        $id   = Auth::guest() ? session()->getId() : Auth::user()->username;
+        $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
         // Check if there is a meeting running for this room, accordingly to the local database
         $meeting = $room->runningMeeting();

@@ -30,7 +30,6 @@ export default {
       }
     },
     default: 'Default',
-    actions: 'Actions',
     nodata: 'No roles found!',
 
     noOptions: 'No permissions found!',
@@ -43,6 +42,78 @@ export default {
   },
 
   users: {
-    title: 'Users'
+    title: 'Users',
+
+    new: 'Create new user',
+    view: 'Detailed information for the user {firstname} {lastname}',
+    edit: 'Edit user {firstname} {lastname}',
+
+    nodata: 'No users found!',
+    nodataFiltered: 'For the filter query no users were found!',
+
+    id: 'ID',
+    firstname: 'Firstname',
+    lastname: 'Lastname',
+    email: 'E-Mail',
+    password: 'Password',
+    password_confirmation: 'Password confirmation',
+    user_locale: 'Language',
+    roles: 'Roles',
+    select_locale: 'Please select a language',
+    removeRole: 'Remove role',
+    authenticator: {
+      title: 'Authentication Type',
+      users: 'Registered User',
+      ldap: 'LDAP'
+    },
+
+    delete: {
+      item: 'Delete user {firstname} {lastname}',
+      confirm: 'Are you really want to delete the user {firstname} {lastname}?',
+      title: 'Delete user?'
+    }
+  },
+
+  application: {
+    title: 'Application',
+    logo: {
+      title: 'Logo',
+      uploadTitle: 'Upload a logo (max. 500 KB)',
+      urlTitle: 'URL to logo file',
+      description: 'Changes the application logo. Enter the image URL',
+      hint: 'https://domain.tld/path/logo.svg',
+      selectFile: 'Select logo file',
+      alt: 'Logo preview'
+    },
+
+    favicon: {
+      title: 'Favicon',
+      uploadTitle: 'Upload a favicon (max. 500 KB, Format: .ico)',
+      urlTitle: 'URL to favicon file',
+      description: 'Changes the application favicon. Enter the favicon URL',
+      hint: 'https://domain.tld/path/favicon.ico',
+      selectFile: 'Select favicon file',
+      alt: 'Favicon preview'
+    },
+
+    name: {
+      title: 'Name of the application',
+      description: 'Changes the site title'
+    },
+
+    roomLimit: {
+      title: 'Number of rooms per user',
+      description: 'Limits the number of rooms that a user can have. This setting does not apply to administrators.  Enter the value -1 for unlimited number of rooms'
+    },
+
+    paginationPageSize: {
+      title: 'Pagination page size',
+      description: 'Limits the number of page size for data tables pagination'
+    },
+
+    ownRoomsPaginationPageSize: {
+      title: 'Own rooms pagination page size',
+      description: 'Limits the number of page size for own rooms pagination'
+    }
   }
 };
