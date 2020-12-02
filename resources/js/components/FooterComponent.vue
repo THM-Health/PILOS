@@ -20,7 +20,5 @@
 </script>
 
 <style scoped>
-  .footer {
-    height: 25px;
-  }
+
 </style>
