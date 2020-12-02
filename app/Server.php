@@ -71,6 +71,7 @@ class Server extends Model
 
             return $response->getMeetings();
         } catch (\Exception $exception) {
+            // TODO add better error handling when provided by api
             return null;
         }
     }
