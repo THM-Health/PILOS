@@ -24,12 +24,12 @@ class EnsureModelNotStale
     public function handle($request, Closure $next, $parameterName, $resourceClass, ...$relationshipsToLoad)
     {
         $request->validate([
-            'updated_at' => 'required|date'
+            'updated_at' => 'nullable|date'
         ]);
 
         $model = $request->route($parameterName);
 
-        if ($model->updated_at->gt(Carbon::parse($request->updated_at))) {
+        if ($model->updated_at != null && ($request->updated_at == null || $model->updated_at->gt(Carbon::parse($request->updated_at)))) {
             $model->load($relationshipsToLoad);
 
             return response()->json([

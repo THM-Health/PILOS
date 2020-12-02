@@ -384,7 +384,8 @@ describe('Create new rooms', function () {
     const typeInput = view.findComponent(BFormSelect);
     typeInput.setValue(2);
     view.findComponent(BFormInput).setValue('Test');
-    console.log(view.html());
+    view.vm.$nextTick();
+    console.log(typeInput.element.value);
     expect(view.vm.$data.room).toMatchObject({ roomType: 2, name: 'Test' });
     view.vm.handleCancel();
     view.destroy();

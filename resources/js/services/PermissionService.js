@@ -36,10 +36,11 @@ class PermissionService {
    *
    * @method setCurrentUser
    * @param currentUser {Object} The current user that should be set
+   * @param [emit=true] Boolean indicator whether to emit event that current user changed or not.
    * @event currentUserChangedEvent Gets triggered after setting the new current user, which gets passed as the parameter.
    * @return undefined
    */
-  setCurrentUser (currentUser) {
+  setCurrentUser (currentUser, emit = true) {
     this.currentUser = $.isEmptyObject(currentUser) ? undefined : currentUser;
 
     /**
@@ -47,7 +48,9 @@ class PermissionService {
      *
      * @property {Object} currentUser The newly set current user
      */
-    EventBus.$emit('currentUserChangedEvent', currentUser);
+    if (emit) {
+      EventBus.$emit('currentUserChangedEvent', currentUser);
+    }
   }
 
   /**

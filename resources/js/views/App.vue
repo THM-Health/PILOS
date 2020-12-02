@@ -28,16 +28,19 @@
               <b-nav-item :to="{ name: 'login' }" v-if='!isAuthenticated' right>{{ $t('auth.login') }}</b-nav-item>
               <b-nav-item-dropdown right v-if='isAuthenticated'>
                 <!-- Using 'button-content' slot -->
-                <template v-slot:button-content>
+                <template v-if='currentUser' v-slot:button-content>
                   {{currentUser.firstname}} {{currentUser.lastname}}
                 </template>
 
+                <b-dropdown-item :to="{ name: 'profile' }">
+                  {{ $t('app.profile') }}
+                </b-dropdown-item>
                 <can method='manage' policy='SettingPolicy'>
                   <b-dropdown-item :to="{ name: 'settings' }">
                     {{ $t('settings.title') }}
                   </b-dropdown-item>
-                  <b-dropdown-divider></b-dropdown-divider>
                 </can>
+                <b-dropdown-divider></b-dropdown-divider>
 
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
@@ -97,6 +100,6 @@ export default {
   }
 
   main {
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 129px);
   }
 </style>

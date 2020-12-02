@@ -146,7 +146,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Role')->withPivot('automatic');
+        return $this->belongsToMany('App\Role')->withPivot('automatic')->using('App\RoleUser');
     }
 
     /**

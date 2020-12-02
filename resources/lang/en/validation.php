@@ -142,11 +142,12 @@ return [
         'room' => [
             'already_member' => 'The user is already member of the room.'
         ],
+        'password' => 'The password must contain at least one character from each of the following four categories:: Uppercase letter (A - Z), lowercase letter (a - z), number (0 - 9), non-alphanumeric character (for example: !, $, #, or %).',
         'replacement_room_type' => [
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
             'exists' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
             'not_in' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
-        ],
+        ]
     ],
 
     /*

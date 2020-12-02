@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class RoutingTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * Tests not found responses on not existing api route.
      *

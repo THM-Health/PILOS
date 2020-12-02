@@ -57,13 +57,7 @@ describe('RolesView', function () {
     moxios.install();
 
     const permissionsResponse = {
-      data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; }),
-      meta: {
-        per_page: 5,
-        current_page: 2,
-        total: 10,
-        last_page: 2
-      }
+      data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; })
     };
 
     const roleResponse = {
@@ -316,7 +310,7 @@ describe('RolesView', function () {
     const spy = sinon.spy();
 
     const router = new VueRouter();
-    router.back = spy;
+    router.push = spy;
 
     const view = mount(View, {
       localVue,
@@ -407,7 +401,7 @@ describe('RolesView', function () {
     const spy = sinon.spy();
 
     const router = new VueRouter();
-    router.back = spy;
+    router.push = spy;
 
     const view = mount(View, {
       localVue,
@@ -471,7 +465,7 @@ describe('RolesView', function () {
     const spy = sinon.spy();
 
     const router = new VueRouter();
-    router.back = spy;
+    router.push = spy;
 
     const view = mount(View, {
       localVue,

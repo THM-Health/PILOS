@@ -12,7 +12,9 @@ import RolesIndex from './views/settings/roles/Index';
 import RolesView from './views/settings/roles/View';
 import RoomTypesIndex from './views/settings/roomTypes/Index';
 import RoomTypesView from './views/settings/roomTypes/View';
-import Users from './views/settings/Users';
+import UsersIndex from './views/settings/users/Index';
+import UsersView from './views/settings/users/View';
+import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
 import Base from './api/base';
 
@@ -23,6 +25,20 @@ export const routes = [
     path: '/',
     name: 'home',
     component: Home
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: UsersView,
+    props: () => {
+      return {
+        config: {
+          id: store.state.session.currentUser ? store.state.session.currentUser.id : 0,
+          type: 'profile'
+        }
+      };
+    },
+    meta: { requiresAuth: true }
   },
   {
     path: '/login',
@@ -55,7 +71,7 @@ export const routes = [
       },
       {
         path: 'users',
-        component: Users,
+        component: UsersIndex,
         name: 'settings.users',
         meta: {
           requiresAuth: true,
@@ -63,6 +79,43 @@ export const routes = [
             PermissionService.can('manage', 'SettingPolicy') &&
             PermissionService.can('viewAny', 'UserPolicy')
           )
+        }
+      },
+      {
+        path: 'users/:id',
+        name: 'settings.users.view',
+        component: UsersView,
+        props: route => {
+          return {
+            config: {
+              id: route.params.id,
+              type: route.query.view === '1' ? 'view' : 'edit'
+            }
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'UserPolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', { model_name: 'User', id })
+              );
+            }
+
+            return Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('update', { model_name: 'User', id })
+            );
+          }
         }
       },
       {
@@ -113,6 +166,18 @@ export const routes = [
               return false;
             });
           }
+        }
+      },
+      {
+        path: 'application',
+        name: 'settings.application',
+        component: Application,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'SettingPolicy')
+          )
         }
       },
       {
@@ -225,9 +290,7 @@ export function beforeEachRoute (router, store, to, from, next) {
 router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
 
 router.onError(error => {
-  if (error.response) {
-    Base.error(error, router.app.$root);
-  }
+  Base.error(error, router.app.$root);
 });
 
 export default router;

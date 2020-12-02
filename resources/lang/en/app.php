@@ -13,6 +13,7 @@ return [
         'role_update_permission_lost' => 'The changes of the role would lead to a lost of permissions to view and update roles for you!',
     ],
     'model' => [
-        'roles' => 'role'
+        'roles' => 'role',
+        'users' => 'user'
     ]
 ];

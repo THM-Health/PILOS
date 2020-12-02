@@ -40,16 +40,15 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
 // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');
-//
 //        Route::post('password/reset', 'ResetPasswordController@reset');
 //        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
-//        Route::post('password/confirm', 'ConfirmPasswordController@confirm');
-//
 //        Route::post('email/resend', 'VerificationController@resend');
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
+        Route::put('settings', 'ApplicationController@updateSettings')->name('application.update')->middleware('can:settings.update');
+
         Route::apiResource('roles', 'RoleController');
         Route::apiResource('room_types', 'RoomTypeController');
 
@@ -80,6 +79,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         });
 
         Route::get('users/search','UserController@search')->name('users.search');
+        Route::apiResource('users', 'UserController');
 
 
 
@@ -93,13 +93,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
     });
 
-
-
-
-
     Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
-
-
 });
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {

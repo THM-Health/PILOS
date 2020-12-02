@@ -22,6 +22,7 @@
       :fields='tableFields'
       :items='fetchRoles'
       id='roles-table'
+      ref='roles'
       :current-page='currentPage'>
 
       <template v-slot:empty>
@@ -39,42 +40,44 @@
       </template>
 
       <template v-slot:cell(default)="data">
-        {{ $t(`app.${data.item.default}`) }}
+        {{ $t(`app.${data.item.default ? 'yes' : 'no'}`) }}
       </template>
 
       <template v-slot:cell(actions)="data">
-        <can method='view' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.roles.view', { name: data.item.id })"
-            :disabled='isBusy'
-            variant='primary'
-            :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
-          >
-            <i class='fas fa-eye'></i>
-          </b-button>
-        </can>
-        <can method='update' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.roles.edit', { name: data.item.id })"
-            :disabled='isBusy'
-            variant='dark'
-            :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
-          >
-            <i class='fas fa-edit'></i>
-          </b-button>
-        </can>
-        <can method='delete' :policy='data.item'>
-          <b-button
-            v-b-tooltip.hover
-            :title="$t('settings.roles.delete.item', { id: data.item.id })"
-            :disabled='isBusy'
-            variant='danger'
-            @click='showDeleteModal(data.item)'>
-            <i class='fas fa-trash'></i>
-          </b-button>
-        </can>
+        <b-button-group>
+          <can method='view' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.roles.view', { name: data.item.id })"
+              :disabled='isBusy'
+              variant='primary'
+              :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
+            >
+              <i class='fas fa-eye'></i>
+            </b-button>
+          </can>
+          <can method='update' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.roles.edit', { name: data.item.id })"
+              :disabled='isBusy'
+              variant='dark'
+              :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
+            >
+              <i class='fas fa-edit'></i>
+            </b-button>
+          </can>
+          <can method='delete' :policy='data.item'>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.roles.delete.item', { id: data.item.id })"
+              :disabled='isBusy'
+              variant='danger'
+              @click='showDeleteModal(data.item)'>
+              <i class='fas fa-trash'></i>
+            </b-button>
+          </can>
+        </b-button-group>
       </template>
     </b-table>
 
@@ -89,11 +92,11 @@
     ></b-pagination>
 
     <b-modal
-      :busy='isBusy'
+      :busy='deleting'
       ok-variant='danger'
       cancel-variant='dark'
-      :cancel-title="$t('app.false')"
-      @ok='deleteRole'
+      :cancel-title="$t('app.no')"
+      @ok='deleteRole($event)'
       @cancel='clearRoleToDelete'
       @close='clearRoleToDelete'
       ref='delete-role-modal'
@@ -102,7 +105,7 @@
         {{ $t('settings.roles.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="roleToDelete">
         {{ $t('settings.roles.delete.confirm', { name: $te(`app.roles.${roleToDelete.name}`) ? $t(`app.roles.${roleToDelete.name}`) : roleToDelete.name }) }}
@@ -115,11 +118,11 @@
 <script>
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
-import PermissionService from '../../../services/PermissionService';
-import EventBus from '../../../services/EventBus';
+import ActionsColumn from '../../../mixins/ActionsColumn';
 
 export default {
   components: { Can },
+  mixins: [ActionsColumn],
 
   props: {
     modalStatic: {
@@ -128,18 +131,31 @@ export default {
     }
   },
 
+  computed: {
+    tableFields () {
+      const fields = [
+        { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
+        { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
+        { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
+      ];
+
+      if (this.actionColumnVisible) {
+        fields.push(this.actionColumnDefinition);
+      }
+
+      return fields;
+    }
+  },
+
   data () {
     return {
       isBusy: false,
+      deleting: false,
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
       roleToDelete: undefined,
-      tableFields: [
-        { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
-        { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
-      ]
+      actionPermissions: ['roles.view', 'roles.update', 'roles.delete']
     };
   },
 
@@ -193,19 +209,20 @@ export default {
     /**
      * Deletes the role that is set in the property `roleToDelete`.
      */
-    deleteRole () {
-      this.isBusy = true;
+    deleteRole (evt) {
+      evt.preventDefault();
+      this.deleting = true;
 
       Base.call(`roles/${this.roleToDelete.id}`, {
         method: 'delete'
-      }).then(() => {
-        this.$root.$emit('bv::refresh::table', 'roles-table');
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
+        this.currentPage = 1;
+        this.$refs.roles.refresh();
         this.clearRoleToDelete();
         this.$refs['delete-role-modal'].hide();
-        this.isBusy = false;
+        this.deleting = false;
       });
     },
 
@@ -215,42 +232,7 @@ export default {
      */
     clearRoleToDelete () {
       this.roleToDelete = undefined;
-    },
-
-    /**
-     * Adds or removes the actions column to the field depending on the users permissions.
-     */
-    toggleActionsColumn () {
-      if (PermissionService.currentUser && (['roles.view', 'roles.update', 'roles.delete'].some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
-        if (this.tableFields[this.tableFields.length - 1].key !== 'actions') {
-          this.tableFields.push({ key: 'actions', label: this.$t('settings.roles.actions') });
-        }
-      } else if (this.tableFields[this.tableFields.length - 1].key === 'actions') {
-        this.tableFields.pop();
-      }
     }
-  },
-
-  /**
-   * Sets the event listener for current user change to re-evaluate whether the
-   * action column should be shown or not.
-   *
-   * @method mounted
-   * @return undefined
-   */
-  mounted () {
-    EventBus.$on('currentUserChangedEvent', this.toggleActionsColumn);
-    this.toggleActionsColumn();
-  },
-
-  /**
-   * Removes the listener for current user change on destroy of this component.
-   *
-   * @method beforeDestroy
-   * @return undefined
-   */
-  beforeDestroy () {
-    EventBus.$off('currentUserChangedEvent', this.toggleActionsColumn);
   }
 };
 </script>

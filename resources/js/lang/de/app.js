@@ -7,9 +7,16 @@ export default {
   yes: 'Ja',
   no: 'Nein',
   search: 'Suche',
+  actions: 'Aktionen',
+  profile: 'Profil',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',
+      title: 'Fehler'
+    },
+
+    tooLarge: {
+      message: 'Die übertragenen Daten waren zu groß!',
       title: 'Fehler'
     },
 
@@ -57,7 +64,9 @@ export default {
 
     settings: {
       title: 'Einstellungen',
-      manage: 'Einstellungen verwalten'
+      manage: 'Einstellungen verwalten',
+      update: 'Einstellungen bearbeiten',
+      viewAny: 'Alle Einstellungen anzeigen'
     },
 
     roles: {
@@ -71,14 +80,28 @@ export default {
 
     users: {
       title: 'Benutzer',
-      viewAny: 'Alle Benutzer anzeigen'
+      viewAny: 'Alle Benutzer anzeigen',
+      view: 'Benutzer anzeigen',
+      create: 'Benutzer erstellen',
+      update: 'Benutzer bearbeiten',
+      delete: 'Benutzer löschen',
+      updateOwnAttributes: 'Eigenen Vornamen, Nachnamen und E-Mail bearbeiten'
     }
   },
 
   overwrite: 'Überschreiben',
   save: 'Speichern',
   back: 'Zurück',
+  browse: 'Durchsuchen',
+  validation: {
+    tooLarge: 'Die ausgewählte Datei ist zu groß.'
+  },
 
-  true: 'Ja',
-  false: 'Nein'
+  nextPage: 'Nächste Seite',
+  previousPage: 'Vorherige Seite',
+
+  confirmPassword: {
+    title: 'Password bestätigen',
+    description: 'Bestätigen Sie bitte Ihr Passwort bevor Sie fortfahren!'
+  }
 };
