@@ -148,12 +148,6 @@ class RoomController extends Controller
                 abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
 
-            // Unkown error with the bbb api, that results in meeting not starting
-            if (!isset($result)) {
-                $meeting->forceDelete();
-                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
-            }
-
             // Check server response for meeting creation
             if (!$result->success()) {
                 // Meeting creation failed, remove meeting
