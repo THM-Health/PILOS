@@ -45,6 +45,12 @@ localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 describe('Create new rooms', function () {
   beforeEach(function () {
     moxios.install();
@@ -143,7 +149,8 @@ describe('Create new rooms', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -191,7 +198,8 @@ describe('Create new rooms', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {

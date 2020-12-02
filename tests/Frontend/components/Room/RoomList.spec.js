@@ -16,6 +16,12 @@ localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
 const store = new Vuex.Store({
@@ -156,7 +162,8 @@ describe('RoomList', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -202,7 +209,8 @@ describe('RoomList', function () {
         name: exampleRoomListEntry.name,
         type: exampleRoomListEntry.type
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     view.findComponent(BCard).trigger('click');
@@ -237,7 +245,8 @@ describe('RoomList', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -326,7 +335,8 @@ describe('RoomList', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
