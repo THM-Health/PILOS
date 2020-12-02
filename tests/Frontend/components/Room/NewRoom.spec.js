@@ -366,7 +366,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('cancel or close', function () {
+  it('cancel or close', async function () {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
 
     const view = mount(NewRoomComponent, {
@@ -381,11 +381,8 @@ describe('Create new rooms', function () {
       store
     });
 
-    const typeInput = view.findComponent(BFormSelect);
-    typeInput.setValue(2);
-    view.findComponent(BFormInput).setValue('Test');
-    view.vm.$nextTick();
-    console.log(typeInput.element.value);
+    await view.findComponent(BFormSelect).setValue(2);
+    await view.findComponent(BFormInput).setValue('Test');
     expect(view.vm.$data.room).toMatchObject({ roomType: 2, name: 'Test' });
     view.vm.handleCancel();
     view.destroy();
