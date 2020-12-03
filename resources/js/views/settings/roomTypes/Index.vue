@@ -228,15 +228,13 @@ export default {
      * @returns {null|*}
      */
     roomTypeSelect () {
-      const roomTypeToDelete = this.roomTypeToDelete;
-
       var noReplacement = {};
       noReplacement.value = null;
       noReplacement.text = this.$t('settings.roomTypes.delete.noReplacement');
 
       if (this.roomTypes) {
-        var list = this.roomTypes.filter(function (roomtype) {
-          return roomtype.id !== roomTypeToDelete.id;
+        var list = this.roomTypes.filter((roomtype) => {
+          return roomtype.id !== this.roomTypeToDelete.id;
         }).map(roomtype => {
           return {
             value: roomtype.id,
@@ -246,7 +244,7 @@ export default {
         list.unshift(noReplacement);
         return list;
       }
-      return null;
+      return [];
     }
   }
 };

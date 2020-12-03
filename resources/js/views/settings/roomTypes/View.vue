@@ -1,5 +1,18 @@
 <template>
-  <div>
+  <b-overlay :show="isBusy || !loaded">
+
+    <template #overlay>
+      <div class="text-center">
+        <b-spinner v-if="isBusy" ></b-spinner>
+        <b-button
+          v-else
+          @click="loadRoomType()"
+        >
+          <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+        </b-button>
+      </div>
+    </template>
+
     <h3>
       {{ id === 'new' ? $t('settings.roomTypes.new') : (
         viewOnly ? $t('settings.roomTypes.view', { name: model.description })
@@ -71,7 +84,7 @@
       </b-container>
     </b-form>
 
-  </div>
+  </b-overlay>
 </template>
 
 <script>
@@ -113,6 +126,7 @@ export default {
 
   data () {
     return {
+      loaded: false,
       isBusy: false,
       errors: {},
       staleError: {},
@@ -130,19 +144,28 @@ export default {
    */
   mounted () {
     if (this.id !== 'new') {
+      this.loadRoomType();
+    } else { this.loaded = true; }
+  },
+
+  methods: {
+
+    /**
+     * Load the room type from the server api
+     *
+     */
+    loadRoomType () {
       this.isBusy = true;
 
       Base.call(`roomTypes/${this.id}`).then(response => {
         this.model = response.data.data;
+        this.loaded = true;
       }).catch(response => {
         Base.error(response, this.$root, response.message);
       }).finally(() => {
         this.isBusy = false;
       });
-    }
-  },
-
-  methods: {
+    },
 
     /**
      * Saves the changes of the room type to the database by making a api call.
@@ -153,7 +176,6 @@ export default {
       if (evt) {
         evt.preventDefault();
       }
-
       this.isBusy = true;
 
       const config = {
