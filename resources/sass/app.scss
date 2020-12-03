@@ -122,3 +122,19 @@
 .multiselect.is-invalid .multiselect__tags {
     border-color: $danger;
 }
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: $footer-height;
+}
+
+.footer {
+    height: $footer-height;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}

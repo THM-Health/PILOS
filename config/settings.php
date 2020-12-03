@@ -74,5 +74,6 @@ return [
         'room_limit' => env('DEFAULT_ROOM_LIMIT',-1),
         'own_rooms_pagination_page_size' => env('OWN_ROOMS_PAGINATION_PAGE_SIZE',5),
         'pagination_page_size' => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
+        'log_attendance' => env('LOG_ATTENDANCE', false),
     ]
 ];

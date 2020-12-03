@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="row mt-4">
+        <div class="row mt-4 mb-5">
             <div class="col-6 offset-3">
               <b-card no-body bg-variant="light">
                 <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-success text-white">

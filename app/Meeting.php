@@ -6,7 +6,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
-use BigBlueButton\Parameters\IsMeetingRunningParameters;
+use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
 use Illuminate\Database\Eloquent\Model;
@@ -80,7 +80,7 @@ class Meeting extends Model
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
         $meetingParams->setModeratorPassword($this->moderatorPW)
-           ->setAttendeePassword($this->attendeePW)
+            ->setAttendeePassword($this->attendeePW)
             ->setLogoutUrl(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
@@ -110,11 +110,7 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
-        try {
-            return $this->server->bbb()->createMeeting($meetingParams)->success();
-        } catch (\Exception $exception) {
-            return false;
-        }
+        return $this->server->bbb()->createMeeting($meetingParams);
     }
 
     /**
@@ -123,10 +119,12 @@ class Meeting extends Model
      */
     public function isRunning()
     {
-        $isMeetingRunningParams = new IsMeetingRunningParameters($this->id);
-        $response               = $this->server->bbb()->isMeetingRunning($isMeetingRunningParams);
+        // TODO Remove blank password, after PHP BBB library is updated
+        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id, null);
+        // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
+        $response               = $this->server->bbb()->getMeetingInfo($isMeetingRunningParams);
 
-        return $response->success() && $response->isRunning();
+        return $response->success();
     }
 
     /**
@@ -136,8 +134,13 @@ class Meeting extends Model
     public function endMeeting()
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
+        $success   = $this->server->bbb()->endMeeting($endParams)->success();
+        if ($success) {
+            $this->end = date('Y-m-d H:i:s');
+            $this->save();
+        }
 
-        return $this->server->bbb()->endMeeting($endParams)->success();
+        return $success;
     }
 
     /**
@@ -156,5 +159,14 @@ class Meeting extends Model
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
+    }
+
+    /**
+     * Statistical data of this meeting
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function stats()
+    {
+        return $this->hasMany(MeetingStat::class);
     }
 }

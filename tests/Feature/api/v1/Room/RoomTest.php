@@ -513,20 +513,18 @@ class RoomTest extends TestCase
         $room = factory(Room::class)->create();
 
         // Adding fake server(s)
-        $server              = new Server();
-        $server->baseUrl     = $this->faker->url;
-        $server->salt        = $this->faker->sha1;
-        $server->status      = true;
-        $server->description = $this->faker->word;
-        $server->save();
+        $server =  factory(Server::class)->create();
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
 
+        $server->refresh();
+        $this->assertTrue($server->offline);
+
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room]))
-            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
     }
 
     /**
@@ -551,6 +549,15 @@ class RoomTest extends TestCase
 
         // Clear
         $this->assertTrue($room->runningMeeting()->endMeeting());
+
+        // Check with wrong salt/secret
+        foreach (Server::all() as $server) {
+            $server->salt = 'TEST';
+            $server->save();
+        }
+        $room2 = factory(Room::class)->create();
+        $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2]))
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
     }
 
     /**
@@ -569,6 +576,18 @@ class RoomTest extends TestCase
         // Testing join with meeting not running
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+
+        // Test to join a meeting marked in the db as running, but isn't running on the server
+        $meeting              = $room->meetings()->create();
+        $meeting->start       = date('Y-m-d H:i:s');
+        $meeting->attendeePW  = bin2hex(random_bytes(5));
+        $meeting->moderatorPW = bin2hex(random_bytes(5));
+        $meeting->server()->associate(Server::where('status', true)->where('offline', false)->get()->random());
+        $meeting->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+        $meeting->refresh();
+        $this->assertNotNull($meeting->end);
 
         // Start meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
@@ -624,8 +643,12 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertSuccessful();
 
+        $runningMeeting = $room->runningMeeting();
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $this->assertNull($runningMeeting->end);
+        $this->assertTrue($runningMeeting->endMeeting());
+        $runningMeeting->refresh();
+        $this->assertNotNull($runningMeeting->end);
     }
 
     /**
