@@ -106,12 +106,12 @@
 <script>
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
-import PermissionService from '../../../services/PermissionService';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
+import ActionsColumn from '../../../mixins/ActionsColumn';
 
 export default {
-  mixins: [FieldErrors],
+  mixins: [FieldErrors, ActionsColumn],
   components: { Can },
 
   props: {
@@ -127,7 +127,8 @@ export default {
       roomTypeToDelete: undefined,
       errors: {},
       replacement: null,
-      roomTypes: []
+      roomTypes: [],
+      actionPermissions: ['roomTypes.view', 'roomTypes.update', 'roomTypes.delete']
     };
   },
 
@@ -210,18 +211,15 @@ export default {
   computed: {
 
     tableFields () {
-      var fields = [
+      const fields = [
         { key: 'description', label: this.$t('settings.roomTypes.description'), sortable: true },
         { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true }
       ];
 
-      if (PermissionService.currentUser && (['room_types.view', 'room_types.update', 'room_types.delete'].some(permission => PermissionService.currentUser.permissions.includes(permission)))) {
-        if (fields[fields.length - 1].key !== 'actions') {
-          fields.push({ key: 'actions', label: this.$t('settings.roomTypes.actions') });
-        }
-      } else if (fields[fields.length - 1].key === 'actions') {
-        fields.pop();
+      if (this.actionColumnVisible) {
+        fields.push(this.actionColumnDefinition);
       }
+
       return fields;
     },
 

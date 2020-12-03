@@ -14,7 +14,7 @@ class RoomTypeController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(RoomType::class, 'room_type');
+        $this->authorizeResource(RoomType::class, 'roomType');
     }
 
     /**

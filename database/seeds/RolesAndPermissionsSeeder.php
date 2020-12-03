@@ -47,6 +47,6 @@ class RolesAndPermissionsSeeder extends Seeder
         if ($adminRole == null) {
             $adminRole = Role::create([ 'name' => 'admin', 'default' => true, 'room_limit' => -1 ]);
         }
-
+        $adminRole->permissions()->syncWithoutDetaching($adminPermissions);
     }
 }

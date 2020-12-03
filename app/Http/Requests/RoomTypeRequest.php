@@ -15,9 +15,9 @@ class RoomTypeRequest extends FormRequest
             'color'         => ['required', 'string','regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
         ];
 
-        if ($this->room_type) {
-            $rules['description']   = ['required', 'string', 'max:255', Rule::unique('room_types', 'description')->ignore($this->room_type->id)];
-            $rules['short']         = ['required', 'string', 'max:2', Rule::unique('room_types', 'short')->ignore($this->room_type->id)];
+        if ($this->roomType) {
+            $rules['description']   = ['required', 'string', 'max:255', Rule::unique('room_types', 'description')->ignore($this->roomType->id)];
+            $rules['short']         = ['required', 'string', 'max:2', Rule::unique('room_types', 'short')->ignore($this->roomType->id)];
         }
 
         return $rules;

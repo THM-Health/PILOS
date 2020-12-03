@@ -10,7 +10,7 @@ class RoomTypeDestroyRequest extends FormRequest
     public function rules()
     {
         return [
-            'replacement_room_type' => ['nullable',Rule::requiredIf($this->room_type->rooms()->count() > 0),'exists:App\RoomType,id',Rule::notIn([$this->room_type->id])],
+            'replacement_room_type' => ['nullable',Rule::requiredIf($this->roomType->rooms()->count() > 0),'exists:App\RoomType,id',Rule::notIn([$this->roomType->id])],
         ];
     }
 }
