@@ -50,7 +50,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::put('settings', 'ApplicationController@updateSettings')->name('application.update')->middleware('can:settings.update');
 
         Route::apiResource('roles', 'RoleController');
-        Route::apiResource('room_types', 'RoomTypeController');
+        Route::apiResource('roomTypes', 'RoomTypeController');
 
         Route::get('permissions', 'PermissionController@index')->name('permissions.index');
 

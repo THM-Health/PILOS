@@ -35,11 +35,11 @@ class RoomTypeTest extends TestCase
         $roomType = factory(RoomType::class)->create();
 
         // Test guests
-        $this->getJson(route('api.v1.room_types.index'))
+        $this->getJson(route('api.v1.roomTypes.index'))
             ->assertUnauthorized();
 
         // Test logged in users
-        $this->actingAs($this->user)->getJson(route('api.v1.room_types.index'))
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index'))
             ->assertSuccessful()
             ->assertJsonFragment(
                 ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]

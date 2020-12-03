@@ -8,12 +8,12 @@
     </h3>
     <hr>
 
-    <b-form @submit='saveRole'>
+    <b-form @submit='saveRoomType'>
       <b-container fluid>
         <b-form-group
           label-cols-sm='4'
           :label="$t('settings.roomTypes.description')"
-          label-for='name'
+          label-for='description'
           :state='fieldState("description")'
         >
           <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || viewOnly'></b-form-input>
@@ -132,7 +132,7 @@ export default {
     if (this.id !== 'new') {
       this.isBusy = true;
 
-      Base.call(`room_types/${this.id}`).then(response => {
+      Base.call(`roomTypes/${this.id}`).then(response => {
         this.model = response.data.data;
       }).catch(response => {
         Base.error(response, this.$root, response.message);
@@ -145,11 +145,11 @@ export default {
   methods: {
 
     /**
-     * Saves the changes of the role to the database by making a api call.
+     * Saves the changes of the room type to the database by making a api call.
      *
      * @param evt
      */
-    saveRole (evt) {
+    saveRoomType (evt) {
       if (evt) {
         evt.preventDefault();
       }
@@ -158,14 +158,10 @@ export default {
 
       const config = {
         method: this.id === 'new' ? 'post' : 'put',
-        data: {
-          description: this.model.description,
-          short: this.model.short,
-          color: this.model.color
-        }
+        data: this.model
       };
 
-      Base.call(this.id === 'new' ? 'room_types' : `room_types/${this.id}`, config).then(() => {
+      Base.call(this.id === 'new' ? 'roomTypes' : `roomTypes/${this.id}`, config).then(() => {
         this.$router.back();
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

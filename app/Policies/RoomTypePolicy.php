@@ -35,7 +35,7 @@ class RoomTypePolicy
      */
     public function view(User $user, RoomType $roomType)
     {
-        return $user->can('room_types.view');
+        return $user->can('roomTypes.view');
     }
 
     /**
@@ -46,7 +46,7 @@ class RoomTypePolicy
      */
     public function create(User $user)
     {
-        return $user->can('room_types.create');
+        return $user->can('roomTypes.create');
     }
 
     /**
@@ -58,7 +58,7 @@ class RoomTypePolicy
      */
     public function update(User $user, RoomType $roomType)
     {
-        return $user->can('room_types.update');
+        return $user->can('roomTypes.update');
     }
 
     /**
@@ -70,6 +70,6 @@ class RoomTypePolicy
      */
     public function delete(User $user, RoomType $roomType)
     {
-        return $user->can('room_types.delete');
+        return $user->can('roomTypes.delete');
     }
 }

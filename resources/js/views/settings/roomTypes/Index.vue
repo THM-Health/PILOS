@@ -78,7 +78,7 @@
       :busy='isBusy'
       ok-variant='danger'
       cancel-variant='dark'
-      :cancel-title="$t('app.false')"
+      :cancel-title="$t('app.no')"
       @ok='deleteRoomType'
       @cancel='clearRoomTypeToDelete'
       @close='clearRoomTypeToDelete'
@@ -88,16 +88,14 @@
         {{ $t('settings.roomTypes.delete.title') }}
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.true') }}
+        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="roomTypeToDelete">
         {{ $t('settings.roomTypes.delete.confirm', { name: roomTypeToDelete.description }) }}
       </span>
       <hr>
-      <b-form-group v-if="roomTypeToDelete" :description="$t('settings.roomTypes.delete.replacementInfo')" :state="fieldState('replacement_room_type')" :label="$t('settings.roomTypes.delete.replacement')">
-        <b-input-group>
-          <b-form-select :disabled="isBusy" :state="fieldState('replacement_room_type')" v-model.number="replacement" :options="roomTypeSelect"></b-form-select>
-        </b-input-group>
+      <b-form-group v-if="roomTypeToDelete" label-for="replacement-room-type" :description="$t('settings.roomTypes.delete.replacementInfo')" :state="fieldState('replacement_room_type')" :label="$t('settings.roomTypes.delete.replacement')">
+        <b-form-select id="replacement-room-type" :disabled="isBusy" :state="fieldState('replacement_room_type')" v-model.number="replacement" :options="roomTypeSelect"></b-form-select>
         <template slot='invalid-feedback'><div v-html="fieldError('replacement_room_type')"></div></template>
       </b-form-group>
 
@@ -139,7 +137,7 @@ export default {
      */
     fetchRoomTypes () {
       this.isBusy = true;
-      Base.call('room_types').then(response => {
+      Base.call('roomTypes').then(response => {
         this.roomTypes = response.data.data;
       }).catch(error => {
         Base.error(error, this.$root, error.message);
@@ -166,7 +164,7 @@ export default {
       bvModalEvt.preventDefault();
       this.isBusy = true;
 
-      Base.call(`room_types/${this.roomTypeToDelete.id}`, {
+      Base.call(`roomTypes/${this.roomTypeToDelete.id}`, {
         method: 'delete',
         data: { replacement_room_type: this.replacement }
       }).then(() => {
@@ -174,17 +172,14 @@ export default {
         this.clearRoomTypeToDelete();
         this.$refs['delete-roomType-modal'].hide();
       }).catch(error => {
-        // adding failed
-        if (error.response) {
-          // failed due to form validation errors
-          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            this.errors = error.response.data.errors;
-            return;
-          }
+        // failed due to form validation errors
+        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          this.errors = error.response.data.errors;
+        } else {
+          Base.error(error, this.$root, error.message);
+          this.clearRoomTypeToDelete();
+          this.$refs['delete-roomType-modal'].hide();
         }
-        Base.error(error, this.$root, error.message);
-        this.clearRoomTypeToDelete();
-        this.$refs['delete-roomType-modal'].hide();
       }).finally(() => {
         this.isBusy = false;
       });
@@ -235,7 +230,7 @@ export default {
      * @returns {null|*}
      */
     roomTypeSelect () {
-      var roomTypeToDelete = this.roomTypeToDelete;
+      const roomTypeToDelete = this.roomTypeToDelete;
 
       var noReplacement = {};
       noReplacement.value = null;
@@ -245,10 +240,10 @@ export default {
         var list = this.roomTypes.filter(function (roomtype) {
           return roomtype.id !== roomTypeToDelete.id;
         }).map(roomtype => {
-          var entry = {};
-          entry.value = roomtype.id;
-          entry.text = roomtype.description;
-          return entry;
+          return {
+            value: roomtype.id,
+            text: roomtype.description
+          };
         });
         list.unshift(noReplacement);
         return list;

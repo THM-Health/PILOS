@@ -9,7 +9,7 @@ export default {
    * @return {boolean}
    */
   viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('room_types.viewAny');
+    return permissionService.currentUser;
   },
 
   /**
@@ -19,7 +19,7 @@ export default {
    * @return {boolean}
    */
   create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('room_types.create');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.create');
   },
 
   /**
@@ -29,28 +29,26 @@ export default {
    * @return {boolean}
    */
   view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('room_types.view');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.view');
   },
 
   /**
    * Returns a boolean that indicates whether the user can update the passed room type or not.
    *
    * @param permissionService
-   * @param roomType
    * @return {boolean}
    */
-  update (permissionService, roomType) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('room_types.update');
+  update (permissionService) {
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.update');
   },
 
   /**
    * Returns a boolean that indicates whether the user can delete the passed room type or not.
    *
    * @param permissionService
-   * @param roomType
    * @return {boolean}
    */
-  delete (permissionService, roomType) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('room_types.delete');
+  delete (permissionService) {
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('roomTypes.delete');
   }
 };

@@ -187,8 +187,7 @@ export const routes = [
         meta: {
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
-            PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'RoomTypePolicy')
+            PermissionService.can('manage', 'SettingPolicy')
           )
         }
       },
@@ -220,13 +219,10 @@ export const routes = [
               );
             }
 
-            return Base.call(`room_types/${id}`).then((response) => {
-              return PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', response.data.data);
-            }).catch((response) => {
-              Base.error(response, vm, response.message);
-              return false;
-            });
+            return Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('update', 'RoomTypePolicy')
+            );
           }
         }
       }
