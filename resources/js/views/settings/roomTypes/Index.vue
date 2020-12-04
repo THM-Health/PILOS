@@ -218,7 +218,6 @@ export default {
    */
   mounted () {
     this.fetchRoomTypes();
-    this.toggleActionsColumn();
   },
 
   computed: {
