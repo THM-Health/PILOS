@@ -21,7 +21,9 @@
       :busy.sync='isBusy'
       :fields="tableFields"
       :items='roomTypes'
-      id='roles-table'
+      :per-page='settings("pagination_page_size")'
+      :current-page="currentPage"
+      id='roomTypes-table'
     >
 
       <template v-slot:empty>
@@ -74,6 +76,15 @@
       </template>
     </b-table>
 
+    <b-pagination
+      v-model='currentPage'
+      :total-rows='roomTypes.length'
+      :per-page='settings("pagination_page_size")'
+      aria-controls='roomTypes-table'
+      align='center'
+      :disabled='isBusy'
+    ></b-pagination>
+
     <b-modal
       :busy='isBusy'
       ok-variant='danger'
@@ -109,6 +120,7 @@ import Can from '../../../components/Permissions/Can';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
 import ActionsColumn from '../../../mixins/ActionsColumn';
+import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors, ActionsColumn],
@@ -123,6 +135,7 @@ export default {
 
   data () {
     return {
+      currentPage: 1,
       isBusy: false,
       roomTypeToDelete: undefined,
       errors: {},
@@ -209,6 +222,10 @@ export default {
   },
 
   computed: {
+
+    ...mapGetters({
+      settings: 'session/settings'
+    }),
 
     tableFields () {
       const fields = [
