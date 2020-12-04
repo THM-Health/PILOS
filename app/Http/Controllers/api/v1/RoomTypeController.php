@@ -15,6 +15,7 @@ class RoomTypeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RoomType::class, 'roomType');
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType', ['only' => 'update']);
     }
 
     /**

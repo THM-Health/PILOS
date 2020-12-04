@@ -84,6 +84,28 @@
       </b-container>
     </b-form>
 
+    <b-modal
+      :static='modalStatic'
+      :busy='isBusy'
+      ok-variant='danger'
+      cancel-variant='dark'
+      @ok='forceOverwrite'
+      @cancel='refreshRoomType'
+      :hide-header-close='true'
+      :no-close-on-backdrop='true'
+      :no-close-on-esc='true'
+      ref='stale-roomType-modal'
+      :hide-header='true'>
+      <template v-slot:default>
+        <h5>{{ staleError.message }}</h5>
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
+      </template>
+      <template v-slot:modal-cancel>
+        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+      </template>
+    </b-modal>
   </b-overlay>
 </template>
 
@@ -188,12 +210,35 @@ export default {
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
+        } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+          // handle stale errors
+          this.staleError = error.response.data;
+          this.$refs['stale-roomType-modal'].show();
         } else {
           Base.error(error, this.$root, error.message);
         }
       }).finally(() => {
         this.isBusy = false;
       });
+    },
+
+    /**
+     * Force a overwrite of the user in the database by setting the `updated_at` field to the new one.
+     */
+    forceOverwrite () {
+      this.model.updated_at = this.staleError.new_model.updated_at;
+      this.staleError = {};
+      this.$refs['stale-roomType-modal'].hide();
+      this.saveRoomType();
+    },
+
+    /**
+     * Refreshes the current model with the new passed from the stale error response.
+     */
+    refreshRoomType () {
+      this.model = this.staleError.new_model;
+      this.staleError = {};
+      this.$refs['stale-roomType-modal'].hide();
     }
   }
 };
