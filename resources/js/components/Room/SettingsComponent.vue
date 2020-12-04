@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-form  @submit.stop.prevent :novalidate="true">
-      <b-overlay :show="saving" >
+      <b-overlay :show="saving || loadingRoomTypes" >
       <div class="row" v-on:keyup.enter="save" @change="save">
         <!-- General settings tab -->
         <div class="col-lg-3 col-sm-12">
@@ -13,6 +13,14 @@
                 <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
               </template>
             </b-form-select>
+              <b-input-group-append>
+                <!-- Reload the room types -->
+                <b-button
+                  @click="reloadRoomTypes"
+                  variant="outline-secondary"
+                ><i class="fas fa-sync"></i
+                ></b-button>
+              </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
           </b-form-group>
@@ -276,7 +284,9 @@ export default {
   data () {
     return {
       settings: Object, // Room settings
+      roomTypes: [],
       saving: false, // Settings are currently saved, display spinner
+      loadingRoomTypes: false,
       welcomeMessageLimit: env.WELCOME_MESSAGE_LIMIT,
       errors: {}
     };
@@ -310,7 +320,9 @@ export default {
       }).catch((error) => {
         // Settings couldn't be saved
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          // TODO Reload room type list on error
+          if (error.response.data.errors.roomType !== undefined) {
+            this.reloadRoomTypes();
+          }
           this.errors = error.response.data.errors;
           return;
         }
@@ -320,6 +332,28 @@ export default {
         this.saving = false;
       });
     },
+
+    /**
+     * (Re)load the room types and unset roomtype select if value is invalid
+     */
+    reloadRoomTypes () {
+      this.loadingRoomTypes = true;
+      // Send new settings to the server
+      Base.call('roomTypes', {
+        method: 'get'
+      }).then(response => {
+        this.roomTypes = response.data.data;
+
+        // check if roomType select value is not included in available room type list
+        // if so, unset roomType field
+        if (!this.roomTypes.map(type => type.id).includes(this.settings.roomType)) { this.settings.roomType = null; }
+      }).catch((error) => {
+        Base.error(error, this.$root);
+      }).finally(() => {
+        this.loadingRoomTypes = false;
+      });
+    },
+
     /**
      * Clear access code and save settings
      */
@@ -348,15 +382,12 @@ export default {
      * @returns {null|*}
      */
     roomTypeSelect () {
-      if (this.settings.roomTypes) {
-        return this.settings.roomTypes.map(roomtype => {
-          var entry = {};
-          entry.value = roomtype.id;
-          entry.text = roomtype.description;
-          return entry;
-        });
-      }
-      return null;
+      return this.roomTypes.map(roomtype => {
+        var entry = {};
+        entry.value = roomtype.id;
+        entry.text = roomtype.description;
+        return entry;
+      });
     },
     /**
      * Count the chars of the welcome message
@@ -378,6 +409,7 @@ export default {
       }).catch((error) => {
         Base.error(error, this.$root);
       });
+    this.reloadRoomTypes();
   }
 };
 </script>
