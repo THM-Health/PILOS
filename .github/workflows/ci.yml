@@ -52,6 +52,8 @@ jobs:
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
     - name: Migrate Database   
+      env:
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
@@ -61,6 +63,7 @@ jobs:
         npm run ci
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: vendor/bin/phpunit --coverage-clover=coverage.xml
     - name: Upload coverage
