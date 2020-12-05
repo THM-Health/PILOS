@@ -1,6 +1,6 @@
 # PILOS
 
-![Status](https://travis-ci.org/THM-Health/PILOS.svg?branch=master)
+![Status](https://github.com/THM-Health/PILOS/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/master/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
 
 PILOS (Platform for Interactive Live-Online Seminars) is an easy to use frontend for [BigBlueButton](https://bigbluebutton.org/) developed at the TH Mittelhessen University of Applied Sciences ([THM](https://thm.de/)) Faculty of Health ([FB GES](https://www.thm.de/ges/)).
