@@ -10,12 +10,12 @@ It is based on the experience of students, teachers and staff during the covid-1
 **This Frontend uses BigBlueButton and is not endorsed or certified by BigBlueButton Inc. BigBlueButton and the BigBlueButton Logo are trademarks of BigBlueButton Inc.**
 
 ## Table of Contents 
-* [About](#About)
-* [Architecture](#Architecture)
-* [Installation](#Installation)
-* [Stacks](#Stacks)
-* [Contributing](#Contributing)
-* [License](#License)
+* [About](#about)
+* [Architecture](#architecture)
+* [Installation](#installation)
+* [Stacks](#stacks)
+* [Contributing](#contributing)
+* [License](#license)
 
 ## About
 
