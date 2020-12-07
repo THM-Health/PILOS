@@ -19,11 +19,19 @@
     >
       <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
         <b-input-group>
-          <b-form-select :state="fieldState('roomType')" v-model.number="room.roomType" :options="roomTypeSelect">
+          <b-form-select :disabled="isLoadingAction" :state="fieldState('roomType')" v-model.number="room.roomType" :options="roomTypeSelect">
             <template #first>
               <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
             </template>
           </b-form-select>
+          <b-input-group-append>
+            <!-- Reload the room types -->
+            <b-button
+              @click="reloadRoomTypes"
+              variant="outline-secondary"
+            ><i class="fas fa-sync"></i
+            ></b-button>
+          </b-input-group-append>
         </b-input-group>
         <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
       </b-form-group>
@@ -48,7 +56,6 @@ export default {
   mixins: [FieldErrors],
 
   props: {
-    roomTypes: Array,
     modalStatic: {
       type: Boolean,
       default: false
@@ -56,6 +63,7 @@ export default {
   },
   data () {
     return {
+      roomTypes: [],
       isLoadingAction: false,
       room: {
         roomType: null
@@ -73,19 +81,38 @@ export default {
       this.room = { roomType: null };
     },
 
+    // Load the room types
+    reloadRoomTypes () {
+      this.isLoadingAction = true;
+      Base.call('roomTypes').then(response => {
+        this.roomTypes = response.data.data;
+        // check if roomType select value is not included in available room type list
+        // if so, unset roomType field
+        if (!this.roomTypes.map(type => type.id).includes(this.room.roomType)) { this.room.roomType = null; }
+      }).catch(error => {
+        Base.error(error, this);
+      }).finally(() => {
+        this.isLoadingAction = false;
+      });
+    },
+
     handleSubmit () {
       this.isLoadingAction = true;
       Base.call('rooms', {
         method: 'post',
         data: this.room
       }).then(response => {
+        this.errors = {};
         this.$router.push({ name: 'rooms.view', params: { id: response.data.data.id } });
       }).catch((error) => {
         this.isLoadingAction = false;
         if (error.response) {
           // failed due to form validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            // TODO reload room type list if failed
+            if (error.response.data.errors.roomType !== undefined) {
+              this.reloadRoomTypes();
+            }
+
             this.errors = error.response.data.errors;
             return;
           }
@@ -106,6 +133,9 @@ export default {
       });
     }
 
+  },
+  mounted () {
+    this.reloadRoomTypes();
   },
   computed: {
     /**

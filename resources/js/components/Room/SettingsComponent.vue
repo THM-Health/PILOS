@@ -8,11 +8,11 @@
           <h5>{{ $t('rooms.settings.general.title') }}</h5>
           <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
             <b-input-group>
-            <b-form-select :state="fieldState('roomType')" v-model.number="settings.roomType" :options="roomTypeSelect">
-              <template #first>
-                <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
-              </template>
-            </b-form-select>
+              <b-form-select :state="fieldState('roomType')" v-model.number="settings.roomType" :options="roomTypeSelect">
+                <template #first>
+                  <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
+                </template>
+              </b-form-select>
               <b-input-group-append>
                 <!-- Reload the room types -->
                 <b-button
