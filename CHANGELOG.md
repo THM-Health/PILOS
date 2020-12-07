@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added management of users and profile page ([#10], [#66])
 - Added management of application settings ([#55], [#60])
 - Added artisan command to check server and meeting status, build live and historical data ([#64], [#65])
-
+- Added artisan command to create a new admin user ([#81])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -65,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#62]: https://github.com/THM-Health/PILOS/issues/62
 [#64]: https://github.com/THM-Health/PILOS/issues/64
 [#65]: https://github.com/THM-Health/PILOS/pull/65
-[#65]: https://github.com/THM-Health/PILOS/pull/66
+[#66]: https://github.com/THM-Health/PILOS/pull/66
 [#73]: https://github.com/THM-Health/PILOS/pull/73
+[#81]: https://github.com/THM-Health/PILOS/pull/81
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
