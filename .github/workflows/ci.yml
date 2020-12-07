@@ -83,6 +83,7 @@ jobs:
         vendor/bin/phpunit --coverage-clover=coverage.xml
         bash <(curl -s https://codecov.io/bash)
     - name: Execute tests (Unit and Feature tests) via PHPUnit
+      if: matrix.php-versions != '7.3'
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
