@@ -110,7 +110,7 @@ A almost full list of libraries and other software components can be found [here
 
 ## Contributing
 
-Please check our contribution [guidelines](CONTRIBUTING.MD).
+Please check our contribution [guidelines](CONTRIBUTING.md).
 
 ## License
 
