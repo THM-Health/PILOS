@@ -72,13 +72,17 @@ jobs:
       run: |
         npm ci
         npm run ci
+    - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
+      if: matrix.php-versions == '7.3'
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        TESTING_BBB: ${{ secrets.TESTING_BBB }}
+      run: |
+        vendor/bin/phpunit --coverage-clover=coverage.xml
+        bash <(curl -s https://codecov.io/bash)
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: vendor/bin/phpunit --coverage-clover=coverage.xml
-    - name: Upload coverage
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: bash <(curl -s https://codecov.io/bash)
-      if: matrix.php-versions == '7.3'
+      run: vendor/bin/phpunit
