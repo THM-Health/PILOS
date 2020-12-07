@@ -271,7 +271,6 @@ describe('Create new rooms', function () {
       response: exampleRoomTypeResponse
     });
 
-
     const view = mount(NewRoomComponent, {
       localVue,
       mocks: {
