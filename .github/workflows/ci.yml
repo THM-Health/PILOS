@@ -40,7 +40,8 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
-        coverage: xdebug #optional
+        ini-values: pcov.directory=api,pcov.exclude="~vendor~"
+        coverage: pcov #optional
     - name: Copy .env
       run: php -r "copy('.env.ci', '.env');"
     - name: Get Composer Cache Directory
