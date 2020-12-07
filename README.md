@@ -1,6 +1,6 @@
 # PILOS
 
-![Status](https://travis-ci.org/THM-Health/PILOS.svg?branch=master)
+![Status](https://github.com/THM-Health/PILOS/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/master/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
 
 PILOS (Platform for Interactive Live-Online Seminars) is an easy to use frontend for [BigBlueButton](https://bigbluebutton.org/) developed at the TH Mittelhessen University of Applied Sciences ([THM](https://thm.de/)) Faculty of Health ([FB GES](https://www.thm.de/ges/)).
@@ -90,6 +90,12 @@ php artisan users:create:admin
 ```
 
 After successfully executing all the steps above, application is successfully installed and ready to be used.
+
+To log the status of all meetings and servers and to keep the database up to date, setup a cronjob on your server.
+
+```
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
 
 ## Stacks
 
