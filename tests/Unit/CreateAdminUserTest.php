@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class CreateAdminUser extends TestCase
+class CreateAdminUserTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
