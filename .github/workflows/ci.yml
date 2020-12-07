@@ -40,7 +40,7 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
-        ini-values: pcov.directory=api,pcov.exclude="~(vendor|tests|node_modules|.git)~"
+        ini-values: pcov.directory=api,pcov.exclude="~vendor~"
         coverage: pcov #optional
     - name: Copy .env
       run: php -r "copy('.env.ci', '.env');"
