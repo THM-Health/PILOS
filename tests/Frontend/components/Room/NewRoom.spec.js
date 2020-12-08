@@ -12,6 +12,20 @@ import Base from '../../../../resources/js/api/base';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 
+function overrideStub (url, response) {
+  const l = moxios.stubs.count();
+  for (let i = 0; i < l; i++) {
+    const stub = moxios.stubs.at(i);
+    if (stub.url === url) {
+      const oldResponse = stub.response;
+      const restoreFunc = () => { stub.response = oldResponse; };
+
+      stub.response = response;
+      return restoreFunc;
+    }
+  }
+}
+
 const store = new Vuex.Store({
   modules: {
     session: {
@@ -388,6 +402,125 @@ describe('Create new rooms', function () {
           view.destroy();
           done();
         });
+    });
+  });
+
+  it('submit invalid room type', function (done) {
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(NewRoomComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        modalStatic: true
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+        status: 200,
+        response: {
+          data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+        }
+      });
+
+      const typeInput = view.findComponent(BFormSelect);
+      typeInput.setValue(2).then(() => {
+        view.vm.handleSubmit();
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          request.respondWith({
+            status: 422,
+            response: { message: 'The given data was invalid.', errors: { roomType: ['error'] } }
+          }).then(function () {
+            view.vm.$nextTick();
+            expect(typeInput.classes()).toContain('is-invalid');
+
+            const request = moxios.requests.mostRecent();
+            expect(request.url).toEqual('/api/v1/roomTypes');
+
+            expect(view.vm.$data.room.roomType).toBeNull();
+
+            restoreRoomTypeResponse();
+            view.destroy();
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('reload room types', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(NewRoomComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        modalStatic: true
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      const typeInput = view.findComponent(BFormSelect);
+      typeInput.setValue(2).then(() => {
+        expect(view.vm.$data.room.roomType).toBe(2);
+        view.vm.reloadRoomTypes();
+        moxios.wait(function () {
+          view.vm.$nextTick();
+          expect(view.vm.$data.room.roomType).toBe(2);
+
+          let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+            status: 200,
+            response: {
+              data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+            }
+          });
+
+          view.vm.reloadRoomTypes();
+
+          moxios.wait(function () {
+            view.vm.$nextTick();
+
+            expect(view.vm.$data.room.roomType).toBeNull();
+            restoreRoomTypeResponse();
+            restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+              status: 500,
+              response: {
+                message: 'Test'
+              }
+            });
+
+            view.vm.reloadRoomTypes();
+            moxios.wait(function () {
+              sinon.assert.calledOnce(Base.error);
+              Base.error.restore();
+              restoreRoomTypeResponse();
+              view.destroy();
+              done();
+            });
+          });
+        });
+      });
     });
   });
 
