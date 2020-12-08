@@ -9,7 +9,7 @@ export default {
    * @return {boolean}
    */
   viewAny (permissionService) {
-    return permissionService.currentUser;
+    return !!permissionService.currentUser;
   },
 
   /**
