@@ -5,6 +5,7 @@
       <div class="text-center">
         <b-spinner v-if="isBusy" ></b-spinner>
         <b-button
+          ref="reloadRoomType"
           v-else
           @click="loadRoomType()"
         >
