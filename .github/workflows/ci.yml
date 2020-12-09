@@ -80,10 +80,10 @@ jobs:
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
-    - name: Install npm dependencies and cache
-      uses: bahmutov/npm-install@v1
     - name: Execute frontend code style check via eslint and frontend tests
-      run: npm run ci
+      run: |
+        npm ci
+        npm run ci
     - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
       if: matrix.php-versions == '7.3'
       env:
