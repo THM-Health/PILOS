@@ -40,10 +40,21 @@ jobs:
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
-        coverage: xdebug #optional
+        coverage: pcov
     - name: Copy .env
       run: php -r "copy('.env.ci', '.env');"
-    - name: Install Dependencies
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
+    - uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.php-versions }}-composer-
+
+    - name: Install php dependencies
       run: |
         composer self-update
         composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -57,17 +68,22 @@ jobs:
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
+    - name: Install npm dependencies and cache
+      uses: bahmutov/npm-install@v1
     - name: Execute frontend code style check via eslint and frontend tests
+      run: npm run ci
+    - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
+      if: matrix.php-versions == '7.3'
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: |
-        npm ci
-        npm run ci
+        vendor/bin/phpunit --coverage-clover=coverage.xml
+        bash <(curl -s https://codecov.io/bash)
     - name: Execute tests (Unit and Feature tests) via PHPUnit
+      if: matrix.php-versions != '7.3'
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: vendor/bin/phpunit --coverage-clover=coverage.xml
-    - name: Upload coverage
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      run: bash <(curl -s https://codecov.io/bash)
-      if: matrix.php-versions == '7.3'
+      run: vendor/bin/phpunit
