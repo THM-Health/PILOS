@@ -200,7 +200,7 @@ export default {
     },
 
     /**
-     * Clears the temporary property `roleToDelete` on canceling or
+     * Clears the temporary property `roomTypeToDelete` on canceling or
      * after success delete when the modal gets hidden.
      */
     clearRoomTypeToDelete () {
