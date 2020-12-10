@@ -218,6 +218,8 @@ export default {
           // handle stale errors
           this.staleError = error.response.data;
           this.$refs['stale-roomType-modal'].show();
+        } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.$router.push({ name: 'settings.room_types' });
         } else {
           Base.error(error, this.$root, error.message);
         }

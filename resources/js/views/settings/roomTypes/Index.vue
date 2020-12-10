@@ -192,6 +192,9 @@ export default {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
         } else {
+          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+            this.fetchRoomTypes();
+          }
           Base.error(error, this.$root, error.message);
           this.clearRoomTypeToDelete();
           this.$refs['delete-roomType-modal'].hide();
