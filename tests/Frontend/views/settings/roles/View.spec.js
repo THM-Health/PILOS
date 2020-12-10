@@ -629,10 +629,54 @@ describe('RolesView', function () {
       expect(view.findComponent(BOverlay).props('show')).toBe(true);
       expect(view.html()).toContain('app.reload');
       const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
-      // expect(saveButton.wrappers.length).toBe(1);
+      expect(saveButton.wrappers.length).toBe(1);
       Base.error.restore();
       restoreRoleResponse();
       done();
+    });
+  });
+
+  it('user gets redirected to index page if the role is not found during save', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const routerSpy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      view.findComponent(BForm).trigger('submit');
+
+      const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+        status: 404,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      moxios.wait(function () {
+        sinon.assert.calledOnce(Base.error);
+        sinon.assert.calledOnce(routerSpy);
+        sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
+        Base.error.restore();
+        restoreRoleResponse();
+        done();
+      });
     });
   });
 });

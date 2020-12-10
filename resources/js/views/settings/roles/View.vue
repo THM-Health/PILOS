@@ -368,6 +368,10 @@ export default {
           this.staleError = error.response.data;
           this.$refs['stale-role-modal'].show();
         } else {
+          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+            this.$router.push({ name: 'settings.roles' });
+          }
+
           Base.error(error, this.$root, error.message);
         }
       }).finally(() => {
