@@ -6,7 +6,8 @@ import BootstrapVue, {
   BButton,
   BForm,
   BModal,
-  BFormInput
+  BFormInput,
+  BInputGroupAppend
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
@@ -249,6 +250,10 @@ describe('UsersView', function () {
     expect(View.props.config.validator({ type: '1' })).toBe(false);
     expect(View.props.config.validator({ type: 'edit' })).toBe(false);
     expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
+    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(true);
+    expect(View.props.config.validator({ id: 2, type: 'profile' })).toBe(false);
+    PermissionService.setCurrentUser(null);
+    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(false);
   });
 
   it('the configured locales should be selectable in the corresponding select', function (done) {
@@ -807,6 +812,176 @@ describe('UsersView', function () {
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           done();
         });
+      });
+    });
+  });
+
+  it('reload button exists next to the roles multiselect and on error it can be used to reload the roles', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'edit'
+        },
+        modalStatic: true
+      },
+      store
+    });
+
+    moxios.wait(function () {
+      const button = view.findComponent(BInputGroupAppend).get('.btn-outline-secondary');
+      expect(button.exists()).toBe(true);
+      sinon.assert.calledOnce(Base.error);
+      restoreRolesResponse();
+      spy.resetHistory();
+      button.trigger('click');
+
+      moxios.wait(function () {
+        const button = view.findComponent(BInputGroupAppend).find('.btn-outline-secondary');
+        expect(button.exists()).toBe(false);
+        expect(spy.notCalled).toBe(true);
+        Base.error.restore();
+        done();
+      });
+    });
+  });
+
+  it('user gets redirected to index page if the other user is not found', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const routerSpy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const restoreUserResponse = overrideStub('/api/v1/users/2', {
+      status: env.HTTP_NOT_FOUND,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'view'
+        },
+        modalStatic: true
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledOnce(Base.error);
+      sinon.assert.calledOnce(routerSpy);
+      sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
+      Base.error.restore();
+      restoreUserResponse();
+      done();
+    });
+  });
+
+  it('reload overlay gets shown if another error than 404 occurs during load of the user', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const restoreUserResponse = overrideStub('/api/v1/users/2', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'view'
+        },
+        modalStatic: true
+      },
+      store,
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledOnce(Base.error);
+      Base.error.restore();
+      restoreUserResponse();
+      done();
+    });
+  });
+
+  it('user gets redirected to index page if the other edited user is not found during save', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const routerSpy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 2,
+          type: 'edit'
+        },
+        modalStatic: true
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      view.findComponent(BForm).trigger('submit');
+
+      const restoreUserResponse = overrideStub('/api/v1/users/2', {
+        status: env.HTTP_NOT_FOUND,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      moxios.wait(function () {
+        sinon.assert.calledOnce(Base.error);
+        sinon.assert.calledOnce(routerSpy);
+        sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
+        Base.error.restore();
+        restoreUserResponse();
+        done();
       });
     });
   });

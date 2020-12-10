@@ -255,6 +255,9 @@ export default {
       ];
     },
 
+    /**
+     * Boolean that indicates, whether any request for this form is pending or not.
+     */
     isBusy () {
       return this.busyCounter > 0;
     }
