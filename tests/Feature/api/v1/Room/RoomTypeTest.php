@@ -77,6 +77,11 @@ class RoomTypeTest extends TestCase
             ->assertJsonFragment(
                 ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
             );
+
+        // Test deleted
+        $roomType->delete();
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
+            ->assertNotFound();
     }
 
     /**
@@ -165,6 +170,11 @@ class RoomTypeTest extends TestCase
         $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','updated_at'=>$roomType->updated_at];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertJsonValidationErrors(['short','color','description']);
+
+        // Test deleted
+        $roomType->delete();
+        $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
+            ->assertNotFound();
     }
 
     /**
@@ -191,6 +201,10 @@ class RoomTypeTest extends TestCase
         // Test delete for room type without rooms attached
         $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType'=>$roomType->id]))
             ->assertSuccessful();
+
+        // Test delete again
+        $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType'=>$roomType->id]))
+            ->assertNotFound();
 
         $this->assertDatabaseMissing('room_types', ['id'=>$roomType->id]);
 

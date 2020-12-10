@@ -183,8 +183,11 @@ export default {
       Base.call(`roomTypes/${this.id}`).then(response => {
         this.model = response.data.data;
         this.loaded = true;
-      }).catch(response => {
-        Base.error(response, this.$root, response.message);
+      }).catch(error => {
+        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.$router.push({ name: 'settings.room_types' });
+        }
+        Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.isBusy = false;
       });

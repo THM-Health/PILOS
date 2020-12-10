@@ -41,6 +41,7 @@
       </template>
 
       <template v-slot:cell(actions)="data">
+        <b-button-group>
         <can method='view' :policy='data.item'>
           <b-button
             v-b-tooltip.hover
@@ -73,6 +74,7 @@
             <i class='fas fa-trash'></i>
           </b-button>
         </can>
+        </b-button-group>
       </template>
     </b-table>
 
@@ -244,12 +246,12 @@ export default {
      * @returns {null|*}
      */
     roomTypeSelect () {
-      var noReplacement = {};
+      const noReplacement = {};
       noReplacement.value = null;
       noReplacement.text = this.$t('settings.roomTypes.delete.noReplacement');
 
       if (this.roomTypes) {
-        var list = this.roomTypes.filter((roomtype) => {
+        const list = this.roomTypes.filter((roomtype) => {
           return roomtype.id !== this.roomTypeToDelete.id;
         }).map(roomtype => {
           return {

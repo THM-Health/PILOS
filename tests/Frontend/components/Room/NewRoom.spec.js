@@ -250,9 +250,9 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      typeInput.setValue(2);
+      await typeInput.setValue(2);
       const nameInput = view.findComponent(BFormInput);
-      nameInput.setValue('Test');
+      await nameInput.setValue('Test');
       view.vm.handleSubmit();
       moxios.wait(function () {
         const request = moxios.requests.mostRecent();
@@ -261,8 +261,8 @@ describe('Create new rooms', function () {
           status: 201,
           response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
         })
-          .then(function () {
-            view.vm.$nextTick();
+          .then(async () => {
+            await view.vm.$nextTick();
             sinon.assert.calledOnce(spy);
             sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: 'zej-p5h-2wf' } });
             view.destroy();
@@ -301,9 +301,9 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      typeInput.setValue(2);
+      await typeInput.setValue(2);
       const nameInput = view.findComponent(BFormInput);
-      nameInput.setValue('Test');
+      await nameInput.setValue('Test');
       view.vm.handleSubmit();
 
       moxios.wait(function () {
@@ -313,7 +313,6 @@ describe('Create new rooms', function () {
           status: 403
         })
           .then(function () {
-            view.vm.$nextTick();
             sinon.assert.calledOnce(flashMessageSpy);
             sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.noNewRoom');
             view.destroy();
@@ -348,11 +347,12 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
 
-      view.vm.handleSubmit();
       const typeInput = view.findComponent(BFormSelect);
-      typeInput.setValue(2);
+      await typeInput.setValue(2);
       const nameInput = view.findComponent(BFormInput);
-      nameInput.setValue('Test');
+      await nameInput.setValue('Test');
+      view.vm.handleSubmit();
+
       moxios.wait(function () {
         const request = moxios.requests.mostRecent();
         expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
@@ -361,7 +361,6 @@ describe('Create new rooms', function () {
           response: { message: 'test' }
         })
           .then(function () {
-            view.vm.$nextTick();
             expect(flashMessageSpy.calledOnce).toBeTruthy();
             expect(flashMessageSpy.getCall(0).args[0].response.data.message).toEqual('test');
             expect(view.emitted().limitReached).toBeTruthy();
@@ -374,34 +373,42 @@ describe('Create new rooms', function () {
   });
 
   it('submit without name', function (done) {
-    const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
     const view = mount(NewRoomComponent, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        roomTypes: roomTypes,
         modalStatic: true
       },
       store
     });
-    view.vm.handleSubmit();
-    const typeInput = view.findComponent(BFormSelect);
-    typeInput.setValue(2);
-    const nameInput = view.findComponent(BFormInput);
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 422,
-        response: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
-      })
-        .then(function () {
-          view.vm.$nextTick();
-          expect(nameInput.classes()).toContain('is-invalid');
-          view.destroy();
-          done();
-        });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const typeInput = view.findComponent(BFormSelect);
+      await typeInput.setValue(2);
+      const nameInput = view.findComponent(BFormInput);
+      view.vm.handleSubmit();
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 422,
+          response: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
+        })
+          .then(async () => {
+            await view.vm.$nextTick();
+            expect(nameInput.classes()).toContain('is-invalid');
+            view.destroy();
+            done();
+          });
+      });
     });
   });
 
@@ -433,26 +440,26 @@ describe('Create new rooms', function () {
       });
 
       const typeInput = view.findComponent(BFormSelect);
-      typeInput.setValue(2).then(() => {
-        view.vm.handleSubmit();
-        moxios.wait(function () {
+      await typeInput.setValue(2);
+
+      view.vm.handleSubmit();
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 422,
+          response: { message: 'The given data was invalid.', errors: { roomType: ['error'] } }
+        }).then(async () => {
+          await view.vm.$nextTick();
+          expect(typeInput.classes()).toContain('is-invalid');
+
           const request = moxios.requests.mostRecent();
-          request.respondWith({
-            status: 422,
-            response: { message: 'The given data was invalid.', errors: { roomType: ['error'] } }
-          }).then(function () {
-            view.vm.$nextTick();
-            expect(typeInput.classes()).toContain('is-invalid');
+          expect(request.url).toEqual('/api/v1/roomTypes');
 
-            const request = moxios.requests.mostRecent();
-            expect(request.url).toEqual('/api/v1/roomTypes');
+          expect(view.vm.$data.room.roomType).toBeNull();
 
-            expect(view.vm.$data.room.roomType).toBeNull();
-
-            restoreRoomTypeResponse();
-            view.destroy();
-            done();
-          });
+          restoreRoomTypeResponse();
+          view.destroy();
+          done();
         });
       });
     });
@@ -482,42 +489,42 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      typeInput.setValue(2).then(() => {
-        expect(view.vm.$data.room.roomType).toBe(2);
-        view.vm.reloadRoomTypes();
-        moxios.wait(function () {
-          view.vm.$nextTick();
-          expect(view.vm.$data.room.roomType).toBe(2);
+      await typeInput.setValue(2);
+      expect(view.vm.$data.room.roomType).toBe(2);
+      view.vm.reloadRoomTypes();
 
-          let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
-            status: 200,
+      moxios.wait(async () => {
+        await view.vm.$nextTick();
+        expect(view.vm.$data.room.roomType).toBe(2);
+
+        let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+          status: 200,
+          response: {
+            data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+          }
+        });
+
+        view.vm.reloadRoomTypes();
+
+        moxios.wait(async () => {
+          await view.vm.$nextTick();
+
+          expect(view.vm.$data.room.roomType).toBeNull();
+          restoreRoomTypeResponse();
+          restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+            status: 500,
             response: {
-              data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+              message: 'Test'
             }
           });
 
           view.vm.reloadRoomTypes();
-
           moxios.wait(function () {
-            view.vm.$nextTick();
-
-            expect(view.vm.$data.room.roomType).toBeNull();
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
             restoreRoomTypeResponse();
-            restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
-              status: 500,
-              response: {
-                message: 'Test'
-              }
-            });
-
-            view.vm.reloadRoomTypes();
-            moxios.wait(function () {
-              sinon.assert.calledOnce(Base.error);
-              Base.error.restore();
-              restoreRoomTypeResponse();
-              view.destroy();
-              done();
-            });
+            view.destroy();
+            done();
           });
         });
       });
