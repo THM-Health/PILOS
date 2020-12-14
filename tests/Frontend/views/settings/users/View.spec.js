@@ -928,7 +928,7 @@ describe('UsersView', function () {
         },
         modalStatic: true
       },
-      store,
+      store
     });
 
     moxios.wait(function () {
