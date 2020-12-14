@@ -9,7 +9,7 @@
     <b-modal
       id="new-room"
       :title="$t('rooms.create.title')"
-      :busy="isLoadingAction"
+      :busy="isLoadingAction || roomTypeSelectBusy"
       ok-variant="success"
       :ok-title="$t('rooms.create.ok')"
       :cancel-title="$t('rooms.create.cancel')"
@@ -18,21 +18,7 @@
       @hidden="handleCancel"
     >
       <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-        <b-input-group>
-          <b-form-select :disabled="isLoadingAction" :state="fieldState('roomType')" v-model.number="room.roomType" :options="roomTypeSelect">
-            <template #first>
-              <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
-            </template>
-          </b-form-select>
-          <b-input-group-append>
-            <!-- Reload the room types -->
-            <b-button
-              @click="reloadRoomTypes"
-              variant="outline-secondary"
-            ><i class="fas fa-sync"></i
-            ></b-button>
-          </b-input-group-append>
-        </b-input-group>
+        <room-type-select v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="room.roomType" :state="fieldState('roomType')" ></room-type-select>
         <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
       </b-form-group>
       <!-- Room name -->
@@ -51,8 +37,10 @@ import Base from '../../api/base';
 import store from '../../store';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from './../../env.js';
+import RoomTypeSelect from '../RoomType/RoomTypeSelect';
 
 export default {
+  components: { RoomTypeSelect },
   mixins: [FieldErrors],
 
   props: {
@@ -63,7 +51,7 @@ export default {
   },
   data () {
     return {
-      roomTypes: [],
+      roomTypeSelectBusy: false,
       isLoadingAction: false,
       room: {
         roomType: null
@@ -81,21 +69,6 @@ export default {
       this.room = { roomType: null };
     },
 
-    // Load the room types
-    reloadRoomTypes () {
-      this.isLoadingAction = true;
-      Base.call('roomTypes').then(response => {
-        this.roomTypes = response.data.data;
-        // check if roomType select value is not included in available room type list
-        // if so, unset roomType field
-        if (!this.roomTypes.map(type => type.id).includes(this.room.roomType)) { this.room.roomType = null; }
-      }).catch(error => {
-        Base.error(error, this);
-      }).finally(() => {
-        this.isLoadingAction = false;
-      });
-    },
-
     handleSubmit () {
       this.isLoadingAction = true;
       Base.call('rooms', {
@@ -110,7 +83,7 @@ export default {
           // failed due to form validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             if (error.response.data.errors.roomType !== undefined) {
-              this.reloadRoomTypes();
+              this.$refs.roomTypeSelect.reloadRoomTypes();
             }
 
             this.errors = error.response.data.errors;
@@ -133,27 +106,8 @@ export default {
       });
     }
 
-  },
-  mounted () {
-    this.reloadRoomTypes();
-  },
-  computed: {
-    /**
-     * Calculate the room type selection options
-     * @returns {null|*}
-     */
-    roomTypeSelect () {
-      if (this.roomTypes) {
-        return this.roomTypes.map(roomtype => {
-          var entry = {};
-          entry.value = roomtype.id;
-          entry.text = roomtype.description;
-          return entry;
-        });
-      }
-      return null;
-    }
   }
+
 };
 </script>
 <style scoped>

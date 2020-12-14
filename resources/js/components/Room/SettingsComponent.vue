@@ -1,27 +1,13 @@
 <template>
   <div>
     <b-form  @submit.stop.prevent :novalidate="true">
-      <b-overlay :show="saving || loadingRoomTypes" >
+      <b-overlay :show="saving || roomTypeSelectBusy" >
       <div class="row" v-on:keyup.enter="save" @change="save">
         <!-- General settings tab -->
         <div class="col-lg-3 col-sm-12">
           <h5>{{ $t('rooms.settings.general.title') }}</h5>
           <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-            <b-input-group>
-              <b-form-select :state="fieldState('roomType')" v-model.number="settings.roomType" :options="roomTypeSelect">
-                <template #first>
-                  <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
-                </template>
-              </b-form-select>
-              <b-input-group-append>
-                <!-- Reload the room types -->
-                <b-button
-                  @click="reloadRoomTypes"
-                  variant="outline-secondary"
-                ><i class="fas fa-sync"></i
-                ></b-button>
-              </b-input-group-append>
-            </b-input-group>
+            <room-type-select v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="settings.roomType" :state="fieldState('roomType')" ></room-type-select>
             <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
           </b-form-group>
           <!-- Room name -->
@@ -273,9 +259,11 @@
 import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
+import RoomTypeSelect from '../RoomType/RoomTypeSelect';
 
 export default {
   mixins: [FieldErrors],
+  components: { RoomTypeSelect },
 
   props: {
     room: Object
@@ -284,9 +272,8 @@ export default {
   data () {
     return {
       settings: Object, // Room settings
-      roomTypes: [],
       saving: false, // Settings are currently saved, display spinner
-      loadingRoomTypes: false,
+      roomTypeSelectBusy: false,
       welcomeMessageLimit: env.WELCOME_MESSAGE_LIMIT,
       errors: {}
     };
@@ -321,7 +308,7 @@ export default {
         // Settings couldn't be saved
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           if (error.response.data.errors.roomType !== undefined) {
-            this.reloadRoomTypes();
+            this.$refs.roomTypeSelect.reloadRoomTypes();
           }
           this.errors = error.response.data.errors;
           return;
@@ -330,27 +317,6 @@ export default {
       }).finally(() => {
         // Disable saving indicator
         this.saving = false;
-      });
-    },
-
-    /**
-     * (Re)load the room types and unset roomtype select if value is invalid
-     */
-    reloadRoomTypes () {
-      this.loadingRoomTypes = true;
-      // Send new settings to the server
-      Base.call('roomTypes', {
-        method: 'get'
-      }).then(response => {
-        this.roomTypes = response.data.data;
-
-        // check if roomType select value is not included in available room type list
-        // if so, unset roomType field
-        if (!this.roomTypes.map(type => type.id).includes(this.settings.roomType)) { this.settings.roomType = null; }
-      }).catch((error) => {
-        Base.error(error, this.$root);
-      }).finally(() => {
-        this.loadingRoomTypes = false;
       });
     },
 
@@ -378,18 +344,6 @@ export default {
   },
   computed: {
     /**
-     * Calculate the room type selection options
-     * @returns {null|*}
-     */
-    roomTypeSelect () {
-      return this.roomTypes.map(roomtype => {
-        var entry = {};
-        entry.value = roomtype.id;
-        entry.text = roomtype.description;
-        return entry;
-      });
-    },
-    /**
      * Count the chars of the welcome message
      * @returns {string} amount of chars in comparision to the limit
      */
@@ -409,7 +363,6 @@ export default {
       }).catch((error) => {
         Base.error(error, this.$root);
       });
-    this.reloadRoomTypes();
   }
 };
 </script>
