@@ -2,12 +2,14 @@
 
 namespace App;
 
+use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Database\Eloquent\Model;
 
 class Server extends Model
 {
-    public $timestamps = false;
+
+    use AddsModelNameTrait;
 
     const VIDEO_WEIGHT       = 3;
     const AUDIO_WEIGHT       = 2;

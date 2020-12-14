@@ -1,0 +1,113 @@
+<?php
+
+namespace App\Http\Controllers\api\v1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ServerRequest;
+use App\RoomType;
+use App\Http\Resources\Server as ServerResource;
+use App\Server;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class ServerController extends Controller
+{
+    public function __construct()
+    {
+        $this->authorizeResource(Server::class, 'server');
+        $this->middleware('check.stale:server,\App\Http\Resources\Server', ['only' => 'update']);
+    }
+
+    /**
+     * Return a json array with all room types
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
+    public function index(Request $request)
+    {
+        $resource = Server::query();
+
+        if ($request->has('sort_by') && $request->has('sort_direction')) {
+            $by  = $request->query('sort_by');
+            $dir = $request->query('sort_direction');
+
+            if (in_array($by, ['id', 'name']) && in_array($dir, ['asc', 'desc'])) {
+                $resource = $resource->orderBy($by, $dir);
+            }
+        }
+
+        $resource = $resource->paginate(setting('pagination_page_size'));
+
+        return ServerResource::collection($resource);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  Server         $server
+     * @return ServerResource
+     */
+    public function show(Server $server)
+    {
+        return new ServerResource($server);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  ServerRequest  $request
+     * @param  Server         $server
+     * @return ServerResource
+     */
+    public function update(ServerRequest $request, Server $server)
+    {
+        $server->description = $request->description;
+        $server->base_url    = $request->base_url;
+        $server->salt        = $request->salt;
+        $server->strength    = $request->strength;
+        $server->status      = $request->status;
+        $server->save();
+
+        return new ServerResource($server);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  ServerRequest  $request
+     * @return ServerResource
+     */
+    public function store(ServerRequest $request)
+    {
+        $server              = new RoomType();
+        $server->description = $request->description;
+        $server->base_url    = $request->base_url;
+        $server->salt        = $request->salt;
+        $server->strength    = $request->strength;
+        $server->status      = $request->status;
+        $server->save();
+
+        return new ServerResource($server);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  Request $request
+     * @param  Server  $server
+     * @return JsonResponse|Response
+     * @throws \Exception
+     */
+    public function destroy(Request $request, Server $server)
+    {
+        /**
+         * TODO
+         * Check if meetings are running
+         * Maybe use soft delete or archive?
+         */
+        $server->delete();
+
+        return response()->noContent();
+    }
+}
