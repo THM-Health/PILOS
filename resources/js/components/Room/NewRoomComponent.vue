@@ -14,11 +14,12 @@
       :ok-title="$t('rooms.create.ok')"
       :cancel-title="$t('rooms.create.cancel')"
       :static="modalStatic"
+      :ok-disabled="roomTypeSelectLoadingError"
       @ok="handleOk"
       @hidden="handleCancel"
     >
       <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-        <room-type-select v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="room.roomType" :state="fieldState('roomType')" ></room-type-select>
+        <room-type-select v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"  v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="room.roomType" :state="fieldState('roomType')" ></room-type-select>
         <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
       </b-form-group>
       <!-- Room name -->
@@ -52,6 +53,7 @@ export default {
   data () {
     return {
       roomTypeSelectBusy: false,
+      roomTypeSelectLoadingError: false,
       isLoadingAction: false,
       room: {
         roomType: null

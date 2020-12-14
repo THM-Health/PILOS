@@ -95,7 +95,8 @@ export default {
       replacement: 'Ersatzraumart',
       noReplacement: '-- Kein Ersatz --',
       replacementInfo: 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.'
-    }
+    },
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.'
   },
 
   application: {

@@ -94,7 +94,8 @@ export default {
       replacement: 'Room type replacement',
       noReplacement: '-- No replacement --',
       replacementInfo: 'If there are rooms associated with this room type, you need to select a replacement room type.'
-    }
+    },
+    loadingError: 'An error occurred during loading of the room types.'
   },
 
   application: {
