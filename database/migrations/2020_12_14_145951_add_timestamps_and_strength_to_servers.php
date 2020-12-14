@@ -9,7 +9,7 @@ class AddTimestampsAndStrengthToServers extends Migration
     public function up()
     {
         Schema::table('servers', function (Blueprint $table) {
-            $table->smallInteger('strength');
+            $table->smallInteger('strength')->default(1);
             $table->timestamps();
         });
     }
