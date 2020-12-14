@@ -42,6 +42,7 @@ class CreateAdminUserTest extends TestCase
             ->expectsQuestion('Locale (possible values: ' . join(',', config('app.available_locales')) . ')', str_repeat('a', 256))
             ->expectsQuestion('Password', 'Test')
             ->expectsQuestion('Password Confirmation', 'Test1234')
+            ->expectsConfirmation('Skip audio check on joining rooms?', 'f')
             ->expectsOutput('Something went wrong, please see the error messages below for more information.')
             ->assertExitCode(1);
     }
@@ -76,6 +77,7 @@ class CreateAdminUserTest extends TestCase
             ->expectsQuestion('Password', 'Test_1234')
             ->expectsQuestion('Password Confirmation', 'Test_1234')
             ->expectsOutput('New admin user created successfully.')
+            ->expectsConfirmation('Skip audio check on joining rooms?', 'y')
             ->assertExitCode(0);
 
         $this->assertDatabaseCount('users', 1);
