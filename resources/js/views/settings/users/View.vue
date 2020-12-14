@@ -17,166 +17,199 @@
       <b-form @submit='saveUser'>
         <b-container :fluid='true'>
           <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.firstname')"
-            label-for='firstname'
-            :state='fieldState("firstname")'
+            label-cols-lg="12"
+            :label="$t('settings.users.base_data')"
+            label-size="lg"
+            label-class="font-weight-bold pt-0"
+            class="mb-0"
           >
-            <b-form-input
-              id='firstname'
-              type='text'
-              v-model='model.firstname'
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.firstname')"
+              label-for='firstname'
               :state='fieldState("firstname")'
-              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
-            ></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.lastname')"
-            label-for='lastname'
-            :state='fieldState("lastname")'
-          >
-            <b-form-input
-              id='lastname'
-              type='text'
-              v-model='model.lastname'
-              :state='fieldState("lastname")'
-              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
-            ></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('auth.ldap.username')"
-            label-for='username'
-            :state='fieldState("username")'
-            v-if="model.authenticator === 'ldap'"
-          >
-            <b-form-input
-              id='username'
-              type='text'
-              v-model='model.username'
-              :state='fieldState("username")'
-              :disabled="true"
-            ></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('username')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.email')"
-            label-for='email'
-            :state='fieldState("email")'
-          >
-            <b-form-input
-              id='email'
-              type='email'
-              v-model='model.email'
-              :state='fieldState("email")'
-              :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
-            ></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.user_locale')"
-            label-for='user_locale'
-            :state='fieldState("user_locale")'
-          >
-            <b-form-select
-              :options='locales'
-              id='user_locale'
-              v-model='model.user_locale'
-              :state='fieldState("user_locale")'
-              :disabled="isBusy || config.type === 'view'"
             >
-              <template v-slot:first>
-                <b-form-select-option :value="null" disabled>{{ $t('settings.users.select_locale') }}</b-form-select-option>
-              </template>
-            </b-form-select>
-            <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.roles')"
-            label-for='roles'
-            :state='fieldState("roles", true)'
-          >
-            <multiselect
-              v-model='model.roles'
-              track-by='id'
-              open-direction='bottom'
-              :multiple='true'
-              :searchable='false'
-              :internal-search='false'
-              :clear-on-select='false'
-              :close-on-select='false'
-              :show-no-results='false'
-              :showLabels='false'
-              :options='roles'
-              :disabled="isBusy || config.type === 'view' || !canEditRoles"
-              id='roles'
-              :loading='rolesLoading'
-              :allowEmpty='false'
-              :class="{ 'is-invalid': fieldState('roles', true) }">
-              <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-              <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
-              <template slot='tag' slot-scope='{ option, remove }'>
-                <h5 class='d-inline mr-1 mb-1'>
-                  <b-badge variant='primary'>
-                    {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
-                    <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.users.removeRole')"></b-icon-x></span>
-                  </b-badge>
-                </h5>
-              </template>
-              <template slot='afterList'>
-                <b-button
-                  :disabled='rolesLoading || currentPage === 1'
-                  variant='outline-secondary'
-                  @click='loadRoles(Math.max(1, currentPage - 1))'>
-                  <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
-                </b-button>
-                <b-button
-                  :disabled='rolesLoading || !hasNextPage'
-                  variant='outline-secondary'
-                  @click='loadRoles(currentPage + 1)'>
-                  <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
-                </b-button>
-              </template>
-            </multiselect>
-            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.password')"
-            label-for='password'
-            :state='fieldState("password")'
-            v-if="model.authenticator === 'users' && config.type !== 'view'"
-          >
-            <b-form-input
-              id='password'
-              type='password'
-              v-model='model.password'
+              <b-form-input
+                id='firstname'
+                type='text'
+                v-model='model.firstname'
+                :state='fieldState("firstname")'
+                :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
+              ></b-form-input>
+              <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.lastname')"
+              label-for='lastname'
+              :state='fieldState("lastname")'
+            >
+              <b-form-input
+                id='lastname'
+                type='text'
+                v-model='model.lastname'
+                :state='fieldState("lastname")'
+                :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
+              ></b-form-input>
+              <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('auth.ldap.username')"
+              label-for='username'
+              :state='fieldState("username")'
+              v-if="model.authenticator === 'ldap'"
+            >
+              <b-form-input
+                id='username'
+                type='text'
+                v-model='model.username'
+                :state='fieldState("username")'
+                :disabled="true"
+              ></b-form-input>
+              <template slot='invalid-feedback'><div v-html="fieldError('username')"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.email')"
+              label-for='email'
+              :state='fieldState("email")'
+            >
+              <b-form-input
+                id='email'
+                type='email'
+                v-model='model.email'
+                :state='fieldState("email")'
+                :disabled="isBusy || config.type === 'view' || !canUpdateAttributes"
+              ></b-form-input>
+              <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.user_locale')"
+              label-for='user_locale'
+              :state='fieldState("user_locale")'
+            >
+              <b-form-select
+                :options='locales'
+                id='user_locale'
+                v-model='model.user_locale'
+                :state='fieldState("user_locale")'
+                :disabled="isBusy || config.type === 'view'"
+              >
+                <template v-slot:first>
+                  <b-form-select-option :value="null" disabled>{{ $t('settings.users.select_locale') }}</b-form-select-option>
+                </template>
+              </b-form-select>
+              <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.roles')"
+              label-for='roles'
+              :state='fieldState("roles", true)'
+            >
+              <multiselect
+                v-model='model.roles'
+                track-by='id'
+                open-direction='bottom'
+                :multiple='true'
+                :searchable='false'
+                :internal-search='false'
+                :clear-on-select='false'
+                :close-on-select='false'
+                :show-no-results='false'
+                :showLabels='false'
+                :options='roles'
+                :disabled="isBusy || config.type === 'view' || !canEditRoles"
+                id='roles'
+                :loading='rolesLoading'
+                :allowEmpty='false'
+                :class="{ 'is-invalid': fieldState('roles', true) }">
+                <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
+                <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
+                <template slot='tag' slot-scope='{ option, remove }'>
+                  <h5 class='d-inline mr-1 mb-1'>
+                    <b-badge variant='primary'>
+                      {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
+                      <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.users.removeRole')"></b-icon-x></span>
+                    </b-badge>
+                  </h5>
+                </template>
+                <template slot='afterList'>
+                  <b-button
+                    :disabled='rolesLoading || currentPage === 1'
+                    variant='outline-secondary'
+                    @click='loadRoles(Math.max(1, currentPage - 1))'>
+                    <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                  </b-button>
+                  <b-button
+                    :disabled='rolesLoading || !hasNextPage'
+                    variant='outline-secondary'
+                    @click='loadRoles(currentPage + 1)'>
+                    <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                  </b-button>
+                </template>
+              </multiselect>
+              <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.password')"
+              label-for='password'
               :state='fieldState("password")'
-              :disabled="isBusy"
-            ></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
-          </b-form-group>
-          <b-form-group
-            label-cols-sm='3'
-            :label="$t('settings.users.password_confirmation')"
-            label-for='password_confirmation'
-            :state='fieldState("password_confirmation")'
-            v-if="model.authenticator === 'users' && config.type !== 'view'"
-          >
-            <b-form-input
-              id='password_confirmation'
-              type='password'
-              v-model='model.password_confirmation'
+              v-if="model.authenticator === 'users' && config.type !== 'view'"
+            >
+              <b-form-input
+                id='password'
+                type='password'
+                v-model='model.password'
+                :state='fieldState("password")'
+                :disabled="isBusy"
+              ></b-form-input>
+              <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
+            </b-form-group>
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.password_confirmation')"
+              label-for='password_confirmation'
               :state='fieldState("password_confirmation")'
-              :disabled="isBusy"
-            ></b-form-input>
-            <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
+              v-if="model.authenticator === 'users' && config.type !== 'view'"
+            >
+              <b-form-input
+                id='password_confirmation'
+                type='password'
+                v-model='model.password_confirmation'
+                :state='fieldState("password_confirmation")'
+                :disabled="isBusy"
+              ></b-form-input>
+              <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
+            </b-form-group>
+          </b-form-group>
+          <hr>
+          <b-form-group
+            label-cols-lg="12"
+            :label="$t('settings.users.room_settings')"
+            label-size="lg"
+            label-class="font-weight-bold pt-0"
+            class="mb-0"
+          >
+            <b-form-group
+              label-cols-sm='3'
+              :label="$t('settings.users.skip_check_audio')"
+              label-for='bbb_skip_check_audio'
+              :state="fieldState('bbb_skip_check_audio')"
+              class="align-items-center d-flex"
+            >
+              <b-form-checkbox
+                id='bbb_skip_check_audio'
+                v-model='model.bbb_skip_check_audio'
+                :state="fieldState('bbb_skip_check_audio')"
+                :disabled="isBusy || config.type === 'view'"
+                switch
+              ></b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('bbb_skip_check_audio')"></div></template>
+            </b-form-group>
           </b-form-group>
           <hr>
           <b-row class='my-1 float-right'>
@@ -302,6 +335,7 @@ export default {
         password: null,
         password_confirmation: null,
         user_locale: null,
+        bbb_skip_check_audio: null,
         roles: []
       },
       errors: {},

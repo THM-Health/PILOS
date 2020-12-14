@@ -169,7 +169,7 @@ class RoomController extends Controller
             }
         }
 
-        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id, Auth::user()->bbb_skip_check_audio)]);
     }
 
     /**
@@ -196,7 +196,7 @@ class RoomController extends Controller
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
-        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id)]);
+        return response()->json(['url'=>$meeting->getJoinUrl($name, $room->getRole(Auth::user()), $id, Auth::user()->bbb_skip_check_audio)]);
     }
 
     /**

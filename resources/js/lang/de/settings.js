@@ -62,6 +62,11 @@ export default {
     roles: 'Rollen',
     select_locale: 'Bitte wählen Sie eine Sprache aus',
     removeRole: 'Rolle entfernen',
+
+    base_data: 'Stammdaten',
+    room_settings: 'Benutzerdefinierte Raumeinstellungen',
+    skip_check_audio: 'Echo-Test deaktivieren',
+
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',
