@@ -1,19 +1,5 @@
 <template>
-  <b-overlay :show="isBusy || !loaded">
-
-    <template #overlay>
-      <div class="text-center">
-        <b-spinner v-if="isBusy" ></b-spinner>
-        <b-button
-          ref="reloadRoomType"
-          v-else
-          @click="loadRoomType()"
-        >
-          <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
-        </b-button>
-      </div>
-    </template>
-
+  <div>
     <h3>
       {{ id === 'new' ? $t('settings.roomTypes.new') : (
         viewOnly ? $t('settings.roomTypes.view', { name: model.description })
@@ -21,70 +7,82 @@
       ) }}
     </h3>
     <hr>
+    <b-overlay :show="isBusy || !loaded">
+      <template #overlay>
+        <div class="text-center">
+          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-button
+            ref="reloadRoomType"
+            v-else
+            @click="loadRoomType()"
+          >
+            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+          </b-button>
+        </div>
+      </template>
+      <b-form @submit='saveRoomType'>
+        <b-container fluid>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.description')"
+            label-for='description'
+            :state='fieldState("description")'
+          >
+            <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || !loaded || viewOnly'></b-form-input>
+            <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
+          </b-form-group>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.short')"
+            label-for='short'
+            :state='fieldState("short")'
+          >
+            <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || !loaded || viewOnly'></b-form-input>
+            <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
+          </b-form-group>
 
-    <b-form @submit='saveRoomType'>
-      <b-container fluid>
-        <b-form-group
-          label-cols-sm='4'
-          :label="$t('settings.roomTypes.description')"
-          label-for='description'
-          :state='fieldState("description")'
-        >
-          <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || viewOnly'></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
-        </b-form-group>
-        <b-form-group
-          label-cols-sm='4'
-          :label="$t('settings.roomTypes.short')"
-          label-for='short'
-          :state='fieldState("short")'
-        >
-          <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || viewOnly'></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
-        </b-form-group>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.color')"
+            label-for='color'
+            :state='fieldState("color")'
+          >
+            <v-swatches class="my-2" :disabled='isBusy || !loaded || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
+            <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+            <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || !loaded || viewOnly'></b-form-input>
 
-        <b-form-group
-          label-cols-sm='4'
-          :label="$t('settings.roomTypes.color')"
-          label-for='color'
-          :state='fieldState("color")'
-        >
-          <v-swatches class="my-2" :disabled='isBusy || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
-          <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
-          <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || viewOnly'></b-form-input>
+            <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
+          </b-form-group>
 
-          <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
-        </b-form-group>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.preview')"
+          >
+            <div class="roomicon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+          </b-form-group>
 
-        <b-form-group
-          label-cols-sm='4'
-          :label="$t('settings.roomTypes.preview')"
-        >
-          <div class="roomicon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
-        </b-form-group>
-
-        <hr>
-        <b-row class='my-1 float-right'>
-          <b-col sm='12'>
-            <b-button
-              :disabled='isBusy'
-              variant='secondary'
-              @click="$router.push({ name: 'settings.room_types' })">
-              <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
-            </b-button>
-            <b-button
-              :disabled='isBusy'
-              variant='success'
-              type='submit'
-              class='ml-1'
-              v-if='!viewOnly'>
-              <i class='fas fa-save'></i> {{ $t('app.save') }}
-            </b-button>
-          </b-col>
-        </b-row>
-      </b-container>
-    </b-form>
-
+          <hr>
+          <b-row class='my-1 float-right'>
+            <b-col sm='12'>
+              <b-button
+                :disabled='isBusy'
+                variant='secondary'
+                @click="$router.push({ name: 'settings.room_types' })">
+                <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
+              </b-button>
+              <b-button
+                :disabled='isBusy || !loaded'
+                variant='success'
+                type='submit'
+                class='ml-1'
+                v-if='!viewOnly'>
+                <i class='fas fa-save'></i> {{ $t('app.save') }}
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-container>
+      </b-form>
+    </b-overlay>
     <b-modal
       :static='modalStatic'
       :busy='isBusy'
@@ -107,7 +105,7 @@
         <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
       </template>
     </b-modal>
-  </b-overlay>
+  </div>
 </template>
 
 <script>
@@ -219,6 +217,7 @@ export default {
           this.staleError = error.response.data;
           this.$refs['stale-roomType-modal'].show();
         } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          Base.error(error, this.$root, error.message);
           this.$router.push({ name: 'settings.room_types' });
         } else {
           Base.error(error, this.$root, error.message);

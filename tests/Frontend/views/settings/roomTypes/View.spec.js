@@ -180,6 +180,87 @@ describe('RoomTypeView', function () {
     });
   });
 
+  it('error handler gets called and redirected if a 404 error occurs during load of data', function (done) {
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+      status: 404,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledOnce(Base.error);
+      sinon.assert.calledOnce(routerSpy);
+      sinon.assert.calledWith(routerSpy, { name: 'settings.room_types' });
+      Base.error.restore();
+      restoreRoomTypeResponse();
+
+      done();
+    });
+  });
+
+  it('error handler gets called and redirected if a 404 error occurs during save of data', function (done) {
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+        status: 404,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(function () {
+        sinon.assert.calledOnce(Base.error);
+        Base.error.restore();
+        sinon.assert.calledOnce(routerSpy);
+        sinon.assert.calledWith(routerSpy, { name: 'settings.room_types' });
+        restoreRoomTypeResponse();
+        done();
+      });
+    });
+  });
+
   it('error handler gets called if an error occurs during update', function (done) {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
