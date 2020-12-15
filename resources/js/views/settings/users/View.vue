@@ -361,13 +361,11 @@ export default {
   mounted () {
     EventBus.$on('currentUserChangedEvent', this.togglePermissionFlags);
 
-    if (
-      !['profile', 'view'].includes(this.config.type) ||
-      this.config.id === 'new' ||
-      PermissionService.cannot('editUserRole', {
+    if (this.config.id === 'new' || (
+      PermissionService.can('editUserRole', {
         id: this.config.id,
         model_name: 'User'
-      })
+      }) && this.config.type === 'edit')
     ) {
       this.loadRoles();
     }
