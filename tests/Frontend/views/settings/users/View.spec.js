@@ -602,7 +602,6 @@ describe('UsersView', function () {
     });
 
     moxios.wait(function () {
-      console.log(view.html());
       sinon.assert.calledTwice(Base.error);
       expect(view.html()).toContain('settings.roles.nodata');
       Base.error.restore();
