@@ -10,6 +10,8 @@ import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
 import RolesIndex from './views/settings/roles/Index';
 import RolesView from './views/settings/roles/View';
+import RoomTypesIndex from './views/settings/roomTypes/Index';
+import RoomTypesView from './views/settings/roomTypes/View';
 import UsersIndex from './views/settings/users/Index';
 import UsersView from './views/settings/users/View';
 import Application from './views/settings/Application';
@@ -176,6 +178,52 @@ export const routes = [
             PermissionService.can('manage', 'SettingPolicy') &&
             PermissionService.can('viewAny', 'SettingPolicy')
           )
+        }
+      },
+      {
+        path: 'room_types',
+        name: 'settings.room_types',
+        component: RoomTypesIndex,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy')
+          )
+        }
+      },
+      {
+        path: 'room_types/:id',
+        name: 'settings.room_types.view',
+        component: RoomTypesView,
+        props: route => {
+          return {
+            id: route.params.id,
+            viewOnly: route.query.view === '1'
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'RoomTypePolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', 'RoomTypePolicy')
+              );
+            }
+
+            return Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('update', 'RoomTypePolicy')
+            );
+          }
         }
       }
     ]

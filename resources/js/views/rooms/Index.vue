@@ -21,7 +21,7 @@
           </b-col>
           <can method="create" policy="RoomPolicy" v-if="!limitReached">
           <b-col class="pt-2">
-            <new-room-component  v-if="roomTypes" @limitReached="onReachLimit" :room-types="roomTypes"></new-room-component>
+            <new-room-component @limitReached="onReachLimit" ></new-room-component>
           </b-col>
           </can>
         </b-row>
@@ -100,7 +100,6 @@ export default {
     reload () {
       this.loadOwnRooms();
       this.loadSharedRooms();
-      this.loadRoomTypes();
     },
     // Reset page of pagination and reload resources with search query
     search () {
@@ -154,14 +153,6 @@ export default {
       }).finally(() => {
         this.loadingOwn = false;
       });
-    },
-    // Load the room types
-    loadRoomTypes () {
-      Base.call('roomTypes').then(response => {
-        this.roomTypes = response.data.data;
-      }).catch(error => {
-        Base.error(error, this);
-      });
     }
   },
   data () {
@@ -170,7 +161,6 @@ export default {
       loadingShared: false,
       ownRooms: null,
       sharedRooms: null,
-      roomTypes: null,
       rawSearchQuery: ''
     };
   }

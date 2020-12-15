@@ -10,7 +10,6 @@ $factory->define(RoomType::class, function (Faker $faker) {
     return [
         'short' => $faker->randomLetter."".$faker->randomLetter,
         'description' => $faker->word,
-        'color' => $faker->hexColor,
-        'default' => $faker->boolean,
+        'color' => $faker->hexColor
     ];
 });

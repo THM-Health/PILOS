@@ -28,6 +28,15 @@
               <b-row>
                 <b-col cols='3'><span><i class='fas fa-cogs'></i></span></b-col>
                 <b-col cols='7'>{{ $t('settings.application.title') }}</b-col>
+                </b-row>
+            </b-nav-item>
+          </can>
+
+          <can method='viewAny' policy='RoomTypePolicy'>
+            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.room_types' }">
+              <b-row>
+                <b-col cols='3'><span><i class='fas fa-tags'></i></span></b-col>
+                <b-col cols='7'>{{ $t('settings.roomTypes.title') }}</b-col>
               </b-row>
             </b-nav-item>
           </can>

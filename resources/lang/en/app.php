@@ -14,6 +14,7 @@ return [
     ],
     'model' => [
         'roles' => 'role',
-        'users' => 'user'
+        'users' => 'user',
+        'room_types' => 'room types'
     ]
 ];
