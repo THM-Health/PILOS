@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BFormSelect, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormSelect, IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import sinon from 'sinon';
@@ -101,6 +101,39 @@ describe('RoomType Select', function () {
     });
   });
 
+  it('disabled param', function (done) {
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomTypeSelect, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        value: 1
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      expect(view.findComponent(BButton).attributes('disabled')).toBeFalsy();
+      expect(view.findComponent(BFormSelect).attributes('disabled')).toBeFalsy();
+
+      await view.setProps({ disabled: true });
+
+      expect(view.findComponent(BButton).attributes('disabled')).toBeTruthy();
+      expect(view.findComponent(BFormSelect).attributes('disabled')).toBeTruthy();
+
+      view.destroy();
+      done();
+    });
+  });
+
   it('invalid value passed', function (done) {
     moxios.stubRequest('/api/v1/roomTypes', {
       status: 200,
@@ -127,7 +160,7 @@ describe('RoomType Select', function () {
     });
   });
 
-  it('events emitted', function (done) {
+  it('busy events emitted', function (done) {
     moxios.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -158,6 +191,54 @@ describe('RoomType Select', function () {
 
       view.destroy();
       done();
+    });
+  });
+
+  it('error events emitted', function (done) {
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(RoomTypeSelect, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        value: 1
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      expect(view.emitted().loadingError[0]).toEqual([true]);
+      sinon.assert.calledOnce(Base.error);
+      Base.error.restore();
+
+      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+        status: 200,
+        response: {
+          data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+        }
+      });
+
+      view.vm.reloadRoomTypes();
+      moxios.wait(async () => {
+        await view.vm.$nextTick();
+        expect(view.emitted().loadingError[1]).toEqual([false]);
+
+        restoreRoomTypeResponse();
+        view.destroy();
+        done();
+      });
     });
   });
 

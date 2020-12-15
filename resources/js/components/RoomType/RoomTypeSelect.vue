@@ -23,7 +23,11 @@
 <script>
 import Base from '../../api/base';
 export default {
-  props: ['value', 'state', 'disabled'],
+  props: {
+    value: Number,
+    state: Boolean,
+    disabled: Boolean
+  },
 
   data () {
     return {
