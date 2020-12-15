@@ -579,7 +579,7 @@ describe('UsersView', function () {
         message: 'Test'
       }
     });
-    const restoreUserResponse = overrideStub('/api/v1/users/1', {
+    const restoreUserResponse = overrideStub('/api/v1/users/2', {
       status: 500,
       response: {
         message: 'Test'
@@ -594,7 +594,7 @@ describe('UsersView', function () {
       },
       propsData: {
         config: {
-          id: 1,
+          id: 2,
           type: 'edit'
         }
       },
@@ -602,6 +602,7 @@ describe('UsersView', function () {
     });
 
     moxios.wait(function () {
+      console.log(view.html());
       sinon.assert.calledTwice(Base.error);
       expect(view.html()).toContain('settings.roles.nodata');
       Base.error.restore();
