@@ -58,7 +58,7 @@
                   <b-input-group-text>{{$t('rooms.settings.general.minutes')}}</b-input-group-text>
                   <!-- Reset the duration -->
                   <b-button
-                    @click="clearDuration"
+                    @click="settings.duration = null"
                     variant="outline-secondary"
                   ><i class="fas fa-trash"></i
                   ></b-button>
@@ -77,7 +77,7 @@
                 <b-input-group-prepend>
                   <!-- Generate random access code -->
                   <b-button
-                    v-on:click="genAccessCode"
+                    v-on:click="settings.accessCode = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111)"
                     variant="outline-secondary"
                   ><i class="fas fa-dice"></i
                   ></b-button>
@@ -93,7 +93,7 @@
                 <b-input-group-append>
                   <!-- Clear access code -->
                   <b-button
-                    @click="clearAccessCode"
+                    @click="settings.accessCode = null"
                     variant="outline-secondary"
                   ><i class="fas fa-trash"></i
                   ></b-button>
@@ -138,7 +138,7 @@
                   <b-input-group-append>
                     <!-- Clear participants limit -->
                     <b-button
-                      @click="clearMaxParticipants"
+                      @click="settings.maxParticipants = null"
                       variant="outline-secondary"
                     ><i class="fas fa-trash"></i
                     ></b-button>
@@ -305,13 +305,6 @@ export default {
   },
   methods: {
     /**
-     * Generate a new room access code with 9 digits
-     */
-    genAccessCode: function () {
-      this.settings.accessCode =
-          Math.floor(Math.random() * (999999999 - 111111112)) + 111111111;
-    },
-    /**
      * Save room settings
      *
      *  @param evt
@@ -348,25 +341,6 @@ export default {
         // Disable saving indicator
         this.isBusy = false;
       });
-    },
-
-    /**
-     * Clear access code and save settings
-     */
-    clearAccessCode () {
-      this.settings.accessCode = null; ;
-    },
-    /**
-     * Clear meeting duration and save settings
-     */
-    clearDuration () {
-      this.settings.duration = null;
-    },
-    /**
-     * Clear max participants code and save settings
-     */
-    clearMaxParticipants () {
-      this.settings.maxParticipants = null;
     },
 
     load () {
