@@ -19,13 +19,24 @@
       @hidden="handleCancel"
     >
       <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-        <room-type-select v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"  v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="room.roomType" :state="fieldState('roomType')" ></room-type-select>
+        <room-type-select
+          :disabled="isLoadingAction"
+          v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
+          v-on:busy="(value) => this.roomTypeSelectBusy = value"
+          ref="roomTypeSelect"
+          v-model="room.roomType"
+          :state="fieldState('roomType')"
+        ></room-type-select>
         <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
       </b-form-group>
       <!-- Room name -->
       <b-form-group :state="fieldState('name')" :label="$t('rooms.settings.general.roomName')">
         <b-input-group>
-          <b-form-input :state="fieldState('name')" v-model="room.name"></b-form-input>
+          <b-form-input
+            :disabled="isLoadingAction"
+            :state="fieldState('name')"
+            v-model="room.name"
+          ></b-form-input>
         </b-input-group>
         <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
       </b-form-group>

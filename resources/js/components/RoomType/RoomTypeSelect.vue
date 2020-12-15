@@ -3,7 +3,7 @@
     <b-input-group-prepend class="flex-grow-1" style="width: 1%" v-if="modelLoadingError" >
     <b-alert class="mb-0 w-100" show variant="danger">{{ $t('settings.roomTypes.loadingError') }}</b-alert>
     </b-input-group-prepend>
-    <b-form-select v-else :disabled="isLoadingAction" :state="state" v-model.number="roomType" :options="roomTypeSelect">
+    <b-form-select v-else :disabled="disabled || isLoadingAction" :state="state" v-model.number="roomType" :options="roomTypeSelect">
       <template #first>
         <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
       </template>
@@ -12,7 +12,7 @@
       <!-- Reload the room types -->
       <b-button
         @click="reloadRoomTypes"
-        :disabled="isLoadingAction"
+        :disabled="disabled || isLoadingAction"
         variant="outline-secondary"
       ><i class="fas fa-sync"  v-bind:class="{ 'fa-spin': isLoadingAction  }"></i
       ></b-button>
@@ -23,7 +23,7 @@
 <script>
 import Base from '../../api/base';
 export default {
-  props: ['value', 'state'],
+  props: ['value', 'state', 'disabled'],
 
   data () {
     return {
