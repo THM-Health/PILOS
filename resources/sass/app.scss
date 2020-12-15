@@ -123,6 +123,16 @@
     border-color: $danger;
 }
 
+.multiselect-form-control {
+    @extend .form-control;
+    padding: 0;
+    border: none;
+
+    .multiselect__tags {
+        border-radius: 0;
+    }
+}
+
 html {
     position: relative;
     min-height: 100%;

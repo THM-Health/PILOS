@@ -8,116 +8,128 @@
     </h3>
     <hr>
 
-    <b-form @submit='saveRole'>
-      <b-container fluid>
-        <b-form-group
-          label-cols-sm='4'
-          :label="$t('settings.roles.name')"
-          label-for='name'
-          :state='fieldState("name")'
-        >
-          <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || viewOnly'></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
-        </b-form-group>
+    <b-overlay :show="isBusy || modelLoadingError">
+      <template #overlay>
+        <div class="text-center">
+          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-button
+            v-else
+            @click="load()"
+          >
+            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+          </b-button>
+        </div>
+      </template>
 
-        <b-modal id="modal-help-roomlimit" :hide-footer="true">
-          <template v-slot:modal-title>
-            <b-icon-info-circle></b-icon-info-circle> {{ $t('settings.roles.roomLimit.helpModal.title') }}
-          </template>
-          <p>{{ $t('settings.roles.roomLimit.helpModal.info') }}</p>
+      <b-form @submit='saveRole' :aria-hidden="modelLoadingError">
+        <b-container fluid>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roles.name')"
+            label-for='name'
+            :state='fieldState("name")'
+          >
+            <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
+            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+          </b-form-group>
 
-          <strong>{{ $t('settings.roles.roomLimit.helpModal.examples') }}</strong>
-          <table class="table">
-            <thead>
-            <tr>
-              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</th>
-              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleA') }}</th>
-              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleB') }}</th>
-              <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.maxAmount') }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td><raw-text>5</raw-text></td>
-              <td><raw-text>X</raw-text></td>
-              <td><raw-text>X</raw-text></td>
-              <td><raw-text>5</raw-text></td>
-            </tr>
-            <tr>
-              <td><raw-text>1</raw-text></td>
-              <td><raw-text>5</raw-text></td>
-              <td><raw-text>X</raw-text></td>
-              <td><raw-text>5</raw-text></td>
-            </tr>
-            <tr>
-              <td><raw-text>5</raw-text></td>
-              <td><raw-text>1</raw-text></td>
-              <td><raw-text>X</raw-text></td>
-              <td><raw-text>1</raw-text></td>
-            </tr>
-            <tr>
-              <td><raw-text>5</raw-text></td>
-              <td><raw-text>1</raw-text></td>
-              <td><raw-text>2</raw-text></td>
-              <td><raw-text>2</raw-text></td>
-            </tr>
-            <tr>
-              <td><raw-text>5</raw-text></td>
-              <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
-              <td><raw-text>2</raw-text></td>
-              <td><raw-text>5</raw-text></td>
-            </tr>
-            <tr>
-              <td><raw-text>5</raw-text></td>
-              <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
-              <td><raw-text>10</raw-text></td>
-              <td><raw-text>10</raw-text></td>
-            </tr>
-            <tr>
-              <td><raw-text>5</raw-text></td>
-              <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
-              <td><raw-text>2</raw-text></td>
-              <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
-            </tr>
-            </tbody>
-          </table>
-          <p>{{ $t('settings.roles.roomLimit.helpModal.note') }}</p>
-        </b-modal>
+          <b-modal id="modal-help-roomlimit" :hide-footer="true">
+            <template v-slot:modal-title>
+              <b-icon-info-circle></b-icon-info-circle> {{ $t('settings.roles.roomLimit.helpModal.title') }}
+            </template>
+            <p>{{ $t('settings.roles.roomLimit.helpModal.info') }}</p>
 
-        <b-form-group
-          label-cols-sm='4'
-          label-for='room-limit'
-          :state='fieldState("room_limit")'
-        >
-          <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="text-dark" v-b-modal.modal-help-roomlimit><b-icon-info-circle></b-icon-info-circle></b-button></template>
-          <b-form-radio-group
-            class='mb-2'
-            v-model='roomLimitMode'
-            :options='roomLimitModeOptions'
-            :disabled='isBusy || viewOnly'
+            <strong>{{ $t('settings.roles.roomLimit.helpModal.examples') }}</strong>
+            <table class="table">
+              <thead>
+              <tr>
+                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</th>
+                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleA') }}</th>
+                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleB') }}</th>
+                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.maxAmount') }}</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td><raw-text>5</raw-text></td>
+                <td><raw-text>X</raw-text></td>
+                <td><raw-text>X</raw-text></td>
+                <td><raw-text>5</raw-text></td>
+              </tr>
+              <tr>
+                <td><raw-text>1</raw-text></td>
+                <td><raw-text>5</raw-text></td>
+                <td><raw-text>X</raw-text></td>
+                <td><raw-text>5</raw-text></td>
+              </tr>
+              <tr>
+                <td><raw-text>5</raw-text></td>
+                <td><raw-text>1</raw-text></td>
+                <td><raw-text>X</raw-text></td>
+                <td><raw-text>1</raw-text></td>
+              </tr>
+              <tr>
+                <td><raw-text>5</raw-text></td>
+                <td><raw-text>1</raw-text></td>
+                <td><raw-text>2</raw-text></td>
+                <td><raw-text>2</raw-text></td>
+              </tr>
+              <tr>
+                <td><raw-text>5</raw-text></td>
+                <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
+                <td><raw-text>2</raw-text></td>
+                <td><raw-text>5</raw-text></td>
+              </tr>
+              <tr>
+                <td><raw-text>5</raw-text></td>
+                <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
+                <td><raw-text>10</raw-text></td>
+                <td><raw-text>10</raw-text></td>
+              </tr>
+              <tr>
+                <td><raw-text>5</raw-text></td>
+                <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
+                <td><raw-text>2</raw-text></td>
+                <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
+              </tr>
+              </tbody>
+            </table>
+            <p>{{ $t('settings.roles.roomLimit.helpModal.note') }}</p>
+          </b-modal>
+
+          <b-form-group
+            label-cols-sm='4'
+            label-for='room-limit'
             :state='fieldState("room_limit")'
-            @change="roomLimitModeChanged"
-            stacked
-          ></b-form-radio-group>
-          <b-form-input
-            id='room-limit'
-            type='number'
-            :state='fieldState("room_limit")'
-            v-model='model.room_limit'
-            min='0'
-            :disabled='isBusy || viewOnly'
-            v-if="roomLimitMode === 'custom'">
-          </b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
-        </b-form-group>
-        <b-form-group
-          :label="$t('settings.roles.permissions')"
-          label-size='lg'
-          label-class='font-weight-bold pt-0'
-          :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
-        >
-          <b-overlay :show='permissionsLoading'>
-            <div class='row' v-if='!permissionsLoading && Object.keys(permissions).length > 0'>
+          >
+            <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="text-dark" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><b-icon-info-circle></b-icon-info-circle></b-button></template>
+            <b-form-radio-group
+              class='mb-2'
+              v-model='roomLimitMode'
+              :options='roomLimitModeOptions'
+              :disabled='isBusy || modelLoadingError || viewOnly'
+              :state='fieldState("room_limit")'
+              @change="roomLimitModeChanged"
+              stacked
+            ></b-form-radio-group>
+            <b-form-input
+              id='room-limit'
+              type='number'
+              :state='fieldState("room_limit")'
+              v-model='model.room_limit'
+              min='0'
+              :disabled='isBusy || modelLoadingError || viewOnly'
+              v-if="roomLimitMode === 'custom'">
+            </b-form-input>
+            <template slot='invalid-feedback'><div v-html="fieldError('room_limit')"></div></template>
+          </b-form-group>
+          <b-form-group
+            :label="$t('settings.roles.permissions')"
+            label-size='lg'
+            label-class='font-weight-bold pt-0'
+            :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
+          >
+            <div class='row' v-if='!isBusy && Object.keys(permissions).length > 0'>
               <b-form-group
                 class='col-lg-4 col-sm-12'
                 v-for="key in Object.keys(permissions)"
@@ -133,62 +145,62 @@
                   stacked
                   text-field='translatedName'
                   value-field='id'
-                  :disabled='isBusy || viewOnly'
+                  :disabled='isBusy || modelLoadingError || viewOnly'
                   :state="fieldState('permissions', true)"
                 ></b-form-checkbox-group>
               </b-form-group>
             </div>
-            <div class="ml-3" v-if="!permissionsLoading && Object.keys(permissions).length === 0">
+            <div class="ml-3" v-if="!isBusy && Object.keys(permissions).length === 0">
               {{ $t('settings.roles.noOptions') }}
             </div>
-          </b-overlay>
 
-          <template slot="invalid-feedback"><div v-html="fieldError('permissions', true)"></div></template>
-        </b-form-group>
-        <hr>
-        <b-row class='my-1 float-right'>
-          <b-col sm='12'>
-            <b-button
-              :disabled='isBusy || permissionsLoading'
-              variant='secondary'
-              @click="$router.push({ name: 'settings.roles' })">
-              <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
-            </b-button>
-            <b-button
-              :disabled='isBusy || permissionsLoading'
-              variant='success'
-              type='submit'
-              class='ml-1'
-              v-if='!viewOnly'>
-              <i class='fas fa-save'></i> {{ $t('app.save') }}
-            </b-button>
-          </b-col>
-        </b-row>
-      </b-container>
-    </b-form>
+            <template slot="invalid-feedback"><div v-html="fieldError('permissions', true)"></div></template>
+          </b-form-group>
+          <hr>
+          <b-row class='my-1 float-right'>
+            <b-col sm='12'>
+              <b-button
+                :disabled='isBusy'
+                variant='secondary'
+                @click="$router.push({ name: 'settings.roles' })">
+                <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
+              </b-button>
+              <b-button
+                :disabled='isBusy || modelLoadingError'
+                variant='success'
+                type='submit'
+                class='ml-1'
+                v-if='!viewOnly'>
+                <i class='fas fa-save'></i> {{ $t('app.save') }}
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-container>
+      </b-form>
 
-    <b-modal
-      :static='modalStatic'
-      :busy='isBusy'
-      ok-variant='danger'
-      cancel-variant='dark'
-      @ok='forceOverwrite'
-      @cancel='refreshRole'
-      :hide-header-close='true'
-      :no-close-on-backdrop='true'
-      :no-close-on-esc='true'
-      ref='stale-role-modal'
-      :hide-header='true'>
-      <template v-slot:default>
-        <h5>{{ staleError.message }}</h5>
-      </template>
-      <template v-slot:modal-ok>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
-      </template>
-      <template v-slot:modal-cancel>
-        <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
-      </template>
-    </b-modal>
+      <b-modal
+        :static='modalStatic'
+        :busy='isBusy'
+        ok-variant='danger'
+        cancel-variant='dark'
+        @ok='forceOverwrite'
+        @cancel='refreshRole'
+        :hide-header-close='true'
+        :no-close-on-backdrop='true'
+        :no-close-on-esc='true'
+        ref='stale-role-modal'
+        :hide-header='true'>
+        <template v-slot:default>
+          <h5>{{ staleError.message }}</h5>
+        </template>
+        <template v-slot:modal-ok>
+          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.overwrite') }}
+        </template>
+        <template v-slot:modal-cancel>
+          <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.reload') }}
+        </template>
+      </b-modal>
+    </b-overlay>
   </div>
 </template>
 
@@ -241,52 +253,72 @@ export default {
         { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
         { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' }
       ];
+    },
+
+    /**
+     * Boolean that indicates, whether any request for this form is pending or not.
+     */
+    isBusy () {
+      return this.busyCounter > 0;
     }
   },
 
   data () {
     return {
-      isBusy: false,
       model: {
         name: null,
         room_limit: null,
         permissions: []
       },
       permissions: {},
-      permissionsLoading: false,
       errors: {},
       staleError: {},
-      roomLimitMode: 'default'
+      roomLimitMode: 'default',
+      busyCounter: 0,
+      modelLoadingError: false
     };
   },
 
   /**
-   * Loads the role from the backend and also a part of permissions that can be selected.
+   * Loads the role from the backend and also the permissions that can be selected.
    */
   mounted () {
-    this.loadPermissions();
-
-    if (this.id !== 'new') {
-      this.isBusy = true;
-
-      Base.call(`roles/${this.id}`).then(response => {
-        this.model = response.data.data;
-        this.model.permissions = this.model.permissions.map(permission => permission.id);
-        this.roomLimitMode = this.model.room_limit === null ? 'default' : (this.model.room_limit === -1 ? 'unlimited' : 'custom');
-      }).catch(response => {
-        Base.error(response, this.$root, response.message);
-      }).finally(() => {
-        this.isBusy = false;
-      });
-    }
+    this.load();
   },
 
   methods: {
     /**
+     * Loads the role from the backend and also the permissions that can be selected.
+     */
+    load () {
+      this.modelLoadingError = false;
+      this.loadPermissions();
+
+      if (this.id !== 'new') {
+        this.busyCounter++;
+
+        Base.call(`roles/${this.id}`).then(response => {
+          this.model = response.data.data;
+          this.model.permissions = this.model.permissions.map(permission => permission.id);
+          this.roomLimitMode = this.model.room_limit === null ? 'default' : (this.model.room_limit === -1 ? 'unlimited' : 'custom');
+        }).catch(error => {
+          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+            this.$router.push({ name: 'settings.roles' });
+          } else {
+            this.modelLoadingError = true;
+          }
+          Base.error(error, this.$root, error.message);
+        }).finally(() => {
+          this.busyCounter--;
+        });
+      }
+    },
+
+    /**
      * Loads the permissions that can be selected through checkboxes.
      */
     loadPermissions () {
-      this.permissionsLoading = true;
+      this.busyCounter++;
 
       Base.call('permissions').then(response => {
         this.permissions = {};
@@ -301,9 +333,10 @@ export default {
           this.permissions[group].push(permission);
         });
       }).catch(error => {
+        this.modelLoadingError = true;
         Base.error(error, this.$root, error.message);
       }).finally(() => {
-        this.permissionsLoading = false;
+        this.busyCounter--;
       });
     },
 
@@ -317,7 +350,7 @@ export default {
         evt.preventDefault();
       }
 
-      this.isBusy = true;
+      this.busyCounter++;
 
       const config = {
         method: this.id === 'new' ? 'post' : 'put',
@@ -338,10 +371,14 @@ export default {
           this.staleError = error.response.data;
           this.$refs['stale-role-modal'].show();
         } else {
+          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+            this.$router.push({ name: 'settings.roles' });
+          }
+
           Base.error(error, this.$root, error.message);
         }
       }).finally(() => {
-        this.isBusy = false;
+        this.busyCounter--;
       });
     },
 
