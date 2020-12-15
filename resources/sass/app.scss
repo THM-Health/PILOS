@@ -20,7 +20,7 @@
 @import "~vue-multiselect/dist/vue-multiselect.min.css";
 
 .roomicon {
-    width:40px;
+    width: 40px;
     height: 40px;
     background: $green;
     display: grid;
@@ -121,6 +121,16 @@
 
 .multiselect.is-invalid .multiselect__tags {
     border-color: $danger;
+}
+
+.multiselect-form-control {
+    @extend .form-control;
+    padding: 0;
+    border: none;
+
+    .multiselect__tags {
+        border-radius: 0;
+    }
 }
 
 html {

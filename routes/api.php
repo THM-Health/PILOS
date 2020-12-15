@@ -50,6 +50,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::put('settings', 'ApplicationController@updateSettings')->name('application.update')->middleware('can:settings.update');
 
         Route::apiResource('roles', 'RoleController');
+        Route::apiResource('roomTypes', 'RoomTypeController');
+
         Route::get('permissions', 'PermissionController@index')->name('permissions.index');
 
         Route::get('rooms','RoomController@index')->name('rooms.index');
@@ -79,7 +81,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('users/search','UserController@search')->name('users.search');
         Route::apiResource('users', 'UserController');
 
-        Route::get('roomTypes', 'RoomTypeController@index')->name('roomTypes.index');
+
+
     });
 
     Route::middleware('can:view,room')->group(function () {

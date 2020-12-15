@@ -142,7 +142,12 @@ return [
         'room' => [
             'already_member' => 'The user is already member of the room.'
         ],
-        'password' => 'The password must contain at least one character from each of the following four categories:: Uppercase letter (A - Z), lowercase letter (a - z), number (0 - 9), non-alphanumeric character (for example: !, $, #, or %).'
+        'password' => 'The password must contain at least one character from each of the following four categories:: Uppercase letter (A - Z), lowercase letter (a - z), number (0 - 9), non-alphanumeric character (for example: !, $, #, or %).',
+        'replacement_room_type' => [
+            'required' => 'Replacement room type required! Rooms are still assigned to this room type.',
+            'exists' => 'Replacement room type invalid! A replacement room type is required because rooms are still assigned to this room type.',
+            'not_in' => 'Replacement room type invalid! A replacement room type is required because rooms are still assigned to this room type.',
+        ]
     ],
 
     /*

@@ -13,6 +13,9 @@ const accessPermittedUsersView = routes.filter(route => route.path === '/setting
 const accessPermittedSettingsView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.application')[0].meta.accessPermitted;
 
+const accessPermittedRoomTypesView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.room_types.view')[0].meta.accessPermitted;
+
 describe('Router', function () {
   beforeEach(function () {
     moxios.install();
@@ -335,6 +338,69 @@ describe('Router', function () {
 
         PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.manage'] });
         return accessPermittedSettingsView();
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for room type detail view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedRoomTypesView({ id: 1 }, { view: '1' }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.view'] });
+        return accessPermittedRoomTypesView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.view', 'settings.manage'] });
+        return accessPermittedRoomTypesView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for room type new view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedRoomTypesView({ id: 'new' }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.create'] });
+        return accessPermittedRoomTypesView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.create', 'settings.manage'] });
+        return accessPermittedRoomTypesView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for room type update returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedRoomTypesView({ id: 1 }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.update'] });
+        return accessPermittedRoomTypesView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.update', 'settings.manage'] });
+        return accessPermittedRoomTypesView({ id: 1 }, {});
       }).then(result => {
         expect(result).toBe(true);
 
