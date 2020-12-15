@@ -79,7 +79,8 @@ class User extends JsonResource
             'updated_at'    => $this->updated_at,
             'roles'         => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
-            })
+            }),
+            'bbb_skip_check_audio' => $this->bbb_skip_check_audio
         ];
     }
 }

@@ -21,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'username', 'guid', 'domain', 'locale'
+        'firstname', 'lastname', 'email', 'password', 'username', 'guid', 'domain', 'locale', 'bbb_skip_check_audio'
     ];
 
     /**
@@ -39,7 +39,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'email_verified_at'    => 'datetime',
+        'bbb_skip_check_audio' => 'boolean'
     ];
 
     protected $appends = ['fullname'];
