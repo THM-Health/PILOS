@@ -47,7 +47,7 @@ class BuildHistory extends Command
             $bbbMeetings = $server->getMeetings();
 
             // Server is offline, end all meetings  in database
-            if ($bbbMeetings == null) {
+            if ($bbbMeetings === null) {
                 $server->participant_count       = null;
                 $server->listener_count          = null;
                 $server->voice_participant_count = null;
