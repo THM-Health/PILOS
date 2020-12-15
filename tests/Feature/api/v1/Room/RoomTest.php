@@ -544,7 +544,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
-        $queryParams = array();
+        $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
@@ -600,7 +600,7 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
-        $queryParams = array();
+        $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
@@ -631,7 +631,7 @@ class RoomTest extends TestCase
         // Join as guest
         $response = $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$this->faker->name]))
             ->assertSuccessful();
-        $queryParams = array();
+        $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals('false', $queryParams['userdata-bbb_skip_check_audio']);
 
