@@ -145,5 +145,57 @@ export default {
       title: 'Größe der Paginierung für eigene Räume',
       description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
     }
+  },
+
+  servers: {
+    title: 'Server',
+    id: 'ID',
+    description: 'Beschreibung',
+    status: 'Status',
+    participant_count: 'Teilnehmer',
+    video_count: 'Videos',
+    meeting_count: 'Meetings',
+
+    online: 'Online',
+    offline: 'Offline',
+    disabled: 'Deaktiviert',
+
+    strength: 'Serverstärke',
+    strength_description: 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
+    base_url: 'API Endpunkt',
+    salt: 'API Geheimnis',
+    test_connection: 'Verbindung testen',
+
+    reload: 'Serverliste neu laden',
+    new: 'Neuen Server hinzufügen',
+    view: 'Detaillierte Informationen über Server {id}',
+    edit: 'Server {id} bearbeiten',
+
+    nodata: 'Es sind keine Server vorhanden!',
+    nodataFiltered: 'Für die Suchanfrage wurden keine Server gefunden!',
+
+    delete: {
+      item: 'Server {id} löschen',
+      confirm: 'Wollen Sie den Server {id} wirklich entfernen?',
+      title: 'Server löschen?'
+    },
+
+    flash: {
+      connectionOk: {
+        message: 'Es konnte eine Verbindung zu dem Server herstellt werden.',
+        title: 'Verbunden'
+      },
+
+      connectionFailed: {
+        message: 'Es konnte keine Verbindung zu dem Server herstellt werden.',
+        title: 'Verbindung fehlgeschlagen'
+      },
+
+      connectionFailedSalt: {
+        message: 'Es konnte eine Verbindung zu dem Server herstellt werden, jedoch ist das API Geheimnis ungültig.',
+        title: 'API Geheimnis ungültig'
+      }
+
+    }
   }
 };

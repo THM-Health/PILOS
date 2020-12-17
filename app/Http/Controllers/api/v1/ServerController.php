@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\ServerStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ServerConnectionCheckRequest;
 use App\Http\Requests\ServerRequest;
-use App\RoomType;
 use App\Http\Resources\Server as ServerResource;
 use App\Server;
+use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -32,9 +34,13 @@ class ServerController extends Controller
             $by  = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'name']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['id', 'description','participant_count','video_count','meeting_count','status']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
+        }
+
+        if ($request->has('description')) {
+            $resource = $resource->withDescription($request->query('description'));
         }
 
         $resource = $resource->paginate(setting('pagination_page_size'));
@@ -63,11 +69,16 @@ class ServerController extends Controller
     public function update(ServerRequest $request, Server $server)
     {
         $server->description = $request->description;
-        $server->base_url    = $request->base_url;
+        $server->baseUrl     = $request->base_url;
         $server->salt        = $request->salt;
         $server->strength    = $request->strength;
         $server->status      = $request->status;
         $server->save();
+
+        if ($server->status != ServerStatus::DISABLED) {
+            $server->status = $server->getMeetings() === null ? ServerStatus::OFFLINE : ServerStatus::ONLINE;
+            $server->save();
+        }
 
         return new ServerResource($server);
     }
@@ -80,9 +91,9 @@ class ServerController extends Controller
      */
     public function store(ServerRequest $request)
     {
-        $server              = new RoomType();
+        $server              = new Server();
         $server->description = $request->description;
-        $server->base_url    = $request->base_url;
+        $server->baseUrl     = $request->base_url;
         $server->salt        = $request->salt;
         $server->strength    = $request->strength;
         $server->status      = $request->status;
@@ -94,8 +105,8 @@ class ServerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Request $request
-     * @param  Server  $server
+     * @param  Request               $request
+     * @param  Server                $server
      * @return JsonResponse|Response
      * @throws \Exception
      */
@@ -109,5 +120,27 @@ class ServerController extends Controller
         $server->delete();
 
         return response()->noContent();
+    }
+
+    public function check(ServerConnectionCheckRequest $request)
+    {
+        $connectionOk = false;
+        $saltOk       = false;
+
+        try {
+            $bbb      = new BigBlueButton($request->base_url, $request->salt);
+            $response = $bbb->getMeetings();
+
+            if ($response->success()) {
+                $connectionOk = true;
+                $saltOk       = true;
+            } elseif ($response->hasChecksumError()) {
+                $connectionOk = true;
+                $saltOk       = false;
+            }
+        } catch (\Exception $e) {
+        }
+
+        return ['connection_ok'=>$connectionOk,'salt_ok'=>$saltOk];
     }
 }

@@ -40,6 +40,15 @@
               </b-row>
             </b-nav-item>
           </can>
+
+          <can method='viewAny' policy='ServerPolicy'>
+            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.servers' }">
+              <b-row>
+                <b-col cols='3'><span><i class='fas fa-server'></i></span></b-col>
+                <b-col cols='7'>{{ $t('settings.servers.title') }}</b-col>
+              </b-row>
+            </b-nav-item>
+          </can>
         </b-nav>
       </b-col>
       <b-col lg='9'>

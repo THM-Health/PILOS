@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ServerStatus;
+use BenSampo\Enum\Rules\EnumValue;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -11,14 +13,14 @@ class ServerRequest extends FormRequest
     {
         $rules = [
             'description'   => ['required', 'string', 'max:255'],
-            'base_url'         => ['required', 'string', 'max:255', Rule::unique('servers', 'baseUrl')],
-            'salt'         => ['required', 'string', 'max:255'],
-            'strength'         => ['required', 'integer','min:1','max:100'],
-            'status'         => ['required', 'boolean']
+            'base_url'      => ['required', 'active_url', 'string', 'max:255', Rule::unique('servers', 'baseUrl')],
+            'salt'          => ['required', 'string', 'max:255'],
+            'strength'      => ['required', 'integer','min:1','max:10'],
+            'status'        => ['required', new EnumValue(ServerStatus::class)]
         ];
 
-        if ($this->server) {
-            $rules['base_url']   = ['required', 'string', 'max:255', Rule::unique('servers', 'baseUrl')->ignore($this->server->id)];
+        if ($this->route('server')) {
+            $rules['base_url']   = ['required', 'active_url', 'string', 'max:255', Rule::unique('servers', 'baseUrl')->ignore($this->route('server')->id)];
         }
 
         return $rules;

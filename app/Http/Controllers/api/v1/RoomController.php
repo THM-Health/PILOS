@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\ServerStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\StartJoinMeeting;
@@ -143,7 +144,8 @@ class RoomController extends Controller
             catch (\Exception $exception) {
                 // Remove meeting and set server to offline
                 $meeting->forceDelete();
-                $server->offline = true;
+                $server->status     = ServerStatus::OFFLINE;
+                $server->timestamps = false;
                 $server->save();
                 abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
@@ -156,7 +158,8 @@ class RoomController extends Controller
                 switch ($result->getMessageKey()) {
                     // checksum error, api token invalid, set server to offline, try to create on other server
                     case 'checksumError':
-                        $server->offline = true;
+                        $server->status     = ServerStatus::OFFLINE;
+                        $server->timestamps = false;
                         $server->save();
 
                         break;

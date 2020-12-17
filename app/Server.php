@@ -2,23 +2,19 @@
 
 namespace App;
 
+use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Server extends Model
 {
-
     use AddsModelNameTrait;
 
     const VIDEO_WEIGHT       = 3;
     const AUDIO_WEIGHT       = 2;
     const PARTICIPANT_WEIGHT = 1;
-
-    protected $casts = [
-        'offline'    => 'boolean',
-        'status'     => 'boolean',
-    ];
 
     /**
      * Find server with the lowest usage
@@ -26,8 +22,7 @@ class Server extends Model
      */
     public static function lowestUsage()
     {
-        return self::where('status', true)
-            ->where('offline', false)
+        return self::where('status', ServerStatus::ONLINE)
             // Experimental
             // Have video factor 3, audio factor 2 and just listening factor 1
             ->orderByRaw('(video_count*'.self::VIDEO_WEIGHT.' + voice_participant_count*'.self::AUDIO_WEIGHT.' + (participant_count-voice_participant_count) * '.self::PARTICIPANT_WEIGHT.') ASC')
@@ -61,7 +56,7 @@ class Server extends Model
      */
     public function getMeetings()
     {
-        if (!$this->status) {
+        if ($this->status == ServerStatus::DISABLED) {
             return null;
         }
 
@@ -94,5 +89,17 @@ class Server extends Model
     public function stats()
     {
         return $this->hasMany(ServerStat::class);
+    }
+
+    /**
+     * Scope a query to only get servers that have a description like the passed one.
+     *
+     * @param  Builder $query       Query that should be scoped
+     * @param  String  $description Description to search for
+     * @return Builder The scoped query
+     */
+    public function scopeWithDescription(Builder $query, $description)
+    {
+        return $query->where('description', 'like', '%' . $description . '%');
     }
 }

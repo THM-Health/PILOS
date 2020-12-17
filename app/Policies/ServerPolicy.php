@@ -29,8 +29,8 @@ class ServerPolicy
     /**
      * Determine whether the user can view the server.
      *
-     * @param  User     $user
-     * @param  Server   $server
+     * @param  User   $user
+     * @param  Server $server
      * @return bool
      */
     public function view(User $user, Server $server)
@@ -52,8 +52,8 @@ class ServerPolicy
     /**
      * Determine whether the user can update the server.
      *
-     * @param  User     $user
-     * @param  Server   $server
+     * @param  User   $user
+     * @param  Server $server
      * @return bool
      */
     public function update(User $user, Server $server)
@@ -64,8 +64,8 @@ class ServerPolicy
     /**
      * Determine whether the user can delete the server.
      *
-     * @param  User     $user
-     * @param  Server   $server
+     * @param  User   $user
+     * @param  Server $server
      * @return bool
      */
     public function delete(User $user, Server $server)

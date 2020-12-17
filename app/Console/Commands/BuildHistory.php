@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ServerStatus;
 use App\Meeting;
 use App\MeetingStat;
 use App\ServerStat;
@@ -41,7 +42,15 @@ class BuildHistory extends Command
         $servers = Server::all();
 
         foreach ($servers as $server) {
-            if (!$server->status) {
+            if ($server->status == ServerStatus::DISABLED) {
+                $server->participant_count       = null;
+                $server->listener_count          = null;
+                $server->voice_participant_count = null;
+                $server->video_count             = null;
+                $server->meeting_count           = null;
+                $server->timestamps              = false;
+                $server->save();
+
                 continue;
             }
             $bbbMeetings = $server->getMeetings();
@@ -53,8 +62,11 @@ class BuildHistory extends Command
                 $server->voice_participant_count = null;
                 $server->video_count             = null;
                 $server->meeting_count           = null;
-                $server->offline                 = true;
+                $server->status                  = ServerStatus::OFFLINE;
+                $server->timestamps              = false;
                 $server->save();
+                $serverStat = new ServerStat();
+                $server->stats()->save($serverStat);
 
                 foreach ($server->meetings()->whereNull('end')->get() as $meeting) {
                     $meeting->end = date('Y-m-d H:i:s');
@@ -73,7 +85,12 @@ class BuildHistory extends Command
                 continue;
             }
 
-            $serverStat = new ServerStat();
+            $serverStat                          = new ServerStat();
+            $serverStat->participant_count       = 0;
+            $serverStat->listener_count          = 0;
+            $serverStat->voice_participant_count = 0;
+            $serverStat->video_count             = 0;
+            $serverStat->meeting_count           = 0;
 
             foreach ($bbbMeetings as $bbbMeeting) {
 
@@ -121,7 +138,8 @@ class BuildHistory extends Command
             $server->voice_participant_count = $serverStat->voice_participant_count;
             $server->video_count             = $serverStat->video_count;
             $server->meeting_count           = $serverStat->meeting_count;
-            $server->offline                 = false;
+            $server->status                  = ServerStatus::ONLINE;
+            $server->timestamps              = false;
             $server->save();
 
             $server->stats()->save($serverStat);
