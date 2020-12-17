@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RoomTypeDestroyRequest;
+use App\Http\Requests\RoomTypeRequest;
 use App\RoomType;
 use App\Http\Resources\RoomType as RoomTypeResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class RoomTypeController extends Controller
 {
     public function __construct()
     {
-        //$this->authorizeResource(RoomType::class, 'roomType');
+        $this->authorizeResource(RoomType::class, 'roomType');
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType', ['only' => 'update']);
     }
 
     /**
@@ -21,5 +26,75 @@ class RoomTypeController extends Controller
     public function index()
     {
         return RoomTypeResource::collection(RoomType::all());
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  RoomType         $roomType
+     * @return RoomTypeResource
+     */
+    public function show(RoomType $roomType)
+    {
+        return new RoomTypeResource($roomType);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  RoomTypeRequest  $request
+     * @param  RoomType         $roomType
+     * @return RoomTypeResource
+     */
+    public function update(RoomTypeRequest $request, RoomType $roomType)
+    {
+        $roomType->description = $request->description;
+        $roomType->short       = $request->short;
+        $roomType->color       = $request->color;
+        $roomType->save();
+
+        return new RoomTypeResource($roomType);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  RoomTypeRequest  $request
+     * @return RoomTypeResource
+     */
+    public function store(RoomTypeRequest $request)
+    {
+        $roomType              = new RoomType();
+        $roomType->description = $request->description;
+        $roomType->short       = $request->short;
+        $roomType->color       = $request->color;
+        $roomType->save();
+
+        return new RoomTypeResource($roomType);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  RoomTypeDestroyRequest $request
+     * @param  RoomType               $roomType
+     * @return JsonResponse|Response
+     * @throws \Exception
+     */
+    public function destroy(RoomTypeDestroyRequest $request, RoomType $roomType)
+    {
+        $roomType->loadCount('rooms');
+
+        if ($request->has('replacement_room_type')) {
+            // Replace room type
+            foreach ($roomType->rooms as $room) {
+                $room->roomType()->associate($request->replacement_room_type);
+                $room->save();
+            }
+        }
+
+        $roomType->delete();
+
+        return response()->noContent();
     }
 }

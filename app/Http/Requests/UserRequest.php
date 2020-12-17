@@ -16,9 +16,10 @@ class UserRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'user_locale'  => ['required', 'string', Rule::in(config('app.available_locales'))],
-            'roles'        => 'required|array',
-            'roles.*'      => 'distinct|exists:App\Role,id'
+            'user_locale'           => ['required', 'string', Rule::in(config('app.available_locales'))],
+            'bbb_skip_check_audio'  => 'required|boolean',
+            'roles'                 => 'required|array',
+            'roles.*'               => 'distinct|exists:App\Role,id'
         ];
 
         if (!$this->user || $this->user->authenticator === 'users') {

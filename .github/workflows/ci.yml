@@ -99,3 +99,10 @@ jobs:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: vendor/bin/phpunit
+    - name: Upload laravel logs
+      uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: ${{ runner.os }}-${{ matrix.php-versions }}-laravel.log
+        path: storage/logs/laravel.log
+

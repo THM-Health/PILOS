@@ -62,6 +62,11 @@ export default {
     roles: 'Rollen',
     select_locale: 'Bitte wählen Sie eine Sprache aus',
     removeRole: 'Rolle entfernen',
+
+    base_data: 'Stammdaten',
+    room_settings: 'Benutzerdefinierte Raumeinstellungen',
+    skip_check_audio: 'Echo-Test deaktivieren',
+
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',
@@ -73,6 +78,30 @@ export default {
       confirm: 'Wollen Sie den Benutzer {firstname} {lastname} wirklich löschen?',
       title: 'Benutzer löschen?'
     }
+  },
+
+  roomTypes: {
+    title: 'Raumarten',
+    icon: 'Icon',
+    description: 'Beschreibung',
+    short: 'Icon Text',
+    color: 'Icon Farbe',
+    customColor: 'Eigene Farbe',
+    preview: 'Vorschau',
+    new: 'Neue Raumart erstellen',
+    view: 'Detaillierte Informationen für die Raumart {name}',
+    edit: 'Raumart {name} bearbeiten',
+    actions: 'Aktionen',
+    nodata: 'Es sind keine Raumarten vorhanden!',
+    delete: {
+      item: 'Raumart {id} löschen',
+      confirm: 'Wollen Sie die Raumart {name} wirklich löschen?',
+      title: 'Raumart löschen?',
+      replacement: 'Ersatzraumart',
+      noReplacement: '-- Kein Ersatz --',
+      replacementInfo: 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.'
+    },
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.'
   },
 
   application: {

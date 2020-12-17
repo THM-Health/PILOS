@@ -33,7 +33,9 @@ class RoomTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = factory(User::class)->create([
+            'bbb_skip_check_audio' => true
+        ]);
     }
 
     /**
@@ -533,6 +535,7 @@ class RoomTest extends TestCase
     public function testStartWithServer()
     {
         $room = factory(Room::class)->create();
+        $room->owner->update(['bbb_skip_check_audio' => true]);
 
         // Adding server(s)
         $this->seed('ServerSeeder');
@@ -541,6 +544,9 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
         // Try to start bbb meeting
         $response = Http::withOptions(['allow_redirects' => false])->get($response->json('url'));
@@ -569,6 +575,7 @@ class RoomTest extends TestCase
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
+        $room->owner->update(['bbb_skip_check_audio' => true]);
 
         // Adding server(s)
         $this->seed('ServerSeeder');
@@ -593,6 +600,9 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
         // Try to start bbb meeting
         $response = Http::withOptions(['allow_redirects' => false])->get($response->json('url'));
@@ -619,8 +629,11 @@ class RoomTest extends TestCase
             ->assertJsonValidationErrors('name');
 
         // Join as guest
-        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$this->faker->name]))
+        $response = $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$this->faker->name]))
             ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals('false', $queryParams['userdata-bbb_skip_check_audio']);
 
         $this->flushHeaders();
 

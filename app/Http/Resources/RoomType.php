@@ -15,11 +15,12 @@ class RoomType extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'          => $this->id,
-            'short'       => $this->short,
-            'description' => $this->description,
-            'color'       => $this->color,
-            'default'     => $this->default
+            'id'            => $this->id,
+            'short'         => $this->short,
+            'description'   => $this->description,
+            'color'         => $this->color,
+            'model_name'    => $this->model_name,
+            'updated_at'    => $this->updated_at
         ];
     }
 }

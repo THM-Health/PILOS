@@ -71,11 +71,12 @@ class UserController extends Controller
     {
         $user = new User();
 
-        $user->firstname = $request->firstname;
-        $user->lastname  = $request->lastname;
-        $user->email     = $request->email;
-        $user->locale    = $request->user_locale;
-        $user->password  = Hash::make($request->password);
+        $user->firstname            = $request->firstname;
+        $user->lastname             = $request->lastname;
+        $user->email                = $request->email;
+        $user->locale               = $request->user_locale;
+        $user->password             = Hash::make($request->password);
+        $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
 
         // TODO: email verification
         $user->email_verified_at = $user->freshTimestamp();
@@ -127,7 +128,8 @@ class UserController extends Controller
             }
         }
 
-        $user->locale = $request->user_locale;
+        $user->locale               = $request->user_locale;
+        $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
         $user->touch();
         $user->save();
 

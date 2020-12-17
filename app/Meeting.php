@@ -148,15 +148,17 @@ class Meeting extends Model
      * @param $name string Name of the user
      * @param $role RoomUserRole Role of the user inside the meeting
      * @param $userid integer unique identifier for this user/guest
+     * @param $skipAudioCheck boolean Flag, whether to skip the audio check or not
      * @return mixed
      */
-    public function getJoinUrl($name, $role, $userid)
+    public function getJoinUrl($name, $role, $userid, $skipAudioCheck)
     {
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $role == RoomUserRole::MODERATOR ? $this->moderatorPW : $this->attendeePW);
         $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setUserId($userid);
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
+        $joinMeetingParams->addUserData('bbb_skip_check_audio', $skipAudioCheck);
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }

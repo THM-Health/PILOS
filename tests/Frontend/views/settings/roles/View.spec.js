@@ -264,8 +264,11 @@ describe('RolesView', function () {
     moxios.wait(function () {
       sinon.assert.calledTwice(Base.error);
       expect(view.vm.isBusy).toBe(false);
-      expect(view.findComponent(BOverlay).props('show')).toBe(false);
+      expect(view.findComponent(BOverlay).props('show')).toBe(true);
+      expect(view.html()).toContain('app.reload');
       expect(view.html()).toContain('settings.roles.noOptions');
+      const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
+      expect(saveButton.wrappers.length).toBe(1);
       Base.error.restore();
       restoreRoleResponse();
       restorePermissionsResponse();
@@ -516,6 +519,163 @@ describe('RolesView', function () {
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           done();
         });
+      });
+    });
+  });
+
+  it('reload overlay gets shown if an error occurs during load of permissions', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledOnce(Base.error);
+      expect(view.findComponent(BOverlay).props('show')).toBe(true);
+      expect(view.html()).toContain('app.reload');
+      expect(view.html()).toContain('settings.roles.noOptions');
+      const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
+      expect(saveButton.wrappers.length).toBe(1);
+      Base.error.restore();
+      restorePermissionsResponse();
+      done();
+    });
+  });
+
+  it('user gets redirected to index page if the role is not found', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const routerSpy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+      status: 404,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledOnce(Base.error);
+      sinon.assert.calledOnce(routerSpy);
+      sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
+      Base.error.restore();
+      restoreRoleResponse();
+      done();
+    });
+  });
+
+  it('reload overlay gets shown if another error than 404 occurs during load of the role', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store
+    });
+
+    moxios.wait(function () {
+      sinon.assert.calledOnce(Base.error);
+      expect(view.findComponent(BOverlay).props('show')).toBe(true);
+      expect(view.html()).toContain('app.reload');
+      const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
+      expect(saveButton.wrappers.length).toBe(1);
+      Base.error.restore();
+      restoreRoleResponse();
+      done();
+    });
+  });
+
+  it('user gets redirected to index page if the role is not found during save', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const routerSpy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      view.findComponent(BForm).trigger('submit');
+
+      const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+        status: 404,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      moxios.wait(function () {
+        sinon.assert.calledOnce(Base.error);
+        sinon.assert.calledOnce(routerSpy);
+        sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
+        Base.error.restore();
+        restoreRoleResponse();
+        done();
       });
     });
   });
