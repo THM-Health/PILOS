@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Enums\ServerStatus;
 use App\Server;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Responses\GetMeetingsResponse;
@@ -21,26 +22,17 @@ class ServerTest extends TestCase
         $server = factory(Server::class)->create();
 
         // Server marked as inactive
-        $server->status = 0;
+        $server->status = ServerStatus::DISABLED;
         $server->save();
         $this->assertNull($server->getMeetings());
-        $server->status = 1;
+        $server->status = ServerStatus::ONLINE;
         $server->save();
 
         // Server marked as offline
-        $server->offline = 1;
+        $server->status = ServerStatus::OFFLINE;
         $server->save();
         $this->assertNull($server->getMeetings());
-        $server->offline = 0;
-        $server->save();
-
-        // Server marked as offline and inactive
-        $server->offline = 1;
-        $server->status  = 0;
-        $server->save();
-        $this->assertNull($server->getMeetings());
-        $server->offline = 0;
-        $server->status  = 1;
+        $server->status = ServerStatus::ONLINE;
         $server->save();
 
         // Test with invalid domain name
@@ -104,8 +96,7 @@ class ServerTest extends TestCase
                 ->andReturn($bbbMock);
         })->makePartial();
 
-        $serverMock->offline = 0;
-        $serverMock->status  = 1;
+        $serverMock->status = ServerStatus::ONLINE;
 
         self::assertNull($serverMock->getMeetings());
     }

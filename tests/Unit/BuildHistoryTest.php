@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Enums\ServerStatus;
 use App\Meeting;
 use App\Room;
 use App\Server;
@@ -42,7 +43,7 @@ class BuildHistoryTest extends TestCase
 
         // Reload data and check if everything is reset, as the server is offline
         $server->refresh();
-        $this->assertTrue($server->offline);
+        $this->assertEquals(ServerStatus::OFFLINE, $server->status);
         $this->assertNull($server->participant_count);
         $this->assertNull($server->listener_count);
         $this->assertNull($server->voice_participant_count);
