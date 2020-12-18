@@ -23,7 +23,7 @@ class ServerPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->can('servers.view');
+        return $user->can('servers.viewAny');
     }
 
     /**
@@ -35,7 +35,7 @@ class ServerPolicy
      */
     public function view(User $user, Server $server)
     {
-        return $user->can('servers.view');
+        return $user->can('servers.viewAny');
     }
 
     /**

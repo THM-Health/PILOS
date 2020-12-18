@@ -16,6 +16,16 @@ class Server extends Model
     const AUDIO_WEIGHT       = 2;
     const PARTICIPANT_WEIGHT = 1;
 
+    protected $casts = [
+        'strength'                  => 'integer',
+        'status'                    => 'integer',
+        'participant_count'         => 'integer',
+        'listener_count'            => 'integer',
+        'voice_participant_count'   => 'integer',
+        'video_count'               => 'integer',
+        'meeting_count'             => 'integer',
+    ];
+
     /**
      * Find server with the lowest usage
      * @return Server|null
@@ -47,7 +57,7 @@ class Server extends Model
      */
     public function bbb()
     {
-        return new BigBlueButton($this->baseUrl, $this->salt);
+        return new BigBlueButton($this->base_url, $this->salt);
     }
 
     /**

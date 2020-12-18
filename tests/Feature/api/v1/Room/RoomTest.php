@@ -303,7 +303,7 @@ class RoomTest extends TestCase
         $room = factory(Room::class)->create();
 
         $server              = new Server();
-        $server->baseUrl     = $this->faker->url;
+        $server->base_url     = $this->faker->url;
         $server->salt        = $this->faker->sha1;
         $server->status      = ServerStatus::ONLINE;
         $server->description = $this->faker->word;

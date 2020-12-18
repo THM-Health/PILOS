@@ -13,14 +13,14 @@ class ServerRequest extends FormRequest
     {
         $rules = [
             'description'   => ['required', 'string', 'max:255'],
-            'base_url'      => ['required', 'active_url', 'string', 'max:255', Rule::unique('servers', 'baseUrl')],
+            'base_url'      => ['required', 'url', 'string', 'max:255', Rule::unique('servers', 'base_url')],
             'salt'          => ['required', 'string', 'max:255'],
             'strength'      => ['required', 'integer','min:1','max:10'],
             'status'        => ['required', new EnumValue(ServerStatus::class)]
         ];
 
         if ($this->route('server')) {
-            $rules['base_url']   = ['required', 'active_url', 'string', 'max:255', Rule::unique('servers', 'baseUrl')->ignore($this->route('server')->id)];
+            $rules['base_url']   = ['required', 'url', 'string', 'max:255', Rule::unique('servers', 'base_url')->ignore($this->route('server')->id)];
         }
 
         return $rules;

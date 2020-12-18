@@ -9,7 +9,7 @@ export default {
    * @return {boolean}
    */
   viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.view');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.viewAny');
   },
 
   /**
@@ -29,7 +29,7 @@ export default {
    * @return {boolean}
    */
   view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.view');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.viewAny');
   },
 
   /**

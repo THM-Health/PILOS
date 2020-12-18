@@ -36,7 +36,7 @@ class ServerTest extends TestCase
         $server->save();
 
         // Test with invalid domain name
-        $server->baseUrl = 'https://fake.notld/bigbluebutton/';
+        $server->base_url = 'https://fake.notld/bigbluebutton/';
         $server->save();
         $this->assertNull($server->getMeetings());
     }

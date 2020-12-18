@@ -69,7 +69,7 @@ class ServerController extends Controller
     public function update(ServerRequest $request, Server $server)
     {
         $server->description = $request->description;
-        $server->baseUrl     = $request->base_url;
+        $server->base_url     = $request->base_url;
         $server->salt        = $request->salt;
         $server->strength    = $request->strength;
         $server->status      = $request->status;
@@ -93,11 +93,16 @@ class ServerController extends Controller
     {
         $server              = new Server();
         $server->description = $request->description;
-        $server->baseUrl     = $request->base_url;
+        $server->base_url     = $request->base_url;
         $server->salt        = $request->salt;
         $server->strength    = $request->strength;
         $server->status      = $request->status;
         $server->save();
+
+        if ($server->status != ServerStatus::DISABLED) {
+            $server->status = $server->getMeetings() === null ? ServerStatus::OFFLINE : ServerStatus::ONLINE;
+            $server->save();
+        }
 
         return new ServerResource($server);
     }
