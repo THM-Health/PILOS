@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a middleware to check whether the request is in sync with model of the database and not stale ([#40], [#41])
 - Added management of users and profile page with possibility to disable audio echo test ([#10], [#66], [#67], [#87])
 - Added management of application settings ([#55], [#60])
+- Added management of servers ([#30], [#88])
 - Added artisan command to check server and meeting status, build live and historical data ([#64], [#65])
 - Added artisan command to create a new admin user ([#81])
 
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#19]: https://github.com/THM-Health/PILOS/issues/19
 [#21]: https://github.com/THM-Health/PILOS/pull/21
 [#22]: https://github.com/THM-Health/PILOS/pull/22
+[#30]: https://github.com/THM-Health/PILOS/issues/30
 [#32]: https://github.com/THM-Health/PILOS/issues/32
 [#33]: https://github.com/THM-Health/PILOS/pull/33
 [#34]: https://github.com/THM-Health/PILOS/issues/34
@@ -70,5 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#73]: https://github.com/THM-Health/PILOS/pull/73
 [#81]: https://github.com/THM-Health/PILOS/pull/81
 [#87]: https://github.com/THM-Health/PILOS/pull/87
+[#88]: https://github.com/THM-Health/PILOS/pull/88
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
