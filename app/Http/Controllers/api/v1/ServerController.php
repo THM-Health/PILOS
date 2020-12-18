@@ -68,11 +68,11 @@ class ServerController extends Controller
      */
     public function update(ServerRequest $request, Server $server)
     {
-        $server->description = $request->description;
+        $server->description  = $request->description;
         $server->base_url     = $request->base_url;
-        $server->salt        = $request->salt;
-        $server->strength    = $request->strength;
-        $server->status      = $request->status;
+        $server->salt         = $request->salt;
+        $server->strength     = $request->strength;
+        $server->status       = $request->status;
         $server->save();
 
         if ($server->status != ServerStatus::DISABLED) {
@@ -91,12 +91,12 @@ class ServerController extends Controller
      */
     public function store(ServerRequest $request)
     {
-        $server              = new Server();
-        $server->description = $request->description;
+        $server               = new Server();
+        $server->description  = $request->description;
         $server->base_url     = $request->base_url;
-        $server->salt        = $request->salt;
-        $server->strength    = $request->strength;
-        $server->status      = $request->status;
+        $server->salt         = $request->salt;
+        $server->strength     = $request->strength;
+        $server->status       = $request->status;
         $server->save();
 
         if ($server->status != ServerStatus::DISABLED) {

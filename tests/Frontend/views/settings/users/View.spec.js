@@ -612,8 +612,10 @@ describe('UsersView', function () {
   });
 
   it('if the user model to load is the current user and is not found the user gets logged and redirected', function (done) {
-    const spy = sinon.spy();
+    const errorSpy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(errorSpy);
 
+    const spy = sinon.spy();
     const router = new VueRouter();
     router.push = spy;
 
@@ -642,6 +644,8 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(store.state.session.logoutCount).toBe(1);
+      sinon.assert.calledOnce(errorSpy);
+      Base.error.restore();
       sinon.assert.calledOnce(spy);
       sinon.assert.calledWith(spy, { name: 'home' });
       restoreUserResponse();
@@ -650,8 +654,10 @@ describe('UsersView', function () {
   });
 
   it('current user get logged out if the user to update is the current user and not gets found during persistence', function (done) {
-    const spy = sinon.spy();
+    const errorSpy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(errorSpy);
 
+    const spy = sinon.spy();
     const router = new VueRouter();
     router.push = spy;
 
@@ -683,6 +689,8 @@ describe('UsersView', function () {
 
       moxios.wait(function () {
         expect(store.state.session.logoutCount).toBe(1);
+        sinon.assert.calledOnce(errorSpy);
+        Base.error.restore();
         sinon.assert.calledOnce(spy);
         sinon.assert.calledWith(spy, { name: 'home' });
         restoreUserResponse();

@@ -6,11 +6,8 @@ use App\Enums\CustomStatusCodes;
 use App\Enums\ServerStatus;
 use App\Permission;
 use App\Role;
-use App\Room;
-use App\RoomType;
 use App\Server;
 use App\User;
-use DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -42,20 +39,19 @@ class ServerTest extends TestCase
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
 
-        $servers = factory(Server::class,8)->create(['description'=>"test"]);
-        $server01 = factory(Server::class)->create(['description'=>"server01",'status'=>ServerStatus::DISABLED]);
-        $server02 = factory(Server::class)->create(['description'=>"server02",'status'=>ServerStatus::OFFLINE]);
+        $servers  = factory(Server::class, 8)->create(['description'=>'test']);
+        $server01 = factory(Server::class)->create(['description'=>'server01','status'=>ServerStatus::DISABLED]);
+        $server02 = factory(Server::class)->create(['description'=>'server02','status'=>ServerStatus::OFFLINE]);
 
         // Test guests
         $this->getJson(route('api.v1.servers.index'))
             ->assertUnauthorized();
 
-
         $this->actingAs($this->user)->getJson(route('api.v1.servers.index'))
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role = factory(Role::class)->create(['default' => true]);
+        $role       = factory(Role::class)->create(['default' => true]);
         $permission = Permission::firstOrCreate([ 'name' => 'servers.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);
@@ -112,15 +108,15 @@ class ServerTest extends TestCase
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::DISABLED,$response->json('data.0.status'));
-        $this->assertEquals(ServerStatus::OFFLINE,$response->json('data.1.status'));
-        $this->assertEquals(ServerStatus::ONLINE,$response->json('data.2.status'));
+        $this->assertEquals(ServerStatus::DISABLED, $response->json('data.0.status'));
+        $this->assertEquals(ServerStatus::OFFLINE, $response->json('data.1.status'));
+        $this->assertEquals(ServerStatus::ONLINE, $response->json('data.2.status'));
 
         // Sorting status desc
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
-        $this->assertEquals(ServerStatus::ONLINE,$response->json('data.0.status'));
+        $this->assertEquals(ServerStatus::ONLINE, $response->json('data.0.status'));
     }
 
     /**
@@ -150,19 +146,19 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.servers.show', ['server' => $server->id]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'id' => $server->id,
-                'description' => $server->description,
-                'base_url' => $server->base_url,
-                'salt' => $server->salt,
-                'strength' => $server->strength,
-                'status' => $server->status,
-                'participant_count' => $server->participant_count,
-                'listener_count' => $server->listener_count,
+                'id'                      => $server->id,
+                'description'             => $server->description,
+                'base_url'                => $server->base_url,
+                'salt'                    => $server->salt,
+                'strength'                => $server->strength,
+                'status'                  => $server->status,
+                'participant_count'       => $server->participant_count,
+                'listener_count'          => $server->listener_count,
                 'voice_participant_count' => $server->voice_participant_count,
-                'video_count' => $server->video_count,
-                'meeting_count' => $server->meeting_count,
-                'updated_at' => $server->updated_at,
-                'model_name' => $server->model_name,
+                'video_count'             => $server->video_count,
+                'meeting_count'           => $server->meeting_count,
+                'updated_at'              => $server->updated_at,
+                'model_name'              => $server->model_name,
                     ]
             );
 
@@ -178,12 +174,12 @@ class ServerTest extends TestCase
     public function testCreate()
     {
         $server = factory(Server::class)->make();
-        $data = [
+        $data   = [
             'description' => $server->description,
-            'base_url' => $server->base_url,
-            'salt' => $server->salt,
-            'strength' => 5,
-            'status' => ServerStatus::ONLINE,
+            'base_url'    => $server->base_url,
+            'salt'        => $server->salt,
+            'strength'    => 5,
+            'status'      => ServerStatus::ONLINE,
         ];
 
         // Test guests
@@ -211,16 +207,14 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertJsonValidationErrors(['base_url']);
 
-
         // Test with invalid data
-        $data['base_url'] = 'test';
+        $data['base_url']    = 'test';
         $data['description'] = '';
-        $data['salt'] = '';
-        $data['strength'] = 1000;
-        $data['status'] = 10;
+        $data['salt']        = '';
+        $data['strength']    = 1000;
+        $data['status']      = 10;
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
             ->assertJsonValidationErrors(['base_url','salt','description','strength','status']);
-
     }
 
     /**
@@ -233,10 +227,10 @@ class ServerTest extends TestCase
 
         $data = [
             'description' => $server->description,
-            'base_url' => $server->base_url,
-            'salt' => $server->salt,
-            'strength' => $server->strength,
-            'status' => $server->status,
+            'base_url'    => $server->base_url,
+            'salt'        => $server->salt,
+            'strength'    => $server->strength,
+            'status'      => $server->status,
         ];
 
         // Test guests
@@ -280,11 +274,11 @@ class ServerTest extends TestCase
             ->assertJsonValidationErrors(['base_url']);
 
         // Test with invalid data
-        $data['base_url'] = 'test';
+        $data['base_url']    = 'test';
         $data['description'] = '';
-        $data['salt'] = '';
-        $data['strength'] = 1000;
-        $data['status'] = 10;
+        $data['salt']        = '';
+        $data['strength']    = 1000;
+        $data['status']      = 10;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertJsonValidationErrors(['base_url','salt','description','strength','status']);
 
@@ -324,5 +318,50 @@ class ServerTest extends TestCase
             ->assertNotFound();
 
         $this->assertDatabaseMissing('servers', ['id'=>$server->id]);
+    }
+
+    /**
+     * Test to check api connection
+     */
+    public function testCheck()
+    {
+        // Adding server(s)
+        $this->seed('ServerSeeder');
+        $server = Server::all()->first();
+
+        $data = ['base_url'=>'https://host.tld/bigbluebutton','salt'=>'t64e8rtefererrg43erbgffrgz'];
+
+        // Test guests
+        $this->postJson(route('api.v1.servers.check'), $data)
+            ->assertUnauthorized();
+
+        // Test logged in users
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertForbidden();
+
+        // Authorize user
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'servers.viewAny']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Test with invalid api details
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertJson(['connection_ok'=>false,'salt_ok'=>false]);
+
+        // Test with invalid salt
+        $data = ['base_url'=>$server->base_url,'salt'=>'t64e8rtefererrg43erbgffrgz'];
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertJson(['connection_ok'=>true,'salt_ok'=>false]);
+
+        // Test with valid api details
+        $data = ['base_url'=>$server->base_url,'salt'=>$server->salt];
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertJson(['connection_ok'=>true,'salt_ok'=>true]);
+
+        // Test with invalid data
+        $data = ['base_url'=>'test','salt'=>''];
+        $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
+            ->assertJsonValidationErrors(['base_url','salt']);
     }
 }

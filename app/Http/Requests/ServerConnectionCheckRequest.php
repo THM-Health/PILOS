@@ -9,7 +9,7 @@ class ServerConnectionCheckRequest extends FormRequest
     public function rules()
     {
         return [
-            'base_url'      => ['required', 'active_url', 'string', 'max:255'],
+            'base_url'      => ['required', 'url', 'string', 'max:255'],
             'salt'          => ['required', 'string', 'max:255'],
         ];
     }
