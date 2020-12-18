@@ -35,7 +35,7 @@ class Server extends Model
         return self::where('status', ServerStatus::ONLINE)
             // Experimental
             // Have video factor 3, audio factor 2 and just listening factor 1
-            ->orderByRaw('(video_count*'.self::VIDEO_WEIGHT.' + voice_participant_count*'.self::AUDIO_WEIGHT.' + (participant_count-voice_participant_count) * '.self::PARTICIPANT_WEIGHT.') ASC')
+            ->orderByRaw('((video_count*'.self::VIDEO_WEIGHT.' + voice_participant_count*'.self::AUDIO_WEIGHT.' + (participant_count-voice_participant_count) * '.self::PARTICIPANT_WEIGHT.')/strength) ASC')
             ->first();
     }
 

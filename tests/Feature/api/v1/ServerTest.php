@@ -261,7 +261,9 @@ class ServerTest extends TestCase
             );
 
         // Change status to offline is server is not reachable
+        $server->refresh();
         $data['status'] = ServerStatus::ONLINE;
+        $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
@@ -269,16 +271,20 @@ class ServerTest extends TestCase
             );
 
         // Test with base url of an other server
+        $server->refresh();
         $data['base_url'] = $server2->base_url;
+        $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertJsonValidationErrors(['base_url']);
 
         // Test with invalid data
+        $server->refresh();
         $data['base_url']    = 'test';
         $data['description'] = '';
         $data['salt']        = '';
         $data['strength']    = 1000;
         $data['status']      = 10;
+        $data['updated_at'] = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertJsonValidationErrors(['base_url','salt','description','strength','status']);
 
