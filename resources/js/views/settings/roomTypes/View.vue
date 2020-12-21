@@ -208,6 +208,7 @@ export default {
       };
 
       Base.call(this.id === 'new' ? 'roomTypes' : `roomTypes/${this.id}`, config).then(() => {
+        this.errors = {};
         this.$router.push({ name: 'settings.room_types' });
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

@@ -145,7 +145,7 @@
                   :disabled='isBusy || modelLoadingError || viewOnly'
                   :state="fieldState('permissions', true)"
                 >
-                  <b-form-checkbox :key='permission' v-for="permission in permissions[key]" :value="permission.id">{{ $t(`app.permissions.${permission.name}`) }}</b-form-checkbox>
+                  <b-form-checkbox :key='permission.id' v-for="permission in permissions[key]" :value="permission.id">{{ $t(`app.permissions.${permission.name}`) }}</b-form-checkbox>
                 </b-form-checkbox-group>
               </b-form-group>
             </div>
@@ -361,6 +361,7 @@ export default {
       };
 
       Base.call(this.id === 'new' ? 'roles' : `roles/${this.id}`, config).then(() => {
+        this.errors = {};
         this.$router.push({ name: 'settings.roles' });
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
