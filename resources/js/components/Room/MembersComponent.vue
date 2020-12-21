@@ -118,7 +118,7 @@
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.edit.cancel')"
       @ok="saveEditMember"
-      ref="edit-user-modal" >
+      ref="edit-member-modal" >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.edit.title',{firstname: editMember.firstname,lastname: editMember.lastname}) }}
       </template>
@@ -201,7 +201,7 @@
         <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="5">
+        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="2">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
