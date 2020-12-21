@@ -70,8 +70,6 @@ class ServerTest extends TestCase
                     '*' => [
                         'id',
                         'description',
-                        'base_url',
-                        'salt',
                         'strength',
                         'status',
                         'participant_count',
@@ -83,7 +81,9 @@ class ServerTest extends TestCase
                         'model_name'
                     ]
                 ]
-            ]);
+            ])
+        ->assertDontSee('base_url')
+        ->assertDontSee('salt');
 
         // Pagination
         $this->getJson(route('api.v1.servers.index') . '?page=2')
@@ -136,7 +136,7 @@ class ServerTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.viewAny']);
+        $permission = factory(Permission::class)->create(['name' => 'servers.view']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -179,7 +179,7 @@ class ServerTest extends TestCase
             'base_url'    => $server->base_url,
             'salt'        => $server->salt,
             'strength'    => 5,
-            'status'      => ServerStatus::ONLINE,
+            'disabled'    => false,
         ];
 
         // Test guests
@@ -208,13 +208,13 @@ class ServerTest extends TestCase
             ->assertJsonValidationErrors(['base_url']);
 
         // Test with invalid data
-        $data['base_url']    = 'test';
-        $data['description'] = '';
-        $data['salt']        = '';
-        $data['strength']    = 1000;
-        $data['status']      = 10;
+        $data['base_url']      = 'test';
+        $data['description']   = '';
+        $data['salt']          = '';
+        $data['strength']      = 1000;
+        $data['disabled']      = 10;
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url','salt','description','strength','status']);
+            ->assertJsonValidationErrors(['base_url','salt','description','strength','disabled']);
     }
 
     /**
@@ -230,7 +230,7 @@ class ServerTest extends TestCase
             'base_url'    => $server->base_url,
             'salt'        => $server->salt,
             'strength'    => $server->strength,
-            'status'      => $server->status,
+            'disabled'    => true,
         ];
 
         // Test guests
@@ -262,12 +262,12 @@ class ServerTest extends TestCase
 
         // Change status to offline is server is not reachable
         $server->refresh();
-        $data['status']     = ServerStatus::ONLINE;
-        $data['updated_at'] = $server->updated_at;
+        $data['disabled']     = true;
+        $data['updated_at']   = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['status'=>ServerStatus::OFFLINE]
+                ['status'=>ServerStatus::DISABLED]
             );
 
         // Test with base url of an other server
@@ -279,14 +279,14 @@ class ServerTest extends TestCase
 
         // Test with invalid data
         $server->refresh();
-        $data['base_url']    = 'test';
-        $data['description'] = '';
-        $data['salt']        = '';
-        $data['strength']    = 1000;
-        $data['status']      = 10;
-        $data['updated_at']  = $server->updated_at;
+        $data['base_url']      = 'test';
+        $data['description']   = '';
+        $data['salt']          = '';
+        $data['strength']      = 1000;
+        $data['disabled']      = 10;
+        $data['updated_at']    = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
-            ->assertJsonValidationErrors(['base_url','salt','description','strength','status']);
+            ->assertJsonValidationErrors(['base_url','salt','description','strength','disabled']);
 
         // Test deleted
         $server->delete();

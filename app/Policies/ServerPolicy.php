@@ -23,7 +23,7 @@ class ServerPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->can('servers.view');
+        return $user->can('servers.viewAny');
     }
 
     /**
