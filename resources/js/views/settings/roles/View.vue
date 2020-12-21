@@ -141,13 +141,12 @@
 
                 <b-form-checkbox-group
                   v-model='model.permissions'
-                  :options='permissions[key]'
                   stacked
-                  text-field='translatedName'
-                  value-field='id'
                   :disabled='isBusy || modelLoadingError || viewOnly'
                   :state="fieldState('permissions', true)"
-                ></b-form-checkbox-group>
+                >
+                  <b-form-checkbox :key='permission' v-for="permission in permissions[key]" :value="permission.id">{{ $t(`app.permissions.${permission.name}`) }}</b-form-checkbox>
+                </b-form-checkbox-group>
               </b-form-group>
             </div>
             <div class="ml-3" v-if="!isBusy && Object.keys(permissions).length === 0">
@@ -329,7 +328,6 @@ export default {
             this.permissions[group] = [];
           }
 
-          permission.translatedName = this.$t(`app.permissions.${permission.name}`);
           this.permissions[group].push(permission);
         });
       }).catch(error => {

@@ -86,6 +86,14 @@ export default {
       update: 'Benutzer bearbeiten',
       delete: 'Benutzer löschen',
       updateOwnAttributes: 'Eigenen Vornamen, Nachnamen und E-Mail bearbeiten'
+    },
+
+    roomTypes: {
+      title: 'Raumarten',
+      create: 'Raumarten erstellen',
+      delete: 'Raumarten löschen',
+      update: 'Raumarten bearbeiten',
+      view: 'Raumarten anzeigen'
     }
   },
 

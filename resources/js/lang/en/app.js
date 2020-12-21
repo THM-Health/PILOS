@@ -86,6 +86,14 @@ export default {
       update: 'Edit users',
       delete: 'Delete users',
       updateOwnAttributes: 'Update own firstname, lastname and email'
+    },
+
+    roomTypes: {
+      title: 'Room types',
+      create: 'Create room types',
+      delete: 'Delete room types',
+      update: 'Edit room types',
+      view: 'Show room types'
     }
   },
   overwrite: 'Overwrite',
