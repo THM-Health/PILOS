@@ -143,5 +143,45 @@ export default {
       title: 'Own rooms pagination page size',
       description: 'Limits the number of page size for own rooms pagination'
     }
+  },
+
+  servers: {
+    title: 'Server',
+    id: 'ID',
+    description: 'Description',
+    status: 'Status',
+    participant_count: 'Participants',
+    video_count: 'Videos',
+    meeting_count: 'Meetings',
+
+    unknown: 'Unknown',
+    online: 'Online',
+    offline: 'Offline',
+    disabled: 'Disabled',
+
+    strength: 'Server strength',
+    strength_description: 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
+    base_url: 'API endpoint',
+    salt: 'API secret',
+    test_connection: 'Test connection',
+
+    reload: 'Reload server list',
+    new: 'Add new server',
+    view: 'Detailed information for the server {id}',
+    edit: 'Edit server {id}',
+
+    nodata: 'No servers found!',
+    nodataFiltered: 'For the filter query no servers were found!',
+
+    delete: {
+      item: 'Delete server {id}',
+      confirm: 'Do you really want to delete the server {id}?',
+      title: 'Delete server?'
+    },
+
+    offlineReason: {
+      connection: 'No connection could be established to the server.',
+      salt: 'A connection to the server could be established, but the API secret is invalid.'
+    }
   }
 };

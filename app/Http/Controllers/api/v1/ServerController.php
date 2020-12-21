@@ -56,7 +56,7 @@ class ServerController extends Controller
      */
     public function show(Server $server)
     {
-        return new ServerResource($server);
+        return (new ServerResource($server))->withApi();
     }
 
     /**
@@ -72,15 +72,15 @@ class ServerController extends Controller
         $server->base_url     = $request->base_url;
         $server->salt         = $request->salt;
         $server->strength     = $request->strength;
-        $server->status       = $request->status;
-        $server->save();
+        $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
         if ($server->status != ServerStatus::DISABLED) {
             $server->status = $server->getMeetings() === null ? ServerStatus::OFFLINE : ServerStatus::ONLINE;
-            $server->save();
         }
 
-        return new ServerResource($server);
+        $server->save();
+
+        return (new ServerResource($server))->withApi();
     }
 
     /**
@@ -96,15 +96,15 @@ class ServerController extends Controller
         $server->base_url     = $request->base_url;
         $server->salt         = $request->salt;
         $server->strength     = $request->strength;
-        $server->status       = $request->status;
-        $server->save();
+        $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
         if ($server->status != ServerStatus::DISABLED) {
             $server->status = $server->getMeetings() === null ? ServerStatus::OFFLINE : ServerStatus::ONLINE;
-            $server->save();
         }
 
-        return new ServerResource($server);
+        $server->save();
+
+        return (new ServerResource($server))->withApi();
     }
 
     /**

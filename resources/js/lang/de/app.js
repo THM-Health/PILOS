@@ -94,6 +94,15 @@ export default {
       delete: 'Raumarten löschen',
       update: 'Raumarten bearbeiten',
       view: 'Raumarten anzeigen'
+    },
+
+    servers: {
+      title: 'Server',
+      viewAny: 'Alle Server anzeigen',
+      view: 'Server anzeigen',
+      create: 'Server erstellen',
+      update: 'Server bearbeiten',
+      delete: 'Server löschen'
     }
   },
 

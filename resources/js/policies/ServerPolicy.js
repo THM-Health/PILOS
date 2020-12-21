@@ -29,7 +29,7 @@ export default {
    * @return {boolean}
    */
   view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.viewAny');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.view');
   },
 
   /**

@@ -94,6 +94,15 @@ export default {
       delete: 'Delete room types',
       update: 'Edit room types',
       view: 'Show room types'
+    },
+
+    servers: {
+      title: 'Servers',
+      viewAny: 'Show all servers',
+      view: 'Show servers',
+      create: 'Create servers',
+      update: 'Edit servers',
+      delete: 'Delete servers'
     }
   },
   overwrite: 'Overwrite',

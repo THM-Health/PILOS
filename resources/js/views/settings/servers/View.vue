@@ -69,20 +69,29 @@
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.servers.status')"
+            :label="$t('settings.servers.disabled')"
             label-for='status'
             :state='fieldState("status")'
           >
-            <b-form-radio-group
-              v-model="model.status"
-              :options="statusOptions"
-              name="status"
-              :state='fieldState("status")'
-              :disabled='isBusy || modelLoadingError || viewOnly'
-              plain
-              stacked
-            ></b-form-radio-group>
+            <b-form-checkbox id="status" v-model="model.disabled" name="check-button" switch>
+            </b-form-checkbox>
             <template slot='invalid-feedback'><div v-html="fieldError('status')"></div></template>
+          </b-form-group>
+
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.servers.status')"
+            label-for='status'
+          >
+            <b-input-group>
+              <b-form-input type='text' v-model='onlineStatus' :disabled='true'></b-form-input>
+              <b-input-group-append>
+                <b-button :disabled='isBusy || modelLoadingError || checking'
+                          variant='primary'
+                          @click="testConnection()"><i class="fas fa-link"></i> {{ $t('settings.servers.test_connection') }}</b-button>
+              </b-input-group-append>
+            </b-input-group>
+            <b-form-text v-if="offlineReason"> {{ $t('settings.servers.offlineReason.'+offlineReason) }}</b-form-text>
           </b-form-group>
           <hr>
           <b-row class='my-1 float-right'>
@@ -92,14 +101,6 @@
                 variant='secondary'
                 @click="$router.push({ name: 'settings.servers' })">
                 <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
-              </b-button>
-              <b-button
-                :disabled='isBusy || modelLoadingError || checking'
-                variant='primary'
-                @click="testConnection()"
-                class='ml-1'
-                >
-                <i class="fas fa-link"></i> {{ $t('settings.servers.test_connection') }}
               </b-button>
               <b-button
                 :disabled='isBusy || modelLoadingError'
@@ -168,12 +169,12 @@ export default {
 
   computed: {
 
-    statusOptions () {
-      return [
-        { text: this.$t('settings.servers.disabled'), value: -1 },
-        { text: this.$t('settings.servers.offline'), value: 0 },
-        { text: this.$t('settings.servers.online'), value: 1 }
-      ];
+    onlineStatus () {
+      switch (this.online) {
+        case 0: return this.$t('settings.servers.offline');
+        case 1: return this.$t('settings.servers.online');
+        default: return this.$t('settings.servers.unknown');
+      }
     },
 
     /**
@@ -187,7 +188,8 @@ export default {
   data () {
     return {
       model: {
-        id: null
+        id: null,
+        disabled: false
       },
       hideSalt: true,
       permissions: {},
@@ -196,7 +198,11 @@ export default {
       roomLimitMode: 'default',
       busyCounter: 0,
       modelLoadingError: false,
-      checking: false
+      checking: false,
+
+      online: 0,
+      offlineReason: null
+
     };
   },
 
@@ -222,11 +228,16 @@ export default {
 
       Base.call('servers/check', config).then(response => {
         if (response.data.connection_ok && response.data.salt_ok) {
-          this.flashMessage.success(this.$t('settings.servers.flash.connectionOk'));
+          this.online = 1;
+          this.offlineReason = null;
         } else {
           if (response.data.connection_ok && !response.data.salt_ok) {
-            this.flashMessage.error(this.$t('settings.servers.flash.connectionFailedSalt'));
-          } else { this.flashMessage.error(this.$t('settings.servers.flash.connectionFailed')); }
+            this.online = 0;
+            this.offlineReason = 'salt';
+          } else {
+            this.online = 0;
+            this.offlineReason = 'connection';
+          }
         }
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -249,6 +260,10 @@ export default {
 
         Base.call(`servers/${this.id}`).then(response => {
           this.model = response.data.data;
+          this.model.disabled = this.model.status === -1;
+          this.online = this.model.status === -1 ? null : this.model.status;
+          this.offlineReason = null;
+          this.testConnection();
         }).catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
             this.$router.push({ name: 'settings.servers' });
@@ -314,6 +329,10 @@ export default {
      */
     refreshServer () {
       this.model = this.staleError.new_model;
+      this.model.disabled = this.model.status === -1;
+      this.online = this.model.status === -1 ? null : this.model.status;
+      this.offlineReason = null;
+      this.testConnection();
       this.staleError = {};
       this.$refs['stale-server-modal'].hide();
     }

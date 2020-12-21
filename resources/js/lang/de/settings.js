@@ -156,6 +156,7 @@ export default {
     video_count: 'Videos',
     meeting_count: 'Meetings',
 
+    unknown: 'Unbekannt',
     online: 'Online',
     offline: 'Offline',
     disabled: 'Deaktiviert',
@@ -180,22 +181,9 @@ export default {
       title: 'Server löschen?'
     },
 
-    flash: {
-      connectionOk: {
-        message: 'Es konnte eine Verbindung zu dem Server herstellt werden.',
-        title: 'Verbunden'
-      },
-
-      connectionFailed: {
-        message: 'Es konnte keine Verbindung zu dem Server herstellt werden.',
-        title: 'Verbindung fehlgeschlagen'
-      },
-
-      connectionFailedSalt: {
-        message: 'Es konnte eine Verbindung zu dem Server herstellt werden, jedoch ist das API Geheimnis ungültig.',
-        title: 'API Geheimnis ungültig'
-      }
-
+    offlineReason: {
+      connection: 'Connecting to the server failed.',
+      salt: 'A connection to the server was established, but the API secret is invalid.'
     }
   }
 };

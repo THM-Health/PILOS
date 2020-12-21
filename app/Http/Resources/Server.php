@@ -6,6 +6,24 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class Server extends JsonResource
 {
+
+    /**
+     * @var bool Indicates whether the api credentials should be included or not.
+     */
+    private $withApi = false;
+
+    /**
+     * Sets the flag to also load the api credentials
+     *
+     * @return $this The server resource instance.
+     */
+    public function withApi()
+    {
+        $this->withApi = true;
+
+        return $this;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -16,8 +34,8 @@ class Server extends JsonResource
     {
         return [
             'id'                         => $this->id,
-            'base_url'                   => $this->base_url,
-            'salt'                       => $this->salt,
+            'base_url'                   => $this->when($this->withApi, $this->base_url),
+            'salt'                       => $this->when($this->withApi, $this->salt),
             'description'                => $this->description,
             'strength'                   => $this->strength,
             'status'                     => $this->status,

@@ -16,6 +16,9 @@ const accessPermittedSettingsView = routes.filter(route => route.path === '/sett
 const accessPermittedRoomTypesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.room_types.view')[0].meta.accessPermitted;
 
+const accessPermittedServerView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.servers.view')[0].meta.accessPermitted;
+
 describe('Router', function () {
   beforeEach(function () {
     moxios.install();
@@ -401,6 +404,69 @@ describe('Router', function () {
 
         PermissionService.setCurrentUser({ permissions: ['roomTypes.update', 'settings.manage'] });
         return accessPermittedRoomTypesView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for server detail view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedServerView({ id: 1 }, { view: '1' }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['servers.view'] });
+        return accessPermittedServerView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['servers.view', 'settings.manage'] });
+        return accessPermittedServerView({ id: 1 }, { view: '1' });
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for server new view returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedServerView({ id: 'new' }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['servers.create'] });
+        return accessPermittedServerView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['servers.create', 'settings.manage'] });
+        return accessPermittedServerView({ id: 'new' }, {});
+      }).then(result => {
+        expect(result).toBe(true);
+
+        PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+
+    it('for server update returns true if user has the necessary permissions', function (done) {
+      const oldUser = PermissionService.currentUser;
+
+      accessPermittedServerView({ id: 1 }, {}).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['servers.update'] });
+        return accessPermittedServerView({ id: 1 }, {});
+      }).then(result => {
+        expect(result).toBe(false);
+
+        PermissionService.setCurrentUser({ permissions: ['servers.update', 'settings.manage'] });
+        return accessPermittedServerView({ id: 1 }, {});
       }).then(result => {
         expect(result).toBe(true);
 
