@@ -161,10 +161,9 @@ class RoomTypeTest extends TestCase
                 ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
             );
 
-
         // Test with short of an other room type
         $roomType->refresh();
-        $data['short'] = $roomType2->short;
+        $data['short']      = $roomType2->short;
         $data['updated_at'] = $roomType->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertJsonValidationErrors(['short']);
