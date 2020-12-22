@@ -260,14 +260,14 @@ class ServerTest extends TestCase
                 ['base_url'=>$server->base_url,'salt'=>$server->salt,'status'=>$server->status]
             );
 
-        // Change status to offline is server is not reachable
+        // Change status to offline if server is not reachable
         $server->refresh();
-        $data['disabled']     = true;
+        $data['disabled']     = false;
         $data['updated_at']   = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['status'=>ServerStatus::DISABLED]
+                ['status'=>ServerStatus::OFFLINE]
             );
 
         // Test with base url of an other server
