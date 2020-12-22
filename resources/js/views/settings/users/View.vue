@@ -124,6 +124,7 @@
               >
                 <b-input-group>
                   <multiselect
+                    :placeholder="$t('settings.users.select_roles')"
                     ref="roles-multiselect"
                     v-model='model.roles'
                     track-by='id'
@@ -362,7 +363,7 @@ export default {
         password: null,
         password_confirmation: null,
         user_locale: null,
-        bbb_skip_check_audio: null,
+        bbb_skip_check_audio: false,
         roles: []
       },
       errors: {},
@@ -492,6 +493,7 @@ export default {
       config.data.roles = config.data.roles.map(role => role.id);
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
+        this.errors = {};
         const localeChanged = this.$store.state.session.currentLocale !== config.data.user_locale;
 
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store

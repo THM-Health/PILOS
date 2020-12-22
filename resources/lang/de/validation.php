@@ -214,6 +214,11 @@ return [
         'file'                              => 'Datei',
         'permissions'                       => 'Rechte',
         'updated_at'                        => 'Aktualisiert am',
-        'room_limit'                        => 'Max. Anzahl an Räumen'
+        'room_limit'                        => 'Max. Anzahl an Räumen',
+        'roles'                             => 'Rollen',
+        'bbb_skip_check_audio'              => 'Echo-Test deaktivieren',
+        'firstname'                         => 'Vorname',
+        'lastname'                          => 'Nachname',
+        'user_locale'                       => 'Sprache',
     ],
 ];
