@@ -363,7 +363,7 @@ export default {
         password: null,
         password_confirmation: null,
         user_locale: null,
-        bbb_skip_check_audio: null,
+        bbb_skip_check_audio: false,
         roles: []
       },
       errors: {},
