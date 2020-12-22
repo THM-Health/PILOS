@@ -10,6 +10,7 @@
               class='ml-2 float-right'
               v-b-tooltip.hover
               variant='success'
+              ref="newServer"
               :title="$t('settings.servers.new')"
               :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
             ><b-icon-plus></b-icon-plus></b-button>

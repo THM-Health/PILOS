@@ -61,6 +61,36 @@ class BuildHistoryTest extends TestCase
     }
 
     /**
+     * If server is offline/not reachable, reset usage numbers, mark as offline and end all meetings marked as running
+     */
+    public function testServerDisabled()
+    {
+        // Create new meeting with fake server
+        $server                          = factory(Server::class)->create();
+
+        // Set the live usage data of server and parent room
+        $server->participant_count       = 5;
+        $server->listener_count          = 5;
+        $server->voice_participant_count = 5;
+        $server->video_count             = 5;
+        $server->meeting_count           = 5;
+        $server->status                  = ServerStatus::DISABLED;
+        $server->save();
+
+        // Refresh usage and build history
+        $this->artisan('history:build');
+
+        // Reload data and check if everything is reset, as the server is offline
+        $server->refresh();
+        $this->assertEquals(ServerStatus::DISABLED, $server->status);
+        $this->assertNull($server->participant_count);
+        $this->assertNull($server->listener_count);
+        $this->assertNull($server->voice_participant_count);
+        $this->assertNull($server->video_count);
+        $this->assertNull($server->meeting_count);
+    }
+
+    /**
      * Test if live and archival usage data is created
      */
     public function testServerOnline()

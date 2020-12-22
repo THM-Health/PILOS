@@ -175,14 +175,8 @@ export default {
         case 1: return this.$t('settings.servers.online');
         default: return this.$t('settings.servers.unknown');
       }
-    },
-
-    /**
-     * Boolean that indicates, whether any request for this form is pending or not.
-     */
-    isBusy () {
-      return this.busyCounter > 0;
     }
+
   },
 
   data () {
@@ -192,22 +186,18 @@ export default {
         disabled: false
       },
       hideSalt: true,
-      permissions: {},
       errors: {},
       staleError: {},
-      roomLimitMode: 'default',
-      busyCounter: 0,
+      isBusy: false,
       modelLoadingError: false,
       checking: false,
-
       online: 0,
       offlineReason: null
-
     };
   },
 
   /**
-   * Loads the role from the backend and also the permissions that can be selected.
+   * Loads the server from the backend
    */
   mounted () {
     this.load();
@@ -250,13 +240,13 @@ export default {
     },
 
     /**
-     * Loads the role from the backend and also the permissions that can be selected.
+     * Loads the servers from the backend
      */
     load () {
       this.modelLoadingError = false;
 
       if (this.id !== 'new') {
-        this.busyCounter++;
+        this.isBusy = true;
 
         Base.call(`servers/${this.id}`).then(response => {
           this.model = response.data.data;
@@ -272,13 +262,13 @@ export default {
           }
           Base.error(error, this.$root, error.message);
         }).finally(() => {
-          this.busyCounter--;
+          this.isBusy = false;
         });
       }
     },
 
     /**
-     * Saves the changes of the role to the database by making a api call.
+     * Saves the changes of the server to the database by making a api call.
      *
      * @param evt
      */
@@ -287,7 +277,7 @@ export default {
         evt.preventDefault();
       }
 
-      this.busyCounter++;
+      this.isBusy = true;
 
       const config = {
         method: this.id === 'new' ? 'post' : 'put',
@@ -310,7 +300,7 @@ export default {
           Base.error(error, this.$root, error.message);
         }
       }).finally(() => {
-        this.busyCounter--;
+        this.isBusy = false;
       });
     },
 
