@@ -361,6 +361,7 @@ export default {
       };
 
       Base.call(this.id === 'new' ? 'roles' : `roles/${this.id}`, config).then(() => {
+        this.errors = {};
         this.$router.push({ name: 'settings.roles' });
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

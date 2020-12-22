@@ -67,7 +67,6 @@ const mutations = {
   },
 
   setCurrentUser (state, { currentUser, emit = true }) {
-    console.log('test', currentUser, emit);
     state.currentUser = currentUser;
     PermissionService.setCurrentUser(state.currentUser, emit);
   }

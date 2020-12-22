@@ -215,7 +215,12 @@ return [
         'file'                              => 'File',
         'permissions'                       => 'Permissions',
         'updated_at'                        => 'Updated at',
-        'room_limit'                        => 'Room limit'
+        'room_limit'                        => 'Room limit',
+        'roles'                             => 'Roles',
+        'bbb_skip_check_audio'              => 'Disable echo audio test',
+        'firstname'                         => 'Firstname',
+        'lastname'                          => 'Lastname',
+        'user_locale'                       => 'Language',
     ],
 
 ];
