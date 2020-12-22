@@ -124,6 +124,7 @@
               >
                 <b-input-group>
                   <multiselect
+                    :placeholder="$t('settings.users.select_roles')"
                     ref="roles-multiselect"
                     v-model='model.roles'
                     track-by='id'
