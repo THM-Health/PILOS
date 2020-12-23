@@ -323,7 +323,7 @@ describe('ServerView', function () {
 
       view.findComponent(BForm).trigger('submit');
 
-      let restoreRoomTypeResponse = overrideStub('/api/v1/servers/1', {
+      let restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: env.HTTP_UNPROCESSABLE_ENTITY,
         response: {
           message: 'The given data was invalid.',
@@ -354,8 +354,8 @@ describe('ServerView', function () {
         expect(feedback[3].html()).toContain('Test strength');
         expect(feedback[4].html()).toContain('Test disabled');
 
-        restoreRoomTypeResponse();
-        restoreRoomTypeResponse = overrideStub('/api/v1/servers/1', {
+        restoreServerResponse();
+        restoreServerResponse = overrideStub('/api/v1/servers/1', {
           status: 204
         });
 
@@ -363,7 +363,7 @@ describe('ServerView', function () {
 
         moxios.wait(function () {
           sinon.assert.calledOnce(spy);
-          restoreRoomTypeResponse();
+          restoreServerResponse();
           done();
         });
       });
@@ -394,7 +394,7 @@ describe('ServerView', function () {
       const newModel = _.cloneDeep(view.vm.model);
       newModel.updated_at = '2020-09-08 16:13:26';
 
-      let restoreRoomTypeResponse = overrideStub('/api/v1/servers/1', {
+      let restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: env.HTTP_STALE_MODEL,
         response: {
           error: env.HTTP_STALE_MODEL,
@@ -409,8 +409,8 @@ describe('ServerView', function () {
         const staleModelModal = view.findComponent({ ref: 'stale-server-modal' });
         expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
-        restoreRoomTypeResponse();
-        restoreRoomTypeResponse = overrideStub('/api/v1/servers/1', {
+        restoreServerResponse();
+        restoreServerResponse = overrideStub('/api/v1/servers/1', {
           status: 204
         });
 
@@ -422,7 +422,7 @@ describe('ServerView', function () {
 
           expect(data.updated_at).toBe(newModel.updated_at);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-
+          restoreServerResponse();
           done();
         });
       });
@@ -448,7 +448,7 @@ describe('ServerView', function () {
       newModel.updated_at = '2020-09-08 16:13:26';
       newModel.description = 'Server 02';
 
-      const restoreRoomTypeResponse = overrideStub('/api/v1/servers/1', {
+      const restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: env.HTTP_STALE_MODEL,
         response: {
           error: env.HTTP_STALE_MODEL,
@@ -464,7 +464,7 @@ describe('ServerView', function () {
         expect(staleModelModal.vm.$data.isVisible).toBe(true);
         expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Server 01');
 
-        restoreRoomTypeResponse();
+        restoreServerResponse();
 
         staleModelModal.vm.$refs['cancel-button'].click();
 

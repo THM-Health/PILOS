@@ -169,7 +169,9 @@ export default {
   },
 
   computed: {
-
+    /**
+     * Provides the translation for the connection status
+     */
     onlineStatus () {
       switch (this.online) {
         case 0: return this.$t('settings.servers.offline');
@@ -177,7 +179,6 @@ export default {
         default: return this.$t('settings.servers.unknown');
       }
     }
-
   },
 
   data () {
@@ -205,7 +206,10 @@ export default {
   },
 
   methods: {
-
+    /**
+     * Check if the backend can establish a connection with the passed api details to a bigbluebutton server
+     * Based on the result the online status field is updated
+     */
     testConnection () {
       this.checking = true;
 
