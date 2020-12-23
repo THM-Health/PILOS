@@ -231,9 +231,8 @@ export default {
           }
         }
       }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$router.push({ name: 'settings.servers' });
-        }
+        this.online = null;
+        this.offlineReason = null;
         Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.checking = false;
@@ -254,7 +253,6 @@ export default {
           this.model.disabled = this.model.status === -1;
           this.online = this.model.status === -1 ? null : this.model.status;
           this.offlineReason = null;
-          this.testConnection();
         }).catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
             this.$router.push({ name: 'settings.servers' });
@@ -323,7 +321,6 @@ export default {
       this.model.disabled = this.model.status === -1;
       this.online = this.model.status === -1 ? null : this.model.status;
       this.offlineReason = null;
-      this.testConnection();
       this.staleError = {};
       this.$refs['stale-server-modal'].hide();
     }

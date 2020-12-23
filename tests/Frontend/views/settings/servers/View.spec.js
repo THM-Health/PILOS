@@ -6,7 +6,7 @@ import BootstrapVue, {
   IconsPlugin,
   BFormInput,
   BOverlay,
-  BButton, BForm, BFormInvalidFeedback, BModal, BFormRating, BFormCheckbox
+  BButton, BForm, BFormInvalidFeedback, BModal, BFormRating, BFormCheckbox, BFormText
 } from 'bootstrap-vue';
 import Vuex from 'vuex';
 import sinon from 'sinon';
@@ -430,11 +430,6 @@ describe('ServerView', function () {
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', function (done) {
-    const spy = sinon.spy();
-
-    const router = new VueRouter();
-    router.push = spy;
-
     const view = mount(View, {
       localVue,
       mocks: {
@@ -445,8 +440,7 @@ describe('ServerView', function () {
         id: '1',
         modalStatic: true
       },
-      store,
-      router
+      store
     });
 
     moxios.wait(function () {
@@ -478,6 +472,196 @@ describe('ServerView', function () {
           expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Server 02');
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           done();
+        });
+      });
+    });
+  });
+
+  it('show correct status on page load', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      // response server online
+      await view.vm.$nextTick();
+
+      expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
+      expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.online');
+
+      let restoreServerResponse = overrideStub('/api/v1/servers/1', {
+        status: 200,
+        response: {
+          data: {
+            id: 1,
+            description: 'Server 01',
+            base_url: 'https://localhost/bigbluebutton',
+            salt: '123456789',
+            strength: 1,
+            status: 0,
+            participant_count: 14,
+            listener_count: 7,
+            voice_participant_count: 7,
+            video_count: 7,
+            meeting_count: 3,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        }
+      });
+
+      view.vm.load();
+
+      moxios.wait(async () => {
+        // response server offline
+        await view.vm.$nextTick();
+
+        expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
+        expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
+
+        restoreServerResponse();
+        restoreServerResponse = overrideStub('/api/v1/servers/1', {
+          status: 200,
+          response: {
+            data: {
+              id: 1,
+              description: 'Server 01',
+              base_url: 'https://localhost/bigbluebutton',
+              salt: '123456789',
+              strength: 1,
+              status: -1,
+              participant_count: 14,
+              listener_count: 7,
+              voice_participant_count: 7,
+              video_count: 7,
+              meeting_count: 3,
+              model_name: 'Server',
+              updated_at: '2020-12-21T13:43:21.000000Z'
+            }
+          }
+        });
+
+        view.vm.load();
+
+        moxios.wait(async () => {
+          // response server disabled
+          await view.vm.$nextTick();
+
+          expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeTruthy();
+          expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.unknown');
+
+          restoreServerResponse();
+          view.destroy();
+          done();
+        });
+      });
+    });
+  });
+
+  it('update connection status', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      // Check for invalid connection
+      await view.findAllComponents(BButton).at(1).trigger('click');
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.url).toBe('/api/v1/servers/check');
+        expect(request.config.method).toBe('post');
+        const data = JSON.parse(request.config.data);
+        expect(data.base_url).toBe('https://localhost/bigbluebutton');
+        expect(data.salt).toBe('123456789');
+        await request.respondWith({
+          status: 200,
+          response: {
+            connection_ok: false,
+            salt_ok: false
+          }
+        });
+
+        await view.vm.$nextTick();
+        expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
+        expect(view.findAllComponents(BFormText).length).toBe(2);
+        expect(view.findAllComponents(BFormText).at(1).html()).toContain('settings.servers.offlineReason.connection');
+
+        // check for invalid salt
+        await view.findAllComponents(BButton).at(1).trigger('click');
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          await request.respondWith({
+            status: 200,
+            response: {
+              connection_ok: true,
+              salt_ok: false
+            }
+          });
+
+          await view.vm.$nextTick();
+          expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
+          expect(view.findAllComponents(BFormText).length).toBe(2);
+          expect(view.findAllComponents(BFormText).at(1).html()).toContain('settings.servers.offlineReason.salt');
+
+          // check for valid connection
+          await view.findAllComponents(BButton).at(1).trigger('click');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            await request.respondWith({
+              status: 200,
+              response: {
+                connection_ok: true,
+                salt_ok: true
+              }
+            });
+
+            await view.vm.$nextTick();
+            expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.online');
+            expect(view.findAllComponents(BFormText).length).toBe(1);
+
+            // check for response errors
+            await view.findAllComponents(BButton).at(1).trigger('click');
+            moxios.wait(async () => {
+              const request = moxios.requests.mostRecent();
+              await request.respondWith({
+                status: 500,
+                response: {
+                  message: 'Test'
+                }
+              });
+
+              await view.vm.$nextTick();
+              expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.unknown');
+              expect(view.findAllComponents(BFormText).length).toBe(1);
+
+              sinon.assert.calledOnce(Base.error);
+              Base.error.restore();
+
+              view.destroy();
+              done();
+            });
+          });
         });
       });
     });
