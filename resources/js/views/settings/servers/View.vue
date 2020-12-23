@@ -14,6 +14,7 @@
           <b-spinner v-if="isBusy" ></b-spinner>
           <b-button
             v-else
+            ref="reloadServer"
             @click="load()"
           >
             <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
@@ -70,12 +71,12 @@
           <b-form-group
             label-cols-sm='4'
             :label="$t('settings.servers.disabled')"
-            label-for='status'
-            :state='fieldState("status")'
+            label-for='disabled'
+            :state='fieldState("disabled")'
           >
-            <b-form-checkbox id="status" v-model="model.disabled" name="check-button" switch>
+            <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch :disabled='isBusy || modelLoadingError || viewOnly'>
             </b-form-checkbox>
-            <template slot='invalid-feedback'><div v-html="fieldError('status')"></div></template>
+            <template slot='invalid-feedback'><div v-html="fieldError('disabled')"></div></template>
           </b-form-group>
 
           <b-form-group
