@@ -127,6 +127,11 @@ class ServerController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * Check if this backend can connect to a bbb server with the api credentials in this request
+     * @param  ServerConnectionCheckRequest $request
+     * @return JsonResponse
+     */
     public function check(ServerConnectionCheckRequest $request)
     {
         $connectionOk = false;
@@ -146,6 +151,6 @@ class ServerController extends Controller
         } catch (\Exception $e) {
         }
 
-        return ['connection_ok'=>$connectionOk,'salt_ok'=>$saltOk];
+        return \response()->json(['connection_ok'=>$connectionOk,'salt_ok'=>$saltOk]);
     }
 }

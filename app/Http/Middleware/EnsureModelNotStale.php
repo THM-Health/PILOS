@@ -30,7 +30,6 @@ class EnsureModelNotStale
         $model = $request->route($parameterName);
 
         if ($model->updated_at != null && ($request->updated_at == null || $model->updated_at->gt(Carbon::parse($request->updated_at)))) {
-
             $resource = new $resourceClass($model);
             foreach ($resourceFunctionsToCall as $function) {
                 $resource = $resource->{$function}();

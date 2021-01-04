@@ -166,6 +166,8 @@ export default {
     strength_description: 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
     base_url: 'API Endpunkt',
     salt: 'API Geheimnis',
+    showSalt: 'Klartext anzeigen',
+    hideSalt: 'Klartext verbergen',
     test_connection: 'Verbindung testen',
 
     reload: 'Serverliste neu laden',

@@ -19,7 +19,7 @@ class RoleController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Role::class, 'role');
-        $this->middleware('check.stale:role,\App\Http\Resources\Role,permissions', ['only' => 'update']);
+        $this->middleware('check.stale:role,\App\Http\Resources\Role,withPermissions', ['only' => 'update']);
     }
 
     /**
@@ -61,7 +61,7 @@ class RoleController extends Controller
         $role->save();
         $role->permissions()->sync($request->permissions);
 
-        return new RoleResource($role);
+        return (new RoleResource($role))->withPermissions();
     }
 
     /**
@@ -72,17 +72,15 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
-        $role->load('permissions');
-
-        return new RoleResource($role);
+        return (new RoleResource($role))->withPermissions();
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  RoleRequest           $request
-     * @param  Role                  $role
-     * @return JsonResponse|Response
+     * @param  RoleRequest               $request
+     * @param  Role                      $role
+     * @return RoleResource|JsonResponse
      */
     public function update(RoleRequest $request, Role $role)
     {
@@ -110,7 +108,7 @@ class RoleController extends Controller
         $role->name       = $request->name;
         $role->save();
 
-        return response()->noContent(200);
+        return (new RoleResource($role))->withPermissions();
     }
 
     /**

@@ -35,7 +35,7 @@ class SimplifyServerStatus extends Migration
     public function down()
     {
         Schema::table('servers', function (Blueprint $table) {
-            $table->smallInteger('offline')->default(true);
+            $table->boolean('offline')->default(true);
 
         });
 

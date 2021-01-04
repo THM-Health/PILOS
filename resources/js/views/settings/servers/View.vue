@@ -51,7 +51,7 @@
             <b-input-group>
               <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
-                <b-button @click="hideSalt = !hideSalt" variant="success"><b-icon-eye-fill v-if="hideSalt"></b-icon-eye-fill><b-icon-eye-slash-fill v-else></b-icon-eye-slash-fill></b-button>
+                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="success"><b-icon-eye-fill v-if="hideSalt"></b-icon-eye-fill><b-icon-eye-slash-fill v-else></b-icon-eye-slash-fill></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>
@@ -74,7 +74,7 @@
             label-for='disabled'
             :state='fieldState("disabled")'
           >
-            <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch :disabled='isBusy || modelLoadingError || viewOnly'>
+            <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch  class="align-items-center d-flex"  :disabled='isBusy || modelLoadingError || viewOnly'>
             </b-form-checkbox>
             <template slot='invalid-feedback'><div v-html="fieldError('disabled')"></div></template>
           </b-form-group>
@@ -85,7 +85,7 @@
             label-for='status'
           >
             <b-input-group>
-              <b-form-input type='text' v-model='onlineStatus' :disabled='true'></b-form-input>
+              <b-form-input type='text' v-model='onlineStatus' id="onlineStatus" :disabled='true'></b-form-input>
               <b-input-group-append>
                 <b-button :disabled='isBusy || modelLoadingError || checking'
                           variant='primary'

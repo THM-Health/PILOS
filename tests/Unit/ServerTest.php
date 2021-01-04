@@ -100,4 +100,73 @@ class ServerTest extends TestCase
 
         self::assertNull($serverMock->getMeetings());
     }
+
+    /**
+     * Test if closure resets current usage for offline and not for online
+     */
+    public function testUsageClearedOnOffline()
+    {
+        // Create new fake server
+        $server                          = factory(Server::class)->create();
+
+        // Set the live usage data of server
+        $server->participant_count       = 1;
+        $server->listener_count          = 2;
+        $server->voice_participant_count = 3;
+        $server->video_count             = 4;
+        $server->meeting_count           = 5;
+        $server->status                  = ServerStatus::ONLINE;
+        $server->save();
+
+        $server->refresh();
+        $this->assertEquals(ServerStatus::ONLINE, $server->status);
+        $this->assertEquals(1, $server->participant_count);
+        $this->assertEquals(2, $server->listener_count);
+        $this->assertEquals(3, $server->voice_participant_count);
+        $this->assertEquals(4, $server->video_count);
+        $this->assertEquals(5, $server->meeting_count);
+
+        $server->status                  = ServerStatus::OFFLINE;
+        $server->save();
+
+        // Reload data and check if everything is reset, as the server is offline
+        $server->refresh();
+        $this->assertEquals(ServerStatus::OFFLINE, $server->status);
+        $this->assertNull($server->participant_count);
+        $this->assertNull($server->listener_count);
+        $this->assertNull($server->voice_participant_count);
+        $this->assertNull($server->video_count);
+        $this->assertNull($server->meeting_count);
+    }
+
+    /**
+     * Test if closure resets current usage for disabled
+     */
+    public function testUsageClearedOnDisabled()
+    {
+        // Create new fake server
+        $server                          = factory(Server::class)->create();
+
+        // Set the live usage data of server
+        $server->participant_count       = 1;
+        $server->listener_count          = 2;
+        $server->voice_participant_count = 3;
+        $server->video_count             = 4;
+        $server->meeting_count           = 5;
+        $server->status                  = ServerStatus::ONLINE;
+        $server->save();
+
+        $server->refresh();
+        $server->status                  = ServerStatus::DISABLED;
+        $server->save();
+
+        // Reload data and check if everything is reset, as the server is disabled
+        $server->refresh();
+        $this->assertEquals(ServerStatus::DISABLED, $server->status);
+        $this->assertNull($server->participant_count);
+        $this->assertNull($server->listener_count);
+        $this->assertNull($server->voice_participant_count);
+        $this->assertNull($server->video_count);
+        $this->assertNull($server->meeting_count);
+    }
 }

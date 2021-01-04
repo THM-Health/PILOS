@@ -76,24 +76,26 @@ const store = new Vuex.Store({
     session: {
       namespaced: true,
       getters: {
-        settings: () => (setting) => setting === 'pagination_page_size' ? 5 : null
+        settings: () => (setting) => setting === 'pagination_page_size' ? 15 : null
       }
     }
   }
 });
 
+let oldUser;
+
 describe('ServersIndex', function () {
   beforeEach(function () {
     moxios.install();
+    oldUser = PermissionService.currentUser;
   });
 
   afterEach(function () {
     moxios.uninstall();
+    PermissionService.setCurrentUser(oldUser);
   });
 
   it('list of servers with pagination gets displayed', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
     const view = mount(Index, {
@@ -122,15 +124,12 @@ describe('ServersIndex', function () {
         expect(html).toContain(2);
 
         view.destroy();
-        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });
   });
 
   it('list of servers with search', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
     const view = mount(Index, {
@@ -202,7 +201,6 @@ describe('ServersIndex', function () {
             await view.vm.$nextTick();
             expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
             view.destroy();
-            PermissionService.setCurrentUser(oldUser);
             done();
           });
         });
@@ -211,8 +209,6 @@ describe('ServersIndex', function () {
   });
 
   it('update and delete buttons only shown if user has the permission', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
     const response = {
@@ -245,7 +241,6 @@ describe('ServersIndex', function () {
         expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
 
         view.destroy();
-        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });
@@ -283,8 +278,6 @@ describe('ServersIndex', function () {
   });
 
   it('property gets cleared correctly if deletion gets aborted', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
@@ -324,15 +317,12 @@ describe('ServersIndex', function () {
         expect(view.vm.$data.serverToDelete).toBeUndefined();
 
         view.destroy();
-        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });
   });
 
   it('server delete', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
@@ -430,7 +420,6 @@ describe('ServersIndex', function () {
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
           view.destroy();
-          PermissionService.setCurrentUser(oldUser);
           done();
         });
       });
@@ -440,8 +429,6 @@ describe('ServersIndex', function () {
   it('server delete 404 handling', function (done) {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
-
-    const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
@@ -541,7 +528,6 @@ describe('ServersIndex', function () {
           Base.error.restore();
 
           view.destroy();
-          PermissionService.setCurrentUser(oldUser);
           done();
         });
       });
@@ -549,7 +535,6 @@ describe('ServersIndex', function () {
   });
 
   it('server delete error handler called', function (done) {
-    const oldUser = PermissionService.currentUser;
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
@@ -606,15 +591,12 @@ describe('ServersIndex', function () {
         expect(view.vm.$data.serverToDelete).toBeUndefined();
 
         view.destroy();
-        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });
   });
 
   it('new server button is displayed if the user has the corresponding permissions', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
     const view = mount(Index, {
@@ -657,15 +639,12 @@ describe('ServersIndex', function () {
       }).then(() => {
         expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
         view.destroy();
-        PermissionService.setCurrentUser(oldUser);
         done();
       });
     });
   });
 
   it('reload button displayed and triggers reload', function (done) {
-    const oldUser = PermissionService.currentUser;
-
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
     const view = mount(Index, {
@@ -753,7 +732,6 @@ describe('ServersIndex', function () {
           expect(html).toContain(3);
 
           view.destroy();
-          PermissionService.setCurrentUser(oldUser);
           done();
         });
       });

@@ -47,7 +47,7 @@
       show-empty
       :busy.sync='isBusy'
       :fields='tableFields'
-      :items='fetchRoles'
+      :items='fetchServers'
       id='servers-table'
       ref='servers'
       :filter='filter'
@@ -58,7 +58,7 @@
       </template>
 
       <template v-slot:emptyfiltered>
-        <i>{{ $t('settings.users.nodataFiltered') }}</i>
+        <i>{{ $t('settings.servers.nodataFiltered') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -210,13 +210,13 @@ export default {
 
   methods: {
     /**
-     * Loads the roles from the backend and calls on finish the callback function.
+     * Loads the servers from the backend and calls on finish the callback function.
      *
      * @param ctx Context information e.g. the sort field and direction and the page.
      * @param callback
      * @return {null}
      */
-    fetchRoles (ctx, callback) {
+    fetchServers (ctx, callback) {
       let data = [];
 
       const config = {
@@ -260,7 +260,7 @@ export default {
     },
 
     /**
-     * Deletes the role that is set in the property `roleToDelete`.
+     * Deletes the server that is set in the property `serverToDelete`.
      */
     deleteServer (evt) {
       evt.preventDefault();

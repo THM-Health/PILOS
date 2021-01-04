@@ -32,6 +32,12 @@ const store = new Vuex.Store({
   }
 });
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
   for (let i = 0; i < l; i++) {
@@ -93,7 +99,8 @@ describe('ServerView', function () {
         viewOnly: true,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -124,7 +131,8 @@ describe('ServerView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -175,7 +183,8 @@ describe('ServerView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -207,7 +216,8 @@ describe('ServerView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -244,7 +254,8 @@ describe('ServerView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -282,7 +293,8 @@ describe('ServerView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     const requestCount = moxios.requests.count();
@@ -310,7 +322,8 @@ describe('ServerView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -387,7 +400,8 @@ describe('ServerView', function () {
         modalStatic: true
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -440,7 +454,8 @@ describe('ServerView', function () {
         id: '1',
         modalStatic: true
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -487,7 +502,8 @@ describe('ServerView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -579,7 +595,8 @@ describe('ServerView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -657,7 +674,6 @@ describe('ServerView', function () {
 
               sinon.assert.calledOnce(Base.error);
               Base.error.restore();
-
               view.destroy();
               done();
             });

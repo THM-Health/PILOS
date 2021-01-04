@@ -43,28 +43,13 @@ class BuildHistory extends Command
 
         foreach ($servers as $server) {
             if ($server->status == ServerStatus::DISABLED) {
-                $server->participant_count       = null;
-                $server->listener_count          = null;
-                $server->voice_participant_count = null;
-                $server->video_count             = null;
-                $server->meeting_count           = null;
-                $server->timestamps              = false;
-                $server->save();
-
                 continue;
             }
             $bbbMeetings = $server->getMeetings();
 
             // Server is offline, end all meetings  in database
             if ($bbbMeetings === null) {
-                $server->participant_count       = null;
-                $server->listener_count          = null;
-                $server->voice_participant_count = null;
-                $server->video_count             = null;
-                $server->meeting_count           = null;
-                $server->status                  = ServerStatus::OFFLINE;
-                $server->timestamps              = false;
-                $server->save();
+                $server->apiCallFailed();
                 $serverStat = new ServerStat();
                 $server->stats()->save($serverStat);
 

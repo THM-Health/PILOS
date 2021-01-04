@@ -27,6 +27,29 @@ class Server extends Model
     ];
 
     /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::updating(function (self $model) {
+            /**
+             * If status is changed and new status is not online, reset live usage data
+             */
+            if ($model->status != $model->getOriginal('status')) {
+                if ($model->status != ServerStatus::ONLINE) {
+                    $model->participant_count = null;
+                    $model->listener_count = null;
+                    $model->voice_participant_count = null;
+                    $model->video_count = null;
+                    $model->meeting_count = null;
+                }
+            }
+        });
+    }
+
+    /**
      * Find server with the lowest usage
      * @return Server|null
      */
@@ -111,5 +134,16 @@ class Server extends Model
     public function scopeWithDescription(Builder $query, $description)
     {
         return $query->where('description', 'like', '%' . $description . '%');
+    }
+
+    /**
+     * A call to the api failed, mark server as offline
+     * @todo Could be used in the future to trigger alarms, notifications, etc.
+     */
+    public function apiCallFailed()
+    {
+        $this->status     = ServerStatus::OFFLINE;
+        $this->timestamps = false;
+        $this->save();
     }
 }

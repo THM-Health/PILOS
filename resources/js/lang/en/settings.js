@@ -164,6 +164,8 @@ export default {
     strength_description: 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
     base_url: 'API endpoint',
     salt: 'API secret',
+    showSalt: 'Show clear text',
+    hideSalt: 'Hide clear text',
     test_connection: 'Test connection',
 
     reload: 'Reload server list',
