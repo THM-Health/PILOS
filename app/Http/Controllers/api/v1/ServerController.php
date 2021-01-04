@@ -18,7 +18,7 @@ class ServerController extends Controller
     public function __construct()
     {
         $this->authorizeResource(Server::class, 'server');
-        $this->middleware('check.stale:server,\App\Http\Resources\Server', ['only' => 'update']);
+        $this->middleware('check.stale:server,\App\Http\Resources\Server,withApi', ['only' => 'update']);
     }
 
     /**
