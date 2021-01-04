@@ -4,7 +4,17 @@
     <hr>
     <b-row class='mt-5'>
       <b-col lg='3' class='mb-4'>
-        <b-nav vertical>
+        <b-nav vertical class='flex-nowrap'>
+          <can method='viewAny' policy='SettingPolicy'>
+            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.application' }">
+              <b-row>
+                <b-col cols='3'><span><i class='fas fa-cogs'></i></span></b-col>
+                <b-col cols='7'>{{ $t('settings.application.title') }}</b-col>
+              </b-row>
+            </b-nav-item>
+            <b-nav-text class="p-0"><hr></b-nav-text>
+          </can>
+
           <can method='viewAny' policy='UserPolicy'>
             <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.users' }">
               <b-row>
@@ -12,6 +22,9 @@
                 <b-col cols='7'>{{ $t('settings.users.title') }}</b-col>
               </b-row>
             </b-nav-item>
+            <cannot method='viewAny' policy='RolePolicy'>
+              <b-nav-text class="p-0"><hr></b-nav-text>
+            </cannot>
           </can>
 
           <can method='viewAny' policy='RolePolicy'>
@@ -21,15 +34,7 @@
                 <b-col cols='7'>{{ $t('settings.roles.title') }}</b-col>
               </b-row>
             </b-nav-item>
-          </can>
-
-          <can method='viewAny' policy='SettingPolicy'>
-            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.application' }">
-              <b-row>
-                <b-col cols='3'><span><i class='fas fa-cogs'></i></span></b-col>
-                <b-col cols='7'>{{ $t('settings.application.title') }}</b-col>
-                </b-row>
-            </b-nav-item>
+            <b-nav-text class="p-0"><hr></b-nav-text>
           </can>
 
           <can method='viewAny' policy='RoomTypePolicy'>
@@ -62,9 +67,10 @@
 
 <script>
 import Can from '../../components/Permissions/Can';
+import Cannot from '../../components/Permissions/Cannot';
 
 export default {
-  components: { Can }
+  components: { Cannot, Can }
 };
 </script>
 <style scoped>

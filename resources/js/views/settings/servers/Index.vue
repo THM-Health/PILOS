@@ -41,8 +41,9 @@
     <hr>
 
     <b-table
+      :responsive="true"
       hover
-      stacked='md'
+      stacked='xl'
       show-empty
       :busy.sync='isBusy'
       :fields='tableFields'

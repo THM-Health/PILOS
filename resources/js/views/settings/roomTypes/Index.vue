@@ -16,7 +16,7 @@
 
     <b-table
       hover
-      stacked='md'
+      stacked='xl'
       show-empty
       :busy.sync='isBusy'
       :fields="tableFields"
