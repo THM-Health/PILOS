@@ -10,11 +10,6 @@ class ServerPolicy
 {
     use HandlesAuthorization;
 
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Determine whether the user can view any servers.
      *
