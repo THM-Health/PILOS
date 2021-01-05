@@ -50,7 +50,7 @@ class ApplicationController extends Controller
         setting()->set('own_rooms_pagination_page_size', $request->own_rooms_pagination_page_size);
         setting()->set('pagination_page_size', $request->pagination_page_size);
         setting()->set('banner', array_filter($request->banner, function ($setting) {
-            return $setting != null;
+            return $setting !== null;
         }));
         setting()->save();
 
