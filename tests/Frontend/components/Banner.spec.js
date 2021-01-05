@@ -37,7 +37,7 @@ describe('Banner', function () {
   });
 
   it('alert contains the configured props data', async function () {
-    let view = mount(Banner, {
+    const view = mount(Banner, {
       localVue,
       propsData: {
         enabled: true,
@@ -63,7 +63,7 @@ describe('Banner', function () {
     expect(content).not.toContain('fa-open-door');
 
     await view.setProps({
-      title: 'Foo',
+      title: 'Foo'
     });
 
     content = view.html();

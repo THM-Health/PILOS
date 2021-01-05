@@ -547,7 +547,7 @@ export default {
 
         // Since the FormData always strings boolean and empty values must be
         // changed so that they can be handled correctly by the backend.
-        if (typeof(val) === 'boolean') {
+        if (typeof (val) === 'boolean') {
           val = val ? 1 : 0;
         } else if (!val) {
           val = '';
