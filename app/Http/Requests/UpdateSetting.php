@@ -26,11 +26,11 @@ class UpdateSetting extends FormRequest
             'banner'                         => 'required|array',
             'banner.enabled'                 => 'required|boolean',
             'banner.title'                   => 'nullable|string|max:255',
-            'banner.message'                 => [Rule::requiredIf(is_array($this->banner) && boolval($this->banner['enabled'])), 'string', 'max:500'],
+            'banner.message'                 => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'max:500'],
             'banner.link'                    => 'nullable|string|url|max:255',
             'banner.icon'                    => 'nullable|string|max:255|regex:/^fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/',
-            'banner.color'                   => [Rule::requiredIf(is_array($this->banner) && boolval($this->banner['enabled'])), 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-            'banner.background'              => [Rule::requiredIf(is_array($this->banner) && boolval($this->banner['enabled'])), 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
+            'banner.color'                   => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'banner.background'              => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
         ];
     }
 }

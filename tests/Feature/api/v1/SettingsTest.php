@@ -36,6 +36,15 @@ class SettingsTest extends TestCase
         setting(['pagination_page_size' => '123']);
         setting(['own_rooms_pagination_page_size' => '123']);
         setting(['room_limit' => '-1']);
+        setting(['banner' => [
+            'enabled'    => true,
+            'message'    => 'Welcome to Test!',
+            'title'      => 'Welcome',
+            'color'      => '#fff',
+            'background' => '#4a5c66',
+            'link'       => 'http://localhost',
+            'icon'       => 'fa-door-open',
+        ]]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -44,6 +53,15 @@ class SettingsTest extends TestCase
                     'pagination_page_size'           => '123',
                     'own_rooms_pagination_page_size' => '123',
                     'room_limit'                     => '-1',
+                    'banner'                         => [
+                        'enabled'    => true,
+                        'message'    => 'Welcome to Test!',
+                        'title'      => 'Welcome',
+                        'color'      => '#fff',
+                        'background' => '#4a5c66',
+                        'link'       => 'http://localhost',
+                        'icon'       => 'fa-door-open',
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -63,6 +81,7 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false]
         ];
 
         // Unauthorized Test
@@ -97,6 +116,7 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false]
         ];
 
         // Unauthorized Test
@@ -134,6 +154,7 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false]
         ];
 
         // Add necessary role and permission to user to update application settings
@@ -161,18 +182,18 @@ class SettingsTest extends TestCase
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
-        $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
-            [
-                'name'                           => '',
-                'favicon'                        => '',
-                'favicon_file'                   => 'notimagefile',
-                'logo'                           => '',
-                'logo_file'                      => 'notimagefile',
-                'pagination_page_size'           => 'notnumber',
-                'own_rooms_pagination_page_size' => 'notnumber',
-                'room_limit'                     => 'notnumber',
-            ]
-        )
+        $payload = [
+            'name'                           => '',
+            'favicon'                        => '',
+            'favicon_file'                   => 'notimagefile',
+            'logo'                           => '',
+            'logo_file'                      => 'notimagefile',
+            'pagination_page_size'           => 'notnumber',
+            'own_rooms_pagination_page_size' => 'notnumber',
+            'room_limit'                     => 'notnumber'
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'name',
@@ -182,7 +203,69 @@ class SettingsTest extends TestCase
                 'logo_file',
                 'pagination_page_size',
                 'own_rooms_pagination_page_size',
-                'room_limit'
+                'room_limit',
+                'banner',
+                'banner.enabled'
+            ]);
+
+        $payload = [
+            'name'                           => 'test',
+            'favicon'                        => '/storage/image/favicon.ico',
+            'logo'                           => '/storage/image/testfile.svg',
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => false
+        ];
+
+        $this->putJson(route('api.v1.application.update'), $payload)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'banner',
+                'banner.enabled'
+            ]);
+
+        $payload['banner'] = [
+            'enabled' => 'foo'
+        ];
+
+        $this->putJson(route('api.v1.application.update'), $payload)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'banner.enabled'
+            ]);
+
+        $payload['banner'] = [
+            'enabled' => true
+        ];
+
+        $this->putJson(route('api.v1.application.update'), $payload)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'banner.message',
+                'banner.color',
+                'banner.background',
+            ]);
+
+        $payload['banner'] = [
+            'enabled'    => true,
+            'title'      => str_repeat('a', 256),
+            'message'    => str_repeat('a', 501),
+            'link'       => 'test',
+            'icon'       => 'test-test',
+            'color'      => 'test-test',
+            'background' => 'test-test',
+        ];
+
+        $this->putJson(route('api.v1.application.update'), $payload)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'banner.message',
+                'banner.color',
+                'banner.background',
+                'banner.link',
+                'banner.icon',
+                'banner.title',
             ]);
     }
 
@@ -208,6 +291,7 @@ class SettingsTest extends TestCase
                 'pagination_page_size'           => '0',
                 'own_rooms_pagination_page_size' => '0',
                 'room_limit'                     => '-2',
+                'banner'                         => ['enabled' => false]
             ]
         )
             ->assertStatus(422)
@@ -226,6 +310,7 @@ class SettingsTest extends TestCase
                 'pagination_page_size'           => '101',
                 'own_rooms_pagination_page_size' => '26',
                 'room_limit'                     => '101',
+                'banner'                         => ['enabled' => false]
             ]
         )
             ->assertStatus(422)
