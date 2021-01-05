@@ -98,7 +98,9 @@ export default {
     async logout () {
       await this.$store.dispatch('session/logout');
       this.flashMessage.success(this.$t('auth.flash.logout'));
-      await this.$router.push({ name: 'home' });
+      if (this.$router.currentRoute.name !== 'home') {
+        await this.$router.push({ name: 'home' });
+      }
     }
   }
 };
