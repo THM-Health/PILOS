@@ -63,7 +63,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: -1,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -97,7 +100,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -144,7 +150,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -163,7 +172,10 @@ describe('Application', function () {
                 logo: 'test1.svg',
                 room_limit: 33,
                 pagination_page_size: 11,
-                own_rooms_pagination_page_size: 6
+                own_rooms_pagination_page_size: 6,
+                banner: {
+                  enabled: false
+                }
               }
             }
           }).then(() => {
@@ -213,7 +225,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -232,7 +247,10 @@ describe('Application', function () {
                 logo: 'test1.svg',
                 room_limit: -1,
                 pagination_page_size: 11,
-                own_rooms_pagination_page_size: 6
+                own_rooms_pagination_page_size: 6,
+                banner: {
+                  enabled: false
+                }
               }
             }
           }).then(() => {
@@ -325,7 +343,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -374,7 +395,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -428,7 +452,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: -1,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
