@@ -1,5 +1,5 @@
 <template>
-  <b-alert v-if='enabled' :show='true' :style="{ 'background-color': background, 'color': color }" class='mb-0 p-2'>
+  <b-alert v-if='enabled' :show='true' :style="{ 'border-color': background, 'background-color': background, 'color': color }" class='mb-0 p-2'>
     <div class='container'>
       <h4 v-if='title' class='alert-heading'>
         <i v-if='icon' :class='`fas ${icon}`'></i>
