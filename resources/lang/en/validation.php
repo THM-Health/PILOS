@@ -147,6 +147,10 @@ return [
             'required' => 'Replacement room type required! Rooms are still assigned to this room type.',
             'exists' => 'Replacement room type invalid! A replacement room type is required because rooms are still assigned to this room type.',
             'not_in' => 'Replacement room type invalid! A replacement room type is required because rooms are still assigned to this room type.',
+        ],
+        'banner' => [
+            'array' => 'The message banner settings are missing!',
+            'required' => 'The message banner settings are missing!',
         ]
     ],
 
@@ -221,6 +225,13 @@ return [
         'firstname'                         => 'Firstname',
         'lastname'                          => 'Lastname',
         'user_locale'                       => 'Language',
+        'banner.enabled'                    => 'Show',
+        'banner.message'                    => 'Message',
+        'banner.color'                      => 'Text color of the banner',
+        'banner.background'                 => 'Background color of the banner',
+        'banner.title'                      => 'Title',
+        'banner.link'                       => 'Link to show after the message',
+        'banner.icon'                       => 'CSS icon class for the title of the message',
     ],
 
 ];

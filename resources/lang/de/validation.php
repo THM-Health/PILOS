@@ -146,6 +146,10 @@ return [
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
             'exists' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
             'not_in' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+        ],
+        'banner' => [
+            'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
+            'required' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!'
         ]
     ],
 
@@ -220,5 +224,12 @@ return [
         'firstname'                         => 'Vorname',
         'lastname'                          => 'Nachname',
         'user_locale'                       => 'Sprache',
+        'banner.enabled'                    => 'Anzeigen',
+        'banner.message'                    => 'Mitteilung',
+        'banner.color'                      => 'Textfarbe des Banners',
+        'banner.background'                 => 'Hintergrundfarbe des Banners',
+        'banner.title'                      => 'Überschrift',
+        'banner.link'                       => 'Anzuzeigender Link nach der Mitteilung',
+        'banner.icon'                       => 'CSS-Klasse des Icons für die Überschrift der Mitteilung',
     ],
 ];
