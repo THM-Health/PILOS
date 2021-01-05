@@ -29,6 +29,15 @@ class ApplicationSettings extends JsonResource
                 'max_filesize'          => intval(config('bigbluebutton.max_filesize')),
                 'room_name_limit'       => intval(config('bigbluebutton.room_name_limit')),
                 'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit'))
+            ],
+            'banner' => [
+                'enabled' => boolval(setting('banner.enabled')),
+                'message' => setting('banner.message'),
+                'link' => setting('banner.link'),
+                'icon' => setting('banner.icon'),
+                'color' => setting('banner.color'),
+                'background' => setting('banner.background'),
+                'title' => setting('banner.title'),
             ]
         ];
     }

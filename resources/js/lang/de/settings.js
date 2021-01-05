@@ -145,6 +145,18 @@ export default {
     ownRoomsPaginationPageSize: {
       title: 'Größe der Paginierung für eigene Räume',
       description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
+    },
+
+    banner: {
+      title: 'Banner für Mitteilungen',
+      enabled: 'Anzeigen',
+      bannerTitle: 'Überschrift',
+      message: 'Mitteilung',
+      link: 'Anzuzeigender Link nach der Mitteilung',
+      icon: 'CSS-Klasse des Icons für die Überschrift der Mitteilung',
+      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons. Der Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
+      color: 'Textfarbe des Banners',
+      background: 'Hintergrundfarbe des Banners'
     }
   }
 };

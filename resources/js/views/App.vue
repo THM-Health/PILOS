@@ -9,6 +9,15 @@
       </template>
     </b-overlay>
 
+    <banner
+      :background="settings('banner.background')"
+      :color="settings('banner.color')"
+      :enabled="settings('banner.enabled')"
+      :icon="settings('banner.icon')"
+      :link="settings('banner.link')"
+      :message="settings('banner.message')"
+      :title="settings('banner.title')"
+    ></banner>
     <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
       <b-container>
         <h1>
@@ -65,9 +74,10 @@ import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
 import FooterComponent from '../components/FooterComponent';
 import Can from '../components/Permissions/Can';
+import Banner from '../components/Banner';
 
 export default {
-  components: { Can, LocaleSelector, FooterComponent },
+  components: { Banner, Can, LocaleSelector, FooterComponent },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,

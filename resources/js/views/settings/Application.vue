@@ -257,6 +257,182 @@
         </b-form-group>
 
         <hr>
+
+        <!-- Banner -->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          :state='fieldState("banner")'
+          :label="$t('settings.application.banner.title')"
+        >
+          <banner
+            v-if='settings.banner.enabled'
+            :background='settings.banner.background'
+            :color='settings.banner.color'
+            :enabled='settings.banner.enabled'
+            :icon='settings.banner.icon'
+            :link='settings.banner.link'
+            :message='settings.banner.message'
+            :title='settings.banner.title'
+          ></banner>
+
+          <b-form-group
+            :state='fieldState("banner.enabled")'
+            class='mt-4'
+          >
+            <b-form-checkbox
+              id='banner-enabled'
+              v-model='settings.banner.enabled'
+              :state="fieldState('banner.enabled')"
+              :disabled='isBusy || viewOnly || !loaded'
+              switch
+              @change='clearBannerInputs'
+            >
+              {{ $t('settings.application.banner.enabled') }}
+            </b-form-checkbox>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.enabled')"></div>
+            </template>
+          </b-form-group>
+
+          <b-form-group
+            class='mt-4'
+            label-for='banner-title-input'
+            :state='fieldState("banner.title")'
+            :label="$t('settings.application.banner.bannerTitle')"
+          >
+            <b-form-input
+              id='banner-title-input'
+              v-model='settings.banner.title'
+              type='text'
+              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :state='fieldState("banner.title")'
+            ></b-form-input>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.title')"></div>
+            </template>
+          </b-form-group>
+
+          <b-form-group
+            class='mt-4'
+            label-for='banner-message-input'
+            :state='fieldState("banner.message")'
+            :label="$t('settings.application.banner.message')"
+          >
+            <b-form-textarea
+              id='banner-message-input'
+              v-model='settings.banner.message'
+              rows='3'
+              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :state='fieldState("banner.message")'
+            ></b-form-textarea>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.message')"></div>
+            </template>
+          </b-form-group>
+
+          <b-form-group
+            class='mt-4'
+            label-for='banner-link-input'
+            :state='fieldState("banner.link")'
+            :label="$t('settings.application.banner.link')"
+          >
+            <b-form-input
+              id='banner-link-input'
+              v-model='settings.banner.link'
+              type='text'
+              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :state='fieldState("banner.link")'
+            ></b-form-input>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.link')"></div>
+            </template>
+          </b-form-group>
+
+          <b-form-group
+            class='mt-4'
+            label-for='banner-icon-input'
+            :state='fieldState("banner.icon")'
+            :description="$t('settings.application.banner.iconDescription')"
+            :label="$t('settings.application.banner.icon')"
+          >
+            <b-form-input
+              id='banner-icon-input'
+              v-model='settings.banner.icon'
+              type='text'
+              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :state='fieldState("banner.icon")'
+            ></b-form-input>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.icon')"></div>
+            </template>
+          </b-form-group>
+
+          <b-form-group
+            class='mt-4'
+            label-for='banner-color-input'
+            :state='fieldState("banner.color")'
+            :label="$t('settings.application.banner.color')"
+          >
+            <v-swatches
+              class='my-2'
+              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+              :swatch-style="{ borderRadius: '0px' }"
+              :swatches='colorSwatches'
+              v-model='settings.banner.color'
+              inline></v-swatches>
+            <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+            <b-form-input
+              id='banner-color-input'
+              type='text'
+              v-model='settings.banner.color'
+              :state='fieldState("banner.color")'
+              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+            ></b-form-input>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.color')"></div>
+            </template>
+          </b-form-group>
+
+          <b-form-group
+            class='mt-4'
+            label-for='banner-background-input'
+            :state='fieldState("banner.background")'
+            :label="$t('settings.application.banner.background')"
+          >
+            <v-swatches
+              class='my-2'
+              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+              :swatch-style="{ borderRadius: '0px' }"
+              :swatches='backgroundSwatches'
+              v-model='settings.banner.background'
+              inline></v-swatches>
+            <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+            <b-form-input
+              id='banner-background-input'
+              type='text'
+              v-model='settings.banner.background'
+              :state='fieldState("banner.background")'
+              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+            ></b-form-input>
+
+            <template slot='invalid-feedback'>
+              <div v-html="fieldError('banner.background')"></div>
+            </template>
+          </b-form-group>
+
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('banner')"></div>
+          </template>
+        </b-form-group>
+
+        <hr>
         <div class="clearfix">
           <b-button id="application-save-button"
                     class="float-right mr-1 mb-1"
@@ -277,8 +453,12 @@ import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import PermissionService from '../../services/PermissionService';
+import Banner from '../../components/Banner';
+import VSwatches from 'vue-swatches';
+import 'vue-swatches/dist/vue-swatches.css';
 
 export default {
+  components: { Banner, VSwatches },
   mixins: [FieldErrors],
 
   data () {
@@ -290,11 +470,27 @@ export default {
       uploadFaviconFile: null,
       uploadFaviconFileSrc: null,
       isBusy: false,
-      settings: {},
-      errors: {}
+      settings: {
+        banner: {}
+      },
+      errors: {},
+      colorSwatches: ['#fff', '#000'],
+      backgroundSwatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878']
     };
   },
   methods: {
+    /**
+     * Clear banner inputs on change of banner enabled state.
+     */
+    clearBannerInputs () {
+      this.settings.banner.title = null;
+      this.settings.banner.message = null;
+      this.settings.banner.link = null;
+      this.settings.banner.icon = null;
+      this.settings.banner.color = null;
+      this.settings.banner.background = null;
+    },
+
     /**
      * Handle get settings data
      */
@@ -345,6 +541,21 @@ export default {
       formData.append('room_limit', this.settings.room_limit);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
+
+      Object.keys(this.settings.banner).forEach(key => {
+        let val = this.settings.banner[key];
+
+        // Since the FormData always strings boolean and empty values must be
+        // changed so that they can be handled correctly by the backend.
+        if (typeof(val) === 'boolean') {
+          val = val ? 1 : 0;
+        } else if (!val) {
+          val = '';
+        }
+
+        formData.append(`banner[${key}]`, val);
+      });
+
       formData.append('_method', 'PUT');
 
       Base.call('settings',
