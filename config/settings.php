@@ -76,13 +76,7 @@ return [
         'pagination_page_size' => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
         'log_attendance' => env('LOG_ATTENDANCE', false),
         'banner' => [
-            'enabled' => env('BANNER_ENABLED', false),
-            'message' => env('BANNER_MESSAGE', 'Welcome'),
-            'link' => env('BANNER_LINK'),
-            'icon' => env('BANNER_ICON'),
-            'color' => env('BANNER_COLOR', '#fff'),
-            'background' => env('BANNER_BACKGROUND', '#4a5c66'),
-            'title' => env('BANNER_TITLE'),
+            'enabled' => false
         ]
     ]
 ];
