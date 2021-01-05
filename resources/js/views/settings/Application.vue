@@ -264,6 +264,7 @@
           class="mb-4"
           :state='fieldState("banner")'
           :label="$t('settings.application.banner.title')"
+          ref='banner-form-group'
         >
           <banner
             v-if='settings.banner.enabled'
