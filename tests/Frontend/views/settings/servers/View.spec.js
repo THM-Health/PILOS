@@ -621,8 +621,8 @@ describe('ServerView', function () {
 
         await view.vm.$nextTick();
         expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
-        expect(view.findAllComponents(BFormText).length).toBe(2);
-        expect(view.findAllComponents(BFormText).at(1).html()).toContain('settings.servers.offlineReason.connection');
+        expect(view.findAllComponents(BFormText).length).toBe(3);
+        expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
 
         // check for invalid salt
         await view.findAllComponents(BButton).at(1).trigger('click');
@@ -638,8 +638,8 @@ describe('ServerView', function () {
 
           await view.vm.$nextTick();
           expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
-          expect(view.findAllComponents(BFormText).length).toBe(2);
-          expect(view.findAllComponents(BFormText).at(1).html()).toContain('settings.servers.offlineReason.salt');
+          expect(view.findAllComponents(BFormText).length).toBe(3);
+          expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
 
           // check for valid connection
           await view.findAllComponents(BButton).at(1).trigger('click');
@@ -655,7 +655,7 @@ describe('ServerView', function () {
 
             await view.vm.$nextTick();
             expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.online');
-            expect(view.findAllComponents(BFormText).length).toBe(1);
+            expect(view.findAllComponents(BFormText).length).toBe(2);
 
             // check for response errors
             await view.findAllComponents(BButton).at(1).trigger('click');
@@ -670,7 +670,7 @@ describe('ServerView', function () {
 
               await view.vm.$nextTick();
               expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.unknown');
-              expect(view.findAllComponents(BFormText).length).toBe(1);
+              expect(view.findAllComponents(BFormText).length).toBe(2);
 
               sinon.assert.calledOnce(Base.error);
               Base.error.restore();

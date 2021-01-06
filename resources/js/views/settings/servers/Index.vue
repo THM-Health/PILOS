@@ -15,14 +15,6 @@
               :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
             ><b-icon-plus></b-icon-plus></b-button>
           </can>
-          <b-button
-            class='float-right'
-            v-b-tooltip.hover
-            variant='success'
-            :disabled="isBusy"
-            @click="$root.$emit('bv::refresh::table', 'servers-table')"
-            :title="$t('settings.servers.reload')"
-          ><b-icon-arrow-clockwise></b-icon-arrow-clockwise></b-button>
         </h3>
       </b-col>
       <b-col sm='12' md='3'>
@@ -39,6 +31,7 @@
       </b-col>
     </b-row>
     <hr>
+
 
     <b-table
       :responsive="true"
@@ -114,6 +107,7 @@
           </can>
           <can method='delete' :policy='data.item'>
             <b-button
+              v-if="data.item.status===-1"
               v-b-tooltip.hover
               :title="$t('settings.servers.delete.item', { id: data.item.id })"
               :disabled='isBusy'
@@ -135,6 +129,19 @@
       align='center'
       :disabled='isBusy'
     ></b-pagination>
+
+    <b-alert show>
+      <i class="fas fa-info-circle"></i>
+      {{ $t('settings.servers.usageInfo') }}
+      <br><br>
+      <b-button
+        v-b-tooltip.hover
+        size="sm"
+        variant='primary'
+        :disabled="isBusy"
+        @click="updateUsage=true;$root.$emit('bv::refresh::table', 'servers-table')"
+      ><b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('settings.servers.reload') }}</b-button>
+    </b-alert>
 
     <b-modal
       :busy='deleting'
@@ -164,9 +171,10 @@
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
 import ActionsColumn from '../../../mixins/ActionsColumn';
+import RawText from '../../../components/RawText';
 
 export default {
-  components: { Can },
+  components: { Can, RawText },
   mixins: [ActionsColumn],
 
   props: {
@@ -182,9 +190,9 @@ export default {
         { key: 'id', label: this.$t('settings.servers.id'), sortable: true },
         { key: 'description', label: this.$t('settings.servers.description'), sortable: true },
         { key: 'status', label: this.$t('settings.servers.status'), sortable: true },
-        { key: 'participant_count', label: this.$t('settings.servers.participant_count'), sortable: true },
-        { key: 'video_count', label: this.$t('settings.servers.video_count'), sortable: true },
-        { key: 'meeting_count', label: this.$t('settings.servers.meeting_count'), sortable: true }
+        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true },
+        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true },
+        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true }
       ];
 
       if (this.actionColumnVisible) {
@@ -204,7 +212,8 @@ export default {
       perPage: undefined,
       serverToDelete: undefined,
       actionPermissions: ['servers.view', 'servers.update', 'servers.delete'],
-      filter: undefined
+      filter: undefined,
+      updateUsage: false,
     };
   },
 
@@ -221,7 +230,8 @@ export default {
 
       const config = {
         params: {
-          page: ctx.currentPage
+          page: ctx.currentPage,
+          update_usage: this.updateUsage
         }
       };
 
@@ -244,6 +254,7 @@ export default {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
         callback(data);
+        this.updateUsage = false;
       });
 
       return null;

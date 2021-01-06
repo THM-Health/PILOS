@@ -44,6 +44,7 @@ class Server extends JsonResource
             'voice_participant_count'    => $this->voice_participant_count,
             'video_count'                => $this->video_count,
             'meeting_count'              => $this->meeting_count,
+            'own_meeting_count'          => $this->meetings()->whereNull('end')->count(),
             'model_name'                 => $this->model_name,
             'updated_at'                 => $this->updated_at
         ];

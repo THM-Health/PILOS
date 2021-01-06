@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Enums\ServerStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerConnectionCheckRequest;
@@ -28,6 +29,15 @@ class ServerController extends Controller
      */
     public function index(Request $request)
     {
+        /**
+         * If query param update_usage is true, rebuild live and historical data, the same way as the cronjob would do
+         */
+        if ($request->has('update_usage') && $request->update_usage == 'true') {
+            foreach (Server::all() as $server) {
+                $server->updateUsage();
+            }
+        }
+
         $resource = Server::query();
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
@@ -122,9 +132,28 @@ class ServerController extends Controller
          * Check if meetings are running
          * Maybe use soft delete or archive?
          */
-        $server->delete();
+        if ($server->delete()) {
+            return response()->noContent();
+        } else {
+            return response()->json([
+                'error'     => CustomStatusCodes::STALE_MODEL,
+                'message'   => __('app.errors.server_delete_failed'),
+            ], CustomStatusCodes::STALE_MODEL);
+        }
+    }
 
-        return response()->noContent();
+    /**
+     * Panic server, change status of the server to disabled and
+     * end all meetings running on this server
+     *
+     * @param Request $request
+     * @param Server  $server
+     */
+    public function panic(Request $request, Server $server)
+    {
+        $result = $server->panic();
+
+        return \response()->json($result);
     }
 
     /**

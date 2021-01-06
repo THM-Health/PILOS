@@ -31,6 +31,7 @@ const defaultResponse = {
       voice_participant_count: 5,
       video_count: 5,
       meeting_count: 2,
+      own_meeting_count: 2,
       model_name: 'Server',
       updated_at: '2020-12-21T13:43:21.000000Z'
     },
@@ -44,6 +45,21 @@ const defaultResponse = {
       voice_participant_count: 30,
       video_count: 5,
       meeting_count: 10,
+      own_meeting_count: 9,
+      model_name: 'Server',
+      updated_at: '2020-12-21T13:43:21.000000Z'
+    },
+    {
+      id: 3,
+      description: 'Server 03',
+      strength: 1,
+      status: -1,
+      participant_count: null,
+      listener_count: null,
+      voice_participant_count: null,
+      video_count: null,
+      meeting_count: null,
+      own_meeting_count: null,
       model_name: 'Server',
       updated_at: '2020-12-21T13:43:21.000000Z'
     }
@@ -150,7 +166,7 @@ describe('ServersIndex', function () {
         response: defaultResponse
       }).then(async () => {
         await view.vm.$nextTick();
-        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
 
         const search = view.findComponent(BFormInput);
         expect(search.exists()).toBeTruthy();
@@ -238,7 +254,9 @@ describe('ServersIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
+        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+        expect(rows.at(1).findAllComponents(BButton).length).toEqual(2);
+        expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
 
         view.destroy();
         done();
@@ -303,12 +321,12 @@ describe('ServersIndex', function () {
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
         expect(view.vm.$data.serverToDelete).toBeUndefined();
-        view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+        view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
 
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        expect(view.vm.$data.serverToDelete.id).toEqual(1);
+        expect(view.vm.$data.serverToDelete.id).toEqual(3);
         view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
 
         return view.vm.$nextTick();
@@ -349,22 +367,22 @@ describe('ServersIndex', function () {
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
       expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // check if two servers  visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+      // check if three servers  visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
 
-      // open delete modal for first server
-      view.findComponent(BTbody).findAllComponents(BTr).at(0).findComponent(BButton).trigger('click');
+      // open delete modal for third server
+      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(1);
+      expect(view.vm.$data.serverToDelete.id).toEqual(3);
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
       moxios.wait(async () => {
         // delete without replacement
         const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/1');
+        expect(request.config.url).toBe('/api/v1/servers/3');
         expect(request.config.method).toBe('delete');
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
 
@@ -381,6 +399,20 @@ describe('ServersIndex', function () {
             status: 200,
             response: {
               data: [
+                {
+                  id: 1,
+                  description: 'Server 01',
+                  strength: 1,
+                  status: 1,
+                  participant_count: 10,
+                  listener_count: 5,
+                  voice_participant_count: 5,
+                  video_count: 5,
+                  meeting_count: 2,
+                  own_meeting_count: 2,
+                  model_name: 'Server',
+                  updated_at: '2020-12-21T13:43:21.000000Z'
+                },
                 {
                   id: 2,
                   description: 'Server 02',
@@ -415,7 +447,7 @@ describe('ServersIndex', function () {
 
           await view.vm.$nextTick();
           // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
@@ -456,15 +488,15 @@ describe('ServersIndex', function () {
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
       expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // check if two servers visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+      // check if three servers visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
 
       // open delete modal for first server
-      view.findComponent(BTbody).findAllComponents(BTr).at(0).findComponent(BButton).trigger('click');
+      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(1);
+      expect(view.vm.$data.serverToDelete.id).toEqual(3);
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
@@ -486,6 +518,20 @@ describe('ServersIndex', function () {
             status: 200,
             response: {
               data: [
+                {
+                  id: 1,
+                  description: 'Server 01',
+                  strength: 1,
+                  status: 1,
+                  participant_count: 10,
+                  listener_count: 5,
+                  voice_participant_count: 5,
+                  video_count: 5,
+                  meeting_count: 2,
+                  own_meeting_count: 2,
+                  model_name: 'Server',
+                  updated_at: '2020-12-21T13:43:21.000000Z'
+                },
                 {
                   id: 2,
                   description: 'Server 02',
@@ -520,7 +566,7 @@ describe('ServersIndex', function () {
 
           await view.vm.$nextTick();
           // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
@@ -563,19 +609,19 @@ describe('ServersIndex', function () {
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
       expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // open delete modal for first room type
-      view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+      // open delete modal for third server
+      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(1);
+      expect(view.vm.$data.serverToDelete.id).toEqual(3);
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
       moxios.wait(async () => {
         // delete
         const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/1');
+        expect(request.config.url).toBe('/api/v1/servers/3');
         expect(request.config.method).toBe('delete');
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
         // error replacement required

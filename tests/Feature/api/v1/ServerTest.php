@@ -4,6 +4,7 @@ namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Enums\ServerStatus;
+use App\Meeting;
 use App\Permission;
 use App\Role;
 use App\Server;
@@ -163,6 +164,8 @@ class ServerTest extends TestCase
             );
 
         // Test deleted
+        $server->status = ServerStatus::DISABLED;
+        $server->save();
         $server->delete();
         $this->actingAs($this->user)->getJson(route('api.v1.servers.show', ['server' => $server->id]))
             ->assertNotFound();
@@ -289,6 +292,8 @@ class ServerTest extends TestCase
             ->assertJsonValidationErrors(['base_url','salt','description','strength','disabled']);
 
         // Test deleted
+        $server->status = ServerStatus::DISABLED;
+        $server->save();
         $server->delete();
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
             ->assertNotFound();
@@ -314,6 +319,25 @@ class ServerTest extends TestCase
         $permission = factory(Permission::class)->create(['name' => 'servers.delete']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
+
+        // Try delete while status is not disabled
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+
+        // Disable server
+        $server->status = ServerStatus::DISABLED;
+        $server->save();
+
+        // Create new running meeting on the server
+        $meeting = factory(Meeting::class)->create(['server_id'=>$server->id,'end'=>null]);
+
+        // Try delete while meeting still running
+        $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
+            ->assertStatus(CustomStatusCodes::STALE_MODEL);
+
+        // End meeting
+        $meeting->end = date('Y-m-d H:i:s');
+        $meeting->save();
 
         // Test delete
         $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))

@@ -35,7 +35,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.servers.base_url')"
+            :label="$t('settings.servers.baseUrl')"
             label-for='base_url'
             :state='fieldState("base_url")'
           >
@@ -57,7 +57,7 @@
             <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>
           </b-form-group>
           <b-form-group
-            :description="$t('settings.servers.strength_description')"
+            :description="$t('settings.servers.strengthDescription')"
             label-cols-sm='4'
             :label="$t('settings.servers.strength')"
             label-for='strength'
@@ -73,8 +73,9 @@
             :label="$t('settings.servers.disabled')"
             label-for='disabled'
             :state='fieldState("disabled")'
+            :description="$t('settings.servers.disabledDescription')"
           >
-            <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch  class="align-items-center d-flex"  :disabled='isBusy || modelLoadingError || viewOnly'>
+            <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch  class="align-items-center d-flex mb-3"  :disabled='isBusy || modelLoadingError || viewOnly'>
             </b-form-checkbox>
             <template slot='invalid-feedback'><div v-html="fieldError('disabled')"></div></template>
           </b-form-group>
@@ -82,41 +83,99 @@
           <b-form-group
             label-cols-sm='4'
             :label="$t('settings.servers.status')"
-            label-for='status'
+            label-for='onlineStatus'
           >
             <b-input-group>
               <b-form-input type='text' v-model='onlineStatus' id="onlineStatus" :disabled='true'></b-form-input>
               <b-input-group-append>
                 <b-button :disabled='isBusy || modelLoadingError || checking'
                           variant='primary'
-                          @click="testConnection()"><i class="fas fa-link"></i> {{ $t('settings.servers.test_connection') }}</b-button>
+                          @click="testConnection()"><i class="fas fa-link"></i> {{ $t('settings.servers.testConnection') }}</b-button>
               </b-input-group-append>
             </b-input-group>
             <b-form-text v-if="offlineReason"> {{ $t('settings.servers.offlineReason.'+offlineReason) }}</b-form-text>
           </b-form-group>
           <hr>
-          <b-row class='my-1 float-right'>
+          <b-row class='my-1'>
             <b-col sm='12'>
               <b-button
+                :disabled='isBusy || modelLoadingError'
+                variant='success'
+                type='submit'
+                class='ml-1 float-right'
+                v-if='!viewOnly'>
+                <i class='fas fa-save'></i> {{ $t('app.save') }}
+              </b-button>
+              <b-button
+                class="float-right"
                 :disabled='isBusy'
                 variant='secondary'
                 @click="$router.push({ name: 'settings.servers' })">
                 <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
-              <b-button
-                :disabled='isBusy || modelLoadingError'
-                variant='success'
-                type='submit'
-                class='ml-1'
-                v-if='!viewOnly'>
-                <i class='fas fa-save'></i> {{ $t('app.save') }}
-              </b-button>
+
             </b-col>
           </b-row>
+
 
         </b-container>
 
       </b-form>
+      <b-container fluid class="mt-5" v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null">
+        <b-row class='my-1'>
+          <b-col sm='12'>
+            <h4>{{ $t('settings.servers.currentUsage')}}
+            </h4>
+            <hr>
+          </b-col>
+        </b-row>
+
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.servers.meetingCount')"
+          label-for='meetingCount'
+          :description="$t('settings.servers.meetingDescription')"
+        >
+          <b-form-input id='meetingCount' type='text' v-model='model.meeting_count' :disabled='true'></b-form-input>
+        </b-form-group>
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.servers.ownMeetingCount')"
+          label-for='ownMeetingCount'
+          :description="$t('settings.servers.ownMeetingDescription')"
+        >
+          <b-form-input id='ownMeetingCount' type='text' v-model='model.own_meeting_count' :disabled='true'></b-form-input>
+        </b-form-group>
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.servers.participantCount')"
+          label-for='participantCount'
+        >
+          <b-form-input id='participantCount' type='text' v-model='model.participant_count' :disabled='true'></b-form-input>
+        </b-form-group>
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.servers.videoCount')"
+          label-for='videoCount'
+        >
+          <b-form-input id='videoCount' type='text' v-model='model.video_count' :disabled='true'></b-form-input>
+        </b-form-group>
+
+        <can method='update' :policy='model'>
+        <b-form-group
+          label-cols-sm='4'
+          :label="$t('settings.servers.panic')"
+          label-for='panic'
+          :description="$t('settings.servers.panicDescription')"
+        >
+          <b-button :disabled='isBusy || modelLoadingError || checking || panicking'
+                    id="panic"
+                    variant='danger'
+                    @click="panic()"><i class="fas fa-exclamation-triangle"></i> {{ $t('settings.servers.panicServer') }}</b-button>
+        </b-form-group>
+        </can>
+
+      </b-container>
 
       <b-modal
         :static='modalStatic'
@@ -148,8 +207,10 @@
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
+import Can from '../../../components/Permissions/Can';
 
 export default {
+  components: { Can },
   mixins: [FieldErrors],
   props: {
     id: {
@@ -193,6 +254,7 @@ export default {
       isBusy: false,
       modelLoadingError: false,
       checking: false,
+      panicking: false,
       online: 0,
       offlineReason: null
     };
@@ -206,6 +268,26 @@ export default {
   },
 
   methods: {
+
+    panic () {
+      this.panicking = true;
+
+      Base.call(`servers/${this.id}/panic`).then(response => {
+        if(response.status === 200){
+          this.flashMessage.success({
+            title: this.$t('settings.servers.panicFlash.title'),
+            message: this.$t('settings.servers.panicFlash.message',{total: response.data.total,success: response.data.success})
+          });
+          this.load();
+        }
+
+      }).catch(error => {
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.panicking = false;
+      });
+    },
+
     /**
      * Check if the backend can establish a connection with the passed api details to a bigbluebutton server
      * Based on the result the online status field is updated
