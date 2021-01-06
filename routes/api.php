@@ -34,8 +34,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     })->name('setLocale');
 
     Route::namespace('auth')->group(function () {
-        Route::post('login', 'LoginController@usersLogin')->middleware('throttle:5,1')->name('login');
-        Route::post('login/ldap', 'LoginController@ldapLogin')->middleware('throttle:5,1')->name('ldapLogin');
+        Route::post('login', 'LoginController@usersLogin')->name('login');
+        Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 
         // TODO: Implement or remove this completely
