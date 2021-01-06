@@ -32,7 +32,6 @@
     </b-row>
     <hr>
 
-
     <b-table
       :responsive="true"
       hover
@@ -213,7 +212,7 @@ export default {
       serverToDelete: undefined,
       actionPermissions: ['servers.view', 'servers.update', 'servers.delete'],
       filter: undefined,
-      updateUsage: false,
+      updateUsage: false
     };
   },
 
