@@ -17,6 +17,9 @@
       :link="settings('banner.link')"
       :message="settings('banner.message')"
       :title="settings('banner.title')"
+      :link-style="settings('banner.link_style')"
+      :link-text="settings('banner.link_text')"
+      :link-target="settings('banner.link_target')"
     ></banner>
     <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
       <b-container>

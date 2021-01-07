@@ -153,10 +153,15 @@ export default {
       bannerTitle: 'Überschrift',
       message: 'Mitteilung',
       link: 'Anzuzeigender Link nach der Mitteilung',
-      icon: 'CSS-Klasse des Icons für die Überschrift der Mitteilung',
+      link_text: 'Linktext',
+      link_target: 'Linkziel',
+      link_style: 'Linkart',
+      icon: 'Icon',
       iconDescription: 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fas fa-door-open`). Der Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
       color: 'Textfarbe des Banners',
-      background: 'Hintergrundfarbe des Banners'
+      background: 'Hintergrundfarbe des Banners',
+      selectLinkTarget: 'Linkziel auswählen',
+      selectLinkStyle: 'Linkart auswählen'
     }
   }
 };

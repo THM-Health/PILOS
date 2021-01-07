@@ -111,5 +111,22 @@ export default {
   confirmPassword: {
     title: 'Password bestätigen',
     description: 'Bestätigen Sie bitte Ihr Passwort bevor Sie fortfahren!'
+  },
+
+  buttonStyles: {
+    primary: 'Primär',
+    secondary: 'Sekundär',
+    success: 'Erfolg',
+    danger: 'Gefahr',
+    warning: 'Warnung',
+    info: 'Info',
+    light: 'Hell',
+    dark: 'Dunkel',
+    link: 'Link'
+  },
+
+  linkTargets: {
+    blank: 'In einem neuen Tab öffnen',
+    self: 'Im aktuellen Tab öffnen'
   }
 };

@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\LinkButtonStyle;
+use App\Enums\LinkTarget;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ApplicationSettings extends JsonResource
@@ -50,14 +52,21 @@ class ApplicationSettings extends JsonResource
             'banner' => [
                 'enabled'    => boolval(setting('banner.enabled')),
                 $this->mergeWhen(boolval(setting('banner.enabled')) || $this->allSettings, [
-                    'message'    => setting('banner.message'),
-                    'link'       => setting('banner.link'),
-                    'icon'       => setting('banner.icon'),
-                    'color'      => setting('banner.color'),
-                    'background' => setting('banner.background'),
-                    'title'      => setting('banner.title')
+                    'message'     => setting('banner.message'),
+                    'link'        => setting('banner.link'),
+                    'icon'        => setting('banner.icon'),
+                    'color'       => setting('banner.color'),
+                    'background'  => setting('banner.background'),
+                    'title'       => setting('banner.title'),
+                    'link_style'  => setting('banner.link_style'),
+                    'link_text'   => setting('banner.link_text'),
+                    'link_target' => setting('banner.link_target'),
                 ])
-            ]
+            ],
+            $this->mergeWhen($this->allSettings, [
+                'link_btn_styles' => LinkButtonStyle::getValues(),
+                'link_targets' => LinkTarget::getValues()
+            ])
         ];
     }
 }

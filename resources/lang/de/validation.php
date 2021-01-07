@@ -233,6 +233,9 @@ return [
         'banner.background'                 => 'Hintergrundfarbe des Banners',
         'banner.title'                      => 'Überschrift',
         'banner.link'                       => 'Anzuzeigender Link nach der Mitteilung',
-        'banner.icon'                       => 'CSS-Klasse des Icons für die Überschrift der Mitteilung',
+        'banner.icon'                       => 'Icon',
+        'banner.link_text'                  => 'Linktext',
+        'banner.link_target'                => 'Linkziel',
+        'banner.link_style'                 => 'Linkart',
     ],
 ];

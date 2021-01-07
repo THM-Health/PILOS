@@ -6,7 +6,7 @@
         {{ title }}
       </h4>
       <div class='banner-message'>{{ message }}</div>
-      <a class='banner-link' v-if='link' :href='link'>{{ link }}</a>
+      <a :class='`btn btn-${linkStyle} banner-link`' v-if='link' :href='link' :target='`_${linkTarget}`'>{{ linkText ? linkText : link }}</a>
     </div>
   </b-alert>
 </template>
@@ -31,6 +31,18 @@ export default {
     },
 
     link: {
+      type: String
+    },
+
+    linkStyle: {
+      type: String
+    },
+
+    linkTarget: {
+      type: String
+    },
+
+    linkText: {
       type: String
     },
 

@@ -234,7 +234,10 @@ return [
         'banner.background'                 => 'Background color of the banner',
         'banner.title'                      => 'Title',
         'banner.link'                       => 'Link to show after the message',
-        'banner.icon'                       => 'CSS icon class for the title of the message',
+        'banner.icon'                       => 'Icon',
+        'banner.link_text'                  => 'Link text',
+        'banner.link_target'                => 'Link target',
+        'banner.link_style'                 => 'Link style',
     ],
 
 ];

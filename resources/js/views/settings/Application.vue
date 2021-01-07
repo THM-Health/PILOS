@@ -293,30 +293,58 @@
             :link='settings.banner.link'
             :message='settings.banner.message'
             :title='settings.banner.title'
+            :link-target='settings.banner.link_target'
+            :link-text='settings.banner.link_text'
+            :link-style='settings.banner.link_style'
           ></banner>
 
-          <b-form-group
+          <b-row
+            cols='12'
             class='mt-4'
-            label-for='banner-title-input'
-            :state='fieldState("banner.title")'
-            :label="$t('settings.application.banner.bannerTitle')"
             v-if='settings.banner.enabled'
           >
-            <b-form-input
-              id='banner-title-input'
-              v-model='settings.banner.title'
-              type='text'
-              :disabled='isBusy || viewOnly || !loaded'
-              :state='fieldState("banner.title")'
-            ></b-form-input>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-title-input'
+                :state='fieldState("banner.title")'
+                :label="$t('settings.application.banner.bannerTitle')"
+              >
+                <b-form-input
+                  id='banner-title-input'
+                  v-model='settings.banner.title'
+                  type='text'
+                  :disabled='isBusy || viewOnly || !loaded'
+                  :state='fieldState("banner.title")'
+                ></b-form-input>
 
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.title')"></div>
-            </template>
-          </b-form-group>
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.title')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-icon-input'
+                :state='fieldState("banner.icon")'
+                :description="$t('settings.application.banner.iconDescription')"
+                :label="$t('settings.application.banner.icon')"
+              >
+                <b-form-input
+                  id='banner-icon-input'
+                  v-model='settings.banner.icon'
+                  type='text'
+                  :disabled='isBusy || viewOnly || !loaded'
+                  :state='fieldState("banner.icon")'
+                ></b-form-input>
+
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.icon')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+          </b-row>
 
           <b-form-group
-            class='mt-4'
             label-for='banner-message-input'
             :state='fieldState("banner.message")'
             :label="$t('settings.application.banner.message')"
@@ -335,102 +363,166 @@
             </template>
           </b-form-group>
 
-          <b-form-group
-            class='mt-4'
-            label-for='banner-link-input'
-            :state='fieldState("banner.link")'
-            :label="$t('settings.application.banner.link')"
+
+          <b-row
+            cols='12'
             v-if='settings.banner.enabled'
           >
-            <b-form-input
-              id='banner-link-input'
-              v-model='settings.banner.link'
-              type='text'
-              :disabled='isBusy || viewOnly || !loaded'
-              :state='fieldState("banner.link")'
-            ></b-form-input>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-link-input'
+                :state='fieldState("banner.link")'
+                :label="$t('settings.application.banner.link')"
+              >
+                <b-form-input
+                  id='banner-link-input'
+                  v-model='settings.banner.link'
+                  type='text'
+                  :disabled='isBusy || viewOnly || !loaded'
+                  :state='fieldState("banner.link")'
+                ></b-form-input>
 
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.link')"></div>
-            </template>
-          </b-form-group>
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.link')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-link-text-input'
+                :state='fieldState("banner.link_text")'
+                :label="$t('settings.application.banner.link_text')"
+              >
+                <b-form-input
+                  id='banner-link-text-input'
+                  v-model='settings.banner.link_text'
+                  type='text'
+                  :disabled='isBusy || viewOnly || !loaded'
+                  :state='fieldState("banner.link_text")'
+                ></b-form-input>
 
-          <b-form-group
-            class='mt-4'
-            label-for='banner-icon-input'
-            :state='fieldState("banner.icon")'
-            :description="$t('settings.application.banner.iconDescription')"
-            :label="$t('settings.application.banner.icon')"
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.link_text')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+          </b-row>
+
+          <b-row
+            cols='12'
             v-if='settings.banner.enabled'
           >
-            <b-form-input
-              id='banner-icon-input'
-              v-model='settings.banner.icon'
-              type='text'
-              :disabled='isBusy || viewOnly || !loaded'
-              :state='fieldState("banner.icon")'
-            ></b-form-input>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-link-style-input'
+                :state='fieldState("banner.link_style")'
+                :label="$t('settings.application.banner.link_style')"
+              >
+                <b-form-select
+                  id='banner-link-style-input'
+                  :disabled='isBusy || viewOnly || !loaded'
+                  :state='fieldState("banner.link_style")'
+                  v-model='settings.banner.link_style'
+                  :options='linkBtnStyles'
+                >
+                  <template #first>
+                    <b-form-select-option :value='null' disabled>
+                      {{ $t('settings.application.banner.selectLinkStyle') }}
+                    </b-form-select-option>
+                  </template>
+                </b-form-select>
 
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.icon')"></div>
-            </template>
-          </b-form-group>
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.link_style')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-link-target-input'
+                :state='fieldState("banner.link_target")'
+                :label="$t('settings.application.banner.link_target')"
+              >
+                <b-form-select
+                  id='banner-link-target-input'
+                  :disabled='isBusy || viewOnly || !loaded'
+                  :state='fieldState("banner.link_target")'
+                  v-model='settings.banner.link_target'
+                  :options='linkTargets'
+                >
+                  <template #first>
+                    <b-form-select-option :value='null' disabled>
+                      {{ $t('settings.application.banner.selectLinkTarget') }}
+                    </b-form-select-option>
+                  </template>
+                </b-form-select>
 
-          <b-form-group
-            class='mt-4'
-            label-for='banner-color-input'
-            :state='fieldState("banner.color")'
-            :label="$t('settings.application.banner.color')"
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.link_target')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+          </b-row>
+
+          <b-row
+            cols='12'
             v-if='settings.banner.enabled'
           >
-            <v-swatches
-              class='my-2'
-              :disabled='isBusy || !loaded || viewOnly'
-              :swatch-style="{ borderRadius: '0px' }"
-              :swatches='colorSwatches'
-              v-model='settings.banner.color'
-              inline></v-swatches>
-            <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
-            <b-form-input
-              id='banner-color-input'
-              type='text'
-              v-model='settings.banner.color'
-              :state='fieldState("banner.color")'
-              :disabled='isBusy || !loaded || viewOnly'
-            ></b-form-input>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-color-input'
+                :state='fieldState("banner.color")'
+                :label="$t('settings.application.banner.color')"
+              >
+                <v-swatches
+                  class='my-2'
+                  :disabled='isBusy || !loaded || viewOnly'
+                  :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
+                  :swatches='colorSwatches'
+                  v-model='settings.banner.color'
+                  inline></v-swatches>
+                <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+                <b-form-input
+                  id='banner-color-input'
+                  type='text'
+                  v-model='settings.banner.color'
+                  :state='fieldState("banner.color")'
+                  :disabled='isBusy || !loaded || viewOnly'
+                ></b-form-input>
 
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.color')"></div>
-            </template>
-          </b-form-group>
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.color')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+            <b-col sm='6'>
+              <b-form-group
+                label-for='banner-background-input'
+                :state='fieldState("banner.background")'
+                :label="$t('settings.application.banner.background')"
+              >
+                <v-swatches
+                  class='my-2'
+                  :disabled='isBusy || !loaded || viewOnly'
+                  :swatch-style="{ borderRadius: '0px', marginBottom: '11px' }"
+                  :swatches='backgroundSwatches'
+                  v-model='settings.banner.background'
+                  inline></v-swatches>
+                <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+                <b-form-input
+                  id='banner-background-input'
+                  type='text'
+                  v-model='settings.banner.background'
+                  :state='fieldState("banner.background")'
+                  :disabled='isBusy || !loaded || viewOnly'
+                ></b-form-input>
 
-          <b-form-group
-            class='mt-4'
-            label-for='banner-background-input'
-            :state='fieldState("banner.background")'
-            :label="$t('settings.application.banner.background')"
-            v-if='settings.banner.enabled'
-          >
-            <v-swatches
-              class='my-2'
-              :disabled='isBusy || !loaded || viewOnly'
-              :swatch-style="{ borderRadius: '0px' }"
-              :swatches='backgroundSwatches'
-              v-model='settings.banner.background'
-              inline></v-swatches>
-            <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
-            <b-form-input
-              id='banner-background-input'
-              type='text'
-              v-model='settings.banner.background'
-              :state='fieldState("banner.background")'
-              :disabled='isBusy || !loaded || viewOnly'
-            ></b-form-input>
-
-            <template slot='invalid-feedback'>
-              <div v-html="fieldError('banner.background')"></div>
-            </template>
-          </b-form-group>
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('banner.background')"></div>
+                </template>
+              </b-form-group>
+            </b-col>
+          </b-row>
 
           <template slot='invalid-feedback'>
             <div v-html="fieldError('banner')"></div>
@@ -476,7 +568,9 @@ export default {
       uploadFaviconFileSrc: null,
       isBusy: false,
       settings: {
-        banner: {}
+        banner: {},
+        link_btn_styles: [],
+        link_targets: []
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
@@ -587,10 +681,10 @@ export default {
     roomLimitModeChanged (value) {
       switch (value) {
         case 'unlimited':
-          this.settings.room_limit = -1;
+          this.$set(this.settings, 'room_limit', -1);
           break;
         case 'custom':
-          this.settings.room_limit = 0;
+          this.$set(this.settings, 'room_limit', 0);
           break;
       }
     },
@@ -613,6 +707,17 @@ export default {
     this.getSettings();
   },
   computed: {
+    linkBtnStyles () {
+      return this.settings.link_btn_styles.map((style) => {
+        return { value: style, text: this.$t(`app.buttonStyles.${style}`) };
+      });
+    },
+
+    linkTargets () {
+      return this.settings.link_targets.map((target) => {
+        return { value: target, text: this.$t(`app.linkTargets.${target}`) };
+      });
+    },
 
     /**
      * Check if user is only allowed to read settings
