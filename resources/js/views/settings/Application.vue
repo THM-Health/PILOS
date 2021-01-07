@@ -707,13 +707,13 @@ export default {
   },
   computed: {
     linkBtnStyles () {
-      return this.settings.link_btn_styles.map((style) => {
+      return (this.settings.link_btn_styles || []).map((style) => {
         return { value: style, text: this.$t(`app.buttonStyles.${style}`) };
       });
     },
 
     linkTargets () {
-      return this.settings.link_targets.map((target) => {
+      return (this.settings.link_targets || []).map((target) => {
         return { value: target, text: this.$t(`app.linkTargets.${target}`) };
       });
     },
