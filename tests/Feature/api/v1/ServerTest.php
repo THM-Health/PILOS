@@ -394,4 +394,47 @@ class ServerTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.servers.check'), $data)
             ->assertJsonValidationErrors(['base_url','salt']);
     }
+
+    /**
+     * Test panic server
+     */
+    public function testPanic()
+    {
+        $server = factory(Server::class)->create();
+
+        // Test guests
+        $this->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+            ->assertUnauthorized();
+
+        // Test logged in users
+        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+            ->assertForbidden();
+
+        // Authorize user for view servers
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'servers.viewAny']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Test without update permission
+        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+            ->assertForbidden();
+
+        // Give update permission
+        $permission = factory(Permission::class)->create(['name' => 'servers.update']);
+        $role->permissions()->attach($permission);
+
+        $meeting = factory(Meeting::class)->create(['server_id'=>$server->id,'end'=>null]);
+
+        // Test without update permission
+        $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))
+            ->assertSuccessful()
+            ->assertJson(['total'=>1,'success'=>1]);
+
+        $meeting->refresh();
+        $server->refresh();
+
+        $this->assertEquals(ServerStatus::DISABLED, $server->status);
+        $this->assertNotNull($meeting->end);
+    }
 }

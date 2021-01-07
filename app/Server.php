@@ -179,12 +179,20 @@ class Server extends Model
     {
         $this->status = ServerStatus::DISABLED;
         $this->save();
-        $total   = 0;
+
+        $query   = $this->meetings()->whereNull('end');
+        $total   = $query->count();
         $success = 0;
-        foreach ($this->meetings()->whereNull('end')->get() as $meeting) {
-            $total++;
-            if ($meeting->endMeeting()) {
+        foreach ($query->get() as $meeting) {
+            try {
+                $meeting->endMeeting();
                 $success++;
+            } catch (\Exception $exception) {
+                $this->apiCallFailed();
+                $this->status = ServerStatus::DISABLED;
+                $this->save();
+
+                return ['total'=>$total,'success'=>$total];
             }
         }
 

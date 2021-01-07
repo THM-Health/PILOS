@@ -114,7 +114,7 @@ class BuildHistoryTest extends TestCase
         $this->assertNotNull($runningMeeting->server->meeting_count);
 
         // Cleanup
-        $this->assertTrue($runningMeeting->endMeeting());
+        $runningMeeting->endMeeting();
     }
 
     /**
@@ -143,6 +143,6 @@ class BuildHistoryTest extends TestCase
         $this->assertNotNull($runningMeeting->stats->last()->attendees);
 
         // Cleanup
-        $this->assertTrue($runningMeeting->endMeeting());
+        $runningMeeting->endMeeting();
     }
 }

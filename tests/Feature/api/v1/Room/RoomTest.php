@@ -555,7 +555,7 @@ class RoomTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $room->runningMeeting()->endMeeting();
 
         // Check with wrong salt/secret
         foreach (Server::all() as $server) {
@@ -660,7 +660,7 @@ class RoomTest extends TestCase
         $runningMeeting = $room->runningMeeting();
         // Clear
         $this->assertNull($runningMeeting->end);
-        $this->assertTrue($runningMeeting->endMeeting());
+        $runningMeeting->endMeeting();
         $runningMeeting->refresh();
         $this->assertNotNull($runningMeeting->end);
     }
@@ -700,7 +700,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $room->runningMeeting()->endMeeting();
     }
 
     /**
@@ -737,7 +737,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $room->runningMeeting()->endMeeting();
     }
 
     /**
