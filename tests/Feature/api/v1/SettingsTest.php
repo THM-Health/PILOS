@@ -43,7 +43,7 @@ class SettingsTest extends TestCase
             'color'      => '#fff',
             'background' => '#4a5c66',
             'link'       => 'http://localhost',
-            'icon'       => 'fa-door-open',
+            'icon'       => 'fas fa-door-open',
         ]]);
 
         $this->getJson(route('api.v1.application'))
@@ -60,7 +60,7 @@ class SettingsTest extends TestCase
                         'color'      => '#fff',
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
-                        'icon'       => 'fa-door-open',
+                        'icon'       => 'fas fa-door-open',
                     ]
                 ]
             ])

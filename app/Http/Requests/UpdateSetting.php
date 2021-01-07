@@ -28,7 +28,7 @@ class UpdateSetting extends FormRequest
             'banner.title'                   => 'nullable|string|max:255',
             'banner.message'                 => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'max:500'],
             'banner.link'                    => 'nullable|string|url|max:255',
-            'banner.icon'                    => 'nullable|string|max:255|regex:/^fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/',
+            'banner.icon'                    => 'nullable|string|max:255|regex:/^fa[srldb] fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/',
             'banner.color'                   => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'banner.background'              => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
         ];

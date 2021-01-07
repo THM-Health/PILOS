@@ -154,7 +154,7 @@ export default {
       message: 'Mitteilung',
       link: 'Anzuzeigender Link nach der Mitteilung',
       icon: 'CSS-Klasse des Icons für die Überschrift der Mitteilung',
-      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons. Der Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
+      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fas fa-door-open`). Der Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
       color: 'Textfarbe des Banners',
       background: 'Hintergrundfarbe des Banners'
     }

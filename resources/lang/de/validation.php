@@ -150,6 +150,9 @@ return [
         'banner' => [
             'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
             'required' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!'
+        ],
+        'banner.icon' => [
+            'regex' => 'Die Icon CSS-Klasse muss folgendem Format entsprechen: `fas fa-camera`. Wobei `fas` je nach Style auch anders sein kann (z. B. `fab`).'
         ]
     ],
 
