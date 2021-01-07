@@ -65,6 +65,159 @@ class SettingsTest extends TestCase
                 ]
             ])
             ->assertSuccessful();
+
+        setting(['banner' => [
+            'enabled'    => false,
+            'message'    => 'Welcome to Test!',
+            'title'      => 'Welcome',
+            'color'      => '#fff',
+            'background' => '#4a5c66',
+            'link'       => 'http://localhost',
+            'icon'       => 'fas fa-door-open',
+        ]]);
+
+        $this->getJson(route('api.v1.application'))
+            ->assertJson([
+                'data' => [
+                    'logo'                           => 'testlogo.svg',
+                    'pagination_page_size'           => '123',
+                    'own_rooms_pagination_page_size' => '123',
+                    'room_limit'                     => '-1',
+                    'banner'                         => [
+                        'enabled'    => false
+                    ]
+                ]
+            ])
+            ->assertSuccessful();
+    }
+
+    /**
+     * Tests that the correct application wide settings provided
+     * when listing all settings for edition.
+     *
+     * @return void
+     */
+    public function testAllApplicationSettings()
+    {
+        setting(['logo' => 'testlogo.svg']);
+        setting(['pagination_page_size' => '123']);
+        setting(['own_rooms_pagination_page_size' => '123']);
+        setting(['room_limit' => '-1']);
+        setting(['banner' => [
+            'enabled'    => true,
+            'message'    => 'Welcome to Test!',
+            'title'      => 'Welcome',
+            'color'      => '#fff',
+            'background' => '#4a5c66',
+            'link'       => 'http://localhost',
+            'icon'       => 'fas fa-door-open',
+        ]]);
+
+        $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
+        $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
+
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'settings.viewAny']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        $this->getJson(route('api.v1.application.complete'))
+            ->assertJson([
+                'data' => [
+                    'logo'                           => 'testlogo.svg',
+                    'pagination_page_size'           => '123',
+                    'own_rooms_pagination_page_size' => '123',
+                    'room_limit'                     => '-1',
+                    'banner'                         => [
+                        'enabled'    => true,
+                        'message'    => 'Welcome to Test!',
+                        'title'      => 'Welcome',
+                        'color'      => '#fff',
+                        'background' => '#4a5c66',
+                        'link'       => 'http://localhost',
+                        'icon'       => 'fas fa-door-open',
+                    ]
+                ]
+            ])
+            ->assertSuccessful();
+
+        setting(['banner' => [
+            'enabled'    => false,
+            'message'    => 'Welcome to Test!',
+            'title'      => 'Welcome',
+            'color'      => '#fff',
+            'background' => '#4a5c66',
+            'link'       => 'http://localhost',
+            'icon'       => 'fas fa-door-open',
+        ]]);
+
+        $this->getJson(route('api.v1.application.complete'))
+            ->assertJson([
+                'data' => [
+                    'logo'                           => 'testlogo.svg',
+                    'pagination_page_size'           => '123',
+                    'own_rooms_pagination_page_size' => '123',
+                    'room_limit'                     => '-1',
+                    'banner'                         => [
+                        'enabled'    => false,
+                        'message'    => 'Welcome to Test!',
+                        'title'      => 'Welcome',
+                        'color'      => '#fff',
+                        'background' => '#4a5c66',
+                        'link'       => 'http://localhost',
+                        'icon'       => 'fas fa-door-open',
+                    ]
+                ]
+            ])
+            ->assertSuccessful();
+    }
+
+    public function testAllApplicationSettingsReturnedOnUpdate()
+    {
+        $payload = [
+            'name'                           => 'test',
+            'logo'                           => 'testlogo.svg',
+            'favicon'                        => 'favicon.ico',
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => [
+                'enabled'    => false,
+                'message'    => 'Welcome to Test!',
+                'title'      => 'Welcome',
+                'color'      => '#fff',
+                'background' => '#4a5c66',
+                'link'       => 'http://localhost',
+                'icon'       => 'fas fa-door-open',
+            ]
+        ];
+
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful()
+            ->assertJson([
+                'data' => [
+                    'name'                           => 'test',
+                    'logo'                           => 'testlogo.svg',
+                    'favicon'                        => 'favicon.ico',
+                    'pagination_page_size'           => 10,
+                    'own_rooms_pagination_page_size' => 15,
+                    'room_limit'                     => -1,
+                    'banner'                         => [
+                        'enabled'    => false,
+                        'message'    => 'Welcome to Test!',
+                        'title'      => 'Welcome',
+                        'color'      => '#fff',
+                        'background' => '#4a5c66',
+                        'link'       => 'http://localhost',
+                        'icon'       => 'fas fa-door-open',
+                    ]
+                ]
+            ]);
     }
 
     /**

@@ -21,6 +21,14 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Load all settings, also complete banner settings when the banner is disabled.
+     */
+    public function allSettings()
+    {
+        return (new ApplicationSettings())->allSettings();
+    }
+
+    /**
      * Update application settings data
      * @param  UpdateSetting       $request
      * @return ApplicationSettings
@@ -54,7 +62,7 @@ class ApplicationController extends Controller
         }));
         setting()->save();
 
-        return new ApplicationSettings();
+        return (new ApplicationSettings())->allSettings();
     }
 
     /**

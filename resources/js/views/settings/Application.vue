@@ -489,7 +489,7 @@ export default {
      */
     getSettings () {
       this.isBusy = true;
-      Base.call('settings')
+      Base.call('settings/all')
         .then(response => {
           this.settings = response.data.data;
           this.roomLimitMode = (this.settings.room_limit === -1 ? 'unlimited' : 'custom');

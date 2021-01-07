@@ -6,9 +6,26 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ApplicationSettings extends JsonResource
 {
+    /**
+     * @var bool Flag that indicates whether all settings should be send.
+     */
+    private $allSettings = false;
+
     public function __construct()
     {
         parent::__construct(null);
+    }
+
+    /**
+     * Sets the flag to send all settings to the client.
+     *
+     * @return $this The application settings resource instance
+     */
+    public function allSettings()
+    {
+        $this->allSettings = true;
+
+        return $this;
     }
 
     /**
@@ -32,12 +49,14 @@ class ApplicationSettings extends JsonResource
             ],
             'banner' => [
                 'enabled'    => boolval(setting('banner.enabled')),
-                'message'    => setting('banner.message'),
-                'link'       => setting('banner.link'),
-                'icon'       => setting('banner.icon'),
-                'color'      => setting('banner.color'),
-                'background' => setting('banner.background'),
-                'title'      => setting('banner.title'),
+                $this->mergeWhen(boolval(setting('banner.enabled')) || $this->allSettings, [
+                    'message'    => setting('banner.message'),
+                    'link'       => setting('banner.link'),
+                    'icon'       => setting('banner.icon'),
+                    'color'      => setting('banner.color'),
+                    'background' => setting('banner.background'),
+                    'title'      => setting('banner.title')
+                ])
             ]
         ];
     }
