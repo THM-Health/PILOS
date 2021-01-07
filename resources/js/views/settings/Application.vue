@@ -261,25 +261,12 @@
         <!-- Banner -->
         <b-form-group
           label-class="font-weight-bold"
-          class="mb-4"
           :state='fieldState("banner")'
           :label="$t('settings.application.banner.title')"
           ref='banner-form-group'
         >
-          <banner
-            v-if='settings.banner.enabled'
-            :background='settings.banner.background'
-            :color='settings.banner.color'
-            :enabled='settings.banner.enabled'
-            :icon='settings.banner.icon'
-            :link='settings.banner.link'
-            :message='settings.banner.message'
-            :title='settings.banner.title'
-          ></banner>
-
           <b-form-group
             :state='fieldState("banner.enabled")'
-            class='mt-4'
           >
             <b-form-checkbox
               id='banner-enabled'
@@ -296,17 +283,30 @@
             </template>
           </b-form-group>
 
+          <banner
+            class='mt-4'
+            v-if='settings.banner.enabled'
+            :background='settings.banner.background'
+            :color='settings.banner.color'
+            :enabled='settings.banner.enabled'
+            :icon='settings.banner.icon'
+            :link='settings.banner.link'
+            :message='settings.banner.message'
+            :title='settings.banner.title'
+          ></banner>
+
           <b-form-group
             class='mt-4'
             label-for='banner-title-input'
             :state='fieldState("banner.title")'
             :label="$t('settings.application.banner.bannerTitle')"
+            v-if='settings.banner.enabled'
           >
             <b-form-input
               id='banner-title-input'
               v-model='settings.banner.title'
               type='text'
-              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :disabled='isBusy || viewOnly || !loaded'
               :state='fieldState("banner.title")'
             ></b-form-input>
 
@@ -320,12 +320,13 @@
             label-for='banner-message-input'
             :state='fieldState("banner.message")'
             :label="$t('settings.application.banner.message')"
+            v-if='settings.banner.enabled'
           >
             <b-form-textarea
               id='banner-message-input'
               v-model='settings.banner.message'
               rows='3'
-              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :disabled='isBusy || viewOnly || !loaded'
               :state='fieldState("banner.message")'
             ></b-form-textarea>
 
@@ -339,12 +340,13 @@
             label-for='banner-link-input'
             :state='fieldState("banner.link")'
             :label="$t('settings.application.banner.link')"
+            v-if='settings.banner.enabled'
           >
             <b-form-input
               id='banner-link-input'
               v-model='settings.banner.link'
               type='text'
-              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :disabled='isBusy || viewOnly || !loaded'
               :state='fieldState("banner.link")'
             ></b-form-input>
 
@@ -359,12 +361,13 @@
             :state='fieldState("banner.icon")'
             :description="$t('settings.application.banner.iconDescription')"
             :label="$t('settings.application.banner.icon')"
+            v-if='settings.banner.enabled'
           >
             <b-form-input
               id='banner-icon-input'
               v-model='settings.banner.icon'
               type='text'
-              :disabled='isBusy || viewOnly || !loaded || !settings.banner.enabled'
+              :disabled='isBusy || viewOnly || !loaded'
               :state='fieldState("banner.icon")'
             ></b-form-input>
 
@@ -378,10 +381,11 @@
             label-for='banner-color-input'
             :state='fieldState("banner.color")'
             :label="$t('settings.application.banner.color')"
+            v-if='settings.banner.enabled'
           >
             <v-swatches
               class='my-2'
-              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+              :disabled='isBusy || !loaded || viewOnly'
               :swatch-style="{ borderRadius: '0px' }"
               :swatches='colorSwatches'
               v-model='settings.banner.color'
@@ -392,7 +396,7 @@
               type='text'
               v-model='settings.banner.color'
               :state='fieldState("banner.color")'
-              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+              :disabled='isBusy || !loaded || viewOnly'
             ></b-form-input>
 
             <template slot='invalid-feedback'>
@@ -405,10 +409,11 @@
             label-for='banner-background-input'
             :state='fieldState("banner.background")'
             :label="$t('settings.application.banner.background')"
+            v-if='settings.banner.enabled'
           >
             <v-swatches
               class='my-2'
-              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+              :disabled='isBusy || !loaded || viewOnly'
               :swatch-style="{ borderRadius: '0px' }"
               :swatches='backgroundSwatches'
               v-model='settings.banner.background'
@@ -419,7 +424,7 @@
               type='text'
               v-model='settings.banner.background'
               :state='fieldState("banner.background")'
-              :disabled='isBusy || !loaded || viewOnly || !settings.banner.enabled'
+              :disabled='isBusy || !loaded || viewOnly'
             ></b-form-input>
 
             <template slot='invalid-feedback'>
