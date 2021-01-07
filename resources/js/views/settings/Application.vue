@@ -363,7 +363,6 @@
             </template>
           </b-form-group>
 
-
           <b-row
             cols='12'
             v-if='settings.banner.enabled'
