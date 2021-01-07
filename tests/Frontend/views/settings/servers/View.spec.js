@@ -682,4 +682,167 @@ describe('ServerView', function () {
       });
     });
   });
+
+  it('show usage data only if viewOnly and server enabled', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
+      await view.setProps({ viewOnly: true });
+      expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(true);
+      await view.setProps({ viewOnly: false });
+
+      const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+        status: 200,
+        response: {
+          data: {
+            id: 1,
+            description: 'Server 01',
+            base_url: 'https://localhost/bigbluebutton',
+            salt: '123456789',
+            strength: 1,
+            status: -1,
+            participant_count: 14,
+            listener_count: 7,
+            voice_participant_count: 7,
+            video_count: 7,
+            meeting_count: 3,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        }
+      });
+      view.vm.load();
+
+      moxios.wait(async () => {
+        await view.vm.$nextTick();
+        expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
+        await view.setProps({ viewOnly: true });
+        expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
+
+        restoreServerResponse();
+        done();
+      });
+    });
+  });
+
+  it('show panic button only if user has permission', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key
+      },
+      propsData: {
+        viewOnly: true,
+        id: '1'
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(false);
+      done();
+    });
+  });
+
+  it('panic button calls api and gets disabled while running', function (done) {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      success (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        flashMessage: flashMessage
+      },
+      propsData: {
+        viewOnly: true,
+        id: '1'
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const button = view.findComponent({ ref: 'currentUsage' }).find('button');
+      await button.trigger('click');
+
+      expect(button.attributes('disabled')).toBe('disabled');
+
+      // check success
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.url).toBe('/api/v1/servers/1/panic');
+        expect(request.config.method).toBe('get');
+        await request.respondWith({
+          status: 200,
+          response: {
+            total: 5,
+            success: 3
+          }
+        });
+        await view.vm.$nextTick();
+        expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
+
+        sinon.assert.calledOnce(flashMessageSpy);
+        sinon.assert.calledWith(flashMessageSpy, {
+          title: 'settings.servers.panicFlash.title',
+          message: 'settings.servers.panicFlash.message:{"total":5,"success":3}'
+        });
+
+        // check reload of server data
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.url).toBe('/api/v1/servers/1');
+          expect(request.config.method).toBe('get');
+          await view.vm.$nextTick();
+          await button.trigger('click');
+
+          // check error handling
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.url).toBe('/api/v1/servers/1/panic');
+            expect(request.config.method).toBe('get');
+            await request.respondWith({
+              status: 500,
+              response: {
+                message: 'Test'
+              }
+            });
+
+            await view.vm.$nextTick();
+            expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
+            done();
+          });
+        });
+      });
+    });
+  });
 });

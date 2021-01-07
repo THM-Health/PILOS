@@ -120,7 +120,7 @@
         </b-container>
 
       </b-form>
-      <b-container fluid class="mt-5" v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null">
+      <b-container ref="currentUsage" fluid class="mt-5" v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null">
         <b-row class='my-1'>
           <b-col sm='12'>
             <h4>{{ $t('settings.servers.currentUsage')}}
@@ -334,7 +334,7 @@ export default {
 
         Base.call(`servers/${this.id}`).then(response => {
           this.model = response.data.data;
-          this.model.disabled = this.model.status === -1;
+          this.$set(this.model, 'disabled', this.model.status === -1);
           this.online = this.model.status === -1 ? null : this.model.status;
           this.offlineReason = null;
         }).catch(error => {
@@ -402,7 +402,7 @@ export default {
      */
     refreshServer () {
       this.model = this.staleError.new_model;
-      this.model.disabled = this.model.status === -1;
+      this.$set(this.model, 'disabled', this.model.status === -1);
       this.online = this.model.status === -1 ? null : this.model.status;
       this.offlineReason = null;
       this.staleError = {};
