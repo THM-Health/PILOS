@@ -287,7 +287,6 @@
               :state="fieldState('banner.enabled')"
               :disabled='isBusy || viewOnly || !loaded'
               switch
-              @change='clearBannerInputs'
             >
               {{ $t('settings.application.banner.enabled') }}
             </b-form-checkbox>
@@ -480,18 +479,6 @@ export default {
     };
   },
   methods: {
-    /**
-     * Clear banner inputs on change of banner enabled state.
-     */
-    clearBannerInputs () {
-      this.settings.banner.title = null;
-      this.settings.banner.message = null;
-      this.settings.banner.link = null;
-      this.settings.banner.icon = null;
-      this.settings.banner.color = null;
-      this.settings.banner.background = null;
-    },
-
     /**
      * Handle get settings data
      */

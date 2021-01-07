@@ -377,9 +377,9 @@ describe('Application', function () {
         ].every(input => input.props('disabled'))).toBe(true);
         expect(view.vm.settings.banner).toMatchObject({
           enabled: false,
-          message: null,
-          color: null,
-          background: null,
+          message: 'Test',
+          color: '#fff',
+          background: '#000',
           icon: null,
           title: null,
           link: null
@@ -392,9 +392,9 @@ describe('Application', function () {
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
           expect(request.config.data.get('banner[enabled]')).toStrictEqual('0');
-          expect(request.config.data.get('banner[message]')).toStrictEqual('');
-          expect(request.config.data.get('banner[color]')).toStrictEqual('');
-          expect(request.config.data.get('banner[background]')).toStrictEqual('');
+          expect(request.config.data.get('banner[message]')).toStrictEqual('Test');
+          expect(request.config.data.get('banner[color]')).toStrictEqual('#fff');
+          expect(request.config.data.get('banner[background]')).toStrictEqual('#000');
           expect(request.config.data.get('banner[title]')).toStrictEqual('');
           expect(request.config.data.get('banner[icon]')).toStrictEqual('');
           expect(request.config.data.get('banner[link]')).toStrictEqual('');
