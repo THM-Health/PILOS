@@ -182,13 +182,15 @@ class SettingsTest extends TestCase
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
             'banner'                         => [
-                'enabled'    => false,
-                'message'    => 'Welcome to Test!',
-                'title'      => 'Welcome',
-                'color'      => '#fff',
-                'background' => '#4a5c66',
-                'link'       => 'http://localhost',
-                'icon'       => 'fas fa-door-open',
+                'enabled'     => false,
+                'message'     => 'Welcome to Test!',
+                'title'       => 'Welcome',
+                'color'       => '#fff',
+                'background'  => '#4a5c66',
+                'link'        => 'http://localhost',
+                'link_target' => 'self',
+                'link_style'  => 'primary',
+                'icon'        => 'fas fa-door-open',
             ]
         ];
 
@@ -405,6 +407,7 @@ class SettingsTest extends TestCase
             'title'      => str_repeat('a', 256),
             'message'    => str_repeat('a', 501),
             'link'       => 'test',
+            'link_style' => 'test',
             'icon'       => 'test-test',
             'color'      => 'test-test',
             'background' => 'test-test',
@@ -419,6 +422,8 @@ class SettingsTest extends TestCase
                 'banner.link',
                 'banner.icon',
                 'banner.title',
+                'banner.link_style',
+                'banner.link_target',
             ]);
     }
 
