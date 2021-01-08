@@ -77,6 +77,7 @@ class ServerTest extends TestCase
                         'listener_count',
                         'voice_participant_count',
                         'video_count',
+                        'own_meeting_count',
                         'meeting_count',
                         'updated_at',
                         'model_name'
@@ -118,6 +119,12 @@ class ServerTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::ONLINE, $response->json('data.0.status'));
+
+        // Request with forced usage update, should see that the online servers are now offline (cause it's fake data)
+        $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc&update_usage=true')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data');
+        $this->assertEquals(ServerStatus::OFFLINE, $response->json('data.0.status'));
     }
 
     /**
@@ -157,6 +164,7 @@ class ServerTest extends TestCase
                 'listener_count'          => $server->listener_count,
                 'voice_participant_count' => $server->voice_participant_count,
                 'video_count'             => $server->video_count,
+                'own_meeting_count'       => $server->meetings()->count(),
                 'meeting_count'           => $server->meeting_count,
                 'updated_at'              => $server->updated_at,
                 'model_name'              => $server->model_name,

@@ -702,8 +702,10 @@ describe('ServersIndex', function () {
       store
     });
 
+    // During normal load the usage should not be updated
     moxios.wait(function () {
       const request = moxios.requests.mostRecent();
+      expect(request.config.params.update_usage).toBeFalsy();
       request.respondWith({
         status: 200,
         response: defaultResponse
@@ -716,10 +718,12 @@ describe('ServersIndex', function () {
         view.findComponent(BButton).trigger('click');
 
         moxios.wait(async () => {
-          // reload data for roomTypes
+          // reload data for roomTypes and force update of usage data
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers');
           expect(request.config.method).toBe('get');
+          expect(request.config.params.update_usage).toBeTruthy();
+
           await request.respondWith({
             status: 200,
             response: {
@@ -777,8 +781,15 @@ describe('ServersIndex', function () {
           expect(html).toContain(7);
           expect(html).toContain(3);
 
-          view.destroy();
-          done();
+          // during future normal requests the force usage should be disabled again
+          view.vm.$root.$emit('bv::refresh::table', 'servers-table');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.params.update_usage).toBeFalsy();
+
+            view.destroy();
+            done();
+          });
         });
       });
     });

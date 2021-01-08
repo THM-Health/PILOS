@@ -84,9 +84,8 @@ class ServerController extends Controller
         $server->strength     = $request->strength;
         $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
-        if ($server->status != ServerStatus::DISABLED) {
-            $server->status = $server->getMeetings() === null ? ServerStatus::OFFLINE : ServerStatus::ONLINE;
-        }
+        // Check if server is online/offline and update usage data
+        $server->updateUsage();
 
         $server->save();
 
@@ -108,9 +107,8 @@ class ServerController extends Controller
         $server->strength     = $request->strength;
         $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
-        if ($server->status != ServerStatus::DISABLED) {
-            $server->status = $server->getMeetings() === null ? ServerStatus::OFFLINE : ServerStatus::ONLINE;
-        }
+        // Check if server is online/offline and update usage data
+        $server->updateUsage();
 
         $server->save();
 
@@ -128,9 +126,7 @@ class ServerController extends Controller
     public function destroy(Request $request, Server $server)
     {
         /**
-         * TODO
-         * Check if meetings are running
-         * Maybe use soft delete or archive?
+         * Server delete fails if not in disabled state or meeting are still marked as running
          */
         if ($server->delete()) {
             return response()->noContent();
