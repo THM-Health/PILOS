@@ -6,7 +6,7 @@
         {{ title }}
       </h4>
       <div class='banner-message'>{{ message }}</div>
-      <a :class='`btn btn-${linkStyle} banner-link`' v-if='link' :href='link' :target='`_${linkTarget}`'>{{ linkText ? linkText : link }}</a>
+      <a :class='`btn btn-${linkStyle}`' v-if='link' :href='link' :target='`_${linkTarget}`'>{{ linkText ? linkText : link }}</a>
     </div>
   </b-alert>
 </template>
@@ -59,9 +59,5 @@ export default {
 <style scoped>
   .banner-message {
     white-space: pre-wrap;
-  }
-
-  .banner-link {
-    color: inherit;
   }
 </style>
