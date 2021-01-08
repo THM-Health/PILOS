@@ -42,7 +42,7 @@ For the deployment of the frontend javascript nodejs is necessary. Currently, al
 
 After installing the necessary packages either download a zip or clone the application into the desired path by using the following git command:
 ```bash
-git https://github.com/THM-Health/PILOS.git custom-path
+git clone https://github.com/THM-Health/PILOS.git custom-path
 ```
 
 Install the necessary requirements for the backend by running the following command:
