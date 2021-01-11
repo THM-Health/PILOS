@@ -66,8 +66,12 @@ export default {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors[id] = error.response.data.errors;
         } else {
-          this.loading = false;
-          throw error;
+          if (error.response !== undefined && error.response.status === env.HTTP_TOO_MANY_REQUESTS) {
+            this.errors[id] = error.response.data.errors;
+          } else {
+            this.loading = false;
+            throw error;
+          }
         }
       } finally {
         this.loading = false;

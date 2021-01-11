@@ -26,7 +26,7 @@ class AddSkipAudioCheckFlagToUsers extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->drop('bbb_skip_check_audio');
+            $table->dropColumn('bbb_skip_check_audio');
         });
     }
 }

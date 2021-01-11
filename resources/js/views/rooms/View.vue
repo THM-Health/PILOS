@@ -22,7 +22,7 @@
         v-on:click="reload"
         :disabled="loading"
       >
-        <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i>
+        <i v-bind:class="{ 'fa-spin': loading  }" class="fas fa-sync"></i>
       </b-button>
 
       <!-- Show membership options for users that are logged into the room (via access code, membership, ownership) -->

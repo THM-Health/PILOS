@@ -34,7 +34,7 @@
       :responsive='true'
       hover
       show-empty
-      stacked='md'
+      stacked='xl'
       :busy.sync='isBusy'
       :fields='tableFields'
       :items='fetchUsers'

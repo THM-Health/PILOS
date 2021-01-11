@@ -20,7 +20,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User,roles', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles', ['only' => 'update']);
     }
 
     /**

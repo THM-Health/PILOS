@@ -161,5 +161,62 @@ export default {
       selectLinkTarget: 'Select link target',
       selectLinkStyle: 'Select link style'
     }
+  },
+
+  servers: {
+    title: 'Server',
+    id: 'ID',
+    description: 'Description',
+    status: 'Status',
+    participantCount: 'Participants',
+    videoCount: 'Videos',
+    ownMeetingCount: 'Own meetings',
+    ownMeetingDescription: 'Meetings that are managed by this system',
+    meetingCount: 'Meetings',
+    meetingDescription: 'All meetings on the BigBlueButton-Server',
+
+    currentUsage: 'Current usage',
+    usageInfo: 'The usage (meetings, participants, videos) also contains meetings that are managed by other systems.',
+
+    unknown: 'Unknown',
+    online: 'Online',
+    offline: 'Offline',
+    disabled: 'Disabled',
+    disabledDescription: 'Currently running meetings are not stopped if server gets disabled, but no new meetings are started',
+
+    strength: 'Server strength',
+    strengthDescription: 'Load balancing factor; the higher the factor, the more participants and meetings the server can handle',
+    baseUrl: 'API endpoint',
+    salt: 'API secret',
+    showSalt: 'Show clear text',
+    hideSalt: 'Hide clear text',
+    testConnection: 'Test connection',
+
+    panic: 'Disable & cleanup',
+    panicServer: 'Disable server and end all meetings',
+    panicDescription: 'Only meetings managed by this system are stopped!',
+    panicFlash: {
+      message: 'The server has been disabled. {total} meetings were found and {success} were successfully stopped.',
+      title: 'Disabled and cleaned'
+    },
+
+    reload: 'Recalculate usage',
+    new: 'Add new server',
+    view: 'Detailed information for the server {id}',
+    edit: 'Edit server {id}',
+
+    nodata: 'No servers found!',
+    nodataFiltered: 'For the filter query no servers were found!',
+
+    delete: {
+      item: 'Delete server {id}',
+      confirm: 'Do you really want to delete the server {id}?',
+      title: 'Delete server?'
+    },
+
+    offlineReason: {
+      connection: 'No connection could be established to the server.',
+      salt: 'A connection to the server could be established, but the API secret is invalid.'
+    }
   }
 };

@@ -163,5 +163,62 @@ export default {
       selectLinkTarget: 'Linkziel auswählen',
       selectLinkStyle: 'Linkart auswählen'
     }
+  },
+
+  servers: {
+    title: 'Server',
+    id: 'ID',
+    description: 'Beschreibung',
+    status: 'Status',
+    participantCount: 'Teilnehmer',
+    videoCount: 'Videos',
+    ownMeetingCount: 'Eigene Meetings',
+    ownMeetingDescription: 'Meetings, die von diesem System verwaltet werden',
+    meetingCount: 'Meetings',
+    meetingDescription: 'Alle Meetings auf dem BigBlueButton-Server',
+
+    currentUsage: 'Aktuelle Auslastung',
+    usageInfo: 'Die Auslastung (Meetings, Teilnehmer, Videos) beinhalten auch Meetings die von anderen Systemen verwaltet werden.',
+
+    unknown: 'Unbekannt',
+    online: 'Online',
+    offline: 'Offline',
+    disabled: 'Deaktiviert',
+    disabledDescription: 'Bereits laufende Meetings werden durch eine Deaktivierung nicht beendet, neue können jedoch nicht erstellt werden',
+
+    strength: 'Serverstärke',
+    strengthDescription: 'Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten',
+    baseUrl: 'API Endpunkt',
+    salt: 'API Geheimnis',
+    showSalt: 'Klartext anzeigen',
+    hideSalt: 'Klartext verbergen',
+    testConnection: 'Verbindung testen',
+
+    panic: 'Deaktivieren & Aufräumen',
+    panicServer: 'Server deaktiveren und alle Meetings beenden',
+    panicDescription: 'Es werden nur Meetings beendet, die über dieses System erstellt wurden!',
+    panicFlash: {
+      message: 'Der Server wurde deaktiviert. Es wurden {total} Meetings gefunden und {success} erfolgreich beendet.',
+      title: 'Deaktivert und aufgeräumt'
+    },
+
+    reload: 'Auslastung neu bestimmen',
+    new: 'Neuen Server hinzufügen',
+    view: 'Detaillierte Informationen über Server {id}',
+    edit: 'Server {id} bearbeiten',
+
+    nodata: 'Es sind keine Server vorhanden!',
+    nodataFiltered: 'Für die Suchanfrage wurden keine Server gefunden!',
+
+    delete: {
+      item: 'Server {id} löschen',
+      confirm: 'Wollen Sie den Server {id} wirklich entfernen?',
+      title: 'Server löschen?'
+    },
+
+    offlineReason: {
+      connection: 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
+      salt: 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.'
+    }
   }
 };

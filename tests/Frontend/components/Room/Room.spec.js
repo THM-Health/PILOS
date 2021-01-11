@@ -85,6 +85,7 @@ describe('Room', function () {
       next(view.vm);
       await view.vm.$nextTick();
       expect(view.html()).toContain('rooms.onlyUsedByAuthenticatedUsers');
+      view.destroy();
       done();
     });
   });
@@ -110,6 +111,7 @@ describe('Room', function () {
       next(view.vm);
       await view.vm.$nextTick();
       expect(view.html()).toContain('rooms.requireAccessCode');
+      view.destroy();
       done();
     });
   });
@@ -144,7 +146,7 @@ describe('Room', function () {
       nameInput.setValue('John Doe');
       await view.vm.$nextTick();
       expect(joinButton.attributes('disabled')).toBeUndefined();
-
+      view.destroy();
       done();
     });
   });
@@ -175,7 +177,7 @@ describe('Room', function () {
 
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeFalsy();
-
+      view.destroy();
       done();
     });
   });
@@ -206,7 +208,7 @@ describe('Room', function () {
 
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeTruthy();
-
+      view.destroy();
       done();
     });
   });
@@ -243,6 +245,7 @@ describe('Room', function () {
       });
       await moxios.wait(() => {
         expect(view.html()).toContain('Meeting Two');
+        view.destroy();
         done();
       });
     });
@@ -278,6 +281,7 @@ describe('Room', function () {
     expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.accessCodeChanged');
     expect(reload.calledOnce).toBeTruthy();
     reload.restore();
+    view.destroy();
   });
 
   it('handle file list errors', function () {
@@ -320,5 +324,6 @@ describe('Room', function () {
 
     Base.error.restore();
     handleInvalidCode.restore();
+    view.destroy();
   });
 });

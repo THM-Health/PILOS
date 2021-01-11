@@ -5,6 +5,7 @@ namespace Tests\Feature\api\v1\Room;
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Enums\ServerStatus;
 use App\Permission;
 use App\Role;
 use App\Room;
@@ -301,11 +302,11 @@ class RoomTest extends TestCase
     {
         $room = factory(Room::class)->create();
 
-        $server              = new Server();
-        $server->baseUrl     = $this->faker->url;
-        $server->salt        = $this->faker->sha1;
-        $server->status      = true;
-        $server->description = $this->faker->word;
+        $server               = new Server();
+        $server->base_url     = $this->faker->url;
+        $server->salt         = $this->faker->sha1;
+        $server->status       = ServerStatus::ONLINE;
+        $server->description  = $this->faker->word;
         $server->save();
 
         $meeting = $room->meetings()->create();
@@ -522,7 +523,7 @@ class RoomTest extends TestCase
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
 
         $server->refresh();
-        $this->assertTrue($server->offline);
+        $this->assertEquals(ServerStatus::OFFLINE, $server->status);
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room]))
@@ -554,7 +555,7 @@ class RoomTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $room->runningMeeting()->endMeeting();
 
         // Check with wrong salt/secret
         foreach (Server::all() as $server) {
@@ -589,7 +590,7 @@ class RoomTest extends TestCase
         $meeting->start       = date('Y-m-d H:i:s');
         $meeting->attendeePW  = bin2hex(random_bytes(5));
         $meeting->moderatorPW = bin2hex(random_bytes(5));
-        $meeting->server()->associate(Server::where('status', true)->where('offline', false)->get()->random());
+        $meeting->server()->associate(Server::where('status', ServerStatus::ONLINE)->get()->random());
         $meeting->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
@@ -659,7 +660,7 @@ class RoomTest extends TestCase
         $runningMeeting = $room->runningMeeting();
         // Clear
         $this->assertNull($runningMeeting->end);
-        $this->assertTrue($runningMeeting->endMeeting());
+        $runningMeeting->endMeeting();
         $runningMeeting->refresh();
         $this->assertNotNull($runningMeeting->end);
     }
@@ -699,7 +700,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $room->runningMeeting()->endMeeting();
     }
 
     /**
@@ -736,7 +737,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $this->assertTrue($room->runningMeeting()->endMeeting());
+        $room->runningMeeting()->endMeeting();
     }
 
     /**

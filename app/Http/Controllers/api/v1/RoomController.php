@@ -143,8 +143,7 @@ class RoomController extends Controller
             catch (\Exception $exception) {
                 // Remove meeting and set server to offline
                 $meeting->forceDelete();
-                $server->offline = true;
-                $server->save();
+                $server->apiCallFailed();
                 abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
             }
 
@@ -156,8 +155,7 @@ class RoomController extends Controller
                 switch ($result->getMessageKey()) {
                     // checksum error, api token invalid, set server to offline, try to create on other server
                     case 'checksumError':
-                        $server->offline = true;
-                        $server->save();
+                        $server->apiCallFailed();
 
                         break;
                     // for other unknown reasons, just respond, that room creation failed

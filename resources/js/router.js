@@ -16,6 +16,8 @@ import UsersIndex from './views/settings/users/Index';
 import UsersView from './views/settings/users/View';
 import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
+import ServersIndex from './views/settings/servers/Index';
+import ServersView from './views/settings/servers/View';
 import Base from './api/base';
 
 Vue.use(VueRouter);
@@ -222,6 +224,52 @@ export const routes = [
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
               PermissionService.can('update', 'RoomTypePolicy')
+            );
+          }
+        }
+      },
+      {
+        path: 'servers',
+        name: 'settings.servers',
+        component: ServersIndex,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'ServerPolicy')
+          )
+        }
+      },
+      {
+        path: 'servers/:id',
+        name: 'settings.servers.view',
+        component: ServersView,
+        props: route => {
+          return {
+            id: route.params.id,
+            viewOnly: route.query.view === '1'
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'ServerPolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', 'ServerPolicy')
+              );
+            }
+            return Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('update', 'ServerPolicy')
             );
           }
         }

@@ -38,7 +38,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
 
-// TODO: Implement or remove this completely
+        // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');
 //        Route::post('password/reset', 'ResetPasswordController@reset');
 //        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
@@ -55,12 +55,12 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
         Route::get('permissions', 'PermissionController@index')->name('permissions.index');
 
-        Route::get('rooms','RoomController@index')->name('rooms.index');
-        Route::post('rooms','RoomController@store')->name('rooms.store');
-        Route::put('rooms/{room}','RoomController@update')->name('rooms.update');
-        Route::delete('rooms/{room}','RoomController@destroy')->name('rooms.destroy');
+        Route::get('rooms', 'RoomController@index')->name('rooms.index');
+        Route::post('rooms', 'RoomController@store')->name('rooms.store');
+        Route::put('rooms/{room}', 'RoomController@update')->name('rooms.update');
+        Route::delete('rooms/{room}', 'RoomController@destroy')->name('rooms.destroy');
 
-        Route::get('rooms/{room}/settings','RoomController@getSettings')->name('rooms.settings');
+        Route::get('rooms/{room}/settings', 'RoomController@getSettings')->name('rooms.settings');
 
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', 'RoomMemberController@join')->name('rooms.membership.join');
@@ -72,18 +72,18 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/member/{user}', 'RoomMemberController@destroy')->name('rooms.member.remove')->middleware('can:manageMembers,room');
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
-
             Route::post('rooms/{room}/files', 'RoomFileController@store')->name('rooms.files.add');
 
             Route::put('rooms/{room}/files/{file}', 'RoomFileController@update')->name('rooms.files.update');
             Route::delete('rooms/{room}/files/{file}', 'RoomFileController@destroy')->name('rooms.files.remove');
         });
 
-        Route::get('users/search','UserController@search')->name('users.search');
+        Route::get('users/search', 'UserController@search')->name('users.search');
         Route::apiResource('users', 'UserController');
 
-
-
+        Route::post('servers/check', 'ServerController@check')->name('servers.check')->middleware('can:viewAny,App\Server');
+        Route::get('servers/{server}/panic', 'ServerController@panic')->name('servers.panic')->middleware('can:update,server');
+        Route::apiResource('servers', 'ServerController');
     });
 
     Route::middleware('can:view,room')->group(function () {
@@ -94,7 +94,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/files/{file}', 'RoomFileController@show')->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
     });
 
-    Route::get('meetings/{meeting}/endCallback','MeetingController@endMeetingCallback')->name('meetings.endcallback');
+    Route::get('meetings/{meeting}/endCallback', 'MeetingController@endMeetingCallback')->name('meetings.endcallback');
 });
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {
