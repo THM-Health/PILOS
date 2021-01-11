@@ -153,7 +153,8 @@ return [
         ],
         'banner.icon' => [
             'regex' => 'Die Icon CSS-Klasse muss folgendem Format entsprechen: `fas fa-camera`. Wobei `fas` je nach Style auch anders sein kann (z. B. `fab`).'
-        ]
+        ],
+        'color' => ':attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!'
     ],
 
     /*

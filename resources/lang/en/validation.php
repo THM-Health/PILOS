@@ -154,7 +154,8 @@ return [
         ],
         'banner.icon' => [
             'regex' => 'The icon css class should be in the following format: `fas fa-camera`. The class `fas` depends on the selected type and can also be for example `fab`.'
-        ]
+        ],
+        'color' => ':attribute must be a color specified as a hexadecimal number (z. B. #fff oder #ffffff)!'
     ],
 
     /*
