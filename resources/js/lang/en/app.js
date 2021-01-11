@@ -120,5 +120,22 @@ export default {
   browse: 'Browse',
   validation: {
     tooLarge: 'The selected file is too large.'
+  },
+
+  buttonStyles: {
+    primary: 'Primary',
+    secondary: 'Secondary',
+    success: 'Success',
+    danger: 'Danger',
+    warning: 'Warning',
+    info: 'Info',
+    light: 'Light',
+    dark: 'Dark',
+    link: 'Link'
+  },
+
+  linkTargets: {
+    blank: 'Open in a new tab',
+    self: 'Open in current tab'
   }
 };

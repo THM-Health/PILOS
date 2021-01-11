@@ -146,7 +146,15 @@ return [
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
             'exists' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
             'not_in' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
-        ]
+        ],
+        'banner' => [
+            'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
+            'required' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!'
+        ],
+        'banner.icon' => [
+            'regex' => 'Die Icon CSS-Klasse muss folgendem Format entsprechen: `fas fa-camera`. Wobei `fas` je nach Style auch anders sein kann (z. B. `fab`).'
+        ],
+        'color' => ':attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!'
     ],
 
     /*
@@ -220,5 +228,15 @@ return [
         'firstname'                         => 'Vorname',
         'lastname'                          => 'Nachname',
         'user_locale'                       => 'Sprache',
+        'banner.enabled'                    => 'Anzeigen',
+        'banner.message'                    => 'Mitteilung',
+        'banner.color'                      => 'Textfarbe des Banners',
+        'banner.background'                 => 'Hintergrundfarbe des Banners',
+        'banner.title'                      => 'Überschrift',
+        'banner.link'                       => 'Anzuzeigender Link nach der Mitteilung',
+        'banner.icon'                       => 'Icon',
+        'banner.link_text'                  => 'Linktext',
+        'banner.link_target'                => 'Linkziel',
+        'banner.link_style'                 => 'Linkart',
     ],
 ];

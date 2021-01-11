@@ -143,6 +143,23 @@ export default {
     ownRoomsPaginationPageSize: {
       title: 'Own rooms pagination page size',
       description: 'Limits the number of page size for own rooms pagination'
+    },
+
+    banner: {
+      title: 'Banner for messages',
+      enabled: 'Show',
+      bannerTitle: 'Title',
+      message: 'Message',
+      link: 'Link to show after the message',
+      link_text: 'Link text',
+      link_target: 'Link target',
+      link_style: 'Link style',
+      icon: 'Icon',
+      iconDescription: 'The CSS class of the Fontawesome-Icon (e. g. `fas fa-door-open`). The icon will only be visible, if a title is supplied.',
+      color: 'Text color of the banner',
+      background: 'Background color of the banner',
+      selectLinkTarget: 'Select link target',
+      selectLinkStyle: 'Select link style'
     }
   },
 
