@@ -129,6 +129,7 @@ class Meeting extends Model
 
     /**
      * End meeting
+     * @throws \Exception e.g. Connection error
      */
     public function endMeeting()
     {

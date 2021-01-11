@@ -217,8 +217,8 @@ export default {
     },
 
     offlineReason: {
-      connection: 'Connecting to the server failed.',
-      salt: 'A connection to the server was established, but the API secret is invalid.'
+      connection: 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
+      salt: 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.'
     }
   }
 };

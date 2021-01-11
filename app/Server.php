@@ -51,6 +51,12 @@ class Server extends Model
                 }
             }
         });
+        static::deleting(function (self $model) {
+            // Delete Server, only possible if no meetings from this system are running and the server is disabled
+            if ($model->status != ServerStatus::DISABLED || $model->meetings()->whereNull('end')->count() != 0) {
+                return false;
+            }
+        });
     }
 
     /**
@@ -289,19 +295,5 @@ class Server extends Model
                 $meeting->save();
             }
         }
-    }
-
-    /**
-     * Delete Server, only possible if no meetings from this system are running and the server is disabled
-     * @return bool|null
-     * @throws \Exception
-     */
-    public function delete()
-    {
-        if ($this->status != ServerStatus::DISABLED || $this->meetings()->whereNull('end')->count() != 0) {
-            return false;
-        }
-
-        return parent::delete();
     }
 }
