@@ -9,6 +9,18 @@
       </template>
     </b-overlay>
 
+    <banner
+      :background="settings('banner.background')"
+      :color="settings('banner.color')"
+      :enabled="settings('banner.enabled')"
+      :icon="settings('banner.icon')"
+      :link="settings('banner.link')"
+      :message="settings('banner.message')"
+      :title="settings('banner.title')"
+      :link-style="settings('banner.link_style')"
+      :link-text="settings('banner.link_text')"
+      :link-target="settings('banner.link_target')"
+    ></banner>
     <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
       <b-container>
         <h1>
@@ -65,9 +77,10 @@ import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
 import FooterComponent from '../components/FooterComponent';
 import Can from '../components/Permissions/Can';
+import Banner from '../components/Banner';
 
 export default {
-  components: { Can, LocaleSelector, FooterComponent },
+  components: { Banner, Can, LocaleSelector, FooterComponent },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,
@@ -88,7 +101,9 @@ export default {
     async logout () {
       await this.$store.dispatch('session/logout');
       this.flashMessage.success(this.$t('auth.flash.logout'));
-      await this.$router.push({ name: 'home' });
+      if (this.$router.currentRoute.name !== 'home') {
+        await this.$router.push({ name: 'home' });
+      }
     }
   }
 };

@@ -1,12 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
-import BootstrapVue, { IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BFormCheckbox, BFormInput, BFormTextarea, IconsPlugin } from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application';
 import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
+import VSwatches from 'vue-swatches';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -63,7 +64,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: -1,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -97,7 +101,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -144,7 +151,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -163,7 +173,10 @@ describe('Application', function () {
                 logo: 'test1.svg',
                 room_limit: 33,
                 pagination_page_size: 11,
-                own_rooms_pagination_page_size: 6
+                own_rooms_pagination_page_size: 6,
+                banner: {
+                  enabled: false
+                }
               }
             }
           }).then(() => {
@@ -213,7 +226,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -232,7 +248,10 @@ describe('Application', function () {
                 logo: 'test1.svg',
                 room_limit: -1,
                 pagination_page_size: 11,
-                own_rooms_pagination_page_size: 6
+                own_rooms_pagination_page_size: 6,
+                banner: {
+                  enabled: false
+                }
               }
             }
           }).then(() => {
@@ -296,10 +315,92 @@ describe('Application', function () {
           message: 'Test'
         }
       }).then(() => {
-        view.vm.$nextTick();
+        return view.vm.$nextTick();
+      }).then(() => {
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
         done();
+      });
+    });
+  });
+
+  it('updateSettings sends null values and booleans correctly to the backend', function (done) {
+    const store = new Vuex.Store({
+      modules: {
+        session: { actions: { getSettings () {} }, namespaced: true }
+      }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: 32,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: true,
+              message: 'Test',
+              color: '#fff',
+              background: '#000',
+              icon: null,
+              title: null,
+              link: null
+            }
+          }
+        }
+      }).then(() => {
+        const bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
+        const bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
+        expect(bannerEnableBox.props('checked')).toBe(true);
+        return bannerEnableBox.get('input').trigger('click');
+      }).then(() => {
+        const bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
+        const bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
+        expect(bannerEnableBox.props('checked')).toBe(false);
+        expect([
+          ...bannerFormGroup.findAllComponents(BFormInput).wrappers,
+          ...bannerFormGroup.findAllComponents(BFormTextarea).wrappers,
+          ...bannerFormGroup.findAllComponents(VSwatches).wrappers
+        ].every(input => input.props('disabled'))).toBe(true);
+        expect(view.vm.settings.banner).toMatchObject({
+          enabled: false,
+          message: 'Test',
+          color: '#fff',
+          background: '#000',
+          icon: null,
+          title: null,
+          link: null
+        });
+
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('banner[enabled]')).toStrictEqual('0');
+          expect(request.config.data.get('banner[message]')).toStrictEqual('Test');
+          expect(request.config.data.get('banner[color]')).toStrictEqual('#fff');
+          expect(request.config.data.get('banner[background]')).toStrictEqual('#000');
+          expect(request.config.data.get('banner[title]')).toStrictEqual('');
+          expect(request.config.data.get('banner[icon]')).toStrictEqual('');
+          expect(request.config.data.get('banner[link]')).toStrictEqual('');
+          view.destroy();
+          done();
+        });
       });
     });
   });
@@ -325,7 +426,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -374,7 +478,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: 32,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {
@@ -428,7 +535,10 @@ describe('Application', function () {
             logo: 'test.svg',
             room_limit: -1,
             pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            }
           }
         }
       }).then(() => {

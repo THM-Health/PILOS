@@ -21,6 +21,14 @@ class ApplicationController extends Controller
     }
 
     /**
+     * Load all settings, also complete banner settings when the banner is disabled.
+     */
+    public function allSettings()
+    {
+        return (new ApplicationSettings())->allSettings();
+    }
+
+    /**
      * Update application settings data
      * @param  UpdateSetting       $request
      * @return ApplicationSettings
@@ -49,9 +57,12 @@ class ApplicationController extends Controller
         setting()->set('room_limit', $request->room_limit);
         setting()->set('own_rooms_pagination_page_size', $request->own_rooms_pagination_page_size);
         setting()->set('pagination_page_size', $request->pagination_page_size);
+        setting()->set('banner', array_filter($request->banner, function ($setting) {
+            return $setting !== null;
+        }));
         setting()->save();
 
-        return new ApplicationSettings();
+        return (new ApplicationSettings())->allSettings();
     }
 
     /**
