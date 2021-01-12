@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="row mt-4 mb-5">
-            <div class="col-6 offset-3">
+            <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
               <b-card no-body bg-variant="light">
                 <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-success text-white">
                   <b-tab :title="$t('auth.ldap.tabTitle')" active>
