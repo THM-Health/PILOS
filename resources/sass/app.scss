@@ -131,9 +131,15 @@
     @extend .form-control;
     padding: 0;
     border: none;
+    height: auto;
 
     .multiselect__tags {
         border-radius: 0;
+        padding: 8px 40px 8px 8px;
+    }
+
+    .multiselect__placeholder{
+        margin-bottom: 0px;
     }
 }
 

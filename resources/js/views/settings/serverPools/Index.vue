@@ -3,16 +3,16 @@
     <b-row>
       <b-col>
         <h3>
-          {{ $t('settings.servers.title') }}
+          {{ $t('settings.serverPools.title') }}
 
-          <can method='create' policy='ServerPolicy'>
+          <can method='create' policy='ServerPoolPolicy'>
             <b-button
               class='ml-2 float-right'
               v-b-tooltip.hover
               variant='success'
-              ref="newServer"
-              :title="$t('settings.servers.new')"
-              :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
+              ref="newServerPool"
+              :title="$t('settings.serverPools.new')"
+              :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
             ><b-icon-plus></b-icon-plus></b-button>
           </can>
         </h3>
@@ -39,18 +39,18 @@
       show-empty
       :busy.sync='isBusy'
       :fields='tableFields'
-      :items='fetchServers'
-      id='servers-table'
-      ref='servers'
+      :items='fetchServerPools'
+      id='server-pools-table'
+      ref='serverPools'
       :filter='filter'
       :current-page='currentPage'>
 
       <template v-slot:empty>
-        <i>{{ $t('settings.servers.nodata') }}</i>
+        <i>{{ $t('settings.serverPools.nodata') }}</i>
       </template>
 
       <template v-slot:emptyfiltered>
-        <i>{{ $t('settings.servers.nodataFiltered') }}</i>
+        <i>{{ $t('settings.serverPools.nodataFiltered') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -59,36 +59,15 @@
         </div>
       </template>
 
-      <template v-slot:cell(status)="data">
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2 text-white"><i class='fas fa-pause'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2 text-white"><i class='fas fa-stop'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2 text-white"><i class='fas fa-play'></i></b-badge>
-      </template>
-
-      <template v-slot:cell(participant_count)="data">
-        <span v-if="data.item.participant_count !== null">{{ data.item.participant_count }}</span>
-        <raw-text v-else>---</raw-text>
-      </template>
-
-      <template v-slot:cell(video_count)="data">
-        <span v-if="data.item.video_count !== null">{{ data.item.video_count }}</span>
-        <raw-text v-else>---</raw-text>
-      </template>
-
-      <template v-slot:cell(meeting_count)="data">
-        <span v-if="data.item.meeting_count !== null">{{ data.item.meeting_count }}</span>
-        <raw-text v-else>---</raw-text>
-      </template>
-
       <template v-slot:cell(actions)="data">
         <b-button-group>
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
-              :title="$t('settings.servers.view', { name: data.item.name })"
+              :title="$t('settings.serverPools.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='primary'
-              :to="{ name: 'settings.servers.view', params: { id: data.item.id }, query: { view: '1' } }"
+              :to="{ name: 'settings.server_pools.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
               <i class='fas fa-eye'></i>
             </b-button>
@@ -96,22 +75,21 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
-              :title="$t('settings.servers.edit', { name: data.item.name })"
+              :title="$t('settings.serverPools.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='dark'
-              :to="{ name: 'settings.servers.view', params: { id: data.item.id } }"
+              :to="{ name: 'settings.server_pools.view', params: { id: data.item.id } }"
             >
               <i class='fas fa-edit'></i>
             </b-button>
           </can>
           <can method='delete' :policy='data.item'>
             <b-button
-              v-if="data.item.status===-1"
               v-b-tooltip.hover
-              :title="$t('settings.servers.delete.item', { name: data.item.name })"
+              :title="$t('settings.serverPools.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
-              @click='showServerModal(data.item)'>
+              @click='showServerPoolModal(data.item)'>
               <i class='fas fa-trash'></i>
             </b-button>
           </can>
@@ -123,44 +101,42 @@
       v-model='currentPage'
       :total-rows='total'
       :per-page='perPage'
-      aria-controls='servers-table'
-      @input="$root.$emit('bv::refresh::table', 'servers-table')"
+      aria-controls='server-pools-table'
+      @input="$root.$emit('bv::refresh::table', 'server-pools-table')"
       align='center'
       :disabled='isBusy'
     ></b-pagination>
 
-    <b-alert show>
-      <i class="fas fa-info-circle"></i>
-      {{ $t('settings.servers.usageInfo') }}
-      <br><br>
-      <b-button
-        v-b-tooltip.hover
-        size="sm"
-        variant='primary'
-        :disabled="isBusy"
-        @click="updateUsage=true;$root.$emit('bv::refresh::table', 'servers-table')"
-      ><b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('settings.servers.reload') }}</b-button>
-    </b-alert>
-
     <b-modal
       :busy='deleting'
+      :hide-footer="deleteFailedRoomTypes!=null"
       ok-variant='danger'
       cancel-variant='dark'
       :cancel-title="$t('app.no')"
-      @ok='deleteServer($event)'
-      @cancel='clearServerToDelete'
-      @close='clearServerToDelete'
-      ref='delete-server-modal'
+      @ok='deleteServerPool($event)'
+      @cancel='clearServerPoolToDelete'
+      @close='clearServerPoolToDelete'
+      ref='delete-server-pool-modal'
       :static='modalStatic'>
       <template v-slot:modal-title>
-        {{ $t('settings.servers.delete.title') }}
+        {{ $t('settings.serverPools.delete.title') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
-      <span v-if="serverToDelete">
-        {{ $t('settings.servers.delete.confirm', { name:serverToDelete.name }) }}
+      <span v-if="serverPoolToDelete">
+        {{ $t('settings.serverPools.delete.confirm', { name:serverPoolToDelete.name }) }}
       </span>
+
+      <div v-if="deleteFailedRoomTypes">
+        <b-alert :show="true" variant="danger">{{ $t('settings.serverPools.delete.failed') }}
+          <ul>
+            <li v-for="roomType in deleteFailedRoomTypes" :key="roomType.id">
+              {{ roomType.description }}
+            </li>
+          </ul>
+        </b-alert>
+      </div>
 
     </b-modal>
   </div>
@@ -170,10 +146,10 @@
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
 import ActionsColumn from '../../../mixins/ActionsColumn';
-import RawText from '../../../components/RawText';
+import env from '../../../env';
 
 export default {
-  components: { Can, RawText },
+  components: { Can },
   mixins: [ActionsColumn],
 
   props: {
@@ -186,12 +162,9 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.servers.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.servers.name'), sortable: true },
-        { key: 'status', label: this.$t('settings.servers.status'), sortable: true },
-        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true },
-        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true },
-        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true }
+        { key: 'id', label: this.$t('settings.serverPools.id'), sortable: true },
+        { key: 'name', label: this.$t('settings.serverPools.name'), sortable: true },
+        { key: 'server_count', label: this.$t('settings.serverPools.serverCount'), sortable: true }
       ];
 
       if (this.actionColumnVisible) {
@@ -209,28 +182,27 @@ export default {
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
-      serverToDelete: undefined,
+      serverPoolToDelete: undefined,
       actionPermissions: ['servers.view', 'servers.update', 'servers.delete'],
       filter: undefined,
-      updateUsage: false
+      deleteFailedRoomTypes: null
     };
   },
 
   methods: {
     /**
-     * Loads the servers from the backend and calls on finish the callback function.
+     * Loads the server pools from the backend and calls on finish the callback function.
      *
      * @param ctx Context information e.g. the sort field and direction and the page.
      * @param callback
      * @return {null}
      */
-    fetchServers (ctx, callback) {
+    fetchServerPools (ctx, callback) {
       let data = [];
 
       const config = {
         params: {
-          page: ctx.currentPage,
-          update_usage: this.updateUsage
+          page: ctx.currentPage
         }
       };
 
@@ -243,7 +215,7 @@ export default {
         config.params.name = ctx.filter;
       }
 
-      Base.call('servers', config).then(response => {
+      Base.call('serverPools', config).then(response => {
         this.perPage = response.data.meta.per_page;
         this.currentPage = response.data.meta.current_page;
         this.total = response.data.meta.total;
@@ -253,7 +225,6 @@ export default {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
         callback(data);
-        this.updateUsage = false;
       });
 
       return null;
@@ -264,37 +235,48 @@ export default {
      *
      * @param server Server that should be deleted.
      */
-    showServerModal (server) {
-      this.serverToDelete = server;
-      this.$refs['delete-server-modal'].show();
+    showServerPoolModal (server) {
+      this.deleteFailedRoomTypes = null;
+      this.serverPoolToDelete = server;
+      this.$refs['delete-server-pool-modal'].show();
     },
 
     /**
-     * Deletes the server that is set in the property `serverToDelete`.
+     * Deletes the server that is set in the property `serverPoolToDelete`.
      */
-    deleteServer (evt) {
+    deleteServerPool (evt) {
       evt.preventDefault();
       this.deleting = true;
 
-      Base.call(`servers/${this.serverToDelete.id}`, {
+      Base.call(`serverPools/${this.serverPoolToDelete.id}`, {
         method: 'delete'
-      }).catch(error => {
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
+      }).then(() => {
+        this.clearServerPoolToDelete();
+        this.$refs['delete-server-pool-modal'].hide();
         this.currentPage = 1;
-        this.$refs.servers.refresh();
-        this.clearServerToDelete();
-        this.$refs['delete-server-modal'].hide();
+        this.$refs.serverPools.refresh();
+      }).catch(error => {
+        if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
+          this.deleteFailedRoomTypes = error.response.data.roomTypes;
+        } else {
+          Base.error(error, this.$root, error.message);
+          this.clearServerPoolToDelete();
+          this.$refs['delete-server-pool-modal'].hide();
+          this.currentPage = 1;
+          this.$refs.serverPools.refresh();
+        }
+      }).finally(() => {
         this.deleting = false;
       });
     },
 
     /**
-     * Clears the temporary property `serverToDelete` on canceling or
+     * Clears the temporary property `serverPoolToDelete` on canceling or
      * after success delete when the modal gets hidden.
      */
-    clearServerToDelete () {
-      this.serverToDelete = undefined;
+    clearServerPoolToDelete () {
+      this.serverPoolToDelete = undefined;
+      this.deleteFailedRoomTypes = null;
     }
   }
 };

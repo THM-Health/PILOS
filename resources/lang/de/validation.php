@@ -238,5 +238,8 @@ return [
         'banner.link_text'                  => 'Linktext',
         'banner.link_target'                => 'Linkziel',
         'banner.link_style'                 => 'Linkart',
+        'server_pool'                       => 'Serverpool',
+        'icon_text'                         => 'Icon Text',
+        'color'                             => 'Farbe',
     ],
 ];

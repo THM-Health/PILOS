@@ -4,6 +4,7 @@ import RoomPolicy from './RoomPolicy';
 import UserPolicy from './UserPolicy';
 import RoomTypePolicy from './RoomTypePolicy';
 import ServerPolicy from './ServerPolicy';
+import ServerPoolPolicy from './ServerPoolPolicy';
 
 export default {
   SettingPolicy,
@@ -11,5 +12,6 @@ export default {
   RoomPolicy,
   UserPolicy,
   RoomTypePolicy,
-  ServerPolicy
+  ServerPolicy,
+  ServerPoolPolicy
 };

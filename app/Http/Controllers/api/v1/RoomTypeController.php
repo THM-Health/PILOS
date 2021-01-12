@@ -15,7 +15,7 @@ class RoomTypeController extends Controller
     public function __construct()
     {
         $this->authorizeResource(RoomType::class, 'roomType');
-        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType', ['only' => 'update']);
+        $this->middleware('check.stale:roomType,\App\Http\Resources\RoomType,withServerPool', ['only' => 'update']);
     }
 
     /**
@@ -36,7 +36,7 @@ class RoomTypeController extends Controller
      */
     public function show(RoomType $roomType)
     {
-        return new RoomTypeResource($roomType);
+        return (new RoomTypeResource($roomType))->withServerPool();
     }
 
     /**
@@ -51,9 +51,10 @@ class RoomTypeController extends Controller
         $roomType->description = $request->description;
         $roomType->short       = $request->short;
         $roomType->color       = $request->color;
+        $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
 
-        return new RoomTypeResource($roomType);
+        return (new RoomTypeResource($roomType))->withServerPool();
     }
 
     /**
@@ -68,9 +69,10 @@ class RoomTypeController extends Controller
         $roomType->description = $request->description;
         $roomType->short       = $request->short;
         $roomType->color       = $request->color;
+        $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
 
-        return new RoomTypeResource($roomType);
+        return (new RoomTypeResource($roomType))->withServerPool();
     }
 
     /**

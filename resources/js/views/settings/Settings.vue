@@ -54,6 +54,14 @@
               </b-row>
             </b-nav-item>
           </can>
+          <can method='viewAny' policy='ServerPoolPolicy'>
+            <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.server_pools' }">
+              <b-row>
+                <b-col cols='3'><span><i class='fas fa-th-large'></i></span></b-col>
+                <b-col cols='7'>{{ $t('settings.serverPools.title') }}</b-col>
+              </b-row>
+            </b-nav-item>
+          </can>
         </b-nav>
       </b-col>
       <b-col lg='9'>

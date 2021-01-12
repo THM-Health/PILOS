@@ -49,8 +49,8 @@ class ServerController extends Controller
             }
         }
 
-        if ($request->has('description')) {
-            $resource = $resource->withDescription($request->query('description'));
+        if ($request->has('name')) {
+            $resource = $resource->withName($request->query('name'));
         }
 
         $resource = $resource->paginate(setting('pagination_page_size'));
@@ -78,6 +78,7 @@ class ServerController extends Controller
      */
     public function update(ServerRequest $request, Server $server)
     {
+        $server->name         = $request->name;
         $server->description  = $request->description;
         $server->base_url     = $request->base_url;
         $server->salt         = $request->salt;
@@ -101,6 +102,7 @@ class ServerController extends Controller
     public function store(ServerRequest $request)
     {
         $server               = new Server();
+        $server->name         = $request->name;
         $server->description  = $request->description;
         $server->base_url     = $request->base_url;
         $server->salt         = $request->salt;

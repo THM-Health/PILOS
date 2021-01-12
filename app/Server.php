@@ -7,6 +7,8 @@ use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
 class Server extends Model
@@ -118,7 +120,7 @@ class Server extends Model
 
     /**
      * Meetings that (have) run on this server
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function meetings()
     {
@@ -126,8 +128,17 @@ class Server extends Model
     }
 
     /**
+     * Server pools the server is part of
+     * @return BelongsToMany
+     */
+    public function pools(): BelongsToMany
+    {
+        return $this->belongsToMany(ServerPool::class);
+    }
+
+    /**
      * Statistical data of this server
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function stats()
     {
@@ -135,15 +146,15 @@ class Server extends Model
     }
 
     /**
-     * Scope a query to only get servers that have a description like the passed one.
+     * Scope a query to only get servers that have a name like the passed one.
      *
-     * @param  Builder $query       Query that should be scoped
-     * @param  String  $description Description to search for
+     * @param  Builder $query Query that should be scoped
+     * @param  String  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithDescription(Builder $query, $description)
+    public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('description', 'like', '%' . $description . '%');
+        return $query->where('name', 'like', '%' . $name . '%');
     }
 
     /**
