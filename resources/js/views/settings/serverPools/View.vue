@@ -314,7 +314,7 @@ export default {
       this.model.updated_at = this.staleError.new_model.updated_at;
       this.staleError = {};
       this.$refs['stale-server-pool-modal'].hide();
-      this.saveServer();
+      this.saveServerPool();
     },
 
     /**

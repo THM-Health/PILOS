@@ -141,14 +141,14 @@ return [
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.'
         ],
-        'password' => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).',
+        'password'              => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).',
         'replacement_room_type' => [
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
-            'exists' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
-            'not_in' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+            'exists'   => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+            'not_in'   => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
         ],
         'banner' => [
-            'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
+            'array'    => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
             'required' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!'
         ],
         'banner.icon' => [

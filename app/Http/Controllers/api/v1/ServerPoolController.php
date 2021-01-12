@@ -16,7 +16,7 @@ class ServerPoolController extends Controller
     public function __construct()
     {
         $this->authorizeResource(ServerPool::class, 'serverPool');
-        $this->middleware('check.stale:serverPool,\App\Http\Resources\ServerPool', ['only' => 'update']);
+        $this->middleware('check.stale:serverPool,\App\Http\Resources\ServerPool,withServers', ['only' => 'update']);
     }
 
     /**

@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Authentication with LDAP and Email-Address ([#1], [#3])
 - Added a loading screen for loading events of the application ([#6], [#11])
 - Added localization with a locale switcher and saving selected locale for authenticated users ([#8], [#13])
-- Added flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16],[#44],[#43])
+- Added flash messages on a successful login and on errors caught by the global vue error handler ([#7], [#16],[#44],[#43])
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
 - Added roles and permissions concept and management of roles ([#12], [#22], [#45])
-- Added page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
+- Added a page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
 - Added search field and pagination to the room overview page  ([#39], [#49])
 - Added file upload for room owner and file download for participants ([#4], [#18])
 - Added agreement check before file download ([#50],[#54])
@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added management of servers ([#30], [#88])
 - Added artisan command to check server and meeting status, build live and historical data ([#64], [#65])
 - Added artisan command to create a new admin user ([#81])
-- Added a application banner that can be modified throught the application settings ([#89], [#94])
+- Added an application banner that can be modified through the application settings ([#89], [#94])
+- Added management of server pools, used by load balancer and added to room type ([#96], [#99])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -76,5 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#88]: https://github.com/THM-Health/PILOS/pull/88
 [#89]: https://github.com/THM-Health/PILOS/issues/89
 [#94]: https://github.com/THM-Health/PILOS/pull/94
+[#96]: https://github.com/THM-Health/PILOS/issues/96
+[#99]: https://github.com/THM-Health/PILOS/pull/99
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

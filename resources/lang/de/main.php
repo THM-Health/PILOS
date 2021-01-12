@@ -12,6 +12,6 @@ return [
     |
     */
 
-    'login'   => 'Einloggen',
+    'login'    => 'Einloggen',
     'throttle' => 'Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
 ];
