@@ -126,6 +126,12 @@ describe('base', function () {
     flashMessageInfoSpy.resetHistory();
     routerSpy.resetHistory();
 
+    // 413 errors
+    error = { response: { data: { message: '' }, status: 413, statusText: 'Payload Too Large' }, message: 'Request failed with status code 413' };
+    Base.error(error, vm, error.message);
+    sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.tooLarge');
+    flashMessageErrorSpy.resetHistory();
+
     // other server errors with message
     error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
     Base.error(error, vm, error.message);
