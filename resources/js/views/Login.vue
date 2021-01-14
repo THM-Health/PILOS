@@ -55,12 +55,19 @@ export default {
     };
   },
   methods: {
+    /**
+     * Handle login request
+     * @param data Credentials with username/email and password
+     * @param id ID of the login methode (ldap or default)
+     * @return {Promise<void>}
+     */
     async handleLogin ({ data, id }) {
       try {
         this.errors[id] = null;
         this.loading = true;
         await this.$store.dispatch('session/login', { credentials: data, method: id });
         this.flashMessage.success(this.$t('auth.flash.login'));
+        // check if user should be redirected back after login
         if (this.$route.query.redirect !== undefined) {
           await this.$router.push(this.$route.query.redirect);
         } else {
