@@ -3,13 +3,17 @@ import moxios from 'moxios';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
 
+let consoleErrorStub;
+
 describe('base', function () {
   beforeEach(function () {
     moxios.install();
+    consoleErrorStub = sinon.stub(console, 'error');
   });
 
   afterEach(function () {
     moxios.uninstall();
+    consoleErrorStub.restore();
   });
 
   describe('call', function () {
@@ -62,11 +66,15 @@ describe('base', function () {
     });
   });
 
-  it('base error handling 401', function () {
-    const flashMessageSpy = sinon.spy();
+  it('base error handling', function () {
+    const flashMessageErrorSpy = sinon.spy();
+    const flashMessageInfoSpy = sinon.spy();
     const flashMessage = {
       info (param) {
-        flashMessageSpy(param);
+        flashMessageInfoSpy(param);
+      },
+      error (param) {
+        flashMessageErrorSpy(param);
       }
     };
 
@@ -90,21 +98,60 @@ describe('base', function () {
       $store: store,
       $router: router,
       flashMessage: flashMessage,
-      $t: (key) => key
+      $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
 
     };
 
-    const error = { response: { data: { message: 'Unauthenticated.' }, status: 401, statusText: 'Unauthorized' }, message: 'Request failed with status code 401' };
+    // 401 errors
+    let error = { response: { data: { message: 'Unauthenticated.' }, status: 401, statusText: 'Unauthorized' }, message: 'Request failed with status code 401' };
     Base.error(error, vm, error.message);
+    sinon.assert.calledOnceWithExactly(routerSpy, { name: 'login', query: { redirect: '/test' } });
+    sinon.assert.calledOnceWithExactly(flashMessageInfoSpy, 'app.flash.unauthenticated');
+    sinon.assert.calledOnceWithExactly(storeCommitSpy, 'setCurrentUser', { currentUser: null, emit: false });
+    routerSpy.resetHistory();
+    flashMessageInfoSpy.resetHistory();
+    storeCommitSpy.resetHistory();
 
-    sinon.assert.calledOnce(routerSpy);
-    sinon.assert.calledWith(routerSpy, { name: 'login', query: { redirect: '/test' } });
+    // 403 errors
+    error = { response: { data: { message: 'This action is unauthorized.' }, status: 403, statusText: 'Forbidden' }, message: 'Request failed with status code 403' };
+    Base.error(error, vm, error.message);
+    sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.unauthorized');
+    flashMessageErrorSpy.resetHistory();
 
-    sinon.assert.calledOnce(flashMessageSpy);
-    sinon.assert.calledWith(flashMessageSpy, 'app.flash.unauthenticated');
+    // 420 errors
+    error = { response: { data: { message: 'Guests only.' }, status: 420, statusText: 'Guests only' }, message: 'Request failed with status code 420' };
+    Base.error(error, vm, error.message);
+    sinon.assert.calledOnceWithExactly(flashMessageInfoSpy, 'app.flash.guestsOnly');
+    sinon.assert.calledOnceWithExactly(routerSpy, { name: 'home' });
+    flashMessageInfoSpy.resetHistory();
+    routerSpy.resetHistory();
 
-    sinon.assert.calledOnce(storeCommitSpy);
-    sinon.assert.calledWith(storeCommitSpy, 'setCurrentUser', { currentUser: null, emit: false });
+    // other server errors with message
+    error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
+    Base.error(error, vm, error.message);
+    sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, {
+      contentClass: 'flash_small_title flex-column-reverse d-flex',
+      message: 'app.flash.serverError.message:{"message":"syntax error"}',
+      title: 'app.flash.serverError.title:{"statusCode":500}'
+    });
+    flashMessageErrorSpy.resetHistory();
+
+    // other server errors without message
+    error = { response: { data: { message: '' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
+    Base.error(error, vm, error.message);
+    sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, {
+      contentClass: 'flash_small_title flex-column-reverse d-flex',
+      message: 'app.flash.serverError.emptyMessage',
+      title: 'app.flash.serverError.title:{"statusCode":500}'
+    });
+    flashMessageErrorSpy.resetHistory();
+
+    // other non server error
+    Base.error({ testProp1: 'testValue1', testProp2: 'testValue2' }, vm, 'infoText');
+    sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.clientError');
+    sinon.assert.calledOnceWithExactly(consoleErrorStub, 'Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
+    consoleErrorStub.resetHistory();
+    flashMessageErrorSpy.resetHistory();
   });
 
   it('`getCsrfCookie` calls the route for getting a csrf cookie', function (done) {
