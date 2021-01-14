@@ -61,7 +61,11 @@ export default {
         this.loading = true;
         await this.$store.dispatch('session/login', { credentials: data, method: id });
         this.flashMessage.success(this.$t('auth.flash.login'));
-        await this.$router.push({ name: 'rooms.index' });
+        if (this.$route.query.redirect !== undefined) {
+          await this.$router.push(this.$route.query.redirect);
+        } else {
+          await this.$router.push({ name: 'rooms.index' });
+        }
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors[id] = error.response.data.errors;

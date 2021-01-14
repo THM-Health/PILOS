@@ -44,7 +44,7 @@ Vue.config.errorHandler = function (error, vm, info) {
     if (vm.$store.getters['session/isAuthenticated']) {
       vm.flashMessage.info(vm.$t('app.flash.unauthenticated'));
       vm.$store.commit('setCurrentUser', { currentUser: null, emit: false });
-      vm.$router.replace({ name: 'login' });
+      vm.$router.replace({ name: 'login', query: { redirect: vm.$router.currentRoute.path } });
     }
   } else if (responseStatus === env.HTTP_FORBIDDEN && errorMessage === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
     vm.flashMessage.error(vm.$t('app.flash.unauthorized'));
