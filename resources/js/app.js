@@ -7,6 +7,7 @@ import router from './router';
 import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
+import Base from './api/base';
 
 Vue.use(Clipboard);
 // Install BootstrapVue
@@ -23,6 +24,8 @@ if (process.env.NODE_ENV === 'development') {
   const VueAxe = require('vue-axe').default;
   Vue.use(VueAxe);
 }
+
+Vue.config.errorHandler = Base.error;
 
 export default new Vue({
   el: '#app',
