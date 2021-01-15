@@ -209,7 +209,7 @@
         </b-button>
         <!-- Redirect the login the access room -->
         <b-button
-          @click="$router.push('/login')"
+          @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
           variant="success"
         >
           <i class="fas fa-lock"></i> {{$t('rooms.login')}}

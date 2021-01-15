@@ -1,4 +1,6 @@
-require('jsdom-global')();
+require('jsdom-global')(undefined, {
+  url: 'http://test.de'
+});
 
 global.expect = require('expect');
 
