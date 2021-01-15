@@ -11,6 +11,7 @@ import sinon from 'sinon';
 import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();
+localVue.use(VueRouter);
 localVue.use(BootstrapVue);
 
 describe('Login', function () {
@@ -118,15 +119,19 @@ describe('Login', function () {
     };
 
     const routerSpy = sinon.spy();
+    const router = new VueRouter({ mode: 'abstract' });
+
+    await router.push('/foo?redirect=%2Fredirect_path');
+
+    router.push = routerSpy;
     const view = mount(Login, {
       localVue,
       store,
       mocks: {
         $t: (key) => key,
         flashMessage: flashMessage,
-        $route: { query: { redirect: '/redirect_path' } },
-        $router: { push: routerSpy }
-      }
+      },
+      router
     });
 
     moxios.stubRequest('/sanctum/csrf-cookie', {
@@ -164,8 +169,10 @@ describe('Login', function () {
     sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
     sinon.assert.calledOnceWithExactly(routerSpy, '/redirect_path');
 
+    router
     view.destroy();
   });
+
   it('redirect to room overview if redirect query not set', async function () {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
@@ -184,9 +191,8 @@ describe('Login', function () {
       mocks: {
         $t: (key) => key,
         flashMessage: flashMessage,
-        $route: { query: {} },
-        $router: router
-      }
+      },
+      router
     });
 
     moxios.stubRequest('/sanctum/csrf-cookie', {
