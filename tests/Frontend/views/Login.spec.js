@@ -129,7 +129,7 @@ describe('Login', function () {
       store,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage,
+        flashMessage: flashMessage
       },
       router
     });
@@ -169,7 +169,6 @@ describe('Login', function () {
     sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
     sinon.assert.calledOnceWithExactly(routerSpy, '/redirect_path');
 
-    router
     view.destroy();
   });
 
@@ -190,7 +189,7 @@ describe('Login', function () {
       store,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage,
+        flashMessage: flashMessage
       },
       router
     });
