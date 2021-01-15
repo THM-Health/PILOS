@@ -31,6 +31,7 @@
     <hr>
 
     <b-table
+      fixed
       hover
       show-empty
       stacked='xl'
@@ -164,7 +165,13 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.users.id'), sortable: true, tdClass: 'td-max-width-0-xl' },
+        {
+          key: 'id',
+          label: this.$t('settings.users.id'),
+          sortable: true,
+          tdClass: 'td-max-width-0-xl',
+          thStyle: { width: '8%' }
+        },
         { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0-xl' },
         { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0-xl' },
         { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-xl' },

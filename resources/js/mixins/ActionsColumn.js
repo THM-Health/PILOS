@@ -53,7 +53,7 @@ export default {
      * @property actionColumnDefinition
      */
     actionColumnDefinition () {
-      return { key: 'actions', label: this.$t('app.actions'), sortable: false };
+      return { key: 'actions', label: this.$t('app.actions'), sortable: false, thStyle: { width: '14%' } };
     }
   },
 
