@@ -62,6 +62,16 @@
         {{ $t(`settings.users.authenticator.${data.item.authenticator}`) }}
       </template>
 
+      <template #cell()="data">
+        <div
+          v-b-tooltip.hover
+          :title='data.value'
+          class='text-ellipsis'
+        >
+          {{ data.value }}
+        </div>
+      </template>
+
       <template v-slot:cell(actions)="data">
         <b-button-group>
           <can method='view' :policy='data.item'>
@@ -155,10 +165,10 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.users.id'), sortable: true },
-        { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true },
-        { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true },
-        { key: 'email', label: this.$t('settings.users.email'), sortable: true },
+        { key: 'id', label: this.$t('settings.users.id'), sortable: true, tdClass: 'td-max-width-0' },
+        { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0' },
+        { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0' },
+        { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0' },
         { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true }
       ];
 
