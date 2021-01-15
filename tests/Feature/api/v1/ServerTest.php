@@ -94,13 +94,13 @@ class ServerTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $servers[5]->id]);
 
-        // Filtering by description
+        // Filtering by name
         $this->getJson(route('api.v1.servers.index') . '?name=server01')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $server01->id]);
 
-        // Filtering by description
+        // Filtering by name
         $this->getJson(route('api.v1.servers.index') . '?name=server')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
