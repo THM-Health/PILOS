@@ -1,13 +1,14 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
-import Login from '../../../../resources/js/views/Login';
-import store from '../../../../resources/js/store';
-import EmailLoginComponent from '../../../../resources/js/components/Login/EmailLoginComponent';
-import LdapLoginComponent from '../../../../resources/js/components/Login/LdapLoginComponent';
-import env from '../../../../resources/js/env';
-import Base from '../../../../resources/js/api/base';
+import Login from '../../../resources/js/views/Login';
+import store from '../../../resources/js/store';
+import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent';
+import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent';
+import env from '../../../resources/js/env';
+import Base from '../../../resources/js/api/base';
 import sinon from 'sinon';
+import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -57,7 +58,6 @@ describe('Login', function () {
           const data = JSON.parse(request.config.data);
           expect(data.username).toBe('user');
           expect(data.password).toBe('password');
-
           view.destroy();
           done();
         });
@@ -107,6 +107,124 @@ describe('Login', function () {
         });
       });
     });
+  });
+
+  it('redirect if query set', async function () {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      success (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const routerSpy = sinon.spy();
+    const view = mount(Login, {
+      localVue,
+      store,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage,
+        $route: { query: { redirect: '/redirect_path' } },
+        $router: { push: routerSpy }
+      }
+    });
+
+    moxios.stubRequest('/sanctum/csrf-cookie', {
+      status: 200
+    });
+    moxios.stubRequest('/api/v1/login/ldap', {
+      status: 204
+    });
+    moxios.stubRequest('/api/v1/currentUser', {
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          authenticator: 'ldap',
+          email: 'john.doe@domain.tld',
+          username: 'user',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'de',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    await view.vm.handleLogin({
+      id: 'ldap',
+      data: {
+        username: 'user',
+        password: 'password'
+      }
+    });
+
+    sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
+    sinon.assert.calledOnceWithExactly(routerSpy, '/redirect_path');
+
+    view.destroy();
+  });
+  it('redirect to room overview if redirect query not set', async function () {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      success (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+
+    const view = mount(Login, {
+      localVue,
+      store,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage,
+        $route: { query: {} },
+        $router: router
+      }
+    });
+
+    moxios.stubRequest('/sanctum/csrf-cookie', {
+      status: 200
+    });
+    moxios.stubRequest('/api/v1/login/ldap', {
+      status: 204
+    });
+    moxios.stubRequest('/api/v1/currentUser', {
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          authenticator: 'ldap',
+          email: 'john.doe@domain.tld',
+          username: 'user',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'de',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    await view.vm.handleLogin({
+      id: 'ldap',
+      data: {
+        username: 'user',
+        password: 'password'
+      }
+    });
+
+    sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
+    sinon.assert.calledOnceWithExactly(routerSpy, { name: 'rooms.index' });
+
+    view.destroy();
   });
 
   it('unprocessable entity errors gets displayed for the corresponding fields', function (done) {
