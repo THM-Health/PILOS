@@ -39,6 +39,7 @@
 import EmailLoginComponent from '../components/Login/EmailLoginComponent';
 import LdapLoginComponent from '../components/Login/LdapLoginComponent';
 import env from '../env';
+import Base from '../api/base';
 
 export default {
   components: {
@@ -80,8 +81,7 @@ export default {
           if (error.response !== undefined && error.response.status === env.HTTP_TOO_MANY_REQUESTS) {
             this.errors[id] = error.response.data.errors;
           } else {
-            this.loading = false;
-            throw error;
+            Base.error(error, this.$root, error.message);
           }
         }
       } finally {

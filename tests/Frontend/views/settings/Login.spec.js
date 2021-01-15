@@ -12,7 +12,6 @@ import sinon from 'sinon';
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
-
 describe('Login', function () {
   beforeEach(function () {
     moxios.install();
@@ -49,7 +48,7 @@ describe('Login', function () {
           status: 200
         });
 
-         moxios.wait(function () {
+        moxios.wait(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
@@ -151,7 +150,7 @@ describe('Login', function () {
             status: env.HTTP_UNPROCESSABLE_ENTITY,
             response: {
               errors: {
-                email: ['Password or Email wrong!'],
+                email: ['Password or Email wrong!']
               }
             }
           }).then(() => {
@@ -209,7 +208,7 @@ describe('Login', function () {
             status: env.HTTP_TOO_MANY_REQUESTS,
             response: {
               errors: {
-                email: ['Too many logins. Please try again later!'],
+                email: ['Too many logins. Please try again later!']
               }
             }
           }).then(() => {
