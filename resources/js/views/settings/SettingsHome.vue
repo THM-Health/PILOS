@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div v-html="$t('settings.description')"></div>
+    <h3>{{ $t('settings.overview') }}</h3>
+    <div v-html="$t('settings.overviewDescription')"></div>
+    <hr>
     <b-row cols="1" cols-sm="2" cols-md="3" cols-lg="3" align-v="stretch">
       <can method='viewAny' policy='SettingPolicy'>
        <b-col class="p-2 h-100">

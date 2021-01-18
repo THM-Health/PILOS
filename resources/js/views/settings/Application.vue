@@ -1,9 +1,6 @@
 <template>
-  <b-container fluid>
-    <h3>
-      {{ $t('settings.application.title') }}
-    </h3>
-
+ <div>
+    <h3>{{ $t('settings.application.title') }}</h3>
     <hr>
     <b-overlay :show="isBusy || !loaded">
 
@@ -541,7 +538,7 @@
         </div>
       </b-form>
     </b-overlay>
-  </b-container>
+ </div>
 </template>
 
 <script>

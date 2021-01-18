@@ -1,6 +1,8 @@
 export default {
   title: 'Einstellungen',
-  description: 'Hier können die Einstellungen der Anwendung verwaltet werden.<br>' +
+  homeButton: 'Zurück zur Übersicht',
+  overview: 'Übersicht',
+  overviewDescription: 'Hier können die Einstellungen der Anwendung verwaltet werden.<br>' +
     'Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
 
   roles: {

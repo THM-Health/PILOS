@@ -1,14 +1,12 @@
 <template>
   <b-container class='mt-3 mb-5'>
-    <h2><b-button
+    <h2>{{ $t('settings.title') }}</h2>
+    <b-button
       class='mr-3'
       v-if="$route.name!=='settings'"
-      v-b-tooltip.hover
-      variant='success'
-      :title="$t('settings.users.new')"
+      variant='secondary'
       :to="{ name: 'settings'}"
-    ><b-icon-house-fill></b-icon-house-fill></b-button> {{ $t('settings.title') }}
-    </h2>
+    ><i class='fas fa-arrow-left'></i> {{ $t('settings.homeButton') }}</b-button>
     <hr>
     <b-card class='p-3 border bg-white'>
       <router-view></router-view>
