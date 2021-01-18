@@ -185,3 +185,7 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.actionColumn{
+    width: calc(126px + 0.75rem);
+}

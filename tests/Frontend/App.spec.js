@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import App from '../../resources/js/views/App';
 import Vuex from 'vuex';
-import BootstrapVue, { BDropdownItem } from 'bootstrap-vue';
+import BootstrapVue, { BNavItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
 import Vue from 'vue';
 
@@ -57,14 +57,14 @@ describe('App', function () {
     });
 
     await Vue.nextTick();
-    expect(wrapper.findAllComponents(BDropdownItem).filter((w) => {
+    expect(wrapper.findAllComponents(BNavItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(0);
 
     currentUser.permissions = ['settings.manage'];
     PermissionService.setCurrentUser(currentUser);
     await Vue.nextTick();
-    expect(wrapper.findAllComponents(BDropdownItem).filter((w) => {
+    expect(wrapper.findAllComponents(BNavItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(1);
 

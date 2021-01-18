@@ -35,7 +35,8 @@ describe('RolesIndex', function () {
       mocks: {
         $t: key => key,
         $te: key => key === 'app.roles.admin'
-      }
+      },
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {

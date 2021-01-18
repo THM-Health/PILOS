@@ -37,11 +37,11 @@ describe('ActionsColumn', function () {
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn' }]);
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn' }]);
     PermissionService.setCurrentUser({ permissions: [] });
     await Vue.nextTick();
 
