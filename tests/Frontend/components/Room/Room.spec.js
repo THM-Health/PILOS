@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue from 'bootstrap-vue';
+import BootstrapVue, { BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
@@ -7,6 +7,7 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
+import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();
 
@@ -19,6 +20,7 @@ const createContainer = (tag = 'div') => {
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
+localVue.use(VueRouter);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
@@ -70,12 +72,21 @@ describe('Room', function () {
       status: 403
     });
 
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+    const sandbox = sinon.createSandbox();
+    sandbox.replaceGetter(router, 'currentRoute', function () {
+      return { path: '/rooms/knz-6ah-anr' };
+    });
+
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       store,
+      router,
       attachTo: createContainer()
     });
 
@@ -85,8 +96,27 @@ describe('Room', function () {
       next(view.vm);
       await view.vm.$nextTick();
       expect(view.html()).toContain('rooms.onlyUsedByAuthenticatedUsers');
-      view.destroy();
-      done();
+
+      const tryAgain = view.findAllComponents(BButton).at(0);
+      const login = view.findAllComponents(BButton).at(1);
+
+      expect(tryAgain.html()).toContain('rooms.tryAgain');
+      expect(login.html()).toContain('rooms.login');
+
+      await tryAgain.trigger('click');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.url).toBe('/api/v1/rooms/abc-def-123');
+        await view.vm.$nextTick();
+
+        await login.trigger('click');
+        sinon.assert.calledOnce(routerSpy);
+        sinon.assert.calledWith(routerSpy, { name: 'login', query: { redirect: '/rooms/knz-6ah-anr' } });
+        sandbox.restore();
+        view.destroy();
+        done();
+      });
     });
   });
 

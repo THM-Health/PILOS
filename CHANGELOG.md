@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Authentication with LDAP and Email-Address ([#1], [#3])
 - Added a loading screen for loading events of the application ([#6], [#11])
 - Added localization with a locale switcher and saving selected locale for authenticated users ([#8], [#13])
-- Added flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16],[#44],[#43])
+- Added flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16],[#44],[#43],[#101],[#102])
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
 - Added roles and permissions concept and management of roles ([#12], [#22], [#45])
@@ -78,5 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#94]: https://github.com/THM-Health/PILOS/pull/94
 [#97]: https://github.com/THM-Health/PILOS/issues/97
 [#100]: https://github.com/THM-Health/PILOS/pull/100
+[#101]: https://github.com/THM-Health/PILOS/issues/101
+[#102]: https://github.com/THM-Health/PILOS/pull/102
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
