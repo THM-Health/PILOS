@@ -722,7 +722,7 @@ export default {
      * Check if user is only allowed to read settings
      */
     viewOnly () {
-      return PermissionService.cannot('update', 'SettingPolicy');
+      return PermissionService.cannot('update', 'ApplicationSettingPolicy');
     },
 
     /**

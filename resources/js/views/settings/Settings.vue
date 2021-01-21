@@ -5,7 +5,7 @@
     <b-row class='mt-5'>
       <b-col lg='3' class='mb-4'>
         <b-nav vertical class='flex-nowrap'>
-          <can method='viewAny' policy='SettingPolicy'>
+          <can method='viewAny' policy='ApplicationSettingPolicy'>
             <b-nav-item class='setting-nav-link' exact-active-class='setting-nav-link-active' :to="{ name: 'settings.application' }">
               <b-row>
                 <b-col cols='3'><span><i class='fas fa-cogs'></i></span></b-col>

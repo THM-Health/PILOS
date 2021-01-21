@@ -28,6 +28,7 @@ class RoomTypeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed('RolesAndPermissionsSeeder');
         $this->user = factory(User::class)->create();
     }
 
@@ -67,7 +68,7 @@ class RoomTypeTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'roomTypes.view']);
+        $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.view' ]);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -103,7 +104,7 @@ class RoomTypeTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'roomTypes.create']);
+        $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -144,7 +145,7 @@ class RoomTypeTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'roomTypes.update']);
+        $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.update' ]);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -197,7 +198,7 @@ class RoomTypeTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'roomTypes.delete']);
+        $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.delete' ]);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 

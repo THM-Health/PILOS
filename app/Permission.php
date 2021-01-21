@@ -27,4 +27,20 @@ class Permission extends Model
     {
         return $this->belongsToMany('App\Role');
     }
+
+    public function inheritances()
+    {
+        return $this->belongsToMany(self::class, 'permission_inheritances', 'permission_id', 'inheritance_permission_id');
+    }
+
+    public static function SetupPermissionInheritances($permissionName, $permissionInheritanceNames)
+    {
+        $permission             = self::where('name', $permissionName)->firstOrFail();
+        $permissionInheritances = [];
+        foreach ($permissionInheritanceNames as $permissionInheritanceName) {
+            $permissionInheritance = self::where('name', $permissionInheritanceName)->firstOrFail();
+            array_push($permissionInheritances, $permissionInheritance->id);
+        }
+        $permission->inheritances()->sync($permissionInheritances);
+    }
 }

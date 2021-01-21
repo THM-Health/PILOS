@@ -15,6 +15,11 @@ class RoleTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
     public function testIndex()
     {
         $page_size = 1;
@@ -29,6 +34,8 @@ class RoleTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.roles.index'))->assertStatus(403);
 
         $roleA->permissions()->attach(Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id);
+
+        var_dump(Permission::all()->count());
 
         $this->getJson(route('api.v1.roles.index'))
             ->assertSuccessful()
@@ -171,7 +178,7 @@ class RoleTest extends TestCase
 
         $this->actingAs($user)->putJson(route('api.v1.roles.update', ['role'=>$roleA]), [
             'name'        => $roleA->name,
-            'permissions' => [$permission_ids[0], $permission_ids[1], $new_permission],
+            'permissions' => [$new_permission],
             'updated_at'  => $roleA->updated_at
         ])->assertStatus(CustomStatusCodes::ROLE_UPDATE_PERMISSION_LOST);
 
