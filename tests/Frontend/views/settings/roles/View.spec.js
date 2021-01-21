@@ -48,6 +48,12 @@ function overrideStub (url, response) {
   }
 }
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 let oldUser;
 
 describe('RolesView', function () {
@@ -107,7 +113,8 @@ describe('RolesView', function () {
         viewOnly: true,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer(),
     });
 
     moxios.wait(function () {
@@ -127,7 +134,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -147,7 +155,8 @@ describe('RolesView', function () {
         viewOnly: true,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -173,7 +182,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     view.vm.$nextTick().then(() => {
@@ -258,7 +268,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -297,7 +308,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     const requestCount = moxios.requests.count();
@@ -330,7 +342,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -422,7 +435,8 @@ describe('RolesView', function () {
         modalStatic: true
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -486,7 +500,8 @@ describe('RolesView', function () {
         modalStatic: true
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -544,7 +559,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -587,7 +603,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -621,7 +638,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -656,7 +674,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
