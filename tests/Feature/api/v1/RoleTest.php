@@ -35,8 +35,6 @@ class RoleTest extends TestCase
 
         $roleA->permissions()->attach(Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id);
 
-        var_dump(Permission::all()->count());
-
         $this->getJson(route('api.v1.roles.index'))
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
