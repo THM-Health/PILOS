@@ -161,9 +161,9 @@ class User extends Authenticatable
             foreach ($role->permissions as $permission) {
                 if (!in_array($permission->name, $permissions)) {
                     array_push($permissions, $permission->name);
-                    foreach ($permission->inheritances as $inheritedPermission) {
-                        if (!in_array($inheritedPermission->name, $permissions)) {
-                            array_push($permissions, $inheritedPermission->name);
+                    foreach ($permission->includedPermissions as $includedPermission) {
+                        if (!in_array($includedPermission->name, $permissions)) {
+                            array_push($permissions, $includedPermission->name);
                         }
                     }
                 }
@@ -183,11 +183,11 @@ class User extends Authenticatable
         return DB::table('permissions')
             ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
             ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
-            ->leftJoin('permission_inheritances', 'permissions.id', '=', 'permission_inheritances.permission_id')
-            ->leftJoin('permissions as inherited_permissions', 'inherited_permissions.id', '=', 'permission_inheritances.inheritance_permission_id')
+            ->leftJoin('included_permissions', 'permissions.id', '=', 'included_permissions.permission_id')
+            ->leftJoin('permissions as permissions2', 'permissions2.id', '=', 'included_permissions.included_permission_id')
             ->where(function ($query) use ($permission) {
                 $query->where('permissions.name', '=', $permission)
-                    ->orWhere('inherited_permissions.name', '=', $permission);
+                    ->orWhere('permissions2.name', '=', $permission);
             })
             ->where('role_user.user_id', '=', $this->id)
             ->exists();

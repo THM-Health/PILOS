@@ -13,6 +13,12 @@ export default {
     id: 'ID',
     name: 'Name',
     permissions: 'Rechte',
+    permissionName: 'Name des Rechts',
+    permissionExplicit: 'Explizit',
+    permissionIncluded: 'Inkludiert',
+    permissionIncludedHelp: 'Rechte die ausgewählt wurden und Rechte, die in den ausgewählten Rechten inkludiert sind.',
+    hasIncludedPermission: 'Das Recht "{name}" wurde entweder explizit ausgewählt oder ist in einem anderen ausgewählten Recht inkludiert.',
+    hasNotIncludedPermission: 'Das Recht "{name}" wurde weder explizit ausgewählt noch ist es in einem anderen ausgewählten Recht inkludiert.',
     roomLimit: {
       label: 'Max. Anzahl an Räumen',
       default: 'Systemstandard ({value})',

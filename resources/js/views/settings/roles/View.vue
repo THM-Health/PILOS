@@ -129,26 +129,69 @@
             label-class='font-weight-bold pt-0'
             :state="Object.keys(errors).some(error => error === 'permissions' || error.startsWith('permissions.')) ? false : null"
           >
-            <div class='row' v-if='!isBusy && Object.keys(permissions).length > 0'>
-              <b-form-group
-                class='col-lg-4 col-sm-12'
+            <b-row v-if='!isBusy && Object.keys(permissions).length > 0'>
+              <b-col cols="8">
+                <b>{{ $t('settings.roles.permissionName') }}</b>
+              </b-col>
+              <b-col cols="2">
+                <b>{{ $t('settings.roles.permissionExplicit') }}</b>
+              </b-col>
+              <b-col cols="2">
+                <b>{{ $t('settings.roles.permissionIncluded') }}
+                  <b-icon-info-circle
+                    v-b-tooltip.hover
+                    :title="$t('settings.roles.permissionIncludedHelp')"
+                  ></b-icon-info-circle></b>
+              </b-col>
+              <b-col cols="12">
+                <hr>
+              <b-row
                 v-for="key in Object.keys(permissions)"
                 :key='key'
+                class="mb-2"
               >
-                <template v-slot:label>
+                <b-col cols="12">
                   <b>{{ $t(`app.permissions.${key}.title`) }}</b>
-                </template>
-
-                <b-form-checkbox-group
-                  v-model='model.permissions'
-                  stacked
-                  :disabled='isBusy || modelLoadingError || viewOnly'
-                  :state="fieldState('permissions', true)"
+                </b-col>
+                <b-col cols="12">
+                <b-row
+                  :key='permission.id' v-for="permission in permissions[key]"
                 >
-                  <b-form-checkbox :key='permission.id' v-for="permission in permissions[key]" :value="permission.id">{{ $t(`app.permissions.${permission.name}`) }}</b-form-checkbox>
-                </b-form-checkbox-group>
-              </b-form-group>
-            </div>
+                  <b-col cols="8">
+                    <label :for="permission.name">{{ $t(`app.permissions.${permission.name}`) }}</label>
+                  </b-col>
+                  <b-col cols="2">
+                    <b-form-checkbox
+                      v-model="model.permissions"
+                      :id="permission.name"
+                      :value="permission.id"
+                      switch
+                      :disabled='isBusy || modelLoadingError || viewOnly'
+                      :state="fieldState('permissions', true)"
+                    >
+                    </b-form-checkbox>
+                  </b-col>
+                  <b-col cols="2">
+                    <i
+                      v-if="includedPermissions.includes(permission.id)"
+                      class="fas fa-check-circle text-success"
+                      v-b-tooltip.hover
+                      :title="$t('settings.roles.hasIncludedPermission',{'name':$t(`app.permissions.${permission.name}`)})"
+                    ></i>
+                    <i
+                      v-else
+                      class="fas fa-minus-circle text-danger"
+                      v-b-tooltip.hover
+                      :title="$t('settings.roles.hasNotIncludedPermission',{'name':$t(`app.permissions.${permission.name}`)})"
+                    ></i>
+                  </b-col>
+
+                </b-row>
+                </b-col>
+              </b-row>
+              </b-col>
+            </b-row>
+
             <div class="ml-3" v-if="!isBusy && Object.keys(permissions).length === 0">
               {{ $t('settings.roles.noOptions') }}
             </div>
@@ -209,6 +252,7 @@ import FieldErrors from '../../../mixins/FieldErrors';
 import { mapGetters } from 'vuex';
 import env from '../../../env';
 import RawText from '../../../components/RawText';
+import _ from 'lodash';
 
 export default {
   mixins: [FieldErrors],
@@ -255,6 +299,14 @@ export default {
     },
 
     /**
+     * Calculate what permissions the role gets, based on the select permissions and the permissions that are included
+     * in the selected permissions
+     */
+    includedPermissions () {
+      return _.uniq(this.model.permissions.flatMap(permission => [permission, this.includedPermissionMap[permission]].flat()));
+    },
+
+    /**
      * Boolean that indicates, whether any request for this form is pending or not.
      */
     isBusy () {
@@ -269,6 +321,7 @@ export default {
         room_limit: null,
         permissions: []
       },
+      includedPermissionMap: {},
       permissions: {},
       errors: {},
       staleError: {},
@@ -321,6 +374,7 @@ export default {
 
       Base.call('permissions').then(response => {
         this.permissions = {};
+        this.permissionInheritance = {};
         response.data.data.forEach(permission => {
           const group = permission.name.split('.')[0];
 
@@ -329,6 +383,8 @@ export default {
           }
 
           this.permissions[group].push(permission);
+
+          this.includedPermissionMap[permission.id] = permission.includedPermissions;
         });
       }).catch(error => {
         this.modelLoadingError = true;

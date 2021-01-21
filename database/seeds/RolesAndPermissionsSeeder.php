@@ -27,20 +27,20 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.update' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roles.delete' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.update' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.delete' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.view' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.update' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'roomTypes.delete' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.viewAny' ])->id;
@@ -61,30 +61,30 @@ class RolesAndPermissionsSeeder extends Seeder
         // Setup permission inheritances
         /// Eg. If you have permission x, you also get the permissions a,b,c
 
-        Permission::SetupPermissionInheritances('applicationSettings.update', ['applicationSettings.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('applicationSettings.viewAny', ['settings.manage']);
+        Permission::SetupIncludedPermissions('applicationSettings.update', ['applicationSettings.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('applicationSettings.viewAny', ['settings.manage']);
 
-        Permission::SetupPermissionInheritances('roles.delete', ['roles.create','roles.update','roles.view','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('roles.create', ['roles.update','roles.view','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('roles.update', ['roles.view','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('roles.view', ['roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('roles.viewAny', ['settings.manage']);
+        Permission::SetupIncludedPermissions('roles.delete', ['roles.create','roles.update','roles.view','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('roles.create', ['roles.update','roles.view','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('roles.update', ['roles.view','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('roles.view', ['roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('roles.viewAny', ['settings.manage']);
 
-        Permission::SetupPermissionInheritances('users.delete', ['users.updateOwnAttributes','users.create','users.update','users.view','users.viewAny','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('users.create', ['users.updateOwnAttributes','users.update','users.view','users.viewAny','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('users.update', ['users.updateOwnAttributes','users.view','users.viewAny','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('users.view', ['users.viewAny','roles.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('users.viewAny', ['settings.manage']);
+        Permission::SetupIncludedPermissions('users.delete', ['users.updateOwnAttributes','users.create','users.update','users.view','users.viewAny','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('users.create', ['users.updateOwnAttributes','users.update','users.view','users.viewAny','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('users.update', ['users.updateOwnAttributes','users.view','users.viewAny','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('users.view', ['users.viewAny','roles.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('users.viewAny', ['settings.manage']);
 
-        Permission::SetupPermissionInheritances('roomTypes.delete', ['roomTypes.create','roomTypes.update','roomTypes.view','settings.manage']);
-        Permission::SetupPermissionInheritances('roomTypes.create', ['roomTypes.update','roomTypes.view','settings.manage']);
-        Permission::SetupPermissionInheritances('roomTypes.update', ['roomTypes.view','settings.manage']);
-        Permission::SetupPermissionInheritances('roomTypes.view', ['settings.manage']);
+        Permission::SetupIncludedPermissions('roomTypes.delete', ['roomTypes.create','roomTypes.update','roomTypes.view','settings.manage']);
+        Permission::SetupIncludedPermissions('roomTypes.create', ['roomTypes.update','roomTypes.view','settings.manage']);
+        Permission::SetupIncludedPermissions('roomTypes.update', ['roomTypes.view','settings.manage']);
+        Permission::SetupIncludedPermissions('roomTypes.view', ['settings.manage']);
 
-        Permission::SetupPermissionInheritances('servers.delete', ['servers.create','servers.update','servers.view','servers.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('servers.create', ['servers.update','servers.view','servers.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('servers.update', ['servers.view','servers.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('servers.view', ['servers.viewAny','settings.manage']);
-        Permission::SetupPermissionInheritances('servers.viewAny', ['settings.manage']);
+        Permission::SetupIncludedPermissions('servers.delete', ['servers.create','servers.update','servers.view','servers.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('servers.create', ['servers.update','servers.view','servers.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('servers.update', ['servers.view','servers.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('servers.view', ['servers.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('servers.viewAny', ['settings.manage']);
     }
 }

@@ -41,7 +41,7 @@ class PermissionTest extends TestCase
         $user->roles()->attach($role);
 
         $this->assertFalse($user->can($inheritedPermission->name));
-        Permission::SetupPermissionInheritances($permission->name, [$inheritedPermission->name]);
+        Permission::SetupIncludedPermissions($permission->name, [$inheritedPermission->name]);
         $this->assertTrue($user->can($inheritedPermission->name));
     }
 
@@ -59,7 +59,7 @@ class PermissionTest extends TestCase
         $user->roles()->attach($role);
 
         $this->assertFalse($user->can($permission->name));
-        Permission::SetupPermissionInheritances($permission->name, [$inheritedPermission->name]);
+        Permission::SetupIncludedPermissions($permission->name, [$inheritedPermission->name]);
         $this->assertFalse($user->can($permission->name));
     }
 
