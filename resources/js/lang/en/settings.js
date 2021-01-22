@@ -76,7 +76,9 @@ export default {
       item: 'Delete user {firstname} {lastname}',
       confirm: 'Are you really want to delete the user {firstname} {lastname}?',
       title: 'Delete user?'
-    }
+    },
+
+    resetPassword: 'Reset password for the user {firstname} {lastname}'
   },
 
   roomTypes: {

@@ -87,6 +87,17 @@
             >
               <i class='fas fa-edit'></i>
             </b-button>
+            <b-button
+              v-b-tooltip.hover
+              :title="$t('settings.users.reset_password', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :disabled='isBusy'
+              variant='warning'
+              class='mb-1'
+              v-if='data.item.authenticator === "users"'
+              @click='resetPassword(data.item)'
+            >
+              <i class='fas fa-key'></i>
+            </b-button>
           </can>
           <can method='delete' :policy='data.item'>
             <b-button
@@ -255,6 +266,14 @@ export default {
      */
     clearUserToDelete () {
       this.userToDelete = undefined;
+    },
+
+    /**
+     *
+     * @param user
+     */
+    resetPassword (user) {
+      // TODO: Sent reset password request
     }
   }
 };

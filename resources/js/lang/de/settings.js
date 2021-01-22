@@ -78,7 +78,9 @@ export default {
       item: 'Benutzer {firstname} {lastname} löschen',
       confirm: 'Wollen Sie den Benutzer {firstname} {lastname} wirklich löschen?',
       title: 'Benutzer löschen?'
-    }
+    },
+
+    resetPassword: 'Password für den Benutzer {firstname} {lastname} zurücksetzen'
   },
 
   roomTypes: {

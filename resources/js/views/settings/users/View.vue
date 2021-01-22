@@ -177,12 +177,21 @@
                 </b-input-group>
                 <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
               </b-form-group>
+            </b-form-group>
+            <hr>
+            <b-form-group
+              label-cols-lg="12"
+              :label="$t('settings.users.password')"
+              label-size="lg"
+              label-class="font-weight-bold pt-0"
+              class="mb-0"
+              v-if="model.authenticator === 'users' && config.type !== 'view'"
+            >
               <b-form-group
                 label-cols-sm='3'
                 :label="$t('settings.users.password')"
                 label-for='password'
                 :state='fieldState("password")'
-                v-if="model.authenticator === 'users' && config.type !== 'view'"
               >
                 <b-form-input
                   id='password'
@@ -210,7 +219,7 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
               </b-form-group>
             </b-form-group>
-            <hr>
+            <hr v-if="model.authenticator === 'users' && config.type !== 'view'">
             <b-form-group
               label-cols-lg="12"
               :label="$t('settings.users.room_settings')"

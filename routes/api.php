@@ -37,13 +37,16 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
+        Route::post('password/reset', 'ResetPasswordController@reset');
 
         // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');
-//        Route::post('password/reset', 'ResetPasswordController@reset');
-//        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
 //        Route::post('email/resend', 'VerificationController@resend');
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
+
+        if (boolval(setting('password_self_reset_enabled'))) {
+            Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
+        }
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
