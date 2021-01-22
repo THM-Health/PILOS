@@ -256,6 +256,23 @@
           </template>
         </b-form-group>
 
+        <b-form-group
+          :state='fieldState("password_self_reset_enabled")'
+        >
+          <b-form-checkbox
+            v-model='settings.password_self_reset_enabled'
+            :state="fieldState('password_self_reset_enabled')"
+            :disabled='isBusy || viewOnly || !loaded'
+            switch
+          >
+            {{ $t('settings.application.password_self_reset_enabled') }}
+          </b-form-checkbox>
+
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('password_self_reset_enabled')"></div>
+          </template>
+        </b-form-group>
+
         <hr>
 
         <!-- Banner -->
@@ -627,6 +644,7 @@ export default {
       formData.append('room_limit', this.settings.room_limit);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
+      formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
 
       Object.keys(this.settings.banner).forEach(key => {
         let val = this.settings.banner[key];

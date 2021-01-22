@@ -238,5 +238,6 @@ return [
         'banner.link_text'                  => 'Linktext',
         'banner.link_target'                => 'Linkziel',
         'banner.link_style'                 => 'Linkart',
+        'password_self_reset_enabled'       => 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen'
     ],
 ];

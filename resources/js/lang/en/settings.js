@@ -160,7 +160,9 @@ export default {
       background: 'Background color of the banner',
       selectLinkTarget: 'Select link target',
       selectLinkStyle: 'Select link style'
-    }
+    },
+
+    password_self_reset_enabled: 'Give registered users the possibility to reset their password'
   },
 
   servers: {

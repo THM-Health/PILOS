@@ -239,6 +239,7 @@ return [
         'banner.link_text'                  => 'Link text',
         'banner.link_target'                => 'Link target',
         'banner.link_style'                 => 'Link style',
+        'password_self_reset_enabled'       => 'Give registered users the possibility to reset their password'
     ],
 
 ];

@@ -162,7 +162,9 @@ export default {
       background: 'Hintergrundfarbe des Banners',
       selectLinkTarget: 'Linkziel auswählen',
       selectLinkStyle: 'Linkart auswählen'
-    }
+    },
+
+    password_self_reset_enabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen'
   },
 
   servers: {
