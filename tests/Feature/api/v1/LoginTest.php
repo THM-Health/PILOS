@@ -86,7 +86,8 @@ class LoginTest extends TestCase
      */
     public function testCurrentUserPermissions()
     {
-        $permission = Permission::firstOrCreate([ 'name' => 'test' ]);
+        $permission         = Permission::firstOrCreate([ 'name' => 'test' ]);
+        $includedPermission = Permission::firstOrCreate([ 'name' => 'test2' ]);
 
         $a = Role::firstOrCreate(['name' => 'a']);
         $a->permissions()->attach($permission->id);
@@ -102,6 +103,17 @@ class LoginTest extends TestCase
             'firstname'   => $user->firstname,
             'lastname'    => $user->lastname,
             'permissions' => ['test']
+        ]);
+
+        Permission::SetupIncludedPermissions('test', ['test2']);
+        $user->refresh();
+
+        $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'firstname'   => $user->firstname,
+            'lastname'    => $user->lastname,
+            'permissions' => ['test','test2']
         ]);
     }
 
