@@ -40,7 +40,9 @@ export default {
        * @property actionColumnVisible
        * @default false
        */
-      actionColumnVisible: false
+      actionColumnVisible: false,
+      actionColumnThClass: 'actionColumn',
+      actionColumnThStyle: ''
     };
   },
 
@@ -53,7 +55,7 @@ export default {
      * @property actionColumnDefinition
      */
     actionColumnDefinition () {
-      return { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'actionColumn' };
+      return { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: this.actionColumnThClass, thStyle: this.actionColumnThStyle };
     }
   },
 

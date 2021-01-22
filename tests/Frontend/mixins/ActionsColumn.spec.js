@@ -37,11 +37,11 @@ describe('ActionsColumn', function () {
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '' }]);
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '' }]);
     PermissionService.setCurrentUser({ permissions: [] });
     await Vue.nextTick();
 
@@ -57,6 +57,46 @@ describe('ActionsColumn', function () {
     await Vue.nextTick();
 
     expect(view.vm.tableFields).toEqual([]);
+    PermissionService.setCurrentUser(oldUser);
+  });
+
+  it('changes class and style based on data', async function () {
+    const oldUser = PermissionService.currentUser;
+
+    const Test = {
+      mixins: [ActionsColumn],
+      render () {},
+      computed: {
+        tableFields () {
+          if (this.actionColumnVisible) {
+            return [this.actionColumnDefinition];
+          }
+
+          return [];
+        }
+      },
+      data () {
+        return {
+          actionColumnThClass: 'testClass',
+          actionColumnThStyle: 'testStyle',
+          actionPermissions: ['test.perm']
+        };
+      }
+    };
+
+    const view = mount(Test, {
+      mocks: {
+        $t: key => key
+      }
+    });
+
+    expect(view.vm.tableFields).toEqual([]);
+
+    PermissionService.setCurrentUser({ permissions: ['test.perm'] });
+    await Vue.nextTick();
+
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'testClass', thStyle: 'testStyle' }]);
+    await Vue.nextTick();
     PermissionService.setCurrentUser(oldUser);
   });
 });
