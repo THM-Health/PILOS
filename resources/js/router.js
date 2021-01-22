@@ -322,6 +322,9 @@ export function beforeEachRoute (router, store, to, from, next) {
         name: 'login',
         query: { redirect: to.fullPath }
       });
+    } else if (to.matched.some(record => record.meta.guestsOnly) && store.getters['session/isAuthenticated']) {
+      router.app.$root.flashMessage.error(router.app.$t('app.flash.guestsOnly'));
+      next({ name: 'home' });
     } else if (!recordsPermissions.every(permission => permission)) {
       router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
       next(from.matched.length !== 0 ? false : '/');
