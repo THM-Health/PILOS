@@ -2,6 +2,9 @@ export default {
   login: 'Anmelden',
   logout: 'Abmelden',
   password: 'Passwort',
+  forgotPassword: 'Passwort vergessen?',
+  resetPassword: 'Passwort zurücksetzen',
+  sendPasswordResetLink: 'Passwort-Rücksetz-Link senden',
 
   ldap: {
     tabTitle: 'LDAP',

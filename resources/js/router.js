@@ -18,7 +18,9 @@ import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
 import ServersIndex from './views/settings/servers/Index';
 import ServersView from './views/settings/servers/View';
+import PasswordReset from './views/PasswordReset';
 import Base from './api/base';
+import ForgotPassword from './views/ForgotPassword';
 
 Vue.use(VueRouter);
 
@@ -45,7 +47,20 @@ export const routes = [
   {
     path: '/login',
     name: 'login',
-    component: Login
+    component: Login,
+    meta: { guestsOnly: true }
+  },
+  {
+    path: '/reset_password',
+    name: 'password.reset',
+    component: PasswordReset,
+    meta: { guestsOnly: true }
+  },
+  {
+    path: '/forgot_password',
+    name: 'password.forgot',
+    component: ForgotPassword,
+    meta: { guestsOnly: true }
   },
   {
     path: '/rooms',
