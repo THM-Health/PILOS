@@ -49,6 +49,13 @@ class LoginTest extends TestCase
         ]);
         $response->assertNoContent();
         $this->assertAuthenticated();
+
+        // Authenticated user tries to login again
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => $password
+        ]);
+        $response->assertStatus(420);
     }
 
     /**
