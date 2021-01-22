@@ -2,8 +2,7 @@ export default {
   title: 'Einstellungen',
   homeButton: 'Zurück zur Übersicht',
   overview: 'Übersicht',
-  overviewDescription: 'Hier können die Einstellungen der Anwendung verwaltet werden.<br>' +
-    'Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
+  overviewDescription: 'Hier können die Einstellungen der Anwendung verwaltet werden. Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
 
   roles: {
     title: 'Rollen',
@@ -47,7 +46,7 @@ export default {
 
   users: {
     title: 'Benutzer',
-    tileDescription: 'Die Benutzer können sich an dem System anmelden und je nach Rolle unterschiedliche Funktionen nutzen',
+    tileDescription: 'Die Benutzer können sich an dem System anmelden und je nach Rolle unterschiedliche Funktionen nutzen.',
 
     new: 'Neuen Benutzer erstellen',
     view: 'Detaillierte Informationen für den Benutzer {firstname} {lastname}',
@@ -87,7 +86,7 @@ export default {
 
   roomTypes: {
     title: 'Raumarten',
-    tileDescription: 'Die Raumarten sortieren die Räume, geben diesen Icons zur schnelleren Wiedererkennung und bestimmen auf welchem Serverpool ein Meeting stattfindet',
+    tileDescription: 'Die Raumarten sortieren die Räume, geben diesen Icons zur schnelleren Wiedererkennung und bestimmen auf welchem Serverpool ein Meeting stattfindet.',
 
     icon: 'Icon',
     description: 'Beschreibung',

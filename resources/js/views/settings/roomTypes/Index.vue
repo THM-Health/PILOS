@@ -242,7 +242,7 @@ export default {
     tableFields () {
       const fields = [
         { key: 'description', label: this.$t('settings.roomTypes.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '10%' } }
+        { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true, thStyle: { width: '10%' } }
       ];
 
       if (this.actionColumnVisible) {

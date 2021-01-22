@@ -193,12 +193,12 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.servers.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
+        { key: 'id', label: this.$t('settings.servers.id'), sortable: true, thStyle: { width: '8%' } },
         { key: 'description', label: this.$t('settings.servers.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'status', label: this.$t('settings.servers.status'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '10%' } },
-        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '15%' } },
-        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '15%' } },
-        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '15%' } }
+        { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
+        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },
+        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, thStyle: { width: '15%' } },
+        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true, thStyle: { width: '15%' } }
       ];
 
       if (this.actionColumnVisible) {

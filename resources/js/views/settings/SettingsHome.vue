@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>{{ $t('settings.overview') }}</h3>
-    <div v-html="$t('settings.overviewDescription')"></div>
+    <p>{{ $t('settings.overviewDescription') }}</p>
     <hr>
     <b-row cols="1" cols-sm="2" cols-md="3" cols-lg="3" align-v="stretch">
       <can method='viewAny' policy='SettingPolicy'>
