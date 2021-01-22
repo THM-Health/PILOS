@@ -41,7 +41,18 @@ export default {
        * @default false
        */
       actionColumnVisible: false,
+      /**
+       * CSS class of the column heading
+       * @type string
+       * @property actionColumnThClass
+       * @default actionColumn
+       */
       actionColumnThClass: 'actionColumn',
+      /**
+       * CSS style(s) of the column heading
+       * @type string
+       * @property actionColumnThStyle
+       */
       actionColumnThStyle: ''
     };
   },
