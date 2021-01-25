@@ -15,10 +15,6 @@ class Server extends Model
 {
     use AddsModelNameTrait;
 
-    const VIDEO_WEIGHT       = 3;
-    const AUDIO_WEIGHT       = 2;
-    const PARTICIPANT_WEIGHT = 1;
-
     protected $casts = [
         'strength'                  => 'integer',
         'status'                    => 'integer',
@@ -59,30 +55,6 @@ class Server extends Model
                 return false;
             }
         });
-    }
-
-    /**
-     * Find server with the lowest usage
-     * @return Server|null
-     */
-    public static function lowestUsage()
-    {
-        return self::where('status', ServerStatus::ONLINE)
-            // Experimental
-            // Have video factor 3, audio factor 2 and just listening factor 1
-            ->orderByRaw('((video_count*'.self::VIDEO_WEIGHT.' + voice_participant_count*'.self::AUDIO_WEIGHT.' + (participant_count-voice_participant_count) * '.self::PARTICIPANT_WEIGHT.')/strength) ASC')
-            ->first();
-    }
-
-    /**
-     * Return usage of a server, based on video, audio and participants
-     * @return int
-     */
-    public function getUsageAttribute()
-    {
-        // Experimental
-        // Have video factor 3, audio factor 2 and just listening factor 1
-        return $this->video_count * self::VIDEO_WEIGHT + $this->voice_participant_count * self::AUDIO_WEIGHT + ($this->participant_count - $this->voice_participant_count) * self::PARTICIPANT_WEIGHT;
     }
 
     /**
