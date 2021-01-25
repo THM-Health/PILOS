@@ -19,7 +19,7 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
-            return new Response('Guests only.', 420);
+            return (new Response('Guests only.'))->setStatusCode(420, 'Guests only');
         }
 
         return $next($request);
