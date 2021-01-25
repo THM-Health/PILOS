@@ -49,6 +49,12 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.update' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'servers.delete' ])->id;
 
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.viewAny' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.view' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.create' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.update' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'serverPools.delete' ])->id;
+
         $adminRole = Role::where(['name' => 'admin', 'default' => true])->first();
         if ($adminRole == null) {
             $adminRole = Role::create([ 'name' => 'admin', 'default' => true, 'room_limit' => -1 ]);

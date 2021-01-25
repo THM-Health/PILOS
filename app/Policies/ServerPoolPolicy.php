@@ -18,7 +18,7 @@ class ServerPoolPolicy
      */
     public function viewAny(User $user)
     {
-        return true;
+        return $user->can('serverPools.viewAny');
     }
 
     /**
@@ -30,7 +30,7 @@ class ServerPoolPolicy
      */
     public function view(User $user, ServerPool $serverPool)
     {
-        return $user->can('servers.view');
+        return $user->can('serverPools.view');
     }
 
     /**
@@ -41,7 +41,7 @@ class ServerPoolPolicy
      */
     public function create(User $user)
     {
-        return $user->can('servers.create');
+        return $user->can('serverPools.create');
     }
 
     /**
@@ -53,7 +53,7 @@ class ServerPoolPolicy
      */
     public function update(User $user, ServerPool $serverPool)
     {
-        return $user->can('servers.update');
+        return $user->can('serverPools.update');
     }
 
     /**
@@ -65,6 +65,6 @@ class ServerPoolPolicy
      */
     public function delete(User $user, ServerPool $serverPool)
     {
-        return $user->can('servers.delete');
+        return $user->can('serverPools.delete');
     }
 }

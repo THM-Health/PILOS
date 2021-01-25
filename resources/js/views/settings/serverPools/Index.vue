@@ -183,7 +183,7 @@ export default {
       total: undefined,
       perPage: undefined,
       serverPoolToDelete: undefined,
-      actionPermissions: ['servers.view', 'servers.update', 'servers.delete'],
+      actionPermissions: ['serverPools.view', 'serverPools.update', 'serverPools.delete'],
       filter: undefined,
       deleteFailedRoomTypes: null
     };

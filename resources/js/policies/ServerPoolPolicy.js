@@ -9,7 +9,7 @@ export default {
    * @return {boolean}
    */
   viewAny (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.viewAny');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.viewAny');
   },
 
   /**
@@ -19,7 +19,7 @@ export default {
    * @return {boolean}
    */
   create (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.create');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.create');
   },
 
   /**
@@ -29,7 +29,7 @@ export default {
    * @return {boolean}
    */
   view (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.view');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.view');
   },
 
   /**
@@ -39,7 +39,7 @@ export default {
    * @return {boolean}
    */
   update (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.update');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.update');
   },
 
   /**
@@ -49,6 +49,6 @@ export default {
    * @return {boolean}
    */
   delete (permissionService) {
-    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('servers.delete');
+    return !permissionService.currentUser ? false : permissionService.currentUser.permissions.includes('serverPools.delete');
   }
 };
