@@ -87,7 +87,7 @@
                 :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || viewOnly"
                 id='server_pool'
                 :loading='serverPoolsLoading'
-                :allowEmpty='true'
+                :allowEmpty='false'
                 :class="{ 'is-invalid': fieldState('server_pool', true), 'multiselect-form-control': true }">
                 <template slot='noOptions'>{{ $t('settings.servers.nodata') }}</template>
                 <template slot='afterList'>
@@ -126,7 +126,7 @@
                 <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
               <b-button
-                :disabled='isBusy || modelLoadingError'
+                :disabled='isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading'
                 variant='success'
                 type='submit'
                 class='ml-1'
