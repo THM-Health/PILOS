@@ -47,8 +47,8 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
-        Route::get('settings/all', 'ApplicationController@allSettings')->name('application.complete')->middleware('can:settings.viewAny');
-        Route::put('settings', 'ApplicationController@updateSettings')->name('application.update')->middleware('can:settings.update');
+        Route::get('settings/all', 'ApplicationController@allSettings')->name('application.complete')->middleware('can:applicationSettings.viewAny');
+        Route::put('settings', 'ApplicationController@updateSettings')->name('application.update')->middleware('can:applicationSettings.update');
 
         Route::apiResource('roles', 'RoleController');
         Route::apiResource('roomTypes', 'RoomTypeController');

@@ -14,6 +14,12 @@ export default {
     id: 'ID',
     name: 'Name',
     permissions: 'Permissions',
+    permissionName: 'Name of the permissions',
+    permissionExplicit: 'Explicit',
+    permissionIncluded: 'Included',
+    permissionIncludedHelp: 'Permissions that have been selected and permissions that are included in the selected permissions.',
+    hasIncludedPermission: 'The permission "{name}" was either explicitly selected or is included in another selected permission.',
+    hasNotIncludedPermission: 'The permission "{name}" was neither explicitly selected nor is it included in another selected permission.',
     roomLimit: {
       label: 'Room limit',
       default: 'System default ({value})',
