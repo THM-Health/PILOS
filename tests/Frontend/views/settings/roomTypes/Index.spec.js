@@ -55,7 +55,8 @@ describe('RoomTypesIndex', function () {
       mocks: {
         $t: key => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {

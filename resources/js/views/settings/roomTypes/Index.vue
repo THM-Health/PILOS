@@ -15,8 +15,9 @@
     <hr>
 
     <b-table
+      fixed
       hover
-      stacked='xl'
+      stacked='lg'
       show-empty
       :busy.sync='isBusy'
       :fields="tableFields"
@@ -34,6 +35,12 @@
         <div class="text-center my-2">
           <b-spinner class="align-middle"></b-spinner>
         </div>
+      </template>
+
+      <template #cell(description)="data">
+        <text-truncate>
+          {{ data.item.description }}
+        </text-truncate>
       </template>
 
       <template v-slot:cell(short)="data">
@@ -123,10 +130,11 @@ import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
 import ActionsColumn from '../../../mixins/ActionsColumn';
 import { mapGetters } from 'vuex';
+import TextTruncate from '../../../components/TextTruncate';
 
 export default {
   mixins: [FieldErrors, ActionsColumn],
-  components: { Can },
+  components: { TextTruncate, Can },
 
   props: {
     modalStatic: {
@@ -233,8 +241,8 @@ export default {
 
     tableFields () {
       const fields = [
-        { key: 'description', label: this.$t('settings.roomTypes.description'), sortable: true },
-        { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true }
+        { key: 'description', label: this.$t('settings.roomTypes.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true, thStyle: { width: '10%' } }
       ];
 
       if (this.actionColumnVisible) {

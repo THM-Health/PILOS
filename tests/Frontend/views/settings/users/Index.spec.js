@@ -34,7 +34,8 @@ describe('UsersIndex', function () {
       localVue,
       mocks: {
         $t: key => key
-      }
+      },
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
