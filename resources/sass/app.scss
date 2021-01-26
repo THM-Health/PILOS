@@ -187,6 +187,12 @@ body {
 }
 
 .actionColumn{
-    // width of the default three action button view, edit, delete + cell padding
-    width: calc(126px + 2 * #{$table-cell-padding});
+    // width of the default three action buttons (view, edit, delete) + cell padding
+    width: calc(3 * #{$action-column-button-width} + 2 * #{$table-cell-padding});
+}
+.actionButton{
+    button, a {
+        width: $action-column-button-width;
+        height: $action-column-button-height;
+    }
 }

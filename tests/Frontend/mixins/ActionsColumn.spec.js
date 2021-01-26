@@ -37,11 +37,11 @@ describe('ActionsColumn', function () {
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
     PermissionService.setCurrentUser({ permissions: [] });
     await Vue.nextTick();
 
@@ -79,6 +79,7 @@ describe('ActionsColumn', function () {
         return {
           actionColumnThClass: 'testClass',
           actionColumnThStyle: 'testStyle',
+          actionColumnTdClass: 'testClass2',
           actionPermissions: ['test.perm']
         };
       }
@@ -95,7 +96,7 @@ describe('ActionsColumn', function () {
     PermissionService.setCurrentUser({ permissions: ['test.perm'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'testClass', thStyle: 'testStyle' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'testClass', thStyle: 'testStyle', tdClass: 'testClass2' }]);
     await Vue.nextTick();
     PermissionService.setCurrentUser(oldUser);
   });

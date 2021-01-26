@@ -74,6 +74,10 @@
 </template>
 
 <script>
+import Can from '../../components/Permissions/Can';
+export default {
+  components: { Can }
+};
 </script>
 
 <style scoped>

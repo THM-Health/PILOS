@@ -53,7 +53,14 @@ export default {
        * @type string
        * @property actionColumnThStyle
        */
-      actionColumnThStyle: ''
+      actionColumnThStyle: '',
+      /**
+       * CSS class of the column cell
+       * @type string
+       * @property actionColumnTdClass
+       * @default actionButton
+       */
+      actionColumnTdClass: 'actionButton'
     };
   },
 
@@ -66,7 +73,7 @@ export default {
      * @property actionColumnDefinition
      */
     actionColumnDefinition () {
-      return { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: this.actionColumnThClass, thStyle: this.actionColumnThStyle };
+      return { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: this.actionColumnThClass, thStyle: this.actionColumnThStyle, tdClass: this.actionColumnTdClass };
     }
   },
 
