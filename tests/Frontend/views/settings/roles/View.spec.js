@@ -697,7 +697,7 @@ describe('RolesView', function () {
   });
 
   it('included permissions get shown and updated', function (done) {
-    const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+    let restorePermissionsResponse = overrideStub('/api/v1/permissions', {
       status: 200,
       response: {
         data: [
@@ -730,13 +730,13 @@ describe('RolesView', function () {
 
     moxios.wait(async function () {
       await view.vm.$nextTick();
-      const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
+      let permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
 
-      const perm1 = permissionsCxs[0];
-      const perm2 = permissionsCxs[1];
-      const perm3 = permissionsCxs[2];
-      const perm4 = permissionsCxs[3];
-      const perm10 = permissionsCxs[4];
+      let perm1 = permissionsCxs[0];
+      let perm2 = permissionsCxs[1];
+      let perm3 = permissionsCxs[2];
+      let perm4 = permissionsCxs[3];
+      let perm10 = permissionsCxs[4];
 
       // test if permission include works on load
       expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
@@ -756,8 +756,43 @@ describe('RolesView', function () {
       expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
       expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
       expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+
       restorePermissionsResponse();
-      done();
+
+      // test if permission include works after reload of include map
+      restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+        status: 200,
+        response: {
+          data: [
+            { id: 1, name: 'tests.test1', includedPermissions: [] },
+            { id: 2, name: 'tests.test2', includedPermissions: [] },
+            { id: 3, name: 'tests.test3', includedPermissions: [] },
+            { id: 4, name: 'tests.test4', includedPermissions: [] },
+            { id: 10, name: 'tests.test5', includedPermissions: [] }
+          ]
+        }
+      });
+      view.vm.loadPermissions();
+      moxios.wait(async function () {
+        await view.vm.$nextTick();
+
+        permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
+        perm1 = permissionsCxs[0];
+        perm2 = permissionsCxs[1];
+        perm3 = permissionsCxs[2];
+        perm4 = permissionsCxs[3];
+        perm10 = permissionsCxs[4];
+
+        expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+        expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+        expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+        expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+        expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+
+        restorePermissionsResponse();
+
+        done();
+      });
     });
   });
 });

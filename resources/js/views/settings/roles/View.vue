@@ -374,7 +374,6 @@ export default {
 
       Base.call('permissions').then(response => {
         this.permissions = {};
-        this.permissionInheritance = {};
         response.data.data.forEach(permission => {
           const group = permission.name.split('.')[0];
 
@@ -384,7 +383,7 @@ export default {
 
           this.permissions[group].push(permission);
 
-          this.includedPermissionMap[permission.id] = permission.includedPermissions;
+          this.$set(this.includedPermissionMap, permission.id, permission.includedPermissions);
         });
       }).catch(error => {
         this.modelLoadingError = true;

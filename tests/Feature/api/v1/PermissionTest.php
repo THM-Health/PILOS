@@ -33,13 +33,15 @@ class PermissionTest extends TestCase
         $includedPermission2 = factory(Permission::class)->create();
 
         Permission::SetupIncludedPermissions($permission->name, [$includedPermission1->name,$includedPermission2->name]);
+        // check if permissions that include each other cause any problems
+        Permission::SetupIncludedPermissions($includedPermission1->name, [$permission->name]);
 
         $this->getJson(route('api.v1.roles.index'))->assertStatus(401);
         $this->actingAs($user)->getJson(route('api.v1.permissions.index'))
             ->assertSuccessful()
             ->assertJson(['data' => [
                 ['id'=>$permission->id,'name'=>$permission->name,'includedPermissions'=>[$includedPermission1->id,$includedPermission2->id]],
-                ['id'=> $includedPermission1->id,'name'=>$includedPermission1->name],
+                ['id'=> $includedPermission1->id,'name'=>$includedPermission1->name, 'includedPermissions'=>[$permission->id]],
                 ['id'=> $includedPermission2->id,'name'=>$includedPermission2->name]
             ]]);
     }

@@ -90,7 +90,10 @@ class RoleController extends Controller
 
         $user = Auth::user();
 
-        if (!$user->hasPermission('roles.update')) {
+        if (!($user->hasPermission('settings.manage')
+            && $user->hasPermission('roles.viewAny')
+            && $user->hasPermission('roles.view')
+            && $user->hasPermission('roles.update'))) {
             $role->permissions()->sync($old_role_permissions);
 
             return response()->json([
