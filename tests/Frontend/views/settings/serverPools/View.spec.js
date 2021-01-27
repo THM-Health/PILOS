@@ -154,7 +154,7 @@ describe('ServerPoolView', function () {
       }
     };
 
-    moxios.stubRequest('/api/v1/servers', {
+    moxios.stubRequest('/api/v1/servers?page=1', {
       status: 200,
       response: serverResponse
     });
@@ -410,8 +410,7 @@ describe('ServerPoolView', function () {
       await view.vm.$nextTick();
       await view.findAllComponents(BFormInput).at(0).setValue('Demo');
       await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
-
-      // await view.findComponent(BFormCheckbox).find('input').setChecked();
+      await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
 
       view.findComponent(BForm).trigger('submit');
 
@@ -421,7 +420,8 @@ describe('ServerPoolView', function () {
           message: 'The given data was invalid.',
           errors: {
             name: ['Test name'],
-            description: ['Test description']
+            description: ['Test description'],
+            servers: ['Test server']
           }
         }
       });
@@ -432,10 +432,12 @@ describe('ServerPoolView', function () {
 
         expect(data.name).toBe('Demo');
         expect(data.description).toBe('Demopool');
+        expect(data.servers).toEqual([1, 2]);
 
         const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
         expect(feedback[0].html()).toContain('Test name');
         expect(feedback[1].html()).toContain('Test description');
+        expect(feedback[2].html()).toContain('Test server');
 
         restoreServerPoolResponse();
         restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {

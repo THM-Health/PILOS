@@ -101,7 +101,7 @@
                 ><i class="fas fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+            <template slot='invalid-feedback'><div v-html="fieldError('servers', true)"></div></template>
           </b-form-group>
 
           <hr>
