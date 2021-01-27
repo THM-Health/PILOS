@@ -1,4 +1,4 @@
-import Index from '../../../../../resources/js/views/settings/servers/Index';
+import Index from '../../../../../resources/js/views/settings/serverPools/Index';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
@@ -9,7 +9,7 @@ import BootstrapVue, {
   BButton,
   BModal,
   BButtonClose,
-  BFormInput
+  BFormInput, BAlert
 } from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
@@ -23,53 +23,24 @@ const defaultResponse = {
   data: [
     {
       id: 1,
-      name: 'Server 01',
-      description: 'Testserver 01',
-      strength: 1,
-      status: 1,
-      participant_count: 10,
-      listener_count: 5,
-      voice_participant_count: 5,
-      video_count: 5,
-      meeting_count: 2,
-      own_meeting_count: 2,
-      model_name: 'Server',
+      name: 'Test',
+      description: 'Pool for testing',
+      server_count: 2,
+      model_name: 'ServerPool',
       updated_at: '2020-12-21T13:43:21.000000Z'
     },
     {
       id: 2,
-      name: 'Server 02',
-      description: 'Testserver 02',
-      strength: 1,
-      status: 1,
-      participant_count: 50,
-      listener_count: 25,
-      voice_participant_count: 30,
-      video_count: 5,
-      meeting_count: 10,
-      own_meeting_count: 9,
-      model_name: 'Server',
-      updated_at: '2020-12-21T13:43:21.000000Z'
-    },
-    {
-      id: 3,
-      name: 'Server 03',
-      description: 'Testserver 03',
-      strength: 1,
-      status: -1,
-      participant_count: null,
-      listener_count: null,
-      voice_participant_count: null,
-      video_count: null,
-      meeting_count: null,
-      own_meeting_count: null,
-      model_name: 'Server',
+      name: 'Production',
+      description: 'Pool for producation',
+      server_count: 1,
+      model_name: 'ServerPool',
       updated_at: '2020-12-21T13:43:21.000000Z'
     }
   ],
   links: {
-    first: 'http://localhost/api/v1/servers?page=1',
-    last: 'http://localhost/api/v1/servers?page=1',
+    first: 'http://localhost/api/v1/serverPools?page=1',
+    last: 'http://localhost/api/v1/serverPools?page=1',
     prev: null,
     next: null
   },
@@ -77,7 +48,7 @@ const defaultResponse = {
     current_page: 1,
     from: 1,
     last_page: 1,
-    path: 'http://localhost/api/v1/servers',
+    path: 'http://localhost/api/v1/serverPools',
     per_page: 15,
     to: 2,
     total: 2
@@ -103,7 +74,7 @@ const store = new Vuex.Store({
 
 let oldUser;
 
-describe('ServersIndex', function () {
+describe('ServerPoolsIndex', function () {
   beforeEach(function () {
     moxios.install();
     oldUser = PermissionService.currentUser;
@@ -114,8 +85,8 @@ describe('ServersIndex', function () {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('list of servers with pagination gets displayed', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
+  it('list of server pools with pagination gets displayed', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.viewAny'] });
 
     const view = mount(Index, {
       localVue,
@@ -137,9 +108,7 @@ describe('ServersIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
-        expect(html).toContain('Server 01');
-        expect(html).toContain(10);
-        expect(html).toContain(5);
+        expect(html).toContain('Test');
         expect(html).toContain(2);
 
         view.destroy();
@@ -148,8 +117,8 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('list of servers with search', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
+  it('list of server pools with search', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.viewAny'] });
 
     const view = mount(Index, {
       localVue,
@@ -169,41 +138,35 @@ describe('ServersIndex', function () {
         response: defaultResponse
       }).then(async () => {
         await view.vm.$nextTick();
-        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
         const search = view.findComponent(BFormInput);
         expect(search.exists()).toBeTruthy();
         expect(search.html()).toContain('app.search');
         await search.setProps({ debounce: 0 });
-        await search.setValue('Server 02');
+        await search.setValue('Prod');
 
         moxios.wait(function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
-          expect(request.config.params.name).toBe('Server 02');
+          expect(request.config.params.name).toBe('Prod');
           request.respondWith({
             status: 200,
             response: {
               data: [
                 {
                   id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  model_name: 'Server',
+                  name: 'Production',
+                  description: 'Pool for producation',
+                  server_count: 1,
+                  model_name: 'ServerPool',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
               ],
               links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
+                first: 'http://localhost/api/v1/serverPools?page=1',
+                last: 'http://localhost/api/v1/serverPools?page=1',
                 prev: null,
                 next: null
               },
@@ -211,7 +174,7 @@ describe('ServersIndex', function () {
                 current_page: 1,
                 from: 1,
                 last_page: 1,
-                path: 'http://localhost/api/v1/servers',
+                path: 'http://localhost/api/v1/serverPools',
                 per_page: 15,
                 to: 1,
                 total: 1
@@ -253,14 +216,13 @@ describe('ServersIndex', function () {
           expect(row.findAllComponents(BButton).length).toEqual(0);
         });
 
-        PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
+        PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.update', 'serverPools.view', 'serverPools.delete'] });
 
         return view.vm.$nextTick();
       }).then(() => {
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
+        expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
+        expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
 
         view.destroy();
         done();
@@ -300,7 +262,7 @@ describe('ServersIndex', function () {
   });
 
   it('property gets cleared correctly if deletion gets aborted', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
       status: 200,
@@ -324,19 +286,19 @@ describe('ServersIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverToDelete).toBeUndefined();
-        view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+        expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+        view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
 
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        expect(view.vm.$data.serverToDelete.id).toEqual(3);
+        expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
         view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
 
         return view.vm.$nextTick();
       }).then(() => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverToDelete).toBeUndefined();
+        expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
         view.destroy();
         done();
@@ -344,8 +306,8 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('server delete', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+  it('server pool delete', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
       status: 200,
@@ -369,24 +331,24 @@ describe('ServersIndex', function () {
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverToDelete).toBeUndefined();
+      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-      // check if three servers  visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+      // check if two server pools  visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for third server
-      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+      // open delete modal for second server pool
+      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(3);
+      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
       moxios.wait(async () => {
-        // delete without replacement
+        // delete without room types attached
         const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/3');
+        expect(request.config.url).toBe('/api/v1/serverPools/2');
         expect(request.config.method).toBe('delete');
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
 
@@ -395,9 +357,9 @@ describe('ServersIndex', function () {
         });
 
         moxios.wait(async () => {
-          // reload data for servers
+          // reload data for server pools
           const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers');
+          expect(request.config.url).toBe('/api/v1/serverPools');
           expect(request.config.method).toBe('get');
           await request.respondWith({
             status: 200,
@@ -405,37 +367,16 @@ describe('ServersIndex', function () {
               data: [
                 {
                   id: 1,
-                  name: 'Server 01',
-                  description: 'Testserver 01',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 10,
-                  listener_count: 5,
-                  voice_participant_count: 5,
-                  video_count: 5,
-                  meeting_count: 2,
-                  own_meeting_count: 2,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  model_name: 'Server',
+                  name: 'Test',
+                  description: 'Pool for testing',
+                  server_count: 2,
+                  model_name: 'ServerPool',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
               ],
               links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
+                first: 'http://localhost/api/v1/serverPools?page=1',
+                last: 'http://localhost/api/v1/serverPools?page=1',
                 prev: null,
                 next: null
               },
@@ -443,19 +384,19 @@ describe('ServersIndex', function () {
                 current_page: 1,
                 from: 1,
                 last_page: 1,
-                path: 'http://localhost/api/v1/servers',
+                path: 'http://localhost/api/v1/serverPools',
                 per_page: 15,
-                to: 2,
-                total: 2
+                to: 1,
+                total: 1
               }
             }
           });
 
           await view.vm.$nextTick();
           // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverToDelete).toBeUndefined();
+          expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
           view.destroy();
           done();
@@ -464,11 +405,11 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('server delete 404 handling', function (done) {
+  it('server pool delete 404 handling', function (done) {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
       status: 200,
@@ -492,22 +433,22 @@ describe('ServersIndex', function () {
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverToDelete).toBeUndefined();
+      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-      // check if three servers visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+      // check if two server pools visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for first server
-      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+      // open delete modal for second server pool
+      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(3);
+      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
       moxios.wait(async () => {
-        // delete without replacement
+        // delete non existing server pool
         const request = moxios.requests.mostRecent();
         await request.respondWith({
           status: 404,
@@ -518,7 +459,7 @@ describe('ServersIndex', function () {
         moxios.wait(async () => {
           // reload data for roomTypes
           const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers');
+          expect(request.config.url).toBe('/api/v1/serverPools');
           expect(request.config.method).toBe('get');
           await request.respondWith({
             status: 200,
@@ -526,37 +467,16 @@ describe('ServersIndex', function () {
               data: [
                 {
                   id: 1,
-                  name: 'Server 01',
-                  description: 'Testserver 01',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 10,
-                  listener_count: 5,
-                  voice_participant_count: 5,
-                  video_count: 5,
-                  meeting_count: 2,
-                  own_meeting_count: 2,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  model_name: 'Server',
+                  name: 'Test',
+                  description: 'Pool for testing',
+                  server_count: 2,
+                  model_name: 'ServerPool',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
               ],
               links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
+                first: 'http://localhost/api/v1/serverPools?page=1',
+                last: 'http://localhost/api/v1/serverPools?page=1',
                 prev: null,
                 next: null
               },
@@ -564,19 +484,19 @@ describe('ServersIndex', function () {
                 current_page: 1,
                 from: 1,
                 last_page: 1,
-                path: 'http://localhost/api/v1/servers',
+                path: 'http://localhost/api/v1/serverPools',
                 per_page: 15,
-                to: 2,
-                total: 2
+                to: 1,
+                total: 1
               }
             }
           });
 
           await view.vm.$nextTick();
           // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverToDelete).toBeUndefined();
+          expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
           sinon.assert.calledOnce(Base.error);
           Base.error.restore();
@@ -588,10 +508,81 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('server delete error handler called', function (done) {
+  it('server pool delete error room types attached', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
+
+    const response = {
+      status: 200,
+      response: defaultResponse
+    };
+
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      await moxios.requests.mostRecent().respondWith(response);
+      await view.vm.$nextTick();
+
+      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+
+      // check if two server pools visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+
+      // open delete modal for second server pool
+      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+      await view.vm.$nextTick();
+
+      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+      await view.vm.$nextTick();
+
+      moxios.wait(async () => {
+        // delete with still attached room types
+        const request = moxios.requests.mostRecent();
+        await request.respondWith({
+          status: 428,
+          response: {
+            error: 428,
+            message: 'app.errors.server_pool_delete_failed',
+            roomTypes: [
+              { id: 1, short: 'TA', description: 'Test A', color: '#ffffff', model_name: 'RoomType', updated_at: '2021-01-12T14:35:11.000000Z' },
+              { id: 2, short: 'TB', description: 'Test B', color: '#000000', model_name: 'RoomType', updated_at: '2021-01-12T14:35:11.000000Z' }
+            ]
+          }
+        });
+
+        await view.vm.$nextTick();
+        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+        const roomTypeErrorMessage = view.findComponent(BAlert);
+        expect(roomTypeErrorMessage.exists()).toBeTruthy();
+        expect(roomTypeErrorMessage.text()).toContain('settings.serverPools.delete.failed');
+        const roomTypeList = view.findComponent(BModal).find('ul');
+        expect(roomTypeList.exists()).toBeTruthy();
+        const roomTypes = roomTypeList.findAll('li');
+        expect(roomTypes.length).toEqual(2);
+        expect(roomTypes.at(0).text()).toContain('Test A');
+        expect(roomTypes.at(1).text()).toContain('Test B');
+        view.destroy();
+        done();
+      });
+    });
+  });
+
+  it('server pool delete error handler called', function (done) {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
       status: 200,
@@ -617,19 +608,19 @@ describe('ServersIndex', function () {
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
       expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // open delete modal for third server
-      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+      // open delete modal for second server pool
+      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
       await view.vm.$nextTick();
 
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(3);
+      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
       moxios.wait(async () => {
         // delete
         const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/3');
+        expect(request.config.url).toBe('/api/v1/serverPools/2');
         expect(request.config.method).toBe('delete');
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
         // error replacement required
@@ -642,7 +633,7 @@ describe('ServersIndex', function () {
         sinon.assert.calledOnce(Base.error);
         Base.error.restore();
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverToDelete).toBeUndefined();
+        expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
         view.destroy();
         done();
@@ -650,7 +641,7 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('new server button is displayed if the user has the corresponding permissions', function (done) {
+  it('new server pool button is displayed if the user has the corresponding permissions', function (done) {
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
     const view = mount(Index, {
@@ -669,8 +660,8 @@ describe('ServersIndex', function () {
         response: {
           data: [],
           links: {
-            first: 'http://localhost/api/v1/servers?page=1',
-            last: 'http://localhost/api/v1/servers?page=1',
+            first: 'http://localhost/api/v1/serverPools?page=1',
+            last: 'http://localhost/api/v1/serverPools?page=1',
             prev: null,
             next: null
           },
@@ -678,7 +669,7 @@ describe('ServersIndex', function () {
             current_page: 1,
             from: 1,
             last_page: 1,
-            path: 'http://localhost/api/v1/servers',
+            path: 'http://localhost/api/v1/serverPools',
             per_page: 15,
             to: 0,
             total: 0
@@ -687,120 +678,13 @@ describe('ServersIndex', function () {
       }).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
-        expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
-        PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
+        expect(view.findComponent({ ref: 'newServerPool' }).exists()).toBeFalsy();
+        PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.create'] });
         return view.vm.$nextTick();
       }).then(() => {
-        expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
+        expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
         view.destroy();
         done();
-      });
-    });
-  });
-
-  it('reload button displayed and triggers reload', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
-
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer(),
-      store
-    });
-
-    // During normal load the usage should not be updated
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      expect(request.config.params.update_usage).toBeFalsy();
-      request.respondWith({
-        status: 200,
-        response: defaultResponse
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent(BButton).exists()).toBeTruthy();
-        expect(view.findComponent(BButton).html()).toContain('settings.servers.reload');
-
-        view.findComponent(BButton).trigger('click');
-
-        moxios.wait(async () => {
-          // reload data for roomTypes and force update of usage data
-          const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers');
-          expect(request.config.method).toBe('get');
-          expect(request.config.params.update_usage).toBeTruthy();
-
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 1,
-                  name: 'Server 01',
-                  description: 'Testserver 01',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 14,
-                  listener_count: 7,
-                  voice_participant_count: 7,
-                  video_count: 7,
-                  meeting_count: 3,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/servers',
-                per_page: 15,
-                to: 2,
-                total: 2
-              }
-            }
-          });
-
-          await view.vm.$nextTick();
-
-          const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
-          expect(html).toContain('Server 01');
-          expect(html).toContain(14);
-          expect(html).toContain(7);
-          expect(html).toContain(3);
-
-          // during future normal requests the force usage should be disabled again
-          view.vm.$root.$emit('bv::refresh::table', 'servers-table');
-          moxios.wait(async () => {
-            const request = moxios.requests.mostRecent();
-            expect(request.config.params.update_usage).toBeFalsy();
-
-            view.destroy();
-            done();
-          });
-        });
       });
     });
   });
