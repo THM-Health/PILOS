@@ -62,11 +62,15 @@ export default {
       delete: 'Räume löschen'
     },
 
-    settings: {
-      title: 'Einstellungen',
-      manage: 'Einstellungen verwalten',
+    applicationSettings: {
+      title: 'Anwendung',
       update: 'Einstellungen bearbeiten',
       viewAny: 'Alle Einstellungen anzeigen'
+    },
+
+    settings: {
+      title: 'Einstellungen',
+      manage: 'Einstellungen verwalten'
     },
 
     roles: {

@@ -158,3 +158,47 @@ body {
     bottom: 0;
     width: 100%;
 }
+
+@include media-breakpoint-up(xs) {
+    .td-max-width-0-xs {
+        max-width: 0;
+    }
+}
+@include media-breakpoint-up(sm) {
+    .td-max-width-0-sm {
+        max-width: 0;
+    }
+}
+@include media-breakpoint-up(md) {
+    .td-max-width-0-md {
+        max-width: 0;
+    }
+}
+@include media-breakpoint-up(lg) {
+    .td-max-width-0-lg {
+        max-width: 0;
+    }
+}
+@include media-breakpoint-up(xl) {
+    .td-max-width-0-xl {
+        max-width: 0;
+    }
+}
+
+
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actionColumn{
+    // width of the default three action buttons (view, edit, delete) + cell padding
+    width: calc(3 * #{$action-column-button-width} + 2 * #{$table-cell-padding});
+}
+.actionButton{
+    button, a {
+        width: $action-column-button-width;
+        height: $action-column-button-height;
+    }
+}

@@ -151,7 +151,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Array of unique permission names that are given to the user through the assigned roles.
+     * Array of unique permission names that are given to the user through the assigned roles and inherited by other permissions.
      *
      * @return String[]
      */
@@ -161,6 +161,11 @@ class User extends Authenticatable
             foreach ($role->permissions as $permission) {
                 if (!in_array($permission->name, $permissions)) {
                     array_push($permissions, $permission->name);
+                    foreach ($permission->includedPermissions as $includedPermission) {
+                        if (!in_array($includedPermission->name, $permissions)) {
+                            array_push($permissions, $includedPermission->name);
+                        }
+                    }
                 }
             }
 
@@ -178,7 +183,12 @@ class User extends Authenticatable
         return DB::table('permissions')
             ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
             ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
-            ->where('permissions.name', '=', $permission)
+            ->leftJoin('included_permissions', 'permissions.id', '=', 'included_permissions.permission_id')
+            ->leftJoin('permissions as permissions2', 'permissions2.id', '=', 'included_permissions.included_permission_id')
+            ->where(function ($query) use ($permission) {
+                $query->where('permissions.name', '=', $permission)
+                    ->orWhere('permissions2.name', '=', $permission);
+            })
             ->where('role_user.user_id', '=', $this->id)
             ->exists();
     }

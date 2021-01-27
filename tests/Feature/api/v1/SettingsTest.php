@@ -117,7 +117,7 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.viewAny']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -195,7 +195,7 @@ class SettingsTest extends TestCase
         ];
 
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -249,7 +249,7 @@ class SettingsTest extends TestCase
 
         // Add necessary role and permission to user to update application settings
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -284,7 +284,7 @@ class SettingsTest extends TestCase
 
         // Add necessary role and permission to user to update application settings
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -314,7 +314,7 @@ class SettingsTest extends TestCase
 
         // Add necessary role and permission to user to update application settings
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -333,7 +333,7 @@ class SettingsTest extends TestCase
     {
         // Add necessary role and permission to user to update application settings
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -436,7 +436,7 @@ class SettingsTest extends TestCase
     {
         // Add necessary role and permission to user to update application settings
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'settings.update']);
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 

@@ -33,9 +33,9 @@
     <hr>
 
     <b-table
-      :responsive="true"
+      fixed
       hover
-      stacked='xl'
+      stacked='lg'
       show-empty
       :busy.sync='isBusy'
       :fields='tableFields'
@@ -57,6 +57,12 @@
         <div class="text-center my-2">
           <b-spinner class="align-middle"></b-spinner>
         </div>
+      </template>
+
+      <template #cell(name)="data">
+        <text-truncate>
+          {{ data.item.name }}
+        </text-truncate>
       </template>
 
       <template v-slot:cell(status)="data">
@@ -171,9 +177,10 @@ import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
 import ActionsColumn from '../../../mixins/ActionsColumn';
 import RawText from '../../../components/RawText';
+import TextTruncate from '../../../components/TextTruncate';
 
 export default {
-  components: { Can, RawText },
+  components: { TextTruncate, Can, RawText },
   mixins: [ActionsColumn],
 
   props: {
@@ -186,12 +193,12 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.servers.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.servers.name'), sortable: true },
-        { key: 'status', label: this.$t('settings.servers.status'), sortable: true },
-        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true },
-        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true },
-        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true }
+        { key: 'id', label: this.$t('settings.servers.id'), sortable: true, thStyle: { width: '8%' } },
+        { key: 'name', label: this.$t('settings.servers.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
+        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },
+        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, thStyle: { width: '15%' } },
+        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true, thStyle: { width: '15%' } }
       ];
 
       if (this.actionColumnVisible) {

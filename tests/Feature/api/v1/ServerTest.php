@@ -29,6 +29,7 @@ class ServerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed('RolesAndPermissionsSeeder');
         $this->user = factory(User::class)->create();
     }
 
@@ -145,7 +146,7 @@ class ServerTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.view']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.view']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -206,7 +207,7 @@ class ServerTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.create']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -258,7 +259,7 @@ class ServerTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.update']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -328,7 +329,7 @@ class ServerTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.delete']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.delete']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -383,7 +384,7 @@ class ServerTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.viewAny']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -424,7 +425,7 @@ class ServerTest extends TestCase
 
         // Authorize user for view servers
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'servers.viewAny']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -433,7 +434,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Give update permission
-        $permission = factory(Permission::class)->create(['name' => 'servers.update']);
+        $permission = Permission::firstOrCreate(['name' => 'servers.update']);
         $role->permissions()->attach($permission);
 
         $meeting = factory(Meeting::class)->create(['server_id'=>$server->id,'end'=>null]);

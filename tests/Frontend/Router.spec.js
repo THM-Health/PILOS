@@ -332,17 +332,17 @@ describe('Router', function () {
       accessPermittedSettingsView().then(result => {
         expect(result).toBe(false);
 
-        PermissionService.setCurrentUser({ permissions: ['settings.viewAny'] });
+        PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny'] });
         return accessPermittedSettingsView();
       }).then(result => {
         expect(result).toBe(false);
 
-        PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.update', 'settings.manage'] });
+        PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
         return accessPermittedSettingsView();
       }).then(result => {
         expect(result).toBe(true);
 
-        PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.manage'] });
+        PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
         return accessPermittedSettingsView();
       }).then(result => {
         expect(result).toBe(true);

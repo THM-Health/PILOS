@@ -15,8 +15,9 @@
     <hr>
 
     <b-table
+      fixed
       hover
-      stacked='xl'
+      stacked='lg'
       show-empty
       :busy.sync='isBusy'
       :fields='tableFields'
@@ -36,7 +37,9 @@
       </template>
 
       <template v-slot:cell(name)="data">
-        {{ $te(`app.roles.${data.item.name}`) ? $t(`app.roles.${data.item.name}`) : data.item.name }}
+        <text-truncate>
+          {{ $te(`app.roles.${data.item.name}`) ? $t(`app.roles.${data.item.name}`) : data.item.name }}
+        </text-truncate>
       </template>
 
       <template v-slot:cell(default)="data">
@@ -119,9 +122,10 @@
 import Base from '../../../api/base';
 import Can from '../../../components/Permissions/Can';
 import ActionsColumn from '../../../mixins/ActionsColumn';
+import TextTruncate from '../../../components/TextTruncate';
 
 export default {
-  components: { Can },
+  components: { TextTruncate, Can },
   mixins: [ActionsColumn],
 
   props: {
@@ -134,9 +138,9 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.roles.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.roles.name'), sortable: true },
-        { key: 'default', label: this.$t('settings.roles.default'), sortable: true }
+        { key: 'id', label: this.$t('settings.roles.id'), sortable: true, thStyle: { width: '8%' } },
+        { key: 'name', label: this.$t('settings.roles.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'default', label: this.$t('settings.roles.default'), sortable: true, thStyle: { width: '15%' } }
       ];
 
       if (this.actionColumnVisible) {

@@ -15,6 +15,11 @@ class RoleTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
     public function testIndex()
     {
         $page_size = 1;
@@ -105,15 +110,16 @@ class RoleTest extends TestCase
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
 
         $permission_ids = [
-            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
-            Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id,
             Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
             Permission::firstOrCreate([ 'name' => 'users.create' ])->id
         ];
 
         $changes = [
             'name'        => $roleB->name,
-            'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $new_permission],
+            'permissions' => [$permission_ids[0], $permission_ids[1], $permission_ids[2], $permission_ids[3], $new_permission],
             'default'     => true,
             'room_limit'  => null
         ];
@@ -162,9 +168,11 @@ class RoleTest extends TestCase
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
 
         $permission_ids = [
-            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id,
             Permission::firstOrCreate([ 'name' => 'roles.viewAny' ])->id,
-            Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id
+            Permission::firstOrCreate([ 'name' => 'roles.view' ])->id,
+            Permission::firstOrCreate([ 'name' => 'roles.update' ])->id,
+            Permission::firstOrCreate([ 'name' => 'users.create' ])->id
         ];
 
         $roleA->permissions()->attach($permission_ids);

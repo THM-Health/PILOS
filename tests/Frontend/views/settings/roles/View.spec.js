@@ -48,6 +48,12 @@ function overrideStub (url, response) {
   }
 }
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 let oldUser;
 
 describe('RolesView', function () {
@@ -107,7 +113,8 @@ describe('RolesView', function () {
         viewOnly: true,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -127,7 +134,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -147,7 +155,8 @@ describe('RolesView', function () {
         viewOnly: true,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -173,7 +182,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     view.vm.$nextTick().then(() => {
@@ -204,7 +214,7 @@ describe('RolesView', function () {
         expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
         expect(roomLimitCustomRadio.vm.isChecked).toBe(false);
         permissionsCxs.forEach(checkbox => {
-          expect(checkbox.text()).toBe(`app.permissions.tests.test${checkbox.props('value')}`);
+          expect(checkbox.element.parentElement.parentElement.children[0].children[0].innerHTML).toBe(`app.permissions.tests.test${checkbox.props('value')}`);
         });
         expect(permissionsCxs[0].vm.isChecked).toBe(true);
         expect(permissionsCxs[9].vm.isChecked).toBe(true);
@@ -258,7 +268,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -297,7 +308,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     const requestCount = moxios.requests.count();
@@ -330,10 +342,11 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    moxios.wait(async function () {
       const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
       let roomLimitCustomRadio;
 
@@ -342,59 +355,56 @@ describe('RolesView', function () {
           roomLimitCustomRadio = radio;
         }
       });
-
       roomLimitCustomRadio.get('input').trigger('click');
       permissionsCxs[0].get('input').trigger('click');
+      await view.vm.$nextTick();
       permissionsCxs[1].get('input').trigger('click');
+      await view.vm.$nextTick();
 
-      view.vm.$nextTick().then(() => {
-        const inputs = view.findAllComponents(BFormInput).wrappers;
+      const inputs = view.findAllComponents(BFormInput).wrappers;
+      await inputs[0].setValue('Test');
+      await inputs[1].setValue(10);
 
-        return inputs[0].setValue('Test').then(() => {
-          return inputs[1].setValue(10);
+      view.findComponent(BForm).trigger('submit');
+
+      let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+        status: env.HTTP_UNPROCESSABLE_ENTITY,
+        response: {
+          message: 'The given data was invalid.',
+          errors: {
+            name: ['Test name'],
+            room_limit: ['Test room limit'],
+            permissions: ['Test permissions'],
+            'permissions.0': ['Test permissions 0']
+          }
+        }
+      });
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        const data = JSON.parse(request.config.data);
+
+        expect(data.name).toBe('Test');
+        expect(data.room_limit).toBe('10');
+        expect(data.permissions).toEqual([10, 2]);
+
+        const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
+        expect(feedback[0].html()).toContain('Test name');
+        expect(feedback[1].html()).toContain('Test room limit');
+        expect(feedback[2].html()).toContain('Test permissions');
+        expect(feedback[2].html()).toContain('Test permissions 0');
+
+        restoreRoleResponse();
+        restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+          status: 204
         });
-      }).then(() => {
+
         view.findComponent(BForm).trigger('submit');
 
-        let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
-          status: env.HTTP_UNPROCESSABLE_ENTITY,
-          response: {
-            message: 'The given data was invalid.',
-            errors: {
-              name: ['Test name'],
-              room_limit: ['Test room limit'],
-              permissions: ['Test permissions'],
-              'permissions.0': ['Test permissions 0']
-            }
-          }
-        });
-
         moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
-
-          expect(data.name).toBe('Test');
-          expect(data.room_limit).toBe('10');
-          expect(data.permissions).toEqual([10, 2]);
-
-          const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
-          expect(feedback[0].html()).toContain('Test name');
-          expect(feedback[1].html()).toContain('Test room limit');
-          expect(feedback[2].html()).toContain('Test permissions');
-          expect(feedback[2].html()).toContain('Test permissions 0');
-
+          sinon.assert.calledOnce(spy);
           restoreRoleResponse();
-          restoreRoleResponse = overrideStub('/api/v1/roles/1', {
-            status: 204
-          });
-
-          view.findComponent(BForm).trigger('submit');
-
-          moxios.wait(function () {
-            sinon.assert.calledOnce(spy);
-            restoreRoleResponse();
-            done();
-          });
+          done();
         });
       });
     });
@@ -422,7 +432,8 @@ describe('RolesView', function () {
         modalStatic: true
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -486,7 +497,8 @@ describe('RolesView', function () {
         modalStatic: true
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -544,7 +556,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -587,7 +600,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -621,7 +635,8 @@ describe('RolesView', function () {
         viewOnly: false,
         id: '1'
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -656,7 +671,8 @@ describe('RolesView', function () {
         id: '1'
       },
       store,
-      router
+      router,
+      attachTo: createContainer()
     });
 
     moxios.wait(function () {
@@ -675,6 +691,106 @@ describe('RolesView', function () {
         sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
         Base.error.restore();
         restoreRoleResponse();
+        done();
+      });
+    });
+  });
+
+  it('included permissions get shown and updated', function (done) {
+    let restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+      status: 200,
+      response: {
+        data: [
+          { id: 1, name: 'tests.test1', includedPermissions: [] },
+          { id: 2, name: 'tests.test2', includedPermissions: [] },
+          { id: 3, name: 'tests.test3', includedPermissions: [1, 2] },
+          { id: 4, name: 'tests.test4', includedPermissions: [] },
+          { id: 10, name: 'tests.test5', includedPermissions: [4] }
+        ]
+      }
+    });
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => {
+          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
+          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          return key;
+        },
+        $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async function () {
+      await view.vm.$nextTick();
+      let permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
+
+      let perm1 = permissionsCxs[0];
+      let perm2 = permissionsCxs[1];
+      let perm3 = permissionsCxs[2];
+      let perm4 = permissionsCxs[3];
+      let perm10 = permissionsCxs[4];
+
+      // test if permission include works on load
+      expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+      expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+      expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+      expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+      expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+
+      perm3.get('input').trigger('click');
+      await view.vm.$nextTick();
+      perm10.get('input').trigger('click');
+      await view.vm.$nextTick();
+
+      // test if permission include works after changes
+      expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+      expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+      expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+      expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+      expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+
+      restorePermissionsResponse();
+
+      // test if permission include works after reload of include map
+      restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+        status: 200,
+        response: {
+          data: [
+            { id: 1, name: 'tests.test1', includedPermissions: [] },
+            { id: 2, name: 'tests.test2', includedPermissions: [] },
+            { id: 3, name: 'tests.test3', includedPermissions: [] },
+            { id: 4, name: 'tests.test4', includedPermissions: [] },
+            { id: 10, name: 'tests.test5', includedPermissions: [] }
+          ]
+        }
+      });
+      view.vm.loadPermissions();
+      moxios.wait(async function () {
+        await view.vm.$nextTick();
+
+        permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
+        perm1 = permissionsCxs[0];
+        perm2 = permissionsCxs[1];
+        perm3 = permissionsCxs[2];
+        perm4 = permissionsCxs[3];
+        perm10 = permissionsCxs[4];
+
+        expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+        expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+        expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+        expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+        expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+
+        restorePermissionsResponse();
+
         done();
       });
     });

@@ -40,7 +40,27 @@ export default {
        * @property actionColumnVisible
        * @default false
        */
-      actionColumnVisible: false
+      actionColumnVisible: false,
+      /**
+       * CSS class of the column heading
+       * @type string
+       * @property actionColumnThClass
+       * @default actionColumn
+       */
+      actionColumnThClass: 'actionColumn',
+      /**
+       * CSS style(s) of the column heading
+       * @type string
+       * @property actionColumnThStyle
+       */
+      actionColumnThStyle: '',
+      /**
+       * CSS class of the column cell
+       * @type string
+       * @property actionColumnTdClass
+       * @default actionButton
+       */
+      actionColumnTdClass: 'actionButton'
     };
   },
 
@@ -53,7 +73,7 @@ export default {
      * @property actionColumnDefinition
      */
     actionColumnDefinition () {
-      return { key: 'actions', label: this.$t('app.actions'), sortable: false };
+      return { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: this.actionColumnThClass, thStyle: this.actionColumnThStyle, tdClass: this.actionColumnTdClass };
     }
   },
 

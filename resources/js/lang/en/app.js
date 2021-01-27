@@ -62,11 +62,15 @@ export default {
       delete: 'Delete rooms'
     },
 
-    settings: {
-      title: 'Settings',
-      manage: 'Manage settings',
+    applicationSettings: {
+      title: 'Application',
       update: 'Edit settings',
       viewAny: 'Show all settings'
+    },
+
+    settings: {
+      title: 'Settings',
+      manage: 'Manage settings'
     },
 
     roles: {

@@ -12,13 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added flash messages on a successful login and on errors catched by the global vue error handler ([#7], [#16],[#44],[#43],[#101],[#102])
 - Added Footer with Impress and Privacy policy ([#9], [#17])
 - Added authenticator type to users model ([#19], [#21])
-- Added roles and permissions concept and management of roles ([#12], [#22], [#45])
-- Added a page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
+- Added roles and permissions concept, management of roles and included permissions ([#12], [#22], [#45], [#103], [#105])
+- Added page to create, view, change settings and delete rooms, start/join meetings ([#4], [#18],[#32],[#33],[#37],[#46])
 - Added search field and pagination to the room overview page  ([#39], [#49])
 - Added file upload for room owner and file download for participants ([#4], [#18])
 - Added agreement check before file download ([#50],[#54])
 - Added global settings, .env as default; added logo path and room limit ([#34],[#36])
-- Added setting menu for administrators ([#35], [#38])
+- Added setting menu for administrators ([#35], [#38], [#97],[#100])
 - Added room type management pages to admin settings ([#62], [#73])
 - Added a middleware to check whether the request is in sync with model of the database and not stale ([#40], [#41])
 - Added management of users and profile page with possibility to disable audio echo test ([#10], [#66], [#67], [#87])
@@ -78,8 +78,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#89]: https://github.com/THM-Health/PILOS/issues/89
 [#94]: https://github.com/THM-Health/PILOS/pull/94
 [#96]: https://github.com/THM-Health/PILOS/issues/96
+[#97]: https://github.com/THM-Health/PILOS/issues/97
 [#99]: https://github.com/THM-Health/PILOS/pull/99
+[#100]: https://github.com/THM-Health/PILOS/pull/100
 [#101]: https://github.com/THM-Health/PILOS/issues/101
 [#102]: https://github.com/THM-Health/PILOS/pull/102
+[#103]: https://github.com/THM-Health/PILOS/issues/103
+[#105]: https://github.com/THM-Health/PILOS/pull/105
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD

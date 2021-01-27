@@ -1,11 +1,12 @@
 export default {
   title: 'Settings',
-  description: 'Here you can manage the settings of the application.<br>' +
-    'Please select one of the menu items on the left to adjust the settings.',
+  homeButton: 'Back to the overview',
+  overview: 'Overview',
+  overviewDescription: 'Here you can manage the settings of the application. Please select one of the menu items on the left to adjust the settings.',
 
   roles: {
     title: 'Roles',
-
+    tileDescription: 'The roles assign permissions, organise the users and define the maximum number of rooms per user.',
     new: 'Create new role',
     view: 'Detailed information for the role {name}',
     edit: 'Edit role {name}',
@@ -13,6 +14,12 @@ export default {
     id: 'ID',
     name: 'Name',
     permissions: 'Permissions',
+    permissionName: 'Name of the permissions',
+    permissionExplicit: 'Explicit',
+    permissionIncluded: 'Included',
+    permissionIncludedHelp: 'Permissions that have been selected and permissions that are included in the selected permissions.',
+    hasIncludedPermission: 'The permission "{name}" was either explicitly selected or is included in another selected permission.',
+    hasNotIncludedPermission: 'The permission "{name}" was neither explicitly selected nor is it included in another selected permission.',
     roomLimit: {
       label: 'Room limit',
       default: 'System default ({value})',
@@ -43,7 +50,7 @@ export default {
 
   users: {
     title: 'Users',
-
+    tileDescription: 'Users can login to the system and use different features depending on their role.',
     new: 'Create new user',
     view: 'Detailed information for the user {firstname} {lastname}',
     edit: 'Edit user {firstname} {lastname}',
@@ -81,6 +88,7 @@ export default {
 
   roomTypes: {
     title: 'Room types',
+    tileDescription: 'The room types organize the rooms, give them icons for quicker recognition and determine on which server pool a meeting takes place.',
     icon: 'Icon',
     description: 'Description',
     short: 'Icon text',
@@ -108,6 +116,7 @@ export default {
 
   application: {
     title: 'Application',
+    tileDescription: 'Controls system-wide settings such as logo, maintenance banner and page sizes.',
     logo: {
       title: 'Logo',
       uploadTitle: 'Upload a logo (max. 500 KB)',
@@ -168,6 +177,7 @@ export default {
 
   servers: {
     title: 'Server',
+    tileDescription: 'The servers provide the BBB infrastructure for the meetings.',
     id: 'ID',
     name: 'Name',
     description: 'Description',
@@ -225,6 +235,7 @@ export default {
   },
   serverPools: {
     title: 'Server pools',
+    tileDescription: 'For load balancing several servers are bundled and assigned to each room via the room type.',
     id: 'ID',
     name: 'Name',
     description: 'Description',
