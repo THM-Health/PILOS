@@ -105,24 +105,22 @@
           </b-form-group>
 
           <hr>
-          <b-row class='my-1'>
+          <b-row class='my-1 float-right'>
             <b-col sm='12'>
               <b-button
-                :disabled='isBusy || modelLoadingError'
-                variant='success'
-                type='submit'
-                class='ml-1 float-right'
-                v-if='!viewOnly'>
-                <i class='fas fa-save'></i> {{ $t('app.save') }}
-              </b-button>
-              <b-button
-                class="float-right"
                 :disabled='isBusy'
                 variant='secondary'
                 @click="$router.push({ name: 'settings.server_pools' })">
                 <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
-
+              <b-button
+                :disabled='isBusy || modelLoadingError || serversLoadingError || serversLoading'
+                variant='success'
+                type='submit'
+                class='ml-1'
+                v-if='!viewOnly'>
+                <i class='fas fa-save'></i> {{ $t('app.save') }}
+              </b-button>
             </b-col>
           </b-row>
 

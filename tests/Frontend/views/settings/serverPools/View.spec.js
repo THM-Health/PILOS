@@ -111,18 +111,18 @@ describe('ServerPoolView', function () {
       ],
       links: {
         first: 'http://localhost/api/v1/servers?page=1',
-        last: 'http://localhost/api/v1/servers?page=1',
+        last: 'http://localhost/api/v1/servers?page=2',
         prev: null,
-        next: null
+        next: 'http://localhost/api/v1/servers?page=2'
       },
       meta: {
         current_page: 1,
         from: 1,
-        last_page: 1,
+        last_page: 2,
         path: 'http://localhost/api/v1/servers',
-        per_page: 15,
-        to: 2,
-        total: 2
+        per_page: 3,
+        to: 3,
+        total: 4
       }
     };
 
@@ -559,6 +559,163 @@ describe('ServerPoolView', function () {
           expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Demo');
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           done();
+        });
+      });
+    });
+  });
+
+  it('server get loaded, pagination and error handling', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store
+    });
+
+    const multiSelect = view.findComponent(Multiselect);
+
+    const saveButton = view.findAllComponents(BButton).at(3);
+    expect(saveButton.html()).toContain('app.save');
+
+    // load servers
+    moxios.wait(async function () {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe('/api/v1/servers?page=1');
+      await view.vm.$nextTick();
+
+      // check drop down values
+      expect(multiSelect.find('ul').findAll('li').at(0).text()).toContain('Server 01');
+      expect(multiSelect.find('ul').findAll('li').at(1).text()).toContain('Server 02');
+      expect(multiSelect.find('ul').findAll('li').at(2).text()).toContain('Server 03');
+
+      // check pagination
+      const paginationButtons = multiSelect.findAllComponents(BButton);
+      expect(paginationButtons.at(0).attributes('disabled')).toBe('disabled');
+      expect(paginationButtons.at(1).attributes('disabled')).toBeUndefined();
+
+      // test navigate to next page
+      await paginationButtons.at(1).trigger('click');
+      // dropdown show loading spinner during load and save disabled
+      expect(multiSelect.props('loading')).toBeTruthy();
+      moxios.wait(async function () {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toBe('/api/v1/servers?page=2');
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: [
+              {
+                id: 4,
+                name: 'Server 04',
+                description: 'Testserver 04',
+                strength: 1,
+                status: -1,
+                participant_count: null,
+                listener_count: null,
+                voice_participant_count: null,
+                video_count: null,
+                meeting_count: null,
+                own_meeting_count: null,
+                model_name: 'Server',
+                updated_at: '2020-12-21T13:43:21.000000Z'
+              }
+            ],
+            meta: {
+              current_page: 2,
+              from: 4,
+              last_page: 2,
+              per_page: 3,
+              to: 4,
+              total: 4
+            }
+          }
+        });
+        await view.vm.$nextTick();
+
+        // hide loading spinner and active save button
+        expect(multiSelect.props('loading')).toBeFalsy();
+        expect(saveButton.attributes('disabled')).toBeUndefined();
+
+        expect(paginationButtons.at(0).attributes('disabled')).toBeUndefined();
+        expect(paginationButtons.at(1).attributes('disabled')).toBe('disabled');
+
+        // test error during load
+        const restoreServerPoolResponse = overrideStub('/api/v1/servers?page=1', {
+          status: 500,
+          response: {
+            message: 'Test'
+          }
+        });
+        await paginationButtons.at(0).trigger('click');
+        moxios.wait(async function () {
+          await view.vm.$nextTick();
+
+          // hide loading spinner, disable dropdown and prevent saving
+          expect(multiSelect.props('loading')).toBeFalsy();
+          expect(multiSelect.props('disabled')).toBeTruthy();
+          expect(saveButton.attributes('disabled')).toBe('disabled');
+
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+          restoreServerPoolResponse();
+
+          const reloadButton = view.findAllComponents(BButton).at(2);
+          expect(reloadButton.html()).toContain('fas fa-sync');
+
+          await reloadButton.trigger('click');
+
+          // load servers
+          moxios.wait(async function () {
+            expect(saveButton.attributes('disabled')).toBe('disabled');
+            const request = moxios.requests.mostRecent();
+            expect(request.url).toBe('/api/v1/servers?page=2');
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: [
+                  {
+                    id: 4,
+                    name: 'Server 04',
+                    description: 'Testserver 04',
+                    strength: 1,
+                    status: -1,
+                    participant_count: null,
+                    listener_count: null,
+                    voice_participant_count: null,
+                    video_count: null,
+                    meeting_count: null,
+                    own_meeting_count: null,
+                    model_name: 'Server',
+                    updated_at: '2020-12-21T13:43:21.000000Z'
+                  }
+                ],
+                meta: {
+                  current_page: 2,
+                  from: 4,
+                  last_page: 2,
+                  per_page: 3,
+                  to: 4,
+                  total: 4
+                }
+              }
+            });
+            await view.vm.$nextTick();
+
+            // hide loading spinner, enable dropdown and enable saving
+            expect(multiSelect.props('loading')).toBeFalsy();
+            expect(multiSelect.props('disabled')).toBeFalsy();
+            expect(saveButton.attributes('disabled')).toBeUndefined();
+
+            done();
+          });
         });
       });
     });

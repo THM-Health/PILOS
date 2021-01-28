@@ -7,6 +7,7 @@ use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServerPool extends Model
 {
@@ -26,7 +27,7 @@ class ServerPool extends Model
     protected static function booted()
     {
         static::deleting(function (self $model) {
-            // Delete Server, only possible if no room types associated
+            // Delete server pool only possible if no room types associated
             if ($model->roomTypes()->count() != 0) {
                 return false;
             }
@@ -34,7 +35,7 @@ class ServerPool extends Model
     }
 
     /**
-     * Servers that are port of this server pools
+     * Servers that are port of this server pool
      * @return BelongsToMany
      */
     public function servers(): BelongsToMany
@@ -42,6 +43,10 @@ class ServerPool extends Model
         return $this->belongsToMany(Server::class);
     }
 
+    /**
+     * RoomTypes that are using this server pool
+     * @return HasMany
+     */
     public function roomTypes()
     {
         return $this->hasMany(RoomType::class);
