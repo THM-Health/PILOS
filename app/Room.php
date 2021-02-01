@@ -61,6 +61,7 @@ class Room extends Model
         'defaultRole'                    => 'integer',
         'lobby'                          => 'integer',
         'accessCode'                     => 'integer',
+        'listed'                         => 'boolean',
     ];
 
     /**

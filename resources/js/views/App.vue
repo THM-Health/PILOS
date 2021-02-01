@@ -33,7 +33,8 @@
 
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
-            <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>{{ $t('rooms.rooms') }}</b-nav-item>
+            <b-nav-item :to="{ name: 'rooms.own_index' }" v-if='isAuthenticated'>{{ $t('rooms.myRooms') }}</b-nav-item>
+            <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>{{ $t('rooms.allRooms') }}</b-nav-item>
             <can v-if='isAuthenticated' method='manage' policy='SettingPolicy'>
               <b-nav-item :to="{ name: 'settings' }">
                 {{ $t('settings.title') }}

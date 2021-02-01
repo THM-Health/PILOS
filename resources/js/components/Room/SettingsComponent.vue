@@ -139,6 +139,19 @@
               </b-form-checkbox>
               <template slot='invalid-feedback'><div v-html="fieldError('allowMembership')"></div></template>
             </b-form-group>
+
+            <!-- Checkbox publicly list this room -->
+            <b-form-group :state="fieldState('listed')">
+              <b-form-checkbox
+                :disabled="isBusy || modelLoadingError"
+                :state="fieldState('listed')"
+                v-model="settings.listed"
+                switch
+              >
+                {{ $t('rooms.settings.security.listed') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('listed')"></div></template>
+            </b-form-group>
           </b-col>
 
           <!-- Paticipants settings tab -->

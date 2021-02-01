@@ -1,5 +1,6 @@
 export default {
   myRooms: 'Meine Räume',
+  allRooms: 'Alle Räume',
   noRoomsAvailable: 'Keine Räume vorhanden',
   rooms: 'Räume',
   roomLimit: 'Max. Anzahl an Räumen: {has}/{max}',
@@ -140,7 +141,8 @@ export default {
       accessCode: 'Zugangscode',
       accessCodeNote: 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
       allowGuests: 'Gäste zulassen',
-      allowNewMembers: 'Neue Mitglieder zulassen'
+      allowNewMembers: 'Neue Mitglieder zulassen',
+      listed: 'In "Alle Räume" anzeigen'
     },
     participants: {
       title: 'Teilnehmer',
@@ -174,5 +176,10 @@ export default {
       disableNoteEdit: 'Bearbeiten der Notizen deaktivieren',
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
+  },
+  filter: {
+    title: 'Filter',
+    roomTypes: 'Raumarten',
+    apply: 'Anwenden'
   }
 };

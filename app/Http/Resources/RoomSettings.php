@@ -36,6 +36,7 @@ class RoomSettings extends JsonResource
             'duration'                              => $this->duration,
             'defaultRole'                           => $this->defaultRole,
             'lobby'                                 => $this->lobby,
+            'listed'                                => $this->listed,
         ];
     }
 }
