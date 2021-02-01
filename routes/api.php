@@ -81,6 +81,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
         Route::get('users/search', 'UserController@search')->name('users.search');
         Route::apiResource('users', 'UserController');
+        Route::post('users/{user}/resetPassword', 'UserController@resetPassword')->name('users.password.reset')->middleware('can:update,user');
 
         Route::post('servers/check', 'ServerController@check')->name('servers.check')->middleware('can:viewAny,App\Server');
         Route::get('servers/{server}/panic', 'ServerController@panic')->name('servers.panic')->middleware('can:update,server');
