@@ -31,10 +31,10 @@
     <hr>
 
     <b-table
-      :responsive='true'
+      fixed
       hover
       show-empty
-      stacked='xl'
+      stacked='lg'
       :busy.sync='isBusy'
       :fields='tableFields'
       :items='fetchUsers'
@@ -60,6 +60,12 @@
 
       <template v-slot:cell(authenticator)="data">
         {{ $t(`settings.users.authenticator.${data.item.authenticator}`) }}
+      </template>
+
+      <template #cell()="data">
+        <text-truncate>
+          {{ data.value }}
+        </text-truncate>
       </template>
 
       <template v-slot:cell(actions)="data">
@@ -151,9 +157,10 @@
 import ActionsColumn from '../../../mixins/ActionsColumn';
 import Can from '../../../components/Permissions/Can';
 import Base from '../../../api/base';
+import TextTruncate from '../../../components/TextTruncate';
 
 export default {
-  components: { Can },
+  components: { TextTruncate, Can },
   mixins: [ActionsColumn],
 
   props: {
@@ -166,10 +173,10 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.users.id'), sortable: true },
-        { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true },
-        { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true },
-        { key: 'email', label: this.$t('settings.users.email'), sortable: true },
+        { key: 'id', label: this.$t('settings.users.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
+        { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true }
       ];
 

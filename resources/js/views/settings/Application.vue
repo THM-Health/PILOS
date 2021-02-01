@@ -1,9 +1,6 @@
 <template>
-  <b-container fluid>
-    <h3>
-      {{ $t('settings.application.title') }}
-    </h3>
-
+ <div>
+    <h3>{{ $t('settings.application.title') }}</h3>
     <hr>
     <b-overlay :show="isBusy || !loaded">
 
@@ -558,7 +555,7 @@
         </div>
       </b-form>
     </b-overlay>
-  </b-container>
+ </div>
 </template>
 
 <script>
@@ -740,7 +737,7 @@ export default {
      * Check if user is only allowed to read settings
      */
     viewOnly () {
-      return PermissionService.cannot('update', 'SettingPolicy');
+      return PermissionService.cannot('update', 'ApplicationSettingPolicy');
     },
 
     /**

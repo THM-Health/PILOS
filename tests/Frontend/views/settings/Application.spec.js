@@ -22,7 +22,7 @@ const createContainer = (tag = 'div') => {
 
 describe('Application', function () {
   beforeEach(function () {
-    PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.update', 'settings.manage'] });
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
     moxios.install();
   });
 
@@ -611,7 +611,7 @@ describe('Application', function () {
   });
 
   it('disable edit button if user does not have permission', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.viewAny', 'settings.manage'] });
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
     const actions = {
       getSettings () {

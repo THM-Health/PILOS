@@ -1,10 +1,12 @@
 export default {
   title: 'Einstellungen',
-  description: 'Hier können die Einstellungen der Anwendung verwaltet werden.<br>' +
-    'Bitte wählen Sie einen der nebenstehenden Menüpunkte, um die Einstellungen anzupassen.',
+  homeButton: 'Zurück zur Übersicht',
+  overview: 'Übersicht',
+  overviewDescription: 'Hier können die Einstellungen der Anwendung verwaltet werden. Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.',
 
   roles: {
     title: 'Rollen',
+    tileDescription: 'Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das max. an Räumen pro Nutzer fest.',
 
     new: 'Neue Rolle erstellen',
     view: 'Detaillierte Informationen für die Rolle {name}',
@@ -13,6 +15,12 @@ export default {
     id: 'ID',
     name: 'Name',
     permissions: 'Rechte',
+    permissionName: 'Name des Rechts',
+    permissionExplicit: 'Explizit',
+    permissionIncluded: 'Inkludiert',
+    permissionIncludedHelp: 'Rechte die ausgewählt wurden und Rechte, die in den ausgewählten Rechten inkludiert sind.',
+    hasIncludedPermission: 'Das Recht "{name}" wurde entweder explizit ausgewählt oder ist in einem anderen ausgewählten Recht inkludiert.',
+    hasNotIncludedPermission: 'Das Recht "{name}" wurde weder explizit ausgewählt noch ist es in einem anderen ausgewählten Recht inkludiert.',
     roomLimit: {
       label: 'Max. Anzahl an Räumen',
       default: 'Systemstandard ({value})',
@@ -44,6 +52,7 @@ export default {
 
   users: {
     title: 'Benutzer',
+    tileDescription: 'Die Benutzer können sich an dem System anmelden und je nach Rolle unterschiedliche Funktionen nutzen.',
 
     new: 'Neuen Benutzer erstellen',
     view: 'Detaillierte Informationen für den Benutzer {firstname} {lastname}',
@@ -85,6 +94,8 @@ export default {
 
   roomTypes: {
     title: 'Raumarten',
+    tileDescription: 'Die Raumarten sortieren die Räume, geben diesen Icons zur schnelleren Wiedererkennung und bestimmen auf welchem Serverpool ein Meeting stattfindet.',
+
     icon: 'Icon',
     description: 'Beschreibung',
     short: 'Icon Text',
@@ -109,6 +120,7 @@ export default {
 
   application: {
     title: 'Anwendung',
+    tileDescription: 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
     logo: {
       title: 'Logo',
       uploadTitle: 'Logo hochladen (max. 500 KB)',
@@ -171,6 +183,7 @@ export default {
 
   servers: {
     title: 'Server',
+    tileDescription: 'Die Server stellen die BBB Infrastruktur für die Meetings bereit.',
     id: 'ID',
     description: 'Beschreibung',
     status: 'Status',
