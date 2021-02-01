@@ -44,10 +44,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 //        Route::post('email/resend', 'VerificationController@resend');
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
 
-        // TODO: Fix tests
-//        if (boolval(setting('password_self_reset_enabled'))) {
-//            Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email');
-//        }
+        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email')->middleware('enable_if:password_self_reset_enabled');
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
