@@ -191,7 +191,8 @@ class SettingsTest extends TestCase
                 'link_target' => 'self',
                 'link_style'  => 'primary',
                 'icon'        => 'fas fa-door-open',
-            ]
+            ],
+            'password_self_reset_enabled' => '1'
         ];
 
         $role       = factory(Role::class)->create();
@@ -217,7 +218,8 @@ class SettingsTest extends TestCase
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
-                    ]
+                    ],
+                    'password_self_reset_enabled' => true
                 ]
             ]);
     }
@@ -236,7 +238,8 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false]
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false
         ];
 
         // Unauthorized Test
@@ -271,7 +274,8 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false]
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => '1'
         ];
 
         // Unauthorized Test
@@ -309,7 +313,8 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
-            'banner'                         => ['enabled' => false]
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => '1'
         ];
 
         // Add necessary role and permission to user to update application settings
@@ -345,7 +350,8 @@ class SettingsTest extends TestCase
             'logo_file'                      => 'notimagefile',
             'pagination_page_size'           => 'notnumber',
             'own_rooms_pagination_page_size' => 'notnumber',
-            'room_limit'                     => 'notnumber'
+            'room_limit'                     => 'notnumber',
+            'password_self_reset_enabled'    => 'foo'
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
@@ -360,7 +366,8 @@ class SettingsTest extends TestCase
                 'own_rooms_pagination_page_size',
                 'room_limit',
                 'banner',
-                'banner.enabled'
+                'banner.enabled',
+                'password_self_reset_enabled'
             ]);
 
         $payload = [
@@ -370,7 +377,8 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
-            'banner'                         => false
+            'banner'                         => false,
+            'password_self_reset_enabled'    => '1'
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
