@@ -68,6 +68,7 @@
         "bootstrap-vue": "^2.15.0",
         "es6-promise": "^4.2.8",
         "v-clipboard": "^2.2.3",
+        "vue-dayjs-plugin": "^1.0.0",
         "vue-fragment": "^1.5.1",
         "vue-i18n": "^8.18.2",
         "vue-multiselect": "^2.1.6",

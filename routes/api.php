@@ -84,6 +84,9 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('servers/check', 'ServerController@check')->name('servers.check')->middleware('can:viewAny,App\Server');
         Route::get('servers/{server}/panic', 'ServerController@panic')->name('servers.panic')->middleware('can:update,server');
         Route::apiResource('servers', 'ServerController');
+
+        Route::get('meetings', 'MeetingController@index')->name('meetings.index');
+
     });
 
     Route::middleware('can:view,room')->group(function () {

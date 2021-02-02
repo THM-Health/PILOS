@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\Meeting as MeetingResource;
 
 /**
  * Class MeetingController
@@ -13,14 +14,60 @@ use Illuminate\Support\Facades\Hash;
  */
 class MeetingController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Meeting::class, 'meeting');
+    }
+
     /**
      * Display a listing of all currently running meetings
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        //@TODO Implement a list of all currently running meetings
+        // Load meetings, rooms, owners and servers
+        $resource = Meeting::query()
+            ->join('rooms as room', 'meetings.room_id', '=', 'room.id')
+            ->join('users as user', 'room.user_id', '=', 'user.id')
+            ->join('servers as server', 'meetings.server_id', '=', 'server.id');
+
+        // Filter only running meetings
+        $resource = $resource->whereNull('end');
+
+        // And-search, sub queries split by space
+        if ($request->has('search') && trim($request->search) != '') {
+            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $resource = $resource->where(function ($query) use ($searchQuery) {
+                    $query->whereHas('room', function ($subQuery) use ($searchQuery) {
+                        $subQuery->where('name', 'like', '%' . $searchQuery . '%');
+                    })
+                        ->orWhereHas('room.owner', function ($subQuery) use ($searchQuery) {
+                            $subQuery->where('firstname', 'like', '%' . $searchQuery . '%')
+                                ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                        })
+                        ->orWhereHas('server', function ($subQuery) use ($searchQuery) {
+                            $subQuery->where('description', 'like', '%' . $searchQuery . '%');
+                        });
+                });
+            }
+        }
+
+        // Sort table with allowed columns
+        if ($request->has('sort_by') && $request->has('sort_direction')) {
+            $by  = $request->query('sort_by');
+            $dir = $request->query('sort_direction');
+
+            if (in_array($by, ['start','room.participant_count','room.listener_count','room.voice_participant_count','room.video_count']) && in_array($dir, ['asc', 'desc'])) {
+                $resource = $resource->orderBy($by, $dir);
+            }
+        }
+
+        // Respond with paginated result
+        $resource = $resource->paginate(setting('pagination_page_size'));
+
+        return MeetingResource::collection($resource);
     }
 
     /**

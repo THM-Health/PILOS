@@ -22,6 +22,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.updateAll' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.deleteAll' ])->id;
 
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
 
@@ -68,6 +69,8 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::SetupIncludedPermissions('rooms.viewAll', ['rooms.create','settings.manage']);
         Permission::SetupIncludedPermissions('rooms.updateAll', ['rooms.viewAll','rooms.create','settings.manage']);
         Permission::SetupIncludedPermissions('rooms.deleteAll', ['rooms.updateAll','rooms.viewAll','rooms.create','settings.manage']);
+
+        Permission::SetupIncludedPermissions('meetings.viewAny', ['servers.viewAny','rooms.viewAll','settings.manage']);
 
         Permission::SetupIncludedPermissions('applicationSettings.update', ['applicationSettings.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('applicationSettings.viewAny', ['settings.manage']);

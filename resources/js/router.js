@@ -19,6 +19,7 @@ import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
 import ServersIndex from './views/settings/servers/Index';
 import ServersView from './views/settings/servers/View';
+import MeetingsIndex from './views/meetings/Index';
 import Base from './api/base';
 
 Vue.use(VueRouter);
@@ -65,6 +66,13 @@ export const routes = [
     name: 'rooms.view',
     component: RoomView
   },
+  {
+    path: '/meetings',
+    component: MeetingsIndex,
+    name: 'meetings.index',
+    meta: { requiresAuth: true }
+  },
+
   {
     path: '/settings',
     component: Settings,

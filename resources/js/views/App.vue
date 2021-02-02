@@ -35,6 +35,9 @@
           <b-navbar-nav>
             <b-nav-item :to="{ name: 'rooms.own_index' }" v-if='isAuthenticated'>{{ $t('rooms.myRooms') }}</b-nav-item>
             <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>{{ $t('rooms.allRooms') }}</b-nav-item>
+            <can v-if='isAuthenticated' method='viewAny' policy='MeetingPolicy'>
+              <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currentlyRunning') }}</b-nav-item>
+            </can>
             <can v-if='isAuthenticated' method='manage' policy='SettingPolicy'>
               <b-nav-item :to="{ name: 'settings' }">
                 {{ $t('settings.title') }}
