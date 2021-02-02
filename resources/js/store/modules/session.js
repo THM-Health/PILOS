@@ -32,7 +32,7 @@ const actions = {
   },
 
   async getSettings ({ commit }) {
-    let response = await base.call('settings');
+    const response = await base.call('settings');
     commit('setSettings', response.data.data);
   },
 

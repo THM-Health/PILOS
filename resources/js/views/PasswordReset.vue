@@ -1,5 +1,5 @@
 <template>
-
+  <div></div>
 </template>
 
 <script>
@@ -13,7 +13,7 @@ export default {
       next();
     }
   }
-}
+};
 </script>
 
 <style scoped>

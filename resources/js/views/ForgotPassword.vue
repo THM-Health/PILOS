@@ -36,9 +36,8 @@
 </template>
 
 <script>
-import store from '../store'
+import store from '../store';
 import FieldErrors from '../mixins/FieldErrors';
-import Base from '../api/base';
 
 export default {
   mixins: [FieldErrors],
@@ -64,7 +63,7 @@ export default {
       // TODO: Implement
     }
   }
-}
+};
 </script>
 
 <style scoped>
