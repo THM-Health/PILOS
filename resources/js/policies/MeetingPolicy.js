@@ -1,5 +1,5 @@
 /**
- * Policy for room actions
+ * Policy for meeting actions
  */
 export default {
 

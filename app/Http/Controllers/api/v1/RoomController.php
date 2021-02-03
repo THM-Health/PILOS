@@ -55,7 +55,7 @@ class RoomController extends Controller
 
         $collection =  Room::with('owner');
         if (Auth::user()->cannot('viewAll', Room::class)) {
-            $collection = $collection->where('listed', 1);
+            $collection = $collection->where('listed', 1)->whereNull('accessCode');
         }
 
         if ($request->has('search') && trim($request->search) != '') {

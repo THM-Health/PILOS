@@ -1,6 +1,8 @@
 export default {
   myRooms: 'My rooms',
   allRooms: 'All rooms',
+  findRooms: 'Find rooms',
+  findRoomsInfo: 'List of all public listed rooms without an access code',
   noRoomsAvailable: 'No rooms available',
   rooms: 'Rooms',
   roomLimit: 'Room limit: {has}/{max}',
@@ -142,7 +144,7 @@ export default {
       accessCodeNote: 'Access restriction for joining the room and room membership (if enabled).',
       allowGuests: 'Allow guests',
       allowNewMembers: 'Allow new members',
-      listed: 'Show in \'All rooms\''
+      listed: 'Include in room search'
     },
     participants: {
       title: 'Participants',

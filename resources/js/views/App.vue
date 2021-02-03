@@ -34,7 +34,14 @@
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
             <b-nav-item :to="{ name: 'rooms.own_index' }" v-if='isAuthenticated'>{{ $t('rooms.myRooms') }}</b-nav-item>
-            <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>{{ $t('rooms.allRooms') }}</b-nav-item>
+            <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>
+              <can method='viewAll' policy='RoomPolicy'>
+                {{ $t('rooms.allRooms') }}
+              </can>
+              <cannot method='viewAll' policy='RoomPolicy'>
+                {{ $t('rooms.findRooms') }}
+              </cannot>
+            </b-nav-item>
             <can v-if='isAuthenticated' method='viewAny' policy='MeetingPolicy'>
               <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currentlyRunning') }}</b-nav-item>
             </can>
@@ -82,10 +89,11 @@ import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
 import FooterComponent from '../components/FooterComponent';
 import Can from '../components/Permissions/Can';
+import Cannot from '../components/Permissions/Cannot';
 import Banner from '../components/Banner';
 
 export default {
-  components: { Banner, Can, LocaleSelector, FooterComponent },
+  components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,

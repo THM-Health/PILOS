@@ -36,7 +36,7 @@ class RoomPolicy
      */
     public function viewAll(User $user)
     {
-        $user->can('rooms.viewAll');
+        return $user->can('rooms.viewAll');
     }
 
     /**
@@ -114,7 +114,7 @@ class RoomPolicy
      */
     public function delete(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.delete');
+        return $room->owner->is($user);
     }
 
     /**

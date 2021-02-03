@@ -128,16 +128,6 @@ class RoomTest extends TestCase
         // Try again after deleted
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
             ->assertNotFound();
-
-        // Authorize user to delete any room
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'rooms.delete']);
-        $role->permissions()->attach($permission);
-        $this->user->roles()->attach($role);
-
-        // Test with general room delete permission
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_2]))
-            ->assertNoContent();
     }
 
     /**

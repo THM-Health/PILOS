@@ -17,7 +17,7 @@ export default {
   },
 
   delete (permissionService, model) {
-    return !permissionService.currentUser ? false : model.isOwner || permissionService.currentUser.permissions.includes('rooms.delete');
+    return !permissionService.currentUser ? false : model.isOwner;
   },
 
   manageFiles (permissionService, model) {

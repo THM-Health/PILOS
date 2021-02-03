@@ -2,7 +2,14 @@
   <b-container class="mt-3 mb-5">
     <b-row class="mb-3">
       <b-col md="9">
-        <h2>{{ $t('rooms.allRooms') }}</h2>
+        <can method='viewAll' policy='RoomPolicy'>
+          <h2>{{ $t('rooms.allRooms') }}</h2>
+        </can>
+        <cannot method='viewAll' policy='RoomPolicy'>
+          <h2>{{ $t('rooms.findRooms') }}</h2>
+          <p>{{ $t('rooms.findRoomsInfo')}}</p>
+        </cannot>
+
       </b-col>
       <b-col md="3">
         <b-input-group>
@@ -100,8 +107,11 @@
 <script>
 import Base from '../../api/base';
 import _ from 'lodash';
+import Can from '../../components/Permissions/Can';
+import Cannot from '../../components/Permissions/Cannot';
 
 export default {
+  components: { Can, Cannot },
   props: {
     showUsage: {
       type: Boolean,

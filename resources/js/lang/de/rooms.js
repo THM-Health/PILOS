@@ -1,6 +1,8 @@
 export default {
   myRooms: 'Meine Räume',
   allRooms: 'Alle Räume',
+  findRooms: 'Räume finden',
+  findRoomsInfo: 'Liste aller öffentlich gelisteten Räume ohne Zugangscode',
   noRoomsAvailable: 'Keine Räume vorhanden',
   rooms: 'Räume',
   roomLimit: 'Max. Anzahl an Räumen: {has}/{max}',
@@ -142,7 +144,7 @@ export default {
       accessCodeNote: 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
       allowGuests: 'Gäste zulassen',
       allowNewMembers: 'Neue Mitglieder zulassen',
-      listed: 'In "Alle Räume" anzeigen'
+      listed: 'In Raumsuche einschließen'
     },
     participants: {
       title: 'Teilnehmer',
