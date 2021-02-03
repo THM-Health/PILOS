@@ -220,9 +220,9 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test list of rooms
+     * Test list of rooms with filter
      */
-    public function testRoomList()
+    public function testRoomListWithFilter()
     {
         $rooms = factory(Room::class, 4)->create();
 
@@ -231,9 +231,7 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
 
         // Testing authorized users access
-        // Missing filter
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
-            ->assertStatus(400);
+
         // Invalid filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
             ->assertStatus(400);
