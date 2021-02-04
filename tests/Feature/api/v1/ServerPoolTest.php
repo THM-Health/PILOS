@@ -156,7 +156,7 @@ class ServerPoolTest extends TestCase
                 'id'                      => $serverPool->id,
                 'name'                    => $serverPool->name,
                 'description'             => $serverPool->description,
-                'server_count'            => $serverPool->servers()->count(),
+                'servers_count'            => $serverPool->servers()->count(),
                 'updated_at'              => $serverPool->updated_at,
                 'model_name'              => $serverPool->model_name
                 ])
@@ -197,7 +197,7 @@ class ServerPoolTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.serverPools.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['name'=>$serverPool->name,'description'=>$serverPool->description,'server_count'=>0,'model_name'=>'ServerPool']
+                ['name'=>$serverPool->name,'description'=>$serverPool->description,'servers_count'=>0,'model_name'=>'ServerPool']
             );
 
         // Test with some existing name
@@ -237,7 +237,7 @@ class ServerPoolTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.serverPools.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['name'=>'TestPool','description'=>$serverPool->description,'server_count'=>2]
+                ['name'=>'TestPool','description'=>$serverPool->description,'servers_count'=>2]
             )
             ->assertJsonPath('data.servers.0.id', $servers[0]->id)
             ->assertJsonPath('data.servers.1.id', $servers[1]->id);
@@ -280,7 +280,7 @@ class ServerPoolTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.serverPools.update', ['serverPool'=>$serverPool->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['name'=>$serverPool->name,'description'=>$serverPool->description,'server_count'=>0]
+                ['name'=>$serverPool->name,'description'=>$serverPool->description,'servers_count'=>0]
             );
 
         // Test with name of an other server pool
@@ -307,7 +307,7 @@ class ServerPoolTest extends TestCase
         $data['servers']       = [$servers[0]->id,$servers[1]->id];
         $data['updated_at']    = $serverPool->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.serverPools.update', ['serverPool'=>$serverPool->id]), $data)
-            ->assertJsonFragment(['name'=>'TestPool','description'=>$serverPool->description,'server_count'=>2])
+            ->assertJsonFragment(['name'=>'TestPool','description'=>$serverPool->description,'servers_count'=>2])
             ->assertJsonPath('data.servers.0.id', $servers[0]->id)
             ->assertJsonPath('data.servers.1.id', $servers[1]->id);
 
@@ -317,7 +317,7 @@ class ServerPoolTest extends TestCase
         $data['servers']       = [$servers[0]->id];
         $data['updated_at']    = $serverPool->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.serverPools.update', ['serverPool'=>$serverPool->id]), $data)
-            ->assertJsonFragment(['name'=>'TestPool','description'=>$serverPool->description,'server_count'=>1])
+            ->assertJsonFragment(['name'=>'TestPool','description'=>$serverPool->description,'servers_count'=>1])
             ->assertJsonPath('data.servers.0.id', $servers[0]->id);
 
         // Remove all servers
@@ -326,7 +326,7 @@ class ServerPoolTest extends TestCase
         $data['updated_at']    = $serverPool->updated_at;
         unset($data['servers']);
         $this->actingAs($this->user)->putJson(route('api.v1.serverPools.update', ['serverPool'=>$serverPool->id]), $data)
-            ->assertJsonFragment(['name'=>'TestPool','description'=>$serverPool->description,'server_count'=>0]);
+            ->assertJsonFragment(['name'=>'TestPool','description'=>$serverPool->description,'servers_count'=>0]);
 
         // Test deleted
         $serverPool->delete();
