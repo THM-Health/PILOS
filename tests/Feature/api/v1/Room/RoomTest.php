@@ -210,6 +210,41 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test list of rooms without filter
+     */
+    public function testRoomList()
+    {
+        $room1 = factory(Room::class)->create(['listed'=>false,'accessCode'=>123456789]);
+        $room2 = factory(Room::class)->create(['listed'=>false,'accessCode'=>null]);
+        $room3 = factory(Room::class)->create(['listed'=>true,'accessCode'=>123456789]);
+        $room4 = factory(Room::class)->create(['listed'=>true,'accessCode'=>null]);
+
+        // Testing guests access
+        $this->getJson(route('api.v1.rooms.index'))
+            ->assertUnauthorized();
+
+        // Test as logged in user, without viewAll rooms permission
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name]);
+
+
+        // Test with viewAll rooms permission
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data')
+            ->assertJsonFragment(['id'=>$room1->id,'name'=>$room1->name])
+            ->assertJsonFragment(['id'=>$room2->id,'name'=>$room2->name])
+            ->assertJsonFragment(['id'=>$room3->id,'name'=>$room3->name])
+            ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name]);
+    }
+
+    /**
      * Test list of rooms with filter
      */
     public function testRoomListWithFilter()
@@ -219,8 +254,6 @@ class RoomTest extends TestCase
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertUnauthorized();
-
-        // Testing authorized users access
 
         // Invalid filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
