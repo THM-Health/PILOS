@@ -7,7 +7,7 @@
       ) }}
     </h3>
     <hr>
-    <b-overlay :show="isBusy || !loaded">
+    <b-overlay :show="isBusy || modelLoadingError">
       <template #overlay>
         <div class="text-center">
           <b-spinner v-if="isBusy" ></b-spinner>
@@ -28,7 +28,7 @@
             label-for='description'
             :state='fieldState("description")'
           >
-            <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || !loaded || viewOnly'></b-form-input>
+            <b-form-input id='description' type='text' v-model='model.description' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
           </b-form-group>
           <b-form-group
@@ -37,7 +37,7 @@
             label-for='short'
             :state='fieldState("short")'
           >
-            <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || !loaded || viewOnly'></b-form-input>
+            <b-form-input maxlength="2" id='short' type='text' v-model='model.short' :state='fieldState("short")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
             <template slot='invalid-feedback'><div v-html="fieldError('short')"></div></template>
           </b-form-group>
 
@@ -47,9 +47,9 @@
             label-for='color'
             :state='fieldState("color")'
           >
-            <v-swatches class="my-2" :disabled='isBusy || !loaded || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
+            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
             <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
-            <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || !loaded || viewOnly'></b-form-input>
+            <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
             <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
           </b-form-group>
@@ -59,6 +59,61 @@
             :label="$t('settings.roomTypes.preview')"
           >
             <div class="roomicon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+          </b-form-group>
+
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.serverPool')"
+            label-for='server_pool'
+            :state='fieldState("server_pool")'
+            :description="$t('settings.roomTypes.serverPoolDescription')"
+          >
+            <b-input-group>
+              <multiselect
+                :placeholder="$t('settings.roomTypes.selectServerPool')"
+                ref="server-pool-multiselect"
+                v-model='model.server_pool'
+                track-by='id'
+                label='name'
+                open-direction='bottom'
+                :multiple='false'
+                :searchable='false'
+                :internal-search='false'
+                :clear-on-select='false'
+                :close-on-select='false'
+                :show-no-results='false'
+                :showLabels='false'
+                :options='serverPools'
+                :disabled="isBusy || modelLoadingError || serverPoolsLoadingError || viewOnly"
+                id='server_pool'
+                :loading='serverPoolsLoading'
+                :allowEmpty='false'
+                :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }">
+                <template slot='noOptions'>{{ $t('settings.serverPools.nodata') }}</template>
+                <template slot='afterList'>
+                  <b-button
+                    :disabled='serverPoolsLoading || currentPage === 1'
+                    variant='outline-secondary'
+                    @click='loadServerPools(Math.max(1, currentPage - 1))'>
+                    <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                  </b-button>
+                  <b-button
+                    :disabled='serverPoolsLoading || !hasNextPage'
+                    variant='outline-secondary'
+                    @click='loadServerPools(currentPage + 1)'>
+                    <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                  </b-button>
+                </template>
+              </multiselect>
+              <b-input-group-append>
+                <b-button
+                  v-if="serverPoolsLoadingError"
+                  @click="loadServerPools(currentPage)"
+                  variant="outline-secondary"
+                ><i class="fas fa-sync"></i></b-button>
+              </b-input-group-append>
+            </b-input-group>
+            <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
           </b-form-group>
 
           <hr>
@@ -71,7 +126,7 @@
                 <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
               <b-button
-                :disabled='isBusy || !loaded'
+                :disabled='isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading'
                 variant='success'
                 type='submit'
                 class='ml-1'
@@ -115,11 +170,14 @@ import { mapGetters } from 'vuex';
 import env from '../../../env';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
+import Multiselect from 'vue-multiselect';
+import _ from 'lodash';
 
 export default {
   mixins: [FieldErrors],
   components: {
-    VSwatches
+    VSwatches,
+    Multiselect
   },
   props: {
     id: {
@@ -147,16 +205,23 @@ export default {
 
   data () {
     return {
-      loaded: false,
       isBusy: false,
+      modelLoadingError: false,
       errors: {},
       staleError: {},
       model: {
         description: null,
         short: null,
-        color: '#4a5c66'
+        color: '#4a5c66',
+        server_pool: null
       },
-      swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878']
+      swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
+
+      serverPoolsLoading: false,
+      serverPools: [],
+      currentPage: 1,
+      hasNextPage: false,
+      serverPoolsLoadingError: false
     };
   },
 
@@ -164,9 +229,8 @@ export default {
    * Loads the role from the backend and also a part of permissions that can be selected.
    */
   mounted () {
-    if (this.id !== 'new') {
-      this.loadRoomType();
-    } else { this.loaded = true; }
+    this.loadRoomType();
+    this.loadServerPools();
   },
 
   methods: {
@@ -176,18 +240,50 @@ export default {
      *
      */
     loadRoomType () {
-      this.isBusy = true;
+      if (this.id !== 'new') {
+        this.isBusy = true;
 
-      Base.call(`roomTypes/${this.id}`).then(response => {
-        this.model = response.data.data;
-        this.loaded = true;
-      }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$router.push({ name: 'settings.room_types' });
+        Base.call(`roomTypes/${this.id}`).then(response => {
+          this.model = response.data.data;
+          this.modelLoadingError = false;
+        }).catch(error => {
+          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+            this.$router.push({ name: 'settings.room_types' });
+          } else {
+            this.modelLoadingError = true;
+          }
+          Base.error(error, this.$root, error.message);
+        }).finally(() => {
+          this.isBusy = false;
+        });
+      }
+    },
+
+    /**
+     * Loads the roles for the passed page, that can be selected through the multiselect.
+     *
+     * @param [page=1] The page to load the roles for.
+     */
+    loadServerPools (page = 1) {
+      this.serverPoolsLoading = true;
+
+      const config = {
+        params: {
+          page
         }
+      };
+
+      Base.call('serverPools', config).then(response => {
+        this.serverPoolsLoadingError = false;
+        this.serverPools = response.data.data;
+        this.currentPage = page;
+        this.hasNextPage = page < response.data.meta.last_page;
+      }).catch(error => {
+        this.$refs['server-pool-multiselect'].deactivate();
+        this.serverPoolsLoadingError = true;
         Base.error(error, this.$root, error.message);
       }).finally(() => {
-        this.isBusy = false;
+        this.serverPoolsLoading = false;
       });
     },
 
@@ -204,8 +300,10 @@ export default {
 
       const config = {
         method: this.id === 'new' ? 'post' : 'put',
-        data: this.model
+        data: _.cloneDeep(this.model)
       };
+
+      config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
 
       Base.call(this.id === 'new' ? 'roomTypes' : `roomTypes/${this.id}`, config).then(() => {
         this.errors = {};

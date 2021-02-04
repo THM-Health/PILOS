@@ -141,20 +141,24 @@ return [
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.'
         ],
-        'password' => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).',
+        'password'              => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).',
         'replacement_room_type' => [
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
-            'exists' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
-            'not_in' => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+            'exists'   => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
+            'not_in'   => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
         ],
         'banner' => [
-            'array' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
+            'array'    => 'Die Einstellungen für den Banner für Mitteilungen fehlen!',
             'required' => 'Die Einstellungen für den Banner für Mitteilungen fehlen!'
         ],
         'banner.icon' => [
             'regex' => 'Die Icon CSS-Klasse muss folgendem Format entsprechen: `fas fa-camera`. Wobei `fas` je nach Style auch anders sein kann (z. B. `fab`).'
         ],
-        'color' => ':attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!'
+        'color'     => ':attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!',
+        'servers.*' => [
+            'exists'   => 'Der Server mit der ID :input konnte nicht gefunden werden.',
+            'distinct' => 'Der Server mit der ID :input wurde mehrfach ausgewählt.'
+        ]
     ],
 
     /*
@@ -238,5 +242,9 @@ return [
         'banner.link_text'                  => 'Linktext',
         'banner.link_target'                => 'Linkziel',
         'banner.link_style'                 => 'Linkart',
+        'servers'                           => 'Server',
+        'server_pool'                       => 'Serverpool',
+        'icon_text'                         => 'Icon Text',
+        'color'                             => 'Farbe',
     ],
 ];

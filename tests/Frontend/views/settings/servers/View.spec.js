@@ -63,7 +63,8 @@ describe('ServerView', function () {
     const serverResponse = {
       data: {
         id: 1,
-        description: 'Server 01',
+        name: 'Server 01',
+        description: 'Testserver 01',
         base_url: 'https://localhost/bigbluebutton',
         salt: '123456789',
         strength: 1,
@@ -151,7 +152,7 @@ describe('ServerView', function () {
         expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
         expect(view.vm.$data.model.id).toBe(1);
-        expect(view.vm.$data.model.description).toEqual('Server 01');
+        expect(view.vm.$data.model.name).toEqual('Server 01');
 
         done();
       });
@@ -328,9 +329,10 @@ describe('ServerView', function () {
 
     moxios.wait(async () => {
       await view.vm.$nextTick();
-      await view.findAllComponents(BFormInput).at(0).setValue('Server 02');
-      await view.findAllComponents(BFormInput).at(1).setValue('http://localhost/bbb');
-      await view.findAllComponents(BFormInput).at(2).setValue('987654321');
+      await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
+      await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
+      await view.findAllComponents(BFormInput).at(2).setValue('http://localhost/bbb');
+      await view.findAllComponents(BFormInput).at(3).setValue('987654321');
       await view.findComponent(BFormRating).findAll('.b-rating-star').at(4).trigger('click');
       await view.findComponent(BFormCheckbox).find('input').setChecked();
 
@@ -341,6 +343,7 @@ describe('ServerView', function () {
         response: {
           message: 'The given data was invalid.',
           errors: {
+            name: ['Test name'],
             description: ['Test description'],
             base_url: ['Test base url'],
             salt: ['Test salt'],
@@ -354,18 +357,20 @@ describe('ServerView', function () {
         const request = moxios.requests.mostRecent();
         const data = JSON.parse(request.config.data);
 
-        expect(data.description).toBe('Server 02');
+        expect(data.name).toBe('Server 01');
+        expect(data.description).toBe('Testserver 01');
         expect(data.base_url).toBe('http://localhost/bbb');
         expect(data.salt).toBe('987654321');
         expect(data.strength).toBe(5);
         expect(data.disabled).toBe(true);
 
         const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
-        expect(feedback[0].html()).toContain('Test description');
-        expect(feedback[1].html()).toContain('Test base url');
-        expect(feedback[2].html()).toContain('Test salt');
-        expect(feedback[3].html()).toContain('Test strength');
-        expect(feedback[4].html()).toContain('Test disabled');
+        expect(feedback[0].html()).toContain('Test name');
+        expect(feedback[1].html()).toContain('Test description');
+        expect(feedback[2].html()).toContain('Test base url');
+        expect(feedback[3].html()).toContain('Test salt');
+        expect(feedback[4].html()).toContain('Test strength');
+        expect(feedback[5].html()).toContain('Test disabled');
 
         restoreServerResponse();
         restoreServerResponse = overrideStub('/api/v1/servers/1', {
@@ -461,7 +466,7 @@ describe('ServerView', function () {
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
       newModel.updated_at = '2020-09-08 16:13:26';
-      newModel.description = 'Server 02';
+      newModel.name = 'Server 02';
 
       const restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: env.HTTP_STALE_MODEL,
@@ -511,14 +516,15 @@ describe('ServerView', function () {
       await view.vm.$nextTick();
 
       expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
-      expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.online');
+      expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.online');
 
       let restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: 200,
         response: {
           data: {
             id: 1,
-            description: 'Server 01',
+            name: 'Server 01',
+            description: 'Testserver 01',
             base_url: 'https://localhost/bigbluebutton',
             salt: '123456789',
             strength: 1,
@@ -541,7 +547,7 @@ describe('ServerView', function () {
         await view.vm.$nextTick();
 
         expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
-        expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
+        expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.offline');
 
         restoreServerResponse();
         restoreServerResponse = overrideStub('/api/v1/servers/1', {
@@ -549,7 +555,8 @@ describe('ServerView', function () {
           response: {
             data: {
               id: 1,
-              description: 'Server 01',
+              name: 'Server 01',
+              description: 'Testserver 01',
               base_url: 'https://localhost/bigbluebutton',
               salt: '123456789',
               strength: 1,
@@ -572,7 +579,7 @@ describe('ServerView', function () {
           await view.vm.$nextTick();
 
           expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeTruthy();
-          expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.unknown');
+          expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.unknown');
 
           restoreServerResponse();
           view.destroy();
@@ -620,7 +627,7 @@ describe('ServerView', function () {
         });
 
         await view.vm.$nextTick();
-        expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
+        expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.offline');
         expect(view.findAllComponents(BFormText).length).toBe(3);
         expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
 
@@ -637,7 +644,7 @@ describe('ServerView', function () {
           });
 
           await view.vm.$nextTick();
-          expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.offline');
+          expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.offline');
           expect(view.findAllComponents(BFormText).length).toBe(3);
           expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
 
@@ -654,7 +661,7 @@ describe('ServerView', function () {
             });
 
             await view.vm.$nextTick();
-            expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.online');
+            expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.online');
             expect(view.findAllComponents(BFormText).length).toBe(2);
 
             // check for response errors
@@ -669,7 +676,7 @@ describe('ServerView', function () {
               });
 
               await view.vm.$nextTick();
-              expect(view.findAllComponents(BFormInput).at(3).element.value).toBe('settings.servers.unknown');
+              expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.unknown');
               expect(view.findAllComponents(BFormText).length).toBe(2);
 
               sinon.assert.calledOnce(Base.error);
@@ -709,7 +716,8 @@ describe('ServerView', function () {
         response: {
           data: {
             id: 1,
-            description: 'Server 01',
+            name: 'Server 01',
+            description: 'Testserver 01',
             base_url: 'https://localhost/bigbluebutton',
             salt: '123456789',
             strength: 1,

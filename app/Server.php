@@ -7,15 +7,13 @@ use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
 class Server extends Model
 {
     use AddsModelNameTrait;
-
-    const VIDEO_WEIGHT       = 3;
-    const AUDIO_WEIGHT       = 2;
-    const PARTICIPANT_WEIGHT = 1;
 
     protected $casts = [
         'strength'                  => 'integer',
@@ -60,30 +58,6 @@ class Server extends Model
     }
 
     /**
-     * Find server with the lowest usage
-     * @return Server|null
-     */
-    public static function lowestUsage()
-    {
-        return self::where('status', ServerStatus::ONLINE)
-            // Experimental
-            // Have video factor 3, audio factor 2 and just listening factor 1
-            ->orderByRaw('((video_count*'.self::VIDEO_WEIGHT.' + voice_participant_count*'.self::AUDIO_WEIGHT.' + (participant_count-voice_participant_count) * '.self::PARTICIPANT_WEIGHT.')/strength) ASC')
-            ->first();
-    }
-
-    /**
-     * Return usage of a server, based on video, audio and participants
-     * @return int
-     */
-    public function getUsageAttribute()
-    {
-        // Experimental
-        // Have video factor 3, audio factor 2 and just listening factor 1
-        return $this->video_count * self::VIDEO_WEIGHT + $this->voice_participant_count * self::AUDIO_WEIGHT + ($this->participant_count - $this->voice_participant_count) * self::PARTICIPANT_WEIGHT;
-    }
-
-    /**
      * Get bigbluebutton api instance with the url and secret stored in the database fields
      * @return BigBlueButton
      * @throws \Exception
@@ -118,7 +92,7 @@ class Server extends Model
 
     /**
      * Meetings that (have) run on this server
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function meetings()
     {
@@ -126,8 +100,17 @@ class Server extends Model
     }
 
     /**
+     * Server pools the server is part of
+     * @return BelongsToMany
+     */
+    public function pools(): BelongsToMany
+    {
+        return $this->belongsToMany(ServerPool::class);
+    }
+
+    /**
      * Statistical data of this server
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function stats()
     {
@@ -135,15 +118,15 @@ class Server extends Model
     }
 
     /**
-     * Scope a query to only get servers that have a description like the passed one.
+     * Scope a query to only get servers that have a name like the passed one.
      *
-     * @param  Builder $query       Query that should be scoped
-     * @param  String  $description Description to search for
+     * @param  Builder $query Query that should be scoped
+     * @param  String  $name  Name to search for
      * @return Builder The scoped query
      */
-    public function scopeWithDescription(Builder $query, $description)
+    public function scopeWithName(Builder $query, $name)
     {
-        return $query->where('description', 'like', '%' . $description . '%');
+        return $query->where('name', 'like', '%' . $name . '%');
     }
 
     /**

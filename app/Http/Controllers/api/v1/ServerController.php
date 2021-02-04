@@ -44,13 +44,13 @@ class ServerController extends Controller
             $by  = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'description','participant_count','video_count','meeting_count','status']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['id', 'name','participant_count','video_count','meeting_count','status']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
         }
 
-        if ($request->has('description')) {
-            $resource = $resource->withDescription($request->query('description'));
+        if ($request->has('name')) {
+            $resource = $resource->withName($request->query('name'));
         }
 
         $resource = $resource->paginate(setting('pagination_page_size'));
@@ -78,6 +78,7 @@ class ServerController extends Controller
      */
     public function update(ServerRequest $request, Server $server)
     {
+        $server->name         = $request->name;
         $server->description  = $request->description;
         $server->base_url     = $request->base_url;
         $server->salt         = $request->salt;
@@ -101,6 +102,7 @@ class ServerController extends Controller
     public function store(ServerRequest $request)
     {
         $server               = new Server();
+        $server->name         = $request->name;
         $server->description  = $request->description;
         $server->base_url     = $request->base_url;
         $server->salt         = $request->salt;

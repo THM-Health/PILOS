@@ -69,6 +69,19 @@
           </b-card>
         </b-col>
       </can>
+      <can method='viewAny' policy='ServerPoolPolicy'>
+        <b-col class="p-2">
+          <b-card class="h-100">
+            <router-link class="stretched-link" :to="{ name: 'settings.server_pools' }">
+              <h2 class="text-center text-success"><i class='fas fa-th-large'></i></h2>
+            </router-link>
+            <b-card-title class="text-center text-success">{{ $t('settings.serverPools.title') }}</b-card-title>
+            <b-card-text>
+              {{ $t('settings.serverPools.tileDescription') }}
+            </b-card-text>
+          </b-card>
+        </b-col>
+      </can>
     </b-row>
   </div>
 </template>

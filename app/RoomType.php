@@ -15,4 +15,9 @@ class RoomType extends Model
     {
         return $this->hasMany(Room::class);
     }
+
+    public function serverPool()
+    {
+        return $this->belongsTo(ServerPool::class);
+    }
 }

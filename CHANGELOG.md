@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added management of servers ([#30], [#88])
 - Added artisan command to check server and meeting status, build live and historical data ([#64], [#65])
 - Added artisan command to create a new admin user ([#81])
-- Added a application banner that can be modified throught the application settings ([#89], [#94])
+- Added an application banner that can be modified through the application settings ([#89], [#94])
+- Added management of server pools, used by load balancer and added to room type ([#96], [#99])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -76,7 +77,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#88]: https://github.com/THM-Health/PILOS/pull/88
 [#89]: https://github.com/THM-Health/PILOS/issues/89
 [#94]: https://github.com/THM-Health/PILOS/pull/94
+[#96]: https://github.com/THM-Health/PILOS/issues/96
 [#97]: https://github.com/THM-Health/PILOS/issues/97
+[#99]: https://github.com/THM-Health/PILOS/pull/99
 [#100]: https://github.com/THM-Health/PILOS/pull/100
 [#101]: https://github.com/THM-Health/PILOS/issues/101
 [#102]: https://github.com/THM-Health/PILOS/pull/102

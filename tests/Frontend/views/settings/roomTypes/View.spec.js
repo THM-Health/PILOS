@@ -15,6 +15,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
+import Multiselect from 'vue-multiselect';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -70,6 +71,26 @@ describe('RoomTypeView', function () {
       status: 200,
       response: roomTypeResponse
     });
+
+    const serverPoolsResponse = {
+      data: [
+        { id: 1, name: 'Pool1', description: 'test1' },
+        { id: 2, name: 'Pool2', description: 'test2' }
+      ],
+      meta: {
+        current_page: 1,
+        from: 1,
+        last_page: 2,
+        per_page: 2,
+        to: 2,
+        total: 4
+      }
+    };
+
+    moxios.stubRequest('/api/v1/serverPools?page=1', {
+      status: 200,
+      response: serverPoolsResponse
+    });
   });
 
   afterEach(function () {
@@ -114,6 +135,135 @@ describe('RoomTypeView', function () {
     });
   });
 
+  it('server pools get loaded, pagination and error handling', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key === 'settings.roomTypes.edit' ? `${key} ${values.name}` : key
+      },
+      propsData: {
+        viewOnly: false,
+        id: '1'
+      },
+      store
+    });
+
+    const multiSelect = view.findComponent(Multiselect);
+    const saveButton = view.findAllComponents(BButton).at(3);
+    expect(saveButton.html()).toContain('app.save');
+
+    // load server pools
+    moxios.wait(async function () {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toBe('/api/v1/serverPools?page=1');
+      await view.vm.$nextTick();
+
+      // check drop down values
+      expect(multiSelect.html()).toContain('Pool1');
+      expect(multiSelect.html()).toContain('Pool2');
+
+      // check pagination
+      const paginationButtons = multiSelect.findAllComponents(BButton);
+      expect(paginationButtons.at(0).attributes('disabled')).toBe('disabled');
+      expect(paginationButtons.at(1).attributes('disabled')).toBeUndefined();
+
+      // test navigate to next page
+      await paginationButtons.at(1).trigger('click');
+      // dropdown show loading spinner during load and save disabled
+      expect(multiSelect.props('loading')).toBeTruthy();
+      moxios.wait(async function () {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toBe('/api/v1/serverPools?page=2');
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: [
+              { id: 3, name: 'Pool3', description: 'test3' },
+              { id: 4, name: 'Pool4', description: 'test4' }
+            ],
+            meta: {
+              current_page: 2,
+              from: 3,
+              last_page: 2,
+              per_page: 2,
+              to: 4,
+              total: 4
+            }
+          }
+        });
+        await view.vm.$nextTick();
+
+        // hide loading spinner and active save button
+        expect(multiSelect.props('loading')).toBeFalsy();
+        expect(saveButton.attributes('disabled')).toBeUndefined();
+
+        expect(paginationButtons.at(0).attributes('disabled')).toBeUndefined();
+        expect(paginationButtons.at(1).attributes('disabled')).toBe('disabled');
+
+        // test error during load
+        const restoreServerPoolResponse = overrideStub('/api/v1/serverPools?page=1', {
+          status: 500,
+          response: {
+            message: 'Test'
+          }
+        });
+        await paginationButtons.at(0).trigger('click');
+        moxios.wait(async function () {
+          await view.vm.$nextTick();
+
+          // hide loading spinner, disable dropdown and prevent saving
+          expect(multiSelect.props('loading')).toBeFalsy();
+          expect(multiSelect.props('disabled')).toBeTruthy();
+          expect(saveButton.attributes('disabled')).toBe('disabled');
+
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+          restoreServerPoolResponse();
+
+          const reloadButton = view.findAllComponents(BButton).at(2);
+          expect(reloadButton.html()).toContain('fas fa-sync');
+
+          await reloadButton.trigger('click');
+
+          // load server pools
+          moxios.wait(async function () {
+            expect(saveButton.attributes('disabled')).toBe('disabled');
+            const request = moxios.requests.mostRecent();
+            expect(request.url).toBe('/api/v1/serverPools?page=2');
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: [
+                  { id: 3, name: 'Pool3', description: 'test3' },
+                  { id: 4, name: 'Pool4', description: 'test4' }
+                ],
+                meta: {
+                  current_page: 2,
+                  from: 3,
+                  last_page: 2,
+                  per_page: 2,
+                  to: 4,
+                  total: 4
+                }
+              }
+            });
+            await view.vm.$nextTick();
+
+            // hide loading spinner, enable dropdown and enable saving
+            expect(multiSelect.props('loading')).toBeFalsy();
+            expect(multiSelect.props('disabled')).toBeFalsy();
+            expect(saveButton.attributes('disabled')).toBeUndefined();
+
+            done();
+          });
+        });
+      });
+    });
+  });
+
   it('input fields are disabled if the room type is displayed in view mode', function (done) {
     const view = mount(View, {
       localVue,
@@ -130,6 +280,7 @@ describe('RoomTypeView', function () {
     moxios.wait(function () {
       expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
       expect(view.findAllComponents(VSwatches).wrappers.every(input => input.vm.disabled)).toBe(true);
+      expect(view.findComponent(Multiselect).props('disabled')).toBeTruthy();
       done();
     });
   });
@@ -344,15 +495,14 @@ describe('RoomTypeView', function () {
     });
 
     moxios.wait(function () {
-      view.vm.$nextTick().then(() => {
+      view.vm.$nextTick().then(async function () {
         const inputs = view.findAllComponents(BFormInput).wrappers;
 
-        return inputs[0].setValue('Meeting').then(() => {
-          return inputs[1].setValue('ME').then(() => {
-            return inputs[2].setValue('#333333');
-          });
-        });
-      }).then(() => {
+        await inputs[0].setValue('Meeting');
+        await inputs[1].setValue('ME');
+        await inputs[2].setValue('#333333');
+        await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
+
         view.findComponent(BForm).trigger('submit');
 
         let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
@@ -374,6 +524,7 @@ describe('RoomTypeView', function () {
           expect(data.description).toBe('Meeting');
           expect(data.short).toBe('ME');
           expect(data.color).toBe('#333333');
+          expect(data.server_pool).toBe(2);
 
           const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
           expect(feedback[0].html()).toContain('Test description');
