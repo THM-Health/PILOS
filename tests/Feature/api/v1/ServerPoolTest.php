@@ -153,12 +153,12 @@ class ServerPoolTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.serverPools.show', ['serverPool' => $serverPool->id]))
             ->assertSuccessful()
             ->assertJsonFragment([
-                'id'                      => $serverPool->id,
-                'name'                    => $serverPool->name,
-                'description'             => $serverPool->description,
+                'id'                       => $serverPool->id,
+                'name'                     => $serverPool->name,
+                'description'              => $serverPool->description,
                 'servers_count'            => $serverPool->servers()->count(),
-                'updated_at'              => $serverPool->updated_at,
-                'model_name'              => $serverPool->model_name
+                'updated_at'               => $serverPool->updated_at,
+                'model_name'               => $serverPool->model_name
                 ])
             ->assertJsonCount(5, 'data.servers');
 
