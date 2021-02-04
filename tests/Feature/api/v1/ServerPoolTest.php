@@ -71,7 +71,7 @@ class ServerPoolTest extends TestCase
                         'id',
                         'name',
                         'description',
-                        'server_count',
+                        'servers_count',
                         'updated_at',
                         'model_name'
                     ]
@@ -90,19 +90,40 @@ class ServerPoolTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $serverPool1->id]);
 
-        // Sorting status asc
+        // Sorting name asc
         $this->getJson(route('api.v1.serverPools.index') . '?sort_by=name&sort_direction=asc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => ServerPool::orderBy('name')->first()->id])
             ->assertJsonMissing(['id' => ServerPool::orderByDesc('name')->first()->id]);
 
-        // Sorting status desc
+        // Sorting name desc
         $this->getJson(route('api.v1.serverPools.index') . '?sort_by=name&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => ServerPool::orderByDesc('name')->first()->id])
             ->assertJsonMissing(['id' => ServerPool::orderBy('name')->first()->id]);
+
+        // Add fake servers to pools
+        $servers = factory(Server::class, 4)->create();
+        $serverPools[1]->servers()->sync($servers);
+        $serverPools[3]->servers()->sync([$servers[0]->id,$servers[1]->id]);
+        $serverPools[6]->servers()->sync([$servers[0]->id]);
+
+        // Sorting amount of servers desc
+        $this->getJson(route('api.v1.serverPools.index') . '?sort_by=servers_count&sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.id', $serverPools[1]->id)
+            ->assertJsonPath('data.1.id', $serverPools[3]->id)
+            ->assertJsonPath('data.2.id', $serverPools[6]->id);
+
+        // Sorting amount of servers asc
+        $this->getJson(route('api.v1.serverPools.index') . '?sort_by=servers_count&sort_direction=asc&page=2')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonPath('data.2.id', $serverPools[6]->id)
+            ->assertJsonPath('data.3.id', $serverPools[3]->id)
+            ->assertJsonPath('data.4.id', $serverPools[1]->id);
     }
 
     /**

@@ -164,7 +164,7 @@ export default {
       const fields = [
         { key: 'id', label: this.$t('settings.serverPools.id'), sortable: true },
         { key: 'name', label: this.$t('settings.serverPools.name'), sortable: true },
-        { key: 'server_count', label: this.$t('settings.serverPools.serverCount'), sortable: true }
+        { key: 'servers_count', label: this.$t('settings.serverPools.serverCount'), sortable: true }
       ];
 
       if (this.actionColumnVisible) {

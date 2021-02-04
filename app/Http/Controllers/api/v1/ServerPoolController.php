@@ -26,13 +26,13 @@ class ServerPoolController extends Controller
      */
     public function index(Request $request)
     {
-        $resource = ServerPool::query();
+        $resource = ServerPool::withCount('servers');
 
         if ($request->has('sort_by') && $request->has('sort_direction')) {
             $by  = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'name','description']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['id', 'name','servers_count']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
         }

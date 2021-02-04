@@ -65,7 +65,7 @@
             label-cols-sm='4'
             :label="$t('settings.roomTypes.serverPool')"
             label-for='server_pool'
-            :state='fieldState("server_pool", true)'
+            :state='fieldState("server_pool")'
             :description="$t('settings.roomTypes.serverPoolDescription')"
           >
             <b-input-group>
@@ -88,8 +88,8 @@
                 id='server_pool'
                 :loading='serverPoolsLoading'
                 :allowEmpty='false'
-                :class="{ 'is-invalid': fieldState('server_pool', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.servers.nodata') }}</template>
+                :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }">
+                <template slot='noOptions'>{{ $t('settings.serverPools.nodata') }}</template>
                 <template slot='afterList'>
                   <b-button
                     :disabled='serverPoolsLoading || currentPage === 1'
@@ -113,7 +113,7 @@
                 ><i class="fas fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
-            <template slot='invalid-feedback'><div v-html="fieldError('server_pool', true)"></div></template>
+            <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
           </b-form-group>
 
           <hr>
@@ -240,14 +240,12 @@ export default {
      *
      */
     loadRoomType () {
-      this.modelLoadingError = false;
-
       if (this.id !== 'new') {
         this.isBusy = true;
 
         Base.call(`roomTypes/${this.id}`).then(response => {
           this.model = response.data.data;
-          this.loaded = true;
+          this.modelLoadingError = false;
         }).catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
             this.$router.push({ name: 'settings.room_types' });

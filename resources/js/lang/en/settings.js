@@ -243,6 +243,7 @@ export default {
     servers: 'Server',
 
     select_servers: 'Select server',
+    removeServer: 'Remove server',
 
     new: 'Create new server pool',
     view: 'Detailed information for the server pool {name}',

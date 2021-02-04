@@ -248,6 +248,7 @@ export default {
     servers: 'Server',
 
     select_servers: 'Server auswählen',
+    removeServer: 'Server entfernen',
 
     new: 'Neuen Serverpool hinzufügen',
     view: 'Detaillierte Informationen über Serverpool {name}',

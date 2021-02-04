@@ -74,7 +74,7 @@
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='primary'>
                       {{ option.name }}
-                      <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.servers.removeServer')"></b-icon-x></span>
+                      <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.serverPools.removeServer')"></b-icon-x></span>
                     </b-badge>
                   </h5>
                 </template>
@@ -197,7 +197,6 @@ export default {
       servers: [],
       currentPage: 1,
       hasNextPage: false,
-      modelLoadPromise: Promise.resolve(),
       serversLoadingError: false
     };
   },
@@ -256,7 +255,6 @@ export default {
         this.servers = response.data.data;
         this.currentPage = page;
         this.hasNextPage = page < response.data.meta.last_page;
-        return this.modelLoadPromise;
       }).catch(error => {
         this.$refs['servers-multiselect'].deactivate();
         this.serversLoadingError = true;

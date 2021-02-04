@@ -154,7 +154,11 @@ return [
         'banner.icon' => [
             'regex' => 'Die Icon CSS-Klasse muss folgendem Format entsprechen: `fas fa-camera`. Wobei `fas` je nach Style auch anders sein kann (z. B. `fab`).'
         ],
-        'color' => ':attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!'
+        'color'     => ':attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!',
+        'servers.*' => [
+            'exists'   => 'Der Server mit der ID :input konnte nicht gefunden werden.',
+            'distinct' => 'Der Server mit der ID :input wurde mehrfach ausgewählt.'
+        ]
     ],
 
     /*
@@ -238,6 +242,7 @@ return [
         'banner.link_text'                  => 'Linktext',
         'banner.link_target'                => 'Linkziel',
         'banner.link_style'                 => 'Linkart',
+        'servers'                           => 'Server',
         'server_pool'                       => 'Serverpool',
         'icon_text'                         => 'Icon Text',
         'color'                             => 'Farbe',

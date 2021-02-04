@@ -122,6 +122,20 @@ class ServerTest extends TestCase
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::ONLINE, $response->json('data.0.status'));
 
+        // Sorting name asc
+        $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=asc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['id' => Server::orderBy('name')->first()->id])
+            ->assertJsonMissing(['id' => Server::orderByDesc('name')->first()->id]);
+
+        // Sorting name desc
+        $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
+            ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
+
         // Request with forced usage update, should see that the online servers are now offline (cause it's fake data)
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc&update_usage=true')
             ->assertSuccessful()

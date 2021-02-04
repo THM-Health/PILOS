@@ -44,7 +44,7 @@ class ServerController extends Controller
             $by  = $request->query('sort_by');
             $dir = $request->query('sort_direction');
 
-            if (in_array($by, ['id', 'description','participant_count','video_count','meeting_count','status']) && in_array($dir, ['asc', 'desc'])) {
+            if (in_array($by, ['id', 'name','participant_count','video_count','meeting_count','status']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
         }
