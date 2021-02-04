@@ -9,14 +9,21 @@ class AddServerPoolToRoomTypes extends Migration
     public function up()
     {
         Schema::table('room_types', function (Blueprint $table) {
-            $table->unsignedBigInteger('server_pool_id')->default(\App\ServerPool::all()->first()->id);
-            $table->foreign('server_pool_id')->references('id')->on('server_pools')->onDelete('restrict');
+            $table->foreignId('server_pool_id')->nullable()->constrained()->onDelete('restrict');
+        });
+        Schema::table('room_types', function (Blueprint $table) {
+            foreach (\App\RoomType::all() as $roomType) {
+                $roomType->serverPool()->associate(\App\ServerPool::all()->first()->id);
+                $roomType->save();
+            }
+            $table->foreignId('server_pool_id')->nullable(false)->change();
         });
     }
 
     public function down()
     {
         Schema::table('room_types', function (Blueprint $table) {
+            $table->dropForeign(['server_pool_id']);
             $table->dropColumn('server_pool_id');
         });
     }
