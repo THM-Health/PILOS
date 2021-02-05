@@ -80,7 +80,8 @@ class User extends JsonResource
             'roles'         => $this->when($this->withRoles, function () {
                 return new RoleCollection($this->roles);
             }),
-            'bbb_skip_check_audio' => $this->bbb_skip_check_audio
+            'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
+            'initial_password_set' => $this->initial_password_set
         ];
     }
 }
