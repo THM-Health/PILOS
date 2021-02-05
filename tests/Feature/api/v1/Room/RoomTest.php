@@ -229,7 +229,6 @@ class RoomTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name]);
 
-
         // Test with viewAll rooms permission
         $role       = factory(Role::class)->create();
         $permission = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
