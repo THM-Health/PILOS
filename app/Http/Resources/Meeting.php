@@ -29,8 +29,8 @@ class Meeting extends JsonResource
                 'video_count'               => $this->room->video_count,
             ],
             'server'    => [
-                'id'            => $this->server->id,
-                'description'   => $this->server->description,
+                'id'     => $this->server->id,
+                'name'   => $this->server->name,
                 ]
         ];
     }

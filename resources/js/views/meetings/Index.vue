@@ -86,9 +86,9 @@
         </text-truncate>
       </template>
 
-      <template v-slot:cell(server.description)="data">
+      <template v-slot:cell(server.name)="data">
         <text-truncate>
-          {{ data.item.server.description }}
+          {{ data.item.server.name }}
         </text-truncate>
       </template>
 
@@ -148,7 +148,7 @@ export default {
         { key: 'start', label: this.$t('meetings.start'), sortable: true, thStyle: { width: '120px' } },
         { key: 'room.name', label: this.$t('meetings.name'), sortable: false, tdClass: 'td-max-width-0-lg' },
         { key: 'room.owner', label: this.$t('meetings.owner'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'server.description', label: this.$t('meetings.server'), sortable: false, tdClass: 'td-max-width-0-lg' },
+        { key: 'server.name', label: this.$t('meetings.server'), sortable: false, tdClass: 'td-max-width-0-lg' },
         { key: 'room.participant_count', label: this.$t('meetings.participantCount'), sortable: true, thStyle: { width: '64px' } },
         { key: 'room.listener_count', label: this.$t('meetings.listenerCount'), sortable: true, thStyle: { width: '64px' } },
         { key: 'room.voice_participant_count', label: this.$t('meetings.voiceParticipantCount'), sortable: true, thStyle: { width: '64px' } },

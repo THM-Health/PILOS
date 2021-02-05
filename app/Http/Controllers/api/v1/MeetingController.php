@@ -48,7 +48,7 @@ class MeetingController extends Controller
                                 ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
                         })
                         ->orWhereHas('server', function ($subQuery) use ($searchQuery) {
-                            $subQuery->where('description', 'like', '%' . $searchQuery . '%');
+                            $subQuery->where('name', 'like', '%' . $searchQuery . '%');
                         });
                 });
             }

@@ -214,10 +214,14 @@ class RoomTest extends TestCase
      */
     public function testRoomList()
     {
-        $room1 = factory(Room::class)->create(['listed'=>false,'accessCode'=>123456789]);
-        $room2 = factory(Room::class)->create(['listed'=>false,'accessCode'=>null]);
-        $room3 = factory(Room::class)->create(['listed'=>true,'accessCode'=>123456789]);
-        $room4 = factory(Room::class)->create(['listed'=>true,'accessCode'=>null]);
+        $user      = factory(User::class)->create(['firstname'=>'John','lastname'=>'Doe']);
+        $roomType1 = factory(RoomType::class)->create();
+        $roomType2 = factory(RoomType::class)->create();
+
+        $room1 = factory(Room::class)->create(['name'=>'test a','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>123456789]);
+        $room2 = factory(Room::class)->create(['name'=>'test b','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>null]);
+        $room3 = factory(Room::class)->create(['name'=>'room a','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>true,'accessCode'=>123456789]);
+        $room4 = factory(Room::class)->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>null]);
 
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index'))
@@ -241,6 +245,52 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id'=>$room2->id,'name'=>$room2->name])
             ->assertJsonFragment(['id'=>$room3->id,'name'=>$room3->name])
             ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name]);
+
+        // Find by room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test')
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a')
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a+xyz')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Find by owner name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john')
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john+d')
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john+d+xzy')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Find by owner name and room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+john')
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+john+xyz')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Filter by room types
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id)
+            ->assertStatus(200)
+            ->assertJsonCount(3, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&roomTypes[]='.$roomType2->id)
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]=0')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Filter by room types and search
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&search=test')
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data');
     }
 
     /**

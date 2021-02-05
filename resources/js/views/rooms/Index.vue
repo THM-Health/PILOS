@@ -31,28 +31,28 @@
         <h4>{{ $t('rooms.filter.title') }}</h4>
         <h5>{{ $t('rooms.filter.roomTypes') }}</h5>
         <div style="position: relative; min-height: 40px">
-        <b-overlay :no-center="true" :show="roomTypesBusy || roomTypesLoadingError" >
-          <template #overlay>
-            <div class="my-2">
-              <b-spinner v-if="roomTypesBusy" ></b-spinner>
-              <b-button
-                v-else
-                @click="loadRoomTypes"
-              >
-                <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
-              </b-button>
-            </div>
-          </template>
+          <b-overlay :no-center="true" :show="roomTypesBusy || roomTypesLoadingError" >
+            <template #overlay>
+              <div class="my-2">
+                <b-spinner v-if="roomTypesBusy" ></b-spinner>
+                <b-button
+                  v-else
+                  @click="loadRoomTypes"
+                >
+                  <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+                </b-button>
+              </div>
+            </template>
 
-          <b-form-checkbox-group
-            v-model="selectedRoomTypes"
-            :options="roomTypes"
-            stacked
-            text-field="description"
-            value-field="id"
-            name="flavour-1a"
-          ></b-form-checkbox-group>
-        </b-overlay>
+            <b-form-checkbox-group
+              v-model="selectedRoomTypes"
+              :options="roomTypes"
+              stacked
+              text-field="description"
+              value-field="id"
+              name="flavour-1a"
+            ></b-form-checkbox-group>
+          </b-overlay>
         </div>
         <b-button :disabled="isBusy || roomTypesBusy || roomTypesLoadingError" class="mt-3" variant="success" @click="applyFilter"><i class="fas fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
       </b-col>
@@ -112,22 +112,6 @@ import Cannot from '../../components/Permissions/Cannot';
 
 export default {
   components: { Can, Cannot },
-  props: {
-    showUsage: {
-      type: Boolean,
-      default: false
-    }
-  },
-
-  computed: {
-    tableFields () {
-      return [
-        { key: 'type', label: this.$t('settings.servers.id'), sortable: false, thStyle: { width: '64px' } },
-        { key: 'name', label: this.$t('settings.servers.description'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'owner', label: this.$t('settings.servers.description'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'actionColumn' }];
-    }
-  },
 
   data () {
     return {
