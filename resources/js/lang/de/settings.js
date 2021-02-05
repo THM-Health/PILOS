@@ -77,6 +77,9 @@ export default {
     room_settings: 'Benutzerdefinierte Raumeinstellungen',
     skip_check_audio: 'Echo-Test deaktivieren',
 
+    generate_password: 'Passwort generieren lassen',
+    generate_password_description: 'Es wird ein generiertes Passwort gesetzt und eine E-Mail mit einem Passwort-Rücksetz-Link an den Nutzer gesendet. Wenn der Nutezr das Passwort in einem bestimmten Zeitraum nicht ändert, wird dieser autmatisch wieder gelöscht.',
+
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',

@@ -34,7 +34,10 @@ class UserRequest extends FormRequest
 
                 return $query;
             })];
-            $rules['password']  = [!$this->user ? 'required' : 'nullable', 'string', 'min:8', 'confirmed', new Password()];
+            if (!$this->user) {
+                $rules['generate_password'] = ['required', 'boolean'];
+            }
+            $rules['password']  = [!$this->user && !$this->boolean('generate_password') ? 'required' : 'nullable', 'string', 'min:8', 'confirmed', new Password()];
         }
 
         return $rules;

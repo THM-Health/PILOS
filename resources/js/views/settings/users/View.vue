@@ -188,6 +188,25 @@
               v-if="model.authenticator === 'users' && config.type !== 'view'"
             >
               <b-form-group
+                v-if="config.id === 'new'"
+                label-cols-sm='3'
+                :label="$t('settings.users.generate_password')"
+                label-for='generate_password'
+                :state="fieldState('generate_password')"
+                :description="$t('settings.users.generate_password_description')"
+                class="align-items-center d-flex"
+              >
+                <b-form-checkbox
+                  id='generate_password'
+                  v-model='generate_password'
+                  :state="fieldState('generate_password')"
+                  :disabled="isBusy || modelLoadingError"
+                  switch
+                ></b-form-checkbox>
+                <template slot='invalid-feedback'><div v-html="fieldError('generate_password')"></div></template>
+              </b-form-group>
+              <b-form-group
+                v-if="!generate_password"
                 label-cols-sm='3'
                 :label="$t('settings.users.password')"
                 label-for='password'
@@ -203,11 +222,11 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
               </b-form-group>
               <b-form-group
+                v-if="!generate_password"
                 label-cols-sm='3'
                 :label="$t('settings.users.password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
-                v-if="model.authenticator === 'users' && config.type !== 'view'"
               >
                 <b-form-input
                   id='password_confirmation'
@@ -238,7 +257,7 @@
                   id='bbb_skip_check_audio'
                   v-model='model.bbb_skip_check_audio'
                   :state="fieldState('bbb_skip_check_audio')"
-                  :disabled="isBusy || config.type === 'view'"
+                  :disabled="isBusy || config.type === 'view' || modelLoadingError"
                   switch
                 ></b-form-checkbox>
                 <template slot='invalid-feedback'><div v-html="fieldError('bbb_skip_check_audio')"></div></template>
@@ -375,6 +394,7 @@ export default {
         bbb_skip_check_audio: false,
         roles: []
       },
+      generate_password: false,
       errors: {},
       rolesLoading: false,
       roles: [],
@@ -500,6 +520,10 @@ export default {
         data: _.cloneDeep(this.model)
       };
       config.data.roles = config.data.roles.map(role => role.id);
+
+      if (this.config.id === 'new') {
+        config.data.generate_password = this.generate_password;
+      }
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
         this.errors = {};

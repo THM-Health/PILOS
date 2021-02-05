@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\User as UserResource;
+use App\Notifications\UserWelcome;
 use App\User;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -14,6 +15,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class UserController extends Controller
 {
@@ -75,8 +77,14 @@ class UserController extends Controller
         $user->lastname             = $request->lastname;
         $user->email                = $request->email;
         $user->locale               = $request->user_locale;
-        $user->password             = Hash::make($request->password);
         $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
+
+        if (!$request->generate_password) {
+            $user->password = Hash::make($request->password);
+        } else {
+            $user->password             = Hash::make(bin2hex(random_bytes(32)));
+            $user->initial_password_set = true;
+        }
 
         // TODO: email verification
         $user->email_verified_at = $user->freshTimestamp();
@@ -86,6 +94,15 @@ class UserController extends Controller
 
         // Load user data from database to load also the defaults from the database
         $user->refresh();
+
+        if ($request->generate_password) {
+            $broker = Password::broker('new_users');
+            $token  = $broker->createToken($user);
+            $locale = app()->getLocale();
+            app()->setLocale($user->locale);
+            $user->notify(new UserWelcome($token));
+            app()->setLocale($locale);
+        }
 
         return (new UserResource($user))->withRoles();
     }

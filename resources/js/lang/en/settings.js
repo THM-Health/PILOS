@@ -62,6 +62,9 @@ export default {
     room_settings: 'Custom room settings',
     skip_check_audio: 'Disable echo audio test',
 
+    generate_password: 'Generate password',
+    generate_password_description: 'A generated password will be set and an email with a reset link will be sent to the user. The user will be automatically deleted, if he doesn\'t change his password in the given time.',
+
     id: 'ID',
     firstname: 'Firstname',
     lastname: 'Lastname',
