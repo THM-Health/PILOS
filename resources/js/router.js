@@ -54,7 +54,13 @@ export const routes = [
     path: '/reset_password',
     name: 'password.reset',
     component: PasswordReset,
-    meta: { guestsOnly: true }
+    meta: { guestsOnly: true },
+    props: route => {
+      return {
+        token: route.query.token,
+        email: route.query.email
+      };
+    }
   },
   {
     path: '/forgot_password',

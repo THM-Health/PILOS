@@ -3,30 +3,78 @@
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
+use App\User;
+use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Support\Facades\Password as PasswordBrokerFacade;
+use App\Rules\Password;
+use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class ResetPasswordController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Password Reset Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling password reset requests
-    | and uses a simple trait to include this behavior. You're free to
-    | explore this trait and override any methods you wish to tweak.
-    |
-    */
-
     use ResetsPasswords;
 
     /**
-     * Create a new controller instance.
+     * Reset the given user's password.
      *
-     * @return void
+     * @param  Request                       $request
+     * @return RedirectResponse|JsonResponse
+     * @throws ValidationException
      */
-    public function __construct()
+    public function reset(Request $request)
     {
-        $this->middleware('guest');
+        $request->validate([
+            'token'    => 'required',
+            'email'    => 'required|email',
+            'password' => ['required', 'string', 'min:8', 'confirmed', new Password()]
+        ]);
+
+        $user = User::where('authenticator', '=', 'users')
+            ->where('email', '=', $request->email)
+            ->first();
+        $initial_password_set = $user->initial_password_set;
+
+        $response = $this->broker($initial_password_set ? 'new_users' : 'users')
+            ->reset(array_merge(['authenticator' => 'users'], $this->credentials($request)),
+                function ($user, $password) use ($initial_password_set) {
+                    $this->resetPassword($user, $password);
+
+                    if ($initial_password_set) {
+                        $user->update([
+                            'initial_password_set' => false
+                        ]);
+                    }
+                }
+            );
+
+        return $response == PasswordBrokerFacade::PASSWORD_RESET
+            ? $this->sendResetResponse($request, $response)
+            : $this->sendResetFailedResponse($request, $response);
+    }
+
+    /**
+     * Get the broker to be used during password reset.
+     *
+     * @param $name
+     * @return PasswordBroker
+     */
+    public function broker($name): PasswordBroker
+    {
+        return PasswordBrokerFacade::broker($name);
+    }
+
+    /**
+     * Get the guard to be used during password reset.
+     *
+     * @return StatefulGuard
+     */
+    protected function guard(): StatefulGuard
+    {
+        return Auth::guard('users');
     }
 }
