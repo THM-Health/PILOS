@@ -109,8 +109,8 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',
-            'expire' => 60,
-            'throttle' => 60,
+            'expire' => env('PASSWORD_RESET_EXPIRE', 60),
+            'throttle' => env('PASSWORD_RESET_THROTTLE', 60),
         ],
         'new_users' => [
             'provider' => 'users',
