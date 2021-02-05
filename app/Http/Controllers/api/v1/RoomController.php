@@ -148,7 +148,7 @@ class RoomController extends Controller
             $meeting->moderatorPW = bin2hex(random_bytes(5));
 
             // Basic load balancing, get server with lowest usage
-            $server = Server::lowestUsage();
+            $server =  $room->roomType->serverPool->lowestUsage();
 
             // If no server found, throw error
             if ($server == null) {

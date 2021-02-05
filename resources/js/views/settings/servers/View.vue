@@ -2,8 +2,8 @@
   <div>
     <h3>
       {{ id === 'new' ? $t('settings.servers.new') : (
-        viewOnly ? $t('settings.servers.view', { id : model.id })
-          : $t('settings.servers.edit', { id: model.id })
+        viewOnly ? $t('settings.servers.view', { name : model.name })
+          : $t('settings.servers.edit', { name: model.name })
       ) }}
     </h3>
     <hr>
@@ -24,6 +24,15 @@
 
       <b-form @submit='saveServer' :aria-hidden="modelLoadingError">
         <b-container fluid>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.servers.name')"
+            label-for='name'
+            :state='fieldState("name")'
+          >
+            <b-form-input id='name' type='text' v-model='model.name' :state='fieldState("name")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
+            <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
+          </b-form-group>
           <b-form-group
             label-cols-sm='4'
             :label="$t('settings.servers.description')"
@@ -49,7 +58,7 @@
             :state='fieldState("salt")'
           >
             <b-input-group>
-              <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("description")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
+              <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("salt")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
                 <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="success"><b-icon-eye-fill v-if="hideSalt"></b-icon-eye-fill><b-icon-eye-slash-fill v-else></b-icon-eye-slash-fill></b-button>
               </b-input-group-append>

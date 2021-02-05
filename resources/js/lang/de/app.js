@@ -112,6 +112,15 @@ export default {
       create: 'Server erstellen',
       update: 'Server bearbeiten',
       delete: 'Server löschen'
+    },
+
+    serverPools: {
+      title: 'Serverpools',
+      viewAny: 'Alle Serverpools anzeigen',
+      view: 'Serverpools anzeigen',
+      create: 'Serverpools erstellen',
+      update: 'Serverpools bearbeiten',
+      delete: 'Serverpools löschen'
     }
   },
 

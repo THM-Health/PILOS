@@ -42,8 +42,8 @@ class ServerTest extends TestCase
         setting(['pagination_page_size' => $page_size]);
 
         $servers  = factory(Server::class, 8)->create(['description'=>'test']);
-        $server01 = factory(Server::class)->create(['description'=>'server01','status'=>ServerStatus::DISABLED]);
-        $server02 = factory(Server::class)->create(['description'=>'server02','status'=>ServerStatus::OFFLINE]);
+        $server01 = factory(Server::class)->create(['name'=>'server01','status'=>ServerStatus::DISABLED]);
+        $server02 = factory(Server::class)->create(['name'=>'server02','status'=>ServerStatus::OFFLINE]);
 
         // Test guests
         $this->getJson(route('api.v1.servers.index'))
@@ -71,6 +71,7 @@ class ServerTest extends TestCase
                 'data' => [
                     '*' => [
                         'id',
+                        'name',
                         'description',
                         'strength',
                         'status',
@@ -94,14 +95,14 @@ class ServerTest extends TestCase
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['id' => $servers[5]->id]);
 
-        // Filtering by description
-        $this->getJson(route('api.v1.servers.index') . '?description=server01')
+        // Filtering by name
+        $this->getJson(route('api.v1.servers.index') . '?name=server01')
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(['id' => $server01->id]);
 
-        // Filtering by description
-        $this->getJson(route('api.v1.servers.index') . '?description=server')
+        // Filtering by name
+        $this->getJson(route('api.v1.servers.index') . '?name=server')
             ->assertSuccessful()
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['id' => $server01->id])
@@ -120,6 +121,20 @@ class ServerTest extends TestCase
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data');
         $this->assertEquals(ServerStatus::ONLINE, $response->json('data.0.status'));
+
+        // Sorting name asc
+        $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=asc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['id' => Server::orderBy('name')->first()->id])
+            ->assertJsonMissing(['id' => Server::orderByDesc('name')->first()->id]);
+
+        // Sorting name desc
+        $this->getJson(route('api.v1.servers.index') . '?sort_by=name&sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
+            ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
 
         // Request with forced usage update, should see that the online servers are now offline (cause it's fake data)
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc&update_usage=true')
@@ -156,6 +171,7 @@ class ServerTest extends TestCase
             ->assertSuccessful()
             ->assertJsonFragment([
                 'id'                      => $server->id,
+                'name'                    => $server->name,
                 'description'             => $server->description,
                 'base_url'                => $server->base_url,
                 'salt'                    => $server->salt,
@@ -187,6 +203,7 @@ class ServerTest extends TestCase
     {
         $server = factory(Server::class)->make();
         $data   = [
+            'name'        => $server->name,
             'description' => $server->description,
             'base_url'    => $server->base_url,
             'salt'        => $server->salt,
@@ -221,12 +238,12 @@ class ServerTest extends TestCase
 
         // Test with invalid data
         $data['base_url']      = 'test';
-        $data['description']   = '';
+        $data['name']          = '';
         $data['salt']          = '';
         $data['strength']      = 1000;
         $data['disabled']      = 10;
         $this->actingAs($this->user)->postJson(route('api.v1.servers.store'), $data)
-            ->assertJsonValidationErrors(['base_url','salt','description','strength','disabled']);
+            ->assertJsonValidationErrors(['base_url','salt','name','strength','disabled']);
     }
 
     /**
@@ -238,6 +255,7 @@ class ServerTest extends TestCase
         $server2 = factory(Server::class)->create(['base_url'=>'https://host2.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
 
         $data = [
+            'name'        => $server->name,
             'description' => $server->description,
             'base_url'    => $server->base_url,
             'salt'        => $server->salt,
@@ -292,13 +310,13 @@ class ServerTest extends TestCase
         // Test with invalid data
         $server->refresh();
         $data['base_url']      = 'test';
-        $data['description']   = '';
+        $data['name']          = '';
         $data['salt']          = '';
         $data['strength']      = 1000;
         $data['disabled']      = 10;
         $data['updated_at']    = $server->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.servers.update', ['server'=>$server->id]), $data)
-            ->assertJsonValidationErrors(['base_url','salt','description','strength','disabled']);
+            ->assertJsonValidationErrors(['base_url','salt','name','strength','disabled']);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;

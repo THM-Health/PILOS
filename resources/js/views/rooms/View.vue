@@ -113,27 +113,16 @@
                 </template>
                 <!-- If room is not running -->
                 <template v-else>
-                  <!--
-                  Quick start new meeting button, or TODO select specify server
-                  only possible is user is allowed to start a room
-                  -->
-                  <b-dropdown
+                  <b-button
                     block
                     ref="startMeeting"
-                    split
                     v-if="room.canStart"
                     :disabled="(room.isGuest && name==='') || loadingJoinStart"
                     v-on:click="start"
                     variant="success"
                   >
-                    <template v-slot:button-content>
                       <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.start') }}
-                    </template>
-                    <!--
-                    <b-dropdown-item href="#">Server 11</b-dropdown-item>
-                    <b-dropdown-item href="#">Server 12</b-dropdown-item>
-                    -->
-                  </b-dropdown>
+                  </b-button>
                   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
                   <b-alert show v-else class="text-center p-3">
                     <div class="mb-3">

@@ -327,7 +327,7 @@ class RoomTest extends TestCase
         $server->base_url     = $this->faker->url;
         $server->salt         = $this->faker->sha1;
         $server->status       = ServerStatus::ONLINE;
-        $server->description  = $this->faker->word;
+        $server->name         = $this->faker->word;
         $server->save();
 
         $meeting = $room->meetings()->create();
@@ -538,6 +538,7 @@ class RoomTest extends TestCase
 
         // Adding fake server(s)
         $server =  factory(Server::class)->create();
+        $room->roomType->serverPool->servers()->sync([$server->id]);
 
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room]))
@@ -583,7 +584,7 @@ class RoomTest extends TestCase
             $server->salt = 'TEST';
             $server->save();
         }
-        $room2 = factory(Room::class)->create();
+        $room2 = factory(Room::class)->create(['room_type_id'=>$room->roomType->id]);
         $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
     }

@@ -92,7 +92,7 @@ class RoomTypeTest extends TestCase
     {
         $roomType = factory(RoomType::class)->make();
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description];
+        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id];
 
         // Test guests
         $this->postJson(route('api.v1.roomTypes.store'), $data)
@@ -120,7 +120,7 @@ class RoomTypeTest extends TestCase
             ->assertJsonValidationErrors(['short']);
 
         // Test with invalid data
-        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>''];
+        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>''];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertJsonValidationErrors(['short','color','description']);
     }
@@ -133,7 +133,7 @@ class RoomTypeTest extends TestCase
         $roomType  = factory(RoomType::class)->create();
         $roomType2 = factory(RoomType::class)->create();
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description];
+        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id];
 
         // Test guests
         $this->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
@@ -171,7 +171,7 @@ class RoomTypeTest extends TestCase
 
         // Test with invalid data
         $roomType->refresh();
-        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','updated_at'=>$roomType->updated_at];
+        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>'','updated_at'=>$roomType->updated_at];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertJsonValidationErrors(['short','color','description']);
 
