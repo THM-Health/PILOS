@@ -88,7 +88,7 @@ export default {
       errors: {},
       password: null,
       password_confirmation: null
-    }
+    };
   },
 
   methods: {
