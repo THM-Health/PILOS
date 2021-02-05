@@ -88,7 +88,8 @@ export default {
       title: 'Delete user?'
     },
 
-    resetPassword: 'Reset password for the user {firstname} {lastname}'
+    resetPassword: 'Reset password for the user {firstname} {lastname}',
+    passwordResetSuccess: 'Password reset mail was successfully send to {mail}!'
   },
 
   roomTypes: {

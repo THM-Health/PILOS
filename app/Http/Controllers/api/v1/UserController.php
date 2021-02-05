@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\User as UserResource;
@@ -173,5 +174,20 @@ class UserController extends Controller
         $user->delete();
 
         return response()->noContent();
+    }
+
+    public function resetPassword(User $user)
+    {
+        $locale = app()->getLocale();
+        app()->setLocale($user->locale);
+        $response = Password::broker('users')->sendResetLink([
+            'authenticator' => 'users',
+            'email'         => $user->email
+        ]);
+        app()->setLocale($locale);
+
+        return response()->json([
+            'message' => trans($response)
+        ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED);
     }
 }

@@ -96,5 +96,15 @@ export default {
     return this.update(permissionService, user) &&
       (permissionService.currentUser.permissions.includes('users.updateOwnAttributes') ||
         user.id !== permissionService.currentUser.id);
+  },
+
+  resetPassword (permissionService, user) {
+    if (!permissionService.currentUser || user.authenticator !== 'users') {
+      return false;
+    }
+
+    return this.update(permissionService, user) &&
+      permissionService.currentUser.id !== user.id &&
+      !user.initial_password_set;
   }
 };

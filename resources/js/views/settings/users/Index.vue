@@ -93,13 +93,14 @@
             >
               <i class='fas fa-edit'></i>
             </b-button>
+          </can>
+          <can method='resetPassword' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
-              :title="$t('settings.users.reset_password', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :title="$t('settings.users.resetPassword', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='warning'
               class='mb-1'
-              v-if='data.item.authenticator === "users"'
               @click='resetPassword(data.item)'
             >
               <i class='fas fa-key'></i>
@@ -195,6 +196,7 @@ export default {
       meta: {},
       userToDelete: undefined,
       actionPermissions: ['users.view', 'users.update', 'users.delete'],
+      actionColumnThStyle: 'width: 200px',
       filter: undefined
     };
   },
@@ -280,7 +282,21 @@ export default {
      * @param user
      */
     resetPassword (user) {
-      // TODO: Sent reset password request
+      this.isBusy = true;
+
+      const config = {
+        method: 'post'
+      };
+
+      Base.call(`users/${user.id}/resetPassword`, config).then(() => {
+        this.flashMessage.success({
+          title: this.$t('settings.users.passwordResetSuccess', { mail: user.email })
+        });
+      }).catch(error => {
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.isBusy = false;
+      });
     }
   }
 };

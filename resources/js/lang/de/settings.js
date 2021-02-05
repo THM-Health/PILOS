@@ -92,7 +92,8 @@ export default {
       title: 'Benutzer löschen?'
     },
 
-    resetPassword: 'Password für den Benutzer {firstname} {lastname} zurücksetzen'
+    resetPassword: 'Password für den Benutzer {firstname} {lastname} zurücksetzen',
+    passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!'
   },
 
   roomTypes: {

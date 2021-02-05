@@ -93,4 +93,12 @@ class UserPolicy
             && $user->can('update', $model)
             && ($user->can('users.updateOwnAttributes') || $model->id !== $user->id);
     }
+
+    public function resetPassword(User $user, User $model)
+    {
+        return $model->authenticator === 'users'
+            && $user->can('update', $model)
+            && $model->id !== $user->id
+            && !$model->initial_password_set;
+    }
 }
