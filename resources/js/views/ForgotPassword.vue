@@ -38,6 +38,7 @@
 <script>
 import store from '../store';
 import FieldErrors from '../mixins/FieldErrors';
+import Base from '../api/base';
 
 export default {
   mixins: [FieldErrors],
@@ -60,7 +61,24 @@ export default {
 
   methods: {
     submit () {
-      // TODO: Implement
+      this.loading = true;
+      const config = {
+        method: 'post',
+        data: {
+          email: this.email
+        }
+      };
+
+      Base.call('password/email', config, true).then(response => {
+        this.flashMessage.success({
+          title: response.data.message
+        });
+        this.$router.push({ name: 'home' });
+      }).catch(error => {
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.loading = false;
+      });
     }
   }
 };
