@@ -30,12 +30,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         ResetPassword::toMailUsing(function ($notifiable, $token) {
-            $token = DB::table('password_resets')
-                ->where('token', '=', $token)
+            $reset = DB::table('password_resets')
                 ->where('email', '=', $notifiable->email)
                 ->first();
 
-            return $notifiable->notify(new PasswordReset($token, Carbon::parse($token->created_at)->locale($notifiable->locale)));
+            return $notifiable->notify(new PasswordReset($token, Carbon::parse($reset->created_at)->locale(app()->getLocale())));
         });
     }
 }

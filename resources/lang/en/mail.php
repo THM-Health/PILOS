@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'greeting' => 'Hello :name,',
+    'regards' => 'Regards',
+    'action_url' => 'If you’re having trouble clicking the ":actionText" button, copy and paste the URL below into your web browser:',
+
     'password_reset' => [
         'subject'     => 'Reset Password Notification',
         'description' => 'You are receiving this email because we received a password reset request for your account.',

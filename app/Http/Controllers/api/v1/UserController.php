@@ -103,11 +103,10 @@ class UserController extends Controller
             $token  = $broker->createToken($user);
             $locale = app()->getLocale();
             app()->setLocale($user->locale);
-            $token = DB::table('password_resets')
-                ->where('token', '=', $token)
+            $reset = DB::table('password_resets')
                 ->where('email', '=', $user->email)
                 ->first();
-            $user->notify(new UserWelcome($token, Carbon::parse($token->created_at)->locale($user->locale)));
+            $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)->locale($user->locale)));
             app()->setLocale($locale);
         }
 

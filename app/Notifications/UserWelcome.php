@@ -56,6 +56,7 @@ class UserWelcome extends Notification
         ]);
 
         return (new MailMessage)
+            ->greeting(Lang::get('mail.greeting', ['name' => $notifiable->fullname]))
             ->subject(Lang::get('mail.user_welcome.subject'))
             ->line(Lang::get('mail.user_welcome.description'))
             ->action(Lang::get('mail.user_welcome.action'), $url)

@@ -55,6 +55,7 @@ class PasswordReset extends Notification
         ]);
 
         return (new MailMessage)
+            ->greeting(Lang::get('mail.greeting', ['name' => $notifiable->fullname]))
             ->subject(Lang::get('mail.password_reset.subject'))
             ->line(Lang::get('mail.password_reset.description'))
             ->action(Lang::get('mail.password_reset.action'), $url)
