@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -28,7 +27,7 @@ class UserWelcome extends Notification
      */
     public function __construct($token, $expireDate)
     {
-        $this->token = $token;
+        $this->token      = $token;
         $this->expireDate = $expireDate;
     }
 

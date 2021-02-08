@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Notifications\PasswordReset;
-use App\Notifications\UserWelcome;
 use Carbon\Carbon;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\DB;

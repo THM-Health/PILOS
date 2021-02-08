@@ -26,7 +26,7 @@ class PasswordReset extends Notification
      */
     public function __construct($token, $expireDate)
     {
-        $this->token = $token;
+        $this->token      = $token;
         $this->expireDate = $expireDate;
     }
 
