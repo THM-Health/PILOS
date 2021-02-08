@@ -8,13 +8,16 @@ use App\Http\Requests\UserRequest;
 use App\Http\Resources\User as UserResource;
 use App\Notifications\UserWelcome;
 use App\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Passwords\PasswordResetServiceProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
@@ -101,7 +104,11 @@ class UserController extends Controller
             $token  = $broker->createToken($user);
             $locale = app()->getLocale();
             app()->setLocale($user->locale);
-            $user->notify(new UserWelcome($token));
+            $token = DB::table('password_resets')
+                ->where('token', '=', $token)
+                ->where('email', '=', $user->email)
+                ->first();
+            $user->notify(new UserWelcome($token, Carbon::parse($token->created_at)->locale($user->locale)));
             app()->setLocale($locale);
         }
 

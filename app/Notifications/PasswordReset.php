@@ -2,13 +2,12 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
 
-class UserWelcome extends Notification
+class PasswordReset extends Notification
 {
     use Queueable;
 
@@ -18,7 +17,6 @@ class UserWelcome extends Notification
      * @var string
      */
     private $token;
-
     private $expireDate;
 
     /**
@@ -57,9 +55,10 @@ class UserWelcome extends Notification
         ]);
 
         return (new MailMessage)
-            ->subject(Lang::get('mail.user_welcome.subject'))
-            ->line(Lang::get('mail.user_welcome.description'))
-            ->action(Lang::get('mail.user_welcome.action'), $url)
-            ->line(Lang::get('mail.user_welcome.expire', ['date' => $this->expireDate->isoFormat('LLLL')]));
+            ->subject(Lang::get('mail.password_reset.subject'))
+            ->line(Lang::get('mail.password_reset.description'))
+            ->action(Lang::get('mail.password_reset.action'), $url)
+            ->line(Lang::get('mail.password_reset.expire', ['date' => $this->expireDate->isoFormat('LLLL')]))
+            ->line(Lang::get('mail.password_reset.signature'));
     }
 }
