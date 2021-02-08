@@ -37,7 +37,6 @@ class DeleteUnverifiedNewUsers extends Command
             ->get();
 
         foreach ($unverified_users as $user) {
-            echo 'Deleting user ' . $user->id;
             $broker->deleteToken($user);
             $user->delete();
         }

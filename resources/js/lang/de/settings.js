@@ -78,7 +78,7 @@ export default {
     skip_check_audio: 'Echo-Test deaktivieren',
 
     generate_password: 'Passwort generieren lassen',
-    generate_password_description: 'Es wird ein generiertes Passwort gesetzt und eine E-Mail mit einem Passwort-Rücksetz-Link an den Nutzer gesendet. Wenn der Nutezr das Passwort in einem bestimmten Zeitraum nicht ändert, wird dieser autmatisch wieder gelöscht.',
+    generate_password_description: 'Es wird ein generiertes Passwort gesetzt und eine E-Mail mit einem Passwort-Rücksetz-Link an den Nutzer gesendet. Wenn der Nutzer das Passwort in einem bestimmten Zeitraum nicht ändert, wird dieser automatisch wieder gelöscht.',
 
     authenticator: {
       title: 'Anmeldeart',
@@ -92,7 +92,7 @@ export default {
       title: 'Benutzer löschen?'
     },
 
-    resetPassword: 'Password für den Benutzer {firstname} {lastname} zurücksetzen',
+    resetPassword: 'Passwort für den Benutzer {firstname} {lastname} zurücksetzen',
     passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!'
   },
 
