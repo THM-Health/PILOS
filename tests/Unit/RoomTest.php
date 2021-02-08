@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Room;
+use App\RoomType;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -27,7 +28,8 @@ class RoomTest extends TestCase
 
     public function testCreateRoomUniqueID()
     {
-        factory(Room::class, 1000)->create();
+        $roomType = factory(RoomType::class)->create();
+        factory(Room::class, 1000)->create(['room_type_id'=>$roomType]);
         $this->assertDatabaseCount('rooms', 1000);
     }
 }

@@ -131,9 +131,24 @@
     @extend .form-control;
     padding: 0;
     border: none;
+    height: auto;
 
     .multiselect__tags {
         border-radius: 0;
+        padding: 8px 40px 8px 8px;
+    }
+
+    .multiselect__single {
+        margin-bottom: 3px;
+        margin-top: 3px;
+    }
+
+    .multiselect__select {
+        height: 42px;
+    }
+
+    .multiselect__placeholder{
+        margin-bottom: 0px;
     }
 }
 

@@ -10,6 +10,7 @@ $factory->define(RoomType::class, function (Faker $faker) {
     return [
         'short' => $faker->randomLetter."".$faker->randomLetter,
         'description' => $faker->word,
-        'color' => $faker->hexColor
+        'color' => $faker->hexColor,
+        'server_pool_id' => factory(App\ServerPool::class),
     ];
 });

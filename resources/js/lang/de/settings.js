@@ -106,6 +106,9 @@ export default {
     color: 'Icon Farbe',
     customColor: 'Eigene Farbe',
     preview: 'Vorschau',
+    serverPool: 'Serverpool',
+    selectServerPool: 'Serverpool auswählen',
+    serverPoolDescription: 'Server dieses Serverpools werden für die Lastverteilung verwendet',
     new: 'Neue Raumart erstellen',
     view: 'Detaillierte Informationen für die Raumart {name}',
     edit: 'Raumart {name} bearbeiten',
@@ -189,6 +192,7 @@ export default {
     title: 'Server',
     tileDescription: 'Die Server stellen die BBB Infrastruktur für die Meetings bereit.',
     id: 'ID',
+    name: 'Name',
     description: 'Beschreibung',
     status: 'Status',
     participantCount: 'Teilnehmer',
@@ -225,21 +229,47 @@ export default {
 
     reload: 'Auslastung neu bestimmen',
     new: 'Neuen Server hinzufügen',
-    view: 'Detaillierte Informationen über Server {id}',
-    edit: 'Server {id} bearbeiten',
+    view: 'Detaillierte Informationen über Server {name}',
+    edit: 'Server {name} bearbeiten',
 
     nodata: 'Es sind keine Server vorhanden!',
     nodataFiltered: 'Für die Suchanfrage wurden keine Server gefunden!',
 
     delete: {
-      item: 'Server {id} löschen',
-      confirm: 'Wollen Sie den Server {id} wirklich entfernen?',
+      item: 'Server {name} löschen',
+      confirm: 'Wollen Sie den Server {name} wirklich entfernen?',
       title: 'Server löschen?'
     },
 
     offlineReason: {
       connection: 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
       salt: 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.'
+    }
+  },
+  serverPools: {
+    title: 'Serverpools',
+    tileDescription: 'Für die Lastverteilung werden mehrere Server gebündelt und über die Raumart jedem Raum zugewiesen.',
+    id: 'ID',
+    name: 'Name',
+    description: 'Beschreibung',
+    serverCount: 'Anzahl Server',
+    servers: 'Server',
+
+    select_servers: 'Server auswählen',
+    removeServer: 'Server entfernen',
+
+    new: 'Neuen Serverpool hinzufügen',
+    view: 'Detaillierte Informationen über Serverpool {name}',
+    edit: 'Serverpool {name} bearbeiten',
+
+    nodata: 'Es sind keine Serverpools vorhanden!',
+    nodataFiltered: 'Für die Suchanfrage wurden keine Serverpools gefunden!',
+
+    delete: {
+      item: 'Serverpool {name} löschen',
+      confirm: 'Wollen Sie den Serverpool {name} wirklich entfernen?',
+      title: 'Serverpool löschen?',
+      failed: 'Serverpool kann nicht gelöscht werden, weil die folgenden Raumarten diesen noch verwenden:'
     }
   }
 };

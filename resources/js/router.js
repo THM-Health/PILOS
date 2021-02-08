@@ -18,6 +18,8 @@ import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
 import ServersIndex from './views/settings/servers/Index';
 import ServersView from './views/settings/servers/View';
+import ServerPoolsIndex from './views/settings/serverPools/Index';
+import ServerPoolsView from './views/settings/serverPools/View';
 import PasswordReset from './views/PasswordReset';
 import Base from './api/base';
 import ForgotPassword from './views/ForgotPassword';
@@ -291,6 +293,52 @@ export const routes = [
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
               PermissionService.can('update', 'ServerPolicy')
+            );
+          }
+        }
+      },
+      {
+        path: 'server_pools',
+        name: 'settings.server_pools',
+        component: ServerPoolsIndex,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('viewAny', 'ServerPoolPolicy')
+          )
+        }
+      },
+      {
+        path: 'server_pools/:id',
+        name: 'settings.server_pools.view',
+        component: ServerPoolsView,
+        props: route => {
+          return {
+            id: route.params.id,
+            viewOnly: route.query.view === '1'
+          };
+        },
+        meta: {
+          requiresAuth: true,
+          accessPermitted: (params, query, vm) => {
+            const id = params.id;
+            const view = query.view;
+
+            if (id === 'new') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('create', 'ServerPoolPolicy')
+              );
+            } else if (view === '1') {
+              return Promise.resolve(
+                PermissionService.can('manage', 'SettingPolicy') &&
+                PermissionService.can('view', 'ServerPoolPolicy')
+              );
+            }
+            return Promise.resolve(
+              PermissionService.can('manage', 'SettingPolicy') &&
+              PermissionService.can('update', 'ServerPoolPolicy')
             );
           }
         }

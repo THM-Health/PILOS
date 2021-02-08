@@ -59,9 +59,9 @@
         </div>
       </template>
 
-      <template #cell(description)="data">
+      <template #cell(name)="data">
         <text-truncate>
-          {{ data.item.description }}
+          {{ data.item.name }}
         </text-truncate>
       </template>
 
@@ -91,7 +91,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
-              :title="$t('settings.servers.view', { id: data.item.id })"
+              :title="$t('settings.servers.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='primary'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id }, query: { view: '1' } }"
@@ -102,7 +102,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
-              :title="$t('settings.servers.edit', { id: data.item.id })"
+              :title="$t('settings.servers.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='dark'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id } }"
@@ -114,7 +114,7 @@
             <b-button
               v-if="data.item.status===-1"
               v-b-tooltip.hover
-              :title="$t('settings.servers.delete.item', { id: data.item.id })"
+              :title="$t('settings.servers.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
               @click='showServerModal(data.item)'>
@@ -165,7 +165,7 @@
         <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="serverToDelete">
-        {{ $t('settings.servers.delete.confirm', { id:serverToDelete.id }) }}
+        {{ $t('settings.servers.delete.confirm', { name:serverToDelete.name }) }}
       </span>
 
     </b-modal>
@@ -194,7 +194,7 @@ export default {
     tableFields () {
       const fields = [
         { key: 'id', label: this.$t('settings.servers.id'), sortable: true, thStyle: { width: '8%' } },
-        { key: 'description', label: this.$t('settings.servers.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'name', label: this.$t('settings.servers.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
         { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },
         { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, thStyle: { width: '15%' } },
@@ -247,7 +247,7 @@ export default {
       }
 
       if (ctx.filter) {
-        config.params.description = ctx.filter;
+        config.params.name = ctx.filter;
       }
 
       Base.call('servers', config).then(response => {

@@ -23,7 +23,8 @@ const defaultResponse = {
   data: [
     {
       id: 1,
-      description: 'Server 01',
+      name: 'Server 01',
+      description: 'Testserver 01',
       strength: 1,
       status: 1,
       participant_count: 10,
@@ -37,7 +38,8 @@ const defaultResponse = {
     },
     {
       id: 2,
-      description: 'Server 02',
+      name: 'Server 02',
+      description: 'Testserver 02',
       strength: 1,
       status: 1,
       participant_count: 50,
@@ -51,7 +53,8 @@ const defaultResponse = {
     },
     {
       id: 3,
-      description: 'Server 03',
+      name: 'Server 03',
+      description: 'Testserver 03',
       strength: 1,
       status: -1,
       participant_count: null,
@@ -178,14 +181,15 @@ describe('ServersIndex', function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
-          expect(request.config.params.description).toBe('Server 02');
+          expect(request.config.params.name).toBe('Server 02');
           request.respondWith({
             status: 200,
             response: {
               data: [
                 {
                   id: 2,
-                  description: 'Server 02',
+                  name: 'Server 02',
+                  description: 'Testserver 02',
                   strength: 1,
                   status: 1,
                   participant_count: 50,
@@ -391,7 +395,7 @@ describe('ServersIndex', function () {
         });
 
         moxios.wait(async () => {
-          // reload data for roomTypes
+          // reload data for servers
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers');
           expect(request.config.method).toBe('get');
@@ -401,7 +405,8 @@ describe('ServersIndex', function () {
               data: [
                 {
                   id: 1,
-                  description: 'Server 01',
+                  name: 'Server 01',
+                  description: 'Testserver 01',
                   strength: 1,
                   status: 1,
                   participant_count: 10,
@@ -415,7 +420,8 @@ describe('ServersIndex', function () {
                 },
                 {
                   id: 2,
-                  description: 'Server 02',
+                  name: 'Server 02',
+                  description: 'Testserver 02',
                   strength: 1,
                   status: 1,
                   participant_count: 50,
@@ -439,8 +445,8 @@ describe('ServersIndex', function () {
                 last_page: 1,
                 path: 'http://localhost/api/v1/servers',
                 per_page: 15,
-                to: 1,
-                total: 1
+                to: 2,
+                total: 2
               }
             }
           });
@@ -520,7 +526,8 @@ describe('ServersIndex', function () {
               data: [
                 {
                   id: 1,
-                  description: 'Server 01',
+                  name: 'Server 01',
+                  description: 'Testserver 01',
                   strength: 1,
                   status: 1,
                   participant_count: 10,
@@ -534,7 +541,8 @@ describe('ServersIndex', function () {
                 },
                 {
                   id: 2,
-                  description: 'Server 02',
+                  name: 'Server 02',
+                  description: 'Testserver 02',
                   strength: 1,
                   status: 1,
                   participant_count: 50,
@@ -558,8 +566,8 @@ describe('ServersIndex', function () {
                 last_page: 1,
                 path: 'http://localhost/api/v1/servers',
                 per_page: 15,
-                to: 1,
-                total: 1
+                to: 2,
+                total: 2
               }
             }
           });
@@ -730,7 +738,8 @@ describe('ServersIndex', function () {
               data: [
                 {
                   id: 1,
-                  description: 'Server 01',
+                  name: 'Server 01',
+                  description: 'Testserver 01',
                   strength: 1,
                   status: 1,
                   participant_count: 14,
@@ -743,7 +752,8 @@ describe('ServersIndex', function () {
                 },
                 {
                   id: 2,
-                  description: 'Server 02',
+                  name: 'Server 02',
+                  description: 'Testserver 02',
                   strength: 1,
                   status: 1,
                   participant_count: 50,

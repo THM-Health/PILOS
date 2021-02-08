@@ -101,6 +101,9 @@ export default {
     color: 'Icon color',
     customColor: 'Custom color',
     preview: 'Preview',
+    serverPool: 'Server pool',
+    selectServerPool: 'Select server pool',
+    serverPoolDescription: 'Servers of this server pool are used for load balancing',
     new: 'Create new room type',
     view: 'Detailed information for the room type {name}',
     edit: 'Edit room type {name}',
@@ -184,6 +187,7 @@ export default {
     title: 'Server',
     tileDescription: 'The servers provide the BBB infrastructure for the meetings.',
     id: 'ID',
+    name: 'Name',
     description: 'Description',
     status: 'Status',
     participantCount: 'Participants',
@@ -220,21 +224,47 @@ export default {
 
     reload: 'Recalculate usage',
     new: 'Add new server',
-    view: 'Detailed information for the server {id}',
-    edit: 'Edit server {id}',
+    view: 'Detailed information for the server {name}',
+    edit: 'Edit server {name}',
 
     nodata: 'No servers found!',
     nodataFiltered: 'For the filter query no servers were found!',
 
     delete: {
-      item: 'Delete server {id}',
-      confirm: 'Do you really want to delete the server {id}?',
+      item: 'Delete server {name}',
+      confirm: 'Do you really want to delete the server {name}?',
       title: 'Delete server?'
     },
 
     offlineReason: {
       connection: 'No connection could be established to the server.',
       salt: 'A connection to the server could be established, but the API secret is invalid.'
+    }
+  },
+  serverPools: {
+    title: 'Server pools',
+    tileDescription: 'For load balancing several servers are bundled and assigned to each room via the room type.',
+    id: 'ID',
+    name: 'Name',
+    description: 'Description',
+    serverCount: 'Number of servers',
+    servers: 'Server',
+
+    select_servers: 'Select server',
+    removeServer: 'Remove server',
+
+    new: 'Create new server pool',
+    view: 'Detailed information for the server pool {name}',
+    edit: 'Edit server pool {name}',
+
+    nodata: 'No server pools found!',
+    nodataFiltered: 'For the filter query no server pools were found!',
+
+    delete: {
+      item: 'Delete server pool {name}',
+      confirm: 'Are you really want to delete the server pool {name}?',
+      title: 'Delete server pool?',
+      failed: 'Server pool can\'t be deleted because the following room types still use it:'
     }
   }
 };

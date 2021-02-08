@@ -107,6 +107,15 @@ export default {
       create: 'Create servers',
       update: 'Edit servers',
       delete: 'Delete servers'
+    },
+
+    serverPools: {
+      title: 'Server pools',
+      viewAny: 'Show all server pools',
+      view: 'Show server pools',
+      create: 'Create server pools',
+      update: 'Edit server pools',
+      delete: 'Delete server pools'
     }
   },
   overwrite: 'Overwrite',
