@@ -101,7 +101,7 @@ class UserController extends Controller
         if ($request->generate_password) {
             $broker = Password::broker('new_users');
             $token  = $broker->createToken($user);
-            $reset = DB::table('password_resets')
+            $reset  = DB::table('password_resets')
                 ->where('email', '=', $user->email)
                 ->first();
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)->locale($user->locale)));
