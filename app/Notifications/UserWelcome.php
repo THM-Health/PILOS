@@ -56,10 +56,10 @@ class UserWelcome extends Notification
         ]);
 
         return (new MailMessage)
-            ->greeting(Lang::get('mail.greeting', ['name' => $notifiable->fullname]))
-            ->subject(Lang::get('mail.user_welcome.subject'))
-            ->line(Lang::get('mail.user_welcome.description'))
-            ->action(Lang::get('mail.user_welcome.action'), $url)
-            ->line(Lang::get('mail.user_welcome.expire', ['date' => $this->expireDate->isoFormat('LLLL')]));
+            ->subject(Lang::get('mail.user_welcome.subject', [], $notifiable->locale))
+            ->line(Lang::get('mail.user_welcome.description', [], $notifiable->locale))
+            ->action(Lang::get('mail.user_welcome.action', [], $notifiable->locale), $url)
+            ->line(Lang::get('mail.user_welcome.expire', ['date' => $this->expireDate->isoFormat('LLLL')], $notifiable->locale))
+            ->markdown('vendor.notifications.email', ['notifiable' => $notifiable]);
     }
 }

@@ -101,13 +101,10 @@ class UserController extends Controller
         if ($request->generate_password) {
             $broker = Password::broker('new_users');
             $token  = $broker->createToken($user);
-            $locale = app()->getLocale();
-            app()->setLocale($user->locale);
             $reset = DB::table('password_resets')
                 ->where('email', '=', $user->email)
                 ->first();
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)->locale($user->locale)));
-            app()->setLocale($locale);
         }
 
         return (new UserResource($user))->withRoles();
@@ -183,13 +180,10 @@ class UserController extends Controller
 
     public function resetPassword(User $user)
     {
-        $locale = app()->getLocale();
-        app()->setLocale($user->locale);
         $response = Password::broker('users')->sendResetLink([
             'authenticator' => 'users',
             'email'         => $user->email
         ]);
-        app()->setLocale($locale);
 
         return response()->json([
             'message' => trans($response)

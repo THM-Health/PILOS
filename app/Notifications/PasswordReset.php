@@ -55,11 +55,11 @@ class PasswordReset extends Notification
         ]);
 
         return (new MailMessage)
-            ->greeting(Lang::get('mail.greeting', ['name' => $notifiable->fullname]))
-            ->subject(Lang::get('mail.password_reset.subject'))
-            ->line(Lang::get('mail.password_reset.description'))
-            ->action(Lang::get('mail.password_reset.action'), $url)
-            ->line(Lang::get('mail.password_reset.expire', ['date' => $this->expireDate->isoFormat('LLLL')]))
-            ->line(Lang::get('mail.password_reset.signature'));
+            ->subject(Lang::get('mail.password_reset.subject', [], $notifiable->locale))
+            ->line(Lang::get('mail.password_reset.description', [], $notifiable->locale))
+            ->action(Lang::get('mail.password_reset.action', [], $notifiable->locale), $url)
+            ->line(Lang::get('mail.password_reset.expire', ['date' => $this->expireDate->isoFormat('LLLL')], $notifiable->locale))
+            ->line(Lang::get('mail.password_reset.signature', [], $notifiable->locale))
+            ->markdown('vendor.notifications.email', ['notifiable' => $notifiable]);
     }
 }

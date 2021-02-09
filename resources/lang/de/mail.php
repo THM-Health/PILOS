@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'greeting' => 'Hallo :name,',
-    'regards' => 'Mit freundlichen Grüßen',
+    'greeting'   => 'Hallo :name,',
+    'regards'    => 'Mit freundlichen Grüßen',
     'action_url' => 'Wenn Sie Probleme haben den ":actionText" Button zu drücken, kopieren Sie die nachfolgende URL und fügen in Ihren Browser ein:',
 
     'password_reset' => [

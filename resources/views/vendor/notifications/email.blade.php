@@ -1,6 +1,6 @@
 @component('mail::message')
 
-# {{ $greeting }}
+# @lang('mail.greeting', ['name' => $notifiable->fullname], $notifiable->locale)
 
 {{-- Intro Lines --}}
 @foreach ($introLines as $line)
@@ -32,17 +32,13 @@
 @endforeach
 
 {{-- Salutation --}}
-@if (! empty($salutation))
-{{ $salutation }}
-@else
-@lang('mail.regards'),<br>
+@lang('mail.regards', [], $notifiable->locale),<br>
 {{ config('app.name') }}
-@endif
 
 {{-- Subcopy --}}
 @isset($actionText)
 @slot('subcopy')
-@lang('mail.action_url', [ 'actionText' => $actionText ]) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span>
+@lang('mail.action_url', [ 'actionText' => $actionText ], $notifiable->locale) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span>
 @endslot
 @endisset
 @endcomponent
