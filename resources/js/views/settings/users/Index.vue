@@ -278,6 +278,7 @@ export default {
     },
 
     /**
+     * Resets the password for the given user.
      *
      * @param user
      */

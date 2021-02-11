@@ -7,6 +7,12 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Password;
 
+/**
+ * Command class that deletes new users that hasn't changed their
+ * generated password in the given time.
+ *
+ * @package App\Console\Commands
+ */
 class DeleteUnverifiedNewUsers extends Command
 {
     /**
@@ -24,7 +30,7 @@ class DeleteUnverifiedNewUsers extends Command
     protected $description = 'Deletes new users that were created with a random password and the password reset link is expired.';
 
     /**
-     * Execute the console command.
+     * Deletes all new users with expired password resets.
      *
      * @return int
      */

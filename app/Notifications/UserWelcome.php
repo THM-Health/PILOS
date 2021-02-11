@@ -2,11 +2,17 @@
 
 namespace App\Notifications;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
 
+/**
+ * This class provides the notification for newly created users with generated passwords.
+ *
+ * @package App\Notifications
+ */
 class UserWelcome extends Notification
 {
     use Queueable;
@@ -18,12 +24,18 @@ class UserWelcome extends Notification
      */
     private $token;
 
+    /**
+     * The date when the password will expire.
+     *
+     * @var Carbon
+     */
     private $expireDate;
 
     /**
      * Create a new notification instance.
      *
-     * @return void
+     * @param string $token
+     * @param Carbon $expireDate
      */
     public function __construct($token, $expireDate)
     {
@@ -46,7 +58,7 @@ class UserWelcome extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed                                          $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {

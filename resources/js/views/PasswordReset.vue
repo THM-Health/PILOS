@@ -92,6 +92,14 @@ export default {
   },
 
   methods: {
+    /**
+     * Sends a request with a new password to set for the given email through the query parameters
+     * in the url. If an error occurs a flash message will be shown. Otherwise if the reset is
+     * successful, the current user is requested on the server and the locale of the frontend
+     * gets updated with the locale of the current user.
+     *
+     * @return {Promise<void>}
+     */
     async submit () {
       this.loading = true;
       const config = {

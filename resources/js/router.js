@@ -374,6 +374,9 @@ const router = new VueRouter({
  * that resolves to a boolean value whether the current user is permitted to access the route.
  * Since it may be that additional data must be requested from the server to perform the permission
  * check it must always be a promise.
+ *
+ * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
+ * be redirected to the home route with a error messsage.
  */
 export function beforeEachRoute (router, store, to, from, next) {
   const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;

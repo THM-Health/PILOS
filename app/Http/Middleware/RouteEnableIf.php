@@ -4,10 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 
+/**
+ * Class that enables a route if the setting with
+ * the given name contains a true boolean value.
+ *
+ * @package App\Http\Middleware
+ */
 class RouteEnableIf
 {
     /**
-     * Handle an incoming request.
+     * Aborts the request with 404 if the setting with the given name contains
+     * a false boolean value and continues otherwise.
      *
      * @param  \Illuminate\Http\Request $request
      * @param  \Closure                 $next

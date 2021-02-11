@@ -94,6 +94,13 @@ class UserPolicy
             && ($user->can('users.updateOwnAttributes') || $model->id !== $user->id);
     }
 
+    /**
+     * Returns true if the user has the permission to reset the password.
+     *
+     * @param User $user
+     * @param User $model
+     * @return bool
+     */
     public function resetPassword(User $user, User $model)
     {
         return $model->authenticator === 'users'

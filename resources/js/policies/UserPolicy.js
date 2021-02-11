@@ -98,6 +98,15 @@ export default {
         user.id !== permissionService.currentUser.id);
   },
 
+  /**
+   * Returns true if the user has the permission to reset password for registered users. Only the passwords
+   * of not newly created users with generated passwords can be reset. Also the user can not reset his own
+   * password.
+   *
+   * @param permissionService
+   * @param user
+   * @return {boolean}
+   */
   resetPassword (permissionService, user) {
     if (!permissionService.currentUser || user.authenticator !== 'users') {
       return false;
