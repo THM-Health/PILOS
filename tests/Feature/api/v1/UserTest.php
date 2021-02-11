@@ -208,6 +208,7 @@ class UserTest extends TestCase
             'user_locale'           => 'hr',
             'email'                 => $user->email,
             'username'              => $this->faker->userName,
+            'generate_password'     => false,
             'password'              => 'aT2wqw_2',
             'password_confirmation' => 'aT2wqw_2',
             'roles'                 => [$role->id],
