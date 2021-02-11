@@ -97,8 +97,8 @@ class UserPolicy
     /**
      * Returns true if the user has the permission to reset the password.
      *
-     * @param User $user
-     * @param User $model
+     * @param  User $user
+     * @param  User $model
      * @return bool
      */
     public function resetPassword(User $user, User $model)

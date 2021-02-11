@@ -181,7 +181,7 @@ class UserController extends Controller
     /**
      * Send a password reset email to the specified users email.
      *
-     * @param User $user
+     * @param  User         $user
      * @return JsonResponse
      */
     public function resetPassword(User $user)
