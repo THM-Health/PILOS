@@ -96,6 +96,7 @@
           </can>
           <can method='resetPassword' :policy='data.item'>
             <b-button
+              :id="'resetPassword' + data.item.id"
               v-b-tooltip.hover
               :title="$t('settings.users.resetPassword', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'

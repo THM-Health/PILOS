@@ -22,6 +22,8 @@ const accessPermittedServerView = routes.filter(route => route.path === '/settin
 const accessPermittedServerPoolView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.server_pools.view')[0].meta.accessPermitted;
 
+const propsPasswordReset = routes.filter(route => route.path === '/reset_password')[0].props;
+
 describe('Router', function () {
   beforeEach(function () {
     moxios.install();
@@ -58,6 +60,43 @@ describe('Router', function () {
         });
       }).then(() => {
         expect(nextCalled).toBe(true);
+        done();
+      });
+    });
+
+    it('beforeEachRoute calls next with home path if the user is authenticated and the route is only for guests', function (done) {
+      const router = {
+        app: {
+          $t: (key) => key,
+          $root: {
+            flashMessage: {
+              error: () => {}
+            }
+          }
+        }
+      };
+
+      const store = {
+        getters: {
+          'session/isAuthenticated': true
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
+
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            guestsOnly: true
+          }
+        }]
+      };
+
+      beforeEachRoute(router, store, to, undefined, (args) => {
+        expect(args.name).toBe('home');
         done();
       });
     });
@@ -539,6 +578,13 @@ describe('Router', function () {
         PermissionService.setCurrentUser(oldUser);
         done();
       });
+    });
+
+    it('props for reset_password should return the passed parameters correctly', function () {
+      expect(propsPasswordReset({ query: {} })).toEqual({ token: undefined, email: undefined });
+      expect(propsPasswordReset({ query: { token: 'foo' } })).toEqual({ token: 'foo', email: undefined });
+      expect(propsPasswordReset({ query: { email: 'bar' } })).toEqual({ token: undefined, email: 'bar' });
+      expect(propsPasswordReset({ query: { token: 'foo', email: 'bar' } })).toEqual({ token: 'foo', email: 'bar' });
     });
   });
 });
