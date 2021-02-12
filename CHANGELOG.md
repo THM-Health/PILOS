@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Artisan command to check server and meeting status, build live and historical data ([#64], [#65])
 - Artisan command to create a new admin user ([#81])
 - Application banner that can be modified through the application settings ([#89], [#94])
-- Management of server pools, used by load balancer and added to room type ([#63], [#108])
+- Management of server pools, used by load balancer and added to room type ([#96], [#99])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
