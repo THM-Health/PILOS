@@ -207,7 +207,7 @@ describe('UsersIndex', function () {
         expect(rows.at(2).findAllComponents(BButton).length).toEqual(1);
 
         rows.at(0).findAllComponents(BButton).filter(button => {
-          return button.attributes('id') === 'resetPassword1'
+          return button.attributes('id') === 'resetPassword1';
         }).at(0).trigger('click');
 
         return view.vm.$nextTick();
@@ -228,7 +228,7 @@ describe('UsersIndex', function () {
             sinon.assert.calledOnce(Base.error);
             Base.error.restore();
             view.findComponent(BTbody).findComponent(BTr).findAllComponents(BButton).filter(button => {
-              return button.attributes('id') === 'resetPassword1'
+              return button.attributes('id') === 'resetPassword1';
             }).at(0).trigger('click');
 
             moxios.wait(function () {
