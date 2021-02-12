@@ -3,12 +3,15 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Notifications\UserWelcome;
 use App\Permission;
 use App\Role;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Notification;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\TestCase;
@@ -488,5 +491,78 @@ class UserTest extends TestCase
 
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('role_user', 1);
+    }
+
+    public function testResetPassword()
+    {
+        $resetUser = factory(User::class)->create([
+            'initial_password_set' => true,
+            'authenticator'        => 'ldap',
+            'locale'               => 'de'
+        ]);
+        $user = factory(User::class)->create();
+
+        $this->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertUnauthorized();
+
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertForbidden();
+
+        $role = factory(Role::class)->create(['default' => true]);
+
+        $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
+        $role->permissions()->attach($permission->id);
+
+        $role->users()->attach([$user->id]);
+
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => 1337]))
+            ->assertNotFound();
+
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $user]))
+            ->assertForbidden();
+
+        $resetUser->initial_password_set = false;
+        $resetUser->save();
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertForbidden();
+
+        Notification::fake();
+        $resetUser->authenticator = 'users';
+        $resetUser->save();
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertSuccessful();
+        Notification::assertSentTo($resetUser, ResetPassword::class);
+
+        Notification::fake();
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED);
+        Notification::assertNotSentTo($resetUser, ResetPassword::class);
+    }
+
+    public function testCreateUserWithGeneratedPassword()
+    {
+        $user = factory(User::class)->create();
+        $role = factory(Role::class)->create(['default' => true]);
+
+        $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
+        $role->permissions()->attach($permission->id);
+
+        $role->users()->attach([$user->id]);
+
+        Notification::fake();
+        $response = $this->actingAs($user)->postJson(route('api.v1.users.store', [
+            'firstname'             => $this->faker->firstName,
+            'lastname'              => $this->faker->lastName,
+            'user_locale'           => 'de',
+            'email'                 => $this->faker->email,
+            'username'              => $this->faker->userName,
+            'generate_password'     => true,
+            'roles'                 => [$role->id],
+            'authenticator'         => 'users',
+            'bbb_skip_check_audio'  => false
+        ]))
+            ->assertSuccessful();
+        $newUser = User::find($response->json('data.id'));
+        Notification::assertSentTo($newUser, UserWelcome::class);
     }
 }

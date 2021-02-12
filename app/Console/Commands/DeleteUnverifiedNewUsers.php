@@ -38,6 +38,7 @@ class DeleteUnverifiedNewUsers extends Command
     {
         $broker           = Password::broker('new_users');
         $unverified_users = User::join('password_resets', 'password_resets.email', '=', 'users.email')
+            ->where('authenticator', '=', 'users')
             ->where('initial_password_set', '=', true)
             ->where('password_resets.created_at', '<', Carbon::now()->subMinutes(config('auth.passwords.new_users.expire')))
             ->get();
