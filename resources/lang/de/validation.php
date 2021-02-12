@@ -246,5 +246,6 @@ return [
         'server_pool'                       => 'Serverpool',
         'icon_text'                         => 'Icon Text',
         'color'                             => 'Farbe',
+        'allow_listing'                     => 'Raumsuche erlaubt',
     ],
 ];

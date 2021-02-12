@@ -141,7 +141,7 @@
             </b-form-group>
 
             <!-- Checkbox publicly list this room -->
-            <b-form-group :state="fieldState('listed')">
+            <b-form-group :state="fieldState('listed')" v-if="settings.roomType && settings.roomType.allow_listing">
               <b-form-checkbox
                 :disabled="isBusy || modelLoadingError"
                 :state="fieldState('listed')"
@@ -372,6 +372,7 @@ import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect';
+import _ from 'lodash';
 
 export default {
   mixins: [FieldErrors],
@@ -405,10 +406,14 @@ export default {
 
       // Set saving indicator
       this.isBusy = true;
+
+      const newSettings = _.clone(this.settings);
+      newSettings.roomType = newSettings.roomType ? newSettings.roomType.id : null;
+
       // Send new settings to the server
       Base.call('rooms/' + this.room.id, {
         method: 'put',
-        data: this.settings
+        data: newSettings
       }).then(response => {
         // Settings successfully saved
         // update the settings to the response from the server, feedback the changed were applied correctly

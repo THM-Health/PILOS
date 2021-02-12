@@ -14,6 +14,7 @@ class RoomTypeRequest extends FormRequest
             'description'   => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
             'short'         => ['required', 'string', 'max:2', Rule::unique('room_types', 'short')],
             'color'         => ['required', 'string', new Color()],
+            'allow_listing' => ['required', 'boolean'],
             'server_pool'   => 'required|exists:App\ServerPool,id'
         ];
 

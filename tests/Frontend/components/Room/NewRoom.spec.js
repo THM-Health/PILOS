@@ -250,7 +250,10 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       await nameInput.setValue('Test');
       view.vm.handleSubmit();
@@ -301,7 +304,10 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       await nameInput.setValue('Test');
       view.vm.handleSubmit();
@@ -348,7 +354,10 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       await nameInput.setValue('Test');
       view.vm.handleSubmit();
@@ -392,7 +401,10 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       view.vm.handleSubmit();
 
@@ -440,7 +452,10 @@ describe('Create new rooms', function () {
       });
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
 
       view.vm.handleSubmit();
       moxios.wait(function () {
@@ -488,9 +503,14 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
 
-      await view.findComponent(BFormSelect).setValue(2);
+      const typeInput = view.findComponent(BFormSelect);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
+
       await view.findComponent(BFormInput).setValue('Test');
-      expect(view.vm.$data.room).toMatchObject({ roomType: 2, name: 'Test' });
+      expect(view.vm.$data.room).toMatchObject({ roomType: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
       view.vm.handleCancel();
       view.destroy();
       expect(view.vm.$data.room).toMatchObject({});

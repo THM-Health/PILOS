@@ -48,9 +48,10 @@ class RoomTypeController extends Controller
      */
     public function update(RoomTypeRequest $request, RoomType $roomType)
     {
-        $roomType->description = $request->description;
-        $roomType->short       = $request->short;
-        $roomType->color       = $request->color;
+        $roomType->description   = $request->description;
+        $roomType->short         = $request->short;
+        $roomType->color         = $request->color;
+        $roomType->allow_listing = $request->allow_listing;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
 
@@ -65,10 +66,11 @@ class RoomTypeController extends Controller
      */
     public function store(RoomTypeRequest $request)
     {
-        $roomType              = new RoomType();
-        $roomType->description = $request->description;
-        $roomType->short       = $request->short;
-        $roomType->color       = $request->color;
+        $roomType                = new RoomType();
+        $roomType->description   = $request->description;
+        $roomType->short         = $request->short;
+        $roomType->color         = $request->color;
+        $roomType->allow_listing = $request->allow_listing;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
 

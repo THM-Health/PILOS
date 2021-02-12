@@ -87,14 +87,14 @@ describe('RoomType Select', function () {
         $t: (key) => key
       },
       propsData: {
-        value: 1
+        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
       store
     });
 
     moxios.wait(async () => {
       await view.vm.$nextTick();
-      expect(view.vm.$data.roomType).toBe(1);
+      expect(view.vm.$data.roomType).toEqual({ id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' });
 
       view.destroy();
       done();
@@ -113,7 +113,7 @@ describe('RoomType Select', function () {
         $t: (key) => key
       },
       propsData: {
-        value: 1
+        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
       store
     });
@@ -146,7 +146,7 @@ describe('RoomType Select', function () {
         $t: (key) => key
       },
       propsData: {
-        value: 10
+        value: { id: 10, short: 'VL', description: 'Test', color: '#80BA27' }
       },
       store
     });
@@ -172,7 +172,7 @@ describe('RoomType Select', function () {
         $t: (key) => key
       },
       propsData: {
-        value: 1
+        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
       store
     });
@@ -183,11 +183,16 @@ describe('RoomType Select', function () {
       expect(view.emitted().busy[0]).toEqual([true]);
       expect(view.emitted().busy[1]).toEqual([false]);
 
-      await view.findComponent(BFormSelect).setValue(2);
-      expect(view.vm.$data.roomType).toBe(2);
+      const typeInput = view.findComponent(BFormSelect);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
+
+      expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
       await view.vm.$nextTick();
-      expect(view.emitted().input[0]).toEqual([2]);
+      expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
 
       view.destroy();
       done();
@@ -211,7 +216,7 @@ describe('RoomType Select', function () {
         $t: (key) => key
       },
       propsData: {
-        value: 1
+        value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
       store
     });
@@ -263,13 +268,16 @@ describe('RoomType Select', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
-      expect(view.vm.$data.roomType).toBe(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
+      expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
       view.vm.reloadRoomTypes();
 
       moxios.wait(async () => {
         await view.vm.$nextTick();
-        expect(view.vm.$data.roomType).toBe(2);
+        expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
         let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
           status: 200,

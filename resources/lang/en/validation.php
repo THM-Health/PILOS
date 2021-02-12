@@ -246,6 +246,7 @@ return [
         'server_pool'                       => 'Server pool',
         'icon_text'                         => 'Icon text',
         'color'                             => 'Color',
+        'allow_listing'                     => 'Room search allowed',
     ],
 
 ];

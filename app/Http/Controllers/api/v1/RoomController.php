@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Meeting;
 use App\Room;
+use App\RoomType;
 use App\Server;
 use Auth;
 use Illuminate\Http\Request;
@@ -55,7 +56,10 @@ class RoomController extends Controller
 
         $collection =  Room::with('owner');
         if (Auth::user()->cannot('viewAll', Room::class)) {
-            $collection = $collection->where('listed', 1)->whereNull('accessCode');
+            $collection = $collection
+                ->where('listed', 1)
+                ->whereNull('accessCode')
+                ->whereIn('room_type_id', RoomType::where('allow_listing', 1)->get('id'));
         }
 
         if ($request->has('search') && trim($request->search) != '') {
