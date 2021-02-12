@@ -37,7 +37,7 @@ class ResetPasswordController extends Controller
         $user = User::where('authenticator', '=', 'users')
             ->where('email', '=', $request->email)
             ->first();
-        $initial_password_set = $user->initial_password_set;
+        $initial_password_set = $user ? $user->initial_password_set : false;
 
         $response = $this->broker($initial_password_set ? 'new_users' : 'users')
             ->reset(array_merge(['authenticator' => 'users'], $this->credentials($request)),

@@ -60,18 +60,23 @@ class PasswordReset extends Notification
      * @param  mixed       $notifiable
      * @return MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         $url = url('/reset_password?') . \Arr::query([
             'token' => $this->token,
             'email' => $notifiable->getEmailForPasswordReset()
         ]);
 
+        $locale = Carbon::getLocale();
+        Carbon::setLocale($notifiable->locale);
+        $date = $this->expireDate->isoFormat('LLLL');
+        Carbon::setLocale($locale);
+
         return (new MailMessage)
             ->subject(Lang::get('mail.password_reset.subject', [], $notifiable->locale))
             ->line(Lang::get('mail.password_reset.description', [], $notifiable->locale))
             ->action(Lang::get('mail.password_reset.action', [], $notifiable->locale), $url)
-            ->line(Lang::get('mail.password_reset.expire', ['date' => $this->expireDate->isoFormat('LLLL')], $notifiable->locale))
+            ->line(Lang::get('mail.password_reset.expire', ['date' => $date], $notifiable->locale))
             ->line(Lang::get('mail.password_reset.signature', [], $notifiable->locale))
             ->markdown('vendor.notifications.email', ['notifiable' => $notifiable]);
     }

@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
                 ->where('email', '=', $notifiable->email)
                 ->first();
 
-            return (new PasswordReset($token, Carbon::parse($reset->created_at)->locale($notifiable->locale)))
+            return (new PasswordReset($token, Carbon::parse($reset->created_at)))
                 ->toMail($notifiable);
         });
     }

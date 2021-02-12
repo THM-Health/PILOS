@@ -104,7 +104,7 @@ class UserController extends Controller
             $reset  = DB::table('password_resets')
                 ->where('email', '=', $user->email)
                 ->first();
-            $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)->locale($user->locale)));
+            $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
         }
 
         return (new UserResource($user))->withRoles();

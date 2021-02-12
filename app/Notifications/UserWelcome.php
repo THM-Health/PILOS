@@ -37,7 +37,7 @@ class UserWelcome extends Notification
      * @param string $token
      * @param Carbon $expireDate
      */
-    public function __construct($token, $expireDate)
+    public function __construct(string $token, Carbon $expireDate)
     {
         $this->token      = $token;
         $this->expireDate = $expireDate;
@@ -67,11 +67,16 @@ class UserWelcome extends Notification
             'email' => $notifiable->getEmailForPasswordReset()
         ]);
 
+        $locale = Carbon::getLocale();
+        Carbon::setLocale($notifiable->locale);
+        $date = $this->expireDate->isoFormat('LLLL');
+        Carbon::setLocale($locale);
+
         return (new MailMessage)
             ->subject(Lang::get('mail.user_welcome.subject', [], $notifiable->locale))
             ->line(Lang::get('mail.user_welcome.description', [], $notifiable->locale))
             ->action(Lang::get('mail.user_welcome.action', [], $notifiable->locale), $url)
-            ->line(Lang::get('mail.user_welcome.expire', ['date' => $this->expireDate->isoFormat('LLLL')], $notifiable->locale))
+            ->line(Lang::get('mail.user_welcome.expire', ['date' => $date], $notifiable->locale))
             ->markdown('vendor.notifications.email', ['notifiable' => $notifiable]);
     }
 }
