@@ -7,7 +7,6 @@ use App\Permission;
 use App\Role;
 use App\Room;
 use App\Server;
-use App\ServerPool;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
