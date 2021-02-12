@@ -30,7 +30,8 @@ class MeetingController extends Controller
         $resource = Meeting::query()
             ->join('rooms as room', 'meetings.room_id', '=', 'room.id')
             ->join('users as user', 'room.user_id', '=', 'user.id')
-            ->join('servers as server', 'meetings.server_id', '=', 'server.id');
+            ->join('servers as server', 'meetings.server_id', '=', 'server.id')
+            ->select('meetings.*');
 
         // Filter only running meetings
         $resource = $resource->whereNull('end');
