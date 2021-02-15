@@ -7,7 +7,7 @@ import BootstrapVue, {
   BForm,
   BModal,
   BFormInput,
-  BInputGroupAppend
+  BInputGroupAppend, BFormCheckbox
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
@@ -403,6 +403,65 @@ describe('UsersView', function () {
     });
   });
 
+  it('if generate_password is true the password fields does not get sent with the create request', function (done) {
+    const spy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 'new',
+          type: 'edit'
+        }
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
+      const inputs = view.findAllComponents(BFormInput);
+      inputs.at(0).setValue('Max').then(() => {
+        return inputs.at(1).setValue('Mustermann');
+      }).then(() => {
+        return inputs.at(2).setValue('max@mustermann.de');
+      }).then(() => {
+        const selects = view.findAllComponents(BFormSelect);
+        return selects.at(0).setValue('de');
+      }).then(() => {
+        view.vm.model.roles.push(rolesResponse1.data[2]);
+        return view.vm.$nextTick();
+      }).then(() => {
+        const checkboxes = view.findAllComponents(BFormCheckbox);
+        return checkboxes.at(0).get('input').trigger('click');
+      }).then(() => {
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          const data = JSON.parse(request.config.data);
+
+          expect(data.firstname).toBe('Max');
+          expect(data.lastname).toBe('Mustermann');
+          expect(data.email).toBe('max@mustermann.de');
+          expect(data.password).toBe(undefined);
+          expect(data.password_confirmation).toBe(undefined);
+          expect(data.roles).toStrictEqual([3]);
+          expect(data.user_locale).toBe('de');
+          expect(data.generate_password).toBe(true);
+
+          done();
+        });
+      });
+    });
+  });
+
   it('specific fields gets disabled for not database users', function (done) {
     const view = mount(View, {
       localVue,
@@ -549,6 +608,7 @@ describe('UsersView', function () {
           expect(data.password_confirmation).toBe('Test_123');
           expect(data.roles).toStrictEqual([1, 2, 3]);
           expect(data.user_locale).toBe('de');
+          expect(data.generate_password).toBe(undefined);
 
           const restoreUserResponse = overrideStub('/api/v1/users/2', {
             status: 204

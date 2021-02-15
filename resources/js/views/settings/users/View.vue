@@ -523,6 +523,11 @@ export default {
 
       if (this.config.id === 'new') {
         config.data.generate_password = this.generate_password;
+
+        if (this.generate_password) {
+          delete config.data.password;
+          delete config.data.password_confirmation;
+        }
       }
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
