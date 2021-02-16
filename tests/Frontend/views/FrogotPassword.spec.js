@@ -52,7 +52,7 @@ describe('ForgotPassword', function () {
     const view = mount(ForgotPassword, {
       localVue,
       mocks: {
-        $t: (key) => key,
+        $t: (key) => key
       }
     });
 
