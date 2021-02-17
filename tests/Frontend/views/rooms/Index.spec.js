@@ -212,6 +212,14 @@ describe('Room Index', function () {
       expect(rooms.at(1).get('small').text()).toEqual('Max Doe');
       expect(rooms.at(1).get('.roomicon').text()).toEqual('VL');
 
+      // check if all room types are shown
+      const roomTypes = view.findAll('[name="room-types-checkbox"]');
+      expect(roomTypes.length).toEqual(4);
+      expect(roomTypes.at(0).element.parentElement.children[1].children[0].innerHTML).toEqual('Vorlesung');
+      expect(roomTypes.at(1).element.parentElement.children[1].children[0].innerHTML).toEqual('Meeting');
+      expect(roomTypes.at(2).element.parentElement.children[1].children[0].innerHTML).toEqual('Pr\u00fcfung');
+      expect(roomTypes.at(3).element.parentElement.children[1].children[0].innerHTML).toEqual('\u00dcbung');
+
       // open a room
       await rooms.at(1).trigger('click');
       sinon.assert.calledOnce(spy);
@@ -285,6 +293,72 @@ describe('Room Index', function () {
         expect(view.findAllComponents(BListGroupItem).length).toEqual(2);
         expect(view.findComponent(BFormInput).props('disabled')).toBeFalsy();
         expect(view.findComponent(BPagination).props('disabled')).toBeFalsy();
+        expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
+
+        restoreRoomResponse();
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
+    });
+  });
+
+  it('error loading room types', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    // respond with server error for room type load
+    moxios.stubRequest('/api/v1/rooms?page=1', {
+      status: 200,
+      response: exampleRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      // check apply filter button disabled after an error occurred
+      expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
+      expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
+
+      // check if error message is shown
+      sinon.assert.calledOnce(Base.error);
+      Base.error.restore();
+
+      // restore valid response
+      const restoreRoomResponse = overrideStub('/api/v1/roomTypes', {
+        status: 200,
+        response: exampleRoomTypeResponse
+      });
+
+      // check if reload button is shown and if a click reloads the resource
+      const reloadButton = view.findAllComponents(BCol).at(2).findComponent(BOverlay).findComponent(BButton);
+      expect(reloadButton.text()).toEqual('app.reload');
+      await reloadButton.trigger('click');
+
+      moxios.wait(async () => {
+        expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/roomTypes');
+
+        // check if all room types are shown and the apply filter button is active
+        const roomTypes = view.findAll('[name="room-types-checkbox"]');
+        expect(roomTypes.length).toEqual(4);
+        expect(view.findAllComponents(BButton).at(0).text()).toEqual('rooms.filter.apply');
         expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
 
         restoreRoomResponse();
