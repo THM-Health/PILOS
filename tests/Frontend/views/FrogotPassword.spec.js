@@ -24,28 +24,28 @@ describe('ForgotPassword', function () {
   });
 
   it('before route enter redirects to the 404 page if the self reset is disabled', function (done) {
-    store.__Rewire__('getters', { 'session/settings': () => false });
+    const oldState = store.state['session/settings'];
+    store.commit('session/setSettings', { password_self_reset_enabled: false });
 
     ForgotPassword.beforeRouteEnter({}, {}, (to) => {
       expect(to).toBe('/404');
-      store.__ResetDependency__('getters');
+      store.commit('session/setSettings', oldState);
       done();
     });
   });
 
   it('before route enter continues to the view if the self reset is enabled', function (done) {
-    store.__Rewire__('getters', { 'session/settings': () => true });
+    const oldState = store.state['session/settings'];
+    store.commit('session/setSettings', { password_self_reset_enabled: true });
 
     ForgotPassword.beforeRouteEnter({}, {}, (to) => {
       expect(to).toBe(undefined);
-      store.__ResetDependency__('getters');
+      store.commit('session/setSettings', oldState);
       done();
     });
   });
 
   it('submit handles errors correctly', function (done) {
-    store.__Rewire__('getters', { 'session/settings': () => true });
-
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -69,7 +69,6 @@ describe('ForgotPassword', function () {
           expect(spy.getCall(0).args[0].response.status).toEqual(500);
 
           Base.error.restore();
-          store.__ResetDependency__('getters');
           done();
         });
       });
@@ -77,8 +76,6 @@ describe('ForgotPassword', function () {
   });
 
   it('submit redirects to home page withe a success message on success', function (done) {
-    store.__Rewire__('getters', { 'session/settings': () => true });
-
     const routerSpy = sinon.spy();
 
     const router = new VueRouter();
@@ -117,7 +114,6 @@ describe('ForgotPassword', function () {
               sinon.assert.calledWith(routerSpy, { name: 'home' });
               expect(flashMessageSpy.calledOnce).toBeTruthy();
               expect(flashMessageSpy.getCall(0).args[0]).toEqual({ title: 'Success!' });
-              store.__ResetDependency__('getters');
               done();
             });
           });
