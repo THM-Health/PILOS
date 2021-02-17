@@ -65,7 +65,7 @@ function overrideStub (url, response) {
   }
 }
 
-describe('RoomList', function () {
+describe('Own Room Index', function () {
   beforeEach(function () {
     moxios.install();
   });

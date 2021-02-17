@@ -17,6 +17,7 @@
             v-model='filter'
             :placeholder="$t('app.search')"
             :debounce='200'
+            :disabled="loadingError"
           ></b-form-input>
           <b-input-group-append>
             <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
@@ -50,11 +51,11 @@
               stacked
               text-field="description"
               value-field="id"
-              name="flavour-1a"
+              name="room-types-checkbox"
             ></b-form-checkbox-group>
           </b-overlay>
         </div>
-        <b-button :disabled="isBusy || roomTypesBusy || roomTypesLoadingError" class="mt-3" variant="success" @click="applyFilter"><i class="fas fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
+        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="success" @click="applyFilter"><i class="fas fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
       </b-col>
       <b-col lg="9" order="1" order-lg="2">
 
@@ -65,7 +66,7 @@
               <b-spinner v-if="isBusy" ></b-spinner>
               <b-button
                 v-else
-                @click="loadRooms()"
+                @click="loadRooms"
               >
                 <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
               </b-button>
@@ -118,7 +119,7 @@ export default {
       isBusy: false,
       loadingError: false,
       openRoom: false,
-      currentPage: undefined,
+      currentPage: 1,
       total: undefined,
       perPage: undefined,
       actionPermissions: [],
