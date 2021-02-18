@@ -10,6 +10,7 @@
         <b-input-group>
           <b-form-input
             v-model='filter'
+            :disabled="loadingError"
             :placeholder="$t('app.search')"
             :debounce='200'
           ></b-form-input>
@@ -21,7 +22,21 @@
     </b-row>
     <hr>
 
-    <b-table
+    <b-overlay  :show="loadingError" >
+
+      <template #overlay>
+        <div class="text-center my-2">
+          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-button
+            v-else
+            @click="$root.$emit('bv::refresh::table', 'meetings-table')"
+          >
+            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+          </b-button>
+        </div>
+      </template>
+
+      <b-table
       fixed
       hover
       stacked='lg'
@@ -122,15 +137,16 @@
       </template>
     </b-table>
 
-    <b-pagination
-      v-model='currentPage'
-      :total-rows='total'
-      :per-page='perPage'
-      aria-controls='meetings-table'
-      @input="$root.$emit('bv::refresh::table', 'meetings-table')"
-      align='center'
-      :disabled='isBusy'
-    ></b-pagination>
+      <b-pagination
+        v-model='currentPage'
+        :total-rows='total'
+        :per-page='perPage'
+        aria-controls='meetings-table'
+        @input="$root.$emit('bv::refresh::table', 'meetings-table')"
+        align='center'
+        :disabled='isBusy || loadingError'
+      ></b-pagination>
+    </b-overlay>
   </b-container>
 </template>
 
@@ -161,6 +177,7 @@ export default {
   data () {
     return {
       isBusy: false,
+      loadingError: false,
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
@@ -200,7 +217,9 @@ export default {
         this.currentPage = response.data.meta.current_page;
         this.total = response.data.meta.total;
         data = response.data.data;
+        this.loadingError = false;
       }).catch(error => {
+        this.loadingError = true;
         Base.error(error, this.$root, error.message);
       }).finally(() => {
         callback(data);
