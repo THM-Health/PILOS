@@ -21,14 +21,14 @@ class PasswordResetTest extends TestCase
         $this->user = factory(User::class)->create([
             'firstname' => 'Max',
             'lastname'  => 'Mustermann',
-            'email' => 'test@test.de',
-            'locale' => 'de'
+            'email'     => 'test@test.de',
+            'locale'    => 'de'
         ]);
     }
 
     public function testAddsCorrectDataToMail()
     {
-        $date = Carbon::now();
+        $date        = Carbon::now();
         $userWelcome = new PasswordReset('1234', $date);
 
         $locale = Carbon::getLocale();
