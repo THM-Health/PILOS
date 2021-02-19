@@ -41,13 +41,17 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
               </b-form-group>
 
-              <div class='text-danger' v-if='fieldState("email") === false'>
-                {{ fieldError('email') }}
-              </div>
+              <b-form-invalid-feedback  v-if='fieldState("email") === false'>
+                <template>
+                  {{ fieldError('email') }}
+                </template>
+              </b-form-invalid-feedback>
 
-              <div class='text-danger' v-if='fieldState("token") === false'>
-                {{ fieldError('token') }}
-              </div>
+              <b-form-invalid-feedback  v-if='fieldState("token") === false'>
+                <template>
+                  {{ fieldError('token') }}
+                </template>
+              </b-form-invalid-feedback>
 
               <b-button type='submit' variant='success' :disabled="loading" block>
                 <b-spinner v-if="loading" small></b-spinner>
