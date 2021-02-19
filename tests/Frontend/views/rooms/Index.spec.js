@@ -177,8 +177,9 @@ describe('Room Index', function () {
       expect(view.vm.$data.roomTypesBusy).toBeTruthy();
       expect(view.findAllComponents(BSpinner).length).toEqual(2);
       expect(view.findComponent(BPagination).props('disabled')).toBeTruthy();
-      expect(view.findAllComponents(BButton).at(0).text()).toEqual('rooms.filter.apply');
       expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeTruthy();
+      expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
+      expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
 
       // respond with example data to room and roomType requests
       expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
@@ -197,7 +198,8 @@ describe('Room Index', function () {
       expect(view.vm.$data.isBusy).toBeFalsy();
       expect(view.vm.$data.roomTypesBusy).toBeFalsy();
       expect(view.findComponent(BPagination).props('disabled')).toBeFalsy();
-      expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
+      expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeUndefined();
+      expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeUndefined();
       expect(view.findAllComponents(BSpinner).length).toEqual(0);
 
       // check rooms appear in the list
@@ -268,8 +270,9 @@ describe('Room Index', function () {
       // check buttons and input fields are disabled after an error occurred
       expect(view.findComponent(BFormInput).props('disabled')).toBeTruthy();
       expect(view.findComponent(BPagination).props('disabled')).toBeTruthy();
-      expect(view.findAllComponents(BButton).at(0).text()).toEqual('rooms.filter.apply');
       expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeTruthy();
+      expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
+      expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
 
       // check if error message is shown
       sinon.assert.calledOnce(Base.error);
@@ -294,6 +297,7 @@ describe('Room Index', function () {
         expect(view.findComponent(BFormInput).props('disabled')).toBeFalsy();
         expect(view.findComponent(BPagination).props('disabled')).toBeFalsy();
         expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
+        expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeFalsy();
 
         restoreRoomResponse();
         PermissionService.setCurrentUser(oldUser);
@@ -334,8 +338,8 @@ describe('Room Index', function () {
       await view.vm.$nextTick();
 
       // check apply filter button disabled after an error occurred
-      expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
-      expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
+      expect(view.findAllComponents(BButton).at(2).text()).toEqual('rooms.filter.apply');
+      expect(view.findAllComponents(BButton).at(2).attributes('disabled')).toBeTruthy();
 
       // check if error message is shown
       sinon.assert.calledOnce(Base.error);
@@ -358,8 +362,8 @@ describe('Room Index', function () {
         // check if all room types are shown and the apply filter button is active
         const roomTypes = view.findAll('[name="room-types-checkbox"]');
         expect(roomTypes.length).toEqual(4);
-        expect(view.findAllComponents(BButton).at(0).text()).toEqual('rooms.filter.apply');
-        expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
+        expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
+        expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeFalsy();
 
         restoreRoomResponse();
         PermissionService.setCurrentUser(oldUser);
@@ -396,93 +400,93 @@ describe('Room Index', function () {
 
       await view.vm.$nextTick();
 
-      // enter search query and wait for debounce time
+      // enter search query and click search button
       await view.findComponent(BFormInput).setValue('Meeting');
-      setTimeout(async () => {
-        // check if new request with the search query is send
+      await view.findAllComponents(BButton).trigger('click');
+
+      // check if new request with the search query is send
+      moxios.wait(async () => {
+        expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
+        expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [] });
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            data: [
+              {
+                id: 'abc-def-123',
+                name: 'Meeting One',
+                owner: 'John Doe',
+                type: {
+                  id: 2,
+                  short: 'ME',
+                  description: 'Meeting',
+                  color: '#4a5c66',
+                  default: false
+                }
+              }
+            ],
+            meta: {
+              current_page: 1,
+              from: 1,
+              last_page: 1,
+              per_page: 10,
+              to: 1,
+              total: 1
+            }
+          }
+        });
+
+        // check if room list was updated
+        await view.vm.$nextTick();
+        const rooms = view.findAllComponents(BListGroupItem);
+        expect(rooms.length).toEqual(1);
+        expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
+        expect(rooms.at(0).get('small').text()).toEqual('John Doe');
+        expect(rooms.at(0).get('.roomicon').text()).toEqual('ME');
+
+        // check if no room info is missing
+        expect(view.find('em').exists()).toBeFalsy();
+
+        // find room type checkboxes and select two
+        const roomTypes = view.findAll('[name="room-types-checkbox"]');
+        expect(roomTypes.length).toEqual(4);
+        await roomTypes.at(0).setChecked(true);
+        await roomTypes.at(2).setChecked(true);
+
+        // find apply filter button and click to apply filter
+        const applyFilter = view.findAllComponents(BButton).at(1);
+        expect(applyFilter.text()).toEqual('rooms.filter.apply');
+        await applyFilter.trigger('click');
+
         moxios.wait(async () => {
+          // check if the search query and the room filter are send, respond with no rooms found
           expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-          expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [] });
+          expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [1, 3] });
           await moxios.requests.mostRecent().respondWith({
             status: 200,
             response: {
-              data: [
-                {
-                  id: 'abc-def-123',
-                  name: 'Meeting One',
-                  owner: 'John Doe',
-                  type: {
-                    id: 2,
-                    short: 'ME',
-                    description: 'Meeting',
-                    color: '#4a5c66',
-                    default: false
-                  }
-                }
-              ],
+              data: [],
               meta: {
                 current_page: 1,
-                from: 1,
+                from: null,
                 last_page: 1,
                 per_page: 10,
-                to: 1,
-                total: 1
+                to: null,
+                total: 0
               }
             }
           });
 
-          // check if room list was updated
+          // check if room list is empty and noRoomsAvailable message is shown
           await view.vm.$nextTick();
-          const rooms = view.findAllComponents(BListGroupItem);
-          expect(rooms.length).toEqual(1);
-          expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
-          expect(rooms.at(0).get('small').text()).toEqual('John Doe');
-          expect(rooms.at(0).get('.roomicon').text()).toEqual('ME');
+          expect(view.findAllComponents(BListGroupItem).length).toEqual(0);
+          expect(view.find('em').text()).toEqual('rooms.noRoomsAvailable');
 
-          // check if no room info is missing
-          expect(view.find('em').exists()).toBeFalsy();
-
-          // find room type checkboxes and select two
-          const roomTypes = view.findAll('[name="room-types-checkbox"]');
-          expect(roomTypes.length).toEqual(4);
-          await roomTypes.at(0).setChecked(true);
-          await roomTypes.at(2).setChecked(true);
-
-          // find apply filter button and click to apply filter
-          const applyFilter = view.findAllComponents(BButton).at(0);
-          expect(applyFilter.text()).toEqual('rooms.filter.apply');
-          await applyFilter.trigger('click');
-
-          moxios.wait(async () => {
-            // check if the search query and the room filter are send, respond with no rooms found
-            expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-            expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [1, 3] });
-            await moxios.requests.mostRecent().respondWith({
-              status: 200,
-              response: {
-                data: [],
-                meta: {
-                  current_page: 1,
-                  from: null,
-                  last_page: 1,
-                  per_page: 10,
-                  to: null,
-                  total: 0
-                }
-              }
-            });
-
-            // check if room list is empty and noRoomsAvailable message is shown
-            await view.vm.$nextTick();
-            expect(view.findAllComponents(BListGroupItem).length).toEqual(0);
-            expect(view.find('em').text()).toEqual('rooms.noRoomsAvailable');
-
-            PermissionService.setCurrentUser(oldUser);
-            view.destroy();
-            done();
-          });
+          PermissionService.setCurrentUser(oldUser);
+          view.destroy();
+          done();
         });
-      }, view.findComponent(BFormInput).props('debounce'));
+      });
     });
   });
 });

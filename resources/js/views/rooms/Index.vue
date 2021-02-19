@@ -13,14 +13,9 @@
       </b-col>
       <b-col md="3">
         <b-input-group>
-          <b-form-input
-            v-model='filter'
-            :placeholder="$t('app.search')"
-            :debounce='200'
-            :disabled="loadingError"
-          ></b-form-input>
+          <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
+            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="success"><b-icon icon="search"></b-icon></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -46,16 +41,17 @@
             </template>
 
             <b-form-checkbox-group
-              v-model="selectedRoomTypes"
+              v-model="filterRoomTypes"
               :options="roomTypes"
               stacked
               text-field="description"
               value-field="id"
               name="room-types-checkbox"
+              :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError"
             ></b-form-checkbox-group>
           </b-overlay>
         </div>
-        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="success" @click="applyFilter"><i class="fas fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
+        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="success" @click="loadRooms"><i class="fas fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
       </b-col>
       <b-col lg="9" order="1" order-lg="2">
 
@@ -107,7 +103,6 @@
 
 <script>
 import Base from '../../api/base';
-import _ from 'lodash';
 import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
 
@@ -126,19 +121,10 @@ export default {
       filter: undefined,
       rooms: [],
       roomTypes: [],
-      selectedRoomTypes: [],
       filterRoomTypes: [],
       roomTypesBusy: false,
       roomTypesLoadingError: false
     };
-  },
-
-  watch: {
-
-    filter: function () {
-      this.loadRooms();
-    }
-
   },
 
   mounted () {
@@ -179,7 +165,9 @@ export default {
       });
     },
 
-    // Load the room types
+    /**
+     * Load the room types
+     */
     loadRoomTypes () {
       this.roomTypesBusy = true;
       Base.call('roomTypes').then(response => {
@@ -193,11 +181,10 @@ export default {
       });
     },
 
-    applyFilter () {
-      this.filterRoomTypes = _.clone(this.selectedRoomTypes);
-      this.loadRooms();
-    },
-
+    /**
+     * Open room view
+     * @param room
+     */
     open: function (room) {
       this.openRoom = true;
       this.$router.push({ name: 'rooms.view', params: { id: room.id } });
@@ -205,7 +192,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-
-</style>
