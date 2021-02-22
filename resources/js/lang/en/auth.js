@@ -4,8 +4,11 @@ export default {
   password: 'Password',
   forgotPassword: 'Forgot password?',
   resetPassword: 'Reset password',
+  changePassword: 'Change password',
+  setPassword: 'Set password',
   sendPasswordResetLink: 'Send password reset link',
   inputNewPassword: 'Set new password',
+  inputNewPasswordNewUser: 'Set password for new user account',
 
   ldap: {
     tabTitle: 'LDAP',

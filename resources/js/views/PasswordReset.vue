@@ -4,7 +4,7 @@
       <div class='col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3'>
         <b-card no-body bg-variant='light'>
           <div class='m-3'>
-            <h5>{{ $t('auth.inputNewPassword') }}</h5>
+            <h5>{{ welcome ? $t('auth.inputNewPasswordNewUser') : $t('auth.inputNewPassword') }}</h5>
             <b-form @submit.prevent="submit">
               <b-form-group
                 label-cols-sm='3'
@@ -55,7 +55,7 @@
 
               <b-button type='submit' variant='success' :disabled="loading" block>
                 <b-spinner v-if="loading" small></b-spinner>
-                {{ $t('auth.resetPassword') }}
+                {{ welcome ? $t('auth.setPassword') : $t('auth.changePassword') }}
               </b-button>
             </b-form>
           </div>
@@ -83,6 +83,11 @@ export default {
     email: {
       type: String,
       default: null
+    },
+
+    welcome: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -94,7 +99,6 @@ export default {
       password_confirmation: null
     };
   },
-
   methods: {
     /**
      * Sends a request with a new password to set for the given email through the query parameters

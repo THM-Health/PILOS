@@ -64,7 +64,8 @@ class UserWelcome extends Notification
     {
         $url = url('/reset_password?') . \Arr::query([
             'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset()
+            'email' => $notifiable->getEmailForPasswordReset(),
+            'welcome' => true
         ]);
 
         $locale = Carbon::getLocale();
