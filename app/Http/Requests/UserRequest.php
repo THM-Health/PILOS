@@ -18,6 +18,7 @@ class UserRequest extends FormRequest
         $rules = [
             'user_locale'           => ['required', 'string', Rule::in(config('app.available_locales'))],
             'bbb_skip_check_audio'  => 'required|boolean',
+            'timezone'              => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'roles'                 => 'required|array',
             'roles.*'               => 'distinct|exists:App\Role,id'
         ];

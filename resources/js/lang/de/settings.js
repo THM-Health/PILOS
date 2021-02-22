@@ -93,7 +93,8 @@ export default {
     },
 
     resetPassword: 'Passwort für den Benutzer {firstname} {lastname} zurücksetzen',
-    passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!'
+    passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!',
+    timezone: 'Zeitzone'
   },
 
   roomTypes: {

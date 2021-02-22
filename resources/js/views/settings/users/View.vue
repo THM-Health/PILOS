@@ -118,6 +118,25 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
+                :label="$t('settings.users.timezone')"
+                label-for='timezone'
+                :state='fieldState("timezone")'
+              >
+                <b-form-select
+                  :options='model.timezones'
+                  id='timezone'
+                  v-model='model.timezone'
+                  :state='fieldState("timezone")'
+                  :disabled="isBusy || modelLoadingError || config.type === 'view'"
+                >
+                  <template v-slot:first>
+                    <b-form-select-option :value="null" disabled>{{ $t('settings.users.timezone') }}</b-form-select-option>
+                  </template>
+                </b-form-select>
+                <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+              </b-form-group>
+              <b-form-group
+                label-cols-sm='3'
                 :label="$t('settings.users.roles')"
                 label-for='roles'
                 :state='fieldState("roles", true)'

@@ -22,7 +22,8 @@ class PasswordResetTest extends TestCase
             'firstname' => 'Max',
             'lastname'  => 'Mustermann',
             'email'     => 'test@test.de',
-            'locale'    => 'de'
+            'locale'    => 'de',
+            'timezone'  => 'Europe/Berlin'
         ]);
     }
 
@@ -33,7 +34,10 @@ class PasswordResetTest extends TestCase
 
         $locale = Carbon::getLocale();
         Carbon::setLocale('de');
-        $date = $date->isoFormat('LLLL');
+        $date = $date->clone()
+            ->addMinutes(config('auth.passwords.users.expire'))
+            ->timezone('Europe/Berlin')
+            ->isoFormat('LLLL');
         Carbon::setLocale($locale);
 
         $url = url('/reset_password?') . \Arr::query([

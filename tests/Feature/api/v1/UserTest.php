@@ -194,7 +194,8 @@ class UserTest extends TestCase
             'user_locale' => 451,
             'email'       => 'test',
             'password'    => 'aT2wqw_2',
-            'roles'       => [99]
+            'roles'       => [99],
+            'timezone'    => 'Europe/Berlin'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
@@ -216,7 +217,8 @@ class UserTest extends TestCase
             'password_confirmation' => 'aT2wqw_2',
             'roles'                 => [$role->id],
             'authenticator'         => 'ldap',
-            'bbb_skip_check_audio'  => 'test'
+            'bbb_skip_check_audio'  => 'test',
+            'timezone'              => 'UTC'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
@@ -259,7 +261,8 @@ class UserTest extends TestCase
             'roles'                => [$newRole->id],
             'username'             => $user->username,
             'user_locale'          => 'de',
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'Foo/Bar'
         ];
 
         $userToUpdate = factory(User::class)->create();
@@ -304,9 +307,10 @@ class UserTest extends TestCase
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
-            ->assertJsonValidationErrors('password');
+            ->assertJsonValidationErrors(['password', 'timezone']);
 
         $changes['password_confirmation'] = 'Test2_34T';
+        $changes['timezone']              = 'Europe/Berlin';
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -349,7 +353,8 @@ class UserTest extends TestCase
             'username'             => $userToUpdate->username,
             'user_locale'          => 'de',
             'updated_at'           => $userToUpdate->updated_at,
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'UTC'
         ])
         ->assertSuccessful()
         ->assertJsonFragment(['roles' => [['id' => $newRole->id, 'name' => $newRole->name, 'automatic' => false]]]);
@@ -365,7 +370,8 @@ class UserTest extends TestCase
             'updated_at'           => $ldapUserToUpdate->updated_at,
             'user_locale'          => 'de',
             'authenticator'        => 'users',
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'UTC'
         ])
         ->assertSuccessful()
         ->assertJsonFragment([
@@ -559,7 +565,8 @@ class UserTest extends TestCase
             'generate_password'     => true,
             'roles'                 => [$role->id],
             'authenticator'         => 'users',
-            'bbb_skip_check_audio'  => false
+            'bbb_skip_check_audio'  => false,
+            'timezone'              => 'UTC'
         ]))
             ->assertSuccessful();
         $newUser = User::find($response->json('data.id'));

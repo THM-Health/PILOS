@@ -25,7 +25,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles,withTimezones', ['only' => 'update']);
     }
 
     /**
@@ -81,6 +81,7 @@ class UserController extends Controller
         $user->email                = $request->email;
         $user->locale               = $request->user_locale;
         $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
+        $user->timezone             = $request->timezone;
 
         if (!$request->generate_password) {
             $user->password = Hash::make($request->password);
@@ -107,7 +108,7 @@ class UserController extends Controller
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
         }
 
-        return (new UserResource($user))->withRoles();
+        return (new UserResource($user))->withRoles()->withTimezones();
     }
 
     /**
@@ -118,7 +119,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return (new UserResource($user))->withRoles();
+        return (new UserResource($user))->withRoles()->withTimezones();
     }
 
     /**
@@ -149,6 +150,7 @@ class UserController extends Controller
         }
 
         $user->locale               = $request->user_locale;
+        $user->timezone             = $request->timezone;
         $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
         $user->touch();
         $user->save();
@@ -161,7 +163,7 @@ class UserController extends Controller
 
         $user->refresh();
 
-        return (new UserResource($user))->withRoles();
+        return (new UserResource($user))->withRoles()->withTimezones();
     }
 
     /**

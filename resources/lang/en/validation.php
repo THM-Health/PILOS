@@ -246,7 +246,8 @@ return [
         'server_pool'                       => 'Server pool',
         'icon_text'                         => 'Icon text',
         'color'                             => 'Color',
-        'password_self_reset_enabled'       => 'Give registered users the possibility to reset their password'
+        'password_self_reset_enabled'       => 'Give registered users the possibility to reset their password',
+        'timezone'                          => 'Timezone'
     ],
 
 ];

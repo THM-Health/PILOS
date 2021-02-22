@@ -89,7 +89,8 @@ export default {
     },
 
     resetPassword: 'Reset password for the user {firstname} {lastname}',
-    passwordResetSuccess: 'Password reset mail was successfully send to {mail}!'
+    passwordResetSuccess: 'Password reset mail was successfully send to {mail}!',
+    timezone: 'Timezone'
   },
 
   roomTypes: {

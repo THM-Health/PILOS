@@ -355,7 +355,7 @@ describe('UsersView', function () {
         expect(input.vm.disabled).toBe(true);
       });
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       selects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(true);
       });
@@ -390,7 +390,7 @@ describe('UsersView', function () {
         expect(input.vm.disabled).toBe(false);
       });
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       selects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(false);
       });
@@ -484,7 +484,7 @@ describe('UsersView', function () {
         expect(input.vm.disabled).toBe(true);
       });
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       selects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(false);
       });
@@ -546,7 +546,7 @@ describe('UsersView', function () {
       expect(inputs.at(4).element.value).toBe('');
 
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       expect(selects.at(0).element.value).toBe('en');
 
       const multiSelects = view.findAllComponents(Multiselect);

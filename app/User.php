@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'firstname', 'lastname', 'email', 'password', 'username', 'guid', 'domain', 'locale', 'bbb_skip_check_audio',
-        'initial_password_set'
+        'initial_password_set', 'timezone'
     ];
 
     /**

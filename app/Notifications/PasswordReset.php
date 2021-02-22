@@ -69,7 +69,10 @@ class PasswordReset extends Notification
 
         $locale = Carbon::getLocale();
         Carbon::setLocale($notifiable->locale);
-        $date = $this->expireDate->isoFormat('LLLL');
+        $date = $this->expireDate
+            ->addMinutes(config('auth.passwords.users.expire'))
+            ->timezone($notifiable->timezone)
+            ->isoFormat('LLLL');
         Carbon::setLocale($locale);
 
         return (new MailMessage)

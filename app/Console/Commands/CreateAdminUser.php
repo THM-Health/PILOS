@@ -66,6 +66,7 @@ class CreateAdminUser extends Command
         $data['generate_password']     = false;
         $data['bbb_skip_check_audio']  = $this->confirm('Skip audio check on joining rooms?');
         $data['roles']                 = $roles;
+        $data['timezone']              = 'UTC';
 
         $validator = Validator::make($data, (new UserRequest())->rules());
 
