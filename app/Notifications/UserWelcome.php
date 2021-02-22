@@ -63,8 +63,8 @@ class UserWelcome extends Notification
     public function toMail($notifiable)
     {
         $url = url('/reset_password?') . \Arr::query([
-            'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset(),
+            'token'   => $this->token,
+            'email'   => $notifiable->getEmailForPasswordReset(),
             'welcome' => true
         ]);
 
