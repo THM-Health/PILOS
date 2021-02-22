@@ -581,10 +581,11 @@ describe('Router', function () {
     });
 
     it('props for reset_password should return the passed parameters correctly', function () {
-      expect(propsPasswordReset({ query: {} })).toEqual({ token: undefined, email: undefined });
-      expect(propsPasswordReset({ query: { token: 'foo' } })).toEqual({ token: 'foo', email: undefined });
-      expect(propsPasswordReset({ query: { email: 'bar' } })).toEqual({ token: undefined, email: 'bar' });
-      expect(propsPasswordReset({ query: { token: 'foo', email: 'bar' } })).toEqual({ token: 'foo', email: 'bar' });
+      expect(propsPasswordReset({ query: {} })).toEqual({ token: undefined, email: undefined, welcome: false });
+      expect(propsPasswordReset({ query: { token: 'foo' } })).toEqual({ token: 'foo', email: undefined, welcome: false });
+      expect(propsPasswordReset({ query: { email: 'bar' } })).toEqual({ token: undefined, email: 'bar', welcome: false });
+      expect(propsPasswordReset({ query: { token: 'foo', email: 'bar' } })).toEqual({ token: 'foo', email: 'bar', welcome: false });
+      expect(propsPasswordReset({ query: { token: 'foo', email: 'bar', welcome: 'true' } })).toEqual({ token: 'foo', email: 'bar', welcome: true });
     });
   });
 });
