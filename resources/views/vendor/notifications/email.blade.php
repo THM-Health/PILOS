@@ -1,4 +1,11 @@
-@component('mail::message')
+@component('mail::layout')
+
+{{-- Header --}}
+@slot('header')
+@component('mail::header', ['url' => config('app.url')])
+<img src="{{config('app.url')}}{{ setting('logo') }}" class="logo" alt="Logo {{setting('name')}}">
+@endcomponent
+@endslot
 
 # @lang('mail.greeting', ['name' => $notifiable->fullname], $notifiable->locale)
 
@@ -33,7 +40,7 @@
 
 {{-- Salutation --}}
 @lang('mail.regards', [], $notifiable->locale),<br>
-{{ config('app.name') }}
+{{ setting('name') }}
 
 {{-- Subcopy --}}
 @isset($actionText)
@@ -41,4 +48,12 @@
 @lang('mail.action_url', [ 'actionText' => $actionText ], $notifiable->locale) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span>
 @endslot
 @endisset
+
+{{-- Footer --}}
+@slot('footer')
+    @component('mail::footer')
+        © {{ date('Y') }} {{ setting('name') }}. @lang('All rights reserved.')
+    @endcomponent
+@endslot
+
 @endcomponent
