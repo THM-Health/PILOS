@@ -45,7 +45,9 @@
 {{-- Subcopy --}}
 @isset($actionText)
 @slot('subcopy')
+@component('mail::subcopy')
 @lang('mail.action_url', [ 'actionText' => $actionText ], $notifiable->locale) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span>
+@endcomponent
 @endslot
 @endisset
 
