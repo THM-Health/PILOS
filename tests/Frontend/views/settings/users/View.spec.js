@@ -176,6 +176,9 @@ describe('UsersView', function () {
               state[name] += 1;
             }
           },
+          getters: {
+            settings: () => (setting) => null
+          },
           state: () => ({
             currentLocale: 'en',
             logoutCount: 0,
@@ -205,6 +208,7 @@ describe('UsersView', function () {
   it('user name in title gets shown for detail view', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key, values) => ['settings.users.view', 'settings.users.edit'].includes(key) ? `${key} ${values.firstname} ${values.lastname}` : key,
         $te: () => false
@@ -226,6 +230,7 @@ describe('UsersView', function () {
   it('user name in title gets shown for update view', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key, values) => ['settings.users.view', 'settings.users.edit'].includes(key) ? `${key} ${values.firstname} ${values.lastname}` : key,
         $te: () => false
@@ -265,6 +270,7 @@ describe('UsersView', function () {
 
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -291,6 +297,7 @@ describe('UsersView', function () {
   it('roles can not be modified for the own user', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -312,6 +319,7 @@ describe('UsersView', function () {
   it('automatic assigned roles can not be deselected', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -336,6 +344,7 @@ describe('UsersView', function () {
   it('input fields gets disabled when viewing the user in view only mode', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -371,6 +380,7 @@ describe('UsersView', function () {
   it('all inputs fields shown and enabled on new page', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -465,6 +475,7 @@ describe('UsersView', function () {
   it('specific fields gets disabled for not database users', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -500,6 +511,7 @@ describe('UsersView', function () {
   it('back button is not shown on the profile page of an user', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -524,6 +536,7 @@ describe('UsersView', function () {
   it('persisted data gets loaded and shown', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false

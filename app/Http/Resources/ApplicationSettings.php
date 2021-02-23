@@ -65,10 +65,10 @@ class ApplicationSettings extends JsonResource
                     'link_target' => setting('banner.link_target'),
                 ])
             ],
+            'timezones' => timezone_identifiers_list(),
             $this->mergeWhen($this->allSettings, [
                 'link_btn_styles' => LinkButtonStyle::getValues(),
-                'link_targets'    => LinkTarget::getValues(),
-                'timezones'       => timezone_identifiers_list()
+                'link_targets'    => LinkTarget::getValues()
             ])
         ];
     }

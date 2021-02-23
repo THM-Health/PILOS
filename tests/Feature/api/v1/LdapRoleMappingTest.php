@@ -190,6 +190,7 @@ class LdapRoleMappingTest extends TestCase
             'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
             'ldap.roleMap'           => $this->roleMap
         ]);
+        setting(['default_timezone' => 'Europe/London']);
 
         $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
             'username' => $this->ldapUser->uid[0],
@@ -202,6 +203,7 @@ class LdapRoleMappingTest extends TestCase
         $roleNames = array_map(function ($role) {
             return $role->name;
         }, $user->roles->all());
+        $this->assertEquals('Europe/London', $user->timezone);
         $this->assertCount(1, $roleNames);
         $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
     }

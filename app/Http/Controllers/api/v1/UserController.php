@@ -25,7 +25,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles,withTimezones', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles', ['only' => 'update']);
     }
 
     /**
@@ -108,7 +108,7 @@ class UserController extends Controller
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
         }
 
-        return (new UserResource($user))->withRoles()->withTimezones();
+        return (new UserResource($user))->withRoles();
     }
 
     /**
@@ -119,7 +119,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return (new UserResource($user))->withRoles()->withTimezones();
+        return (new UserResource($user))->withRoles();
     }
 
     /**
@@ -163,7 +163,7 @@ class UserController extends Controller
 
         $user->refresh();
 
-        return (new UserResource($user))->withRoles()->withTimezones();
+        return (new UserResource($user))->withRoles();
     }
 
     /**

@@ -123,7 +123,7 @@
                 :state='fieldState("timezone")'
               >
                 <b-form-select
-                  :options='model.timezones'
+                  :options="settings('timezones')"
                   id='timezone'
                   v-model='model.timezone'
                   :state='fieldState("timezone")'
@@ -342,6 +342,7 @@ import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
 import _ from 'lodash';
+import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors],
@@ -362,7 +363,11 @@ export default {
             text: LocaleMap[key]
           };
         });
-    }
+    },
+
+    ...mapGetters({
+      settings: 'session/settings'
+    })
   },
 
   props: {
@@ -411,6 +416,7 @@ export default {
         password_confirmation: null,
         user_locale: null,
         bbb_skip_check_audio: false,
+        timezone: null,
         roles: []
       },
       generate_password: false,

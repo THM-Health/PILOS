@@ -18,11 +18,6 @@ class User extends JsonResource
     private $withRoles = false;
 
     /**
-     * @var bool Indicates whether list of possible timezones should be included or not.
-     */
-    private $withTimezones = false;
-
-    /**
      * User resource constructor.
      *
      * @param \App\User $resource The user model that should be transformed.
@@ -52,18 +47,6 @@ class User extends JsonResource
     public function withRoles()
     {
         $this->withRoles = true;
-
-        return $this;
-    }
-
-    /**
-     * Sets the flag to also load the possible selectable timezones.
-     *
-     * @return $this The user resource instance.
-     */
-    public function withTimezones()
-    {
-        $this->withTimezones = true;
 
         return $this;
     }
@@ -99,10 +82,7 @@ class User extends JsonResource
             }),
             'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
             'initial_password_set' => $this->initial_password_set,
-            'timezone'             => $this->timezone,
-            'timezones'            => $this->when($this->withTimezones, function () {
-                return timezone_identifiers_list();
-            })
+            'timezone'             => $this->timezone
         ];
     }
 }
