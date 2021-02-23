@@ -79,5 +79,6 @@ return [
             'enabled' => false
         ],
         'password_self_reset_enabled' => env('PASSWORD_SELF_RESET_ENABLED', false),
+        'default_timezone' => env('DEFAULT_TIMEZONE', 'UTC'),
     ]
 ];

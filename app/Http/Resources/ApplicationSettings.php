@@ -44,6 +44,7 @@ class ApplicationSettings extends JsonResource
             'pagination_page_size'           => intval(setting('pagination_page_size')),
             'own_rooms_pagination_page_size' => intval(setting('own_rooms_pagination_page_size')),
             'password_self_reset_enabled'    => boolval(setting('password_self_reset_enabled')),
+            'default_timezone'               => setting('default_timezone'),
             'bbb'                            => [
                 'file_mimes'            => config('bigbluebutton.allowed_file_mimes'),
                 'max_filesize'          => intval(config('bigbluebutton.max_filesize')),
@@ -66,7 +67,8 @@ class ApplicationSettings extends JsonResource
             ],
             $this->mergeWhen($this->allSettings, [
                 'link_btn_styles' => LinkButtonStyle::getValues(),
-                'link_targets'    => LinkTarget::getValues()
+                'link_targets'    => LinkTarget::getValues(),
+                'timezones'       => timezone_identifiers_list()
             ])
         ];
     }

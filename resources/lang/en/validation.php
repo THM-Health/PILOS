@@ -247,7 +247,8 @@ return [
         'icon_text'                         => 'Icon text',
         'color'                             => 'Color',
         'password_self_reset_enabled'       => 'Give registered users the possibility to reset their password',
-        'timezone'                          => 'Timezone'
+        'timezone'                          => 'Timezone',
+        'default_timezone'                  => 'Default timezone'
     ],
 
 ];

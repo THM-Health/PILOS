@@ -270,6 +270,27 @@
           </template>
         </b-form-group>
 
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          :label="$t('settings.application.default_timezone')"
+          label-for='timezone'
+          :state='fieldState("default_timezone")'
+        >
+          <b-form-select
+            :options='settings.timezones'
+            id='timezone'
+            v-model='settings.default_timezone'
+            :state='fieldState("default_timezone")'
+            :disabled='isBusy || viewOnly || !loaded'
+          >
+            <template v-slot:first>
+              <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
+            </template>
+          </b-form-select>
+          <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
+        </b-form-group>
+
         <hr>
 
         <!-- Banner -->
@@ -583,7 +604,8 @@ export default {
       settings: {
         banner: {},
         link_btn_styles: [],
-        link_targets: []
+        link_targets: [],
+        timezones: []
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
@@ -642,6 +664,7 @@ export default {
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
+      formData.append('default_timezone', this.settings.default_timezone);
 
       Object.keys(this.settings.banner).forEach(key => {
         let val = this.settings.banner[key];

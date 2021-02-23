@@ -29,6 +29,7 @@ class UpdateSetting extends FormRequest
             'pagination_page_size'           => 'required|numeric|min:1|max:100',
             'banner'                         => 'required|array',
             'password_self_reset_enabled'    => 'required|boolean',
+            'default_timezone'               => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'banner.enabled'                 => 'required|boolean',
             'banner.title'                   => 'nullable|string|max:255',
             'banner.message'                 => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'max:500'],
