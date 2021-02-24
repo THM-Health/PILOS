@@ -7,7 +7,7 @@ import BootstrapVue, {
   BForm,
   BModal,
   BFormInput,
-  BInputGroupAppend, BFormCheckbox
+  BFormCheckbox
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
