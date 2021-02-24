@@ -17,7 +17,7 @@ class RoleRequest extends FormRequest
         $rules = [
             'name'          => ['required', 'string', 'alpha_dash', 'max:255', Rule::unique('roles', 'name')],
             'room_limit'    => 'nullable|int|min:-1',
-            'permissions'   => 'required|array',
+            'permissions'   => 'present|array',
             'permissions.*' => 'distinct|exists:App\Permission,id'
         ];
 
