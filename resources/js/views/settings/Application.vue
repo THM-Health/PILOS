@@ -277,18 +277,27 @@
           label-for='timezone'
           :state='fieldState("default_timezone")'
         >
-          <b-form-select
-            :options='settings.timezones'
-            id='timezone'
-            v-model='settings.default_timezone'
-            :state='fieldState("default_timezone")'
-            :disabled='isBusy || viewOnly || !loaded'
-          >
-            <template v-slot:first>
-              <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
-            </template>
-          </b-form-select>
-          <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
+          <b-input-group>
+            <b-form-select
+              :options='timezones'
+              id='timezone'
+              v-model='settings.default_timezone'
+              :state='fieldState("default_timezone")'
+              :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
+            >
+              <template v-slot:first>
+                <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
+              </template>
+            </b-form-select>
+            <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
+            <b-input-group-append>
+              <b-button
+                v-if="timezonesLoadingError"
+                @click="loadTimezones()"
+                variant="outline-secondary"
+              ><i class="fas fa-sync"></i></b-button>
+            </b-input-group-append>
+          </b-input-group>
         </b-form-group>
 
         <hr>
@@ -604,12 +613,14 @@ export default {
       settings: {
         banner: {},
         link_btn_styles: [],
-        link_targets: [],
-        timezones: []
+        link_targets: []
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
-      backgroundSwatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878']
+      backgroundSwatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
+      timezonesLoading: false,
+      timezonesLoadingError: false,
+      timezones: []
     };
   },
   methods: {
@@ -630,6 +641,23 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
+    },
+
+    /**
+     * Loads the possible selectable timezones.
+     */
+    loadTimezones () {
+      this.timezonesLoading = true;
+      this.timezonesLoadingError = false;
+
+      Base.call('getTimezones').then(response => {
+        this.timezones = response.data.timezones;
+      }).catch(error => {
+        this.timezonesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.timezonesLoading = false;
+      });
     },
 
     /**
@@ -742,6 +770,7 @@ export default {
   },
   mounted () {
     this.getSettings();
+    this.loadTimezones();
   },
   computed: {
     linkBtnStyles () {

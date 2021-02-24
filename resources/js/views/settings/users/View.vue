@@ -122,18 +122,28 @@
                 label-for='timezone'
                 :state='fieldState("timezone")'
               >
-                <b-form-select
-                  :options="settings('timezones')"
-                  id='timezone'
-                  v-model='model.timezone'
-                  :state='fieldState("timezone")'
-                  :disabled="isBusy || modelLoadingError || config.type === 'view'"
-                >
-                  <template v-slot:first>
-                    <b-form-select-option :value="null" disabled>{{ $t('settings.users.timezone') }}</b-form-select-option>
-                  </template>
-                </b-form-select>
-                <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+                <b-input-group>
+                  <b-form-select
+                    :options="timezones"
+                    id='timezone'
+                    v-model='model.timezone'
+                    :state='fieldState("timezone")'
+                    :disabled="isBusy || timezonesLoading || timezonesLoadingError || modelLoadingError || config.type === 'view'"
+                  >
+                    <template v-slot:first>
+                      <b-form-select-option :value="null" disabled>{{ $t('settings.users.timezone') }}</b-form-select-option>
+                    </template>
+                  </b-form-select>
+                  <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+
+                  <b-input-group-append>
+                    <b-button
+                      v-if="timezonesLoadingError"
+                      @click="loadTimezones()"
+                      variant="outline-secondary"
+                    ><i class="fas fa-sync"></i></b-button>
+                  </b-input-group-append>
+                </b-input-group>
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
@@ -342,7 +352,6 @@ import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
 import _ from 'lodash';
-import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors],
@@ -363,11 +372,7 @@ export default {
             text: LocaleMap[key]
           };
         });
-    },
-
-    ...mapGetters({
-      settings: 'session/settings'
-    })
+    }
   },
 
   props: {
@@ -430,7 +435,10 @@ export default {
       canUpdateAttributes: false,
       staleError: {},
       modelLoadingError: false,
-      rolesLoadingError: false
+      rolesLoadingError: false,
+      timezonesLoading: false,
+      timezonesLoadingError: false,
+      timezones: []
     };
   },
 
@@ -449,6 +457,7 @@ export default {
    */
   mounted () {
     EventBus.$on('currentUserChangedEvent', this.togglePermissionFlags);
+    this.loadTimezones();
 
     if (this.config.id === 'new' || (
       PermissionService.can('editUserRole', {
@@ -465,6 +474,8 @@ export default {
       this.model.authenticator = 'users';
       this.canEditRoles = true;
       this.canUpdateAttributes = true;
+      this.model.user_locale = process.env.MIX_DEFAULT_LOCALE;
+      this.model.timezone = this.$store.getters['session/settings']('default_timezone');
     }
   },
 
@@ -525,6 +536,23 @@ export default {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.rolesLoading = false;
+      });
+    },
+
+    /**
+     * Loads the possible selectable timezones.
+     */
+    loadTimezones () {
+      this.timezonesLoading = true;
+      this.timezonesLoadingError = false;
+
+      Base.call('getTimezones').then(response => {
+        this.timezones = response.data.timezones;
+      }).catch(error => {
+        this.timezonesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.timezonesLoading = false;
       });
     },
 
