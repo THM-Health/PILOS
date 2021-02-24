@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Artisan command to create a new admin user ([#81])
 - Application banner that can be modified through the application settings ([#89], [#94])
 - Management of server pools, used by load balancer and added to room type ([#96], [#99])
+- Logging for failed/successful logins and ldap roles ([#112], [#113])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -85,5 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#102]: https://github.com/THM-Health/PILOS/pull/102
 [#103]: https://github.com/THM-Health/PILOS/issues/103
 [#105]: https://github.com/THM-Health/PILOS/pull/105
+[#112]: https://github.com/THM-Health/PILOS/issues/112
+[#113]: https://github.com/THM-Health/PILOS/pull/113
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
