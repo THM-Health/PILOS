@@ -141,6 +141,12 @@ describe('UsersView', function () {
       }
     };
 
+    moxios.stubRequest('/api/v1/getTimezones', {
+      status: 200,
+      response: {
+        timezones: ['UTC']
+      }
+    });
     moxios.stubRequest('/api/v1/roles?page=1', {
       status: 200,
       response: rolesResponse1
@@ -393,23 +399,25 @@ describe('UsersView', function () {
       }
     });
 
-    view.vm.$nextTick().then(() => {
-      const inputs = view.findAllComponents(BFormInput);
-      expect(inputs.length).toBe(5);
-      inputs.wrappers.forEach((input) => {
-        expect(input.vm.disabled).toBe(false);
+    moxios.wait(function () {
+      view.vm.$nextTick().then(() => {
+        const inputs = view.findAllComponents(BFormInput);
+        expect(inputs.length).toBe(5);
+        inputs.wrappers.forEach((input) => {
+          expect(input.vm.disabled).toBe(false);
+        });
+        const selects = view.findAllComponents(BFormSelect);
+        expect(selects.length).toBe(2);
+        selects.wrappers.forEach((select) => {
+          expect(select.vm.disabled).toBe(false);
+        });
+        const multiSelects = view.findAllComponents(Multiselect);
+        expect(multiSelects.length).toBe(1);
+        multiSelects.wrappers.forEach((select) => {
+          expect(select.vm.disabled).toBe(false);
+        });
+        done();
       });
-      const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(2);
-      selects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(false);
-      });
-      const multiSelects = view.findAllComponents(Multiselect);
-      expect(multiSelects.length).toBe(1);
-      multiSelects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(false);
-      });
-      done();
     });
   });
 
@@ -925,7 +933,7 @@ describe('UsersView', function () {
     });
 
     moxios.wait(function () {
-      const button = view.findComponent(BInputGroupAppend).get('.btn-outline-secondary');
+      const button = view.findComponent({ ref: 'reloadRolesButton' });
       expect(button.exists()).toBe(true);
       sinon.assert.calledOnce(Base.error);
       restoreRolesResponse();
@@ -933,7 +941,7 @@ describe('UsersView', function () {
       button.trigger('click');
 
       moxios.wait(function () {
-        const button = view.findComponent(BInputGroupAppend).find('.btn-outline-secondary');
+        const button = view.findComponent({ ref: 'reloadRolesButton' });
         expect(button.exists()).toBe(false);
         expect(spy.notCalled).toBe(true);
         Base.error.restore();

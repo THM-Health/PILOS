@@ -769,8 +769,8 @@ export default {
     }
   },
   mounted () {
-    this.getSettings();
     this.loadTimezones();
+    this.getSettings();
   },
   computed: {
     linkBtnStyles () {

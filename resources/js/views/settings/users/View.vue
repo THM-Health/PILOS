@@ -198,6 +198,7 @@
                   </multiselect>
                   <b-input-group-append>
                     <b-button
+                      ref="reloadRolesButton"
                       v-if="rolesLoadingError"
                       @click="loadRoles(currentPage)"
                       variant="outline-secondary"
