@@ -16,7 +16,7 @@
               <template v-slot:title>
                 <i class="fas fa-folder-open"></i> {{ $t('rooms.files.title') }}
               </template>
-              <file-component :room-id="room.id" :is-owner="room.isOwner"></file-component>
+              <file-component :room="room" ></file-component>
             </b-tab>
             <!-- Statistics tab -->
             <!-- TODO Implementaion

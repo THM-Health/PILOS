@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Room;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,7 +28,7 @@ class RoomAuthenticate
         $room          = $request->route('room');
 
         // requested user is the owner or a member of the room or the room doesn't require access code
-        if ($room->owner->is(Auth::user()) or $room->members->contains(Auth::user()) or $room->accessCode == null) {
+        if ($room->accessCode == null || (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('manage', Room::class)))) {
             $authenticated = true;
         }
 

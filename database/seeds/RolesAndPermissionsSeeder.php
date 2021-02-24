@@ -18,7 +18,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions = [];
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.delete' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.manage' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
 
@@ -66,6 +66,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Setup permission inheritances
         /// Eg. If you have permission x, you also get the permissions a,b,c
+        Permission::SetupIncludedPermissions('rooms.manage', ['rooms.create']);
 
         Permission::SetupIncludedPermissions('applicationSettings.update', ['applicationSettings.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('applicationSettings.viewAny', ['settings.manage']);

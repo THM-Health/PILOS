@@ -19,7 +19,7 @@
     <div class="row mb-3">
       <div class="col-10">
 
-        <can method="manageFiles" :policy="{ model_name: 'Room', isOwner: isOwner }">
+        <can method="manageFiles" :policy="room">
 
           <!-- Upload new file -->
           <b-form-file
@@ -81,7 +81,7 @@
         <!-- Render action column -->
         <template v-slot:cell(actions)="data">
           <b-button-group class="float-md-right">
-            <can method="manageFiles" :policy="{ model_name: 'Room', isOwner: isOwner }">
+            <can method="manageFiles" :policy="room">
               <!-- Delete file -->
               <b-button
                 variant="danger"
@@ -192,8 +192,8 @@ export default {
   },
   mixins: [FieldErrors],
   props: {
-    roomId: String,
-    isOwner: Boolean,
+    room: Object,
+
     accessCode: {
       type: String,
       required: false
@@ -251,7 +251,7 @@ export default {
     downloadFile: function (file) {
       this.loadingDownload = file.id;
       // Update value for the setting and the effected file
-      Base.call('rooms/' + this.roomId + '/files/' + file.id)
+      Base.call('rooms/' + this.room.id + '/files/' + file.id)
         .then(response => {
           if (response.data.url !== undefined) {
             window.open(response.data.url, '_blank');
@@ -308,7 +308,7 @@ export default {
       bvModalEvt.preventDefault();
       this.isLoadingAction = true;
       // Remove file from room with api call
-      Base.call('rooms/' + this.roomId + '/files/' + this.deleteFile.id, {
+      Base.call('rooms/' + this.room.id + '/files/' + this.deleteFile.id, {
         method: 'delete'
       }).then(response => {
         // Fetch successful
@@ -342,7 +342,7 @@ export default {
       formData.append('file', event.target.files[0]);
 
       // Send new file to api
-      Base.call('rooms/' + this.roomId + '/files', {
+      Base.call('rooms/' + this.room.id + '/files', {
         method: 'post',
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -379,7 +379,7 @@ export default {
 
       const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
 
-      Base.call('rooms/' + this.roomId + '/files', config)
+      Base.call('rooms/' + this.room.id + '/files', config)
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
@@ -404,7 +404,7 @@ export default {
       }
 
       // Update value for the setting and the effected file
-      Base.call('rooms/' + this.roomId + '/files/' + file.id, {
+      Base.call('rooms/' + this.room.id + '/files/' + file.id, {
         method: 'put',
         data: { [setting]: value }
       }).then(response => {
@@ -437,7 +437,7 @@ export default {
 
     // file table labels for columns
     filefields () {
-      if (PermissionService.cannot('manageFiles', { model_name: 'Room', isOwner: this.isOwner })) {
+      if (PermissionService.cannot('manageFiles', this.room)) {
         return [
           {
             key: 'filename',

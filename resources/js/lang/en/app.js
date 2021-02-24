@@ -59,7 +59,7 @@ export default {
     rooms: {
       title: 'Rooms',
       create: 'Create rooms',
-      delete: 'Delete rooms'
+      manage: 'Manage all rooms'
     },
 
     applicationSettings: {

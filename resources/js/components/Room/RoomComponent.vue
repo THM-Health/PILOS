@@ -9,7 +9,7 @@
         </b-row>
       </b-card-body>
       <template v-slot:footer v-if="shared">
-        <small><i class="fas fa-share"></i> {{ $t('rooms.sharedBy', { name: sharedBy }) }}</small>
+        <small><i class="fas fa-share"></i> {{ $t('rooms.sharedBy', { name: sharedBy.name }) }}</small>
       </template>
     </b-card>
     </b-overlay>
@@ -30,7 +30,7 @@ export default {
       default: false
     },
     type: Object,
-    sharedBy: String
+    sharedBy: Object
   },
   methods: {
 
