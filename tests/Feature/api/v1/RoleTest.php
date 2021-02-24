@@ -158,6 +158,7 @@ class RoleTest extends TestCase
         $this->assertEquals(null, $roleA->room_limit);
         $this->assertEquals($changes['permissions'], $roleA->permissions()->pluck('permissions.id')->toArray());
 
+        // Test empty permissions array
         $roleB->permissions()->attach($permission_ids);
         $roleB->default = false;
         $roleB->save();
@@ -172,6 +173,17 @@ class RoleTest extends TestCase
             ->assertSuccessful();
         $roleB->refresh();
         $this->assertEquals(0, $roleB->permissions()->count());
+
+        // Test missing permissions array
+        $changes = [
+            'name'        => $roleB->name,
+            'default'     => false,
+            'room_limit'  => null,
+            'updated_at'  => $roleB->updated_at
+        ];
+        $this->putJson(route('api.v1.roles.update', ['role'=>$roleB]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('permissions');
     }
 
     public function testUpdatePermissionLost()
