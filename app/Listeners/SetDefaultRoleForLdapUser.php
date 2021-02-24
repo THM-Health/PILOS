@@ -30,7 +30,7 @@ class SetDefaultRoleForLdapUser
                 $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
 
                 if (config('auth.log.ldap_roles')) {
-                    \Log::debug('LDAP roles found for user ['.$user->username.']', $ldapRoles);
+                    \Log::debug('LDAP roles found for user ['.$user->username.'].', $ldapRoles);
                 }
 
                 $roleIds   = [];

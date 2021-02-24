@@ -103,7 +103,7 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         if (config('auth.log.successful')) {
-            Log::info('User ['.($user->authenticator == 'ldap' ? $user->username : $user->email).'] has been successfully authenticated using LDAP.', ['ip'=>$request->ip(),'user-agent'=>$request->header('User-Agent'),'authenticator'=>$user->authenticator]);
+            Log::info('User ['.($user->authenticator == 'ldap' ? $user->username : $user->email).'] has been successfully authenticated.', ['ip'=>$request->ip(),'user-agent'=>$request->header('User-Agent'),'authenticator'=>$user->authenticator]);
         }
     }
 }

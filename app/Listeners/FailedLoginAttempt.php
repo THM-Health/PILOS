@@ -26,7 +26,7 @@ class FailedLoginAttempt
     public function handle(Failed $event)
     {
         if (config('auth.log.failed')) {
-            Log::info('User ['.($event->guard == 'ldap' ? $event->credentials['uid'] : $event->credentials['email']).'] has failed LDAP authentication.', ['ip'=>request()->ip(),'user-agent'=>request()->header('User-Agent'),'authenticator'=>$event->guard]);
+            Log::info('User ['.($event->guard == 'ldap' ? $event->credentials['uid'] : $event->credentials['email']).'] has failed authentication.', ['ip'=>request()->ip(),'user-agent'=>request()->header('User-Agent'),'authenticator'=>$event->guard]);
         }
     }
 }
