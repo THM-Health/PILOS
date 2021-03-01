@@ -87,6 +87,20 @@ function overrideStub (url, response) {
   }
 }
 
+const dateUtcMock = {
+  utc: (date) => {
+    return {
+      local: () => {
+        return {
+          format: (format) => {
+            return date;
+          }
+        };
+      }
+    };
+  }
+};
+
 let oldUser;
 
 describe('MeetingsIndex', function () {
@@ -105,9 +119,7 @@ describe('MeetingsIndex', function () {
       localVue,
       mocks: {
         $t: key => key,
-        $date: date => {
-          return { format: () => date };
-        }
+        $date: dateUtcMock
       },
       attachTo: createContainer()
     });
@@ -266,9 +278,7 @@ describe('MeetingsIndex', function () {
       localVue,
       mocks: {
         $t: key => key,
-        $date: date => {
-          return { format: () => date };
-        }
+        $date: dateUtcMock
       },
       attachTo: createContainer()
     });
@@ -317,9 +327,7 @@ describe('MeetingsIndex', function () {
       localVue,
       mocks: {
         $t: key => key,
-        $date: date => {
-          return { format: () => date };
-        }
+        $date: dateUtcMock
       },
       attachTo: createContainer()
     });
@@ -342,34 +350,36 @@ describe('MeetingsIndex', function () {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
         expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting One' });
         await moxios.requests.mostRecent().respondWith({
-          data: [
-            {
-              id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-              start: '2021-02-12 18:09:29',
-              end: null,
-              room: {
-                id: 'abc-def-123',
-                owner: 'John Doe',
-                name: 'Meeting One',
-                participant_count: 10,
-                listener_count: 5,
-                voice_participant_count: 5,
-                video_count: 3
-              },
-              server: {
-                id: 1,
-                name: 'Server 01'
-              }
-            }],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 2,
-            to: 1,
-            total: 1
+          status: 200,
+          response: {
+            data: [
+              {
+                id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
+                start: '2021-02-12 18:09:29',
+                end: null,
+                room: {
+                  id: 'abc-def-123',
+                  owner: 'John Doe',
+                  name: 'Meeting One',
+                  participant_count: 10,
+                  listener_count: 5,
+                  voice_participant_count: 5,
+                  video_count: 3
+                },
+                server: {
+                  id: 1,
+                  name: 'Server 01'
+                }
+              }],
+            meta: {
+              current_page: 1,
+              from: 1,
+              last_page: 1,
+              per_page: 2,
+              to: 1,
+              total: 1
+            }
           }
-
         });
 
         // check if table was updated
@@ -387,9 +397,7 @@ describe('MeetingsIndex', function () {
       localVue,
       mocks: {
         $t: key => key,
-        $date: date => {
-          return { format: () => date };
-        }
+        $date: dateUtcMock
       },
       attachTo: createContainer()
     });

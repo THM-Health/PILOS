@@ -8,15 +8,13 @@ import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
-import VueDayjs from 'vue-dayjs-plugin';
+import './plugins/Dayjs';
 
 Vue.use(Clipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
-
-Vue.use(VueDayjs);
 
 Vue.use(FlashMessage, {
   strategy: 'multiple'

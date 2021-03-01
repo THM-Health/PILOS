@@ -76,7 +76,7 @@
       </template>
 
       <template v-slot:cell(start)="data">
-       {{ $date(data.item.start).format('DD.MM.YY HH:mm') }}
+       {{ $date.utc(data.item.start).local().format('DD.MM.YY HH:mm') }}
       </template>
 
       <template v-slot:cell(room.name)="data">
