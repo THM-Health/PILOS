@@ -88,7 +88,12 @@ export default {
       title: 'Delete user?'
     },
 
-    resetPassword: 'Reset password for the user {firstname} {lastname}',
+    resetPassword: {
+      item: 'Reset password for the user {firstname} {lastname}',
+      confirm: 'Are you really want to reset the password for {firstname} {lastname}?',
+      title: 'Reset password?'
+    },
+
     passwordResetSuccess: 'Password reset mail was successfully send to {mail}!',
     timezone: 'Timezone'
   },

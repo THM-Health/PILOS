@@ -304,7 +304,7 @@
                   <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
                 </b-button>
                 <b-button
-                  :disabled='isBusy || modelLoadingError || rolesLoadingError'
+                  :disabled='isBusy || modelLoadingError || rolesLoadingError || timezonesLoadingError'
                   variant='success'
                   type='submit'
                   class='ml-1'

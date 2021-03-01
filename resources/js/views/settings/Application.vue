@@ -579,7 +579,7 @@
                     variant="success"
                     type="submit"
                     v-if="!viewOnly"
-                    :disabled="isBusy || !loaded">
+                    :disabled="isBusy || !loaded || timezonesLoadingError">
             <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
           </b-button>
         </div>

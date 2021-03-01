@@ -98,11 +98,11 @@
             <b-button
               :id="'resetPassword' + data.item.id"
               v-b-tooltip.hover
-              :title="$t('settings.users.resetPassword', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :title="$t('settings.users.resetPassword.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='warning'
               class='mb-1'
-              @click='resetPassword(data.item)'
+              @click='showResetPasswordModal(data.item)'
             >
               <i class='fas fa-key'></i>
             </b-button>
@@ -131,6 +131,27 @@
       align='center'
       :disabled='isBusy'
     ></b-pagination>
+
+    <b-modal
+      :busy='resetting'
+      ok-variant='danger'
+      cancel-variant='dark'
+      :cancel-title="$t('app.no')"
+      @ok='resetPassword($event)'
+      @cancel='clearUserToResetPassword'
+      @close='clearUserToResetPassword'
+      ref='reset-user-password-modal'
+      :static='modalStatic'>
+      <template v-slot:modal-title>
+        {{ $t('settings.users.resetPassword.title') }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="resetting"></b-spinner>  {{ $t('app.yes') }}
+      </template>
+      <span v-if="userToResetPassword">
+        {{ $t('settings.users.resetPassword.confirm', { firstname: userToResetPassword.firstname, lastname: userToResetPassword.lastname }) }}
+      </span>
+    </b-modal>
 
     <b-modal
       :busy='deleting'
@@ -194,8 +215,10 @@ export default {
     return {
       isBusy: false,
       deleting: false,
+      resetting: false,
       meta: {},
       userToDelete: undefined,
+      userToResetPassword: undefined,
       actionPermissions: ['users.view', 'users.update', 'users.delete'],
       actionColumnThStyle: 'width: 200px',
       filter: undefined
@@ -251,6 +274,16 @@ export default {
     },
 
     /**
+     * Shows the reset password modal with the passed user.
+     *
+     * @param user The user whose password should be reset.
+     */
+    showResetPasswordModal (user) {
+      this.userToResetPassword = user;
+      this.$refs['reset-user-password-modal'].show();
+    },
+
+    /**
      * Deletes the user that is set in the property `userToDelete`.
      */
     deleteUser (evt) {
@@ -279,25 +312,34 @@ export default {
     },
 
     /**
-     * Resets the password for the given user.
-     *
-     * @param user
+     * Clears the temporary property `userToResetPassword` on canceling or
+     * after success reset when the modal gets hidden.
      */
-    resetPassword (user) {
-      this.isBusy = true;
+    clearUserToResetPassword () {
+      this.userToResetPassword = undefined;
+    },
+
+    /**
+     * Resets the password for the given user.
+     */
+    resetPassword (evt) {
+      evt.preventDefault();
+      this.resetting = true;
 
       const config = {
         method: 'post'
       };
 
-      Base.call(`users/${user.id}/resetPassword`, config).then(() => {
+      Base.call(`users/${this.userToResetPassword.id}/resetPassword`, config).then(() => {
         this.flashMessage.success({
-          title: this.$t('settings.users.passwordResetSuccess', { mail: user.email })
+          title: this.$t('settings.users.passwordResetSuccess', { mail: this.userToResetPassword.email })
         });
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {
-        this.isBusy = false;
+        this.clearUserToResetPassword();
+        this.$refs['reset-user-password-modal'].hide();
+        this.resetting = false;
       });
     }
   }

@@ -92,7 +92,12 @@ export default {
       title: 'Benutzer löschen?'
     },
 
-    resetPassword: 'Passwort für den Benutzer {firstname} {lastname} zurücksetzen',
+    resetPassword: {
+      item: 'Passwort für den Benutzer {firstname} {lastname} zurücksetzen',
+      confirm: 'Wollen Sie das Passwort für {firstname} {lastname} wirklich zurücksetzen?',
+      title: 'Passwort zurücksetzen?'
+    },
+
     passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!',
     timezone: 'Zeitzone'
   },
