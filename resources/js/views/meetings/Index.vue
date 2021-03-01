@@ -171,7 +171,6 @@ export default {
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
-      actionPermissions: [],
       filter: undefined,
       filtered: false
     };

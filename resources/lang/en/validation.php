@@ -247,6 +247,6 @@ return [
         'icon_text'                         => 'Icon text',
         'color'                             => 'Color',
         'allow_listing'                     => 'Room search allowed',
+        'listed'                            => 'Include in room search'
     ],
-
 ];

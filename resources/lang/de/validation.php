@@ -247,5 +247,6 @@ return [
         'icon_text'                         => 'Icon Text',
         'color'                             => 'Farbe',
         'allow_listing'                     => 'Raumsuche erlaubt',
+        'listed'                            => 'In Raumsuche einschließen'
     ],
 ];

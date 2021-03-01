@@ -72,7 +72,10 @@ export const routes = [
     path: '/meetings',
     component: MeetingsIndex,
     name: 'meetings.index',
-    meta: { requiresAuth: true }
+    meta: {
+      requiresAuth: true,
+      accessPermitted: () => Promise.resolve(PermissionService.can('viewAny', 'MeetingPolicy'))
+    }
   },
 
   {
