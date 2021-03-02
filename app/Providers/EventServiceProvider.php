@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Listeners\FailedLoginAttempt;
 use App\Listeners\SetDefaultRoleForLdapUser;
-use App\Listeners\SetUserModelDefaultLocale;
+use App\Listeners\SetUserModelDefaults;
 use App\Listeners\SetUserModelLdapAuthenticatorType;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Failed;
@@ -29,7 +29,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         Importing::class => [
             SetUserModelLdapAuthenticatorType::class,
-            SetUserModelDefaultLocale::class
+            SetUserModelDefaults::class
         ],
         Failed::class => [
             FailedLoginAttempt::class,

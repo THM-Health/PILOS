@@ -17,6 +17,9 @@
       :ok-disabled="roomTypeSelectLoadingError"
       @ok="handleOk"
       @hidden="handleCancel"
+      :no-close-on-esc="isLoadingAction || roomTypeSelectBusy"
+      :no-close-on-backdrop="isLoadingAction || roomTypeSelectBusy"
+      :hide-header-close="isLoadingAction || roomTypeSelectBusy"
     >
       <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
         <room-type-select

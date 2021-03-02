@@ -108,10 +108,16 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table'    => 'password_resets',
-            'expire'   => 60,
-            'throttle' => 60,
+            'table' => 'password_resets',
+            'expire' => env('PASSWORD_RESET_EXPIRE', 60),
+            'throttle' => env('PASSWORD_RESET_THROTTLE', 60),
         ],
+        'new_users' => [
+            'provider' => 'users',
+            'table' => 'password_resets',
+            'expire' => env('NEW_USER_PASSWORD_RESET_EXPIRE', 60),
+            'throttle' => env('NEW_USER_PASSWORD_RESET_THROTTLE', 60),
+        ]
     ],
 
     /*

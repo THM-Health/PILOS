@@ -56,7 +56,7 @@ export default {
       });
     } else {
       vm.flashMessage.error(vm.$t('app.flash.clientError'));
-      console.error(`Error: ${JSON.stringify(error)}\nInfo: ${info}`);
+      console.error(`Error: ${error.toString()}\nInfo: ${info}`);
     }
   },
 

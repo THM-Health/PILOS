@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use LdapRecord\Laravel\Events\Importing;
 
-class SetUserModelDefaultLocale
+class SetUserModelDefaults
 {
     /**
      * Sets the default locale when a new model is importing.
@@ -14,6 +14,7 @@ class SetUserModelDefaultLocale
      */
     public function handle(Importing $event)
     {
-        $event->model->locale = config('app.locale');
+        $event->model->locale   = config('app.locale');
+        $event->model->timezone = setting('default_timezone');
     }
 }

@@ -37,13 +37,14 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('login', 'LoginController@usersLogin')->name('login');
         Route::post('login/ldap', 'LoginController@ldapLogin')->name('ldapLogin');
         Route::post('logout', 'LoginController@logout')->name('logout');
+        Route::post('password/reset', 'ResetPasswordController@reset')->name('password.reset')->middleware(['guest', 'throttle:5,30,password_reset']);
 
         // TODO: Implement or remove this completely
 //        Route::post('register', 'RegisterController@register');
-//        Route::post('password/reset', 'ResetPasswordController@reset');
-//        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail');
 //        Route::post('email/resend', 'VerificationController@resend');
 //        Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
+
+        Route::post('password/email', 'ForgotPasswordController@sendResetLinkEmail')->name('password.email')->middleware(['enable_if:password_self_reset_enabled', 'guest', 'throttle:5,30,password_email']);
     });
 
     Route::middleware('auth:users,ldap')->group(function () {
@@ -80,11 +81,15 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
 
         Route::get('users/search', 'UserController@search')->name('users.search');
         Route::apiResource('users', 'UserController');
+        Route::post('users/{user}/resetPassword', 'UserController@resetPassword')->name('users.password.reset')->middleware('can:resetPassword,user');
 
         Route::post('servers/check', 'ServerController@check')->name('servers.check')->middleware('can:viewAny,App\Server');
         Route::get('servers/{server}/panic', 'ServerController@panic')->name('servers.panic')->middleware('can:update,server');
         Route::apiResource('servers', 'ServerController');
         Route::apiResource('serverPools', 'ServerPoolController');
+        Route::get('getTimezones', function () {
+            return response()->json([ 'timezones' => timezone_identifiers_list() ]);
+        });
     });
 
     Route::middleware('can:view,room')->group(function () {
