@@ -95,4 +95,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#113]: https://github.com/THM-Health/PILOS/pull/113
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
-[1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/1.0.0
+[1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
