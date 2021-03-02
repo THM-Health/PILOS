@@ -32,9 +32,8 @@ const actions = {
   },
 
   async getSettings ({ commit }) {
-    base.call('settings').then(response => {
-      return commit('setSettings', response.data.data);
-    });
+    const response = await base.call('settings');
+    commit('setSettings', response.data.data);
   },
 
   async getCurrentUser ({ commit }) {

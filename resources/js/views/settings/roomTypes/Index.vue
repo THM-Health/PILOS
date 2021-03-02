@@ -103,7 +103,11 @@
       @cancel='clearRoomTypeToDelete'
       @close='clearRoomTypeToDelete'
       ref='delete-roomType-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="isBusy"
+      :no-close-on-backdrop="isBusy"
+      :hide-header-close="isBusy"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.roomTypes.delete.title') }}
       </template>

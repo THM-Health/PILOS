@@ -7,7 +7,7 @@ import BootstrapVue, {
   BForm,
   BModal,
   BFormInput,
-  BInputGroupAppend
+  BFormCheckbox
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
@@ -141,6 +141,12 @@ describe('UsersView', function () {
       }
     };
 
+    moxios.stubRequest('/api/v1/getTimezones', {
+      status: 200,
+      response: {
+        timezones: ['UTC']
+      }
+    });
     moxios.stubRequest('/api/v1/roles?page=1', {
       status: 200,
       response: rolesResponse1
@@ -176,6 +182,9 @@ describe('UsersView', function () {
               state[name] += 1;
             }
           },
+          getters: {
+            settings: () => (setting) => null
+          },
           state: () => ({
             currentLocale: 'en',
             logoutCount: 0,
@@ -205,6 +214,7 @@ describe('UsersView', function () {
   it('user name in title gets shown for detail view', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key, values) => ['settings.users.view', 'settings.users.edit'].includes(key) ? `${key} ${values.firstname} ${values.lastname}` : key,
         $te: () => false
@@ -226,6 +236,7 @@ describe('UsersView', function () {
   it('user name in title gets shown for update view', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key, values) => ['settings.users.view', 'settings.users.edit'].includes(key) ? `${key} ${values.firstname} ${values.lastname}` : key,
         $te: () => false
@@ -265,6 +276,7 @@ describe('UsersView', function () {
 
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -291,6 +303,7 @@ describe('UsersView', function () {
   it('roles can not be modified for the own user', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -312,6 +325,7 @@ describe('UsersView', function () {
   it('automatic assigned roles can not be deselected', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -336,6 +350,7 @@ describe('UsersView', function () {
   it('input fields gets disabled when viewing the user in view only mode', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -355,7 +370,7 @@ describe('UsersView', function () {
         expect(input.vm.disabled).toBe(true);
       });
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       selects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(true);
       });
@@ -371,6 +386,7 @@ describe('UsersView', function () {
   it('all inputs fields shown and enabled on new page', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -383,29 +399,91 @@ describe('UsersView', function () {
       }
     });
 
-    view.vm.$nextTick().then(() => {
+    moxios.wait(function () {
+      view.vm.$nextTick().then(() => {
+        const inputs = view.findAllComponents(BFormInput);
+        expect(inputs.length).toBe(5);
+        inputs.wrappers.forEach((input) => {
+          expect(input.vm.disabled).toBe(false);
+        });
+        const selects = view.findAllComponents(BFormSelect);
+        expect(selects.length).toBe(2);
+        selects.wrappers.forEach((select) => {
+          expect(select.vm.disabled).toBe(false);
+        });
+        const multiSelects = view.findAllComponents(Multiselect);
+        expect(multiSelects.length).toBe(1);
+        multiSelects.wrappers.forEach((select) => {
+          expect(select.vm.disabled).toBe(false);
+        });
+        done();
+      });
+    });
+  });
+
+  it('if generate_password is true the password fields does not get sent with the create request', function (done) {
+    const spy = sinon.spy();
+
+    const router = new VueRouter();
+    router.push = spy;
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 'new',
+          type: 'edit'
+        }
+      },
+      store,
+      router
+    });
+
+    moxios.wait(function () {
       const inputs = view.findAllComponents(BFormInput);
-      expect(inputs.length).toBe(5);
-      inputs.wrappers.forEach((input) => {
-        expect(input.vm.disabled).toBe(false);
+      inputs.at(0).setValue('Max').then(() => {
+        return inputs.at(1).setValue('Mustermann');
+      }).then(() => {
+        return inputs.at(2).setValue('max@mustermann.de');
+      }).then(() => {
+        const selects = view.findAllComponents(BFormSelect);
+        return selects.at(0).setValue('de');
+      }).then(() => {
+        view.vm.model.roles.push(rolesResponse1.data[2]);
+        return view.vm.$nextTick();
+      }).then(() => {
+        const checkboxes = view.findAllComponents(BFormCheckbox);
+        return checkboxes.at(0).get('input').trigger('click');
+      }).then(() => {
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          const data = JSON.parse(request.config.data);
+
+          expect(data.firstname).toBe('Max');
+          expect(data.lastname).toBe('Mustermann');
+          expect(data.email).toBe('max@mustermann.de');
+          expect(data.password).toBe(undefined);
+          expect(data.password_confirmation).toBe(undefined);
+          expect(data.roles).toStrictEqual([3]);
+          expect(data.user_locale).toBe('de');
+          expect(data.generate_password).toBe(true);
+
+          done();
+        });
       });
-      const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
-      selects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(false);
-      });
-      const multiSelects = view.findAllComponents(Multiselect);
-      expect(multiSelects.length).toBe(1);
-      multiSelects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(false);
-      });
-      done();
     });
   });
 
   it('specific fields gets disabled for not database users', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -425,7 +503,7 @@ describe('UsersView', function () {
         expect(input.vm.disabled).toBe(true);
       });
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       selects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(false);
       });
@@ -441,6 +519,7 @@ describe('UsersView', function () {
   it('back button is not shown on the profile page of an user', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -465,6 +544,7 @@ describe('UsersView', function () {
   it('persisted data gets loaded and shown', function (done) {
     const view = mount(View, {
       localVue,
+      store,
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -487,7 +567,7 @@ describe('UsersView', function () {
       expect(inputs.at(4).element.value).toBe('');
 
       const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(1);
+      expect(selects.length).toBe(2);
       expect(selects.at(0).element.value).toBe('en');
 
       const multiSelects = view.findAllComponents(Multiselect);
@@ -549,6 +629,7 @@ describe('UsersView', function () {
           expect(data.password_confirmation).toBe('Test_123');
           expect(data.roles).toStrictEqual([1, 2, 3]);
           expect(data.user_locale).toBe('de');
+          expect(data.generate_password).toBe(undefined);
 
           const restoreUserResponse = overrideStub('/api/v1/users/2', {
             status: 204
@@ -852,7 +933,7 @@ describe('UsersView', function () {
     });
 
     moxios.wait(function () {
-      const button = view.findComponent(BInputGroupAppend).get('.btn-outline-secondary');
+      const button = view.findComponent({ ref: 'reloadRolesButton' });
       expect(button.exists()).toBe(true);
       sinon.assert.calledOnce(Base.error);
       restoreRolesResponse();
@@ -860,7 +941,7 @@ describe('UsersView', function () {
       button.trigger('click');
 
       moxios.wait(function () {
-        const button = view.findComponent(BInputGroupAppend).find('.btn-outline-secondary');
+        const button = view.findComponent({ ref: 'reloadRolesButton' });
         expect(button.exists()).toBe(false);
         expect(spy.notCalled).toBe(true);
         Base.error.restore();

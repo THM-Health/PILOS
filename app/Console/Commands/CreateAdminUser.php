@@ -63,8 +63,10 @@ class CreateAdminUser extends Command
         $data['user_locale']           = $this->ask('Locale (possible values: ' . join(',', config('app.available_locales')) . ')');
         $data['password']              = $this->secret('Password');
         $data['password_confirmation'] = $this->secret('Password Confirmation');
+        $data['generate_password']     = false;
         $data['bbb_skip_check_audio']  = $this->confirm('Skip audio check on joining rooms?');
         $data['roles']                 = $roles;
+        $data['timezone']              = 'UTC';
 
         $validator = Validator::make($data, (new UserRequest())->rules());
 

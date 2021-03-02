@@ -153,9 +153,9 @@ describe('base', function () {
     flashMessageErrorSpy.resetHistory();
 
     // other non server error
-    Base.error({ testProp1: 'testValue1', testProp2: 'testValue2' }, vm, 'infoText');
+    Base.error(new Error(JSON.stringify({ testProp1: 'testValue1', testProp2: 'testValue2' })), vm, 'infoText');
     sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.clientError');
-    sinon.assert.calledOnceWithExactly(consoleErrorStub, 'Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
+    sinon.assert.calledOnceWithExactly(consoleErrorStub, 'Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
     consoleErrorStub.resetHistory();
     flashMessageErrorSpy.resetHistory();
   });

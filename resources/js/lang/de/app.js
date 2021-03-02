@@ -22,7 +22,7 @@ export default {
 
     guestsOnly: {
       message: 'Die Anfrage ist nur für nicht angemeldete Nutzer gestattet!',
-      title: 'Nür für Gäste'
+      title: 'Nur für Gäste'
     },
 
     serverError: {
