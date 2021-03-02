@@ -7,8 +7,11 @@ use App\Role;
 use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use TiMacDonald\Log\LogFake;
+use Illuminate\Support\Facades\Log;
 
 class LoginTest extends TestCase
 {
@@ -149,5 +152,76 @@ class LoginTest extends TestCase
         $response->assertJson([
             'message' => 'Unauthenticated.'
         ]);
+    }
+
+    /**
+     * Tests logging of failed and successful logins.
+     *
+     * @return void
+     */
+    public function testLogging()
+    {
+        $user = factory(User::class)->create([
+            'password' => Hash::make('bar')
+        ]);
+
+        // test failed login with logging enabled
+        Log::swap(new LogFake);
+        config(['auth.log.failed' => true]);
+        $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => 'foo'
+        ]);
+        Log::assertLogged('info', function ($message, $context) use ($user) {
+            return 'User ['.$user->email.'] has failed authentication.' == $message &&
+                '127.0.0.1' == $context['ip'] &&
+                'Symfony' == $context['user-agent'] &&
+                'users' == $context['authenticator'];
+        });
+
+        // test failed login with logging disabled
+        config(['auth.log.failed' => false]);
+        Log::swap(new LogFake);
+        $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => 'foo'
+        ]);
+        Log::assertNotLogged('info', function ($message, $context) use ($user) {
+            return 'User ['.$user->email.'] has failed authentication.' == $message &&
+                '127.0.0.1' == $context['ip'] &&
+                'Symfony' == $context['user-agent'] &&
+                'users' == $context['authenticator'];
+        });
+
+        // test successful login with logging enabled
+        Log::swap(new LogFake);
+        config(['auth.log.successful' => true]);
+        $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => 'bar'
+        ]);
+        Log::assertLogged('info', function ($message, $context) use ($user) {
+            return 'User ['.$user->email.'] has been successfully authenticated.' == $message &&
+                '127.0.0.1' == $context['ip'] &&
+                'Symfony' == $context['user-agent'] &&
+                'users' == $context['authenticator'];
+        });
+
+        // logout user to allow new login
+        Auth::guard('users')->logout();
+
+        // test successful login with logging disabled
+        Log::swap(new LogFake);
+        config(['auth.log.successful' => false]);
+        $this->from(config('app.url'))->postJson(route('api.v1.login'), [
+            'email'    => $user->email,
+            'password' => 'bar'
+        ]);
+        Log::assertNotLogged('info', function ($message, $context) use ($user) {
+            return 'User ['.$user->email.'] has been successfully authenticated.' == $message &&
+                '127.0.0.1' == $context['ip'] &&
+                'Symfony' == $context['user-agent'] &&
+                'users' == $context['authenticator'];
+        });
     }
 }
