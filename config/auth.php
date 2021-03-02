@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'users',
+        'guard'     => 'users',
         'passwords' => 'users',
     ],
 
@@ -37,11 +37,11 @@ return [
 
     'guards' => [
         'ldap' => [
-            'driver' => 'session',
+            'driver'   => 'session',
             'provider' => 'ldap',
         ],
         'users' => [
-            'driver' => 'session',
+            'driver'   => 'session',
             'provider' => 'users',
         ],
     ],
@@ -66,20 +66,20 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\User::class,
+            'model'  => App\User::class,
         ],
 
         'ldap' => [
-            'driver' => 'ldap',
-            'model' => LdapRecord\Models\OpenLDAP\User::class,
+            'driver'   => 'ldap',
+            'model'    => LdapRecord\Models\OpenLDAP\User::class,
             'database' => [
-                'model' => App\User::class,
-                'sync_passwords' => false,
+                'model'           => App\User::class,
+                'sync_passwords'  => false,
                 'sync_attributes' => [
                     'firstname' => 'givenName',
-                    'lastname' => 'sn',
-                    'email' => 'mail',
-                    'username' => 'uid',
+                    'lastname'  => 'sn',
+                    'email'     => 'mail',
+                    'username'  => 'uid',
                 ],
             ],
         ],
@@ -132,5 +132,11 @@ return [
     */
 
     'password_timeout' => 10800,
+
+    'log' => [
+        'successful' => env('AUTH_LOG_SUCCESSFUL', false),
+        'failed'     => env('AUTH_LOG_FAILED', false),
+        'ldap_roles' => env('AUTH_LOG_LDAP_ROLES', false),
+    ]
 
 ];
