@@ -141,7 +141,11 @@
       @cancel='clearUserToResetPassword'
       @close='clearUserToResetPassword'
       ref='reset-user-password-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="resetting"
+      :no-close-on-backdrop="resetting"
+      :hide-header-close="resetting"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.users.resetPassword.title') }}
       </template>
@@ -162,7 +166,11 @@
       @cancel='clearUserToDelete'
       @close='clearUserToDelete'
       ref='delete-user-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="deleting"
+      :no-close-on-backdrop="deleting"
+      :hide-header-close="deleting"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.users.delete.title') }}
       </template>

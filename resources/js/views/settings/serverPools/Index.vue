@@ -117,7 +117,11 @@
       @cancel='clearServerPoolToDelete'
       @close='clearServerPoolToDelete'
       ref='delete-server-pool-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="deleting"
+      :no-close-on-backdrop="deleting"
+      :hide-header-close="deleting"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.serverPools.delete.title') }}
       </template>
