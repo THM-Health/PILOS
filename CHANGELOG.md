@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] - 2021-03-02
 ### Added
 - Authentication with LDAP and Email-Address ([#1], [#3])
 - Loading screen for loading events of the application ([#6], [#11])
@@ -93,3 +95,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#113]: https://github.com/THM-Health/PILOS/pull/113
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
+[1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/1.0.0
