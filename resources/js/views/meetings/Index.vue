@@ -8,7 +8,7 @@
       </b-col>
       <b-col sm='12' md='3'>
         <b-input-group>
-          <b-form-input @change="$root.$emit('bv::refresh::table', 'meetings-table')" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
+          <b-form-input :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter" lazy></b-form-input>
           <b-input-group-append>
             <b-button @click="$root.$emit('bv::refresh::table', 'meetings-table')" :disabled="isBusy || loadingError" variant="success"><b-icon icon="search"></b-icon></b-button>
           </b-input-group-append>
@@ -41,10 +41,15 @@
       :items='fetchMeetings'
       id='meetings-table'
       ref='meetings'
+      :filter='filter'
       :current-page='currentPage'>
 
       <template v-slot:empty>
-        <i>{{ filtered ? $t('meetings.nodataFiltered') : $t('meetings.nodata') }}</i>
+        <i>{{ $t('meetings.nodata') }}</i>
+      </template>
+
+      <template v-slot:emptyfiltered>
+        <i>{{ $t('meetings.nodataFiltered') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -171,8 +176,7 @@ export default {
       currentPage: undefined,
       total: undefined,
       perPage: undefined,
-      filter: undefined,
-      filtered: false
+      filter: undefined
     };
   },
 
@@ -198,9 +202,8 @@ export default {
         config.params.sort_direction = ctx.sortDesc ? 'desc' : 'asc';
       }
 
-      this.filtered = !!this.filter;
-      if (this.filter) {
-        config.params.search = this.filter;
+      if (ctx.filter) {
+        config.params.search = ctx.filter;
       }
 
       Base.call('meetings', config).then(response => {

@@ -343,7 +343,7 @@ describe('MeetingsIndex', function () {
 
       // enter new search string and click search button
       await view.findComponent(BFormInput).setValue('Meeting One');
-      await view.findComponent(BButton).trigger('click');
+      await view.findComponent(BFormInput).trigger('change');
 
       // check if new request with the search query is send
       moxios.wait(async () => {
