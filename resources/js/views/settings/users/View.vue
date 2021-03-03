@@ -118,6 +118,35 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
+                :label="$t('settings.users.timezone')"
+                label-for='timezone'
+                :state='fieldState("timezone")'
+              >
+                <b-input-group>
+                  <b-form-select
+                    :options="timezones"
+                    id='timezone'
+                    v-model='model.timezone'
+                    :state='fieldState("timezone")'
+                    :disabled="isBusy || timezonesLoading || timezonesLoadingError || modelLoadingError || config.type === 'view'"
+                  >
+                    <template v-slot:first>
+                      <b-form-select-option :value="null" disabled>{{ $t('settings.users.timezone') }}</b-form-select-option>
+                    </template>
+                  </b-form-select>
+                  <template slot='invalid-feedback'><div v-html="fieldError('timezone')"></div></template>
+
+                  <b-input-group-append>
+                    <b-button
+                      v-if="timezonesLoadingError"
+                      @click="loadTimezones()"
+                      variant="outline-secondary"
+                    ><i class="fas fa-sync"></i></b-button>
+                  </b-input-group-append>
+                </b-input-group>
+              </b-form-group>
+              <b-form-group
+                label-cols-sm='3'
                 :label="$t('settings.users.roles')"
                 label-for='roles'
                 :state='fieldState("roles", true)'
@@ -169,6 +198,7 @@
                   </multiselect>
                   <b-input-group-append>
                     <b-button
+                      ref="reloadRolesButton"
                       v-if="rolesLoadingError"
                       @click="loadRoles(currentPage)"
                       variant="outline-secondary"
@@ -177,12 +207,40 @@
                 </b-input-group>
                 <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
               </b-form-group>
+            </b-form-group>
+            <hr>
+            <b-form-group
+              label-cols-lg="12"
+              :label="$t('settings.users.password')"
+              label-size="lg"
+              label-class="font-weight-bold pt-0"
+              class="mb-0"
+              v-if="model.authenticator === 'users' && config.type !== 'view'"
+            >
               <b-form-group
+                v-if="config.id === 'new'"
+                label-cols-sm='3'
+                :label="$t('settings.users.generate_password')"
+                label-for='generate_password'
+                :state="fieldState('generate_password')"
+                :description="$t('settings.users.generate_password_description')"
+                class="align-items-center d-flex"
+              >
+                <b-form-checkbox
+                  id='generate_password'
+                  v-model='generate_password'
+                  :state="fieldState('generate_password')"
+                  :disabled="isBusy || modelLoadingError"
+                  switch
+                ></b-form-checkbox>
+                <template slot='invalid-feedback'><div v-html="fieldError('generate_password')"></div></template>
+              </b-form-group>
+              <b-form-group
+                v-if="!generate_password"
                 label-cols-sm='3'
                 :label="$t('settings.users.password')"
                 label-for='password'
                 :state='fieldState("password")'
-                v-if="model.authenticator === 'users' && config.type !== 'view'"
               >
                 <b-form-input
                   id='password'
@@ -194,11 +252,11 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('password')"></div></template>
               </b-form-group>
               <b-form-group
+                v-if="!generate_password"
                 label-cols-sm='3'
                 :label="$t('settings.users.password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
-                v-if="model.authenticator === 'users' && config.type !== 'view'"
               >
                 <b-form-input
                   id='password_confirmation'
@@ -210,7 +268,7 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('password_confirmation')"></div></template>
               </b-form-group>
             </b-form-group>
-            <hr>
+            <hr v-if="model.authenticator === 'users' && config.type !== 'view'">
             <b-form-group
               label-cols-lg="12"
               :label="$t('settings.users.room_settings')"
@@ -229,7 +287,7 @@
                   id='bbb_skip_check_audio'
                   v-model='model.bbb_skip_check_audio'
                   :state="fieldState('bbb_skip_check_audio')"
-                  :disabled="isBusy || config.type === 'view'"
+                  :disabled="isBusy || config.type === 'view' || modelLoadingError"
                   switch
                 ></b-form-checkbox>
                 <template slot='invalid-feedback'><div v-html="fieldError('bbb_skip_check_audio')"></div></template>
@@ -246,7 +304,7 @@
                   <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
                 </b-button>
                 <b-button
-                  :disabled='isBusy || modelLoadingError || rolesLoadingError'
+                  :disabled='isBusy || modelLoadingError || rolesLoadingError || timezonesLoadingError'
                   variant='success'
                   type='submit'
                   class='ml-1'
@@ -364,8 +422,10 @@ export default {
         password_confirmation: null,
         user_locale: null,
         bbb_skip_check_audio: false,
+        timezone: null,
         roles: []
       },
+      generate_password: false,
       errors: {},
       rolesLoading: false,
       roles: [],
@@ -376,7 +436,10 @@ export default {
       canUpdateAttributes: false,
       staleError: {},
       modelLoadingError: false,
-      rolesLoadingError: false
+      rolesLoadingError: false,
+      timezonesLoading: false,
+      timezonesLoadingError: false,
+      timezones: []
     };
   },
 
@@ -395,6 +458,7 @@ export default {
    */
   mounted () {
     EventBus.$on('currentUserChangedEvent', this.togglePermissionFlags);
+    this.loadTimezones();
 
     if (this.config.id === 'new' || (
       PermissionService.can('editUserRole', {
@@ -411,6 +475,8 @@ export default {
       this.model.authenticator = 'users';
       this.canEditRoles = true;
       this.canUpdateAttributes = true;
+      this.model.user_locale = process.env.MIX_DEFAULT_LOCALE;
+      this.model.timezone = this.$store.getters['session/settings']('default_timezone');
     }
   },
 
@@ -475,6 +541,23 @@ export default {
     },
 
     /**
+     * Loads the possible selectable timezones.
+     */
+    loadTimezones () {
+      this.timezonesLoading = true;
+      this.timezonesLoadingError = false;
+
+      Base.call('getTimezones').then(response => {
+        this.timezones = response.data.timezones;
+      }).catch(error => {
+        this.timezonesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.timezonesLoading = false;
+      });
+    },
+
+    /**
      * Saves the changes of the user to the database by making a api call.
      *
      * @param evt
@@ -491,6 +574,15 @@ export default {
         data: _.cloneDeep(this.model)
       };
       config.data.roles = config.data.roles.map(role => role.id);
+
+      if (this.config.id === 'new') {
+        config.data.generate_password = this.generate_password;
+
+        if (this.generate_password) {
+          delete config.data.password;
+          delete config.data.password_confirmation;
+        }
+      }
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
         this.errors = {};

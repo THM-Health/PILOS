@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] - 2021-03-02
 ### Added
 - Authentication with LDAP and Email-Address ([#1], [#3])
 - Loading screen for loading events of the application ([#6], [#11])
@@ -28,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Artisan command to create a new admin user ([#81])
 - Application banner that can be modified through the application settings ([#89], [#94])
 - Management of server pools, used by load balancer and added to room type ([#96], [#99])
+- Password self reset, password reset by an administrator and password generation with password reset for registered users ([#106], [#107])
+- Logging for failed/successful logins and ldap roles ([#112], [#113])
 - Room list/search, room and room type setting to allow public room search ([#63], [#108])
 - List of running meetings ([#63], [#108])
 
@@ -88,6 +92,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#102]: https://github.com/THM-Health/PILOS/pull/102
 [#103]: https://github.com/THM-Health/PILOS/issues/103
 [#105]: https://github.com/THM-Health/PILOS/pull/105
+[#106]: https://github.com/THM-Health/PILOS/issues/106
+[#107]: https://github.com/THM-Health/PILOS/pull/107
 [#108]: https://github.com/THM-Health/PILOS/pull/108
+[#112]: https://github.com/THM-Health/PILOS/issues/112
+[#113]: https://github.com/THM-Health/PILOS/pull/113
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
+[1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

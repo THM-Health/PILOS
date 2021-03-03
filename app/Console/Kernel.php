@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\CreateAdminUser;
 use App\Console\Commands\BuildHistory;
+use App\Console\Commands\DeleteUnverifiedNewUsers;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -28,6 +29,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command(BuildHistory::class)->everyMinute();
+        $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute();
     }
 
     /**

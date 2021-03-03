@@ -157,7 +157,11 @@
       @cancel='clearServerToDelete'
       @close='clearServerToDelete'
       ref='delete-server-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="deleting"
+      :no-close-on-backdrop="deleting"
+      :hide-header-close="deleting"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.servers.delete.title') }}
       </template>

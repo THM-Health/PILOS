@@ -94,6 +94,19 @@
               <i class='fas fa-edit'></i>
             </b-button>
           </can>
+          <can method='resetPassword' :policy='data.item'>
+            <b-button
+              :id="'resetPassword' + data.item.id"
+              v-b-tooltip.hover
+              :title="$t('settings.users.resetPassword.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :disabled='isBusy'
+              variant='warning'
+              class='mb-1'
+              @click='showResetPasswordModal(data.item)'
+            >
+              <i class='fas fa-key'></i>
+            </b-button>
+          </can>
           <can method='delete' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
@@ -120,6 +133,31 @@
     ></b-pagination>
 
     <b-modal
+      :busy='resetting'
+      ok-variant='danger'
+      cancel-variant='dark'
+      :cancel-title="$t('app.no')"
+      @ok='resetPassword($event)'
+      @cancel='clearUserToResetPassword'
+      @close='clearUserToResetPassword'
+      ref='reset-user-password-modal'
+      :static='modalStatic'
+      :no-close-on-esc="resetting"
+      :no-close-on-backdrop="resetting"
+      :hide-header-close="resetting"
+    >
+      <template v-slot:modal-title>
+        {{ $t('settings.users.resetPassword.title') }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="resetting"></b-spinner>  {{ $t('app.yes') }}
+      </template>
+      <span v-if="userToResetPassword">
+        {{ $t('settings.users.resetPassword.confirm', { firstname: userToResetPassword.firstname, lastname: userToResetPassword.lastname }) }}
+      </span>
+    </b-modal>
+
+    <b-modal
       :busy='deleting'
       ok-variant='danger'
       cancel-variant='dark'
@@ -128,7 +166,11 @@
       @cancel='clearUserToDelete'
       @close='clearUserToDelete'
       ref='delete-user-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="deleting"
+      :no-close-on-backdrop="deleting"
+      :hide-header-close="deleting"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.users.delete.title') }}
       </template>
@@ -181,9 +223,12 @@ export default {
     return {
       isBusy: false,
       deleting: false,
+      resetting: false,
       meta: {},
       userToDelete: undefined,
+      userToResetPassword: undefined,
       actionPermissions: ['users.view', 'users.update', 'users.delete'],
+      actionColumnThStyle: 'width: 200px',
       filter: undefined
     };
   },
@@ -237,6 +282,16 @@ export default {
     },
 
     /**
+     * Shows the reset password modal with the passed user.
+     *
+     * @param user The user whose password should be reset.
+     */
+    showResetPasswordModal (user) {
+      this.userToResetPassword = user;
+      this.$refs['reset-user-password-modal'].show();
+    },
+
+    /**
      * Deletes the user that is set in the property `userToDelete`.
      */
     deleteUser (evt) {
@@ -262,6 +317,38 @@ export default {
      */
     clearUserToDelete () {
       this.userToDelete = undefined;
+    },
+
+    /**
+     * Clears the temporary property `userToResetPassword` on canceling or
+     * after success reset when the modal gets hidden.
+     */
+    clearUserToResetPassword () {
+      this.userToResetPassword = undefined;
+    },
+
+    /**
+     * Resets the password for the given user.
+     */
+    resetPassword (evt) {
+      evt.preventDefault();
+      this.resetting = true;
+
+      const config = {
+        method: 'post'
+      };
+
+      Base.call(`users/${this.userToResetPassword.id}/resetPassword`, config).then(() => {
+        this.flashMessage.success({
+          title: this.$t('settings.users.passwordResetSuccess', { mail: this.userToResetPassword.email })
+        });
+      }).catch(error => {
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.clearUserToResetPassword();
+        this.$refs['reset-user-password-modal'].hide();
+        this.resetting = false;
+      });
     }
   }
 };
