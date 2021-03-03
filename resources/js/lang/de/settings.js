@@ -112,6 +112,8 @@ export default {
     color: 'Icon Farbe',
     customColor: 'Eigene Farbe',
     preview: 'Vorschau',
+    allowListing: 'Raumsuche erlaubt',
+    allowListingDescription: 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
     serverPool: 'Serverpool',
     selectServerPool: 'Serverpool auswählen',
     serverPoolDescription: 'Server dieses Serverpools werden für die Lastverteilung verwendet',

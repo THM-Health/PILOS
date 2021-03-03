@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Meeting;
 use App\Room;
+use App\RoomType;
 use App\Server;
 use Auth;
 use Illuminate\Http\Request;
@@ -43,16 +44,42 @@ class RoomController extends Controller
                 default:
                     abort(400);
             }
-        } else {
-            //TODO implement public room list
-            abort(400);
+
+            if ($request->has('search') && trim($request->search) != '') {
+                $collection = $collection->where('name', 'like', '%' . $request->search . '%');
+            }
+
+            $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+
+            return \App\Http\Resources\Room::collection($collection);
+        }
+
+        $collection =  Room::with('owner');
+        if (Auth::user()->cannot('viewAll', Room::class)) {
+            $collection = $collection
+                ->where('listed', 1)
+                ->whereNull('accessCode')
+                ->whereIn('room_type_id', RoomType::where('allow_listing', 1)->get('id'));
         }
 
         if ($request->has('search') && trim($request->search) != '') {
-            $collection = $collection->where('name', 'like', '%' . $request->search . '%');
+            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $collection = $collection->where(function ($query) use ($searchQuery) {
+                    $query->where('name', 'like', '%' . $searchQuery . '%')
+                            ->orWhereHas('owner', function ($query2) use ($searchQuery) {
+                                $query2->where('firstname', 'like', '%' . $searchQuery . '%')
+                                       ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                            });
+                });
+            }
         }
 
-        $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+        if ($request->has('roomTypes')) {
+            $collection->whereIn('room_type_id', $request->roomTypes);
+        }
+
+        $collection = $collection->orderBy('name')->paginate(setting('pagination_page_size'));
 
         return \App\Http\Resources\Room::collection($collection);
     }
@@ -223,6 +250,7 @@ class RoomController extends Controller
         $room->maxParticipants = $request->maxParticipants;
         $room->duration        = $request->duration;
         $room->accessCode      = $request->accessCode;
+        $room->listed          = $request->listed;
 
         $room->muteOnStart                    = $request->muteOnStart;
         $room->lockSettingsDisableCam         = $request->lockSettingsDisableCam;

@@ -53,6 +53,7 @@ import store from '../../store';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from './../../env.js';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect';
+import _ from 'lodash';
 
 export default {
   components: { RoomTypeSelect },
@@ -87,9 +88,13 @@ export default {
 
     handleSubmit () {
       this.isLoadingAction = true;
+
+      const newRoom = _.clone(this.room);
+      newRoom.roomType = newRoom.roomType ? newRoom.roomType.id : null;
+
       Base.call('rooms', {
         method: 'post',
-        data: this.room
+        data: newRoom
       }).then(response => {
         this.errors = {};
         this.$router.push({ name: 'rooms.view', params: { id: response.data.data.id } });

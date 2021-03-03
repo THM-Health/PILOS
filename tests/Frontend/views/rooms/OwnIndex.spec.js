@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/Index';
+import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
 import BootstrapVue, { BCard, IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
@@ -65,7 +65,7 @@ function overrideStub (url, response) {
   }
 }
 
-describe('RoomList', function () {
+describe('Own Room Index', function () {
   beforeEach(function () {
     moxios.install();
   });

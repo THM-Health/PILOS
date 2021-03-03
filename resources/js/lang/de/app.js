@@ -59,7 +59,12 @@ export default {
     rooms: {
       title: 'Räume',
       create: 'Räume erstellen',
-      delete: 'Räume löschen'
+      viewAll: 'Alle Räume anzeigen'
+    },
+
+    meetings: {
+      title: 'Meetings',
+      viewAny: 'Alle Meetings anzeigen'
     },
 
     applicationSettings: {

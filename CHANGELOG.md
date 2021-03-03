@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Management of server pools, used by load balancer and added to room type ([#96], [#99])
 - Password self reset, password reset by an administrator and password generation with password reset for registered users ([#106], [#107])
 - Logging for failed/successful logins and ldap roles ([#112], [#113])
+- Room list/search, room and room type setting to allow public room search ([#63], [#108])
+- List of running meetings ([#63], [#108])
 
 [#1]: https://github.com/THM-Health/PILOS/issues/1
 [#3]: https://github.com/THM-Health/PILOS/pull/3
@@ -71,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#55]: https://github.com/THM-Health/PILOS/issues/55
 [#60]: https://github.com/THM-Health/PILOS/pull/60
 [#62]: https://github.com/THM-Health/PILOS/issues/62
+[#63]: https://github.com/THM-Health/PILOS/issues/63
 [#64]: https://github.com/THM-Health/PILOS/issues/64
 [#65]: https://github.com/THM-Health/PILOS/pull/65
 [#66]: https://github.com/THM-Health/PILOS/pull/66
@@ -91,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#105]: https://github.com/THM-Health/PILOS/pull/105
 [#106]: https://github.com/THM-Health/PILOS/issues/106
 [#107]: https://github.com/THM-Health/PILOS/pull/107
+[#108]: https://github.com/THM-Health/PILOS/pull/108
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
 

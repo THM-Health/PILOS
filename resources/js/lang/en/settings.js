@@ -107,6 +107,8 @@ export default {
     color: 'Icon color',
     customColor: 'Custom color',
     preview: 'Preview',
+    allowListing: 'Room search allowed',
+    allowListingDescription: 'In the room settings the rooms can be made visible for the room search.',
     serverPool: 'Server pool',
     selectServerPool: 'Select server pool',
     serverPoolDescription: 'Servers of this server pool are used for load balancing',

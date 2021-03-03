@@ -2,6 +2,7 @@ import VueRouter from 'vue-router';
 import Login from './views/Login';
 import NotFound from './views/NotFound';
 import RoomsIndex from './views/rooms/Index';
+import RoomsOwnIndex from './views/rooms/OwnIndex';
 import RoomView from './views/rooms/View';
 import store from './store';
 import Home from './views/Home';
@@ -20,6 +21,7 @@ import ServersIndex from './views/settings/servers/Index';
 import ServersView from './views/settings/servers/View';
 import ServerPoolsIndex from './views/settings/serverPools/Index';
 import ServerPoolsView from './views/settings/serverPools/View';
+import MeetingsIndex from './views/meetings/Index';
 import PasswordReset from './views/PasswordReset';
 import Base from './api/base';
 import ForgotPassword from './views/ForgotPassword';
@@ -78,10 +80,26 @@ export const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/rooms/own',
+    name: 'rooms.own_index',
+    component: RoomsOwnIndex,
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/rooms/:id',
     name: 'rooms.view',
     component: RoomView
   },
+  {
+    path: '/meetings',
+    component: MeetingsIndex,
+    name: 'meetings.index',
+    meta: {
+      requiresAuth: true,
+      accessPermitted: () => Promise.resolve(PermissionService.can('viewAny', 'MeetingPolicy'))
+    }
+  },
+
   {
     path: '/settings',
     component: Settings,

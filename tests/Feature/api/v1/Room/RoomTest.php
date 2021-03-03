@@ -128,16 +128,6 @@ class RoomTest extends TestCase
         // Try again after deleted
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
             ->assertNotFound();
-
-        // Authorize user to delete any room
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'rooms.delete']);
-        $role->permissions()->attach($permission);
-        $this->user->roles()->attach($role);
-
-        // Test with general room delete permission
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_2]))
-            ->assertNoContent();
     }
 
     /**
@@ -220,9 +210,96 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test list of rooms
+     * Test list of rooms without filter
      */
     public function testRoomList()
+    {
+        $user      = factory(User::class)->create(['firstname'=>'John','lastname'=>'Doe']);
+        $roomType1 = factory(RoomType::class)->create();
+        $roomType2 = factory(RoomType::class)->create(['allow_listing'=>false]);
+        $roomType3 = factory(RoomType::class)->create(['allow_listing'=>true]);
+
+        $room1 = factory(Room::class)->create(['name'=>'test a','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>123456789]);
+        $room2 = factory(Room::class)->create(['name'=>'test b','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>null]);
+        $room3 = factory(Room::class)->create(['name'=>'room a','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>123456789]);
+        $room4 = factory(Room::class)->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>null]);
+        $room5 = factory(Room::class)->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType3->id,'listed'=>true,'accessCode'=>null]);
+
+        // Testing guests access
+        $this->getJson(route('api.v1.rooms.index'))
+            ->assertUnauthorized();
+
+        // Test as logged in user, without viewAll rooms permission, should only see rooms
+        // that are listing and have a room type that allows listing
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment(['id'=>$room5->id,'name'=>$room5->name]);
+
+        // Test with viewAll rooms permission
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data')
+            ->assertJsonFragment(['id'=>$room1->id,'name'=>$room1->name])
+            ->assertJsonFragment(['id'=>$room2->id,'name'=>$room2->name])
+            ->assertJsonFragment(['id'=>$room3->id,'name'=>$room3->name])
+            ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name]);
+
+        // Find by room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test')
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a')
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a+xyz')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Find by owner name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john+d')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john+d+xzy')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Find by owner name and room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+john')
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+john+xyz')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Filter by room types
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id)
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&roomTypes[]='.$roomType2->id)
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data');
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]=0')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+
+        // Filter by room types and search
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&search=test+a')
+            ->assertStatus(200)
+            ->assertJsonCount(1, 'data');
+    }
+
+    /**
+     * Test list of rooms with filter
+     */
+    public function testRoomListWithFilter()
     {
         $rooms = factory(Room::class, 4)->create();
 
@@ -230,10 +307,6 @@ class RoomTest extends TestCase
         $this->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertUnauthorized();
 
-        // Testing authorized users access
-        // Missing filter
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
-            ->assertStatus(400);
         // Invalid filter
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
             ->assertStatus(400);
@@ -377,6 +450,8 @@ class RoomTest extends TestCase
 
         $settings = $response->json('data');
 
+        $roomType = $this->faker->randomElement(RoomType::all());
+
         $settings['accessCode']                     = $this->faker->numberBetween(111111111, 999999999);
         $settings['allowGuests']                    = $this->faker->boolean;
         $settings['allowMembership']                = $this->faker->boolean;
@@ -394,7 +469,7 @@ class RoomTest extends TestCase
         $settings['maxParticipants']                = $this->faker->numberBetween(1, 50);
         $settings['muteOnStart']                    = $this->faker->boolean;
         $settings['name']                           = $this->faker->word;
-        $settings['roomType']                       = $this->faker->randomElement(RoomType::pluck('id'));
+        $settings['roomType']                       = $roomType->id;
         $settings['webcamsOnlyForModerator']        = $this->faker->boolean;
 
         $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
@@ -404,7 +479,8 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertSuccessful();
 
-        $new_settings = $response->json('data');
+        $new_settings         = $response->json('data');
+        $settings['roomType'] = new \App\Http\Resources\RoomType($roomType);
 
         $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
     }
