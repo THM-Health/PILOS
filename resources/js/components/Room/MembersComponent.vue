@@ -7,7 +7,7 @@
         <b-button-group class="float-lg-right">
           <!-- Add existing user from database -->
           <b-button
-            variant="dark"
+            variant="success"
             :disabled="isBusy"
             @click="showAddMemberModal"
           >
@@ -61,7 +61,7 @@
 
           <!-- action buttons -->
           <template v-slot:cell(actions)="data">
-            <b-button-group class="float-md-right">
+            <b-button-group class="float-md-right" v-if="currentUser.id !== data.item.id" >
               <!-- edit membership role -->
               <b-button
                 :disabled="isBusy"
@@ -92,6 +92,9 @@
             </b-badge>
             <b-badge v-if="data.value === 2" variant="danger"
             >{{ $t('rooms.members.roles.moderator') }}
+            </b-badge>
+            <b-badge v-if="data.value === 3" variant="dark"
+            >{{ $t('rooms.members.roles.co_owner') }}
             </b-badge>
           </template>
         </b-table>
@@ -131,6 +134,9 @@
         </b-form-radio>
         <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
+        </b-form-radio>
+        <b-form-radio v-model.number="editMember.role" name="some-radios" value="3">
+          <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
         </b-form-radio>
       </b-form-group>
     </b-modal>
@@ -204,6 +210,9 @@
         <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="2">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
+        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="3">
+          <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
+        </b-form-radio>
         <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
       </b-form-group>
     </b-modal>
@@ -214,13 +223,14 @@
 import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 
 export default {
   mixins: [FieldErrors],
   components: { Multiselect },
+
   props: {
     room: Object // room object
   },
@@ -404,6 +414,9 @@ export default {
   computed: {
     ...mapGetters({
       settings: 'session/settings'
+    }),
+    ...mapState({
+      currentUser: state => state.session.currentUser
     }),
 
     // check if new user input field is valid, local and server-side check

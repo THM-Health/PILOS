@@ -50,9 +50,10 @@ class Room extends JsonResource
                 'allowMembership'   => $this->allowMembership,
                 'isMember'          => $this->resource->isMember(Auth::user()),
                 'isModerator'       => $this->resource->isModerator(Auth::user()),
+                'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
                 'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
                 'running'           => $this->resource->runningMeeting() != null,
-                'accessCode'        => $this->when(Auth::user() && ($this->owner->is(Auth::user()) || $this->resource->isModerator(Auth::user()) || Auth::user()->can('manage', \App\Room::class)), $this->accessCode),
+                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
             ])
         ];
     }

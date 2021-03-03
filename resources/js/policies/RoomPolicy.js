@@ -13,7 +13,7 @@ export default {
   },
 
   viewInvitation (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isModerator || permissionService.currentUser.permissions.includes('rooms.manage');
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isModerator || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.manage');
   },
 
   delete (permissionService, model) {
@@ -21,11 +21,11 @@ export default {
   },
 
   manageFiles (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.manage');
   },
 
   manageSettings (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || permissionService.currentUser.permissions.includes('rooms.manage');
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.manage');
   }
 
 };

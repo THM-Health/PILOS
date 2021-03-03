@@ -153,6 +153,15 @@ class Room extends Model
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
     }
 
+    /** Check if user is co owner of this room
+     * @param $user User|null
+     * @return bool
+     */
+    public function isCoOwner($user)
+    {
+        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
+    }
+
     /**
      * Check if user is member of this room
      * @param $user User|null
@@ -175,7 +184,7 @@ class Room extends Model
         }
 
         if ($this->owner->is($user)) {
-            return RoomUserRole::MODERATOR;
+            return RoomUserRole::OWNER;
         }
 
         $member = $this->members()->find($user);

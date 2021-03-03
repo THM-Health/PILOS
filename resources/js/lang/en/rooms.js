@@ -89,8 +89,8 @@ export default {
     roles: {
       guest: 'Guest',
       participant: 'Participant',
-      moderator: 'Moderator'
-
+      moderator: 'Moderator',
+      co_owner: 'Co-owner'
     },
     modals: {
       edit: {
