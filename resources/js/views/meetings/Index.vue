@@ -53,7 +53,7 @@
       </template>
 
       <template v-slot:table-busy>
-        <div class="text-center my-2">
+        <div class="text-center my-2" v-if="!loadingError">
           <b-spinner className="align-middle"></b-spinner>
         </div>
       </template>
