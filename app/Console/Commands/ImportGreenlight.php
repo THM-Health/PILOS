@@ -2,46 +2,47 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Room;
 use App\RoomType;
 use App\User;
+use Config;
+use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class ImportGreenlight extends Command
 {
-    protected $signature = 'import:greenlight {dir}';
+    protected $signature = 'import:greenlight
+                             {host : ip or hostname of postgres database server}
+                             {port : port of postgres database server}
+                             {database : greenlight database name, see greenlight .env variable DB_NAME}
+                             {username : greenlight database username, see greenlight .env variable DB_USERNAME}
+                             {password : greenlight database password, see greenlight .env variable DB_PASSWORD}';
 
-    protected $description = 'Import users and rooms from greenlight';
+    protected $description = 'Connect to greenlight PostgreSQL database to import users, rooms and shared room accesses';
 
     public function handle()
     {
-        // directory of exported greenlight data
-        $dir = $this->argument('dir');
+        Config::set('database.connections.greenlight', [
+            'driver'         => 'pgsql',
+            'host'           => $this->argument('host'),
+            'database'       => $this->argument('database'),
+            'username'       => $this->argument('username'),
+            'password'       => $this->argument('password'),
+            'port'           => $this->argument('port'),
+            'charset'        => 'utf8',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'schema'         => 'public',
+            'sslmode'        => 'prefer',
+        ]);
 
-        // check if users file exists
-        $usersFile = $dir.'/users.csv';
-        if (!file_exists($usersFile)) {
-            $this->error("users import file 'users.csv' missing");
-
-            return;
-        }
-
-        // check if rooms file exists
-        $roomFile = $dir.'/rooms.csv';
-        if (!file_exists($usersFile)) {
-            $this->error("rooms import file 'rooms.csv' missing");
-
-            return;
-        }
-
-        // check if shared_accesses file exists
-        $sharedAccessesFile = $dir.'/shared_accesses.csv';
-        if (!file_exists($usersFile)) {
-            $this->error("shared accesses import file 'shared_accesses.csv' missing");
-
-            return;
-        }
+        $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value');
+        $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id','provider','username','email','name','password_digest']);
+        $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id','uid','user_id','name','room_settings','access_code']);
+        $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id','user_id']);
 
         // ask user what room type the imported rooms should get
         $roomTypeShort = $this->choice(
@@ -54,44 +55,31 @@ class ImportGreenlight extends Command
         // find id of the selected roomtype
         $roomType = RoomType::where('short', $roomTypeShort)->first()->id;
 
-        $users = $this->importUsers($usersFile);
-        $rooms = $this->importRooms($roomFile, $roomType, $users);
-        $this->importSharedAccesses($sharedAccessesFile, $rooms, $users);
+        $userMap = $this->importUsers($users);
+        $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth);
+        $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
     }
 
     /**
-     * Read user csv file and try to import users
+     * Process greenlight user collection and try to import users
      *
-     * @param  string $file Path to csv file with users
-     * @return array  Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  Collection $users Collection with all users found in the greenlight database
+     * @return array      Array map of greenlight user ids as key and id of the found/created user as value
      */
-    protected function importUsers(string $file): array
+    protected function importUsers(Collection $users): array
     {
-        // read csv file and extract header
-        $rows   = array_map('str_getcsv', file($file));
-        $header = array_shift($rows);
-
-        $users  = [];
-        foreach ($rows as $row) {
-            $user = array_combine($header, $row);
-
-            // skip deleted user
-            if ($user['deleted'] == 't') {
-                continue;
-            }
+        $userMap  = [];
+        foreach ($users as $user) {
 
             // import greenlight users
-            if ($user['provider'] == 'greenlight') {
-
-                // get email
-                $email = $user['email'];
+            if ($user->provider == 'greenlight') {
 
                 // check if user with this email exists
-                $dbUser = User::where('email', $email)->where('authenticator', 'users')->first();
+                $dbUser = User::where('email', $user->email)->where('authenticator', 'users')->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
-                    $this->info('ldap user '.$email.' already exits');
-                    $users[$user['id']] = $dbUser->id;
+                    $this->info('user '.$user->email.' already exits');
+                    $userMap[$user->id] = $dbUser->id;
 
                     continue;
                 }
@@ -99,133 +87,121 @@ class ImportGreenlight extends Command
                 // create new user
                 $dbUser                = new User();
                 $dbUser->authenticator = 'users';
-                $dbUser->email         = $email;
-                $dbUser->firstname     = $user['name'];
+                $dbUser->email         = $user->email;
+                $dbUser->firstname     = $user->name;
                 $dbUser->lastname      = '';
-                $dbUser->password      = $user['password_digest'];
+                $dbUser->password      = $user->password_digest;
                 $dbUser->save();
 
                 // user was successfully created, link greenlight user id to id of new user
-                $this->info('imported user '.$email);
-                $users[$user['id']] = $dbUser->id;
+                $this->info('imported user '.$user->email);
+                $userMap[$user->id] = $dbUser->id;
             }
             // import ldap users
-            if ($user['provider'] == 'ldap') {
-                // get username
-                $username = $user['username'];
+            if ($user->provider == 'ldap') {
 
                 // check if user with this username exists
-                $dbUser = User::where('username', $username)->first();
+                $dbUser = User::where('username', $user->username)->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
-                    $this->info('ldap user '.$username.' already exits');
-                    $users[$user['id']] = $dbUser->id;
+                    $this->info('ldap user '.$user->username.' already exits');
+                    $userMap[$user->id] = $dbUser->id;
 
                     continue;
                 }
                 // try to import user with this username
-                $this->callSilent('ldap:import', ['provider'=>'ldap','user'=>$username,'--no-interaction','--no-log']);
+                $this->callSilent('ldap:import', ['provider'=>'ldap','user'=>$user->username,'--no-interaction','--no-log']);
 
                 // check if user is found after import
-                $dbUser = User::where('username', $username)->first();
+                $dbUser = User::where('username', $user->username)->first();
 
                 // user not found, import failed
                 if ($dbUser == null) {
-                    $this->error('importing ldap user '.$username.' failed');
+                    $this->error('importing ldap user '.$user->username.' failed');
 
                     continue;
                 }
                 // user was successfully imported, link greenlight user id to id of new user
-                $this->info('imported ldap user '.$username);
-                $users[$user['id']] = $dbUser->id;
+                $this->info('imported ldap user '.$user->username);
+                $userMap[$user->id] = $dbUser->id;
             }
         }
 
-        return $users;
+        return $userMap;
     }
 
     /**
-     * Read rooms csv file and create the rooms if not already existing
+     *  Process greenlight room collection and create the rooms if not already existing
      *
-     * @param  string $file     Path to csv file with rooms
-     * @param  int    $roomType ID of the roomtype the rooms should be assigned to
-     * @param  array  $users    Array map of greenlight user ids as key and id of the found/created user as value
-     * @return array  Array map of greenlight room ids as key and id of the created room as value
+     * @param  Collection $rooms    Collection with rooms users found in the greenlight database
+     * @param  int        $roomType ID of the roomtype the rooms should be assigned to
+     * @param  array      $userMap  Array map of greenlight user ids as key and id of the found/created user as value
+     * @return array      Array map of greenlight room ids as key and id of the created room as value
      */
-    protected function importRooms(string $file, int $roomType, array $users): array
+    protected function importRooms(Collection $rooms, int $roomType, array $userMap, bool $allowGuests): array
     {
-        // read csv file and extract header
-        $rows   = array_map('str_getcsv', file($file));
-        $header = array_shift($rows);
+        $roomMap  = [];
+        foreach ($rooms as $room) {
+            $room->room_settings = json_decode($room->room_settings);
 
-        $rooms  = [];
-        foreach ($rows as $row) {
-            $room = array_combine($header, $row);
-
-            // skip deleted room
-            if ($room['deleted'] == 't') {
-                continue;
-            }
-
-            $uid  = $room['uid'];
-
-            $dbRoom = Room::find($uid);
+            $dbRoom = Room::find($room->uid);
             if ($dbRoom != null) {
-                $this->warn('room with id '.$uid.' already exits');
+                $this->warn('room with id '.$room->uid.' already exits');
 
                 continue;
             }
 
-            $userId = intval($room['user_id']);
-
-            if (!isset($users[$userId])) {
-                $this->error('room owner not found for '.$uid);
+            if (!isset($userMap[$room->user_id])) {
+                $this->error('room owner not found for '.$room->uid);
 
                 continue;
             }
 
-            $dbRoom             = new Room();
-            $dbRoom->id         = $uid;
-            $dbRoom->name       = $room['name'];
-            $dbRoom->accessCode = $room['access_code'] == '' ? null : $room['access_code'];
-            $dbRoom->owner()->associate($users[$userId]);
+            $dbRoom              = new Room();
+            $dbRoom->id          = $room->uid;
+            $dbRoom->name        = $room->name;
+            $dbRoom->accessCode  = $room->access_code == '' ? null : $room->access_code;
+            $dbRoom->allowGuests = $allowGuests;
+
+            $dbRoom->muteOnStart      = $room->room_settings->muteOnStart;
+            $dbRoom->everyoneCanStart = $room->room_settings->anyoneCanStart;
+            $dbRoom->defaultRole      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
+            $dbRoom->muteOnStart      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
+
+            $dbRoom->owner()->associate($userMap[$room->user_id]);
             $dbRoom->roomType()->associate($roomType);
             $dbRoom->save();
 
-            $this->info('created room with id '.$uid);
+            $this->info('created room with id '.$room->uid);
 
-            $rooms[$room['id']] = $uid;
+            $roomMap[$room->id] = $room->uid;
         }
 
-        return $rooms;
+        return $roomMap;
     }
 
     /**
-     * Read shared accesses file and try to create the room membership for the users and rooms
+     * Process greenlight shared room access collection and try to create the room membership for the users and rooms
      * Each user get the moderator role, as that is the greenlight equivalent
      *
-     * @param string $file  Path to csv file with shared accesses
-     * @param array  $rooms Array map of greenlight room ids as key and id of the created room as value
-     * @param array  $users Array map of greenlight user ids as key and id of the found/created user as value
+     * @param Collection $sharedAccesses Collection of user and room ids for shared room access
+     * @param array      $roomMap        Array map of greenlight room ids as key and id of the created room as value
+     * @param array      $userMap        Array map of greenlight user ids as key and id of the found/created user as value
      */
-    protected function importSharedAccesses(string $file, array $rooms, array $users)
+    protected function importSharedAccesses(Collection $sharedAccesses, array $roomMap, array $userMap)
     {
-        // read csv file and extract header
-        $rows   = array_map('str_getcsv', file($file));
-        $header = array_shift($rows);
+        foreach ($sharedAccesses as $sharedAccess) {
+            $room = $sharedAccess->room_id;
+            $user = $sharedAccess->user_id;
 
-        foreach ($rows as $row) {
-            $sharedAccesses = array_combine($header, $row);
+            if (!isset($userMap[$user]) || !isset($roomMap[$room])) {
+                echo 'not found';
 
-            $room = intval($sharedAccesses['room_id']);
-            $user = intval($sharedAccesses['user_id']);
-
-            if (!isset($users[$user]) || !isset($rooms[$room])) {
                 continue;
             }
 
-            $dbRoom = Room::find($rooms[$room]);
-            $dbRoom->members()->syncWithoutDetaching([$users[$user] => ['role' => RoomUserRole::MODERATOR]]);
+            $dbRoom = Room::find($roomMap[$room]);
+            $dbRoom->members()->syncWithoutDetaching([$userMap[$user] => ['role' => RoomUserRole::MODERATOR]]);
         }
     }
 }
