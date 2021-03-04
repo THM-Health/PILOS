@@ -68,7 +68,16 @@ class ImportGreenlight extends Command
      */
     protected function importUsers(Collection $users): array
     {
+        $this->line('Importing users');
         $userMap  = [];
+
+        $bar = $this->output->createProgressBar($users->count());
+        $bar->start();
+
+        $existed = 0;
+        $created = 0;
+        $failed  = [];
+
         foreach ($users as $user) {
 
             // import greenlight users
@@ -78,8 +87,9 @@ class ImportGreenlight extends Command
                 $dbUser = User::where('email', $user->email)->where('authenticator', 'users')->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
-                    $this->info('user '.$user->email.' already exits');
+                    $existed++;
                     $userMap[$user->id] = $dbUser->id;
+                    $bar->advance();
 
                     continue;
                 }
@@ -94,8 +104,9 @@ class ImportGreenlight extends Command
                 $dbUser->save();
 
                 // user was successfully created, link greenlight user id to id of new user
-                $this->info('imported user '.$user->email);
+                $created++;
                 $userMap[$user->id] = $dbUser->id;
+                $bar->advance();
             }
             // import ldap users
             if ($user->provider == 'ldap') {
@@ -104,28 +115,47 @@ class ImportGreenlight extends Command
                 $dbUser = User::where('username', $user->username)->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
-                    $this->info('ldap user '.$user->username.' already exits');
+                    $existed++;
                     $userMap[$user->id] = $dbUser->id;
+                    $bar->advance();
 
                     continue;
                 }
                 // try to import user with this username
-                $this->callSilent('ldap:import', ['provider'=>'ldap','user'=>$user->username,'--no-interaction','--no-log']);
-
+                try {
+                    $this->callSilent('ldap:import', ['provider' => 'ldap', 'user' => $user->username, '--no-interaction', '--no-log']);
+                } catch (\Throwable $exception) {
+                }
                 // check if user is found after import
                 $dbUser = User::where('username', $user->username)->first();
 
                 // user not found, import failed
                 if ($dbUser == null) {
-                    $this->error('importing ldap user '.$user->username.' failed');
+                    array_push($failed, [$user->name,$user->username]);
+                    $bar->advance();
 
                     continue;
                 }
                 // user was successfully imported, link greenlight user id to id of new user
-                $this->info('imported ldap user '.$user->username);
+                $created++;
                 $userMap[$user->id] = $dbUser->id;
+                $bar->advance();
             }
         }
+
+        $this->line('');
+        $this->info($created. '  created, '.$existed. ' skipped (already existed)');
+
+        if (count($failed) > 0) {
+            $this->line('');
+
+            $this->error('LDAP import failed for the following ' . count($failed) . ' users:');
+            $this->table(
+                ['Name', 'Username'],
+                $failed
+            );
+        }
+        $this->line('');
 
         return $userMap;
     }
@@ -140,19 +170,31 @@ class ImportGreenlight extends Command
      */
     protected function importRooms(Collection $rooms, int $roomType, array $userMap, bool $allowGuests): array
     {
+        $this->line('Importing rooms');
+
+        $bar = $this->output->createProgressBar($rooms->count());
+        $bar->start();
+
+        $existed = 0;
+        $created = 0;
+
+        $failed = [];
+
         $roomMap  = [];
         foreach ($rooms as $room) {
             $room->room_settings = json_decode($room->room_settings);
 
             $dbRoom = Room::find($room->uid);
             if ($dbRoom != null) {
-                $this->warn('room with id '.$room->uid.' already exits');
+                $existed++;
+                $bar->advance();
 
                 continue;
             }
 
             if (!isset($userMap[$room->user_id])) {
-                $this->error('room owner not found for '.$room->uid);
+                array_push($failed, [$room->name,$room->uid,$room->access_code]);
+                $bar->advance();
 
                 continue;
             }
@@ -163,19 +205,41 @@ class ImportGreenlight extends Command
             $dbRoom->accessCode  = $room->access_code == '' ? null : $room->access_code;
             $dbRoom->allowGuests = $allowGuests;
 
-            $dbRoom->muteOnStart      = $room->room_settings->muteOnStart;
-            $dbRoom->everyoneCanStart = $room->room_settings->anyoneCanStart;
-            $dbRoom->defaultRole      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
-            $dbRoom->muteOnStart      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
+            if (isset($room->room_settings->muteOnStart)) {
+                $dbRoom->muteOnStart      = $room->room_settings->muteOnStart;
+            }
+            if (isset($room->room_settings->anyoneCanStart)) {
+                $dbRoom->everyoneCanStart = $room->room_settings->anyoneCanStart;
+            }
+            if (isset($room->room_settings->joinModerator)) {
+                $dbRoom->defaultRole      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
+            }
+            if (isset($room->room_settings->requireModeratorApproval)) {
+                $dbRoom->muteOnStart      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
+            }
 
             $dbRoom->owner()->associate($userMap[$room->user_id]);
             $dbRoom->roomType()->associate($roomType);
             $dbRoom->save();
 
-            $this->info('created room with id '.$room->uid);
-
+            $created++;
             $roomMap[$room->id] = $room->uid;
+            $bar->advance();
         }
+
+        $this->line('');
+        $this->info($created. ' created, '.$existed. ' skipped (already existed)');
+
+        if (count($failed) > 0) {
+            $this->line('');
+
+            $this->error('Room import failed for the following ' . count($failed) . ' rooms, because no room owner was found:');
+            $this->table(
+                ['Name', 'ID', 'Access code'],
+                $failed
+            );
+        }
+        $this->line('');
 
         return $roomMap;
     }
@@ -190,18 +254,32 @@ class ImportGreenlight extends Command
      */
     protected function importSharedAccesses(Collection $sharedAccesses, array $roomMap, array $userMap)
     {
+        $this->line('Importing shared room accesses');
+
+        $bar = $this->output->createProgressBar($sharedAccesses->count());
+        $bar->start();
+
+        $created = 0;
+        $failed  = 0;
+
         foreach ($sharedAccesses as $sharedAccess) {
             $room = $sharedAccess->room_id;
             $user = $sharedAccess->user_id;
 
             if (!isset($userMap[$user]) || !isset($roomMap[$room])) {
-                echo 'not found';
+                $bar->advance();
+                $failed++;
 
                 continue;
             }
 
             $dbRoom = Room::find($roomMap[$room]);
             $dbRoom->members()->syncWithoutDetaching([$userMap[$user] => ['role' => RoomUserRole::MODERATOR]]);
+            $bar->advance();
+            $created++;
         }
+
+        $this->line('');
+        $this->info($created. ' created, '. $failed. ' skipped (user or room not found)');
     }
 }
