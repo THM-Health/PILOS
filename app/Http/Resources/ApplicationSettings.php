@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\URL;
 
 class ApplicationSettings extends JsonResource
 {
@@ -68,7 +69,8 @@ class ApplicationSettings extends JsonResource
             $this->mergeWhen($this->allSettings, [
                 'link_btn_styles' => LinkButtonStyle::getValues(),
                 'link_targets'    => LinkTarget::getValues()
-            ])
+            ]),
+            'default_presentation' => $this->when(!empty(setting('default_presentation')), URL::signedRoute('download.default_presentation'))
         ];
     }
 }

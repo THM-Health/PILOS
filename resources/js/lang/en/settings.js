@@ -131,6 +131,10 @@ export default {
   application: {
     title: 'Application',
     tileDescription: 'Controls system-wide settings such as logo, maintenance banner and page sizes.',
+    default_presentation: 'Default presentation',
+    viewDefaultPresentation: 'View',
+    deleteDefaultPresentation: 'Delete',
+    resetDefaultPresentation: 'Reset',
     logo: {
       title: 'Logo',
       uploadTitle: 'Upload a logo (max. 500 KB)',

@@ -102,6 +102,10 @@ class Meeting extends Model
             $meetingParams->addPresentation($file->getDownloadLink(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
 
+        if (empty($meetingParams->getPresentations()) && !empty(setting('default_presentation'))) {
+            $meetingParams->addPresentation(URL::signedRoute('download.default_presentation'));
+        }
+
         // set guest policy
         if ($this->room->lobby == RoomLobby::ENABLED) {
             $meetingParams->setGuestPolicyAskModerator();

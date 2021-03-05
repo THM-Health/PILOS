@@ -166,139 +166,209 @@
         </b-form-group>
 
         <!--Room limit settings-->
-        <b-form-group
-          label-class="font-weight-bold"
-          class="mb-4"
-          label-for="application-room-limit-input"
-          :description="$t('settings.application.roomLimit.description')"
-          :state='fieldState("room_limit")'
-          :label="$t('settings.application.roomLimit.title')"
-        >
-          <b-form-radio-group
-            class='mb-2'
-            id="application-room-limit-radio-group"
-            v-model='roomLimitMode'
-            :options='roomLimitModeOptions'
-            :disabled='isBusy || viewOnly || !loaded'
-            required
-            :state='fieldState("room_limit")'
-            @change="roomLimitModeChanged"
-            stacked
-          ></b-form-radio-group>
-
-          <b-form-input
-            id='application-room-limit-input'
-            type='number'
-            :state='fieldState("room_limit")'
-            v-model='settings.room_limit'
-            min='0'
-            max="100"
-            required
-            :disabled='isBusy || viewOnly || !loaded'
-            v-if="roomLimitMode === 'custom'">
-          </b-form-input>
-
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('room_limit')"></div>
-          </template>
-        </b-form-group>
-
-        <!--Pagination page size settings-->
-        <b-form-group
-          label-class="font-weight-bold"
-          class="mb-4"
-          label-for="application-pagination-page-size-input"
-          :description="$t('settings.application.paginationPageSize.description')"
-          :state='fieldState("pagination_page_size")'
-          :label="$t('settings.application.paginationPageSize.title')"
-        >
-          <b-form-input id="application-pagination-page-size-input"
-                        v-model="settings.pagination_page_size"
-                        type="number"
-                        :disabled="isBusy || viewOnly || !loaded"
-                        min="1"
-                        max="100"
-                        required
-                        :state='fieldState("pagination_page_size")'
-          >
-          </b-form-input>
-
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('pagination_page_size')"></div>
-          </template>
-        </b-form-group>
-
-        <!--Own rooms pagination page size settings-->
-        <b-form-group
-          label-class="font-weight-bold"
-          class="mb-4"
-          label-for="application-pagination-own-room-page-size-input"
-          :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
-          :state='fieldState("own_rooms_pagination_page_size")'
-          :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
-        >
-          <b-form-input id="application-pagination-own-room-page-size-input"
-                        v-model="settings.own_rooms_pagination_page_size"
-                        type="number"
-                        min="1"
-                        max="25"
-                        required
-                        :disabled="isBusy || viewOnly || !loaded"
-                        :state='fieldState("own_rooms_pagination_page_size")'
-          >
-          </b-form-input>
-
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
-          </template>
-        </b-form-group>
-
-        <b-form-group
-          :state='fieldState("password_self_reset_enabled")'
-        >
-          <b-form-checkbox
-            v-model='settings.password_self_reset_enabled'
-            :state="fieldState('password_self_reset_enabled')"
-            :disabled='isBusy || viewOnly || !loaded'
-            switch
-          >
-            {{ $t('settings.application.password_self_reset_enabled') }}
-          </b-form-checkbox>
-
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('password_self_reset_enabled')"></div>
-          </template>
-        </b-form-group>
-
-        <b-form-group
-          label-class="font-weight-bold"
-          class="mb-4"
-          :label="$t('settings.application.default_timezone')"
-          label-for='timezone'
-          :state='fieldState("default_timezone")'
-        >
-          <b-input-group>
-            <b-form-select
-              :options='timezones'
-              id='timezone'
-              v-model='settings.default_timezone'
-              :state='fieldState("default_timezone")'
-              :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
+        <b-row cols='12'>
+          <b-col md='6'>
+            <b-form-group
+              :state='fieldState("password_self_reset_enabled")'
             >
-              <template v-slot:first>
-                <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
+              <b-form-checkbox
+                v-model='settings.password_self_reset_enabled'
+                :state="fieldState('password_self_reset_enabled')"
+                :disabled='isBusy || viewOnly || !loaded'
+                switch
+              >
+                {{ $t('settings.application.password_self_reset_enabled') }}
+              </b-form-checkbox>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('password_self_reset_enabled')"></div>
               </template>
-            </b-form-select>
-            <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
-            <b-input-group-append>
-              <b-button
-                v-if="timezonesLoadingError"
-                @click="loadTimezones()"
-                variant="outline-secondary"
-              ><i class="fas fa-sync"></i></b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </b-form-group>
+            </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-room-limit-input"
+              :description="$t('settings.application.roomLimit.description')"
+              :state='fieldState("room_limit")'
+              :label="$t('settings.application.roomLimit.title')"
+            >
+              <b-form-radio-group
+                class='mb-2'
+                id="application-room-limit-radio-group"
+                v-model='roomLimitMode'
+                :options='roomLimitModeOptions'
+                :disabled='isBusy || viewOnly || !loaded'
+                required
+                :state='fieldState("room_limit")'
+                @change="roomLimitModeChanged"
+                stacked
+              ></b-form-radio-group>
+
+              <b-form-input
+                id='application-room-limit-input'
+                type='number'
+                :state='fieldState("room_limit")'
+                v-model='settings.room_limit'
+                min='0'
+                max="100"
+                required
+                :disabled='isBusy || viewOnly || !loaded'
+                v-if="roomLimitMode === 'custom'">
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('room_limit')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <b-row cols='12'>
+          <b-col md='6'>
+            <!--Pagination page size settings-->
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-pagination-page-size-input"
+              :description="$t('settings.application.paginationPageSize.description')"
+              :state='fieldState("pagination_page_size")'
+              :label="$t('settings.application.paginationPageSize.title')"
+            >
+              <b-form-input id="application-pagination-page-size-input"
+                            v-model="settings.pagination_page_size"
+                            type="number"
+                            :disabled="isBusy || viewOnly || !loaded"
+                            min="1"
+                            max="100"
+                            required
+                            :state='fieldState("pagination_page_size")'
+              >
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('pagination_page_size')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+
+          <b-col md='6'>
+            <!--Own rooms pagination page size settings-->
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-pagination-own-room-page-size-input"
+              :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
+              :state='fieldState("own_rooms_pagination_page_size")'
+              :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
+            >
+              <b-form-input id="application-pagination-own-room-page-size-input"
+                            v-model="settings.own_rooms_pagination_page_size"
+                            type="number"
+                            min="1"
+                            max="25"
+                            required
+                            :disabled="isBusy || viewOnly || !loaded"
+                            :state='fieldState("own_rooms_pagination_page_size")'
+              >
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <b-row cols='12'>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              :label="$t('settings.application.default_timezone')"
+              label-for='timezone'
+              :state='fieldState("default_timezone")'
+            >
+              <b-input-group>
+                <b-form-select
+                  :options='timezones'
+                  id='timezone'
+                  v-model='settings.default_timezone'
+                  :state='fieldState("default_timezone")'
+                  :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
+                >
+                  <template v-slot:first>
+                    <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
+                  </template>
+                </b-form-select>
+                <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
+                <b-input-group-append>
+                  <b-button
+                    v-if="timezonesLoadingError"
+                    @click="loadTimezones()"
+                    variant="outline-secondary"
+                  ><i class="fas fa-sync"></i></b-button>
+                </b-input-group-append>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              :label="$t('settings.application.defaultPresentation')"
+              label-for='default_presentation'
+              :state='fieldState("default_presentation")'
+            >
+              <b-button-group
+                class='mb-2'
+                v-if='settings.default_presentation || !!default_presentation'
+              >
+                <!-- Delete file -->
+                <b-button
+                  v-if='!viewOnly && default_presentation === null'
+                  variant='danger'
+                  @click="default_presentation = ''"
+                >
+                  <i class="fas fa-trash"></i> {{ $t('settings.application.deleteDefaultPresentation') }}
+                </b-button>
+                <b-button
+                  v-if='!viewOnly && default_presentation !== null'
+                  variant='secondary'
+                  @click='default_presentation = null'
+                >
+                  <i class="fas fa-sync"></i> {{ $t('settings.application.resetDefaultPresentation') }}
+                </b-button>
+                <!-- View file -->
+                <b-button
+                  v-if='settings.default_presentation'
+                  variant='dark'
+                  :href='settings.default_presentation'
+                  target='_blank'
+                >
+                  <i class="fas fa-eye"></i> {{ $t('settings.application.viewDefaultPresentation') }}
+                </b-button>
+              </b-button-group>
+              <raw-text v-else-if='viewOnly'>
+                ---
+              </raw-text>
+              <b-form-file
+                :disabled="isBusy || viewOnly || !loaded"
+                id='default_presentation'
+                :state="fieldState('default_presentation')"
+                :browse-text="$t('app.browse')"
+                :placeholder="$t('settings.application.defaultPresentation')"
+                v-model="default_presentation"
+              >
+              </b-form-file>
+              <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: settings.bbb.file_mimes }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
+              <template slot='invalid-feedback' v-if="!viewOnly">
+                <div v-html="fieldError('default_presentation')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
 
         <hr>
 
@@ -347,7 +417,7 @@
             class='mt-4'
             v-if='settings.banner.enabled'
           >
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-title-input'
                 :state='fieldState("banner.title")'
@@ -366,7 +436,7 @@
                 </template>
               </b-form-group>
             </b-col>
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-icon-input'
                 :state='fieldState("banner.icon")'
@@ -411,7 +481,7 @@
             cols='12'
             v-if='settings.banner.enabled'
           >
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-link-input'
                 :state='fieldState("banner.link")'
@@ -430,7 +500,7 @@
                 </template>
               </b-form-group>
             </b-col>
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-link-text-input'
                 :state='fieldState("banner.link_text")'
@@ -455,7 +525,7 @@
             cols='12'
             v-if='settings.banner.enabled'
           >
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-link-style-input'
                 :state='fieldState("banner.link_style")'
@@ -480,7 +550,7 @@
                 </template>
               </b-form-group>
             </b-col>
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-link-target-input'
                 :state='fieldState("banner.link_target")'
@@ -511,7 +581,7 @@
             cols='12'
             v-if='settings.banner.enabled'
           >
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-color-input'
                 :state='fieldState("banner.color")'
@@ -538,7 +608,7 @@
                 </template>
               </b-form-group>
             </b-col>
-            <b-col sm='6'>
+            <b-col md='6'>
               <b-form-group
                 label-for='banner-background-input'
                 :state='fieldState("banner.background")'
@@ -596,9 +666,10 @@ import PermissionService from '../../services/PermissionService';
 import Banner from '../../components/Banner';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
+import RawText from '../../components/RawText';
 
 export default {
-  components: { Banner, VSwatches },
+  components: { RawText, Banner, VSwatches },
   mixins: [FieldErrors],
 
   data () {
@@ -610,10 +681,13 @@ export default {
       uploadFaviconFile: null,
       uploadFaviconFileSrc: null,
       isBusy: false,
+      default_presentation: null,
       settings: {
         banner: {},
         link_btn_styles: [],
-        link_targets: []
+        link_targets: [],
+        bbb: {},
+        default_presentation: undefined
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
@@ -694,6 +768,10 @@ export default {
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
 
+      if (this.default_presentation !== null) {
+        formData.append('default_presentation', this.default_presentation);
+      }
+
       Object.keys(this.settings.banner).forEach(key => {
         let val = this.settings.banner[key];
 
@@ -722,6 +800,7 @@ export default {
           this.$store.dispatch('session/getSettings');
           this.errors = {};
           this.uploadLogoFile = null;
+          this.default_presentation = null;
 
           // update form input
           this.settings = response.data.data;

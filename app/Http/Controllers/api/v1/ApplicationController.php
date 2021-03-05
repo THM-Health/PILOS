@@ -8,6 +8,7 @@ use App\Http\Resources\ApplicationSettings;
 use App\Http\Resources\User as UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ApplicationController extends Controller
 {
@@ -51,6 +52,17 @@ class ApplicationController extends Controller
             $favicon = $request->favicon;
         }
 
+        if ($request->has('default_presentation')) {
+            if (!empty(setting('default_presentation'))) {
+                Storage::delete(setting('default_presentation'));
+            }
+            if (!empty($request->file('default_presentation'))) {
+                setting()->set('default_presentation', $request->file('default_presentation')->store('default_presentation'));
+            } else {
+                setting()->forget('default_presentation');
+            }
+        }
+
         setting()->set('logo', $logo);
         setting()->set('favicon', $favicon);
         setting()->set('name', $request->name);
@@ -74,5 +86,25 @@ class ApplicationController extends Controller
     public function currentUser()
     {
         return (new UserResource(Auth::user()))->withPermissions();
+    }
+
+    /**
+     * Returns the default presentation or 404 if there is no default presentation
+     * or the file is missing.
+     *
+     * @return StreamedResponse
+     */
+    public function defaultPresentation(): StreamedResponse
+    {
+        if (empty(setting('default_presentation'))) {
+            abort(404);
+        }
+
+        if (!Storage::exists(setting('default_presentation'))) {
+            setting()->forget('default_presentation');
+            abort(404);
+        }
+
+        return Storage::download(setting('default_presentation'));
     }
 }

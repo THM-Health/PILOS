@@ -136,6 +136,10 @@ export default {
   application: {
     title: 'Anwendung',
     tileDescription: 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
+    defaultPresentation: 'Standard Präsentation',
+    viewDefaultPresentation: 'Anzeigen',
+    deleteDefaultPresentation: 'Löschen',
+    resetDefaultPresentation: 'Zurücksetzen',
     logo: {
       title: 'Logo',
       uploadTitle: 'Logo hochladen (max. 500 KB)',
