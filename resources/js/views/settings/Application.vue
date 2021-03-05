@@ -338,7 +338,7 @@
                   variant='secondary'
                   @click='default_presentation = null'
                 >
-                  <i class="fas fa-sync"></i> {{ $t('settings.application.resetDefaultPresentation') }}
+                  <i class="fas fa-undo"></i> {{ $t('settings.application.resetDefaultPresentation') }}
                 </b-button>
                 <!-- View file -->
                 <b-button
