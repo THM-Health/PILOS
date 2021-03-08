@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room list/search, room and room type setting to allow public room search ([#63], [#108])
 - List of running meetings ([#63], [#108])
 
+### Changed
+- Fix failing redirect to login if session expired ([#121], [#122])
+
 ## [1.0.0] - 2021-03-02
 ### Added
 - Authentication with LDAP and Email-Address ([#1], [#3])
@@ -98,6 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#108]: https://github.com/THM-Health/PILOS/pull/108
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
+[#121]: https://github.com/THM-Health/PILOS/issues/121
+[#122]: https://github.com/THM-Health/PILOS/pull/122
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
