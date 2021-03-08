@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.1.0] - 2021-03-08
 ### Added
 - Room list/search, room and room type setting to allow public room search ([#63], [#108])
 - List of running meetings ([#63], [#108])
@@ -104,5 +106,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#121]: https://github.com/THM-Health/PILOS/issues/121
 [#122]: https://github.com/THM-Health/PILOS/pull/122
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.1.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
+[1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
