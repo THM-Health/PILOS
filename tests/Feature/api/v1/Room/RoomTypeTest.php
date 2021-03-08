@@ -90,9 +90,9 @@ class RoomTypeTest extends TestCase
      */
     public function testCreate()
     {
-        $roomType = factory(RoomType::class)->make();
+        $roomType = factory(RoomType::class)->make(['short'=>'TA']);
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id];
+        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id,'allow_listing'=>0];
 
         // Test guests
         $this->postJson(route('api.v1.roomTypes.store'), $data)
@@ -112,7 +112,7 @@ class RoomTypeTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+                ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color,'allow_listing'=>false]
             );
 
         // Test with some short as existing room type
@@ -120,9 +120,9 @@ class RoomTypeTest extends TestCase
             ->assertJsonValidationErrors(['short']);
 
         // Test with invalid data
-        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>''];
+        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>'','allow_listing'=>'ok'];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
-            ->assertJsonValidationErrors(['short','color','description']);
+            ->assertJsonValidationErrors(['short','color','description','allow_listing']);
     }
 
     /**
@@ -130,10 +130,10 @@ class RoomTypeTest extends TestCase
      */
     public function testUpdate()
     {
-        $roomType  = factory(RoomType::class)->create();
-        $roomType2 = factory(RoomType::class)->create();
+        $roomType  = factory(RoomType::class)->create(['short'=>'TA']);
+        $roomType2 = factory(RoomType::class)->create(['short'=>'TB']);
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id];
+        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id,'allow_listing'=>1];
 
         // Test guests
         $this->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
@@ -159,7 +159,7 @@ class RoomTypeTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment(
-                ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+                ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color,'allow_listing'=>true]
             );
 
         // Test with short of an other room type
@@ -171,9 +171,9 @@ class RoomTypeTest extends TestCase
 
         // Test with invalid data
         $roomType->refresh();
-        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>'','updated_at'=>$roomType->updated_at];
+        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>'','updated_at'=>$roomType->updated_at,'allow_listing'=>'ok'];
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
-            ->assertJsonValidationErrors(['short','color','description']);
+            ->assertJsonValidationErrors(['short','color','description','allow_listing']);
 
         // Test deleted
         $roomType->delete();

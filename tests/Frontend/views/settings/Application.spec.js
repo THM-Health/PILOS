@@ -24,6 +24,12 @@ describe('Application', function () {
   beforeEach(function () {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
     moxios.install();
+    moxios.stubRequest('/api/v1/getTimezones', {
+      status: 200,
+      response: {
+        timezones: ['UTC']
+      }
+    });
   });
 
   afterEach(function () {

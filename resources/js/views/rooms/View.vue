@@ -5,7 +5,7 @@
       <!-- Delete button and modal -->
       <can method="delete" :policy="room">
         <delete-room-component
-          @roomDeleted="$router.push({ name: 'rooms.index' })"
+          @roomDeleted="$router.push({ name: 'rooms.own_index' })"
           :room="room"
           :disabled="loading"
           button-class="float-right"

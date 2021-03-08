@@ -26,6 +26,17 @@ class RoomPolicy
     {
         return true;
     }
+    
+    /**
+     * Determine whether the user can view all rooms.
+     *
+     * @param  User $user
+     * @return bool
+     */
+    public function viewAll(User $user)
+    {
+        return $user->can('rooms.viewAll') || $user->can('rooms.manage');
+    }
 
     /**
      * Determine whether the user can manage all rooms.

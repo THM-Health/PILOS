@@ -72,7 +72,7 @@ export default {
         if (this.$route.query.redirect !== undefined) {
           await this.$router.push(this.$route.query.redirect);
         } else {
-          await this.$router.push({ name: 'rooms.index' });
+          await this.$router.push({ name: 'rooms.own_index' });
         }
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {

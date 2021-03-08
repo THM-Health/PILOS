@@ -9,6 +9,10 @@ class RoomType extends Model
 {
     use AddsModelNameTrait;
 
+    protected $casts = [
+        'allow_listing' => 'boolean'
+    ];
+
     protected $fillable = ['short','description','color'];
 
     public function rooms()

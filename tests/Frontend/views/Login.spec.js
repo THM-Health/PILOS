@@ -227,7 +227,7 @@ describe('Login', function () {
     });
 
     sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
-    sinon.assert.calledOnceWithExactly(routerSpy, { name: 'rooms.index' });
+    sinon.assert.calledOnceWithExactly(routerSpy, { name: 'rooms.own_index' });
 
     view.destroy();
   });

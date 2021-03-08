@@ -8,6 +8,7 @@ import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
+import './plugins/Dayjs';
 
 Vue.use(Clipboard);
 // Install BootstrapVue
@@ -20,7 +21,7 @@ Vue.use(FlashMessage, {
 });
 
 // Add accessibility check tools for development
-if (process.env.NODE_ENV === 'development') {
+if (process.env.ENABLE_AXE && process.env.NODE_ENV === 'development') {
   const VueAxe = require('vue-axe').default;
   Vue.use(VueAxe);
 }

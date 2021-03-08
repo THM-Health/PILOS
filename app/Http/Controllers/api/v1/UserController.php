@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\User as UserResource;
+use App\Notifications\UserWelcome;
 use App\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +16,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class UserController extends Controller
 {
@@ -75,8 +80,15 @@ class UserController extends Controller
         $user->lastname             = $request->lastname;
         $user->email                = $request->email;
         $user->locale               = $request->user_locale;
-        $user->password             = Hash::make($request->password);
         $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
+        $user->timezone             = $request->timezone;
+
+        if (!$request->generate_password) {
+            $user->password = Hash::make($request->password);
+        } else {
+            $user->password             = Hash::make(bin2hex(random_bytes(32)));
+            $user->initial_password_set = true;
+        }
 
         // TODO: email verification
         $user->email_verified_at = $user->freshTimestamp();
@@ -86,6 +98,15 @@ class UserController extends Controller
 
         // Load user data from database to load also the defaults from the database
         $user->refresh();
+
+        if ($request->generate_password) {
+            $broker = Password::broker('new_users');
+            $token  = $broker->createToken($user);
+            $reset  = DB::table('password_resets')
+                ->where('email', '=', $user->email)
+                ->first();
+            $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
+        }
 
         return (new UserResource($user))->withRoles();
     }
@@ -129,6 +150,7 @@ class UserController extends Controller
         }
 
         $user->locale               = $request->user_locale;
+        $user->timezone             = $request->timezone;
         $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
         $user->touch();
         $user->save();
@@ -156,5 +178,23 @@ class UserController extends Controller
         $user->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Send a password reset email to the specified users email.
+     *
+     * @param  User         $user
+     * @return JsonResponse
+     */
+    public function resetPassword(User $user)
+    {
+        $response = Password::broker('users')->sendResetLink([
+            'authenticator' => 'users',
+            'email'         => $user->email
+        ]);
+
+        return response()->json([
+            'message' => trans($response)
+        ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED);
     }
 }

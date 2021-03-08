@@ -6,6 +6,7 @@ import UserPolicy from './UserPolicy';
 import RoomTypePolicy from './RoomTypePolicy';
 import ServerPolicy from './ServerPolicy';
 import ServerPoolPolicy from './ServerPoolPolicy';
+import MeetingPolicy from './MeetingPolicy';
 
 export default {
   SettingPolicy,
@@ -15,5 +16,6 @@ export default {
   UserPolicy,
   RoomTypePolicy,
   ServerPolicy,
-  ServerPoolPolicy
+  ServerPoolPolicy,
+  MeetingPolicy
 };

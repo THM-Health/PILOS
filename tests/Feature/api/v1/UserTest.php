@@ -3,12 +3,15 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Notifications\UserWelcome;
 use App\Permission;
 use App\Role;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Notification;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\TestCase;
@@ -191,7 +194,8 @@ class UserTest extends TestCase
             'user_locale' => 451,
             'email'       => 'test',
             'password'    => 'aT2wqw_2',
-            'roles'       => [99]
+            'roles'       => [99],
+            'timezone'    => 'Europe/Berlin'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
@@ -208,11 +212,13 @@ class UserTest extends TestCase
             'user_locale'           => 'hr',
             'email'                 => $user->email,
             'username'              => $this->faker->userName,
+            'generate_password'     => false,
             'password'              => 'aT2wqw_2',
             'password_confirmation' => 'aT2wqw_2',
             'roles'                 => [$role->id],
             'authenticator'         => 'ldap',
-            'bbb_skip_check_audio'  => 'test'
+            'bbb_skip_check_audio'  => 'test',
+            'timezone'              => 'UTC'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
@@ -255,7 +261,8 @@ class UserTest extends TestCase
             'roles'                => [$newRole->id],
             'username'             => $user->username,
             'user_locale'          => 'de',
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'Foo/Bar'
         ];
 
         $userToUpdate = factory(User::class)->create();
@@ -300,9 +307,10 @@ class UserTest extends TestCase
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
-            ->assertJsonValidationErrors('password');
+            ->assertJsonValidationErrors(['password', 'timezone']);
 
         $changes['password_confirmation'] = 'Test2_34T';
+        $changes['timezone']              = 'Europe/Berlin';
 
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
@@ -345,7 +353,8 @@ class UserTest extends TestCase
             'username'             => $userToUpdate->username,
             'user_locale'          => 'de',
             'updated_at'           => $userToUpdate->updated_at,
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'UTC'
         ])
         ->assertSuccessful()
         ->assertJsonFragment(['roles' => [['id' => $newRole->id, 'name' => $newRole->name, 'automatic' => false]]]);
@@ -361,7 +370,8 @@ class UserTest extends TestCase
             'updated_at'           => $ldapUserToUpdate->updated_at,
             'user_locale'          => 'de',
             'authenticator'        => 'users',
-            'bbb_skip_check_audio' => true
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'UTC'
         ])
         ->assertSuccessful()
         ->assertJsonFragment([
@@ -487,5 +497,79 @@ class UserTest extends TestCase
 
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('role_user', 1);
+    }
+
+    public function testResetPassword()
+    {
+        $resetUser = factory(User::class)->create([
+            'initial_password_set' => true,
+            'authenticator'        => 'ldap',
+            'locale'               => 'de'
+        ]);
+        $user = factory(User::class)->create();
+
+        $this->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertUnauthorized();
+
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertForbidden();
+
+        $role = factory(Role::class)->create(['default' => true]);
+
+        $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
+        $role->permissions()->attach($permission->id);
+
+        $role->users()->attach([$user->id]);
+
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => 1337]))
+            ->assertNotFound();
+
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $user]))
+            ->assertForbidden();
+
+        $resetUser->initial_password_set = false;
+        $resetUser->save();
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertForbidden();
+
+        Notification::fake();
+        $resetUser->authenticator = 'users';
+        $resetUser->save();
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertSuccessful();
+        Notification::assertSentTo($resetUser, ResetPassword::class);
+
+        Notification::fake();
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+            ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED);
+        Notification::assertNotSentTo($resetUser, ResetPassword::class);
+    }
+
+    public function testCreateUserWithGeneratedPassword()
+    {
+        $user = factory(User::class)->create();
+        $role = factory(Role::class)->create(['default' => true]);
+
+        $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
+        $role->permissions()->attach($permission->id);
+
+        $role->users()->attach([$user->id]);
+
+        Notification::fake();
+        $response = $this->actingAs($user)->postJson(route('api.v1.users.store', [
+            'firstname'             => $this->faker->firstName,
+            'lastname'              => $this->faker->lastName,
+            'user_locale'           => 'de',
+            'email'                 => $this->faker->email,
+            'username'              => $this->faker->userName,
+            'generate_password'     => true,
+            'roles'                 => [$role->id],
+            'authenticator'         => 'users',
+            'bbb_skip_check_audio'  => false,
+            'timezone'              => 'UTC'
+        ]))
+            ->assertSuccessful();
+        $newUser = User::find($response->json('data.id'));
+        Notification::assertSentTo($newUser, UserWelcome::class);
     }
 }

@@ -163,7 +163,11 @@
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
       @ok="confirmDeleteFile"
-      ref="delete-file-modal" >
+      ref="delete-file-modal"
+      :no-close-on-esc="isLoadingAction"
+      :no-close-on-backdrop="isLoadingAction"
+      :hide-header-close="isLoadingAction"
+    >
       <template v-slot:modal-title>
         {{ $t('rooms.files.modals.delete.title') }}
       </template>

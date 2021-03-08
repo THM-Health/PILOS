@@ -77,6 +77,9 @@ export default {
     room_settings: 'Benutzerdefinierte Raumeinstellungen',
     skip_check_audio: 'Echo-Test deaktivieren',
 
+    generate_password: 'Passwort generieren lassen',
+    generate_password_description: 'Es wird ein generiertes Passwort gesetzt und eine E-Mail mit einem Passwort-Rücksetz-Link an den Nutzer gesendet. Wenn der Nutzer das Passwort in einem bestimmten Zeitraum nicht ändert, wird dieser automatisch wieder gelöscht.',
+
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',
@@ -87,7 +90,16 @@ export default {
       item: 'Benutzer {firstname} {lastname} löschen',
       confirm: 'Wollen Sie den Benutzer {firstname} {lastname} wirklich löschen?',
       title: 'Benutzer löschen?'
-    }
+    },
+
+    resetPassword: {
+      item: 'Passwort für den Benutzer {firstname} {lastname} zurücksetzen',
+      confirm: 'Wollen Sie das Passwort für {firstname} {lastname} wirklich zurücksetzen?',
+      title: 'Passwort zurücksetzen?'
+    },
+
+    passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!',
+    timezone: 'Zeitzone'
   },
 
   roomTypes: {
@@ -100,6 +112,8 @@ export default {
     color: 'Icon Farbe',
     customColor: 'Eigene Farbe',
     preview: 'Vorschau',
+    allowListing: 'Raumsuche erlaubt',
+    allowListingDescription: 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
     serverPool: 'Serverpool',
     selectServerPool: 'Serverpool auswählen',
     serverPoolDescription: 'Server dieses Serverpools werden für die Lastverteilung verwendet',
@@ -177,7 +191,10 @@ export default {
       background: 'Hintergrundfarbe des Banners',
       selectLinkTarget: 'Linkziel auswählen',
       selectLinkStyle: 'Linkart auswählen'
-    }
+    },
+
+    password_self_reset_enabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+    default_timezone: 'Standardzeitzone'
   },
 
   servers: {

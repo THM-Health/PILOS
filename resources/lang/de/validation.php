@@ -246,5 +246,10 @@ return [
         'server_pool'                       => 'Serverpool',
         'icon_text'                         => 'Icon Text',
         'color'                             => 'Farbe',
+        'allow_listing'                     => 'Raumsuche erlaubt',
+        'listed'                            => 'In Raumsuche einschließen',
+        'password_self_reset_enabled'       => 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+        'timezone'                          => 'Zeitzone',
+        'default_timezone'                  => 'Standardzeitzone'
     ],
 ];

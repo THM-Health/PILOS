@@ -253,6 +253,53 @@
           </template>
         </b-form-group>
 
+        <b-form-group
+          :state='fieldState("password_self_reset_enabled")'
+        >
+          <b-form-checkbox
+            v-model='settings.password_self_reset_enabled'
+            :state="fieldState('password_self_reset_enabled')"
+            :disabled='isBusy || viewOnly || !loaded'
+            switch
+          >
+            {{ $t('settings.application.password_self_reset_enabled') }}
+          </b-form-checkbox>
+
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('password_self_reset_enabled')"></div>
+          </template>
+        </b-form-group>
+
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          :label="$t('settings.application.default_timezone')"
+          label-for='timezone'
+          :state='fieldState("default_timezone")'
+        >
+          <b-input-group>
+            <b-form-select
+              :options='timezones'
+              id='timezone'
+              v-model='settings.default_timezone'
+              :state='fieldState("default_timezone")'
+              :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
+            >
+              <template v-slot:first>
+                <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
+              </template>
+            </b-form-select>
+            <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
+            <b-input-group-append>
+              <b-button
+                v-if="timezonesLoadingError"
+                @click="loadTimezones()"
+                variant="outline-secondary"
+              ><i class="fas fa-sync"></i></b-button>
+            </b-input-group-append>
+          </b-input-group>
+        </b-form-group>
+
         <hr>
 
         <!-- Banner -->
@@ -532,7 +579,7 @@
                     variant="success"
                     type="submit"
                     v-if="!viewOnly"
-                    :disabled="isBusy || !loaded">
+                    :disabled="isBusy || !loaded || timezonesLoadingError">
             <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
           </b-button>
         </div>
@@ -570,7 +617,10 @@ export default {
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
-      backgroundSwatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878']
+      backgroundSwatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
+      timezonesLoading: false,
+      timezonesLoadingError: false,
+      timezones: []
     };
   },
   methods: {
@@ -591,6 +641,23 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
+    },
+
+    /**
+     * Loads the possible selectable timezones.
+     */
+    loadTimezones () {
+      this.timezonesLoading = true;
+      this.timezonesLoadingError = false;
+
+      Base.call('getTimezones').then(response => {
+        this.timezones = response.data.timezones;
+      }).catch(error => {
+        this.timezonesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.timezonesLoading = false;
+      });
     },
 
     /**
@@ -624,6 +691,8 @@ export default {
       formData.append('room_limit', this.settings.room_limit);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
+      formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
+      formData.append('default_timezone', this.settings.default_timezone);
 
       Object.keys(this.settings.banner).forEach(key => {
         let val = this.settings.banner[key];
@@ -700,6 +769,7 @@ export default {
     }
   },
   mounted () {
+    this.loadTimezones();
     this.getSettings();
   },
   computed: {

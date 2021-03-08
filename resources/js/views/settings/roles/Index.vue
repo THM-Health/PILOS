@@ -103,7 +103,11 @@
       @cancel='clearRoleToDelete'
       @close='clearRoleToDelete'
       ref='delete-role-modal'
-      :static='modalStatic'>
+      :static='modalStatic'
+      :no-close-on-esc="deleting"
+      :no-close-on-backdrop="deleting"
+      :hide-header-close="deleting"
+    >
       <template v-slot:modal-title>
         {{ $t('settings.roles.delete.title') }}
       </template>

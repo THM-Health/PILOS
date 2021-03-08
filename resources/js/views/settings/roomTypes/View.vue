@@ -63,6 +63,17 @@
 
           <b-form-group
             label-cols-sm='4'
+            :label="$t('settings.roomTypes.allowListing')"
+            :description="$t('settings.roomTypes.allowListingDescription')"
+            label-for='short'
+            :state='fieldState("allow_listing")'
+          >
+            <b-form-checkbox switch id='allow_listing' v-model='model.allow_listing' :state='fieldState("allow_listing")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
+            <template slot='invalid-feedback'><div v-html="fieldError('allow_listing')"></div></template>
+          </b-form-group>
+
+          <b-form-group
+            label-cols-sm='4'
             :label="$t('settings.roomTypes.serverPool')"
             label-for='server_pool'
             :state='fieldState("server_pool")'
@@ -213,7 +224,8 @@ export default {
         description: null,
         short: null,
         color: '#4a5c66',
-        server_pool: null
+        server_pool: null,
+        allow_listing: false
       },
       swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
 

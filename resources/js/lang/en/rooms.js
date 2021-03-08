@@ -1,5 +1,8 @@
 export default {
   myRooms: 'My rooms',
+  allRooms: 'All rooms',
+  findRooms: 'Find rooms',
+  findRoomsInfo: 'List of all public listed rooms without an access code',
   noRoomsAvailable: 'No rooms available',
   rooms: 'Rooms',
   roomLimit: 'Room limit: {has}/{max}',
@@ -140,7 +143,8 @@ export default {
       accessCode: 'Access code',
       accessCodeNote: 'Access restriction for joining the room and room membership (if enabled).',
       allowGuests: 'Allow guests',
-      allowNewMembers: 'Allow new members'
+      allowNewMembers: 'Allow new members',
+      listed: 'Include in room search'
     },
     participants: {
       title: 'Participants',
@@ -174,6 +178,11 @@ export default {
       disableNoteEdit: 'Disable editing of notes',
       hideParticipantsList: 'Hide list of participants'
     }
+  },
+  filter: {
+    title: 'Filter',
+    roomTypes: 'Room types',
+    apply: 'Apply'
   }
 
 };

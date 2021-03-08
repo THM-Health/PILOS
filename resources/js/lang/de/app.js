@@ -22,7 +22,7 @@ export default {
 
     guestsOnly: {
       message: 'Die Anfrage ist nur für nicht angemeldete Nutzer gestattet!',
-      title: 'Nür für Gäste'
+      title: 'Nur für Gäste'
     },
 
     serverError: {
@@ -59,7 +59,13 @@ export default {
     rooms: {
       title: 'Räume',
       create: 'Räume erstellen',
+      viewAll: 'Alle Räume anzeigen',
       manage: 'Alle Räume verwalten'
+    },
+
+    meetings: {
+      title: 'Meetings',
+      viewAny: 'Alle Meetings anzeigen'
     },
 
     applicationSettings: {

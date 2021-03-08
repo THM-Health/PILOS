@@ -62,6 +62,9 @@ export default {
     room_settings: 'Custom room settings',
     skip_check_audio: 'Disable echo audio test',
 
+    generate_password: 'Generate password',
+    generate_password_description: 'A generated password will be set and an email with a reset link will be sent to the user. The user will be automatically deleted, if he doesn\'t change his password in the given time.',
+
     id: 'ID',
     firstname: 'Firstname',
     lastname: 'Lastname',
@@ -83,7 +86,16 @@ export default {
       item: 'Delete user {firstname} {lastname}',
       confirm: 'Are you really want to delete the user {firstname} {lastname}?',
       title: 'Delete user?'
-    }
+    },
+
+    resetPassword: {
+      item: 'Reset password for the user {firstname} {lastname}',
+      confirm: 'Are you really want to reset the password for {firstname} {lastname}?',
+      title: 'Reset password?'
+    },
+
+    passwordResetSuccess: 'Password reset mail was successfully send to {mail}!',
+    timezone: 'Timezone'
   },
 
   roomTypes: {
@@ -95,6 +107,8 @@ export default {
     color: 'Icon color',
     customColor: 'Custom color',
     preview: 'Preview',
+    allowListing: 'Room search allowed',
+    allowListingDescription: 'In the room settings the rooms can be made visible for the room search.',
     serverPool: 'Server pool',
     selectServerPool: 'Select server pool',
     serverPoolDescription: 'Servers of this server pool are used for load balancing',
@@ -172,7 +186,10 @@ export default {
       background: 'Background color of the banner',
       selectLinkTarget: 'Select link target',
       selectLinkStyle: 'Select link style'
-    }
+    },
+
+    password_self_reset_enabled: 'Give registered users the possibility to reset their password',
+    default_timezone: 'Default timezone'
   },
 
   servers: {

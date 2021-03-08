@@ -121,7 +121,11 @@
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.edit.cancel')"
       @ok="saveEditMember"
-      ref="edit-member-modal" >
+      ref="edit-member-modal"
+      :no-close-on-esc="isLoadingAction"
+      :no-close-on-backdrop="isLoadingAction"
+      :hide-header-close="isLoadingAction"
+    >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.edit.title',{firstname: editMember.firstname,lastname: editMember.lastname}) }}
       </template>
@@ -148,7 +152,11 @@
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
       @ok="confirmRemoveMember"
-      ref="remove-member-modal" >
+      ref="remove-member-modal"
+      :no-close-on-esc="isLoadingAction"
+      :no-close-on-backdrop="isLoadingAction"
+      :hide-header-close="isLoadingAction"
+    >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.delete.title') }}
       </template>
@@ -167,7 +175,11 @@
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.add.cancel')"
       @ok="saveNewMember"
-      ref="add-member-modal" >
+      ref="add-member-modal"
+      :no-close-on-esc="isLoadingAction"
+      :no-close-on-backdrop="isLoadingAction"
+      :hide-header-close="isLoadingAction"
+    >
       <template v-slot:modal-title>
         {{ $t('rooms.members.modals.add.title') }}
       </template>

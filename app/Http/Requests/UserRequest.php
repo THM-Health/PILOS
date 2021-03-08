@@ -18,6 +18,7 @@ class UserRequest extends FormRequest
         $rules = [
             'user_locale'           => ['required', 'string', Rule::in(config('app.available_locales'))],
             'bbb_skip_check_audio'  => 'required|boolean',
+            'timezone'              => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'roles'                 => 'required|array',
             'roles.*'               => 'distinct|exists:App\Role,id'
         ];
@@ -34,7 +35,10 @@ class UserRequest extends FormRequest
 
                 return $query;
             })];
-            $rules['password']  = [!$this->user ? 'required' : 'nullable', 'string', 'min:8', 'confirmed', new Password()];
+            if (!$this->user) {
+                $rules['generate_password'] = ['required', 'boolean'];
+            }
+            $rules['password']  = [!$this->user && !$this->boolean('generate_password') ? 'required' : 'nullable', 'string', 'min:8', 'confirmed', new Password()];
         }
 
         return $rules;
