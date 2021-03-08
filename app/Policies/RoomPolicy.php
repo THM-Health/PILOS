@@ -26,7 +26,7 @@ class RoomPolicy
     {
         return true;
     }
-    
+
     /**
      * Determine whether the user can view all rooms.
      *
@@ -35,7 +35,7 @@ class RoomPolicy
      */
     public function viewAll(User $user)
     {
-        return $user->can('rooms.viewAll') || $user->can('rooms.manage');
+        return $user->can('rooms.viewAll');
     }
 
     /**
@@ -70,12 +70,12 @@ class RoomPolicy
      */
     public function viewSettings(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.manage') || $room->isCoOwner($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 
     public function viewAccessCode(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.manage') || $room->isModerator($user) || $room->isCoOwner($user);
+        return $room->owner->is($user) || $room->isModerator($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -153,7 +153,7 @@ class RoomPolicy
      */
     public function viewMembers(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.manage') || $room->isCoOwner($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -175,9 +175,21 @@ class RoomPolicy
      * @param  Room $room
      * @return bool
      */
-    public function manageFiles(?User $user, Room $room)
+    public function manageFiles(User $user, Room $room)
     {
         return $room->owner->is($user) || $user->can('rooms.manage') || $room->isCoOwner($user);
+    }
+
+    /**
+     * Determine whether the user create, update, delete files
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewAllFiles(User $user, Room $room)
+    {
+        return $room->owner->is($user) || $user->can('rooms.viewAll') || $room->isCoOwner($user);
     }
 
     /**
@@ -190,6 +202,13 @@ class RoomPolicy
      */
     public function downloadFile(?User $user, Room $room, RoomFile $roomFile)
     {
-        return $room->owner->is($user) || $roomFile->download === true || $user->can('rooms.manage') || $room->isCoOwner($user);
+        if ($roomFile->download === true) {
+            return true;
+        }
+        if ($user == null) {
+            return false;
+        }
+
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 }

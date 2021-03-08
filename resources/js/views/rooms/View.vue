@@ -124,12 +124,12 @@
                       <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.start') }}
                   </b-button>
                   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-                  <b-alert show v-else class="text-center p-3">
+                  <div v-else class="text-center p-3">
                     <div class="mb-3">
                       <b-spinner></b-spinner>
                     </div>
                     {{ $t('rooms.notRunning') }}
-                  </b-alert>
+                  </div>
                 </template>
               </b-col>
             </b-row>
@@ -137,7 +137,7 @@
         </b-row>
 
         <!-- Show file list for non-owner users (owner has it's own more detailed file list -->
-        <cannot method="manageSettings" :policy="room">
+        <cannot method="viewSettings" :policy="room">
           <b-row>
             <b-col>
               <hr>
@@ -156,7 +156,7 @@
         </cannot>
 
         <!-- Show admin settings (owners only)-->
-        <can method="manageSettings" :policy="room">
+        <can method="viewSettings" :policy="room">
           <room-admin @settingsChanged="reload" :room="room"></room-admin>
         </can>
       </template>

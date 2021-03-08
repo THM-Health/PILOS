@@ -79,7 +79,10 @@ describe('Create new rooms', function () {
       {
         id: 'abc-def-123',
         name: 'Meeting One',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -103,7 +106,10 @@ describe('Create new rooms', function () {
       {
         id: 'def-abc-123',
         name: 'Meeting Two',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -115,7 +121,10 @@ describe('Create new rooms', function () {
       {
         id: 'def-abc-456',
         name: 'Meeting Three',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -262,7 +271,7 @@ describe('Create new rooms', function () {
         expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
         request.respondWith({
           status: 201,
-          response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
+          response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
         })
           .then(async () => {
             await view.vm.$nextTick();

@@ -123,7 +123,7 @@ describe('Room', function () {
   it('ask access token', function (done) {
     moxios.stubRequest('/api/v1/rooms/abc-def-456', {
       status: 200,
-      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: false, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: false } }
+      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: false, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: false } }
     });
 
     const view = mount(RoomView, {
@@ -149,7 +149,7 @@ describe('Room', function () {
   it('room details auth. guest', function (done) {
     moxios.stubRequest('/api/v1/rooms/abc-def-789', {
       status: 200,
-      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: true } }
+      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: true } }
     });
 
     const view = mount(RoomView, {
@@ -184,7 +184,7 @@ describe('Room', function () {
   it('room details moderator', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-123', {
       status: 200,
-      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
 
     const view = mount(RoomView, {
@@ -215,7 +215,7 @@ describe('Room', function () {
   it('room admin components', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-234', {
       status: 200,
-      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
 
     const view = mount(RoomView, {
@@ -246,7 +246,7 @@ describe('Room', function () {
   it('reload', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-345', {
       status: 200,
-      response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
 
     const view = mount(RoomView, {
@@ -271,7 +271,7 @@ describe('Room', function () {
 
       overrideStub('/api/v1/rooms/cba-fed-345', {
         status: 200,
-        response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+        response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
       });
       await moxios.wait(() => {
         expect(view.html()).toContain('Meeting Two');
@@ -331,7 +331,7 @@ describe('Room', function () {
         flashMessage: flashMessage
       },
       propsData: {
-        room: { id: 'cba-fed-234', name: 'Meeting Two', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: false, isModerator: false, canStart: false, running: false, accessCode: 123456789 },
+        room: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: false, isGuest: false, isModerator: false, canStart: false, running: false, accessCode: 123456789 },
         accessCode: 123456789
       },
       store,

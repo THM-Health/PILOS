@@ -28,7 +28,7 @@ class RoomAuthenticate
         $room          = $request->route('room');
 
         // requested user is the owner or a member of the room or the room doesn't require access code
-        if ($room->accessCode == null || (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('manage', Room::class)))) {
+        if ($room->accessCode == null || (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class)))) {
             $authenticated = true;
         }
 

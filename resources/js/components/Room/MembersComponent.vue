@@ -5,6 +5,7 @@
       <div class="col-12">
 
         <b-button-group class="float-lg-right">
+          <can method="manageSettings" :policy="room">
           <!-- Add existing user from database -->
           <b-button
             variant="success"
@@ -22,6 +23,7 @@
           </b-button>
           -->
 
+          </can>
           <!-- Reload members list -->
           <b-button
             variant="dark"
@@ -238,10 +240,12 @@ import _ from 'lodash';
 import { mapGetters, mapState } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
+import Can from '../Permissions/Can';
+import PermissionService from '../../services/PermissionService';
 
 export default {
   mixins: [FieldErrors],
-  components: { Multiselect },
+  components: { Multiselect, Can },
 
   props: {
     room: Object // room object
@@ -452,7 +456,7 @@ export default {
 
     // member tables headings
     tablefields () {
-      return [
+      var fields = [
         {
           key: 'firstname',
           label: this.$t('rooms.members.firstname'),
@@ -472,12 +476,16 @@ export default {
           key: 'role',
           label: this.$t('rooms.members.role'),
           sortable: true
-        },
-        {
+        }];
+
+      if (PermissionService.can('manageSettings', this.room)) {
+        fields.push({
           key: 'actions',
           label: this.$t('rooms.members.actions')
-        }
-      ];
+        });
+      }
+
+      return fields;
     }
 
   },
