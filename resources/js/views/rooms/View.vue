@@ -136,7 +136,7 @@
           </b-col>
         </b-row>
 
-        <!-- Show file list for non-owner users (owner has it's own more detailed file list -->
+        <!-- Show limited file list for guests, users, members and moderators-->
         <cannot method="viewSettings" :policy="room">
           <b-row>
             <b-col>
@@ -155,7 +155,7 @@
           </b-row>
         </cannot>
 
-        <!-- Show admin settings (owners only)-->
+        <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
         <can method="viewSettings" :policy="room">
           <room-admin @settingsChanged="reload" :room="room"></room-admin>
         </can>

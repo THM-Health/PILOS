@@ -39,7 +39,7 @@ class RoomPolicy
     }
 
     /**
-     * Determine whether the user can manage all rooms.
+     * Determine whether the user can manage all rooms (including files and members).
      *
      * @param  User $user
      * @return bool
@@ -73,9 +73,16 @@ class RoomPolicy
         return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 
+    /**
+     * Determine whether the user can view the room access code.
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
     public function viewAccessCode(User $user, Room $room)
     {
-        return $room->owner->is($user) || $room->isModerator($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
+        return$user->can('rooms.viewSettings') || $room->isModerator($user);
     }
 
     /**
@@ -181,7 +188,7 @@ class RoomPolicy
     }
 
     /**
-     * Determine whether the user create, update, delete files
+     * Determine whether the user can see all files
      *
      * @param  User $user
      * @param  Room $room
@@ -189,7 +196,7 @@ class RoomPolicy
      */
     public function viewAllFiles(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.viewAll') || $room->isCoOwner($user);
+        return $user->can('manageFiles') || $user->can('rooms.viewAll');
     }
 
     /**

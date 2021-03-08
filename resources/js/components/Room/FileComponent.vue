@@ -19,7 +19,7 @@
     <div class="row mb-3">
       <div class="col-10">
 
-        <can method="manageFiles" :policy="room">
+        <can method="manageSettings" :policy="room">
 
           <!-- Upload new file -->
           <b-form-file
@@ -81,7 +81,7 @@
         <!-- Render action column -->
         <template v-slot:cell(actions)="data">
           <b-button-group class="float-md-right">
-            <can method="manageFiles" :policy="room">
+            <can method="manageSettings" :policy="room">
               <!-- Delete file -->
               <b-button
                 variant="danger"
@@ -441,7 +441,7 @@ export default {
 
     // file table labels for columns
     filefields () {
-      if (PermissionService.cannot('manageFiles', this.room)) {
+      if (PermissionService.cannot('manageSettings', this.room)) {
         return [
           {
             key: 'filename',
