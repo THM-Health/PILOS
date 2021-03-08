@@ -144,7 +144,7 @@ class ImportGreenlight extends Command
         }
 
         $this->line('');
-        $this->info($created. '  created, '.$existed. ' skipped (already existed)');
+        $this->info($created. ' created, '.$existed. ' skipped (already existed)');
 
         if (count($failed) > 0) {
             $this->line('');

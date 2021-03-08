@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Console;
 
 use App\User;
 use Carbon\Carbon;
