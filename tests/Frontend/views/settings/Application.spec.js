@@ -20,6 +20,11 @@ const createContainer = (tag = 'div') => {
   return container;
 };
 
+const bbbSettings = {
+  file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+  max_filesize: 30
+};
+
 describe('Application', function () {
   beforeEach(function () {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
@@ -110,7 +115,8 @@ describe('Application', function () {
             own_rooms_pagination_page_size: 5,
             banner: {
               enabled: false
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
@@ -160,7 +166,8 @@ describe('Application', function () {
             own_rooms_pagination_page_size: 5,
             banner: {
               enabled: false
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
@@ -182,7 +189,8 @@ describe('Application', function () {
                 own_rooms_pagination_page_size: 6,
                 banner: {
                   enabled: false
-                }
+                },
+                bbb: bbbSettings
               }
             }
           }).then(() => {
@@ -235,7 +243,8 @@ describe('Application', function () {
             own_rooms_pagination_page_size: 5,
             banner: {
               enabled: false
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
@@ -257,7 +266,8 @@ describe('Application', function () {
                 own_rooms_pagination_page_size: 6,
                 banner: {
                   enabled: false
-                }
+                },
+                bbb: bbbSettings
               }
             }
           }).then(() => {
@@ -364,7 +374,8 @@ describe('Application', function () {
               icon: null,
               title: null,
               link: null
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
@@ -435,7 +446,8 @@ describe('Application', function () {
             own_rooms_pagination_page_size: 5,
             banner: {
               enabled: false
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
@@ -487,7 +499,8 @@ describe('Application', function () {
             own_rooms_pagination_page_size: 5,
             banner: {
               enabled: false
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
@@ -544,7 +557,8 @@ describe('Application', function () {
             own_rooms_pagination_page_size: 5,
             banner: {
               enabled: false
-            }
+            },
+            bbb: bbbSettings
           }
         }
       }).then(() => {
