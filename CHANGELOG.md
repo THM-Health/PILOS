@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Room list/search, room and room type setting to allow public room search ([#63], [#108])
 - List of running meetings ([#63], [#108])
 
-### Changed
-- Fix failing redirect to login if session expired ([#121], [#122])
+### Fixed
+- Failing redirect to login if session expired ([#121], [#122])
 
 ## [1.0.0] - 2021-03-02
 ### Added
