@@ -82,7 +82,7 @@ class RoomPolicy
      */
     public function viewAccessCode(User $user, Room $room)
     {
-        return$user->can('rooms.viewSettings') || $room->isModerator($user);
+        return $user->can('viewSettings', $room) || $room->isModerator($user);
     }
 
     /**
@@ -196,7 +196,7 @@ class RoomPolicy
      */
     public function viewAllFiles(User $user, Room $room)
     {
-        return $user->can('manageFiles') || $user->can('rooms.viewAll');
+        return $user->can('manageFiles', $room) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -216,6 +216,6 @@ class RoomPolicy
             return false;
         }
 
-        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
+        return $user->can('viewAllFiles', $room);
     }
 }
