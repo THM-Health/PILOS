@@ -265,7 +265,6 @@ class FileTest extends TestCase
             ->assertForbidden();
         $this->flushHeaders();
 
-
         // Testing user without access code
         $this->actingAs($this->user)->get($download_link)
             ->assertForbidden();
@@ -599,7 +598,6 @@ class FileTest extends TestCase
         $this->actingAs($this->user)->putJson($route, $params)
             ->assertSuccessful();
         $this->role->permissions()->detach($this->managePermission);
-
 
         $room_file->refresh();
 
