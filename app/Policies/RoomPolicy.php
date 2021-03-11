@@ -70,7 +70,7 @@ class RoomPolicy
      */
     public function viewSettings(User $user, Room $room)
     {
-        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
+        return $user->can('update', $room) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -136,7 +136,7 @@ class RoomPolicy
      */
     public function update(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.manage') || $room->isCoOwner($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }
 
     /**
@@ -160,7 +160,7 @@ class RoomPolicy
      */
     public function viewMembers(User $user, Room $room)
     {
-        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
+        return $user->can('manageMembers', $room) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -172,7 +172,7 @@ class RoomPolicy
      */
     public function manageMembers(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.manage') || $room->isCoOwner($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }
 
     /**
@@ -184,7 +184,7 @@ class RoomPolicy
      */
     public function manageFiles(User $user, Room $room)
     {
-        return $room->owner->is($user) || $user->can('rooms.manage') || $room->isCoOwner($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }
 
     /**
