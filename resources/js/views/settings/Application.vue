@@ -327,16 +327,18 @@
               >
                 <!-- Delete file -->
                 <b-button
-                  v-if='!viewOnly && default_presentation === null'
+                  v-if='!viewOnly && default_presentation === undefined'
                   variant='danger'
-                  @click="default_presentation = ''"
+                  @click="default_presentation = null"
+                  ref='delete-default-presentation'
                 >
                   <i class="fas fa-trash"></i> {{ $t('settings.application.deleteDefaultPresentation') }}
                 </b-button>
                 <b-button
-                  v-if='!viewOnly && default_presentation !== null'
+                  v-if='!viewOnly && default_presentation !== undefined'
                   variant='secondary'
-                  @click='default_presentation = null'
+                  @click='default_presentation = undefined'
+                  ref='reset-default-presentation'
                 >
                   <i class="fas fa-undo"></i> {{ $t('settings.application.resetDefaultPresentation') }}
                 </b-button>
@@ -346,6 +348,7 @@
                   variant='dark'
                   :href='settings.default_presentation'
                   target='_blank'
+                  ref='view-default-presentation'
                 >
                   <i class="fas fa-eye"></i> {{ $t('settings.application.viewDefaultPresentation') }}
                 </b-button>
@@ -681,7 +684,7 @@ export default {
       uploadFaviconFile: null,
       uploadFaviconFileSrc: null,
       isBusy: false,
-      default_presentation: null,
+      default_presentation: undefined,
       settings: {
         banner: {},
         link_btn_styles: [],
@@ -768,8 +771,8 @@ export default {
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
 
-      if (this.default_presentation !== null) {
-        formData.append('default_presentation', this.default_presentation);
+      if (this.default_presentation !== undefined) {
+        formData.append('default_presentation', '');
       }
 
       Object.keys(this.settings.banner).forEach(key => {
@@ -800,7 +803,7 @@ export default {
           this.$store.dispatch('session/getSettings');
           this.errors = {};
           this.uploadLogoFile = null;
-          this.default_presentation = null;
+          this.default_presentation = undefined;
 
           // update form input
           this.settings = response.data.data;
