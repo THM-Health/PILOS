@@ -256,7 +256,6 @@ export default {
       this.loadingDownload = file.id;
       // Update value for the setting and the effected file
 
-
       const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
       const url = 'rooms/' + this.room.id + '/files/' + file.id;
 
