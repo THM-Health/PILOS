@@ -184,7 +184,7 @@ class Room extends Model
             return RoomUserRole::GUEST;
         }
 
-        if ($this->owner->is($user)) {
+        if ($this->owner->is($user) || $user->can('rooms.manage')) {
             return RoomUserRole::OWNER;
         }
 

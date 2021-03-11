@@ -26,7 +26,7 @@ class RoomTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected $user;
+    protected $user, $role, $createPermission, $managePermission, $viewAllPermission;
 
     /**
      * Setup ressources for all tests
@@ -37,6 +37,47 @@ class RoomTest extends TestCase
         $this->user = factory(User::class)->create([
             'bbb_skip_check_audio' => true
         ]);
+
+        $this->seed('RolesAndPermissionsSeeder');
+
+        $this->role                 = factory(Role::class)->create();
+        $this->createPermission     = Permission::where('name', 'rooms.create')->first();
+        $this->managePermission     = Permission::where('name', 'rooms.manage')->first();
+        $this->viewAllPermission    = Permission::where('name', 'rooms.viewAll')->first();
+    }
+
+    /**
+     * Check if the permission inheritance is setup correct
+     */
+    public function testPermissionInheritances()
+    {
+        $this->user->roles()->attach($this->role);
+
+        // Check without any permissions
+        $this->assertFalse($this->user->can('rooms.create'));
+        $this->assertFalse($this->user->can('rooms.viewAll'));
+        $this->assertFalse($this->user->can('rooms.manage'));
+
+        // Check with create rooms permission
+        $this->role->permissions()->attach($this->createPermission);
+        $this->assertTrue($this->user->can('rooms.create'));
+        $this->assertFalse($this->user->can('rooms.viewAll'));
+        $this->assertFalse($this->user->can('rooms.manage'));
+        $this->role->permissions()->detach($this->createPermission);
+
+        // Check with view all rooms permission
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->assertFalse($this->user->can('rooms.create'));
+        $this->assertTrue($this->user->can('rooms.viewAll'));
+        $this->assertFalse($this->user->can('rooms.manage'));
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Check with manage rooms permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->assertTrue($this->user->can('rooms.create'));
+        $this->assertTrue($this->user->can('rooms.viewAll'));
+        $this->assertTrue($this->user->can('rooms.manage'));
+        $this->role->permissions()->detach($this->managePermission);
     }
 
     /**
@@ -58,8 +99,7 @@ class RoomTest extends TestCase
 
         // Authorize user
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'rooms.create']);
-        $role->permissions()->attach($permission);
+        $role->permissions()->attach($this->createPermission);
         $this->user->roles()->attach($role);
 
         // Try again
@@ -85,8 +125,7 @@ class RoomTest extends TestCase
     public function testCreateNewRoomReachLimit()
     {
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name'=>'rooms.create']);
-        $role->permissions()->attach($permission);
+        $role->permissions()->attach($this->createPermission);
         $this->user->roles()->attach($role);
         setting(['room_limit' => '1']);
 
@@ -107,26 +146,60 @@ class RoomTest extends TestCase
      */
     public function testDeleteRoom()
     {
-        $room_1 = factory(Room::class)->create();
-        $room_2 = factory(Room::class)->create();
+        $room = factory(Room::class)->create();
 
         // Test unauthenticated user
-        $this->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+        $this->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertUnauthorized();
 
         // Test with normal user
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertForbidden();
 
-        $room_1->owner()->associate($this->user);
-        $room_1->save();
+        // Test as member user
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
+            ->assertForbidden();
+
+        // Test as member moderator
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
+            ->assertForbidden();
+
+        // Test as member co-owner
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
+            ->assertForbidden();
+
+        // Remove membership
+        $room->members()->sync([]);
+
+        // Test remove with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Test remove with manage rooms permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
+            ->assertNoContent();
+        $this->role->permissions()->detach($this->managePermission);
+
+        // Recreate room
+        $room = factory(Room::class)->create();
+
+        // Add ownership
+        $room->owner()->associate($this->user);
+        $room->save();
 
         // Test with owner
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertNoContent();
 
         // Try again after deleted
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room_1]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertNotFound();
     }
 
@@ -207,6 +280,45 @@ class RoomTest extends TestCase
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true]);
+
+        // Try without access code but membership
+        $this->flushHeaders();
+
+        // Try with member user
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
+        $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true]);
+
+        // Try with member moderator
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true]);
+
+        // Try with member co-owner
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true]);
+
+        $room->members()->sync([]);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true]);
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Try as owner
+        $room->owner()->associate($this->user);
+        $room->save();
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true]);
     }
 
     /**
@@ -238,8 +350,7 @@ class RoomTest extends TestCase
 
         // Test with viewAll rooms permission
         $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
-        $role->permissions()->attach($permission);
+        $role->permissions()->attach($this->viewAllPermission);
         $this->user->roles()->attach($role);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
             ->assertStatus(200)
@@ -368,7 +479,7 @@ class RoomTest extends TestCase
             ->assertJsonMissing(['id'=>$room->id]);
     }
 
-    /*
+    /**
      * Test callback route for meetings
      */
     public function testEndMeetingCallback()
@@ -436,6 +547,21 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertForbidden();
 
+        // Testing member as co-owner
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
+            ->assertSuccessful();
+
+        // Reset room membership
+        $room->members()->sync([]);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
         // Testing access owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertSuccessful();
@@ -472,7 +598,44 @@ class RoomTest extends TestCase
         $settings['roomType']                       = $roomType->id;
         $settings['webcamsOnlyForModerator']        = $this->faker->boolean;
 
-        $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+        // Testing user
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertForbidden();
+
+        // Testing member as user
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertForbidden();
+
+        // Testing member as moderator
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertForbidden();
+
+        // Testing member as co-owner
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertSuccessful();
+
+        // Reset room membership
+        $room->members()->sync([]);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->managePermission);
+
+        // Test as owner
+        $this->actingAs($room->owner)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
             ->assertSuccessful();
 
         // Get new settings
@@ -536,6 +699,28 @@ class RoomTest extends TestCase
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+
+        // Testing member as co-owner
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+
+        // Reset room membership
+        $room->members()->sync([]);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+            ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
+        $this->role->permissions()->detach($this->managePermission);
 
         // Testing owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
@@ -743,6 +928,106 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test joining urls contains correct role and name
+     */
+    public function testJoinUrl()
+    {
+        $room = factory(Room::class)->create([
+            'allowGuests' => true
+        ]);
+
+        // Adding server(s)
+        $this->seed('ServerSeeder');
+
+        // Start meeting
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+            ->assertSuccessful();
+        $runningMeeting = $room->runningMeeting();
+        $attendeePW     = $runningMeeting->attendeePW;
+        $moderatorPW    = $runningMeeting->moderatorPW;
+
+        \Auth::logout();
+
+        // Join as guest
+        $guestName = $this->faker->name;
+        $response  = $this->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$guestName]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->assertEquals('true', $queryParams['guest']);
+        $this->assertEquals($guestName, $queryParams['fullName']);
+
+        // Join as authorized users
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->assertEquals($this->user->fullname, $queryParams['fullName']);
+
+        // Testing owner
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($moderatorPW, $queryParams['password']);
+
+        // Testing member user
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::USER]]);
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($attendeePW, $queryParams['password']);
+
+        // Testing member moderator
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($moderatorPW, $queryParams['password']);
+
+        // Testing member co-owner
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($moderatorPW, $queryParams['password']);
+
+        // Reset room membership
+        $room->members()->sync([]);
+
+        // Testing with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($attendeePW, $queryParams['password']);
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Testing with manage rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->managePermission);
+        $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room]))
+            ->assertSuccessful();
+        $queryParams = [];
+        parse_str(parse_url($response->json('url'))['query'], $queryParams);
+        $this->assertEquals($moderatorPW, $queryParams['password']);
+        $this->role->permissions()->detach($this->managePermission);
+
+        // Clear
+        $this->assertNull($runningMeeting->end);
+        $runningMeeting->endMeeting();
+        $runningMeeting->refresh();
+        $this->assertNotNull($runningMeeting->end);
+    }
+
+    /**
      * Test lobby behavior if enabled for everyone
      */
     public function testLobbyEnabled()
@@ -774,6 +1059,10 @@ class RoomTest extends TestCase
 
         // Testing moderator member
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
+
+        // Testing co-owner member
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
@@ -811,6 +1100,10 @@ class RoomTest extends TestCase
 
         // Testing moderator member
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
+
+        // Testing co-owner member
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
