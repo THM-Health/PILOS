@@ -1108,4 +1108,72 @@ describe('Application', function () {
       });
     });
   });
+
+  it('if a new default presentation was uploaded the file gets send', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    const file = new window.File(['foo'], 'foo.txt', {
+      type: 'text/plain',
+      lastModified: Date.now()
+    });
+
+    moxios.wait(function () {
+      const request = moxios.requests.mostRecent();
+
+      request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: bbbSettings,
+            default_presentation: 'foo.pdf'
+          }
+        }
+      }).then(() => {
+        view.setData({
+          default_presentation: file
+        });
+
+        const saveSettingsButton = view.find('#application-save-button');
+        expect(saveSettingsButton.exists()).toBeTruthy();
+        saveSettingsButton.trigger('click');
+        return view.vm.$nextTick();
+      }).then(() => {
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('default_presentation')).toBe(file);
+
+          view.destroy();
+          done();
+        });
+      });
+    });
+  });
 });
