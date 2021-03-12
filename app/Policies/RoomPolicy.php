@@ -39,17 +39,6 @@ class RoomPolicy
     }
 
     /**
-     * Determine whether the user can manage all rooms (including files and members).
-     *
-     * @param  User $user
-     * @return bool
-     */
-    public function manage(User $user)
-    {
-        return $user->can('rooms.manage');
-    }
-
-    /**
      * Determine whether the user can view the room.
      *
      * @param  User $user
