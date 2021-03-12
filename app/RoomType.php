@@ -11,7 +11,7 @@ class RoomType extends Model
 
     protected $casts = [
         'allow_listing' => 'boolean',
-        'restrict' => 'boolean'
+        'restrict'      => 'boolean'
     ];
 
     protected $fillable = ['short','description','color', 'restrict'];
