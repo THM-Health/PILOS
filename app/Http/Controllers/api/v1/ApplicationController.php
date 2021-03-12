@@ -56,7 +56,9 @@ class ApplicationController extends Controller
                 Storage::deleteDirectory('public/default_presentation');
             }
             if (!empty($request->file('default_presentation'))) {
-                setting()->set('default_presentation', Storage::disk('public')->url($request->file('default_presentation')->store('default_presentation', 'public')));
+                $file = $request->file('default_presentation');
+                $path = $file->storeAs('default_presentation', 'default.' . $file->clientExtension(), 'public');
+                setting()->set('default_presentation', Storage::disk('public')->url($path));
             } else {
                 setting()->forget('default_presentation');
             }

@@ -504,7 +504,7 @@ class SettingsTest extends TestCase
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
-        config(['bigbluebutton.allowed_file_mimes' => 'pdf']);
+        config(['bigbluebutton.allowed_file_mimes' => 'pdf,jpg']);
         config(['bigbluebutton.max_filesize' => 5]);
 
         $request = [
@@ -544,30 +544,31 @@ class SettingsTest extends TestCase
             ]);
 
         // Valid file
-        $valid_file1                     = UploadedFile::fake()->create('default_presentation.pdf', 200);
+        $valid_file1                     = UploadedFile::fake()->create('default_presentation.pdf', 200, 'application/pdf');
         $request['default_presentation'] = $valid_file1;
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
             ->assertJsonFragment([
-                'default_presentation' => Storage::disk('public')->url('default_presentation/' . $valid_file1->hashName())
+                'default_presentation' => Storage::disk('public')->url('default_presentation/default.pdf')
             ]);
+        Storage::disk('public')->assertExists('default_presentation/default.pdf');
 
         // Update old file gets deleted
-        $valid_file2                     = UploadedFile::fake()->create('default_presentation.pdf', str_repeat('a', 200), 'application/pdf');
+        $valid_file2                     = UploadedFile::fake()->create('default_presentation.jpg', str_repeat('a', 200), 'image/jpg');
         $request['default_presentation'] = $valid_file2;
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
             ->assertJsonFragment([
-                'default_presentation' => Storage::disk('public')->url('default_presentation/' . $valid_file2->hashName())
+                'default_presentation' => Storage::disk('public')->url('default_presentation/default.jpg')
             ]);
-        Storage::disk('public')->assertExists('default_presentation/' . $valid_file2->hashName());
-        Storage::disk('public')->assertMissing('default_presentation/' . $valid_file1->hashName());
+        Storage::disk('public')->assertExists('default_presentation/default.jpg');
+        Storage::disk('public')->assertMissing('default_presentation/default.pdf');
 
         // Clear default presentation (file deleted and setting removed)
         $request['default_presentation'] = '';
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertSuccessful();
         $this->assertEmpty(setting('default_presentation'));
-        Storage::disk('public')->assertMissing('default_presentation/' . $valid_file1->hashName());
+        Storage::disk('public')->assertMissing('default_presentation/default.jpg');
     }
 }
