@@ -5,7 +5,6 @@ namespace App\Http\Resources;
 use App\Enums\LinkButtonStyle;
 use App\Enums\LinkTarget;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\URL;
 
 class ApplicationSettings extends JsonResource
 {
