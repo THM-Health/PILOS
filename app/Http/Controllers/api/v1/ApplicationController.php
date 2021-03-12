@@ -54,10 +54,10 @@ class ApplicationController extends Controller
 
         if ($request->has('default_presentation')) {
             if (!empty(setting('default_presentation'))) {
-                Storage::delete(setting('default_presentation'));
+                Storage::deleteDirectory('public/default_presentation');
             }
             if (!empty($request->file('default_presentation'))) {
-                setting()->set('default_presentation', $request->file('default_presentation')->store('default_presentation'));
+                setting()->set('default_presentation', Storage::disk('public')->url($request->file('default_presentation')->store('default_presentation', 'public')));
             } else {
                 setting()->forget('default_presentation');
             }
@@ -86,25 +86,5 @@ class ApplicationController extends Controller
     public function currentUser()
     {
         return (new UserResource(Auth::user()))->withPermissions();
-    }
-
-    /**
-     * Returns the default presentation or 404 if there is no default presentation
-     * or the file is missing.
-     *
-     * @return StreamedResponse
-     */
-    public function defaultPresentation(): StreamedResponse
-    {
-        if (empty(setting('default_presentation'))) {
-            abort(404);
-        }
-
-        if (!Storage::exists(setting('default_presentation'))) {
-            setting()->forget('default_presentation');
-            abort(404);
-        }
-
-        return Storage::download(setting('default_presentation'));
     }
 }

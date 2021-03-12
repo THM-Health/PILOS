@@ -327,17 +327,17 @@
               >
                 <!-- Delete file -->
                 <b-button
-                  v-if='!viewOnly && default_presentation === undefined'
+                  v-if='!viewOnly && default_presentation === null && !default_presentation_deleted'
                   variant='danger'
-                  @click="default_presentation = null"
+                  @click="default_presentation_deleted = true"
                   ref='delete-default-presentation'
                 >
                   <i class="fas fa-trash"></i> {{ $t('settings.application.deleteDefaultPresentation') }}
                 </b-button>
                 <b-button
-                  v-if='!viewOnly && default_presentation !== undefined'
+                  v-if='!viewOnly && (default_presentation !== null || default_presentation_deleted)'
                   variant='secondary'
-                  @click='default_presentation = undefined'
+                  @click='default_presentation = null; default_presentation_deleted = false'
                   ref='reset-default-presentation'
                 >
                   <i class="fas fa-undo"></i> {{ $t('settings.application.resetDefaultPresentation') }}
@@ -684,7 +684,8 @@ export default {
       uploadFaviconFile: null,
       uploadFaviconFileSrc: null,
       isBusy: false,
-      default_presentation: undefined,
+      default_presentation: null,
+      default_presentation_deleted: false,
       settings: {
         banner: {},
         link_btn_styles: [],
@@ -771,7 +772,9 @@ export default {
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
 
-      if (this.default_presentation !== undefined) {
+      if (this.default_presentation !== null) {
+        formData.append('default_presentation', this.default_presentation);
+      } else if (this.default_presentation_deleted) {
         formData.append('default_presentation', '');
       }
 
@@ -803,7 +806,8 @@ export default {
           this.$store.dispatch('session/getSettings');
           this.errors = {};
           this.uploadLogoFile = null;
-          this.default_presentation = undefined;
+          this.default_presentation = null;
+          this.default_presentation_deleted = false;
 
           // update form input
           this.settings = response.data.data;

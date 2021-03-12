@@ -103,7 +103,7 @@ class Meeting extends Model
         }
 
         if (empty($meetingParams->getPresentations()) && !empty(setting('default_presentation'))) {
-            $meetingParams->addPresentation(URL::signedRoute('download.default_presentation'));
+            $meetingParams->addPresentation(setting('default_presentation'));
         }
 
         // set guest policy

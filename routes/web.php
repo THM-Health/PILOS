@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('download/file/{roomFile}/{filename?}','FileController@show')->name('download.file')->middleware('signed');
-Route::get('download/default_presentation','api\v1\ApplicationController@defaultPresentation')->name('download.default_presentation')->middleware('signed');
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {
     Route::any('/{any}', 'ApplicationController@index')->where('any', '.*');

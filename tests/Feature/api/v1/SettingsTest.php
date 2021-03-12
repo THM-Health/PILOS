@@ -549,7 +549,7 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
             ->assertJsonFragment([
-                'default_presentation' => URL::signedRoute('download.default_presentation')
+                'default_presentation' => Storage::disk('public')->url('default_presentation/' . $valid_file1->hashName())
             ]);
 
         // Update old file gets deleted
@@ -558,32 +558,16 @@ class SettingsTest extends TestCase
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertStatus(200)
             ->assertJsonFragment([
-                'default_presentation' => URL::signedRoute('download.default_presentation')
+                'default_presentation' => Storage::disk('public')->url('default_presentation/' . $valid_file2->hashName())
             ]);
-        Storage::disk('local')->assertExists('default_presentation/' . $valid_file2->hashName());
-        Storage::disk('local')->assertMissing('default_presentation/' . $valid_file1->hashName());
-
-        // Get default presentation
-        $this->actingAs($this->user)->get(URL::signedRoute('download.default_presentation'))
-            ->assertSuccessful()
-            ->assertHeader('content-length', 200);
-
-        // Get default presentation that does not exist on the storage
-        setting(['default_presentation' => 'default_presentation/' . $valid_file1->hashName()]);
-        $this->actingAs($this->user)->get(URL::signedRoute('download.default_presentation'))
-            ->assertNotFound();
-        $this->assertEmpty(setting('default_presentation'));
-        setting(['default_presentation' => 'default_presentation/' . $valid_file2->hashName()]);
+        Storage::disk('public')->assertExists('default_presentation/' . $valid_file2->hashName());
+        Storage::disk('public')->assertMissing('default_presentation/' . $valid_file1->hashName());
 
         // Clear default presentation (file deleted and setting removed)
         $request['default_presentation'] = '';
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
             ->assertSuccessful();
         $this->assertEmpty(setting('default_presentation'));
-        Storage::disk('local')->assertMissing('default_presentation/' . $valid_file1->hashName());
-
-        // Get not existing default presentation
-        $this->actingAs($this->user)->get(URL::signedRoute('download.default_presentation'))
-            ->assertNotFound();
+        Storage::disk('public')->assertMissing('default_presentation/' . $valid_file1->hashName());
     }
 }
