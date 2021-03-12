@@ -52,7 +52,9 @@ class RoomTypeController extends Controller
         $roomType->short         = $request->short;
         $roomType->color         = $request->color;
         $roomType->allow_listing = $request->allow_listing;
+        $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
+        $roomType->roles()->associate($request->roles);
         $roomType->save();
 
         return (new RoomTypeResource($roomType))->withServerPool();
@@ -71,7 +73,9 @@ class RoomTypeController extends Controller
         $roomType->short         = $request->short;
         $roomType->color         = $request->color;
         $roomType->allow_listing = $request->allow_listing;
+        $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
+        $roomType->roles()->associate($request->roles);
         $roomType->save();
 
         return (new RoomTypeResource($roomType))->withServerPool();
@@ -92,6 +96,7 @@ class RoomTypeController extends Controller
         if ($request->has('replacement_room_type')) {
             // Replace room type
             foreach ($roomType->rooms as $room) {
+                // TODO: Check if replacement is restricted and not possible
                 $room->roomType()->associate($request->replacement_room_type);
                 $room->save();
             }

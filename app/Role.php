@@ -44,4 +44,9 @@ class Role extends Model
     {
         return $this->belongsToMany('App\Permission');
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(RoomType::class);
+    }
 }

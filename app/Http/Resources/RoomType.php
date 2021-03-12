@@ -42,7 +42,11 @@ class RoomType extends JsonResource
                 return new ServerPool($this->serverPool);
             }),
             'model_name'    => $this->model_name,
-            'updated_at'    => $this->updated_at
+            'updated_at'    => $this->updated_at,
+            'restrict'      => $this->restrict,
+            'roles'         => $this->when($this->withRoles, function () {
+                return new RoleCollection($this->roles);
+            })
         ];
     }
 }
