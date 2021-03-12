@@ -192,8 +192,9 @@ export default {
       selectLinkStyle: 'Select link style'
     },
 
-    password_self_reset_enabled: 'Give registered users the possibility to reset their password',
-    default_timezone: 'Default timezone'
+    userSettings: 'User settings',
+    passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
+    defaultTimezone: 'Default timezone'
   },
 
   servers: {

@@ -197,8 +197,9 @@ export default {
       selectLinkStyle: 'Linkart auswählen'
     },
 
-    password_self_reset_enabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
-    default_timezone: 'Standardzeitzone'
+    userSettings: 'Benutzereinstellungen',
+    passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+    defaultTimezone: 'Standardzeitzone'
   },
 
   servers: {

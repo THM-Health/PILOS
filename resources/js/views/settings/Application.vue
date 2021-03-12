@@ -169,6 +169,9 @@
         <b-row cols='12'>
           <b-col md='6'>
             <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              :label="$t('settings.application.userSettings')"
               :state='fieldState("password_self_reset_enabled")'
             >
               <b-form-checkbox
@@ -177,7 +180,7 @@
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.password_self_reset_enabled') }}
+                {{ $t('settings.application.passwordSelfResetEnabled') }}
               </b-form-checkbox>
 
               <template slot='invalid-feedback'>
@@ -273,7 +276,6 @@
                             :state='fieldState("own_rooms_pagination_page_size")'
               >
               </b-form-input>
-
               <template slot='invalid-feedback'>
                 <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
               </template>
@@ -286,7 +288,7 @@
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
-              :label="$t('settings.application.default_timezone')"
+              :label="$t('settings.application.defaultTimezone')"
               label-for='timezone'
               :state='fieldState("default_timezone")'
             >
@@ -299,7 +301,7 @@
                   :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
                 >
                   <template v-slot:first>
-                    <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
+                    <b-form-select-option :value="null" disabled>{{ $t('settings.application.defaultTimezone') }}</b-form-select-option>
                   </template>
                 </b-form-select>
                 <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
@@ -321,51 +323,54 @@
               label-for='default_presentation'
               :state='fieldState("default_presentation")'
             >
-              <b-button-group
-                class='mb-2'
-                v-if='settings.default_presentation || !!default_presentation'
-              >
-                <!-- Delete file -->
-                <b-button
-                  v-if='!viewOnly && default_presentation === null && !default_presentation_deleted'
-                  variant='danger'
-                  @click="default_presentation_deleted = true"
-                  ref='delete-default-presentation'
+              <b-input-group>
+                <b-form-file
+                  :disabled="isBusy || viewOnly || !loaded"
+                  id='default_presentation'
+                  :state="fieldState('default_presentation')"
+                  :browse-text="$t('app.browse')"
+                  :placeholder="$t('settings.application.defaultPresentation')"
+                  v-model="default_presentation"
                 >
-                  <i class="fas fa-trash"></i> {{ $t('settings.application.deleteDefaultPresentation') }}
-                </b-button>
-                <b-button
-                  v-if='!viewOnly && (default_presentation !== null || default_presentation_deleted)'
-                  variant='secondary'
-                  @click='default_presentation = null; default_presentation_deleted = false'
-                  ref='reset-default-presentation'
-                >
-                  <i class="fas fa-undo"></i> {{ $t('settings.application.resetDefaultPresentation') }}
-                </b-button>
-                <!-- View file -->
-                <b-button
-                  v-if='settings.default_presentation'
-                  variant='dark'
-                  :href='settings.default_presentation'
-                  target='_blank'
-                  ref='view-default-presentation'
-                >
-                  <i class="fas fa-eye"></i> {{ $t('settings.application.viewDefaultPresentation') }}
-                </b-button>
-              </b-button-group>
-              <raw-text v-else-if='viewOnly'>
-                ---
-              </raw-text>
-              <b-form-file
-                :disabled="isBusy || viewOnly || !loaded"
-                id='default_presentation'
-                :state="fieldState('default_presentation')"
-                :browse-text="$t('app.browse')"
-                :placeholder="$t('settings.application.defaultPresentation')"
-                v-model="default_presentation"
-              >
-              </b-form-file>
-              <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: settings.bbb.file_mimes }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
+                </b-form-file>
+                <b-input-group-append v-if='settings.default_presentation || !!default_presentation'>
+                  <!-- View file -->
+                  <b-button
+                    v-if='settings.default_presentation'
+                    variant='dark'
+                    :href='settings.default_presentation'
+                    target='_blank'
+                    ref='view-default-presentation'
+                    v-b-tooltip
+                    :title="$t('settings.application.viewDefaultPresentation')"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </b-button>
+                  <b-button
+                    v-if='!viewOnly && (default_presentation !== null || default_presentation_deleted)'
+                    variant='secondary'
+                    @click='default_presentation = null; default_presentation_deleted = false'
+                    ref='reset-default-presentation'
+                    v-b-tooltip
+                    :title="$t('settings.application.resetDefaultPresentation')"
+                  >
+                    <i class="fas fa-undo"></i>
+                  </b-button>
+                  <!-- Delete file -->
+                  <b-button
+                    v-if='!viewOnly && default_presentation === null && !default_presentation_deleted'
+                    variant='danger'
+                    @click="default_presentation_deleted = true"
+                    ref='delete-default-presentation'
+                    v-b-tooltip
+                    :title="$t('settings.application.deleteDefaultPresentation')"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </b-button>
+
+                </b-input-group-append>
+              </b-input-group>
+              <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: String(settings.bbb.file_mimes).replaceAll(',',', ') }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
               <template slot='invalid-feedback' v-if="!viewOnly">
                 <div v-html="fieldError('default_presentation')"></div>
               </template>
@@ -669,10 +674,9 @@ import PermissionService from '../../services/PermissionService';
 import Banner from '../../components/Banner';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
-import RawText from '../../components/RawText';
 
 export default {
-  components: { RawText, Banner, VSwatches },
+  components: { Banner, VSwatches },
   mixins: [FieldErrors],
 
   data () {
