@@ -250,6 +250,7 @@ return [
         'listed'                            => 'In Raumsuche einschließen',
         'password_self_reset_enabled'       => 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
         'timezone'                          => 'Zeitzone',
-        'default_timezone'                  => 'Standardzeitzone'
+        'default_timezone'                  => 'Standardzeitzone',
+        'default_presentation'              => 'Standard Präsentation'
     ],
 ];
