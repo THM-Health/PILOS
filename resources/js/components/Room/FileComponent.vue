@@ -85,7 +85,7 @@
               <!-- Delete file -->
               <b-button
                 variant="danger"
-                :disabled="loadingDownload===data.id"
+                :disabled="loadingDownload===data.item.id"
                 @click="showDeleteFileModal(data.item)"
               >
                 <i class="fas fa-trash"></i>
@@ -159,6 +159,7 @@
     <!-- remove file modal -->
     <b-modal
       :busy="isLoadingAction"
+      :static='modalStatic'
       ok-variant="danger"
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
@@ -218,6 +219,11 @@ export default {
       required: false
     },
     emitErrors: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    modalStatic: {
       type: Boolean,
       default: false,
       required: false

@@ -1,4 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
+// import BootstrapVue, { BButton, BModal, BTable, BTbody } from 'bootstrap-vue';
 import BootstrapVue from 'bootstrap-vue';
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
@@ -6,6 +7,7 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
+import PermissionService from '../../../../resources/js/services/PermissionService';
 
 const localVue = createLocalVue();
 
@@ -20,6 +22,8 @@ localVue.use(Clipboard);
 localVue.use(Vuex);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
+const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
+const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
 
 const store = new Vuex.Store({
   modules: {
@@ -58,7 +62,7 @@ describe('RoomFile', function () {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        roomId: '123-456-789',
+        room: exampleRoom,
         showTitle: true
       },
       store,
@@ -78,27 +82,28 @@ describe('RoomFile', function () {
               { id: 2, filename: 'File2.pdf', download: true, useinmeeting: true, default: true, uploaded: '21.09.2020 07:08' },
               { id: 3, filename: 'File3.pdf', download: false, useinmeeting: false, default: false, uploaded: '21.09.2020 07:09' }
             ],
-            default: 2,
-            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
-            file_size: 30
+            default: 2
           }
         }
       })
         .then(function () {
           expect(view.vm.$data.files.files).toHaveLength(3);
+          view.destroy();
           done();
         });
     });
   });
 
   it('hide table fields', function () {
+    PermissionService.setCurrentUser(exampleUser);
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        roomId: '123-456-789',
+        room: exampleRoom,
         showTitle: true
       },
       store,
@@ -114,15 +119,15 @@ describe('RoomFile', function () {
   });
 
   it('show owner all table fields', function () {
+    PermissionService.setCurrentUser(exampleUser);
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key
       },
       propsData: {
-        roomId: '123-456-789',
-        showTitle: true,
-        isOwner: true
+        room: ownerRoom,
+        showTitle: true
       },
       store,
       attachTo: createContainer()
@@ -144,7 +149,7 @@ describe('RoomFile', function () {
         $d: (date, format) => date.toDateString()
       },
       propsData: {
-        roomId: '123-456-789',
+        room: exampleRoom,
         showTitle: true,
         emitErrors: true
       },
@@ -167,137 +172,32 @@ describe('RoomFile', function () {
         .then(function () {
           expect(view.emitted().error).toBeTruthy();
           expect(view.emitted().error[0][0].response.status).toBe(403);
+          view.destroy();
           done();
         });
     });
   });
 
-  it('remove file', function () {
+  it('remove file', function (done) {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString()
       },
-      data () {
-        return {
-          files: {
-            files: [
-              {
-                id: 1,
-                filename: 'File1.pdf',
-                download: true,
-                useinmeeting: false,
-                default: false,
-                uploaded: '21.09.2020 07:08'
-              },
-              {
-                id: 2,
-                filename: 'File2.pdf',
-                download: true,
-                useinmeeting: true,
-                default: true,
-                uploaded: '21.09.2020 07:08'
-              },
-              {
-                id: 3,
-                filename: 'File3.pdf',
-                download: false,
-                useinmeeting: false,
-                default: false,
-                uploaded: '21.09.2020 07:09'
-              }
-            ],
-            default: 2,
-            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
-            file_size: 30
-          }
-        };
-      },
-      store,
-      attachTo: createContainer()
-    });
-    expect(view.vm.$data.files.files).toHaveLength(3);
-    view.vm.removeFile(view.vm.$data.files.files[0]);
-    expect(view.vm.$data.files.files).toHaveLength(2);
-  });
-
-  it('delete file', function (done) {
-    const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
-    const baseError = sinon.stub(Base, 'error');
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
-
-    const view = mount(FileComponent, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
-      },
-      data () {
-        return {
-          deleteFile: {
-            id: 3,
-            filename: 'File3.pdf',
-            download: false,
-            useinmeeting: false,
-            default: false,
-            uploaded: '21.09.2020 07:09'
-          },
-          files: {
-            files: [
-              {
-                id: 1,
-                filename: 'File1.pdf',
-                download: true,
-                useinmeeting: false,
-                default: false,
-                uploaded: '21.09.2020 07:08'
-              },
-              {
-                id: 2,
-                filename: 'File2.pdf',
-                download: true,
-                useinmeeting: true,
-                default: true,
-                uploaded: '21.09.2020 07:08'
-              },
-              {
-                id: 3,
-                filename: 'File3.pdf',
-                download: false,
-                useinmeeting: false,
-                default: false,
-                uploaded: '21.09.2020 07:09'
-              }
-            ],
-            default: 2,
-            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
-            file_size: 30
-          }
-        };
+      propsData: {
+        room: ownerRoom,
+        showTitle: true
       },
       store,
       attachTo: createContainer()
     });
 
-    const bvModalEvt = {
-      preventDefault () {
-        return sinon.spy();
-      }
-    };
-
-    expect(view.vm.$data.files.files).toHaveLength(3);
-
-    view.vm.confirmDeleteFile(bvModalEvt);
     moxios.wait(async () => {
       await view.vm.$nextTick();
-      moxios.requests.mostRecent().respondWith({
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
+      request.respondWith({
         status: 200,
         response: {
           data: {
@@ -317,61 +217,217 @@ describe('RoomFile', function () {
                 useinmeeting: true,
                 default: true,
                 uploaded: '21.09.2020 07:08'
+              },
+              {
+                id: 3,
+                filename: 'File3.pdf',
+                download: false,
+                useinmeeting: false,
+                default: false,
+                uploaded: '21.09.2020 07:09'
               }
             ],
-            default: 2,
-            file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
-            file_size: 30
+            default: 2
           }
         }
-      })
-        .then(function () {
-          view.vm.$nextTick();
-          expect(view.vm.$data.files.files).toHaveLength(2);
-
-          // Test 404
-          view.setData({ deleteFile: view.vm.$data.files.files[0] });
-          view.vm.confirmDeleteFile(bvModalEvt);
-          moxios.wait(async () => {
-            await view.vm.$nextTick();
-            moxios.requests.mostRecent().respondWith({
-              status: 404,
-              response: {
-                message: 'No query results for model'
-              }
-            })
-              .then(function () {
-                view.vm.$nextTick();
-                expect(flashMessageSpy.calledOnce).toBeTruthy();
-                expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileGone');
-                expect(removeFile.calledWith(view.vm.$data.files.files[0])).toBeTruthy();
-
-                // Test 500
-                view.setData({ deleteFile: view.vm.$data.files.files[0] });
-                view.vm.confirmDeleteFile(bvModalEvt);
-                moxios.wait(async () => {
-                  await view.vm.$nextTick();
-                  moxios.requests.mostRecent().respondWith({
-                    status: 500,
-                    response: {
-                      message: 'Internal server error'
-                    }
-                  })
-                    .then(function () {
-                      view.vm.$nextTick();
-                      expect(baseError.calledOnce).toBeTruthy();
-                      expect(baseError.getCall(0).args[0].response.status).toEqual(500);
-
-                      removeFile.restore();
-                      baseError.restore();
-                      done();
-                    });
-                });
-              });
-          });
-        });
+      }).then(function () {
+        expect(view.vm.$data.files.files).toHaveLength(3);
+        view.vm.removeFile(view.vm.$data.files.files[0]);
+        expect(view.vm.$data.files.files).toHaveLength(2);
+        view.destroy();
+        done();
+      });
     });
   });
+
+  /*
+  it('delete file', function (done) {
+    PermissionService.setCurrentUser(exampleUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString(),
+      },
+      propsData: {
+        room: ownerRoom,
+        showTitle: true,
+        modalStatic: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    // load files
+    moxios.wait(async () =>  {
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [
+              {
+                id: 1,
+                filename: 'File1.pdf',
+                download: true,
+                useinmeeting: false,
+                default: false,
+                uploaded: '21.09.2020 07:08'
+              },
+              {
+                id: 2,
+                filename: 'File2.pdf',
+                download: true,
+                useinmeeting: true,
+                default: true,
+                uploaded: '21.09.2020 07:09'
+              },
+              {
+                id: 3,
+                filename: 'File3.pdf',
+                download: false,
+                useinmeeting: false,
+                default: false,
+                uploaded: '21.09.2020 07:10'
+              }
+            ],
+            default: 2
+          }
+        }
+      });
+
+      // check if all files found
+      expect(view.vm.$data.files.files).toHaveLength(3);
+
+      // get first table entry and check cols
+      const fileTable = view.findComponent(BTbody);
+      const tableRows = fileTable.findAll('tr');
+      expect(tableRows).toHaveLength(3);
+      const tableCols = tableRows.at(0).findAll('td');
+      expect(tableCols).toHaveLength(6);
+
+      // find delete modal and check if is closed
+      const deleteModal = view.findComponent(BModal);
+      expect(deleteModal.vm.$data.isVisible).toBe(false);
+
+      // find delete action button and click
+      const deleteButton = tableCols.at(5).findAll('button').at(0);
+      expect(deleteButton.html()).toContain('<i class="fas fa-trash"></i>');
+      await deleteButton.trigger('click');
+
+      // open modal and confirm delete
+      expect(deleteModal.vm.$data.isVisible).toBe(true);
+      await deleteModal.findAllComponents(BButton).at(1).trigger('click');
+
+      // check for delete requests
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('delete');
+        expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/3');
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              files: [
+                {
+                  id: 1,
+                  filename: 'File1.pdf',
+                  download: true,
+                  useinmeeting: false,
+                  default: false,
+                  uploaded: '21.09.2020 07:08'
+                },
+                {
+                  id: 2,
+                  filename: 'File2.pdf',
+                  download: true,
+                  useinmeeting: true,
+                  default: true,
+                  uploaded: '21.09.2020 07:09'
+                }
+              ],
+              default: 2
+            }
+          }
+        });
+
+        // check if file list was updated
+        expect(view.vm.$data.files.files).toHaveLength(2);
+
+        // get first table entry and check cols
+        const fileTable = view.findComponent(BTbody);
+        const tableRows = fileTable.findAll('tr');
+        expect(tableRows).toHaveLength(2);
+        const tableCols = tableRows.at(0).findAll('td');
+        expect(tableCols).toHaveLength(6);
+
+        // find delete modal and check if is closed
+        const deleteModal = view.findComponent(BModal);
+        expect(deleteModal.vm.$data.isVisible).toBe(false);
+
+        // find delete action button and click
+        const deleteButton = tableCols.at(5).findAll('button').at(0);
+        expect(deleteButton.html()).toContain('<i class="fas fa-trash"></i>');
+        await deleteButton.trigger('click');
+
+        // open modal and confirm delete
+        expect(deleteModal.vm.$data.isVisible).toBe(true);
+        await deleteModal.findAllComponents(BButton).at(1).trigger('click');
+
+        // check for delete request and respond with 404, file is already deleted
+        moxios.wait(async () => {
+          await view.vm.$nextTick();
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('delete');
+          expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/2');
+          await request.respondWith({
+            status: 404,
+            response: {
+              message: 'No query results for model'
+            }
+          })
+
+          // check file missing error message and remove from file list
+          await view.vm.$nextTick();
+          expect(flashMessageSpy.calledOnce).toBeTruthy();
+          expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileGone');
+          expect(removeFile.calledWith(view.vm.$data.files.files[1])).toBeTruthy();
+
+          // find last file in the list, open modal and confirm delete
+          const fileTable = view.findComponent(BTbody);
+          const tableRows = fileTable.findAll('tr');
+          const tableCols = tableRows.at(0).findAll('td');
+          const deleteModal = view.findComponent(BModal);
+          const deleteButton = tableCols.at(5).findAll('button').at(0);
+          await deleteButton.trigger('click');
+          await deleteModal.findAllComponents(BButton).at(1).trigger('click');
+
+          // check for delete request and respond with 500
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            await moxios.requests.mostRecent().respondWith({
+              status: 500,
+              response: {
+                message: 'Internal server error'
+              }
+            });
+            await view.vm.$nextTick();
+
+            expect(baseError.calledOnce).toBeTruthy();
+            expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+
+            removeFile.restore();
+            baseError.restore();
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  */
 
   it('download file', function (done) {
     const openStub = sinon.stub(window, 'open');
@@ -392,7 +448,7 @@ describe('RoomFile', function () {
         flashMessage: flashMessage
       },
       propsData: {
-        roomId: '123-456-789'
+        room: exampleRoom
       },
       data () {
         return {
@@ -503,6 +559,7 @@ describe('RoomFile', function () {
                                         expect(baseError.getCall(0).args[0].response.status).toEqual(500);
                                         Base.error.restore();
                                         FileComponent.methods.removeFile.restore();
+                                        view.destroy();
                                         done();
                                       });
                                   });
@@ -536,7 +593,7 @@ describe('RoomFile', function () {
         flashMessage: flashMessage
       },
       propsData: {
-        roomId: '123-456-789'
+        room: exampleRoom
       },
       data () {
         return {
@@ -613,6 +670,7 @@ describe('RoomFile', function () {
                       expect(baseError.getCall(0).args[0].response.status).toEqual(500);
                       Base.error.restore();
                       FileComponent.methods.removeFile.restore();
+                      view.destroy();
                       done();
                     });
                 });
