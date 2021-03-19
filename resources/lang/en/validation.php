@@ -251,6 +251,7 @@ return [
         'password_self_reset_enabled'       => 'Give registered users the possibility to reset their password',
         'timezone'                          => 'Timezone',
         'default_timezone'                  => 'Default timezone',
-        'default_presentation'              => 'Default presentation'
+        'default_presentation'              => 'Default presentation',
+        'help_url'                          => 'URL to the help'
     ],
 ];

@@ -17,29 +17,55 @@
       </template>
 
       <b-form @submit="onSubmit" :aria-hidden="!loaded">
+        <b-row cols='12'>
+          <b-col md='6'>
+            <!--Application name-->
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-name-input"
+              :description="$t('settings.application.name.description')"
+              :state='fieldState("name")'
+              :label="$t('settings.application.name.title')"
+            >
+              <b-form-input id="application-name-input"
+                            v-model="settings.name"
+                            type="text"
+                            required
+                            :disabled="isBusy || viewOnly || !loaded"
+                            :state='fieldState("name")'
+              >
+              </b-form-input>
 
-        <!--Application name-->
-        <b-form-group
-          label-class="font-weight-bold"
-          class="mb-4"
-          label-for="application-name-input"
-          :description="$t('settings.application.name.description')"
-          :state='fieldState("name")'
-          :label="$t('settings.application.name.title')"
-        >
-          <b-form-input id="application-name-input"
-                        v-model="settings.name"
-                        type="text"
-                        required
-                        :disabled="isBusy || viewOnly || !loaded"
-                        :state='fieldState("name")'
-          >
-          </b-form-input>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('name')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <!--Help URL-->
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="help-url-input"
+              :description="$t('settings.application.helpUrl.description')"
+              :state='fieldState("help_url")'
+              :label="$t('settings.application.helpUrl.title')"
+            >
+              <b-form-input id="help-url-input"
+                            v-model="settings.help_url"
+                            type="url"
+                            :disabled="isBusy || viewOnly || !loaded"
+                            :state='fieldState("help_url")'
+              >
+              </b-form-input>
 
-          <template slot='invalid-feedback'>
-            <div v-html="fieldError('name')"></div>
-          </template>
-        </b-form-group>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('help_url')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
 
         <!--Favicon Settings-->
         <b-form-group
@@ -775,6 +801,7 @@ export default {
       formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
+      formData.append('help_url', this.settings.help_url || '');
 
       if (this.default_presentation !== null) {
         formData.append('default_presentation', this.default_presentation);

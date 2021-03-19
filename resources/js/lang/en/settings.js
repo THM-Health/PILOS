@@ -160,6 +160,11 @@ export default {
       description: 'Changes the site title'
     },
 
+    helpUrl: {
+      title: 'URL to the help',
+      description: 'If not set, no help button will be displayed.'
+    },
+
     roomLimit: {
       title: 'Number of rooms per user',
       description: 'Limits the number of rooms that a user can have. This setting does not apply to administrators.  Enter the value -1 for unlimited number of rooms'

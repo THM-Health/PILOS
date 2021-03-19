@@ -1,9 +1,8 @@
 <template>
   <li>
     <b-dropdown
-      size="lg"
       variant="link"
-      toggle-class="text-decoration-none">
+      toggle-class="text-decoration-none nav-icon-item">
       <template v-slot:button-content>
         <i class="fas fa-language"></i><span class="sr-only">{{ $t('app.selectLocale') }}</span>
       </template>
@@ -28,6 +27,8 @@ import { loadLanguageAsync } from '../i18n';
 import { mapState } from 'vuex';
 import env from './../env.js';
 import LocaleMap from '../lang/LocaleMap';
+import Base from '../api/base';
+
 
 export default {
   props: {
@@ -74,7 +75,7 @@ export default {
           this.errors = error.response.data.errors.locale;
         } else {
           this.$store.commit('loadingFinished');
-          throw error;
+          Base.error(error, this.$root, error.message);
         }
       } finally {
         this.$store.commit('loadingFinished');
