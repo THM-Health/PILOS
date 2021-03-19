@@ -19,28 +19,39 @@ describe('ModalTest', function () {
   it('open close modal', function (done) {
     const view = mount(ModalTest, {
       localVue,
-      attachTo: createContainer()
+      attachTo: createContainer(),
+      stubs: {
+        transition: false
+      }
     });
 
-    view.vm.$nextTick().then(function () {
-      console.log(view.findComponent(BModal).html());
+    view.vm.$nextTick().then(() => {
       expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('none');
       view.vm.showModal();
-      view.vm.$nextTick().then(function () {
-        console.log(view.findComponent(BModal).html());
-        expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('');
-        view.vm.hideModal();
-        view.vm.$nextTick().then(function () {
-          console.log(view.findComponent(BModal).html());
-          expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('none');
-          view.vm.showModal();
-          view.vm.$nextTick().then(function () {
-            console.log(view.findComponent(BModal).html());
-            expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('');
-            done();
-          });
-        });
+      return new Promise((resolve, reject) => {
+        view.vm.$root.$once('bv::modal::shown', () => resolve());
       });
+    }).then(() => {
+      expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+      view.vm.hideModal();
+      return new Promise((resolve, reject) => {
+        view.vm.$root.$once('bv::modal::hidden', () => resolve());
+      });
+    }).then(() => {
+      expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('none');
+      view.vm.showModal();
+      return new Promise((resolve, reject) => {
+        view.vm.$root.$once('bv::modal::shown', () => resolve());
+      });
+    }).then(() => {
+      expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+      view.vm.hideModal();
+      return new Promise((resolve, reject) => {
+        view.vm.$root.$once('bv::modal::hidden', () => resolve());
+      });
+    }).then(() => {
+      expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('none');
+      done();
     });
   });
 });

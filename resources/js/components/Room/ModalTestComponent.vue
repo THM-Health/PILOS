@@ -1,6 +1,7 @@
 <template>
   <div>
     <b-modal
+      ref="test"
       id="test-modal"
       :static='true'
       @change="change"
@@ -21,12 +22,12 @@ export default {
   methods: {
     showModal: function () {
       console.log('open modal');
-      this.$bvModal.show('test-modal');
+      this.$refs['test'].show();
     },
 
     hideModal: function () {
       console.log('hide modal');
-      this.$bvModal.hide('test-modal');
+      this.$refs['test'].hide();
     },
 
     change: function () {
