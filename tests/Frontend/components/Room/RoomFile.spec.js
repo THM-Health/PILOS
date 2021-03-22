@@ -1,6 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-// import BootstrapVue, { BButton, BModal, BTable, BTbody } from 'bootstrap-vue';
-import BootstrapVue from 'bootstrap-vue';
+import BootstrapVue, { BButton, BModal, BTbody } from 'bootstrap-vue';
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
 import Clipboard from 'v-clipboard';
@@ -240,15 +239,22 @@ describe('RoomFile', function () {
     });
   });
 
-  /*
   it('delete file', function (done) {
     PermissionService.setCurrentUser(exampleUser);
+    const baseError = sinon.stub(Base, 'error');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
+        flashMessage: flashMessage
       },
       propsData: {
         room: ownerRoom,
@@ -256,11 +262,14 @@ describe('RoomFile', function () {
         modalStatic: true
       },
       store,
-      attachTo: createContainer()
+      attachTo: createContainer(),
+      stubs: {
+        transition: false
+      }
     });
 
     // load files
-    moxios.wait(async () =>  {
+    moxios.wait(async () => {
       const request = moxios.requests.mostRecent();
       expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
       await request.respondWith({
@@ -308,101 +317,126 @@ describe('RoomFile', function () {
       const tableCols = tableRows.at(0).findAll('td');
       expect(tableCols).toHaveLength(6);
 
-      // find delete modal and check if is closed
-      const deleteModal = view.findComponent(BModal);
-      expect(deleteModal.vm.$data.isVisible).toBe(false);
-
       // find delete action button and click
       const deleteButton = tableCols.at(5).findAll('button').at(0);
       expect(deleteButton.html()).toContain('<i class="fas fa-trash"></i>');
-      await deleteButton.trigger('click');
 
-      // open modal and confirm delete
-      expect(deleteModal.vm.$data.isVisible).toBe(true);
-      await deleteModal.findAllComponents(BButton).at(1).trigger('click');
-
-      // check for delete requests
-      moxios.wait(async () => {
-        const request = moxios.requests.mostRecent();
-        expect(request.config.method).toEqual('delete');
-        expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/3');
-        await request.respondWith({
-          status: 200,
-          response: {
-            data: {
-              files: [
-                {
-                  id: 1,
-                  filename: 'File1.pdf',
-                  download: true,
-                  useinmeeting: false,
-                  default: false,
-                  uploaded: '21.09.2020 07:08'
-                },
-                {
-                  id: 2,
-                  filename: 'File2.pdf',
-                  download: true,
-                  useinmeeting: true,
-                  default: true,
-                  uploaded: '21.09.2020 07:09'
-                }
-              ],
-              default: 2
-            }
-          }
-        });
-
-        // check if file list was updated
-        expect(view.vm.$data.files.files).toHaveLength(2);
-
-        // get first table entry and check cols
-        const fileTable = view.findComponent(BTbody);
-        const tableRows = fileTable.findAll('tr');
-        expect(tableRows).toHaveLength(2);
-        const tableCols = tableRows.at(0).findAll('td');
-        expect(tableCols).toHaveLength(6);
-
-        // find delete modal and check if is closed
-        const deleteModal = view.findComponent(BModal);
-        expect(deleteModal.vm.$data.isVisible).toBe(false);
-
-        // find delete action button and click
-        const deleteButton = tableCols.at(5).findAll('button').at(0);
-        expect(deleteButton.html()).toContain('<i class="fas fa-trash"></i>');
-        await deleteButton.trigger('click');
-
+      view.vm.$nextTick()
+        .then(() => {
+          expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('none');
+          deleteButton.trigger('click');
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::shown', () => resolve());
+          });
+        })
+        .then(() => {
         // open modal and confirm delete
-        expect(deleteModal.vm.$data.isVisible).toBe(true);
-        await deleteModal.findAllComponents(BButton).at(1).trigger('click');
+          expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+          view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
 
-        // check for delete request and respond with 404, file is already deleted
-        moxios.wait(async () => {
-          await view.vm.$nextTick();
-          const request = moxios.requests.mostRecent();
-          expect(request.config.method).toEqual('delete');
-          expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/2');
-          await request.respondWith({
-            status: 404,
-            response: {
-              message: 'No query results for model'
-            }
-          })
+          // check for delete requests
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('delete');
+            expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/3');
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: {
+                  files: [
+                    {
+                      id: 1,
+                      filename: 'File1.pdf',
+                      download: true,
+                      useinmeeting: false,
+                      default: false,
+                      uploaded: '21.09.2020 07:08'
+                    },
+                    {
+                      id: 2,
+                      filename: 'File2.pdf',
+                      download: true,
+                      useinmeeting: true,
+                      default: true,
+                      uploaded: '21.09.2020 07:09'
+                    }
+                  ],
+                  default: 2
+                }
+              }
+            });
+          });
 
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::hidden', () => resolve());
+          });
+        })
+        .then(() => {
+          // check if file list was updated
+          expect(view.vm.$data.files.files).toHaveLength(2);
+
+          // get first table entry and check cols
+          const fileTable = view.findComponent(BTbody);
+          const tableRows = fileTable.findAll('tr');
+          expect(tableRows).toHaveLength(2);
+          const tableCols = tableRows.at(0).findAll('td');
+          expect(tableCols).toHaveLength(6);
+
+          // find delete modal and check if is closed
+          expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('none');
+
+          // find delete action button and click
+          const deleteButton = tableCols.at(5).findAll('button').at(0);
+          expect(deleteButton.html()).toContain('<i class="fas fa-trash"></i>');
+          deleteButton.trigger('click');
+
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::shown', () => resolve());
+          });
+        })
+        .then(() => {
+          // open modal and confirm delete
+          expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+          view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+
+          // check for delete request and respond with 404, file is already deleted
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('delete');
+            expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/2');
+            await request.respondWith({
+              status: 404,
+              response: {
+                message: 'No query results for model'
+              }
+            });
+          });
+
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::hidden', () => resolve());
+          });
+        })
+        .then(() => {
           // check file missing error message and remove from file list
-          await view.vm.$nextTick();
           expect(flashMessageSpy.calledOnce).toBeTruthy();
           expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileGone');
-          expect(removeFile.calledWith(view.vm.$data.files.files[1])).toBeTruthy();
 
           // find last file in the list, open modal and confirm delete
           const fileTable = view.findComponent(BTbody);
           const tableRows = fileTable.findAll('tr');
           const tableCols = tableRows.at(0).findAll('td');
-          const deleteModal = view.findComponent(BModal);
           const deleteButton = tableCols.at(5).findAll('button').at(0);
-          await deleteButton.trigger('click');
-          await deleteModal.findAllComponents(BButton).at(1).trigger('click');
+          deleteButton.trigger('click');
+
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::shown', () => resolve());
+          });
+        })
+        .then(() => {
+          // open modal and confirm delete
+          expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+          view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
 
           // check for delete request and respond with 500
           moxios.wait(async () => {
@@ -413,21 +447,21 @@ describe('RoomFile', function () {
                 message: 'Internal server error'
               }
             });
-            await view.vm.$nextTick();
-
-            expect(baseError.calledOnce).toBeTruthy();
-            expect(baseError.getCall(0).args[0].response.status).toEqual(500);
-
-            removeFile.restore();
-            baseError.restore();
-            done();
           });
+
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::hidden', () => resolve());
+          });
+        })
+        .then(() => {
+          expect(baseError.calledOnce).toBeTruthy();
+          expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+
+          baseError.restore();
+          done();
         });
-      });
     });
   });
-
-  */
 
   it('download file', function (done) {
     const openStub = sinon.stub(window, 'open');
