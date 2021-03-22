@@ -5,9 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- System wide default presentation ([#119], [#120])
+
+## [1.1.0] - 2021-03-08
 ### Added
 - Room list/search, room and room type setting to allow public room search ([#63], [#108])
 - List of running meetings ([#63], [#108])
+
+### Fixed
+- Failing redirect to login if session expired ([#121], [#122])
 
 ## [1.0.0] - 2021-03-02
 ### Added
@@ -98,6 +104,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#108]: https://github.com/THM-Health/PILOS/pull/108
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
+[#119]: https://github.com/THM-Health/PILOS/issues/119
+[#120]: https://github.com/THM-Health/PILOS/pull/120
+[#121]: https://github.com/THM-Health/PILOS/issues/121
+[#122]: https://github.com/THM-Health/PILOS/pull/122
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.1.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
+[1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0

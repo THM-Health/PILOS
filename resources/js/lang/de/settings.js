@@ -136,6 +136,10 @@ export default {
   application: {
     title: 'Anwendung',
     tileDescription: 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
+    defaultPresentation: 'Standard Präsentation',
+    viewDefaultPresentation: 'Anzeigen',
+    deleteDefaultPresentation: 'Löschen',
+    resetDefaultPresentation: 'Zurücksetzen',
     logo: {
       title: 'Logo',
       uploadTitle: 'Logo hochladen (max. 500 KB)',
@@ -193,8 +197,9 @@ export default {
       selectLinkStyle: 'Linkart auswählen'
     },
 
-    password_self_reset_enabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
-    default_timezone: 'Standardzeitzone'
+    userSettings: 'Benutzereinstellungen',
+    passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+    defaultTimezone: 'Standardzeitzone'
   },
 
   servers: {

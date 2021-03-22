@@ -326,6 +326,7 @@ class RoomTest extends TestCase
      */
     public function testRoomList()
     {
+        setting(['pagination_page_size' => 10]);
         $user      = factory(User::class)->create(['firstname'=>'John','lastname'=>'Doe']);
         $roomType1 = factory(RoomType::class)->create();
         $roomType2 = factory(RoomType::class)->create(['allow_listing'=>false]);

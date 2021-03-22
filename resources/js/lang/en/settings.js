@@ -131,6 +131,10 @@ export default {
   application: {
     title: 'Application',
     tileDescription: 'Controls system-wide settings such as logo, maintenance banner and page sizes.',
+    defaultPresentation: 'Default presentation',
+    viewDefaultPresentation: 'View',
+    deleteDefaultPresentation: 'Delete',
+    resetDefaultPresentation: 'Reset',
     logo: {
       title: 'Logo',
       uploadTitle: 'Upload a logo (max. 500 KB)',
@@ -188,8 +192,9 @@ export default {
       selectLinkStyle: 'Select link style'
     },
 
-    password_self_reset_enabled: 'Give registered users the possibility to reset their password',
-    default_timezone: 'Default timezone'
+    userSettings: 'User settings',
+    passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
+    defaultTimezone: 'Default timezone'
   },
 
   servers: {

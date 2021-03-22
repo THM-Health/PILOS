@@ -107,7 +107,7 @@ describe('base', function () {
     Base.error(error, vm, error.message);
     sinon.assert.calledOnceWithExactly(routerSpy, { name: 'login', query: { redirect: '/test' } });
     sinon.assert.calledOnceWithExactly(flashMessageInfoSpy, 'app.flash.unauthenticated');
-    sinon.assert.calledOnceWithExactly(storeCommitSpy, 'setCurrentUser', { currentUser: null, emit: false });
+    sinon.assert.calledOnceWithExactly(storeCommitSpy, 'session/setCurrentUser', { currentUser: null, emit: false });
     routerSpy.resetHistory();
     flashMessageInfoSpy.resetHistory();
     storeCommitSpy.resetHistory();
