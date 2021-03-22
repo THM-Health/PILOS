@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, {BButton, BFormFile, BModal, BTbody} from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormFile, BModal, BTbody } from 'bootstrap-vue';
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
 import Clipboard from 'v-clipboard';
@@ -7,7 +7,7 @@ import Vuex from 'vuex';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import Vue from "vue";
+import _ from 'lodash';
 
 const localVue = createLocalVue();
 
@@ -216,7 +216,6 @@ describe('RoomFile', function () {
       expect(fields).not.toContain('useinmeeting');
       expect(fields).not.toContain('default');
 
-
       PermissionService.setCurrentUser(oldUser);
       view.destroy();
       done();
@@ -252,7 +251,6 @@ describe('RoomFile', function () {
       expect(fields).toContain('download');
       expect(fields).toContain('useinmeeting');
       expect(fields).toContain('default');
-
 
       PermissionService.setCurrentUser(oldUser);
       view.destroy();

@@ -9,7 +9,8 @@ import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import Vue from "vue";
+import Vue from 'vue';
+import _ from 'lodash';
 
 const localVue = createLocalVue();
 
@@ -224,7 +225,6 @@ describe('Room', function () {
   });
 
   it('room admin components for owner', function (done) {
-
     const oldUser = PermissionService.currentUser;
 
     moxios.stubRequest('/api/v1/rooms/gs4-6fb-kk8', {
@@ -254,14 +254,13 @@ describe('Room', function () {
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeTruthy();
 
+      PermissionService.setCurrentUser(oldUser);
       view.destroy();
       done();
-
     });
   });
 
   it('room admin components for co-owner', function (done) {
-
     const oldUser = PermissionService.currentUser;
 
     moxios.stubRequest('/api/v1/rooms/gs4-6fb-kk8', {
@@ -291,14 +290,13 @@ describe('Room', function () {
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeTruthy();
 
+      PermissionService.setCurrentUser(oldUser);
       view.destroy();
       done();
-
     });
   });
 
   it('room admin components with rooms.viewAll permission', function (done) {
-
     const oldUser = PermissionService.currentUser;
 
     moxios.stubRequest('/api/v1/rooms/gs4-6fb-kk8', {
