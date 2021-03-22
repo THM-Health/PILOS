@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BModal, BTbody } from 'bootstrap-vue';
+import BootstrapVue, {BButton, BFormFile, BModal, BTbody} from 'bootstrap-vue';
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
 import Clipboard from 'v-clipboard';
@@ -7,6 +7,7 @@ import Vuex from 'vuex';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
+import Vue from "vue";
 
 const localVue = createLocalVue();
 
@@ -22,6 +23,7 @@ localVue.use(Vuex);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
+const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: true, isModerator: false, canStart: false, running: false };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
 
 const store = new Vuex.Store({
@@ -93,7 +95,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('hide table fields', function () {
+  it('hide table fields and upload', function (done) {
     PermissionService.setCurrentUser(exampleUser);
 
     const view = mount(FileComponent, {
@@ -108,16 +110,24 @@ describe('RoomFile', function () {
       store,
       attachTo: createContainer()
     });
-    const fields = view.vm.filefields.map(a => a.key);
-    expect(fields).toContain('filename');
-    expect(fields).toContain('uploaded');
-    expect(fields).toContain('actions');
-    expect(fields).not.toContain('downloadable');
-    expect(fields).not.toContain('useInNextMeeting');
-    expect(fields).not.toContain('default');
+
+    view.vm.$nextTick().then(() => {
+      expect(view.findComponent(BFormFile).exists()).toBeFalsy();
+
+      const fields = view.vm.filefields.map(a => a.key);
+      expect(fields).toContain('filename');
+      expect(fields).toContain('uploaded');
+      expect(fields).toContain('actions');
+      expect(fields).not.toContain('download');
+      expect(fields).not.toContain('useinmeeting');
+      expect(fields).not.toContain('default');
+
+      view.destroy();
+      done();
+    });
   });
 
-  it('show owner all table fields', function () {
+  it('show owner upload and all table fields', function (done) {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(FileComponent, {
       localVue,
@@ -131,13 +141,123 @@ describe('RoomFile', function () {
       store,
       attachTo: createContainer()
     });
-    const fields = view.vm.filefields.map(a => a.key);
-    expect(fields).toContain('filename');
-    expect(fields).toContain('uploaded');
-    expect(fields).toContain('actions');
-    expect(fields).toContain('download');
-    expect(fields).toContain('useinmeeting');
-    expect(fields).toContain('default');
+    view.vm.$nextTick().then(() => {
+      expect(view.findComponent(BFormFile).exists()).toBeTruthy();
+
+      const fields = view.vm.filefields.map(a => a.key);
+      expect(fields).toContain('filename');
+      expect(fields).toContain('uploaded');
+      expect(fields).toContain('actions');
+      expect(fields).toContain('download');
+      expect(fields).toContain('useinmeeting');
+      expect(fields).toContain('default');
+      view.destroy();
+      done();
+    });
+  });
+
+  it('show co-owner upload and all table fields', function (done) {
+    PermissionService.setCurrentUser(exampleUser);
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room: coOwnerRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+    view.vm.$nextTick().then(() => {
+      expect(view.findComponent(BFormFile).exists()).toBeTruthy();
+
+      const fields = view.vm.filefields.map(a => a.key);
+      expect(fields).toContain('filename');
+      expect(fields).toContain('uploaded');
+      expect(fields).toContain('actions');
+      expect(fields).toContain('download');
+      expect(fields).toContain('useinmeeting');
+      expect(fields).toContain('default');
+
+      view.destroy();
+      done();
+    });
+  });
+
+  it('hide upload and manage table fields on room.viewAll permission', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const newUser = _.clone(exampleUser);
+    newUser.permissions = ['rooms.viewAll'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+    view.vm.$nextTick().then(() => {
+      expect(view.findComponent(BFormFile).exists()).toBeFalsy();
+
+      const fields = view.vm.filefields.map(a => a.key);
+      expect(fields).toContain('filename');
+      expect(fields).toContain('uploaded');
+      expect(fields).toContain('actions');
+      expect(fields).not.toContain('download');
+      expect(fields).not.toContain('useinmeeting');
+      expect(fields).not.toContain('default');
+
+
+      PermissionService.setCurrentUser(oldUser);
+      view.destroy();
+      done();
+    });
+  });
+
+  it('show upload and manage table fields on room.manage permission', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const newUser = _.clone(exampleUser);
+    newUser.permissions = ['rooms.manage'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+    view.vm.$nextTick().then(() => {
+      expect(view.findComponent(BFormFile).exists()).toBeTruthy();
+
+      const fields = view.vm.filefields.map(a => a.key);
+      expect(fields).toContain('filename');
+      expect(fields).toContain('uploaded');
+      expect(fields).toContain('actions');
+      expect(fields).toContain('download');
+      expect(fields).toContain('useinmeeting');
+      expect(fields).toContain('default');
+
+
+      PermissionService.setCurrentUser(oldUser);
+      view.destroy();
+      done();
+    });
   });
 
   it('error emitted on files load', function (done) {
