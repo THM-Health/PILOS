@@ -282,12 +282,10 @@ export default {
       this.isLoadingSearch = true;
 
       Base.call('users/search?query=' + query).then(response => {
-
         // disable users that are already members of this room or the room owner
         const idOfMembers = this.members.map(user => user.id);
         this.users = response.data.data.map(user => {
-          if(idOfMembers.includes(user.id) || this.currentUser.id === user.id)
-            user.$isDisabled = true;
+          if (idOfMembers.includes(user.id) || this.currentUser.id === user.id) { user.$isDisabled = true; }
           return user;
         });
       }).catch((error) => {
