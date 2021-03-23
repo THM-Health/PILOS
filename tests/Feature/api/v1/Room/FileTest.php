@@ -317,6 +317,9 @@ class FileTest extends TestCase
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
+        $this->room->allowGuests = true;
+        $this->room->save();
+
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
         \Auth::logout();
 

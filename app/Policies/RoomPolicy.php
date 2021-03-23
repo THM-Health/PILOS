@@ -201,6 +201,7 @@ class RoomPolicy
         if ($roomFile->download === true) {
             return true;
         }
+
         if ($user == null) {
             return false;
         }
