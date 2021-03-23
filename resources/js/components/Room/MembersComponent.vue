@@ -10,6 +10,7 @@
           <b-button
             variant="success"
             :disabled="isBusy"
+            ref="add-member"
             @click="showAddMemberModal"
           >
             <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
