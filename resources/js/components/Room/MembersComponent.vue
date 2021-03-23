@@ -282,8 +282,14 @@ export default {
       this.isLoadingSearch = true;
 
       Base.call('users/search?query=' + query).then(response => {
-        // query executed
-        this.users = response.data.data;
+
+        // disable users that are already members of this room or the room owner
+        const idOfMembers = this.members.map(user => user.id);
+        this.users = response.data.data.map(user => {
+          if(idOfMembers.includes(user.id) || this.currentUser.id === user.id)
+            user.$isDisabled = true;
+          return user;
+        });
       }).catch((error) => {
         Base.error(error, this.$root);
       }).finally(() => {
@@ -340,6 +346,7 @@ export default {
     showAddMemberModal: function () {
       this.newMember = { data: null, feedback: { user: null, role: null } };
       this.createError = null;
+      this.users = [];
       this.$refs['add-member-modal'].show();
     },
 
@@ -388,7 +395,7 @@ export default {
         method: 'post',
         data: { user: this.newMember.data.id, role: this.newMember.data.role }
       }).then(response => {
-        // operation successfull, close modal and reload list
+        // operation successful, close modal and reload list
         this.$refs['add-member-modal'].hide();
         this.reload();
       }).catch((error) => {
@@ -416,7 +423,7 @@ export default {
       // make request to load users
       Base.call('rooms/' + this.room.id + '/member')
         .then(response => {
-          // fetching successfull
+          // fetching successful
           this.members = response.data.data;
         })
         .catch((error) => {

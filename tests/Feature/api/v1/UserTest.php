@@ -148,6 +148,64 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $ldapUser->firstname]);
     }
 
+    public function testSearch()
+    {
+        $page_size = 5;
+        config(['bigbluebutton.user_search_limit' => $page_size]);
+
+        $users   = [];
+        $users[] = factory(User::class)->create(['firstname' => 'Gregory', 'lastname'  => 'Dumas']);
+        $users[] = factory(User::class)->create(['firstname' => 'Mable', 'lastname'  => 'Torres']);
+        $users[] = factory(User::class)->create(['firstname' => 'Bertha', 'lastname'  => 'Luff']);
+        $users[] = factory(User::class)->create(['firstname' => 'Marie', 'lastname'  => 'Walker']);
+        $users[] = factory(User::class)->create(['firstname' => 'Connie', 'lastname'  => 'Braun']);
+        $users[] = factory(User::class)->create(['firstname' => 'Deborah', 'lastname'  => 'Braun']);
+
+        // Unauthenticated user
+        $this->getJson(route('api.v1.users.search'))->assertUnauthorized();
+
+        // Test without query and order asc lastname and asc firstname
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[4]->firstname)
+            ->assertJsonPath('data.1.firstname', $users[5]->firstname)
+            ->assertJsonPath('data.2.firstname', $users[0]->firstname)
+            ->assertJsonPath('data.3.firstname', $users[2]->firstname)
+            ->assertJsonPath('data.4.firstname', $users[1]->firstname)
+            ->assertJsonCount($page_size, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'email',
+                        'firstname',
+                        'lastname',
+                    ]
+                ]
+            ]);
+
+        // Check with lastname query
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[4]->firstname)
+            ->assertJsonPath('data.1.firstname', $users[5]->firstname)
+            ->assertJsonCount(2, 'data');
+
+        // check with multiple words
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun+Connie')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[4]->firstname)
+            ->assertJsonCount(1, 'data');
+
+        // check with fragment
+        $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Ma')
+            ->assertSuccessful()
+            ->assertJsonPath('data.0.firstname', $users[0]->firstname)
+            ->assertJsonPath('data.1.firstname', $users[1]->firstname)
+            ->assertJsonPath('data.2.firstname', $users[3]->firstname)
+            ->assertJsonCount(3, 'data');
+    }
+
     public function testCreate()
     {
         $user = factory(User::class)->create();
