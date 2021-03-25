@@ -120,6 +120,7 @@
 
     <!-- edit user role modal -->
     <b-modal
+      :static='modalStatic'
       :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.edit.cancel')"
@@ -130,27 +131,32 @@
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
+        <span v-if="editMember">
         {{ $t('rooms.members.modals.edit.title',{firstname: editMember.firstname,lastname: editMember.lastname}) }}
+          </span>
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
       </template>
-      <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
-        <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
-          <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
-        </b-form-radio>
-        <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
-          <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
-        </b-form-radio>
-        <b-form-radio v-model.number="editMember.role" name="some-radios" value="3">
-          <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
-        </b-form-radio>
-      </b-form-group>
+      <div v-if="editMember">
+        <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
+          <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
+            <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+          </b-form-radio>
+          <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
+            <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
+          </b-form-radio>
+          <b-form-radio v-model.number="editMember.role" name="some-radios" value="3">
+            <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
+          </b-form-radio>
+        </b-form-group>
+      </div>
     </b-modal>
 
     <!-- remove user modal -->
     <b-modal
       :busy="isLoadingAction"
+      :static='modalStatic'
       ok-variant="danger"
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
@@ -175,6 +181,7 @@
     <!-- add new user modal -->
     <b-modal
       :busy="isLoadingAction"
+      :static='modalStatic'
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.add.cancel')"
       @ok="saveNewMember"
@@ -193,7 +200,7 @@
       <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <!-- select user -->
       <b-form-group :label="$t('rooms.members.modals.add.user')" :state="newMemberValid">
-        <multiselect v-model="newMember.data"
+        <multiselect v-model="newMember"
                      label="lastname"
                      track-by="id"
                      :placeholder="$t('rooms.members.modals.add.name')"
@@ -204,6 +211,7 @@
                      :loading="isLoadingSearch"
                      :internal-search="false"
                      :clear-on-select="false"
+                     :preserveSearch="true"
                      :close-on-select="true"
                      :options-limit="300"
                      :max-height="600"
@@ -218,14 +226,14 @@
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newMember.data" :state="newMemberRoleValid">
-        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="1">
+      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newMember" :state="newMemberRoleValid">
+        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="1">
           <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="2">
+        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="2">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
         </b-form-radio>
-        <b-form-radio v-model.number="newMember.data.role" name="addmember-role-radios" value="3">
+        <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="3">
           <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
@@ -249,12 +257,17 @@ export default {
   components: { Multiselect, Can },
 
   props: {
-    room: Object // room object
+    room: Object, // room object
+    modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
   },
   data () {
     return {
       isBusy: false, // table is fetching data from api
-      newMember: { data: null, feedback: { user: null, role: null } }, // object user to be added as member
+      newMember: null, // object user to be added as member
       users: [], // list of all found users
       isLoadingSearch: false, // is user search active
       isLoadingAction: false, // is user search active
@@ -343,7 +356,7 @@ export default {
      * show modal to add a new user as member
      */
     showAddMemberModal: function () {
-      this.newMember = { data: null, feedback: { user: null, role: null } };
+      this.newMember = null;
       this.createError = null;
       this.users = [];
       this.$refs['add-member-modal'].show();
@@ -392,7 +405,7 @@ export default {
       // post new user as room members
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'post',
-        data: { user: this.newMember.data.id, role: this.newMember.data.role }
+        data: { user: this.newMember.id, role: this.newMember.role }
       }).then(response => {
         // operation successful, close modal and reload list
         this.$refs['add-member-modal'].hide();
@@ -408,10 +421,9 @@ export default {
         }
         this.$refs['add-member-modal'].hide();
         Base.error(error, this.$root);
-      })
-        .finally(() => {
-          this.isLoadingAction = false;
-        });
+      }).finally(() => {
+        this.isLoadingAction = false;
+      });
     },
     /**
      * reload member list from api
@@ -443,12 +455,12 @@ export default {
 
     // check if new user input field is valid, local and server-side check
     newMemberValid: function () {
-      if (this.newMember.data == null || this.newMember.data.id == null || this.fieldState('user') === false) { return false; }
+      if (this.newMember == null || this.newMember.id == null || this.fieldState('user') === false) { return false; }
       return null;
     },
     // check if new user role input field is valid, local and server-side check
     newMemberRoleValid: function () {
-      if ((this.newMember.data != null && this.newMember.data.role == null) || this.fieldState('role') === false) { return false; }
+      if ((this.newMember != null && this.newMember.role == null) || this.fieldState('role') === false) { return false; }
       return null;
     },
     // return error message for user, local or server-side
@@ -500,10 +512,10 @@ export default {
     'member.length': function () {
       this.$emit('membersChanged', this.members.length);
     },
-    'newMember.data.id': function () {
+    'newMember.id': function () {
       this.errors = {};
     },
-    'newMember.data.role': function () {
+    'newMember.role': function () {
       this.errors = {};
     }
   },
