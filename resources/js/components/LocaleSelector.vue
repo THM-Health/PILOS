@@ -29,7 +29,6 @@ import env from './../env.js';
 import LocaleMap from '../lang/LocaleMap';
 import Base from '../api/base';
 
-
 export default {
   props: {
     availableLocales: {
