@@ -4,6 +4,7 @@ namespace App;
 
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class RoomType extends Model
 {
@@ -21,6 +22,11 @@ class RoomType extends Model
         return $this->hasMany(Room::class);
     }
 
+    /**
+     * Roles which can create and have rooms with this type.
+     *
+     * @return BelongsToMany
+     */
     public function roles()
     {
         return $this->belongsToMany(Role::class);
