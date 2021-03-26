@@ -8,6 +8,8 @@ use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class SettingsTest extends TestCase
@@ -493,5 +495,80 @@ class SettingsTest extends TestCase
                 'own_rooms_pagination_page_size',
                 'room_limit'
             ]);
+    }
+
+    public function testApplicationSettingsDefaultPresentation()
+    {
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        config(['bigbluebutton.allowed_file_mimes' => 'pdf,jpg']);
+        config(['bigbluebutton.max_filesize' => 5]);
+
+        $request = [
+            'name'                           => 'test',
+            'favicon'                        => '/storage/image/favicon.ico',
+            'logo'                           => '/storage/image/testfile.svg',
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => '1',
+            'default_timezone'               => 'Europe/Berlin',
+            'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon')
+        ];
+
+        // Invalid mime
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'default_presentation'
+            ]);
+
+        // Too big file
+        $request['default_presentation'] = UploadedFile::fake()->create('favicon.ico', 6000, 'image/x-icon');
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'default_presentation'
+            ]);
+
+        // Not a file
+        $request['default_presentation'] = 'Test';
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors([
+                'default_presentation'
+            ]);
+
+        // Valid file
+        $valid_file1                     = UploadedFile::fake()->create('default_presentation.pdf', 200, 'application/pdf');
+        $request['default_presentation'] = $valid_file1;
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'default_presentation' => Storage::disk('public')->url('default_presentation/default.pdf')
+            ]);
+        Storage::disk('public')->assertExists('default_presentation/default.pdf');
+
+        // Update old file gets deleted
+        $valid_file2                     = UploadedFile::fake()->create('default_presentation.jpg', str_repeat('a', 200), 'image/jpg');
+        $request['default_presentation'] = $valid_file2;
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'default_presentation' => Storage::disk('public')->url('default_presentation/default.jpg')
+            ]);
+        Storage::disk('public')->assertExists('default_presentation/default.jpg');
+        Storage::disk('public')->assertMissing('default_presentation/default.pdf');
+
+        // Clear default presentation (file deleted and setting removed)
+        $request['default_presentation'] = '';
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertSuccessful();
+        $this->assertEmpty(setting('default_presentation'));
+        Storage::disk('public')->assertMissing('default_presentation/default.jpg');
     }
 }
