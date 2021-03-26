@@ -72,10 +72,16 @@ class ApplicationController extends Controller
         setting()->set('pagination_page_size', $request->pagination_page_size);
         setting()->set('password_self_reset_enabled', $request->password_self_reset_enabled);
         setting()->set('default_timezone', $request->default_timezone);
-        setting()->set('help_url', $request->help_url);
         setting()->set('banner', array_filter($request->banner, function ($setting) {
             return $setting !== null;
         }));
+
+        if (!empty($request->help_url)) {
+            setting()->set('help_url', $request->help_url);
+        } else {
+            setting()->forget('help_url');
+        }
+
         setting()->save();
 
         return (new ApplicationSettings())->allSettings();
