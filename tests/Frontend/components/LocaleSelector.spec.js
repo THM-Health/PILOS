@@ -146,18 +146,17 @@ describe('LocaleSelector', function () {
 
     items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    expect(store.state['loadingCounter']).toEqual(1);
+    expect(store.state.loadingCounter).toEqual(1);
 
     moxios.wait(() => {
       activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
       expect(activeItems.length).toBe(1);
       expect(activeItems.at(0).text()).toBe('Russian');
       expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
-      expect(store.state['loadingCounter']).toEqual(0);
+      expect(store.state.loadingCounter).toEqual(0);
 
       sinon.assert.calledOnce(Base.error);
       Base.error.restore();
-
 
       done();
     });
