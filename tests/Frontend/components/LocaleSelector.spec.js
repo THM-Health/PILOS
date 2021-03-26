@@ -3,6 +3,8 @@ import LocaleSelector from '../../../resources/js/components/LocaleSelector';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
 import store from '../../../resources/js/store';
 import moxios from 'moxios';
+import sinon from 'sinon';
+import Base from '../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -109,6 +111,53 @@ describe('LocaleSelector', function () {
       const invalidFeedbackItems = wrapper.findAllComponents(BFormInvalidFeedback);
       expect(invalidFeedbackItems.length).toBe(1);
       expect(invalidFeedbackItems.at(0).text()).toBe('Test');
+
+      done();
+    });
+  });
+
+  it('calls global error handler on other errors than 422 and finishes loading', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    store.commit('session/setCurrentLocale', 'ru');
+    const wrapper = mount(LocaleSelector, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        availableLocales: ['de', 'ru']
+      },
+      store
+    });
+    moxios.stubRequest('/api/v1/setLocale', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const items = wrapper.findAllComponents(BDropdownItem);
+    let activeItems = items.filter(item => item.props().active);
+    expect(activeItems.length).toBe(1);
+    expect(activeItems.at(0).text()).toBe('Russian');
+    expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
+
+    items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
+
+    expect(store.state['loadingCounter']).toEqual(1);
+
+    moxios.wait(() => {
+      activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
+      expect(activeItems.length).toBe(1);
+      expect(activeItems.at(0).text()).toBe('Russian');
+      expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
+      expect(store.state['loadingCounter']).toEqual(0);
+
+      sinon.assert.calledOnce(Base.error);
+      Base.error.restore();
+
 
       done();
     });
