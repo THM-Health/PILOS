@@ -76,10 +76,18 @@ describe('LocaleSelector', function () {
 
   it('shows an corresponding error message and doesn\'t change the language on 422', function (done) {
     store.commit('session/setCurrentLocale', 'ru');
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
-        $t: (key) => key
+        $t: (key) => key,
+        flashMessage: flashMessage
       },
       propsData: {
         availableLocales: ['de', 'ru']
@@ -108,10 +116,8 @@ describe('LocaleSelector', function () {
       expect(activeItems.length).toBe(1);
       expect(activeItems.at(0).text()).toBe('Russian');
 
-      const invalidFeedbackItems = wrapper.findAllComponents(BFormInvalidFeedback);
-      expect(invalidFeedbackItems.length).toBe(1);
-      expect(invalidFeedbackItems.at(0).text()).toBe('Test');
-
+      sinon.assert.calledOnce(flashMessageSpy);
+      sinon.assert.calledWith(flashMessageSpy, {message: 'Test'});
       done();
     });
   });
