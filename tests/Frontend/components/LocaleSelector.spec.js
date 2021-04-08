@@ -117,7 +117,7 @@ describe('LocaleSelector', function () {
       expect(activeItems.at(0).text()).toBe('Russian');
 
       sinon.assert.calledOnce(flashMessageSpy);
-      sinon.assert.calledWith(flashMessageSpy, {message: 'Test'});
+      sinon.assert.calledWith(flashMessageSpy, { message: 'Test' });
       done();
     });
   });

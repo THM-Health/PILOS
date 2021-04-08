@@ -20,10 +20,8 @@ import { mapState } from 'vuex';
 import env from './../env.js';
 import LocaleMap from '../lang/LocaleMap';
 import Base from '../api/base';
-import { Fragment } from 'vue-fragment';
 
 export default {
-  components: { Fragment },
   props: {
     availableLocales: {
       type: Array,
@@ -57,7 +55,7 @@ export default {
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.flashMessage.error({
-            message: error.response.data.errors.locale.join(' '),
+            message: error.response.data.errors.locale.join(' ')
           });
         } else {
           this.$store.commit('loadingFinished');
