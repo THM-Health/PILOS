@@ -47,6 +47,7 @@ class SettingsTest extends TestCase
             'link'       => 'http://localhost',
             'icon'       => 'fas fa-door-open',
         ]]);
+        setting(['help_url' => 'http://localhost']);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -63,7 +64,8 @@ class SettingsTest extends TestCase
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
-                    ]
+                    ],
+                    'help_url' => 'http://localhost'
                 ]
             ])
             ->assertSuccessful();
@@ -77,6 +79,7 @@ class SettingsTest extends TestCase
             'link'       => 'http://localhost',
             'icon'       => 'fas fa-door-open',
         ]]);
+        setting(['help_url' => null]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -87,7 +90,8 @@ class SettingsTest extends TestCase
                     'room_limit'                     => '-1',
                     'banner'                         => [
                         'enabled'    => false
-                    ]
+                    ],
+                    'help_url' => null
                 ]
             ])
             ->assertSuccessful();
@@ -195,7 +199,8 @@ class SettingsTest extends TestCase
                 'icon'        => 'fas fa-door-open',
             ],
             'password_self_reset_enabled' => '1',
-            'default_timezone'            => 'Europe/Berlin'
+            'default_timezone'            => 'Europe/Berlin',
+            'help_url'                    => 'http://localhost'
         ];
 
         $role       = factory(Role::class)->create();
@@ -223,9 +228,19 @@ class SettingsTest extends TestCase
                         'icon'       => 'fas fa-door-open',
                     ],
                     'password_self_reset_enabled' => true,
-                    'default_timezone'            => 'Europe/Berlin'
+                    'default_timezone'            => 'Europe/Berlin',
+                    'help_url'                    => 'http://localhost'
                 ]
             ]);
+        $this->assertTrue(setting()->has('help_url'));
+        $this->assertEquals('http://localhost', setting('help_url'));
+
+        $payload['help_url'] = '';
+
+        $this->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful();
+
+        $this->assertFalse(setting()->has('help_url'));
     }
 
     /**
@@ -359,7 +374,8 @@ class SettingsTest extends TestCase
             'own_rooms_pagination_page_size' => 'notnumber',
             'room_limit'                     => 'notnumber',
             'password_self_reset_enabled'    => 'foo',
-            'default_timezone'               => 'timezone'
+            'default_timezone'               => 'timezone',
+            'help_url'                       => 33
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
@@ -376,7 +392,8 @@ class SettingsTest extends TestCase
                 'banner',
                 'banner.enabled',
                 'password_self_reset_enabled',
-                'default_timezone'
+                'default_timezone',
+                'help_url'
             ]);
 
         $payload = [
@@ -388,7 +405,8 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => false,
             'password_self_reset_enabled'    => '1',
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'help_url'                       => 'http://localhost'
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -396,16 +414,23 @@ class SettingsTest extends TestCase
             ->assertJsonValidationErrors([
                 'banner',
                 'banner.enabled'
+            ])
+            ->assertJsonMissingValidationErrors([
+                'help_url'
             ]);
 
         $payload['banner'] = [
             'enabled' => 'foo'
         ];
+        $payload['help_url'] = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'banner.enabled'
+            ])
+            ->assertJsonMissingValidationErrors([
+                'help_url'
             ]);
 
         $payload['banner'] = [

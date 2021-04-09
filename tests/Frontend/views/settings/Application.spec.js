@@ -376,7 +376,8 @@ describe('Application', function () {
               title: null,
               link: null
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            help_url: null
           }
         }
       }).then(() => {
@@ -416,6 +417,7 @@ describe('Application', function () {
           expect(request.config.data.get('banner[title]')).toStrictEqual('');
           expect(request.config.data.get('banner[icon]')).toStrictEqual('');
           expect(request.config.data.get('banner[link]')).toStrictEqual('');
+          expect(request.config.data.get('help_url')).toStrictEqual('');
           view.destroy();
           done();
         });
@@ -580,7 +582,8 @@ describe('Application', function () {
                 logo: ['logo error'],
                 room_limit: ['room limit error'],
                 pagination_page_size: ['pagination page size error.'],
-                own_rooms_pagination_page_size: ['own rooms pagination page size error']
+                own_rooms_pagination_page_size: ['own rooms pagination page size error'],
+                help_url: ['help url error']
               }
             }
           }).then(() => {
@@ -591,6 +594,7 @@ describe('Application', function () {
             expect(view.vm.$data.errors.room_limit.length).toBeGreaterThan(0);
             expect(view.vm.$data.errors.pagination_page_size.length).toBeGreaterThan(0);
             expect(view.vm.$data.errors.own_rooms_pagination_page_size.length).toBeGreaterThan(0);
+            expect(view.vm.$data.errors.help_url.length).toBeGreaterThan(0);
 
             Base.error.restore();
             done();

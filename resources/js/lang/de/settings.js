@@ -165,6 +165,11 @@ export default {
       description: 'Ändert den Seitentitel'
     },
 
+    helpUrl: {
+      title: 'URL zur Hilfeseite',
+      description: 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.'
+    },
+
     roomLimit: {
       title: 'Anzahl der Räume pro Benutzer',
       description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.'
