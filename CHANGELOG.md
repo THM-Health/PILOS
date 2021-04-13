@@ -5,9 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 ### Added
-- System wide default presentation ([#119], [#120])
 - Co-owner room role, permissions to view and edit all rooms (incl. memberships, files and settings) ([#110], [#116])
+
+## [1.2.0] - 2021-04-09
+### Added 
+- System wide default presentation ([#119], [#120])
+- Configurable help link ([#123], [#125])
 
 ## [1.1.0] - 2021-03-08
 ### Added
@@ -104,15 +109,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#106]: https://github.com/THM-Health/PILOS/issues/106
 [#107]: https://github.com/THM-Health/PILOS/pull/107
 [#108]: https://github.com/THM-Health/PILOS/pull/108
+[#110]: https://github.com/THM-Health/PILOS/issues/110
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
+[#116]: https://github.com/THM-Health/PILOS/pull/116
 [#119]: https://github.com/THM-Health/PILOS/issues/119
 [#120]: https://github.com/THM-Health/PILOS/pull/120
 [#121]: https://github.com/THM-Health/PILOS/issues/121
 [#122]: https://github.com/THM-Health/PILOS/pull/122
-[#110]: https://github.com/THM-Health/PILOS/issues/110
-[#116]: https://github.com/THM-Health/PILOS/pull/116
+[#123]: https://github.com/THM-Health/PILOS/issues/123
+[#125]: https://github.com/THM-Health/PILOS/pull/125
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.1.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
+[1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0

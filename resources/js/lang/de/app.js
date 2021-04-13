@@ -156,5 +156,7 @@ export default {
   linkTargets: {
     blank: 'In einem neuen Tab öffnen',
     self: 'Im aktuellen Tab öffnen'
-  }
+  },
+
+  help: 'Benötigen Sie Hilfe?'
 };
