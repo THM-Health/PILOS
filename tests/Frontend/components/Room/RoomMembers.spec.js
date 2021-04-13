@@ -555,6 +555,239 @@ describe('RoomMembers', function () {
     });
   });
 
+  it('edit member', function (done) {
+    PermissionService.setCurrentUser(exampleUser);
+    const view = mount(MembersComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: ownerRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      // load current member list
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1 },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1 }
+          ]
+        }
+      });
+
+      // find modal
+      const modal = view.findComponent({ ref: 'edit-member-modal' });
+      expect(modal.exists()).toBeTruthy();
+      view.vm.$nextTick()
+        .then(() => {
+          // check if modal is closed and try to open it
+          expect(modal.find('.modal').element.style.display).toEqual('none');
+
+          const members = view.findComponent(BTbody);
+          const rows = members.findAllComponents(BTr);
+          expect(rows.length).toBe(3);
+
+          expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.participant');
+
+          // first member
+          const editButton = rows.at(0).findAllComponents(BButton).at(0);
+          expect(editButton.html()).toContain('fa-user-edit');
+          editButton.trigger('click');
+
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::shown', () => resolve());
+          });
+        })
+        .then(async () => {
+          // check if modal is open
+          expect(modal.find('.modal').element.style.display).toEqual('block');
+
+          // check if editMember is set
+          expect(view.vm.$data.editMember).toMatchObject({ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 });
+
+          expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.title:{"firstname":"Laura","lastname":"Rivera"}');
+
+          // check role selector, labels and values
+          const roleSelector = modal.findAllComponents(BFormRadio);
+          expect(roleSelector.length).toBe(3);
+          expect(roleSelector.at(0).text()).toBe('rooms.members.roles.participant');
+          expect(roleSelector.at(1).text()).toBe('rooms.members.roles.moderator');
+          expect(roleSelector.at(2).text()).toBe('rooms.members.roles.co_owner');
+
+          expect(roleSelector.at(0).find('input').attributes('value')).toBe('1');
+          expect(roleSelector.at(1).find('input').attributes('value')).toBe('2');
+          expect(roleSelector.at(2).find('input').attributes('value')).toBe('3');
+
+          // select role moderator
+          await roleSelector.at(1).find('input').setChecked();
+          expect(view.vm.$data.editMember.role).toBe(2);
+
+          // check modal action buttons
+          const footerButtons = modal.find('footer').findAll('button');
+          expect(footerButtons.length).toBe(2);
+          expect(footerButtons.at(0).text()).toBe('rooms.members.modals.edit.cancel');
+          expect(footerButtons.at(1).text()).toBe('rooms.members.modals.edit.save');
+
+          // confirm changes
+          await footerButtons.at(1).trigger('click');
+
+          // check for request and respond
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('put');
+            expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
+            expect(JSON.parse(request.config.data)).toMatchObject({ role: 2 });
+            await request.respondWith({
+              status: 204
+            });
+          });
+
+          // check is modal was closed after changes applied successfully
+          view.vm.$root.$once('bv::modal::hidden', async () => {
+            expect(modal.find('.modal').element.style.display).toEqual('none');
+
+            await view.vm.$nextTick();
+
+            // check if user list was updated
+            const members = view.findComponent(BTbody);
+            const rows = members.findAllComponents(BTr);
+            expect(rows.length).toBe(3);
+
+            expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.moderator');
+
+            view.destroy();
+            done();
+          });
+        });
+    });
+  });
+
+  it('edit member error gone', function (done) {
+    PermissionService.setCurrentUser(exampleUser);
+    const baseError = sinon.stub(Base, 'error');
+    const view = mount(MembersComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: ownerRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      // load current member list
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1 },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1 }
+          ]
+        }
+      });
+
+      // find modal
+      const modal = view.findComponent({ ref: 'edit-member-modal' });
+      expect(modal.exists()).toBeTruthy();
+      view.vm.$nextTick()
+        .then(() => {
+          // check if modal is closed and try to open it
+          expect(modal.find('.modal').element.style.display).toEqual('none');
+
+          const members = view.findComponent(BTbody);
+          const rows = members.findAllComponents(BTr);
+          expect(rows.length).toBe(3);
+
+          expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.participant');
+
+          // first member
+          const editButton = rows.at(0).findAllComponents(BButton).at(0);
+          expect(editButton.html()).toContain('fa-user-edit');
+          editButton.trigger('click');
+
+          return new Promise((resolve, reject) => {
+            view.vm.$root.$once('bv::modal::shown', () => resolve());
+          });
+        })
+        .then(async () => {
+          // check if modal is open
+          expect(modal.find('.modal').element.style.display).toEqual('block');
+
+          // check if editMember is set
+          expect(view.vm.$data.editMember).toMatchObject({ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 });
+
+          // check modal action buttons
+          const footerButtons = modal.find('footer').findAll('button');
+
+          // confirm changes
+          await footerButtons.at(1).trigger('click');
+
+          // check for request and respond
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('put');
+            expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
+            expect(JSON.parse(request.config.data)).toMatchObject({ role: 1 });
+            await request.respondWith({
+              status: 410,
+              response: {
+                message: 'The person is not a member of this room (anymore).'
+              }
+            });
+          });
+
+          // check is modal was closed after changes applied successfully
+          view.vm.$root.$once('bv::modal::hidden', async () => {
+            expect(modal.find('.modal').element.style.display).toEqual('none');
+
+            await view.vm.$nextTick();
+
+            // check if user list was updated
+            const members = view.findComponent(BTbody);
+            const rows = members.findAllComponents(BTr);
+            expect(rows.length).toBe(2);
+
+            expect(baseError.calledOnce).toBeTruthy();
+            expect(baseError.getCall(0).args[0].response.status).toEqual(410);
+            expect(baseError.getCall(0).args[0].response.data.message).toEqual('The person is not a member of this room (anymore).');
+            Base.error.restore();
+
+            view.destroy();
+            done();
+          });
+        });
+    });
+  });
+
   it('delete members', function (done) {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
