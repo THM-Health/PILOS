@@ -514,7 +514,7 @@ describe('RoomFile', function () {
 
         expect(baseError.calledOnce).toBeTruthy();
         expect(baseError.getCall(0).args[0].response.status).toEqual(500);
-
+        Base.error.restore();
         PermissionService.setCurrentUser(oldUser);
         view.destroy();
         done();
