@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormFile, BModal, BTbody } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormFile, BFormInvalidFeedback, BModal, BTbody } from 'bootstrap-vue';
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
 import Clipboard from 'v-clipboard';
@@ -255,6 +255,270 @@ describe('RoomFile', function () {
       PermissionService.setCurrentUser(oldUser);
       view.destroy();
       done();
+    });
+  });
+
+  it('upload file', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const newUser = _.clone(exampleUser);
+    newUser.permissions = ['rooms.manage'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [],
+            default: null
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      expect(view.vm.$data.files.files).toHaveLength(0);
+      expect(view.findComponent(BFormFile).exists()).toBeTruthy();
+      const file = new window.File(['foo'], 'foo.txt', {
+        type: 'text/plain',
+        lastModified: Date.now()
+      });
+
+      view.vm.uploadFile({ target: { files: [file] } });
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.headers['Content-Type']).toBe('multipart/form-data');
+        expect(request.config.url).toBe('/api/v1/rooms/123-456-789/files');
+        expect(request.config.method).toBe('post');
+        expect(request.config.data.get('file')).toBe(file);
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              files: [
+                { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '21.09.2020 07:08' }
+              ],
+              default: null
+            }
+          }
+        });
+
+        await view.vm.$nextTick();
+        expect(view.vm.$data.files.files).toHaveLength(1);
+
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
+    });
+  });
+
+  it('upload file payload too large error', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const newUser = _.clone(exampleUser);
+    newUser.permissions = ['rooms.manage'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [],
+            default: null
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      const file = new window.File(['foo'], 'foo.txt', {
+        type: 'text/plain',
+        lastModified: Date.now()
+      });
+
+      expect(view.findComponent(BFormInvalidFeedback).text()).toBe('');
+      view.vm.uploadFile({ target: { files: [file] } });
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        await request.respondWith({
+          status: 413
+        });
+
+        await view.vm.$nextTick();
+
+        expect(view.findComponent(BFormInvalidFeedback).text()).toBe('app.validation.tooLarge');
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
+    });
+  });
+
+  it('upload file form validation', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const newUser = _.clone(exampleUser);
+    newUser.permissions = ['rooms.manage'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [],
+            default: null
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      const file = new window.File(['foo'], 'foo.txt', {
+        type: 'text/plain',
+        lastModified: Date.now()
+      });
+
+      expect(view.findComponent(BFormInvalidFeedback).text()).toBe('');
+      view.vm.uploadFile({ target: { files: [file] } });
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        await request.respondWith({
+          status: 422,
+          response: {
+            message: 'The given data was invalid.',
+            errors: {
+              file: ['The File must be a file of type: pdf, doc.']
+            }
+          }
+        });
+
+        await view.vm.$nextTick();
+
+        expect(view.findComponent(BFormInvalidFeedback).text()).toBe('The File must be a file of type: pdf, doc.');
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
+    });
+  });
+
+  it('upload file other errors', function (done) {
+    const oldUser = PermissionService.currentUser;
+    const baseError = sinon.stub(Base, 'error');
+    const newUser = _.clone(exampleUser);
+    newUser.permissions = ['rooms.manage'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: exampleRoom,
+        showTitle: true
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            files: [],
+            default: null
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      const file = new window.File(['foo'], 'foo.txt', {
+        type: 'text/plain',
+        lastModified: Date.now()
+      });
+
+      view.vm.uploadFile({ target: { files: [file] } });
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        await request.respondWith({
+          status: 500,
+          response: {
+            message: 'Internal server error'
+          }
+        });
+
+        await view.vm.$nextTick();
+
+        expect(baseError.calledOnce).toBeTruthy();
+        expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
     });
   });
 

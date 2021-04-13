@@ -27,7 +27,7 @@
             :state="fieldState('file')"
             :browse-text="$t('app.browse')"
             :placeholder="$t('rooms.files.selectordrag')"
-            v-on:change="uploadFile($event)"
+            v-on:change="uploadFile"
             v-model="fileUpload"
             v-bind:multiple="false"
           >
