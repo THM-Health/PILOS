@@ -508,10 +508,6 @@ export default {
 
   },
   watch: {
-    // watch for changes on the members amount, emit event to parent to display changes
-    'member.length': function () {
-      this.$emit('membersChanged', this.members.length);
-    },
     'newMember.id': function () {
       this.errors = {};
     },
