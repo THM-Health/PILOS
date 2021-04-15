@@ -576,4 +576,191 @@ describe('RoomSettings', function () {
       });
     });
   });
+
+  it('save settings', function (done) {
+    const baseError = sinon.stub(Base, 'error');
+    PermissionService.setCurrentUser(exampleUser);
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(SettingsComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      propsData: {
+        room: ownerRoom
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.at(0);
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            name: 'Meeting One',
+            roomType: {
+              id: 1,
+              short: 'VL',
+              description: 'Vorlesung',
+              color: '#80BA27',
+              allow_listing: true,
+              model_name: 'RoomType',
+              updated_at: '2021-02-04T11:36:39.000000Z'
+            },
+            accessCode: null,
+            muteOnStart: true,
+            lockSettingsDisableCam: false,
+            webcamsOnlyForModerator: true,
+            lockSettingsDisableMic: false,
+            lockSettingsDisablePrivateChat: false,
+            lockSettingsDisablePublicChat: true,
+            lockSettingsDisableNote: true,
+            lockSettingsLockOnJoin: true,
+            lockSettingsHideUserList: false,
+            everyoneCanStart: false,
+            allowGuests: true,
+            allowMembership: false,
+            welcome: 'welcome',
+            maxParticipants: 10,
+            duration: 5,
+            defaultRole: 1,
+            lobby: 1,
+            listed: true
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      expect(view.vm.isBusy).toBe(false);
+
+      const saveButton = view.findAllComponents(BButton).at(5);
+      expect(saveButton.text()).toBe('app.save');
+
+      // test server error
+      await saveButton.trigger('click');
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toEqual('/api/v1/rooms/123-456-789');
+        expect(request.config.method).toBe('put');
+        expect(JSON.parse(request.config.data)).toMatchObject({
+          name: 'Meeting One',
+          roomType: 1,
+          accessCode: null,
+          muteOnStart: true,
+          lockSettingsDisableCam: false,
+          webcamsOnlyForModerator: true,
+          lockSettingsDisableMic: false,
+          lockSettingsDisablePrivateChat: false,
+          lockSettingsDisablePublicChat: true,
+          lockSettingsDisableNote: true,
+          lockSettingsLockOnJoin: true,
+          lockSettingsHideUserList: false,
+          everyoneCanStart: false,
+          allowGuests: true,
+          allowMembership: false,
+          welcome: 'welcome',
+          maxParticipants: 10,
+          duration: 5,
+          defaultRole: 1,
+          lobby: 1,
+          listed: true
+        });
+
+        expect(view.vm.isBusy).toBe(true);
+
+        // respond with server error
+        await request.respondWith({
+          status: 500,
+          response: {
+            message: 'Server error'
+          }
+        });
+        await view.vm.$nextTick();
+
+        expect(view.vm.isBusy).toBe(false);
+
+        // check if error is shown to user
+        expect(baseError.calledOnce).toBeTruthy();
+        expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+        expect(baseError.getCall(0).args[0].response.data.message).toEqual('Server error');
+        Base.error.restore();
+
+        // test success
+        await saveButton.trigger('click');
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          await request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                name: 'Meeting One',
+                roomType: {
+                  id: 1,
+                  short: 'VL',
+                  description: 'Vorlesung',
+                  color: '#80BA27',
+                  allow_listing: true,
+                  model_name: 'RoomType',
+                  updated_at: '2021-02-04T11:36:39.000000Z'
+                },
+                accessCode: null,
+                muteOnStart: true,
+                lockSettingsDisableCam: false,
+                webcamsOnlyForModerator: true,
+                lockSettingsDisableMic: false,
+                lockSettingsDisablePrivateChat: false,
+                lockSettingsDisablePublicChat: true,
+                lockSettingsDisableNote: true,
+                lockSettingsLockOnJoin: true,
+                lockSettingsHideUserList: false,
+                everyoneCanStart: false,
+                allowGuests: true,
+                allowMembership: false,
+                welcome: 'welcome',
+                maxParticipants: 10,
+                duration: 5,
+                defaultRole: 1,
+                lobby: 1,
+                listed: true
+              }
+            }
+          });
+          await view.vm.$nextTick();
+
+          expect(view.emitted().settingsChanged).toBeTruthy();
+
+          // test form validation error
+          await saveButton.trigger('click');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            await request.respondWith({
+              status: 422,
+              response: {
+                message: 'The given data was invalid.',
+                errors: {
+                  welcome: ['The Welcome message may not be greater than 500 characters.']
+                }
+              }
+            });
+            await view.vm.$nextTick();
+
+            // check if error message is shown
+            const welcome = view.findComponent(BFormTextarea);
+            expect(welcome.element.parentElement.parentElement.children[2].innerHTML).toContain('The Welcome message may not be greater than 500 characters.');
+
+            view.destroy();
+            done();
+          });
+        });
+      });
+    });
+  });
 });
