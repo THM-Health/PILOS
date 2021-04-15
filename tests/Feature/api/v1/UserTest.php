@@ -177,7 +177,6 @@ class UserTest extends TestCase
                 'data' => [
                     '*' => [
                         'id',
-                        'email',
                         'firstname',
                         'lastname',
                     ]

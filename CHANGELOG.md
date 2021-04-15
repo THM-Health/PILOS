@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Co-owner room role, permissions to view and edit all rooms (incl. memberships, files and settings) ([#110], [#116])
 
+### Fixed
+- Guests were unable to download files from a room with access code ([#116])
+
+### Security
+- Limit the user details available through the user search ([#116])
+
 ## [1.2.0] - 2021-04-09
 ### Added 
 - System wide default presentation ([#119], [#120])
