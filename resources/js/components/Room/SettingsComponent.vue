@@ -5,6 +5,7 @@
         <div class="text-center">
           <b-spinner v-if="isBusy" ></b-spinner>
           <b-button
+            ref="reload"
             v-else
             @click="load()"
           >
@@ -93,7 +94,8 @@
                 <b-form-input
                   id="settings-accessCode"
                   :placeholder="$t('rooms.settings.security.unprotectedPlaceholder')"
-                  disabled
+                  :disabled="disabled"
+                  readonly="readonly"
                   :state="fieldState('accessCode')"
                   type="number"
                   v-model.number="settings.accessCode"
@@ -141,7 +143,7 @@
             </b-form-group>
 
             <!-- Checkbox publicly list this room -->
-            <b-form-group :state="fieldState('listed')" v-if="settings.roomType && settings.roomType.allow_listing">
+            <b-form-group :state="fieldState('listed')" v-if="settings.roomType && settings.roomType.allow_listing && !settings.accessCode">
               <b-form-checkbox
                 :disabled="disabled"
                 :state="fieldState('listed')"
