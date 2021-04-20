@@ -235,7 +235,8 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
             ->assertStatus(200)
             ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(['id'=>$room5->id,'name'=>$room5->name]);
+            ->assertJsonFragment(['id'=>$room5->id,'name'=>$room5->name])
+            ->assertJsonCount(7, 'meta');
 
         // Test with viewAll rooms permission
         $role       = factory(Role::class)->create();
@@ -248,12 +249,15 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id'=>$room1->id,'name'=>$room1->name])
             ->assertJsonFragment(['id'=>$room2->id,'name'=>$room2->name])
             ->assertJsonFragment(['id'=>$room3->id,'name'=>$room3->name])
-            ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name]);
+            ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name])
+            ->assertJsonCount(7, 'meta');
 
         // Find by room name
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test')
             ->assertStatus(200)
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonCount(7, 'meta');
+
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data');
@@ -283,7 +287,9 @@ class RoomTest extends TestCase
         // Filter by room types
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id)
             ->assertStatus(200)
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data')
+            ->assertJsonCount(7, 'meta');
+
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&roomTypes[]='.$roomType2->id)
             ->assertStatus(200)
             ->assertJsonCount(4, 'data');
@@ -326,7 +332,8 @@ class RoomTest extends TestCase
             ->assertJsonFragment(['id'=>$rooms[2]->id])
             ->assertJsonFragment(['id'=>$rooms[3]->id])
             ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('meta.total_no_filter', 2);
+            ->assertJsonPath('meta.total_no_filter', 2)
+            ->assertJsonCount(8, 'meta');
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
             ->assertOk()
