@@ -364,16 +364,100 @@ describe('Own Room Index', function () {
 
       moxios.requests.reset();
 
-      moxios.wait(function () {
+      moxios.wait(async () => {
         // Check if requests use the search string
-        const firstRequest = moxios.requests.at(0);
-        const secondRequest = moxios.requests.at(1);
+        const ownRequest = moxios.requests.at(0);
+        const sharedRequest = moxios.requests.at(1);
 
-        expect(firstRequest.url).toEqual(expect.stringContaining('&search=test'));
-        expect(secondRequest.url).toEqual(expect.stringContaining('&search=test'));
+        expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
+        expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
 
-        view.destroy();
-        done();
+        await ownRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+        await sharedRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+
+        // check if message shows users that the user has rooms, but none that match the search query
+        const sectionOwnRooms = view.find('#ownRooms');
+        const sectionSharedRooms = view.find('#sharedRooms');
+        expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+        expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+
+        // check empty list message for no user rooms
+        const searchField = view.findComponent({ ref: 'search' });
+        await searchField.setValue('test2');
+        searchField.trigger('change');
+        moxios.requests.reset();
+        moxios.wait(async () => {
+          const ownRequest = moxios.requests.at(0);
+          const sharedRequest = moxios.requests.at(1);
+          expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test2');
+          expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test2');
+          await ownRequest.respondWith({
+            status: 200,
+            response: {
+              data: [],
+              meta: {
+                current_page: 1,
+                from: null,
+                last_page: 1,
+                per_page: 10,
+                to: null,
+                total: 0,
+                total_no_filter: 0
+              }
+            }
+          });
+          await sharedRequest.respondWith({
+            status: 200,
+            response: {
+              data: [],
+              meta: {
+                current_page: 1,
+                from: null,
+                last_page: 1,
+                per_page: 10,
+                to: null,
+                total: 0,
+                total_no_filter: 0
+              }
+            }
+          });
+
+          const sectionOwnRooms = view.find('#ownRooms');
+          const sectionSharedRooms = view.find('#sharedRooms');
+          expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+          expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+
+          view.destroy();
+          done();
+        });
       });
     });
   });
