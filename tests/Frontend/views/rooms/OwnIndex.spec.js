@@ -318,6 +318,7 @@ describe('Own Room Index', function () {
         const newRoomComponent = view.findComponent(NewRoomComponent);
         expect(newRoomComponent.exists()).toBeFalsy();
 
+        store.commit('session/setCurrentUser', exampleUser);
         view.destroy();
         done();
       });
@@ -459,6 +460,7 @@ describe('Own Room Index', function () {
         expect(view.findComponent(BBadge).exists()).toBeTruthy();
         expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
 
+        store.commit('session/setCurrentUser', exampleUser);
         view.destroy();
         done();
       });
