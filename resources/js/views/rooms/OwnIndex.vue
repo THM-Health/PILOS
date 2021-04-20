@@ -13,9 +13,10 @@
       <h2>{{ $t('rooms.myRooms') }}</h2>
       <b-overlay :show="loadingOwn" >
         <template v-if="ownRooms">
-        <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.meta.total,max:currentUser.room_limit}) }}</b-badge><br>
+        <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.meta.total_no_filter,max:currentUser.room_limit}) }}</b-badge><br>
 
-        <em v-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailable') }}</em>
+        <em v-if="ownRooms.meta.total_no_filter===0">{{ $t('rooms.noRoomsAvailable') }}</em>
+          <em v-else-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
 
         <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
           <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
@@ -46,8 +47,11 @@
           <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
             <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
           </b-col>
-          <b-col v-if="sharedRooms && !sharedRooms.data.length" class="pt-2">
+          <b-col v-if="sharedRooms && !sharedRooms.meta.total_no_filter" class="pt-2">
             <em>{{ $t('rooms.noRoomsAvailable') }}</em>
+          </b-col>
+          <b-col v-else-if="sharedRooms && !sharedRooms.data.length" class="pt-2">
+            <em>{{ $t('rooms.noRoomsAvailableSearch') }}</em>
           </b-col>
         </b-row>
         <b-pagination
@@ -86,7 +90,7 @@ export default {
       return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null;
     },
     limitReached: function () {
-      return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.data.length >= this.currentUser.room_limit;
+      return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.meta.total_no_filter >= this.currentUser.room_limit;
     }
   },
   mounted: function () {

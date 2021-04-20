@@ -4,6 +4,7 @@ export default {
   findRooms: 'Räume finden',
   findRoomsInfo: 'Liste aller öffentlich gelisteten Räume ohne Zugangscode',
   noRoomsAvailable: 'Keine Räume vorhanden',
+  noRoomsAvailableSearch: 'Keine Räume für diesen Suchbegriff gefunden',
   rooms: 'Räume',
   roomLimit: 'Max. Anzahl an Räumen: {has}/{max}',
   sharedBy: 'Geteilt von {name}',

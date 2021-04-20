@@ -324,12 +324,16 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertOk()
             ->assertJsonFragment(['id'=>$rooms[2]->id])
-            ->assertJsonFragment(['id'=>$rooms[3]->id]);
+            ->assertJsonFragment(['id'=>$rooms[3]->id])
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.total_no_filter', 2);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
             ->assertOk()
             ->assertJsonFragment(['id'=>$rooms[0]->id])
-            ->assertJsonFragment(['id'=>$rooms[1]->id]);
+            ->assertJsonFragment(['id'=>$rooms[1]->id])
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.total_no_filter', 2);
     }
 
     /**
@@ -346,27 +350,37 @@ class RoomTest extends TestCase
         // Testing without query
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id]);
+            ->assertJsonFragment(['id'=>$room->id])
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 1);
 
         // Testing with empty query
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id]);
+            ->assertJsonFragment(['id'=>$room->id])
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 1);
 
         // Testing with fragment of the room name
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=One')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id]);
+            ->assertJsonFragment(['id'=>$room->id])
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 1);
 
         // Testing with full name
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting One')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id]);
+            ->assertJsonFragment(['id'=>$room->id])
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('meta.total_no_filter', 1);
 
         // Testing with invalid name
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting Two')
             ->assertOk()
-            ->assertJsonMissing(['id'=>$room->id]);
+            ->assertJsonMissing(['id'=>$room->id])
+            ->assertJsonPath('meta.total', 0)
+            ->assertJsonPath('meta.total_no_filter', 1);
     }
 
     /*

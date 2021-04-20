@@ -29,16 +29,19 @@ class RoomController extends Controller
      */
     public function index(Request $request)
     {
-        $collection = null;
+        $collection     = null;
+        $additionalMeta = [];
 
         if ($request->has('filter')) {
             switch ($request->filter) {
                 case 'own':
-                    $collection = Auth::user()->myRooms()->with('owner');
+                    $collection                                = Auth::user()->myRooms()->with('owner');
+                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
                     break;
                 case 'shared':
-                    $collection =  Auth::user()->sharedRooms()->with('owner');
+                    $collection                                =  Auth::user()->sharedRooms()->with('owner');
+                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
                     break;
                 default:
@@ -51,7 +54,7 @@ class RoomController extends Controller
 
             $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
 
-            return \App\Http\Resources\Room::collection($collection);
+            return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
         }
 
         $collection =  Room::with('owner');
