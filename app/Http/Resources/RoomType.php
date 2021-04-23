@@ -13,6 +13,11 @@ class RoomType extends JsonResource
     private $withServerPool = false;
 
     /**
+     * @var bool Indicates whether the roles should be included or not.
+     */
+    private $withRoles = false;
+
+    /**
      * Sets the flag to also load the server pool
      *
      * @return $this The server pool resource instance.
@@ -20,6 +25,18 @@ class RoomType extends JsonResource
     public function withServerPool(): self
     {
         $this->withServerPool = true;
+
+        return $this;
+    }
+
+    /**
+     * Sets the flag to also load the roles
+     *
+     * @return $this The room type resource instance.
+     */
+    public function withRoles(): self
+    {
+        $this->withRoles = true;
 
         return $this;
     }

@@ -159,6 +159,10 @@ return [
         'servers.*' => [
             'exists'   => 'The server with the ID :input could not be found.',
             'distinct' => 'The server with the ID :input was selected more than once.'
+        ],
+        'roles.*' => [
+            'exists'   => 'One of the selected roles does not exist.',
+            'distinct' => 'At least one role was provided multiple times.'
         ]
     ],
 

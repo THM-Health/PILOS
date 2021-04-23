@@ -36,7 +36,7 @@ class RoomTypeController extends Controller
      */
     public function show(RoomType $roomType)
     {
-        return (new RoomTypeResource($roomType))->withServerPool();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
 
     /**
@@ -54,10 +54,12 @@ class RoomTypeController extends Controller
         $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
-        $roomType->roles()->sync($request->roles);
+        if ($roomType->restrict) {
+            $roomType->roles()->sync($request->roles);
+        }
         $roomType->save();
 
-        return (new RoomTypeResource($roomType))->withServerPool();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
 
     /**
@@ -75,10 +77,12 @@ class RoomTypeController extends Controller
         $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
-        $roomType->roles()->associate($request->roles);
+        if ($roomType->restrict) {
+            $roomType->roles()->associate($request->roles);
+        }
         $roomType->save();
 
-        return (new RoomTypeResource($roomType))->withServerPool();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
 
     /**

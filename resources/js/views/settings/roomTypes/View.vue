@@ -138,14 +138,15 @@
             <template slot='invalid-feedback'><div v-html="fieldError('restrict')"></div></template>
           </b-form-group>
           <b-form-group
-            label-cols-sm='3'
+            label-cols-sm='4'
             :label="$t('settings.roomTypes.roles')"
             label-for='roles'
             :state='fieldState("roles", true)'
+            v-if='model.restrict'
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.roomTypes.select_roles')"
+                :placeholder="$t('settings.roomTypes.selectRoles')"
                 ref="roles-multiselect"
                 v-model='model.roles'
                 track-by='id'
@@ -158,10 +159,9 @@
                 :show-no-results='false'
                 :showLabels='false'
                 :options='roles'
-                :disabled="isBusy || modelLoadingError || viewOnly"
+                :disabled="isBusy || modelLoadingError || viewOnly || rolesLoadingError"
                 id='roles'
                 :loading='rolesLoading'
-                v-if='model.restrict'
                 :allowEmpty='!!model.restrict'
                 :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }">
                 <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
@@ -398,6 +398,7 @@ export default {
       };
 
       config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
+      config.data.roles = config.data.roles.map(role => role.id);
 
       Base.call(this.id === 'new' ? 'roomTypes' : `roomTypes/${this.id}`, config).then(() => {
         this.errors = {};
@@ -439,8 +440,32 @@ export default {
       this.$refs['stale-roomType-modal'].hide();
     },
 
+    /**
+     * Loads the roles for the passed page, that can be selected through the multiselect.
+     *
+     * @param [page=1] The page to load the roles for.
+     */
     loadRoles(page = 1) {
-      // TODO: Implement
+      this.rolesLoading = true;
+
+      const config = {
+        params: {
+          page
+        }
+      };
+
+      Base.call('roles', config).then(response => {
+        this.rolesLoadingError = false;
+        this.roles = response.data.data;
+        this.currentRolePage = page;
+        this.hasNextRolePage = page < response.data.meta.last_page;
+      }).catch(error => {
+        this.$refs['roles-multiselect'].deactivate();
+        this.rolesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.rolesLoading = false;
+      });
     }
   }
 };
