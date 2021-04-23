@@ -69,7 +69,8 @@ class ApplicationSettings extends JsonResource
                 'link_btn_styles' => LinkButtonStyle::getValues(),
                 'link_targets'    => LinkTarget::getValues()
             ]),
-            'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation'))
+            'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
+            'help_url'             => setting('help_url'),
         ];
     }
 }

@@ -95,7 +95,8 @@ describe('Create new rooms', function () {
       last_page: 1,
       per_page: 10,
       to: 1,
-      total: 1
+      total: 1,
+      total_no_filter: 1
     }
   };
   const exampleSharedRoomResponse = {
@@ -131,7 +132,8 @@ describe('Create new rooms', function () {
       last_page: 1,
       per_page: 10,
       to: 5,
-      total: 2
+      total: 2,
+      total_no_filter: 2
     }
   };
   const exampleRoomTypeResponse = {
@@ -218,8 +220,58 @@ describe('Create new rooms', function () {
       const missingNewRoomComponent = view.findComponent(NewRoomComponent);
       expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-      view.destroy();
-      done();
+      const searchField = view.findComponent({ ref: 'search' });
+      expect(searchField.exists()).toBeTruthy();
+
+      // Enter search query
+      await searchField.setValue('test');
+      searchField.trigger('change');
+
+      moxios.requests.reset();
+      moxios.wait(async () => {
+        // Check if requests use the search string
+        const ownRequest = moxios.requests.at(0);
+        const sharedRequest = moxios.requests.at(1);
+        expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
+        expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
+
+        await ownRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+        await sharedRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+
+        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+        expect(missingNewRoomComponent.exists()).toBeFalsy();
+
+        view.destroy();
+        done();
+      });
     });
   });
 

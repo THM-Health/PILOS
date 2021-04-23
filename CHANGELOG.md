@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Incorrect count of user rooms if search is used ([#129], [#130])
+
+## [1.2.0] - 2021-04-09
+### Added 
 - System wide default presentation ([#119], [#120])
+- Configurable help link ([#123], [#125])
 
 ## [1.1.0] - 2021-03-08
 ### Added
@@ -108,7 +114,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#120]: https://github.com/THM-Health/PILOS/pull/120
 [#121]: https://github.com/THM-Health/PILOS/issues/121
 [#122]: https://github.com/THM-Health/PILOS/pull/122
+[#123]: https://github.com/THM-Health/PILOS/issues/123
+[#125]: https://github.com/THM-Health/PILOS/pull/125
+[#129]: https://github.com/THM-Health/PILOS/issues/129
+[#130]: https://github.com/THM-Health/PILOS/pull/130
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.1.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
+[1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
