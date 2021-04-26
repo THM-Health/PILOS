@@ -87,8 +87,7 @@ class MeetingController extends Controller
         // Only set end of meeting, if not set before
         if ($meeting->end == null) {
             // Set end of meeting
-            $meeting->end = date('Y-m-d H:i:s');
-            $meeting->save();
+            $meeting->setEnd();
         }
     }
 }

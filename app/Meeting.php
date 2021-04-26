@@ -38,6 +38,10 @@ class Meeting extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'record_attendance'  => 'boolean'
+    ];
+
     /**
      * Server the meeting is/should be running on
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -139,8 +143,18 @@ class Meeting extends Model
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
         $this->server->bbb()->endMeeting($endParams)->success();
-        $this->end = date('Y-m-d H:i:s');
+        $this->setEnd();
+    }
+
+    public function setEnd()
+    {
+        $this->end = now();
         $this->save();
+
+        foreach ($this->attendees()->whereNull('leave')->get() as $attendee) {
+            $attendee->leave = now();
+            $attendee->save();
+        }
     }
 
     /**
@@ -170,5 +184,14 @@ class Meeting extends Model
     public function stats()
     {
         return $this->hasMany(MeetingStat::class);
+    }
+
+    /**
+     * Attendees of this meeting
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendees()
+    {
+        return $this->hasMany(MeetingAttendee::class);
     }
 }

@@ -225,8 +225,7 @@ class RoomController extends Controller
 
         // Check if the meeting is actually running on the server
         if (!$meeting->isRunning() ) {
-            $meeting->end = date('Y-m-d H:i:s');
-            $meeting->save();
+            $meeting->setEnd();
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 

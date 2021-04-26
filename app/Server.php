@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class Server extends Model
 {
@@ -147,8 +148,7 @@ class Server extends Model
     public function endMeetings()
     {
         foreach ($this->meetings()->whereNull('end')->get() as $meeting) {
-            $meeting->end = date('Y-m-d H:i:s');
-            $meeting->save();
+            $meeting->setEnd();
 
             // If no other meeting is running for this room, reset live room usage
             if ($meeting->room->runningMeeting() == null) {
@@ -243,12 +243,79 @@ class Server extends Model
                     $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
                     $meeting->room->video_count             = $meetingStat->video_count             = $bbbMeeting->getVideoCount();
 
-                    if (setting('log_attendance')) {
-                        $attendees = [];
-                        foreach ($bbbMeeting->getAttendees() as $attendee) {
-                            array_push($attendees, $attendee->getFullName());
+                    if ($meeting->record_attendance) {
+                        // Get collection of all attendees, remove duplicated (user joins twice)
+                        $collection      = collect($bbbMeeting->getAttendees());
+                        $uniqueAttendees = $collection->unique(function ($attendee) {
+                            return $attendee->getUserId();
+                        });
+
+                        // List of all created and found attendees
+                        $newAndExistingAttendees = [];
+                        foreach ($uniqueAttendees as $attendee) {
+                            // Split user id in prefix and user_id (users) / session_id (guests)
+                            $prefix = substr($attendee->getUserId(), 0, 1);
+                            $id     = substr($attendee->getUserId(), 1);
+
+                            switch ($prefix) {
+                                case 'u': // users, identified by their id
+                                    // try to find user in database
+                                    $user = User::find($id);
+                                    // user was found
+                                    if ($user != null) {
+                                        // check if user is marked in the database as still attending
+                                        $meetingAttendee = MeetingAttendee::where('meeting_id', $meeting->id)->where('user_id', $id)->whereNull('leave')->orderBy('join')->first();
+                                        // if no previous currently active attendance found in database, create new attendance
+                                        if ($meetingAttendee == null) {
+                                            $meetingAttendee = new MeetingAttendee();
+                                            $meetingAttendee->meeting()->associate($meeting);
+                                            $meetingAttendee->user()->associate($user);
+                                            $meetingAttendee->join = now();
+                                            $meetingAttendee->save();
+                                        }
+                                        // add found or created record to list of new or existing attendances
+                                        array_push($newAndExistingAttendees, $meetingAttendee->id);
+                                    } else {
+                                        // user was not found in database
+                                        Log::notice('Attendee user not found.', ['user' => $id,'meeting'=> $meeting->id]);
+                                    }
+
+                                    break;
+                                case 's': // users, identified by their session id
+                                    // check if user is marked in the database as still attending
+                                    $meetingAttendee = MeetingAttendee::where('meeting_id', $meeting->id)->where('session_id', $id)->whereNull('leave')->orderBy('join')->first();
+                                    // if no previous currently active attendance found in database, create new attendance
+                                    if ($meetingAttendee == null) {
+                                        $meetingAttendee = new MeetingAttendee();
+                                        $meetingAttendee->meeting()->associate($meeting);
+                                        $meetingAttendee->name       = $attendee->getFullName();
+                                        $meetingAttendee->session_id = $id;
+                                        $meetingAttendee->join       = now();
+                                        $meetingAttendee->save();
+                                    }
+                                    // add found or created record to list of new or existing attendances
+                                    array_push($newAndExistingAttendees, $meetingAttendee->id);
+
+                                    break;
+                                default:
+                                    // some other not supported prefix was found
+                                    Log::notice('Unknown prefix for attendee found.', ['prefix' => $prefix,'meeting'=> $meeting->id]);
+
+                                    break;
+                            }
                         }
-                        $meetingStat->attendees = json_encode($attendees);
+
+                        // get all active attendees from database
+                        $allAttendees = MeetingAttendee::where('meeting_id', $meeting->id)->whereNull('leave')->get();
+                        // remove added or found attendees, to only have attendees left that are no longer active
+                        $leftAttendees = $allAttendees->filter(function ($attendee, $key) use ($newAndExistingAttendees) {
+                            return !in_array($attendee->id, $newAndExistingAttendees);
+                        });
+                        // set end time of left attendees to current datetime
+                        foreach ($leftAttendees as $leftAttendee) {
+                            $leftAttendee->leave = now();
+                            $leftAttendee->save();
+                        }
                     }
 
                     $meeting->stats()->save($meetingStat);
@@ -274,8 +341,7 @@ class Server extends Model
         foreach ($meetingsNotRunningOnServers as $meetingId) {
             $meeting = Meeting::find($meetingId);
             if ($meeting != null && $meeting->end == null) {
-                $meeting->end = date('Y-m-d H:i:s');
-                $meeting->save();
+                $meeting->setEnd();
             }
         }
     }

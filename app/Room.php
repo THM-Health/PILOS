@@ -62,6 +62,7 @@ class Room extends Model
         'lobby'                          => 'integer',
         'accessCode'                     => 'integer',
         'listed'                         => 'boolean',
+        'record_attendance'              => 'boolean',
     ];
 
     /**
