@@ -120,6 +120,8 @@ class BuildHistoryTest extends TestCase
     /**
      * Check if attendance is getting logged
      */
+
+    /**
     public function testLogAttendance()
     {
         $room = factory(Room::class)->create([]);
@@ -145,4 +147,5 @@ class BuildHistoryTest extends TestCase
         // Cleanup
         $runningMeeting->endMeeting();
     }
+     */
 }
