@@ -52,13 +52,25 @@ class RoomPolicy
     }
 
     /**
-     * Determine whether the user can view the room.
+     * Determine whether the user can view the room settings.
      *
      * @param  User $user
      * @param  Room $room
      * @return bool
      */
     public function viewSettings(User $user, Room $room)
+    {
+        return $room->owner->is($user);
+    }
+
+    /**
+     * Determine whether the user can view the statistics of the room.
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewStatistics(User $user, Room $room)
     {
         return $room->owner->is($user);
     }

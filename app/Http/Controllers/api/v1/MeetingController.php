@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AttendeeCollection;
 use App\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -89,5 +90,16 @@ class MeetingController extends Controller
             // Set end of meeting
             $meeting->setEnd();
         }
+    }
+
+    public function attendees(Meeting $meeting)
+    {
+        $this->authorize('viewStatistics', $meeting->room);
+
+        if ($meeting->end == null) {
+            abort(204, 'test');
+        }
+
+        return new AttendeeCollection($meeting->attendees()->get());
     }
 }

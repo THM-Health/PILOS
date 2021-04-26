@@ -89,6 +89,7 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::apiResource('serverPools', 'ServerPoolController');
 
         Route::get('meetings', 'MeetingController@index')->name('meetings.index');
+        Route::get('meeting/{meeting}/attendees','api\v1\MeetingController@attendees');
 
         Route::get('getTimezones', function () {
             return response()->json([ 'timezones' => timezone_identifiers_list() ]);
