@@ -19,13 +19,12 @@
               <file-component :room-id="room.id" :is-owner="room.isOwner"></file-component>
             </b-tab>
             <!-- Statistics tab -->
-            <!-- TODO Implementaion
             <b-tab>
               <template v-slot:title>
-                <i class="fas fa-chart-line"></i> {{ $t('rooms.statistics.title') }}
+                <i class="fas fa-history"></i> {{ $t('rooms.meetingHistory.title') }}
               </template>
+              <history-component :room="room"></history-component>
             </b-tab>
-            -->
             <!-- Room settings tab -->
             <b-tab>
               <template v-slot:title>
@@ -43,10 +42,12 @@
 import SettingsComponent from './SettingsComponent';
 import MembersComponent from './MembersComponent';
 import FileComponent from './FileComponent';
+import HistoryComponent from './HistoryComponent';
 
 export default {
 
   components: {
+    HistoryComponent,
     SettingsComponent,
     MembersComponent,
     FileComponent

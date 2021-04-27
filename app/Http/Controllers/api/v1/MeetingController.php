@@ -4,10 +4,11 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendeeCollection;
+use App\Http\Resources\MeetingStat;
 use App\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\Meeting as MeetingResource;
+use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
 
 /**
  * Class MeetingController
@@ -92,7 +93,14 @@ class MeetingController extends Controller
         }
     }
 
-    public function attendees(Meeting $meeting)
+    public function stats(Meeting $meeting)
+    {
+        $this->authorize('viewStatistics', $meeting->room);
+
+        return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
+    }
+
+    public function attendance(Meeting $meeting)
     {
         $this->authorize('viewStatistics', $meeting->room);
 

@@ -13,7 +13,7 @@ class Attendee extends JsonResource
     public function toArray($request)
     {
         return [
-            'name2'    => $this['name'],
+            'name'     => $this['name'],
             'email'    => $this['email'],
             'duration' => $this['duration'],
             'sessions' => AttendeeSession::collection($this['sessions'])

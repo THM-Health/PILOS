@@ -13,8 +13,9 @@ class AttendeeSession extends JsonResource
     public function toArray($request)
     {
         return [
-            'join'     => $this['join'],
-            'leave'    => $this['leave'],
+            'id'       => $this['id'],
+            'join'     => $this['join']->format('Y-m-d H:i:s'),
+            'leave'    => $this['leave']->format('Y-m-d H:i:s'),
             'duration' => $this['duration'],
         ];
     }

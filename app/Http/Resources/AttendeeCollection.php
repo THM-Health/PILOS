@@ -36,7 +36,7 @@ class AttendeeCollection extends ResourceCollection
     private function mapSessions($sessions)
     {
         return $sessions->map(function ($session, $key) {
-            return ['join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+            return ['id'=> $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
         });
     }
 }

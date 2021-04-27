@@ -288,4 +288,11 @@ class RoomController extends Controller
 
         return response()->noContent();
     }
+
+    public function meetings(Room $room)
+    {
+        $this->authorize('viewStatistics', $room);
+
+        return \App\Http\Resources\Meeting::collection($room->meetings()->orderBy('start')->paginate(setting('pagination_page_size')));
+    }
 }

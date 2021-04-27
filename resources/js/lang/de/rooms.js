@@ -121,8 +121,8 @@ export default {
       }
     }
   },
-  statistics: {
-    title: 'Statistiken'
+  meetingHistory: {
+    title: 'Historie'
   },
   settings: {
     title: 'Einstellungen',

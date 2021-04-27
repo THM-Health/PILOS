@@ -16,22 +16,10 @@ class Meeting extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'        => $this->id,
-            'start'     => $this->start,
-            'end'       => $this->end,
-            'room'      => [
-                'id'                        => $this->room->id,
-                'owner'                     => $this->room->owner->fullName,
-                'name'                      => $this->room->name,
-                'participant_count'         => $this->room->participant_count,
-                'listener_count'            => $this->room->listener_count,
-                'voice_participant_count'   => $this->room->voice_participant_count,
-                'video_count'               => $this->room->video_count,
-            ],
-            'server'    => [
-                'id'     => $this->server->id,
-                'name'   => $this->server->name,
-                ]
+            'id'                => $this->id,
+            'start'             => $this->start,
+            'end'               => $this->end,
+            'record_attendance' => $this->record_attendance,
         ];
     }
 }
