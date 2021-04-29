@@ -100,6 +100,11 @@
               <b-col col cols="12" :md="room.isGuest ? 6 : 12">
                 <!-- If room is running, show join button -->
                 <template v-if="room.running">
+
+                  <b-alert show v-if="room.record_attendance" class="text-center p-3">
+                    <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  </b-alert>
+
                   <!-- If user is guest, join is only possible if a name is provided -->
                   <b-button
                     block
@@ -113,6 +118,11 @@
                 </template>
                 <!-- If room is not running -->
                 <template v-else>
+
+                  <b-alert show v-if="room.record_attendance" class="text-center p-3">
+                    <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  </b-alert>
+
                   <b-button
                     block
                     ref="startMeeting"

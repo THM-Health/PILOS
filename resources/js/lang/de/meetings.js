@@ -20,10 +20,16 @@ export default {
     name: 'Name',
     email: 'Email',
     duration: 'Anwesenheit',
+    durationMinute: '{duration} min.',
     sessions: 'Sitzungen',
     modalTitle: 'Anwesenheit für {room}'
   },
   stats: {
-    modalTitle: 'Auslastung für {room}'
+    modalTitle: 'Auslastung für {room}',
+    participants: 'Teilnehmer',
+    voices: 'Mikrofone',
+    videos: 'Webcams',
+    amount: 'Anzahl',
+    time: 'Uhrzeit'
   }
 };

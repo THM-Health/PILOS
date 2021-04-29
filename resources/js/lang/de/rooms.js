@@ -13,6 +13,7 @@ export default {
   notRunning: 'Der Raum ist noch nicht gestartet.',
   tryAgain: 'Erneut versuchen',
   join: 'Teilnehmen',
+  recordingAttendanceInfo: 'Die Anwesenheit in diesem Raum wird protokolliert.',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
@@ -161,7 +162,8 @@ export default {
         disabled: 'Deaktiviert',
         enabled: 'Aktiviert',
         onlyForGuestsEnabled: 'Aktiviert für Gäste'
-      }
+      },
+      recordAttendance: 'Anwesenheit protokollieren'
     },
     permissions: {
       title: 'Berechtigungen',

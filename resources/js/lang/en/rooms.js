@@ -13,6 +13,7 @@ export default {
   notRunning: 'This room is not started yet.',
   tryAgain: 'Try again',
   join: 'Join',
+  recordingAttendanceInfo: 'The presence in this room is logged.',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
@@ -161,7 +162,8 @@ export default {
         disabled: 'Disabled',
         enabled: 'Enabled',
         onlyForGuestsEnabled: 'Enabled only for guests'
-      }
+      },
+      recordAttendance: 'Log attendance'
     },
     permissions: {
       title: 'Permissions',

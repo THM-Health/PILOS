@@ -149,10 +149,11 @@ class RoomController extends Controller
         $meeting = $room->runningMeeting();
         if (!$meeting) {
             // Create new meeting
-            $meeting              = new Meeting();
-            $meeting->start       = date('Y-m-d H:i:s');
-            $meeting->attendeePW  = bin2hex(random_bytes(5));
-            $meeting->moderatorPW = bin2hex(random_bytes(5));
+            $meeting                    = new Meeting();
+            $meeting->start             = date('Y-m-d H:i:s');
+            $meeting->attendeePW        = bin2hex(random_bytes(5));
+            $meeting->moderatorPW       = bin2hex(random_bytes(5));
+            $meeting->record_attendance = $room->record_attendance;
 
             // Basic load balancing, get server with lowest usage
             $server =  $room->roomType->serverPool->lowestUsage();
@@ -267,6 +268,8 @@ class RoomController extends Controller
         $room->allowMembership                = $request->allowMembership;
         $room->allowGuests                    = $request->allowGuests;
 
+        $room->record_attendance              = $request->record_attendance;
+
         $room->defaultRole = $request->defaultRole;
         $room->lobby       = $request->lobby;
         $room->roomType()->associate($request->roomType);
@@ -293,6 +296,6 @@ class RoomController extends Controller
     {
         $this->authorize('viewStatistics', $room);
 
-        return \App\Http\Resources\Meeting::collection($room->meetings()->orderBy('start')->paginate(setting('pagination_page_size')));
+        return \App\Http\Resources\Meeting::collection($room->meetings()->orderByDesc('start')->paginate(setting('pagination_page_size')));
     }
 }

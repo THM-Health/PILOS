@@ -33,7 +33,8 @@ class UpdateRoomSettings extends FormRequest
             'maxParticipants'                => 'nullable|numeric|min:1',
             'name'                           => 'required|string|max:'.config('bigbluebutton.room_name_limit'),
             'welcome'                        => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),
-            'listed'                         => 'required|boolean'
+            'listed'                         => 'required|boolean',
+            'record_attendance'              => 'required|boolean'
         ];
     }
 }

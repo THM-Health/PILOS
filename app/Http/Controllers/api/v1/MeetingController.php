@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendeeCollection;
 use App\Http\Resources\MeetingStat;
@@ -104,8 +105,11 @@ class MeetingController extends Controller
     {
         $this->authorize('viewStatistics', $meeting->room);
 
+        if (!$meeting->record_attendance) {
+            abort(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED, __('app.errors.meeting_attendance_disabled'));
+        }
         if ($meeting->end == null) {
-            abort(204, 'test');
+            abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
         }
 
         return new AttendeeCollection($meeting->attendees()->get());

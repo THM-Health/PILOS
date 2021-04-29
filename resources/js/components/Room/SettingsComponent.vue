@@ -233,6 +233,19 @@
               </b-form-radio>
               <template slot='invalid-feedback'><div v-html="fieldError('lobby')"></div></template>
             </b-form-group>
+
+            <!-- Checkbox record attendance of users and guests -->
+            <b-form-group :state="fieldState('record_attendance')">
+              <b-form-checkbox
+                :disabled="isBusy || modelLoadingError"
+                :state="fieldState('record_attendance')"
+                v-model="settings.record_attendance"
+                switch
+              >
+                {{ $t('rooms.settings.participants.recordAttendance') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('record_attendance')"></div></template>
+            </b-form-group>
           </b-col>
 
           <!-- Permissions & Restrictions tab -->

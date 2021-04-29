@@ -15,6 +15,10 @@ const getters = {
     return !$.isEmptyObject(state.currentUser);
   },
 
+  userTimezone: state => {
+    return $.isEmptyObject(state.currentUser) ? undefined : state.currentUser.timezone;
+  },
+
   settings: (state) => (setting) => {
     return $.isEmptyObject(state.settings) ? undefined : _.get(state.settings, setting);
   }
