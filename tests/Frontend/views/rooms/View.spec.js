@@ -8,6 +8,7 @@ import Vuex from 'vuex';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
+import env from '../../../../resources/js/env';
 
 const localVue = createLocalVue();
 
@@ -355,5 +356,30 @@ describe('Room', function () {
     Base.error.restore();
     handleInvalidCode.restore();
     view.destroy();
+  });
+
+  it('error beforeRouteEnter', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-456', {
+      status: env.HTTP_SERVICE_UNAVAILABLE
+    });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-456' } };
+
+    const next = (error) => {
+      expect(error instanceof Error).toBeTruthy();
+      expect(error.response.status).toBe(env.HTTP_SERVICE_UNAVAILABLE);
+      view.destroy();
+      done();
+    };
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, next);
   });
 });
