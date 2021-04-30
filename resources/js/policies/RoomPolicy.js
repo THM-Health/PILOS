@@ -59,6 +59,15 @@ export default {
    */
   manageSettings (permissionService, model) {
     return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.manage');
+  },
+
+  /**
+   * Is user allowed to become member of this room
+   * @param permissionService
+   * @param model
+   */
+  becomeMember (permissionService, model) {
+    return !permissionService.currentUser ? false : model.allowMembership && !model.isMember && model.owner.id !== permissionService.currentUser.id;
   }
 
 };

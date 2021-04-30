@@ -29,15 +29,16 @@
       <div class="row pt-7 pt-sm-9 mb-3" v-if="room.authenticated && isAuthenticated">
         <div class="col-lg-12">
           <!-- If membership is enabled, allow user to become member -->
+          <can method="becomeMember" :policy="room">
           <b-button
             class="float-right"
-            v-if="room.allowMembership && !room.isMember && !room.isOwner"
             v-on:click="joinMembership"
             :disabled="loading"
             variant="dark"
           >
             <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
+          </can>
           <!-- If user is member, allow user to end the membership -->
           <b-button
             class="float-right"
