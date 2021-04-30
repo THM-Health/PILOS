@@ -165,23 +165,19 @@ class UserTest extends TestCase
         $this->getJson(route('api.v1.users.search'))->assertUnauthorized();
 
         // Test without query and order asc lastname and asc firstname
-        $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
+        $result = $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[4]->firstname)
             ->assertJsonPath('data.1.firstname', $users[5]->firstname)
             ->assertJsonPath('data.2.firstname', $users[0]->firstname)
             ->assertJsonPath('data.3.firstname', $users[2]->firstname)
             ->assertJsonPath('data.4.firstname', $users[1]->firstname)
-            ->assertJsonCount($page_size, 'data')
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => [
-                        'id',
-                        'firstname',
-                        'lastname',
-                    ]
-                ]
-            ]);
+            ->assertJsonCount($page_size, 'data');
+
+        // check only the three attributes are returned
+        foreach ($result->json('data') as $user) {
+            $this->assertEquals(array_keys($user), ['id','firstname','lastname']);
+        }
 
         // Check with lastname query
         $this->actingAs($users[0])->getJson(route('api.v1.users.search').'?query=Braun')
