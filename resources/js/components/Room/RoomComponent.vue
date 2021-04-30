@@ -36,7 +36,9 @@ export default {
 
     open: function () {
       this.loading = true;
-      this.$router.push({ name: 'rooms.view', params: { id: this.id } });
+      this.$router.push({ name: 'rooms.view', params: { id: this.id } }).finally(() => {
+        this.loading = false;
+      });
     }
 
   }

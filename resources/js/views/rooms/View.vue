@@ -266,7 +266,7 @@ export default {
             vm.room_id = to.params.id;
           });
         }
-        Base.error(error, this.$root);
+        next(error);
       }
     });
   },

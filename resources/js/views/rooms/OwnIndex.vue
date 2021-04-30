@@ -12,53 +12,50 @@
       </b-row>
       <h2>{{ $t('rooms.myRooms') }}</h2>
       <b-overlay :show="loadingOwn" >
-        <template v-if="ownRooms">
-        <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.meta.total,max:currentUser.room_limit}) }}</b-badge><br>
-
-        <em v-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailable') }}</em>
-
-        <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
-          <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
-            <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
-          </b-col>
-          <can method="create" policy="RoomPolicy" v-if="!limitReached">
-          <b-col class="pt-2">
-            <new-room-component @limitReached="onReachLimit" ></new-room-component>
-          </b-col>
-          </can>
-        </b-row>
-
-        <b-pagination
-          class="mt-4"
-          v-if="ownRooms.meta.last_page != 1"
-          v-model="ownRooms.meta.current_page"
-          :total-rows="ownRooms.meta.total"
-          :per-page="ownRooms.meta.per_page"
-          @input="loadOwnRooms()"
-        ></b-pagination>
-        </template>
+        <div id="ownRooms" v-if="ownRooms">
+          <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.meta.total_no_filter,max:currentUser.room_limit}) }}</b-badge><br>
+          <em v-if="ownRooms.meta.total_no_filter===0">{{ $t('rooms.noRoomsAvailable') }}</em>
+          <em v-else-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
+          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
+            <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
+              <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
+            </b-col>
+            <can method="create" policy="RoomPolicy" v-if="!limitReached">
+            <b-col class="pt-2">
+              <new-room-component @limitReached="onReachLimit" ></new-room-component>
+            </b-col>
+            </can>
+          </b-row>
+          <b-pagination
+            class="mt-4"
+            v-if="ownRooms.meta.last_page != 1"
+            v-model="ownRooms.meta.current_page"
+            :total-rows="ownRooms.meta.total"
+            :per-page="ownRooms.meta.per_page"
+            @input="loadOwnRooms()"
+          ></b-pagination>
+        </div>
       </b-overlay>
       <hr>
       <h2>{{ $t('rooms.sharedRooms') }}</h2>
       <b-overlay :show="loadingShared" >
-        <template v-if="sharedRooms">
-        <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
-          <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
-            <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
-          </b-col>
-          <b-col v-if="sharedRooms && !sharedRooms.data.length" class="pt-2">
-            <em>{{ $t('rooms.noRoomsAvailable') }}</em>
-          </b-col>
-        </b-row>
-        <b-pagination
-          class="mt-4"
-          v-if="sharedRooms.meta.last_page != 1"
-          v-model="sharedRooms.meta.current_page"
-          :total-rows="sharedRooms.meta.total"
-          :per-page="sharedRooms.meta.per_page"
-          @input="loadSharedRooms()"
-        ></b-pagination>
-        </template>
+        <div id="sharedRooms" v-if="sharedRooms">
+          <em v-if="sharedRooms.meta.total_no_filter===0">{{ $t('rooms.noRoomsAvailable') }}</em>
+          <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
+          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
+            <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
+              <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
+            </b-col>
+          </b-row>
+          <b-pagination
+            class="mt-4"
+            v-if="sharedRooms.meta.last_page != 1"
+            v-model="sharedRooms.meta.current_page"
+            :total-rows="sharedRooms.meta.total"
+            :per-page="sharedRooms.meta.per_page"
+            @input="loadSharedRooms()"
+          ></b-pagination>
+        </div>
       </b-overlay>
     </b-container>
 </template>
@@ -86,7 +83,7 @@ export default {
       return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null;
     },
     limitReached: function () {
-      return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.data.length >= this.currentUser.room_limit;
+      return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null && this.ownRooms.meta.total_no_filter >= this.currentUser.room_limit;
     }
   },
   mounted: function () {

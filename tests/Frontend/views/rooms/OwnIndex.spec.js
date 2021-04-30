@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
-import BootstrapVue, { BCard, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BBadge, BCard, IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
 import sinon from 'sinon';
@@ -98,7 +98,8 @@ describe('Own Room Index', function () {
       last_page: 1,
       per_page: 10,
       to: 1,
-      total: 1
+      total: 1,
+      total_no_filter: 1
     }
   };
   const exampleSharedRoomResponse = {
@@ -140,7 +141,8 @@ describe('Own Room Index', function () {
       last_page: 1,
       per_page: 10,
       to: 5,
-      total: 2
+      total: 2,
+      total_no_filter: 2
     }
   };
   const exampleRoomTypeResponse = {
@@ -184,12 +186,14 @@ describe('Own Room Index', function () {
 
       expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
       expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
+
+      view.destroy();
       done();
     });
   });
 
   it('click on room in list', function (done) {
-    const spy = sinon.spy();
+    const spy = sinon.stub().resolves();
 
     const router = new VueRouter();
     router.push = spy;
@@ -230,6 +234,8 @@ describe('Own Room Index', function () {
     moxios.wait(() => {
       sinon.assert.calledOnce(spy);
       sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
+
+      view.destroy();
       done();
     });
   });
@@ -308,8 +314,9 @@ describe('Own Room Index', function () {
             from: 1,
             last_page: 1,
             per_page: 10,
-            to: 1,
-            total: 1
+            to: 2,
+            total: 2,
+            total_no_filter: 2
           }
         }
       });
@@ -329,6 +336,8 @@ describe('Own Room Index', function () {
         const newRoomComponent = view.findComponent(NewRoomComponent);
         expect(newRoomComponent.exists()).toBeFalsy();
 
+        store.commit('session/setCurrentUser', exampleUser);
+        view.destroy();
         done();
       });
     });
@@ -373,14 +382,188 @@ describe('Own Room Index', function () {
 
       moxios.requests.reset();
 
-      moxios.wait(function () {
+      moxios.wait(async () => {
         // Check if requests use the search string
-        const firstRequest = moxios.requests.at(0);
-        const secondRequest = moxios.requests.at(1);
+        const ownRequest = moxios.requests.at(0);
+        const sharedRequest = moxios.requests.at(1);
 
-        expect(firstRequest.url).toEqual(expect.stringContaining('&search=test'));
-        expect(secondRequest.url).toEqual(expect.stringContaining('&search=test'));
+        expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
+        expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
 
+        await ownRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+        await sharedRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+
+        // check if message shows users that the user has rooms, but none that match the search query
+        const sectionOwnRooms = view.find('#ownRooms');
+        const sectionSharedRooms = view.find('#sharedRooms');
+        expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+        expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+
+        // check empty list message for no user rooms
+        const searchField = view.findComponent({ ref: 'search' });
+        await searchField.setValue('test2');
+        searchField.trigger('change');
+        moxios.requests.reset();
+        moxios.wait(async () => {
+          const ownRequest = moxios.requests.at(0);
+          const sharedRequest = moxios.requests.at(1);
+          expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test2');
+          expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test2');
+          await ownRequest.respondWith({
+            status: 200,
+            response: {
+              data: [],
+              meta: {
+                current_page: 1,
+                from: null,
+                last_page: 1,
+                per_page: 10,
+                to: null,
+                total: 0,
+                total_no_filter: 0
+              }
+            }
+          });
+          await sharedRequest.respondWith({
+            status: 200,
+            response: {
+              data: [],
+              meta: {
+                current_page: 1,
+                from: null,
+                last_page: 1,
+                per_page: 10,
+                to: null,
+                total: 0,
+                total_no_filter: 0
+              }
+            }
+          });
+
+          const sectionOwnRooms = view.find('#ownRooms');
+          const sectionSharedRooms = view.find('#sharedRooms');
+          expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+          expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+
+          view.destroy();
+          done();
+        });
+      });
+    });
+  });
+
+  it('test room limit', function (done) {
+    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+      status: 200,
+      response: exampleOwnRoomResponse
+    });
+    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+      status: 200,
+      response: exampleSharedRoomResponse
+    });
+    moxios.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+
+      // Hide room count for users without limit
+      expect(view.findComponent(BBadge).exists()).toBeFalsy();
+
+      // Show room count for users with limit
+      const newUser = _.cloneDeep(exampleUser);
+      newUser.room_limit = 2;
+      store.commit('session/setCurrentUser', newUser);
+
+      await view.vm.$nextTick();
+      expect(view.findComponent(BBadge).exists()).toBeTruthy();
+      expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
+
+      // Enter search query
+      const searchField = view.findComponent({ ref: 'search' });
+      await searchField.setValue('test');
+      searchField.trigger('change');
+      moxios.requests.reset();
+      moxios.wait(async () => {
+        const ownRequest = moxios.requests.at(0);
+        const sharedRequest = moxios.requests.at(1);
+        await ownRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+        await sharedRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+
+        // Check if room count is not based on items on the current page or the total results,
+        // but all rooms of the user, independent of the search query
+        expect(view.findComponent(BBadge).exists()).toBeTruthy();
+        expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
+
+        store.commit('session/setCurrentUser', exampleUser);
+        view.destroy();
         done();
       });
     });
