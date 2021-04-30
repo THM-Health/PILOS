@@ -96,7 +96,7 @@ class MeetingController extends Controller
 
     /**
      * Usage statistics for this meeting (count of participants, voices, videos)
-     * @param Meeting $meeting
+     * @param  Meeting                                                     $meeting
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
@@ -109,7 +109,7 @@ class MeetingController extends Controller
 
     /**
      * Attendance of users and guests during a meeting
-     * @param Meeting $meeting
+     * @param  Meeting                                                     $meeting
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */

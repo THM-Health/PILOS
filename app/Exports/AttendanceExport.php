@@ -28,7 +28,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
 
     /**
      * AttendanceExport constructor.
-     * @param Meeting $meeting Meeting the attendance should be exported for
+     * @param Meeting $meeting  Meeting the attendance should be exported for
      * @param string  $timezone Timezone the datetimes should be shown in
      */
     public function __construct(Meeting $meeting, string $timezone)
