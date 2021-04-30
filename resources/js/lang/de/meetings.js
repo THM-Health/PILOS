@@ -22,7 +22,9 @@ export default {
     duration: 'Anwesenheit',
     durationMinute: '{duration} min.',
     sessions: 'Sitzungen',
-    modalTitle: 'Anwesenheit für {room}'
+    modalTitle: 'Anwesenheit für {room}',
+    nodata: 'Keine protokollierte Anwesenheit gefunden.',
+    download: 'Herunterladen'
   },
   stats: {
     modalTitle: 'Auslastung für {room}',

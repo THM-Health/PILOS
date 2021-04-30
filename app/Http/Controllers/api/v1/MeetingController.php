@@ -4,7 +4,7 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AttendeeCollection;
+use App\Http\Resources\Attendee;
 use App\Http\Resources\MeetingStat;
 use App\Meeting;
 use Illuminate\Http\Request;
@@ -94,6 +94,12 @@ class MeetingController extends Controller
         }
     }
 
+    /**
+     * Usage statistics for this meeting (count of participants, voices, videos)
+     * @param Meeting $meeting
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function stats(Meeting $meeting)
     {
         $this->authorize('viewStatistics', $meeting->room);
@@ -101,17 +107,26 @@ class MeetingController extends Controller
         return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
     }
 
+    /**
+     * Attendance of users and guests during a meeting
+     * @param Meeting $meeting
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function attendance(Meeting $meeting)
     {
         $this->authorize('viewStatistics', $meeting->room);
 
+        // check if attendance recording is enabled for this meeting
         if (!$meeting->record_attendance) {
             abort(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }
+
+        // check if meeting is ended
         if ($meeting->end == null) {
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
         }
 
-        return new AttendeeCollection($meeting->attendees()->get());
+        return Attendee::collection($meeting->attendance());
     }
 }

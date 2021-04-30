@@ -39,6 +39,8 @@ class Meeting extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'start'              => 'datetime',
+        'end'                => 'datetime',
         'record_attendance'  => 'boolean'
     ];
 
@@ -193,5 +195,46 @@ class Meeting extends Model
     public function attendees()
     {
         return $this->hasMany(MeetingAttendee::class);
+    }
+
+    /**
+     * Collection of the attendance of users and guests
+     * Multiple sessions of the same user/guest are grouped and the length of each session summed
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
+    public function attendance()
+    {
+        // Load guest and user attendances, group by session or user_id
+        $guests = $this->attendees()->whereNotNull('session_id')->get()->groupBy('session_id');
+        $users  = $this->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
+
+        // create array of guest attendees
+        $guests = $guests->map(function ($guest, $key) {
+            $sessions = $this->mapAttendanceSessions($guest);
+
+            return ['name' => $guest[0]->name, 'email' => null, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
+        });
+
+        // create array of user attendees
+        $users = $users->map(function ($user, $key) {
+            $sessions = $this->mapAttendanceSessions($user);
+
+            return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
+        });
+
+        // return guest and user attendees, sorted by name
+        return $guests->merge($users)->sortBy('name')->values();
+    }
+
+    /**
+     * Helper function for attendance(), map each attendance database entry to an attendance session array
+     * @param $sessions
+     * @return mixed
+     */
+    private function mapAttendanceSessions($sessions)
+    {
+        return $sessions->map(function ($session, $key) {
+            return ['id'=> $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+        });
     }
 }

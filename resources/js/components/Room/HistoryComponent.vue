@@ -106,10 +106,14 @@
         <line-chart :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
       </b-modal>
       <!-- Attendance modal -->
-      <b-modal v-model="attendanceModal" size="xl" hide-footer>
+      <b-modal v-model="attendanceModal" size="xl" hide-footer title-tag="div" title-class="w-100">
         <template #modal-title >
-          {{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
-          <br><small>{{ $date.utc(attendanceMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(attendanceMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5>{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
+              <br><small>{{ $date.utc(attendanceMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(attendanceMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
+            </h5>
+            <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fas fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
+          </div>
         </template>
         <b-table
           id='attendance-table'
@@ -126,7 +130,7 @@
         >
           <!-- Show message on empty attendance list -->
           <template v-slot:empty>
-            <i>{{ $t('rooms.files.nodata') }}</i>
+            <i>{{ $t('meetings.attendance.nodata') }}</i>
           </template>
 
           <template v-slot:cell(email)="data">

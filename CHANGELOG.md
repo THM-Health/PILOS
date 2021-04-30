@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Add attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
+- Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
 
 ### Fixed
 - Incorrect count of user rooms if search is used ([#129], [#130])

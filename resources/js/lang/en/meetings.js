@@ -22,7 +22,9 @@ export default {
     duration: 'Attendance',
     durationMinute: '{duration} min.',
     sessions: 'Sessions',
-    modalTitle: 'Attendance for {room}'
+    modalTitle: 'Attendance for {room}',
+    nodata: 'No logged attendance found.',
+    download: 'Download'
   },
   stats: {
     modalTitle: 'Usage of {room}',
