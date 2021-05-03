@@ -72,7 +72,7 @@
       <template v-if="room.authenticated">
         <!-- Room join/start -->
         <b-row class="pt-7 pt-sm-9">
-          <!-- Show inviation text/link to moderators and room owners -->
+          <!-- Show invitation text/link to moderators and room owners -->
           <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="room.isModerator">
             <div class="jumbotron p-4" >
               <h5>{{ $t('rooms.accessForParticipants') }}</h5>
@@ -238,7 +238,7 @@ export default {
       room_id: null, // ID of the room
       room: null, // Room object
       accessCode: null, // Access code to use for requests
-      accessCodeInput: null, // Access code input modal
+      accessCodeInput: "", // Access code input modal
       accessCodeValid: null // Is access code valid
     };
   },
@@ -323,7 +323,7 @@ export default {
      * Reload the room details/settings
      */
     reload: function () {
-      // Enable loading indictor
+      // Enable loading indicator
       this.loading = true;
       // Build room api url, include access code if set
 
@@ -386,7 +386,7 @@ export default {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.startForbidden'));
               // Disable room start button and reload the room settings, as there was obviously
-              // a diffent understanding of the users permission in this room
+              // a different understanding of the users permission in this room
               this.room.canStart = false;
               this.reload();
               return;
@@ -434,7 +434,7 @@ export default {
      * @param event
      */
     joinMembership: function (event) {
-      // Enable loading indictor
+      // Enable loading indicator
       this.loading = true;
 
       // Join room as member, send access code if needed
@@ -473,7 +473,7 @@ export default {
      * @param event
      */
     leaveMembership: function (event) {
-      // Enable loading indictor
+      // Enable loading indicator
       this.loading = true;
 
       Base.call('rooms/' + this.room.id + '/membership', {
@@ -489,7 +489,7 @@ export default {
      * Handle login with access code
      */
     login: function () {
-      // Remove all non-numic or dash chars
+      // Remove all non-numeric or dash chars
       this.accessCodeInput = this.accessCodeInput.replace(/[^0-9-]/g, '');
       // Remove the dashes for storing the access code
       this.accessCode = this.accessCodeInput.replace(/[-]/g, '');
@@ -520,7 +520,7 @@ export default {
     },
 
     /**
-     * Build inviation message
+     * Build invitation message
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';

@@ -32,8 +32,8 @@ export default {
       title: 'Starten fehlgeschlagen'
     },
     accessCodeChanged: {
-      message: 'Der Zugangscode wurde in der Zwischenzeit geändert.',
-      title: 'Zugangscode ungültig'
+      message: 'Der Zugangscode ist ungültig.',
+      title: 'Anmeldung am Raum fehlgeschlagen'
     },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
