@@ -315,7 +315,7 @@ export default {
       // Reset access code (not the form input) to load the general room details again
       this.accessCode = null;
       // Show error message
-      this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+      this.flashMessage.error(this.$t('rooms.flash.accessCodeInvalid'));
       this.reload();
     },
 
@@ -456,7 +456,7 @@ export default {
               // set the access code input invalid
               this.accessCodeValid = false;
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+              this.flashMessage.error(this.$t('rooms.flash.accessCodeInvalid'));
               return;
             }
 

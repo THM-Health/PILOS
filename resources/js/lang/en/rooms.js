@@ -31,7 +31,7 @@ export default {
       message: 'The room could not be started by you.',
       title: 'Starting failed'
     },
-    accessCodeChanged: {
+    accessCodeInvalid: {
       message: 'The access code is invalid.',
       title: 'Login to room failed'
     },

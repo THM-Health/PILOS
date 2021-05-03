@@ -31,7 +31,7 @@ export default {
       message: 'Der Raum kann von Ihnen nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
     },
-    accessCodeChanged: {
+    accessCodeInvalid: {
       message: 'Der Zugangscode ist ungültig.',
       title: 'Anmeldung am Raum fehlgeschlagen'
     },

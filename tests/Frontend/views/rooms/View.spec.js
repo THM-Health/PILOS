@@ -309,10 +309,86 @@ describe('Room', function () {
     expect(view.vm.$data.accessCodeValid).toBeFalsy();
     expect(view.vm.$data.accessCode).toBeNull();
     expect(flashMessageSpy.calledOnce).toBeTruthy();
-    expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.accessCodeChanged');
+    expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.accessCodeInvalid');
     expect(reload.calledOnce).toBeTruthy();
     reload.restore();
     view.destroy();
+  });
+
+  it('handle empty code', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-456', {
+      status: 200,
+      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: false, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: false } }
+    });
+
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      store,
+      attachTo: createContainer()
+    });
+    const to = { params: { id: 'abc-def-456' } };
+
+    // load room view
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+      // check if require access code is shown
+      expect(view.html()).toContain('rooms.requireAccessCode');
+
+      // reinstall moxios to disable stub
+      moxios.uninstall();
+      moxios.install();
+
+      // click on the login button without input to access code field
+      const loginButton = view.findAllComponents(BButton).at(1);
+      expect(loginButton.text()).toBe('rooms.login');
+      await loginButton.trigger('click');
+
+      // check if request is send to server with empty access code
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toBe('/api/v1/rooms/abc-def-456');
+        expect(request.config.headers['Access-Code']).toBe('');
+        // respond with invalid access code error message
+        await request.respondWith({
+          status: 401,
+          response: { message: 'invalid_code' }
+        });
+        await view.vm.$nextTick();
+        // check if internal access code is reset and error is shown
+        expect(view.vm.$data.accessCodeValid).toBeFalsy();
+        expect(view.vm.$data.accessCode).toBeNull();
+        expect(flashMessageSpy.calledOnce).toBeTruthy();
+        expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.accessCodeInvalid');
+
+        // check if room is reloaded without access code
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.url).toBe('/api/v1/rooms/abc-def-456');
+          expect(request.config.headers['Access-Code']).toBeUndefined();
+          await request.respondWith({
+            status: 200,
+            response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: false, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: false } }
+          });
+          // check if reload was successful and no other error message is shown
+          expect(flashMessageSpy.calledOnce).toBeTruthy();
+
+          view.destroy();
+          done();
+        });
+      });
+    });
   });
 
   it('handle file list errors', function () {
