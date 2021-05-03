@@ -737,7 +737,7 @@ class RoomTest extends TestCase
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
-        // Try with view all rooms permission
+        // Try with manage all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->managePermission);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))

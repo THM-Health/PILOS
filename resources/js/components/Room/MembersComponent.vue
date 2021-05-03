@@ -44,7 +44,7 @@
         <b-table
           :current-page="currentPage"
           :per-page="settings('pagination_page_size')"
-          :fields="tablefields"
+          :fields="tableFields"
           :items="members"
           hover
           stacked="md"
@@ -64,7 +64,7 @@
 
           <!-- action buttons -->
           <template v-slot:cell(actions)="data">
-            <b-button-group class="float-md-right" v-if="currentUser.id !== data.item.id" >
+            <b-button-group class="float-md-right" v-if="currentUser && currentUser.id !== data.item.id" >
               <!-- edit membership role -->
               <b-button
                 :disabled="isBusy"
@@ -299,7 +299,7 @@ export default {
         // disable users that are already members of this room or the room owner
         const idOfMembers = this.members.map(user => user.id);
         this.users = response.data.data.map(user => {
-          if (idOfMembers.includes(user.id) || this.currentUser.id === user.id || this.room.owner.id === user.id) { user.$isDisabled = true; }
+          if (idOfMembers.includes(user.id) || this.room.owner.id === user.id) { user.$isDisabled = true; }
           return user;
         });
       }).catch((error) => {
@@ -473,8 +473,8 @@ export default {
     },
 
     // member tables headings
-    tablefields () {
-      var fields = [
+    tableFields () {
+      const fields = [
         {
           key: 'firstname',
           label: this.$t('rooms.members.firstname'),
