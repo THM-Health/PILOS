@@ -238,7 +238,7 @@ export default {
       room_id: null, // ID of the room
       room: null, // Room object
       accessCode: null, // Access code to use for requests
-      accessCodeInput: "", // Access code input modal
+      accessCodeInput: '', // Access code input modal
       accessCodeValid: null // Is access code valid
     };
   },
