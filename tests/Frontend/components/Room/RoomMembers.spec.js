@@ -130,7 +130,7 @@ describe('RoomMembers', function () {
     view.vm.$nextTick().then(() => {
       expect(view.findComponent({ ref: 'add-member' }).exists()).toBeTruthy();
 
-      const fields = view.vm.tablefields.map(a => a.key);
+      const fields = view.vm.tableFields.map(a => a.key);
       expect(fields).toContain('firstname');
       expect(fields).toContain('lastname');
       expect(fields).toContain('email');
@@ -157,7 +157,7 @@ describe('RoomMembers', function () {
     view.vm.$nextTick().then(() => {
       expect(view.findComponent({ ref: 'add-member' }).exists()).toBeTruthy();
 
-      const fields = view.vm.tablefields.map(a => a.key);
+      const fields = view.vm.tableFields.map(a => a.key);
       expect(fields).toContain('firstname');
       expect(fields).toContain('lastname');
       expect(fields).toContain('email');
@@ -192,7 +192,7 @@ describe('RoomMembers', function () {
 
       expect(view.findComponent({ ref: 'add-member' }).exists()).toBeFalsy();
 
-      const fields = view.vm.tablefields.map(a => a.key);
+      const fields = view.vm.tableFields.map(a => a.key);
       expect(fields).toContain('firstname');
       expect(fields).toContain('lastname');
       expect(fields).toContain('email');
@@ -226,7 +226,7 @@ describe('RoomMembers', function () {
     view.vm.$nextTick().then(() => {
       expect(view.findComponent({ ref: 'add-member' }).exists()).toBeTruthy();
 
-      const fields = view.vm.tablefields.map(a => a.key);
+      const fields = view.vm.tableFields.map(a => a.key);
       expect(fields).toContain('firstname');
       expect(fields).toContain('lastname');
       expect(fields).toContain('email');
