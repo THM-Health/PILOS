@@ -24,7 +24,8 @@ export default {
     sessions: 'Sitzungen',
     modalTitle: 'Anwesenheit für {room}',
     nodata: 'Keine protokollierte Anwesenheit gefunden.',
-    download: 'Herunterladen'
+    download: 'Herunterladen',
+    noBreakoutSupport: 'Die Anwesenheit in Breakout-Räumen wird aktuell nicht unterstützt. Es wird nur die Anwesenheit im Hauptraum protokolliert.'
   },
   stats: {
     modalTitle: 'Auslastung für {room}',
@@ -32,6 +33,7 @@ export default {
     voices: 'Mikrofone',
     videos: 'Webcams',
     amount: 'Anzahl',
-    time: 'Uhrzeit'
+    time: 'Uhrzeit',
+    noBreakoutSupport: 'Die Auslastung der Breakout-Räume wird aktuell nicht unterstützt. Es wird nur die Auslastung des Hauptraums gemessen.'
   }
 };

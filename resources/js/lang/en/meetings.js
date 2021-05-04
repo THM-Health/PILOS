@@ -24,14 +24,16 @@ export default {
     sessions: 'Sessions',
     modalTitle: 'Attendance for {room}',
     nodata: 'No logged attendance found.',
-    download: 'Download'
+    download: 'Download',
+    noBreakoutSupport: 'Attendance in breakout rooms is currently not supported. Only attendance in the main room is logged.'
   },
   stats: {
-    modalTitle: 'Usage of {room}',
+    modalTitle: 'Utilisation statistic of {room}',
     participants: 'Participants',
     voices: 'Microphones',
     videos: 'Webcams',
     amount: 'Amount',
-    time: 'Time'
+    time: 'Time',
+    noBreakoutSupport: 'The utilisation of the breakout rooms is currently not supported. Only the utilisation of the main room is measured.'
   }
 };

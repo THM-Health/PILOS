@@ -103,6 +103,8 @@
           {{ $t('meetings.stats.modalTitle',{room: room.name }) }}
           <br><small>{{ $date.utc(statsMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $date.utc(statsMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
         </template>
+        <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
+
         <line-chart :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
       </b-modal>
       <!-- Attendance modal -->
@@ -115,6 +117,8 @@
             <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fas fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
           </div>
         </template>
+        <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.attendance.noBreakoutSupport')}}</b-alert>
+
         <b-table
           id='attendance-table'
           :current-page="attendanceCurrentPage"
