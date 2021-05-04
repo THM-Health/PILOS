@@ -19,7 +19,7 @@ localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
-const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isOwner: true, isGuest: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] };
+const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isGuest: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] };
 
 describe('Delete room', function () {
   beforeEach(function () {

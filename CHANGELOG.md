@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Broken error handling on room view navigation ([#131], [#132])
 - Error on empty access code ([#136], [#137])
 
+### Added
+- Co-owner room role, permissions to view and edit all rooms (incl. memberships, files and settings) ([#110], [#116])
+
+### Fixed
+- Guests were unable to download files from a room with access code ([#116])
+
+### Security
+- Limit the user details available through the user search ([#116])
+
 ## [1.2.0] - 2021-04-09
 ### Added 
 - System wide default presentation ([#119], [#120])
@@ -110,8 +119,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#106]: https://github.com/THM-Health/PILOS/issues/106
 [#107]: https://github.com/THM-Health/PILOS/pull/107
 [#108]: https://github.com/THM-Health/PILOS/pull/108
+[#110]: https://github.com/THM-Health/PILOS/issues/110
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
+[#116]: https://github.com/THM-Health/PILOS/pull/116
 [#119]: https://github.com/THM-Health/PILOS/issues/119
 [#120]: https://github.com/THM-Health/PILOS/pull/120
 [#121]: https://github.com/THM-Health/PILOS/issues/121

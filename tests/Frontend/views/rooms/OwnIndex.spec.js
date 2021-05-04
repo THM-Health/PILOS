@@ -79,7 +79,10 @@ describe('Own Room Index', function () {
       {
         id: 'abc-def-123',
         name: 'Meeting One',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -104,7 +107,10 @@ describe('Own Room Index', function () {
       {
         id: 'def-abc-123',
         name: 'Meeting Two',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -116,7 +122,10 @@ describe('Own Room Index', function () {
       {
         id: 'def-abc-456',
         name: 'Meeting Three',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -184,7 +193,7 @@ describe('Own Room Index', function () {
   });
 
   it('click on room in list', function (done) {
-    const spy = sinon.spy();
+    const spy = sinon.stub().resolves();
 
     const router = new VueRouter();
     router.push = spy;
@@ -192,7 +201,10 @@ describe('Own Room Index', function () {
     const exampleRoomListEntry = {
       id: 'abc-def-123',
       name: 'Meeting One',
-      owner: 'John Doe',
+      owner: {
+        id: 1,
+        name: 'John Doe'
+      },
       type: {
         id: 2,
         short: 'ME',
@@ -269,7 +281,10 @@ describe('Own Room Index', function () {
             {
               id: 'abc-def-123',
               name: 'Meeting One',
-              owner: 'John Doe',
+              owner: {
+                id: 1,
+                name: 'John Doe'
+              },
               type: {
                 id: 2,
                 short: 'ME',
@@ -281,7 +296,10 @@ describe('Own Room Index', function () {
             {
               id: 'abc-def-345',
               name: 'Meeting Two',
-              owner: 'John Doe',
+              owner: {
+                id: 1,
+                name: 'John Doe'
+              },
               type: {
                 id: 2,
                 short: 'ME',

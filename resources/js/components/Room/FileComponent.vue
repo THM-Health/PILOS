@@ -3,7 +3,7 @@
     <b-overlay :show="isBusy" >
       <h4 v-if="showTitle">{{ $t('rooms.files.title') }}</h4>
 
-      <b-alert show v-if="requireAgreement" >
+      <b-alert show v-if="requireAgreement && files.files && files.files.length>0" >
         <strong>{{ $t('rooms.files.termsOfUse.title')}}</strong><br>
         {{ $t('rooms.files.termsOfUse.content')}}
         <hr>
@@ -19,7 +19,7 @@
     <div class="row mb-3">
       <div class="col-10">
 
-        <can method="manageFiles" :policy="{ model_name: 'Room', isOwner: isOwner }">
+        <can method="manageSettings" :policy="room">
 
           <!-- Upload new file -->
           <b-form-file
@@ -27,7 +27,7 @@
             :state="fieldState('file')"
             :browse-text="$t('app.browse')"
             :placeholder="$t('rooms.files.selectordrag')"
-            v-on:change="uploadFile($event)"
+            v-on:change="uploadFile"
             v-model="fileUpload"
             v-bind:multiple="false"
           >
@@ -81,11 +81,11 @@
         <!-- Render action column -->
         <template v-slot:cell(actions)="data">
           <b-button-group class="float-md-right">
-            <can method="manageFiles" :policy="{ model_name: 'Room', isOwner: isOwner }">
+            <can method="manageSettings" :policy="room">
               <!-- Delete file -->
               <b-button
                 variant="danger"
-                :disabled="loadingDownload===data.id"
+                :disabled="loadingDownload===data.item.id"
                 @click="showDeleteFileModal(data.item)"
               >
                 <i class="fas fa-trash"></i>
@@ -159,6 +159,7 @@
     <!-- remove file modal -->
     <b-modal
       :busy="isLoadingAction"
+      :static='modalStatic'
       ok-variant="danger"
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
@@ -196,8 +197,8 @@ export default {
   },
   mixins: [FieldErrors],
   props: {
-    roomId: String,
-    isOwner: Boolean,
+    room: Object,
+
     accessCode: {
       type: String,
       required: false
@@ -218,6 +219,11 @@ export default {
       required: false
     },
     emitErrors: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    modalStatic: {
       type: Boolean,
       default: false,
       required: false
@@ -255,7 +261,12 @@ export default {
     downloadFile: function (file) {
       this.loadingDownload = file.id;
       // Update value for the setting and the effected file
-      Base.call('rooms/' + this.roomId + '/files/' + file.id)
+
+      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      const url = 'rooms/' + this.room.id + '/files/' + file.id;
+
+      // Load data
+      Base.call(url, config)
         .then(response => {
           if (response.data.url !== undefined) {
             window.open(response.data.url, '_blank');
@@ -312,7 +323,7 @@ export default {
       bvModalEvt.preventDefault();
       this.isLoadingAction = true;
       // Remove file from room with api call
-      Base.call('rooms/' + this.roomId + '/files/' + this.deleteFile.id, {
+      Base.call('rooms/' + this.room.id + '/files/' + this.deleteFile.id, {
         method: 'delete'
       }).then(response => {
         // Fetch successful
@@ -346,7 +357,7 @@ export default {
       formData.append('file', event.target.files[0]);
 
       // Send new file to api
-      Base.call('rooms/' + this.roomId + '/files', {
+      Base.call('rooms/' + this.room.id + '/files', {
         method: 'post',
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -383,7 +394,7 @@ export default {
 
       const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
 
-      Base.call('rooms/' + this.roomId + '/files', config)
+      Base.call('rooms/' + this.room.id + '/files', config)
         .then(response => {
           // Fetch successful
           this.files = response.data.data;
@@ -408,7 +419,7 @@ export default {
       }
 
       // Update value for the setting and the effected file
-      Base.call('rooms/' + this.roomId + '/files/' + file.id, {
+      Base.call('rooms/' + this.room.id + '/files/' + file.id, {
         method: 'put',
         data: { [setting]: value }
       }).then(response => {
@@ -441,7 +452,7 @@ export default {
 
     // file table labels for columns
     filefields () {
-      if (PermissionService.cannot('manageFiles', { model_name: 'Room', isOwner: this.isOwner })) {
+      if (PermissionService.cannot('manageSettings', this.room)) {
         return [
           {
             key: 'filename',

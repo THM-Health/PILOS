@@ -59,7 +59,8 @@ export default {
     rooms: {
       title: 'Räume',
       create: 'Räume erstellen',
-      viewAll: 'Alle Räume anzeigen'
+      viewAll: 'Alle Räume anzeigen',
+      manage: 'Alle Räume verwalten'
     },
 
     meetings: {

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('download/file/{roomFile}/{filename?}','FileController@show')->name('download.file')->middleware('signed');
+Route::get('download/file/{roomFile}/{filename?}', 'FileController@show')->name('download.file')->middleware('signed');
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {
     Route::any('/{any}', 'ApplicationController@index')->where('any', '.*');

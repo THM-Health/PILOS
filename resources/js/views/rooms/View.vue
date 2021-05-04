@@ -3,7 +3,7 @@
     <template v-if="room !== null">
 
       <!-- Delete button and modal -->
-      <can method="delete" :policy="{ model_name: 'Room', isOwner: room.isOwner  }">
+      <can method="delete" :policy="room">
         <delete-room-component
           @roomDeleted="$router.push({ name: 'rooms.own_index' })"
           :room="room"
@@ -29,15 +29,16 @@
       <div class="row pt-7 pt-sm-9 mb-3" v-if="room.authenticated && isAuthenticated">
         <div class="col-lg-12">
           <!-- If membership is enabled, allow user to become member -->
+          <can method="becomeMember" :policy="room">
           <b-button
             class="float-right"
-            v-if="room.allowMembership && !room.isMember && !room.isOwner"
             v-on:click="joinMembership"
             :disabled="loading"
             variant="dark"
           >
             <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
+          </can>
           <!-- If user is member, allow user to end the membership -->
           <b-button
             class="float-right"
@@ -62,7 +63,7 @@
         <!-- Room name and owner -->
         <div class="col-lg-11 col-10">
           <h2 class="roomname">{{ room.name }}</h2>
-          <h5>{{ room.owner}}</h5>
+          <h5>{{ room.owner.name}}</h5>
         </div>
       </div>
 
@@ -73,7 +74,7 @@
         <!-- Room join/start -->
         <b-row class="pt-7 pt-sm-9">
           <!-- Show invitation text/link to moderators and room owners -->
-          <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="room.isModerator">
+          <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="viewInvitation">
             <div class="jumbotron p-4" >
               <h5>{{ $t('rooms.accessForParticipants') }}</h5>
               <b-button
@@ -86,10 +87,10 @@
               <span style="white-space: pre;">{{ invitationText }}</span>
             </div>
           </b-col>
-          <b-col order="1" order-md="2" col cols="12" :md="room.isModerator ? 4 : 12" :lg="room.isModerator ? 6 : 12">
+          <b-col order="1" order-md="2" col cols="12" :md="viewInvitation ? 4 : 12" :lg="viewInvitation ? 6 : 12">
             <b-row>
               <!-- Ask guests for their first and lastname -->
-              <b-col col cols="12" md="6" v-if="room.isGuest">
+              <b-col col cols="12" md="6" v-if="!isAuthenticated">
                 <b-form-group :label="$t('rooms.firstAndLastname')">
                   <b-input-group>
                     <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
@@ -97,7 +98,7 @@
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->
-              <b-col col cols="12" :md="room.isGuest ? 6 : 12">
+              <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
                 <!-- If room is running, show join button -->
                 <template v-if="room.running">
                   <!-- If user is guest, join is only possible if a name is provided -->
@@ -105,7 +106,7 @@
                     block
                     ref="joinMeeting"
                     v-on:click="join"
-                    :disabled="(room.isGuest && name==='') || loadingJoinStart"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart"
                     variant="success"
                   >
                     <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.join') }}
@@ -117,27 +118,27 @@
                     block
                     ref="startMeeting"
                     v-if="room.canStart"
-                    :disabled="(room.isGuest && name==='') || loadingJoinStart"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart"
                     v-on:click="start"
                     variant="success"
                   >
                       <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.start') }}
                   </b-button>
                   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
-                  <b-alert show v-else class="text-center p-3">
+                  <div v-else class="text-center p-3">
                     <div class="mb-3">
                       <b-spinner></b-spinner>
                     </div>
                     {{ $t('rooms.notRunning') }}
-                  </b-alert>
+                  </div>
                 </template>
               </b-col>
             </b-row>
           </b-col>
         </b-row>
 
-        <!-- Show file list for non-owner users (owner has it's own more detailed file list -->
-        <template v-if="!room.isOwner">
+        <!-- Show limited file list for guests, users, members and moderators-->
+        <cannot method="viewSettings" :policy="room">
           <b-row>
             <b-col>
               <hr>
@@ -146,18 +147,19 @@
                 :emit-errors="true"
                 v-on:error="onFileListError"
                 :access-code="accessCode"
-                :room-id="room_id"
-                :is-owner="room.isOwner"
+                :room="room"
                 :show-title="true"
                 :require-agreement="true"
                 :hide-reload="true"
               ></file-component>
             </b-col>
           </b-row>
-        </template>
+        </cannot>
 
-        <!-- Show admin settings (owners only)-->
-        <room-admin @settingsChanged="reload" :room="room" v-if="room.isOwner"></room-admin>
+        <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
+        <can method="viewSettings" :policy="room">
+          <room-admin @settingsChanged="reload" :room="room"></room-admin>
+        </can>
       </template>
       <!-- Ask for room access code -->
       <div v-else>
@@ -215,7 +217,9 @@ import RoomAdmin from '../../components/Room/AdminComponent';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
 import Can from '../../components/Permissions/Can';
+import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
+import PermissionService from '../../services/PermissionService';
 
 export default {
   directives: {
@@ -225,7 +229,8 @@ export default {
     FileComponent,
     DeleteRoomComponent,
     RoomAdmin,
-    Can
+    Can,
+    Cannot
   },
 
   data () {
@@ -534,6 +539,13 @@ export default {
         });
       }
       return message;
+    },
+
+    /**
+     * Enable or disable the edition of roles and attributes depending on the permissions of the current user.
+     */
+    viewInvitation () {
+      return PermissionService.can('viewInvitation', this.room);
     }
   }
 };

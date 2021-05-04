@@ -77,7 +77,7 @@
                 <div>
                   <h5 class="mb-0">{{ room.name }}</h5>
                   <small>
-                    {{ room.owner }}
+                    {{ room.owner.name }}
                   </small>
                 </div>
                 <div v-if="room.type" v-b-tooltip.hover :title="room.type.description" class="roomicon" :style="{ 'background-color': room.type.color}">{{room.type.short}}</div>

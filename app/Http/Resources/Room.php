@@ -39,18 +39,21 @@ class Room extends JsonResource
         return [
             'id'                => $this->id,
             'name'              => $this->name,
-            'owner'             => $this->owner->fullname,
+            'owner'             => [
+                'id'   => $this->owner->id,
+                'name' => $this->owner->fullname,
+            ],
             'type'              => new RoomType($this->roomType),
+            'model_name'        => $this->model_name,
             $this->mergeWhen($this->details, [
                 'authenticated'     => $this->authenticated,
-                'allowMembership'   => Auth::user() && $this->allowMembership,
+                'allowMembership'   => $this->allowMembership,
                 'isMember'          => $this->resource->isMember(Auth::user()),
-                'isOwner'           => $this->owner->is(Auth::user()),
-                'isGuest'           => Auth::guest(),
-                'isModerator'       => $this->resource->isModeratorOrOwner(Auth::user()),
+                'isModerator'       => $this->resource->isModerator(Auth::user()),
+                'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
                 'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
                 'running'           => $this->resource->runningMeeting() != null,
-                'accessCode'        => $this->when($this->resource->isModeratorOrOwner(Auth::user()), $this->accessCode),
+                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
             ])
         ];
     }
