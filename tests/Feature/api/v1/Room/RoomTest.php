@@ -589,6 +589,58 @@ class RoomTest extends TestCase
             ->assertSuccessful();
     }
 
+    public function testAccessCodeShown()
+    {
+        $room = factory(Room::class)->create([
+            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+        ]);
+
+        // Testing unauthenticated user
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonMissing(['accessCode' => $room->accessCode]);
+
+        // Testing authenticated user
+        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonMissing(['accessCode' => $room->accessCode]);
+        $this->flushHeaders();
+
+        // Testing member
+        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonMissing(['accessCode' => $room->accessCode]);
+
+        // Testing member as moderator
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonFragment(['accessCode' => $room->accessCode]);
+
+        // Testing member as co-owner
+        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonFragment(['accessCode' => $room->accessCode]);
+
+        // Reset room membership
+        $room->members()->sync([]);
+
+        // Try with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonFragment(['accessCode' => $room->accessCode]);
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Testing access owner
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonFragment(['accessCode' => $room->accessCode]);
+    }
+
     public function testUpdateSettings()
     {
         $room = factory(Room::class)->create();
