@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Incorrect count of user rooms if search is used ([#129], [#130])
 - Broken error handling on room view navigation ([#131], [#132])
+- Error on empty access code ([#136], [#137])
 
 ### Added
 - Co-owner room role, permissions to view and edit all rooms (incl. memberships, files and settings) ([#110], [#116])
@@ -132,6 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#130]: https://github.com/THM-Health/PILOS/pull/130
 [#131]: https://github.com/THM-Health/PILOS/issues/131
 [#132]: https://github.com/THM-Health/PILOS/pull/132
+[#136]: https://github.com/THM-Health/PILOS/issues/136
+[#137]: https://github.com/THM-Health/PILOS/pull/137
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.1.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

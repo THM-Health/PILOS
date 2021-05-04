@@ -243,7 +243,7 @@ export default {
       room_id: null, // ID of the room
       room: null, // Room object
       accessCode: null, // Access code to use for requests
-      accessCodeInput: null, // Access code input modal
+      accessCodeInput: '', // Access code input modal
       accessCodeValid: null // Is access code valid
     };
   },
@@ -320,7 +320,7 @@ export default {
       // Reset access code (not the form input) to load the general room details again
       this.accessCode = null;
       // Show error message
-      this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+      this.flashMessage.error(this.$t('rooms.flash.accessCodeInvalid'));
       this.reload();
     },
 
@@ -328,7 +328,7 @@ export default {
      * Reload the room details/settings
      */
     reload: function () {
-      // Enable loading indictor
+      // Enable loading indicator
       this.loading = true;
       // Build room api url, include access code if set
 
@@ -391,7 +391,7 @@ export default {
               // Show error message
               this.flashMessage.error(this.$t('rooms.flash.startForbidden'));
               // Disable room start button and reload the room settings, as there was obviously
-              // a diffent understanding of the users permission in this room
+              // a different understanding of the users permission in this room
               this.room.canStart = false;
               this.reload();
               return;
@@ -439,7 +439,7 @@ export default {
      * @param event
      */
     joinMembership: function (event) {
-      // Enable loading indictor
+      // Enable loading indicator
       this.loading = true;
 
       // Join room as member, send access code if needed
@@ -461,7 +461,7 @@ export default {
               // set the access code input invalid
               this.accessCodeValid = false;
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeChanged'));
+              this.flashMessage.error(this.$t('rooms.flash.accessCodeInvalid'));
               return;
             }
 
@@ -478,7 +478,7 @@ export default {
      * @param event
      */
     leaveMembership: function (event) {
-      // Enable loading indictor
+      // Enable loading indicator
       this.loading = true;
 
       Base.call('rooms/' + this.room.id + '/membership', {
@@ -494,7 +494,7 @@ export default {
      * Handle login with access code
      */
     login: function () {
-      // Remove all non-numic or dash chars
+      // Remove all non-numeric or dash chars
       this.accessCodeInput = this.accessCodeInput.replace(/[^0-9-]/g, '');
       // Remove the dashes for storing the access code
       this.accessCode = this.accessCodeInput.replace(/[-]/g, '');
@@ -525,7 +525,7 @@ export default {
     },
 
     /**
-     * Build inviation message
+     * Build invitation message
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';

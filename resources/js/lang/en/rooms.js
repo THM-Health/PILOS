@@ -31,9 +31,9 @@ export default {
       message: 'The room could not be started by you.',
       title: 'Starting failed'
     },
-    accessCodeChanged: {
-      message: 'The access code was changed in the meantime.',
-      title: 'Access code invalid'
+    accessCodeInvalid: {
+      message: 'The access code is invalid.',
+      title: 'Login to room failed'
     },
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
