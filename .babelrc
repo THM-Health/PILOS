@@ -1,7 +1,8 @@
 {
     "env": {
         "test": {
-            "plugins": ["rewire", "istanbul"]
+            "plugins": ["rewire", "istanbul"],
+            "retainLines": true
         }
     }
 }

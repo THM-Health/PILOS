@@ -87,8 +87,8 @@ class RoomMemberController extends Controller
         if (!$room->allowMembership) {
             return response()->json(['message'=>__('app.errors.membership_disabled')], 403);
         }
-        // Only add to members, if user isn't already a member
-        if (!$room->members->contains(Auth::user())) {
+        // Only add to members, if user isn't already a member or the owner
+        if (!$room->members->contains(Auth::user()) && !$room->owner->is(Auth::user())) {
             $room->members()->attach(Auth::user()->id, ['role' => $room->defaultRole]);
         }
 

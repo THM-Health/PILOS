@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\User as UserResource;
+use App\Http\Resources\UserSearch;
 use App\Notifications\UserWelcome;
 use App\User;
 use Carbon\Carbon;
@@ -35,7 +36,7 @@ class UserController extends Controller
      */
     public function search(Request $request)
     {
-        return UserResource::collection(User::withName($request->get('query'))->limit(config('bigbluebutton.user_search_limit'))->get());
+        return UserSearch::collection(User::withName($request->get('query'))->orderBy('lastname', 'ASC')->orderBy('firstname', 'ASC')->limit(config('bigbluebutton.user_search_limit'))->get());
     }
 
     /**
