@@ -11,6 +11,12 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -87,19 +93,30 @@ function overrideStub (url, response) {
   }
 }
 
-const dateUtcMock = {
-  utc: (date) => {
-    return {
-      local: () => {
-        return {
-          format: (format) => {
-            return date;
-          }
-        };
-      }
-    };
-  }
+const currentUser = {
+  firstname: 'Darth',
+  lastname: 'Vader',
+  permissions: []
 };
+
+const store = new Vuex.Store({
+  modules: {
+    session: {
+      namespaced: true,
+      state: {
+        currentUser
+      },
+      getters: {
+        isAuthenticated: () => true,
+        settings: () => (setting) => null,
+        userTimezone: () => 'Europe/Berlin'
+      }
+    }
+  },
+  state: {
+    loadingCounter: 0
+  }
+});
 
 let oldUser;
 
@@ -117,9 +134,10 @@ describe('MeetingsIndex', function () {
   it('list of meetings with pagination gets displayed', function (done) {
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $date: dayjs
       },
       attachTo: createContainer()
     });
@@ -144,7 +162,7 @@ describe('MeetingsIndex', function () {
       // test correct display of meeting info
       const rows = view.findComponent(BTbody).findAllComponents(BTr);
       const firstRowColumns = rows.at(0).findAll('td');
-      expect(firstRowColumns.at(0).text()).toContain('2021-02-12 18:09:29');
+      expect(firstRowColumns.at(0).text()).toBe('12.02.21 19:09');
       expect(firstRowColumns.at(1).text()).toContain('Meeting One');
       expect(firstRowColumns.at(2).text()).toContain('John Doe');
       expect(firstRowColumns.at(3).text()).toContain('Server 01');
@@ -244,7 +262,7 @@ describe('MeetingsIndex', function () {
         // check if table content was updated
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
         const firstRowColumns = rows.at(0).findAll('td');
-        expect(firstRowColumns.at(0).text()).toContain('2021-02-12 18:12:05');
+        expect(firstRowColumns.at(0).text()).toContain('12.02.21 19:12');
         expect(firstRowColumns.at(1).text()).toContain('Meeting Three');
         expect(firstRowColumns.at(2).text()).toContain('John Doe');
         expect(firstRowColumns.at(3).text()).toContain('Server 01');
@@ -276,9 +294,10 @@ describe('MeetingsIndex', function () {
 
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $date: dayjs
       },
       attachTo: createContainer()
     });
@@ -325,9 +344,10 @@ describe('MeetingsIndex', function () {
   it('search', function (done) {
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $date: dayjs
       },
       attachTo: createContainer()
     });
@@ -395,9 +415,10 @@ describe('MeetingsIndex', function () {
   it('sort', function (done) {
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $date: dayjs
       },
       attachTo: createContainer()
     });
@@ -476,7 +497,7 @@ describe('MeetingsIndex', function () {
         // check if table was updated
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
         const firstRowColumns = rows.at(0).findAll('td');
-        expect(firstRowColumns.at(0).text()).toContain('2021-02-12 18:10:20');
+        expect(firstRowColumns.at(0).text()).toContain('12.02.21 19:10');
         expect(firstRowColumns.at(1).text()).toContain('Meeting Two');
         expect(firstRowColumns.at(2).text()).toContain('Max Doe');
         expect(firstRowColumns.at(3).text()).toContain('Server 01');
