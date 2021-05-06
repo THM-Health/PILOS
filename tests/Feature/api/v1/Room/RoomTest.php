@@ -949,7 +949,7 @@ class RoomTest extends TestCase
     /**
      * Tests if record attendance is set on start
      */
-    public function testSetRecordAttendanceOnStart()
+    public function testRecordAttendanceStatus()
     {
         $room1 = factory(Room::class)->create(['record_attendance'=>true]);
         $room2 = factory(Room::class)->create(['record_attendance'=>false]);
@@ -966,6 +966,27 @@ class RoomTest extends TestCase
         // check correct record attendance after start
         $this->assertTrue($room1->runningMeeting()->record_attendance);
         $this->assertFalse($room2->runningMeeting()->record_attendance);
+
+        // check if api returns correct record attendance status
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'running'           => true,
+                'record_attendance' => true
+            ]);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room2]))
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'running'           => true,
+                'record_attendance' => false
+            ]);
+
+        // check if api return the record attendance status of the currently running meeting, not the room
+        $room1->record_attendance = false;
+        $room1->save();
+        $room2->record_attendance = true;
+        $room2->save();
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room1]))
             ->assertStatus(200)

@@ -83,7 +83,7 @@ class RoomPolicy
      */
     public function viewStatistics(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 
     /**

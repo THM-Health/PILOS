@@ -89,10 +89,10 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::apiResource('serverPools', 'ServerPoolController');
 
 
-        Route::get('meetings/{meeting}/attendance', 'MeetingController@attendance');
-        Route::get('meetings/{meeting}/stats', 'MeetingController@stats');
+        Route::get('meetings/{meeting}/attendance', 'MeetingController@attendance')->name('meetings.attendance');
+        Route::get('meetings/{meeting}/stats', 'MeetingController@stats')->name('meetings.stats');
         Route::get('meetings', 'MeetingController@index')->name('meetings.index');
-        Route::get('rooms/{room}/meetings', 'RoomController@meetings');
+        Route::get('rooms/{room}/meetings', 'RoomController@meetings')->name('rooms.meetings');
 
         Route::get('getTimezones', function () {
             return response()->json([ 'timezones' => timezone_identifiers_list() ]);

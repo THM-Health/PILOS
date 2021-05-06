@@ -21,7 +21,7 @@ class MeetingStat extends JsonResource
             'listener_count'            => $this->listener_count,
             'voice_participant_count'   => $this->voice_participant_count,
             'video_count'               => $this->video_count,
-            'created_at'                => $this->created_at->format('Y-m-d H:i:s')
+            'created_at'                => $this->created_at
         ];
     }
 }
