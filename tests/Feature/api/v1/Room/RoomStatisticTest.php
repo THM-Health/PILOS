@@ -17,7 +17,7 @@ use Tests\TestCase;
  * Testing the statistical features of a room
  * @package Tests\Feature\api\v1\Room
  */
-class RoomStatistics extends TestCase
+class RoomStatisticTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
