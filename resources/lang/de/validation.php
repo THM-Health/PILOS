@@ -256,6 +256,7 @@ return [
         'timezone'                          => 'Zeitzone',
         'default_timezone'                  => 'Standardzeitzone',
         'default_presentation'              => 'Standard Präsentation',
-        'help_url'                          => 'URL zur Hilfeseite'
+        'help_url'                          => 'URL zur Hilfeseite',
+        'restrict'                          => 'Verwendung einschränken'
     ],
 ];

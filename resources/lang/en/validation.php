@@ -256,6 +256,7 @@ return [
         'timezone'                          => 'Timezone',
         'default_timezone'                  => 'Default timezone',
         'default_presentation'              => 'Default presentation',
-        'help_url'                          => 'URL to the help'
+        'help_url'                          => 'URL to the help',
+        'restrict'                          => 'Restrict usage'
     ],
 ];
