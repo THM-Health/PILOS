@@ -445,7 +445,7 @@ export default {
      *
      * @param [page=1] The page to load the roles for.
      */
-    loadRoles(page = 1) {
+    loadRoles (page = 1) {
       this.rolesLoading = true;
 
       const config = {
