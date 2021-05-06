@@ -132,7 +132,8 @@ describe('RoomSettings', function () {
             duration: 5,
             defaultRole: 1,
             lobby: 1,
-            listed: true
+            listed: true,
+            record_attendance: true
           }
         }
       });
@@ -167,18 +168,19 @@ describe('RoomSettings', function () {
       expect(radios.at(2).element.checked).toBeFalsy();
       expect(radios.at(3).element.checked).toBeTruthy();
       expect(radios.at(4).element.checked).toBeFalsy();
+      expect(checkboxes.at(3).element.checked).toBeTruthy();
 
       // permissions
-      expect(checkboxes.at(3).element.checked).toBeFalsy();
-      expect(checkboxes.at(4).element.checked).toBeTruthy();
+      expect(checkboxes.at(4).element.checked).toBeFalsy();
       expect(checkboxes.at(5).element.checked).toBeTruthy();
-      expect(checkboxes.at(6).element.checked).toBeFalsy();
-      expect(checkboxes.at(7).element.checked).toBeTruthy();
-      expect(checkboxes.at(8).element.checked).toBeFalsy();
-      expect(checkboxes.at(9).element.checked).toBeTruthy();
-      expect(checkboxes.at(10).element.checked).toBeFalsy();
-      expect(checkboxes.at(11).element.checked).toBeTruthy();
-      expect(checkboxes.at(12).element.checked).toBeFalsy();
+      expect(checkboxes.at(6).element.checked).toBeTruthy();
+      expect(checkboxes.at(7).element.checked).toBeFalsy();
+      expect(checkboxes.at(8).element.checked).toBeTruthy();
+      expect(checkboxes.at(9).element.checked).toBeFalsy();
+      expect(checkboxes.at(10).element.checked).toBeTruthy();
+      expect(checkboxes.at(11).element.checked).toBeFalsy();
+      expect(checkboxes.at(12).element.checked).toBeTruthy();
+      expect(checkboxes.at(13).element.checked).toBeFalsy();
 
       // check if all fields and buttons are disabled
       inputFields.wrappers.forEach(element => expect(element.attributes('disabled')).toBe('disabled'));
@@ -261,7 +263,8 @@ describe('RoomSettings', function () {
             duration: 5,
             defaultRole: 1,
             lobby: 1,
-            listed: true
+            listed: true,
+            record_attendance: true
           }
         }
       });
@@ -334,7 +337,8 @@ describe('RoomSettings', function () {
             duration: 5,
             defaultRole: 1,
             lobby: 1,
-            listed: true
+            listed: true,
+            record_attendance: true
           }
         }
       });
@@ -413,7 +417,8 @@ describe('RoomSettings', function () {
             duration: 5,
             defaultRole: 1,
             lobby: 1,
-            listed: true
+            listed: true,
+            record_attendance: true
           }
         }
       });
@@ -553,7 +558,8 @@ describe('RoomSettings', function () {
               duration: 5,
               defaultRole: 1,
               lobby: 1,
-              listed: true
+              listed: true,
+              record_attendance: true
             }
           }
         });
@@ -633,7 +639,8 @@ describe('RoomSettings', function () {
             duration: 5,
             defaultRole: 1,
             lobby: 1,
-            listed: true
+            listed: true,
+            record_attendance: true
           }
         }
       });
@@ -671,7 +678,8 @@ describe('RoomSettings', function () {
           duration: 5,
           defaultRole: 1,
           lobby: 1,
-          listed: true
+          listed: true,
+          record_attendance: true
         });
 
         expect(view.vm.isBusy).toBe(true);
@@ -729,7 +737,8 @@ describe('RoomSettings', function () {
                 duration: 5,
                 defaultRole: 1,
                 lobby: 1,
-                listed: true
+                listed: true,
+                record_attendance: true
               }
             }
           });

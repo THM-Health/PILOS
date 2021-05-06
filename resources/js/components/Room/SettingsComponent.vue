@@ -239,7 +239,7 @@
             <!-- Checkbox record attendance of users and guests -->
             <b-form-group :state="fieldState('record_attendance')">
               <b-form-checkbox
-                :disabled="isBusy || modelLoadingError"
+                :disabled="disabled"
                 :state="fieldState('record_attendance')"
                 v-model="settings.record_attendance"
                 switch
