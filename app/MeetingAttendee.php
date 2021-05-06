@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class MeetingAttendee extends Model
 {
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = [];
+
     protected $casts = [
         'join'  => 'datetime',
         'leave' => 'datetime'
