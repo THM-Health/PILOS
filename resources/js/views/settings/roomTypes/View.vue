@@ -323,8 +323,8 @@ export default {
    */
   mounted () {
     this.loadRoomType();
-    this.loadServerPools();
     this.loadRoles();
+    this.loadServerPools();
   },
 
   methods: {
