@@ -86,7 +86,10 @@ describe('Room Index', function () {
       {
         id: 'abc-def-123',
         name: 'Meeting One',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -98,7 +101,10 @@ describe('Room Index', function () {
       {
         id: 'abc-def-345',
         name: 'Meeting Two',
-        owner: 'Max Doe',
+        owner: {
+          id: 2,
+          name: 'Max Doe'
+        },
         type: {
           id: 1,
           short: 'VL',
@@ -415,7 +421,10 @@ describe('Room Index', function () {
               {
                 id: 'abc-def-123',
                 name: 'Meeting One',
-                owner: 'John Doe',
+                owner: {
+                  id: 1,
+                  name: 'John Doe'
+                },
                 type: {
                   id: 2,
                   short: 'ME',

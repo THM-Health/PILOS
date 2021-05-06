@@ -153,7 +153,9 @@ class Meeting extends Model
      */
     public function getJoinUrl($name, $role, $userid, $skipAudioCheck)
     {
-        $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $role == RoomUserRole::MODERATOR ? $this->moderatorPW : $this->attendeePW);
+        $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderatorPW : $this->attendeePW;
+
+        $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $password);
         $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setUserId($userid);

@@ -20,7 +20,7 @@ class RoomFileController extends Controller
      */
     public function index(Room $room)
     {
-        if (\Gate::allows('manageFiles', $room)) {
+        if (\Gate::allows('viewAllFiles', $room)) {
             $default = $room->files()->where('default', true)->first();
 
             return new PrivateRoomFileCollection($room->files, $default);

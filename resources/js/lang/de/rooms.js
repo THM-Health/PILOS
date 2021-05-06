@@ -31,9 +31,9 @@ export default {
       message: 'Der Raum kann von Ihnen nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
     },
-    accessCodeChanged: {
-      message: 'Der Zugangscode wurde in der Zwischenzeit geändert.',
-      title: 'Zugangscode ungültig'
+    accessCodeInvalid: {
+      message: 'Der Zugangscode ist ungültig.',
+      title: 'Anmeldung am Raum fehlgeschlagen'
     },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
@@ -93,8 +93,8 @@ export default {
     roles: {
       guest: 'Gast',
       participant: 'Teilnehmer',
-      moderator: 'Moderator'
-
+      moderator: 'Moderator',
+      co_owner: 'Mitbesitzer'
     },
     modals: {
       edit: {

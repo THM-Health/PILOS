@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\RoomUserRole;
 use App\Room;
 use App\RoomFile;
 use App\User;
@@ -60,7 +59,19 @@ class RoomPolicy
      */
     public function viewSettings(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $user->can('update', $room) || $user->can('rooms.viewAll');
+    }
+
+    /**
+     * Determine whether the user can view the room access code.
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewAccessCode(User $user, Room $room)
+    {
+        return $user->can('viewSettings', $room) || $room->isModerator($user);
     }
 
     /**
@@ -86,7 +97,19 @@ class RoomPolicy
             return true;
         }
 
-        if ($room->isModeratorOrOwner($user)) {
+        if ($room->owner->is($user)) {
+            return true;
+        }
+
+        if ($room->isModerator($user)) {
+            return true;
+        }
+
+        if ($room->isCoOwner($user)) {
+            return true;
+        }
+
+        if ($user && $user->can('rooms.manage')) {
             return true;
         }
 
@@ -102,7 +125,7 @@ class RoomPolicy
      */
     public function update(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }
 
     /**
@@ -114,7 +137,7 @@ class RoomPolicy
      */
     public function delete(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $room->owner->is($user) || $user->can('rooms.manage');
     }
 
     /**
@@ -126,7 +149,7 @@ class RoomPolicy
      */
     public function viewMembers(User $user, Room $room)
     {
-        return $room->owner->is($user); // or $room->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
+        return $user->can('manageMembers', $room) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -138,7 +161,7 @@ class RoomPolicy
      */
     public function manageMembers(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }
 
     /**
@@ -148,9 +171,21 @@ class RoomPolicy
      * @param  Room $room
      * @return bool
      */
-    public function manageFiles(?User $user, Room $room)
+    public function manageFiles(User $user, Room $room)
     {
-        return $room->owner->is($user);
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
+    }
+
+    /**
+     * Determine whether the user can see all files
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewAllFiles(User $user, Room $room)
+    {
+        return $user->can('manageFiles', $room) || $user->can('rooms.viewAll');
     }
 
     /**
@@ -163,6 +198,14 @@ class RoomPolicy
      */
     public function downloadFile(?User $user, Room $room, RoomFile $roomFile)
     {
-        return $room->owner->is($user) || $roomFile->download === true;
+        if ($roomFile->download === true) {
+            return true;
+        }
+
+        if ($user == null) {
+            return false;
+        }
+
+        return $user->can('viewAllFiles', $room);
     }
 }
