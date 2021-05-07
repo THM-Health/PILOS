@@ -32,7 +32,7 @@ class RoomTypeController extends Controller
 
         if ($request->has('own')) {
             $roomTypes =  $roomTypes->where('restrict', '=', false)
-                ->orWhereIn('id', function($query) {
+                ->orWhereIn('id', function ($query) {
                     $query->select('role_room_type.room_type_id')
                         ->from('role_room_type as role_room_type')
                         ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
@@ -45,7 +45,7 @@ class RoomTypeController extends Controller
             }
 
             $roomTypes =  $roomTypes->where('restrict', '=', false)
-                ->orWhereIn('id', function($query) use ($room) {
+                ->orWhereIn('id', function ($query) use ($room) {
                     $query->select('role_room_type.room_type_id')
                         ->from('role_room_type as role_room_type')
                         ->whereIn('role_room_type.role_id', $room->owner->roles->pluck('id')->all());
