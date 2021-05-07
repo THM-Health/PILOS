@@ -92,7 +92,14 @@ class RoomTypeTest extends TestCase
     {
         $roomType = factory(RoomType::class)->make(['short'=>'TA']);
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id,'allow_listing'=>0];
+        $data = [
+            'short'         => $roomType->short,
+            'color'         => $roomType->color,
+            'description'   => $roomType->description,
+            'server_pool'   => $roomType->serverPool->id,
+            'allow_listing' => 0,
+            'restrict'      => false
+        ];
 
         // Test guests
         $this->postJson(route('api.v1.roomTypes.store'), $data)
@@ -133,7 +140,14 @@ class RoomTypeTest extends TestCase
         $roomType  = factory(RoomType::class)->create(['short'=>'TA']);
         $roomType2 = factory(RoomType::class)->create(['short'=>'TB']);
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id,'allow_listing'=>1];
+        $data = [
+            'short'         => $roomType->short,
+            'color'         => $roomType->color,
+            'description'   => $roomType->description,
+            'server_pool'   => $roomType->serverPool->id,
+            'allow_listing' => 1,
+            'restrict'      => false
+        ];
 
         // Test guests
         $this->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
