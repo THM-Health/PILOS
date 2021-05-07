@@ -5,10 +5,13 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
 use App\Http\Requests\RoomTypeRequest;
+use App\Room;
 use App\RoomType;
 use App\Http\Resources\RoomType as RoomTypeResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class RoomTypeController extends Controller
 {
@@ -23,9 +26,33 @@ class RoomTypeController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return RoomTypeResource::collection(RoomType::all());
+        $roomTypes = RoomType::query();
+
+        if ($request->has('own')) {
+            $roomTypes =  $roomTypes->where('restrict', '=', false)
+                ->orWhereIn('id', function($query) {
+                    $query->select('role_room_type.room_type_id')
+                        ->from('role_room_type as role_room_type')
+                        ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
+                })->get();
+        } elseif ($request->has('roomId')) {
+            $room = Room::find($request->get('roomId'));
+
+            if (is_null($room) || Auth::user()->cannot('update', $room)) {
+                // TODO: Add error!
+            }
+
+            $roomTypes =  $roomTypes->where('restrict', '=', false)
+                ->orWhereIn('id', function($query) use ($room) {
+                    $query->select('role_room_type.room_type_id')
+                        ->from('role_room_type as role_room_type')
+                        ->whereIn('role_room_type.role_id', $room->owner->roles->pluck('id')->all());
+                })->get();
+        }
+
+        return RoomTypeResource::collection($roomTypes->get());
     }
 
     /**
