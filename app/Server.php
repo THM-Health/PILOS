@@ -16,6 +16,8 @@ class Server extends Model
 {
     use AddsModelNameTrait;
 
+    protected $bbb;
+
     protected $casts = [
         'strength'                  => 'integer',
         'status'                    => 'integer',
@@ -59,13 +61,27 @@ class Server extends Model
     }
 
     /**
-     * Get bigbluebutton api instance with the url and secret stored in the database fields
+     * Get bigbluebutton api instance
+     * If not set before with setBBB initialise with the url and secret stored in the database fields
      * @return BigBlueButton
      * @throws \Exception
      */
     public function bbb()
     {
-        return new BigBlueButton($this->base_url, $this->salt);
+        if ($this->bbb == null) {
+            $this->setBBB(new BigBlueButton($this->base_url, $this->salt));
+        }
+
+        return $this->bbb;
+    }
+
+    /**
+     * Set bigbluebutton api instance
+     * @param BigBlueButton $bbb
+     */
+    public function setBBB(BigBlueButton $bbb)
+    {
+        $this->bbb = $bbb;
     }
 
     /**
