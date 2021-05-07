@@ -369,4 +369,148 @@ class RoomStatisticTest extends TestCase
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
             ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
     }
+
+    /**
+     * Test attendance download at a meetings for a room
+     */
+    public function testAttendanceDownload()
+    {
+
+        // create room
+        $meeting = factory(Meeting::class)->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
+
+        // set firstname, lastname and email to fixes values to make api output predictable
+        $this->user->firstname = 'Mable';
+        $this->user->lastname  = 'Torres';
+        $this->user->email     = 'm.torres@example.net';
+        $this->user->save();
+        $meeting->room->owner->firstname = 'Gregory';
+        $meeting->room->owner->lastname  = 'Dumas';
+        $meeting->room->owner->email     = 'g.dumas@example.net';
+        $meeting->room->owner->save();
+
+        // add attendance data
+        // one and multiple sessions for guests and users each
+        $attendees   = [];
+        $attendees[] = new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']);
+        $attendees[] = new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:17:23','leave'=>'2020-01-01 08:29:05']);
+        $attendees[] = new MeetingAttendee(['name'=>'Bertha Luff','session_id'=>'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG','join'=>'2020-01-01 08:15:11','leave'=>'2020-01-01 08:32:09']);
+        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:14:15','leave'=>'2020-01-01 08:30:40']);
+        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:31:07','leave'=>'2020-01-01 08:35:23']);
+        $attendees[] = new MeetingAttendee(['user_id'=>$meeting->room->owner->id,'join'=>'2020-01-01 08:12:45','leave'=>'2020-01-01 08:35:23']);
+        $meeting->attendees()->saveMany($attendees);
+
+        // check guests
+        $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertUnauthorized();
+
+        // check authorized users
+        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertForbidden();
+
+        // check room user
+        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertForbidden();
+        $meeting->room->members()->detach($this->user);
+
+        // check room moderator
+        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::MODERATOR]);
+        $this->actingAs($this->user)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertForbidden();
+        $meeting->room->members()->detach($this->user);
+
+        // check room co-owner
+        $meeting->room->members()->attach($this->user, ['role'=>RoomUserRole::CO_OWNER]);
+        $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED);
+        $meeting->room->members()->detach($this->user);
+
+        // check view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->actingAs($this->user)->role->permissions()->attach($this->viewAllPermission);
+        $this->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED);
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // check as owner
+        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED);
+
+        // enable record attendance for meeting
+        $meeting->record_attendance = true;
+        $meeting->save();
+
+        // check with enabled record attendance
+        // check successful download
+        $response = $this->actingAs($meeting->room->owner)->get(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertSuccessful();
+
+        // Get file from download response and parse file back to array
+        $file  = $response->getFile();
+        $array = (new AttendanceExcelImport)->toArray($file->getPathname());
+
+        // Assert if the excel file content is correct
+        $this->assertEquals(
+            [
+                [
+                    [
+                        __('meetings.attendance.export.roomName'),
+                        $meeting->room->name,
+                        null,
+                        null
+                    ],
+                    [
+                        __('meetings.attendance.export.start'),
+                        '01.01.2020 08:12:45',
+                        null,
+                        null
+                    ],
+                    [
+                        __('meetings.attendance.export.end'),
+                        '01.01.2020 08:35:23',
+                        null,
+                        null
+                    ],
+                    [null,null,null,null],
+                    [
+                        __('meetings.attendance.export.name'),
+                        __('meetings.attendance.export.email'),
+                        __('meetings.attendance.export.duration'),
+                        __('meetings.attendance.export.sessions')],
+                    [
+                        'Bertha Luff',
+                        null,
+                        __('meetings.attendance.export.durationMinute', ['duration' => 16]),
+                        '01.01.2020 08:15:11 -  01.01.2020 08:32:09 ('.__('meetings.attendance.export.durationMinute', ['duration' => 16]).')'
+                    ],
+                    [
+                        'Gregory Dumas',
+                        'g.dumas@example.net',
+                        __('meetings.attendance.export.durationMinute', ['duration' => 22]),
+                        '01.01.2020 08:12:45 -  01.01.2020 08:35:23 ('.__('meetings.attendance.export.durationMinute', ['duration' => 22]).')'],
+                    [
+                        'Mable Torres',
+                        'm.torres@example.net',
+                        __('meetings.attendance.export.durationMinute', ['duration' => 20]),
+                        '01.01.2020 08:14:15 -  01.01.2020 08:30:40 ('.__('meetings.attendance.export.durationMinute', ['duration' => 16]).")\n01.01.2020 08:31:07 -  01.01.2020 08:35:23 (".__('meetings.attendance.export.durationMinute', ['duration' => 4]).')'],
+                    [
+                        'Marie Walker',
+                        null,
+                        __('meetings.attendance.export.durationMinute', ['duration' => 13]),
+                        '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.export.durationMinute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.export.durationMinute', ['duration' => 11]).')']
+                ]
+            ], $array);
+
+        // Remove temp. file
+        \File::delete($file->getPathname());
+
+        // make meeting still running
+        $meeting->end = null;
+        $meeting->save();
+
+        // check with for running meeting
+        $this->actingAs($meeting->room->owner)->getJson(route('download.attendance', ['meeting'=>$meeting]))
+            ->assertStatus(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED);
+    }
 }
