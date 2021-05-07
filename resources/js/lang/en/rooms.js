@@ -22,6 +22,7 @@ export default {
   login: 'Login',
   placeholderName: 'John Doe',
   placeholderAccessCode: 'Access code',
+  roomTypeInvalidAlert: 'The usage of the room type {roomTypeName} is only permitted for special user groups. To start the room, please change the room type, if you are the owner of this room.',
   flash: {
     noNewRoom: {
       message: 'You do not have the necessary permission to create a new room.',

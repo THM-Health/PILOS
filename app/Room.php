@@ -210,4 +210,20 @@ class Room extends Model
 
         return $message;
     }
+
+    /**
+     * Indicates whether the type of the room is restricted for
+     * specific roles and the room owner doesn't has this role.
+     * @return bool
+     */
+    public function getRoomTypeInvalidAttribute()
+    {
+        $roomType = $this->roomType;
+
+        if (!$roomType->restrict) {
+            return false;
+        }
+
+        return count(array_intersect($roomType->roles->pluck('id')->all(), $this->owner->roles->pluck('id')->all())) == 0;
+    }
 }

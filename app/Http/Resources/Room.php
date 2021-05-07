@@ -54,6 +54,7 @@ class Room extends JsonResource
                 'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
                 'running'           => $this->resource->runningMeeting() != null,
                 'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
+                'roomTypeInvalid'   => $this->roomTypeInvalid
             ])
         ];
     }
