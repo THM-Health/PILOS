@@ -446,6 +446,10 @@ class RoomStatisticTest extends TestCase
         $response = $this->actingAs($meeting->room->owner)->get(route('download.attendance', ['meeting'=>$meeting]))
             ->assertSuccessful();
 
+        // Validate headers
+        $response->assertHeader('content-disposition', 'attachment; filename='.__('meetings.attendance.export.filename').'.xlsx');
+        $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
         // Get file from download response and parse file back to array
         $file  = $response->getFile();
         $array = (new AttendanceExcelImport)->toArray($file->getPathname());
