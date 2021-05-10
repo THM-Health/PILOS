@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('download/file/{roomFile}/{filename?}', 'FileController@show')->name('download.file')->middleware('signed');
 
+if (config('shibboleth.enabled')) {
+    Route::get('shibboleth/login', 'auth\ShibbolethController@login')->name('shibboleth.login');
+}
+
 if (!env('DISABLE_CATCHALL_ROUTES')) {
     Route::any('/{any}', 'ApplicationController@index')->where('any', '.*');
 }

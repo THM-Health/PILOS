@@ -71,6 +71,8 @@ class ApplicationSettings extends JsonResource
             ]),
             'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
             'help_url'             => setting('help_url'),
+            'shibboleth'           => config('shibboleth.enabled'),
+            'ldap'                 => config('ldap.enabled'),
         ];
     }
 }

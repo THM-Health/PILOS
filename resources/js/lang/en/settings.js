@@ -79,7 +79,8 @@ export default {
     authenticator: {
       title: 'Authentication Type',
       users: 'Registered User',
-      ldap: 'LDAP'
+      ldap: 'LDAP',
+      shibboleth: 'Shibboleth'
     },
 
     delete: {
