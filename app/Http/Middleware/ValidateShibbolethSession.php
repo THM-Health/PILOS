@@ -19,7 +19,7 @@ class ValidateShibbolethSession
         // check if user is logged in via shibboleth
         if (\Auth::user() && \Auth::user()->authenticator == 'shibboleth') {
             // check if user still has a valid shibboleth session and that it didn't change in the meantime
-            if (!isset($_SERVER['SHIBBOLETH_Shib-Session-ID']) || session('Shib-Session-ID') != $_SERVER['SHIBBOLETH_Shib-Session-ID']) {
+            if (!isset($_SERVER[config('shibboleth.sessionId')]) || session('Shib-Session-ID') != $_SERVER[config('shibboleth.sessionId')]) {
                 \Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
