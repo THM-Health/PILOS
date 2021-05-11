@@ -22,12 +22,13 @@ class ShibbolethController extends Controller
         }
 
         // read shibboleth attributes
-        $shibLastname   = $_SERVER[config('shibboleth.attribute.sn')];
-        $shibFirstname  = $_SERVER[config('shibboleth.attribute.givenName')];
-        $shibUsername   = $_SERVER[config('shibboleth.attribute.uid')];
-        $shibEmail      = $_SERVER[config('shibboleth.attribute.mail')];
-        $shibRoles      = $_SERVER[config('shibboleth.attribute.eduPersonAffiliation')];
-        $shibSessionId  = $_SERVER[config('shibboleth.sessionId')];
+        $shibLastname        = $_SERVER[config('shibboleth.attribute.sn')];
+        $shibFirstname       = $_SERVER[config('shibboleth.attribute.givenName')];
+        $shibUsername        = $_SERVER[config('shibboleth.attribute.uid')];
+        $shibEmail           = $_SERVER[config('shibboleth.attribute.mail')];
+        $shibRoles           = $_SERVER[config('shibboleth.attribute.eduPersonAffiliation')];
+        $shibSessionId       = $_SERVER[config('shibboleth.sessionId')];
+        $shibSessionExpires  = $_SERVER[config('shibboleth.sessionExpires')];
 
         // Check if session was already used for an other login request
         $session = Cache::has('shib-session-'.$shibSessionId);
@@ -47,8 +48,7 @@ class ShibbolethController extends Controller
 
         // Create cache item to prevent usage of the same session for another login request
         // valid until the session expires
-        $expire          = $_SERVER['SHIBBOLETH_Shib-Session-Expires'];
-        $secondsToExpire = now()->diffInSeconds(Date::createFromTimestamp($expire));
+        $secondsToExpire = now()->diffInSeconds(Date::createFromTimestamp($shibSessionExpires));
         Cache::put('shib-session-'.$shibSessionId, true, $secondsToExpire);
 
         // try to find existing user
