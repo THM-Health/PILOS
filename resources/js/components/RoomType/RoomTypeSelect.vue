@@ -26,7 +26,8 @@ export default {
   props: {
     value: Object,
     state: Boolean,
-    disabled: Boolean
+    disabled: Boolean,
+    roomId: Number
   },
 
   data () {
@@ -46,7 +47,7 @@ export default {
     roomTypeSelect () {
       if (this.roomTypes) {
         return this.roomTypes.map(roomtype => {
-          var entry = {};
+          const entry = {};
           entry.value = roomtype;
           entry.text = roomtype.description;
           return entry;
@@ -86,7 +87,13 @@ export default {
     // Load the room types
     reloadRoomTypes () {
       this.isLoadingAction = true;
-      Base.call('roomTypes').then(response => {
+      const config = {
+        params: {
+          filter: this.roomId === undefined ? 'own' : this.roomId
+        }
+      };
+
+      Base.call('roomTypes', config).then(response => {
         this.roomTypes = response.data.data;
         // check if roomType select value is not included in available room type list
         // if so, unset roomType field
