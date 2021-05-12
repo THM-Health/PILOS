@@ -163,7 +163,8 @@ return [
         'roles.*' => [
             'exists'   => 'One of the selected roles does not exist.',
             'distinct' => 'At least one role was provided multiple times.'
-        ]
+        ],
+        'invalid_room_type' => 'You have not the necessary permissions to have a room with the passed room type.'
     ],
 
     /*
