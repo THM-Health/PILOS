@@ -229,7 +229,7 @@ class Room extends Model
      * @param $roomType RoomType
      * @return bool
      */
-    public static function roomTypePermitted(User $owner, RoomType $roomType): bool
+    public static function roomTypePermitted($owner, $roomType): bool
     {
         if (empty($owner) || empty($roomType) || !$roomType->restrict) {
             return true;
