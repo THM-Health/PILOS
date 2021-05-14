@@ -204,7 +204,7 @@ describe('Create new rooms', function () {
       status: 200,
       response: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -290,7 +290,7 @@ describe('Create new rooms', function () {
     const router = new VueRouter();
     router.push = spy;
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -344,7 +344,7 @@ describe('Create new rooms', function () {
       }
     };
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -394,7 +394,7 @@ describe('Create new rooms', function () {
 
     sinon.stub(Base, 'error').callsFake(flashMessageSpy);
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -443,7 +443,7 @@ describe('Create new rooms', function () {
   });
 
   it('submit without name', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -486,7 +486,7 @@ describe('Create new rooms', function () {
   });
 
   it('submit invalid room type', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -505,7 +505,7 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
 
-      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
         status: 200,
         response: {
           data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -529,7 +529,7 @@ describe('Create new rooms', function () {
           expect(typeInput.classes()).toContain('is-invalid');
 
           const request = moxios.requests.mostRecent();
-          expect(request.url).toEqual('/api/v1/roomTypes');
+          expect(request.url).toEqual('/api/v1/roomTypes?filter=own');
 
           expect(view.vm.$data.room.roomType).toBeNull();
 
@@ -544,7 +544,7 @@ describe('Create new rooms', function () {
   it('cancel or close', function (done) {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
