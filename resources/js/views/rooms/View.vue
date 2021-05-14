@@ -69,7 +69,7 @@
 
       <div class="row pt-7 pt-sm-9" v-if="room.authenticated && room.canStart && room.roomTypeInvalid">
         <div class="col-lg-12 col-12">
-          <b-alert show variant="warning">
+          <b-alert show variant="warning" ref="roomTypeInvalidAlert">
             {{ $t('rooms.roomTypeInvalidAlert', { roomTypeName: room.type.name }) }}
           </b-alert>
         </div>
