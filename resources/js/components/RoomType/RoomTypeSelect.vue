@@ -27,7 +27,7 @@ export default {
     value: Object,
     state: Boolean,
     disabled: Boolean,
-    roomId: Number
+    roomId: String
   },
 
   data () {
