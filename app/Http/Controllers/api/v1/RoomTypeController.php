@@ -85,10 +85,10 @@ class RoomTypeController extends Controller
         $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
+        $roomType->save();
         if ($roomType->restrict) {
             $roomType->roles()->sync($request->roles);
         }
-        $roomType->save();
 
         return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
@@ -108,10 +108,10 @@ class RoomTypeController extends Controller
         $roomType->allow_listing = $request->allow_listing;
         $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
-        if ($roomType->restrict) {
-            $roomType->roles()->associate($request->roles);
-        }
         $roomType->save();
+        if ($roomType->restrict) {
+            $roomType->roles()->sync($request->roles);
+        }
 
         return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
