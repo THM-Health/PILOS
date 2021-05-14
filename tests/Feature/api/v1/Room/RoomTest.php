@@ -901,6 +901,19 @@ class RoomTest extends TestCase
         $room2 = factory(Room::class)->create(['room_type_id'=>$room->roomType->id]);
         $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
+
+        // Owner with invalid room type
+        $room->roomType->roles()->attach($this->role);
+        $room->roomType->update(['restrict' => true]);
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+            ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID);
+
+        // User with invalid room type
+        $room->everyoneCanStart = true;
+        $room->save();
+        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+            ->assertStatus(CustomStatusCodes::ROOM_TYPE_INVALID);
     }
 
     /**
