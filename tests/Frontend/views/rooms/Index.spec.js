@@ -256,7 +256,7 @@ describe('Room Index', function () {
         message: 'Test'
       }
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=searchable', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -324,7 +324,7 @@ describe('Room Index', function () {
       status: 200,
       response: exampleRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=searchable', {
       status: 500,
       response: {
         message: 'Test'
@@ -352,7 +352,7 @@ describe('Room Index', function () {
       Base.error.restore();
 
       // restore valid response
-      const restoreRoomResponse = overrideStub('/api/v1/roomTypes', {
+      const restoreRoomResponse = overrideStub('/api/v1/roomTypes?filter=searchable', {
         status: 200,
         response: exampleRoomTypeResponse
       });
