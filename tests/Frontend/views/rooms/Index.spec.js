@@ -498,4 +498,69 @@ describe('Room Index', function () {
       });
     });
   });
+
+  it('sends request to list all rooms if user has rooms.viewAll permission', function (done) {
+    const oldUser = PermissionService.currentUser;
+
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions = ['rooms.viewAll'];
+    PermissionService.setCurrentUser(newUser);
+
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      // respond with demo content to the rooms and roomTypes requests
+      expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
+      await moxios.requests.at(0).respondWith({
+        status: 200,
+        response: exampleRoomResponse
+      });
+      expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
+      expect(moxios.requests.at(1).config.params).toBeUndefined();
+      await moxios.requests.at(1).respondWith({
+        status: 200,
+        response: exampleRoomTypeResponse
+      });
+
+      PermissionService.setCurrentUser(oldUser);
+      view.destroy();
+      done();
+    });
+  });
+
+  it('sends request to list all rooms if user has not rooms.viewAll permission', function (done) {
+    const view = mount(RoomList, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      // respond with demo content to the rooms and roomTypes requests
+      expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
+      await moxios.requests.at(0).respondWith({
+        status: 200,
+        response: exampleRoomResponse
+      });
+      expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
+      expect(moxios.requests.at(1).config.params).toStrictEqual({ filter: 'searchable' });
+      await moxios.requests.at(1).respondWith({
+        status: 200,
+        response: exampleRoomTypeResponse
+      });
+
+      view.destroy();
+      done();
+    });
+  });
 });
