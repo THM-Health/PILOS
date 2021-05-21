@@ -9,6 +9,7 @@ use App\RoomType;
 use App\Http\Resources\RoomType as RoomTypeResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 class RoomTypeController extends Controller
 {
@@ -23,9 +24,19 @@ class RoomTypeController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return RoomTypeResource::collection(RoomType::all());
+        $roomTypes = RoomType::query();
+
+        if ($request->has('filter')) {
+            $filter = $request->get('filter');
+
+            if ($filter === 'searchable') {
+                $roomTypes->where('allow_listing', '=', true);
+            }
+        }
+
+        return RoomTypeResource::collection($roomTypes->get());
     }
 
     /**

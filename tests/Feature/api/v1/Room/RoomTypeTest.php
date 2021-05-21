@@ -37,7 +37,11 @@ class RoomTypeTest extends TestCase
      */
     public function testIndex()
     {
-        $roomType = factory(RoomType::class)->create();
+        RoomType::query()->truncate();
+        factory(RoomType::class)->create();
+        $roomTypeListed = factory(RoomType::class)->create([
+            'allow_listing' => true
+        ]);
 
         // Test guests
         $this->getJson(route('api.v1.roomTypes.index'))
@@ -46,8 +50,24 @@ class RoomTypeTest extends TestCase
         // Test logged in users
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index'))
             ->assertSuccessful()
+            ->assertJsonStructure(['data' => [
+                '*' => [
+                    'allow_listing',
+                    'color',
+                    'description',
+                    'id',
+                    'model_name',
+                    'short',
+                    'updated_at'
+                ]
+            ]])
+            ->assertJsonCount(2, 'data');
+
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'searchable']))
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
             ->assertJsonFragment(
-                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+                (new \App\Http\Resources\RoomType($roomTypeListed))->jsonSerialize()
             );
     }
 

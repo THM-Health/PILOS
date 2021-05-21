@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Not listable room types in room filter ([#138], [#140])
 
 ## [1.3.0] - 2021-05-05
 ### Added
@@ -135,6 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#132]: https://github.com/THM-Health/PILOS/pull/132
 [#136]: https://github.com/THM-Health/PILOS/issues/136
 [#137]: https://github.com/THM-Health/PILOS/pull/137
+[#138]: https://github.com/THM-Health/PILOS/issues/138
+[#140]: https://github.com/THM-Health/PILOS/pull/140
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
