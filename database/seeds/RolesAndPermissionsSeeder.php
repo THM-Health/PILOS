@@ -20,7 +20,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.viewAll' ])->id;
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.manage' ])->id;
-        
+
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
@@ -88,10 +88,10 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::SetupIncludedPermissions('users.view', ['users.viewAny','roles.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('users.viewAny', ['settings.manage']);
 
-        Permission::SetupIncludedPermissions('roomTypes.delete', ['roomTypes.create','roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage']);
-        Permission::SetupIncludedPermissions('roomTypes.create', ['roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage']);
-        Permission::SetupIncludedPermissions('roomTypes.update', ['roomTypes.view','serverPools.viewAny','settings.manage']);
-        Permission::SetupIncludedPermissions('roomTypes.view', ['serverPools.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('roomTypes.delete', ['roomTypes.create','roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage','roles.viewAny']);
+        Permission::SetupIncludedPermissions('roomTypes.create', ['roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage','roles.viewAny']);
+        Permission::SetupIncludedPermissions('roomTypes.update', ['roomTypes.view','serverPools.viewAny','settings.manage','roles.viewAny']);
+        Permission::SetupIncludedPermissions('roomTypes.view', ['serverPools.viewAny','settings.manage','roles.viewAny']);
 
         Permission::SetupIncludedPermissions('servers.delete', ['servers.create','servers.update','servers.view','servers.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('servers.create', ['servers.update','servers.view','servers.viewAny','settings.manage']);

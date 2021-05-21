@@ -161,7 +161,7 @@ return [
         ],
         'roles.*' => [
             'exists'   => 'Eine der ausgewählten Rollen existiert nicht.',
-            'distinct' => 'Mindestens eine rolle wurde mehrfach ausgewählt.'
+            'distinct' => 'Mindestens eine Rolle wurde mehrfach ausgewählt.'
         ],
         'invalid_room_type' => 'Sie haben nicht die notwendigen Rechte, um einen Raum mit der übergebenen Raumart zu besitzen.'
     ],
