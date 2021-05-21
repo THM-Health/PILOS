@@ -47,6 +47,9 @@ class RoomTypeTest extends TestCase
         $roomType2 = factory(RoomType::class)->create([
             'restrict' => true
         ]);
+        $roomTypeListed = factory(RoomType::class)->create([
+            'allow_listing' => true
+        ]);
 
         $role1 = factory(Role::class)->create();
         $role2 = factory(Role::class)->create();
@@ -77,7 +80,7 @@ class RoomTypeTest extends TestCase
                     'updated_at'
                 ]
             ]])
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(4, 'data');
 
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'own']))
             ->assertSuccessful()
@@ -102,16 +105,18 @@ class RoomTypeTest extends TestCase
 
         $this->user->roles()->attach([$role1->id]);
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
+
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'searchable']))
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(
-                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+                (new \App\Http\Resources\RoomType($roomTypeListed))->jsonSerialize()
             );
 
         $room->owner->roles()->attach([$role1->id, $role2->id]);
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
             ->assertSuccessful()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(4, 'data');
     }
 
     /**

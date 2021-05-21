@@ -34,12 +34,14 @@ class RoomTypeController extends Controller
             $filter = $request->get('filter');
 
             if ($filter === 'own') {
-                $roomTypes =  $roomTypes->where('restrict', '=', false)
+                $roomTypes = $roomTypes->where('restrict', '=', false)
                     ->orWhereIn('id', function ($query) {
                         $query->select('role_room_type.room_type_id')
                             ->from('role_room_type as role_room_type')
                             ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
                     });
+            } else if ($filter === 'searchable') {
+                $roomTypes = $roomTypes->where('allow_listing', '=', true);
             } else {
                 $room = Room::find($filter);
 
@@ -47,7 +49,7 @@ class RoomTypeController extends Controller
                     abort(403, __('app.errors.no_room_access'));
                 }
 
-                $roomTypes =  $roomTypes->where('restrict', '=', false)
+                $roomTypes = $roomTypes->where('restrict', '=', false)
                     ->orWhereIn('id', function ($query) use ($room) {
                         $query->select('role_room_type.room_type_id')
                             ->from('role_room_type as role_room_type')
