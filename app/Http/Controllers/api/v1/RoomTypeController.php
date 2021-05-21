@@ -40,7 +40,7 @@ class RoomTypeController extends Controller
                             ->from('role_room_type as role_room_type')
                             ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
                     });
-            } else if ($filter === 'searchable') {
+            } elseif ($filter === 'searchable') {
                 $roomTypes = $roomTypes->where('allow_listing', '=', true);
             } else {
                 $room = Room::find($filter);
