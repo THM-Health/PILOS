@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Room type restriction for specific roles ([#98], [#127])
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
 
@@ -112,6 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#94]: https://github.com/THM-Health/PILOS/pull/94
 [#96]: https://github.com/THM-Health/PILOS/issues/96
 [#97]: https://github.com/THM-Health/PILOS/issues/97
+[#98]: https://github.com/THM-Health/PILOS/issues/98
 [#99]: https://github.com/THM-Health/PILOS/pull/99
 [#100]: https://github.com/THM-Health/PILOS/pull/100
 [#101]: https://github.com/THM-Health/PILOS/issues/101
@@ -131,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#122]: https://github.com/THM-Health/PILOS/pull/122
 [#123]: https://github.com/THM-Health/PILOS/issues/123
 [#125]: https://github.com/THM-Health/PILOS/pull/125
+[#127]: https://github.com/THM-Health/PILOS/pull/127
 [#129]: https://github.com/THM-Health/PILOS/issues/129
 [#130]: https://github.com/THM-Health/PILOS/pull/130
 [#131]: https://github.com/THM-Health/PILOS/issues/131

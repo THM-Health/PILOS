@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Rules\ValidRoomType;
 use BenSampo\Enum\Rules\EnumValue;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,7 @@ class UpdateRoomSettings extends FormRequest
             'defaultRole'                    => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],
             'allowGuests'                    => 'required|boolean',
             'lobby'                          => ['required',new EnumValue(RoomLobby::class)],
-            'roomType'                       => 'required|exists:App\RoomType,id',
+            'roomType'                       => ['required', 'exists:App\RoomType,id', new ValidRoomType($this->room->owner)],
             'duration'                       => 'nullable|numeric|min:1',
             'maxParticipants'                => 'nullable|numeric|min:1',
             'name'                           => 'required|string|max:'.config('bigbluebutton.room_name_limit'),

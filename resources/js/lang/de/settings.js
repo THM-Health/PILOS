@@ -130,7 +130,11 @@ export default {
       noReplacement: '-- Kein Ersatz --',
       replacementInfo: 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.'
     },
-    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.'
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
+    restrict: 'Verwendung einschränken',
+    restrictDescription: 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
+    roles: 'Rollen',
+    selectRoles: 'Rollen auswählen'
   },
 
   application: {

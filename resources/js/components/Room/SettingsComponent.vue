@@ -19,7 +19,15 @@
           <b-col lg="3" md="6" cols="12">
             <h5>{{ $t('rooms.settings.general.title') }}</h5>
             <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-              <room-type-select :disabled="disabled" v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"  v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="settings.roomType" :state="fieldState('roomType')" ></room-type-select>
+              <room-type-select
+                :disabled="disabled"
+                v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
+                v-on:busy="(value) => this.roomTypeSelectBusy = value"
+                ref="roomTypeSelect"
+                v-model="settings.roomType"
+                :room-id="room.id"
+                :state="fieldState('roomType')" >
+              </room-type-select>
               <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
             </b-form-group>
             <!-- Room name -->
@@ -470,7 +478,7 @@ export default {
      * @returns {string} amount of chars in comparision to the limit
      */
     charactersLeftWelcomeMessage () {
-      var char = this.settings.welcome
+      const char = this.settings.welcome
         ? this.settings.welcome.length
         : 0;
       return char + ' / ' + this.welcomeMessageLimit;

@@ -210,4 +210,35 @@ class Room extends Model
 
         return $message;
     }
+
+    /**
+     * Indicates whether the type of the room is restricted for
+     * specific roles and the room owner doesn't has this role.
+     * @return bool
+     */
+    public function getRoomTypeInvalidAttribute(): bool
+    {
+        return !self::roomTypePermitted($this->owner, $this->roomType);
+    }
+
+    /**
+     * Returns true if the passed owner has rights to create a room
+     * with the passed room type.
+     *
+     * @param $owner User
+     * @param $roomType RoomType
+     * @return bool
+     */
+    public static function roomTypePermitted($owner, $roomType): bool
+    {
+        if (empty($owner) || empty($roomType)) {
+            return false;
+        }
+
+        if (!$roomType->restrict) {
+            return true;
+        }
+
+        return count(array_intersect($roomType->roles->pluck('id')->all(), $owner->roles->pluck('id')->all())) > 0;
+    }
 }

@@ -5,11 +5,13 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTypeDestroyRequest;
 use App\Http\Requests\RoomTypeRequest;
+use App\Room;
 use App\RoomType;
 use App\Http\Resources\RoomType as RoomTypeResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class RoomTypeController extends Controller
 {
@@ -31,8 +33,28 @@ class RoomTypeController extends Controller
         if ($request->has('filter')) {
             $filter = $request->get('filter');
 
-            if ($filter === 'searchable') {
-                $roomTypes->where('allow_listing', '=', true);
+            if ($filter === 'own') {
+                $roomTypes = $roomTypes->where('restrict', '=', false)
+                    ->orWhereIn('id', function ($query) {
+                        $query->select('role_room_type.room_type_id')
+                            ->from('role_room_type as role_room_type')
+                            ->whereIn('role_room_type.role_id', Auth::user()->roles->pluck('id')->all());
+                    });
+            } elseif ($filter === 'searchable') {
+                $roomTypes = $roomTypes->where('allow_listing', '=', true);
+            } else {
+                $room = Room::find($filter);
+
+                if (is_null($room) || Auth::user()->cannot('update', $room)) {
+                    abort(403, __('app.errors.no_room_access'));
+                }
+
+                $roomTypes = $roomTypes->where('restrict', '=', false)
+                    ->orWhereIn('id', function ($query) use ($room) {
+                        $query->select('role_room_type.room_type_id')
+                            ->from('role_room_type as role_room_type')
+                            ->whereIn('role_room_type.role_id', $room->owner->roles->pluck('id')->all());
+                    });
             }
         }
 
@@ -47,7 +69,7 @@ class RoomTypeController extends Controller
      */
     public function show(RoomType $roomType)
     {
-        return (new RoomTypeResource($roomType))->withServerPool();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
 
     /**
@@ -63,10 +85,14 @@ class RoomTypeController extends Controller
         $roomType->short         = $request->short;
         $roomType->color         = $request->color;
         $roomType->allow_listing = $request->allow_listing;
+        $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
+        if ($roomType->restrict) {
+            $roomType->roles()->sync($request->roles);
+        }
 
-        return (new RoomTypeResource($roomType))->withServerPool();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
 
     /**
@@ -82,10 +108,14 @@ class RoomTypeController extends Controller
         $roomType->short         = $request->short;
         $roomType->color         = $request->color;
         $roomType->allow_listing = $request->allow_listing;
+        $roomType->restrict      = $request->restrict;
         $roomType->serverPool()->associate($request->server_pool);
         $roomType->save();
+        if ($roomType->restrict) {
+            $roomType->roles()->sync($request->roles);
+        }
 
-        return (new RoomTypeResource($roomType))->withServerPool();
+        return (new RoomTypeResource($roomType))->withServerPool()->withRoles();
     }
 
     /**

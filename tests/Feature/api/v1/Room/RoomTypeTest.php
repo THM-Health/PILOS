@@ -3,6 +3,8 @@
 namespace Tests\Feature\api\v1\Room;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomUserRole;
+use App\Http\Resources\RoleCollection;
 use App\Permission;
 use App\Role;
 use App\Room;
@@ -38,9 +40,25 @@ class RoomTypeTest extends TestCase
     public function testIndex()
     {
         RoomType::query()->truncate();
-        factory(RoomType::class)->create();
+        $roomType  = factory(RoomType::class)->create();
+        $roomType1 = factory(RoomType::class)->create([
+            'restrict' => true
+        ]);
+        $roomType2 = factory(RoomType::class)->create([
+            'restrict' => true
+        ]);
         $roomTypeListed = factory(RoomType::class)->create([
             'allow_listing' => true
+        ]);
+
+        $role1 = factory(Role::class)->create();
+        $role2 = factory(Role::class)->create();
+
+        $roomType1->roles()->sync([$role1->id]);
+        $roomType2->roles()->sync([$role2->id]);
+
+        $room = factory(Room::class)->create([
+            'room_type_id' => $roomType1->id
         ]);
 
         // Test guests
@@ -57,18 +75,62 @@ class RoomTypeTest extends TestCase
                     'description',
                     'id',
                     'model_name',
+                    'restrict',
                     'short',
                     'updated_at'
                 ]
             ]])
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(4, 'data');
+
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'own']))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(
+                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+            )
+            ->assertJsonFragment(
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
+            );
+
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 1337]))
+            ->assertForbidden();
+
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
+            ->assertForbidden();
+
+        $room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(
+                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+            )
+            ->assertJsonFragment(
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
+            );
+
+        $this->user->roles()->attach([$role1->id]);
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(
+                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+            )
+            ->assertJsonFragment(
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
+            );
 
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'searchable']))
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(
-                (new \App\Http\Resources\RoomType($roomTypeListed))->jsonSerialize()
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
             );
+
+        $room->owner->roles()->attach([$role1->id, $role2->id]);
+        $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
+            ->assertSuccessful()
+            ->assertJsonCount(4, 'data');
     }
 
     /**
@@ -111,8 +173,17 @@ class RoomTypeTest extends TestCase
     public function testCreate()
     {
         $roomType = factory(RoomType::class)->make(['short'=>'TA']);
+        $role1    = factory(Role::class)->create();
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id,'allow_listing'=>0];
+        $data = [
+            'short'         => $roomType->short,
+            'color'         => $roomType->color,
+            'description'   => $roomType->description,
+            'server_pool'   => $roomType->serverPool->id,
+            'allow_listing' => 0,
+            'restrict'      => true,
+            'roles'         => [$role1->id]
+        ];
 
         // Test guests
         $this->postJson(route('api.v1.roomTypes.store'), $data)
@@ -131,18 +202,27 @@ class RoomTypeTest extends TestCase
         // Test with authorized user
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertSuccessful()
-            ->assertJsonFragment(
-                ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color,'allow_listing'=>false]
-            );
+            ->assertJsonFragment([
+                'short'         => $roomType->short,
+                'description'   => $roomType->description,
+                'color'         => $roomType->color,
+                'allow_listing' => false,
+                'restrict'      => true,
+                'roles'         => new RoleCollection([$role1])
+            ]);
 
         // Test with some short as existing room type
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
             ->assertJsonValidationErrors(['short']);
 
         // Test with invalid data
-        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>'','allow_listing'=>'ok'];
+        $data = ['short'=>'TEST','color'=>'rgb(255,255,255)','description'=>'','server_pool'=>'','allow_listing'=>'ok', 'restrict' => true];
         $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
-            ->assertJsonValidationErrors(['short','color','description','allow_listing']);
+            ->assertJsonValidationErrors(['short','color','description','allow_listing', 'roles']);
+
+        $data['roles'] = [1337];
+        $this->actingAs($this->user)->postJson(route('api.v1.roomTypes.store'), $data)
+            ->assertJsonValidationErrors(['short','color','description','allow_listing', 'roles.0']);
     }
 
     /**
@@ -152,8 +232,17 @@ class RoomTypeTest extends TestCase
     {
         $roomType  = factory(RoomType::class)->create(['short'=>'TA']);
         $roomType2 = factory(RoomType::class)->create(['short'=>'TB']);
+        $role1     = factory(Role::class)->create();
 
-        $data = ['short'=>$roomType->short,'color'=>$roomType->color,'description'=>$roomType->description,'server_pool'=>$roomType->serverPool->id,'allow_listing'=>1];
+        $data = [
+            'short'         => $roomType->short,
+            'color'         => $roomType->color,
+            'description'   => $roomType->description,
+            'server_pool'   => $roomType->serverPool->id,
+            'allow_listing' => 1,
+            'restrict'      => false,
+            'roles'         => [$role1->id]
+        ];
 
         // Test guests
         $this->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
@@ -178,9 +267,26 @@ class RoomTypeTest extends TestCase
         // Test with authorized user, with updated at
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertSuccessful()
-            ->assertJsonFragment(
-                ['short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color,'allow_listing'=>true]
-            );
+            ->assertJsonFragment([
+                'short'         => $roomType->short,
+                'description'   => $roomType->description,
+                'color'         => $roomType->color,
+                'allow_listing' => true,
+                'restrict'      => false,
+                'roles'         => []
+            ]);
+
+        $data['restrict'] = true;
+        $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'short'         => $roomType->short,
+                'description'   => $roomType->description,
+                'color'         => $roomType->color,
+                'allow_listing' => true,
+                'restrict'      => true,
+                'roles'         => new RoleCollection([$role1])
+            ]);
 
         // Test with short of an other room type
         $roomType->refresh();

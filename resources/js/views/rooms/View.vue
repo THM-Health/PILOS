@@ -67,6 +67,14 @@
         </div>
       </div>
 
+      <div class="row pt-7 pt-sm-9" v-if="room.authenticated && room.canStart && room.roomTypeInvalid">
+        <div class="col-lg-12 col-12">
+          <b-alert show variant="warning" ref="roomTypeInvalidAlert">
+            {{ $t('rooms.roomTypeInvalidAlert', { roomTypeName: room.type.name }) }}
+          </b-alert>
+        </div>
+      </div>
+
       <hr>
 
       <!-- room join/start, files, settings for logged in users -->
@@ -118,7 +126,7 @@
                     block
                     ref="startMeeting"
                     v-if="room.canStart"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid"
                     v-on:click="start"
                     variant="success"
                   >

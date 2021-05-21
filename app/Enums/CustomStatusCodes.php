@@ -18,4 +18,5 @@ final class CustomStatusCodes extends Enum
     const ROLE_UPDATE_PERMISSION_LOST =   465;
     const STALE_MODEL                 =   428;
     const PASSWORD_RESET_FAILED       =   466;
+    const ROOM_TYPE_INVALID           =   467;
 }
