@@ -84,9 +84,12 @@ class RoomTypeTest extends TestCase
 
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'own']))
             ->assertSuccessful()
-            ->assertJsonCount(1, 'data')
+            ->assertJsonCount(2, 'data')
             ->assertJsonFragment(
                 ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+            )
+            ->assertJsonFragment(
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
             );
 
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 1337]))
@@ -98,19 +101,30 @@ class RoomTypeTest extends TestCase
         $room->members()->attach($this->user, ['role' => RoomUserRole::CO_OWNER]);
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
             ->assertSuccessful()
-            ->assertJsonCount(1, 'data')
+            ->assertJsonCount(2, 'data')
             ->assertJsonFragment(
                 ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+            )
+            ->assertJsonFragment(
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
             );
 
         $this->user->roles()->attach([$role1->id]);
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => $room->id]))
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(
+                ['id' => $roomType->id,'short'=>$roomType->short,'description'=>$roomType->description,'color'=>$roomType->color]
+            )
+            ->assertJsonFragment(
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
+            );
 
         $this->actingAs($this->user)->getJson(route('api.v1.roomTypes.index', ['filter' => 'searchable']))
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonFragment(
-                (new \App\Http\Resources\RoomType($roomTypeListed))->jsonSerialize()
+                ['id' => $roomTypeListed->id,'short'=>$roomTypeListed->short,'description'=>$roomTypeListed->description,'color'=>$roomTypeListed->color]
             );
 
         $room->owner->roles()->attach([$role1->id, $role2->id]);
