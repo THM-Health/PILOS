@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use LdapRecord\Laravel\Events\Importing;
+use LdapRecord\Laravel\Events\Import\Importing;
 
 class SetUserModelDefaults
 {
@@ -14,7 +14,7 @@ class SetUserModelDefaults
      */
     public function handle(Importing $event)
     {
-        $event->model->locale   = config('app.locale');
-        $event->model->timezone = setting('default_timezone');
+        $event->eloquent->locale   = config('app.locale');
+        $event->eloquent->timezone = setting('default_timezone');
     }
 }

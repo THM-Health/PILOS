@@ -52,11 +52,15 @@ class ImportGreenlight extends Command
             $maxAttempts = null,
             $allowMultipleSelections = false
         );
-        // find id of the selected roomtype
+
+        // ask user to add prefix to room names
+        $prefix = $this->ask('Prefix for room names:');
+
+        // find id of the selected roomType
         $roomType = RoomType::where('short', $roomTypeShort)->first()->id;
 
         $userMap = $this->importUsers($users);
-        $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth);
+        $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth, $prefix);
         $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
     }
 
@@ -163,12 +167,14 @@ class ImportGreenlight extends Command
     /**
      *  Process greenlight room collection and create the rooms if not already existing
      *
-     * @param  Collection $rooms    Collection with rooms users found in the greenlight database
-     * @param  int        $roomType ID of the roomtype the rooms should be assigned to
-     * @param  array      $userMap  Array map of greenlight user ids as key and id of the found/created user as value
-     * @return array      Array map of greenlight room ids as key and id of the created room as value
+     * @param  Collection  $rooms       Collection with rooms users found in the greenlight database
+     * @param  int         $roomType    ID of the roomtype the rooms should be assigned to
+     * @param  array       $userMap     Array map of greenlight user ids as key and id of the found/created user as value
+     * @param  bool        $allowGuests Are guests allowed to access the room
+     * @param  string|null $prefix      Prefix to add to room names
+     * @return array       Array map of greenlight room ids as key and id of the created room as value
      */
-    protected function importRooms(Collection $rooms, int $roomType, array $userMap, bool $allowGuests): array
+    protected function importRooms(Collection $rooms, int $roomType, array $userMap, bool $allowGuests, ?string $prefix): array
     {
         $this->line('Importing rooms');
 
@@ -201,7 +207,7 @@ class ImportGreenlight extends Command
 
             $dbRoom              = new Room();
             $dbRoom->id          = $room->uid;
-            $dbRoom->name        = $room->name;
+            $dbRoom->name        = ($prefix != null ? ($prefix.' ') : '').$room->name;
             $dbRoom->accessCode  = $room->access_code == '' ? null : $room->access_code;
             $dbRoom->allowGuests = $allowGuests;
 

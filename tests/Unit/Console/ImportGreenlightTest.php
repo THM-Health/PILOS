@@ -56,7 +56,7 @@ class ImportGreenlightTest extends TestCase
             'sn'                     => 'Doe',
             'cn'                     => 'John Doe',
             'mail'                   => 'john@domain.tld',
-            'uid'                    => 'johnd12',
+            'uid'                    => 'doejohn',
             $this->ldapRoleAttribute => [$this->ldapRoleName],
             'entryuuid'              => $this->faker->uuid,
         ]);
@@ -68,6 +68,9 @@ class ImportGreenlightTest extends TestCase
 
     private function fakeDatabase($roomAuth, $users, $rooms, $sharedAccesses)
     {
+        $connection     = DB::connection();
+        $ldapConnection = DB::connection('ldap_default');
+
         DB::shouldReceive('connection')
             ->with('greenlight')
             ->andReturn(Mockery::mock('Illuminate\Database\Connection', function ($mock) use ($sharedAccesses, $rooms, $users, $roomAuth) {
@@ -114,8 +117,15 @@ class ImportGreenlightTest extends TestCase
                             ->with(['room_id','user_id'])
                             ->andReturn($sharedAccesses);
                     }));
-            })
-            );
+            }));
+
+        DB::shouldReceive('connection')
+            ->with('ldap_default')
+            ->andReturn($ldapConnection);
+
+        DB::shouldReceive('connection')
+            ->with(null)
+            ->andReturn($connection);
     }
 
     public function testMissing()
@@ -127,16 +137,25 @@ class ImportGreenlightTest extends TestCase
         $existingUser            = new User();
         $existingUser->firstname = 'John';
         $existingUser->lastname  = 'Doe';
-        $existingUser->email     = 'john@domain.tld';
+        $existingUser->email     = 'john.doe@domain.tld';
         $existingUser->password  = $password;
         $existingUser->save();
+
+        $existingLdapUser                = new User();
+        $existingLdapUser->authenticator = 'ldap';
+        $existingLdapUser->username      = 'djohn';
+        $existingLdapUser->firstname     = 'John';
+        $existingLdapUser->lastname      = 'Doe';
+        $existingLdapUser->email         = 'john.doe@domain.tld';
+        $existingLdapUser->password      = $password;
+        $existingLdapUser->save();
 
         $users   = [];
         $users[] = new GreenlightUser(1, 'greenlight', 'John Doe', null, 'john.doe@domain.tld', $password);
         $users[] = new GreenlightUser(2, 'greenlight', 'John Doe', null, 'john@domain.tld', $password);
         $users[] = new GreenlightUser(3, 'greenlight', 'John Doe', null, 'doe.john@domain.tld', $password);
         $users[] = new GreenlightUser(4, 'ldap', 'John Doe', 'johnd', 'john.doe@domain.tld', null);
-        $users[] = new GreenlightUser(5, 'ldap', 'John Doe', 'johnd12', 'john@domain.tld', null);
+        $users[] = new GreenlightUser(5, 'ldap', 'John Doe', 'doejohn', 'john@domain.tld', null);
         $users[] = new GreenlightUser(6, 'ldap', 'John Doe', 'djohn', 'doe.john@domain.tld', null);
 
         $rooms          = new Collection();
@@ -146,7 +165,13 @@ class ImportGreenlightTest extends TestCase
 
         $this->artisan('import:greenlight localhost 5432 greenlight_production postgres 12345678')
             ->expectsQuestion('What room type should the rooms be assigned to?', 'VL')
-            ->expectsOutput('2 created, 1 skipped (already existed)')
-            ->expectsOutput('LDAP import failed for the following 3 users:');
+            ->expectsQuestion('Prefix for room names:', 'Demo')
+            ->expectsOutput('3 created, 2 skipped (already existed)')
+            ->expectsOutput('LDAP import failed for the following 1 users:')
+            ->expectsOutput('+----------+----------+')
+            ->expectsOutput('| Name     | Username |')
+            ->expectsOutput('+----------+----------+')
+            ->expectsOutput('| John Doe | johnd    |')
+            ->expectsOutput('+----------+----------+');
     }
 }
