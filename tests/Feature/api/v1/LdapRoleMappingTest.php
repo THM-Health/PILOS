@@ -138,7 +138,7 @@ class LdapRoleMappingTest extends TestCase
      */
     public function testNotExistingLdapRoleAttribute()
     {
-        $this->ldapUser->deleteAttribute([ $this->ldapRoleAttribute ]);
+        $this->ldapUser->deleteAttribute($this->ldapRoleAttribute);
 
         config([
             'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
