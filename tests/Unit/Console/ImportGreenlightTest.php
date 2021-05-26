@@ -269,7 +269,12 @@ class ImportGreenlightTest extends TestCase
         $this->assertEquals(RoomLobby::DISABLED, Room::find('hij-klm-234')->lobby);
         $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-234')->defaultRole);
 
-        // TODO Check room name prefix
+        // Test room name prefix
+        if ($prefix != null) {
+            $this->assertEquals($prefix.' Test Room 1', Room::find('abc-def-123')->name);
+        } else {
+            $this->assertEquals('Test Room 1', Room::find('abc-def-123')->name);
+        }
 
         // Testing room ownership
         $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-123')->owner);
