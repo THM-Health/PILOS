@@ -59,7 +59,13 @@ export default {
     rooms: {
       title: 'Rooms',
       create: 'Create rooms',
-      delete: 'Delete rooms'
+      viewAll: 'Show all rooms',
+      manage: 'Manage all rooms'
+    },
+
+    meetings: {
+      title: 'Meetings',
+      viewAny: 'Show all meetings'
     },
 
     applicationSettings: {
@@ -150,5 +156,7 @@ export default {
   linkTargets: {
     blank: 'Open in a new tab',
     self: 'Open in current tab'
-  }
+  },
+
+  help: 'Do you need help?'
 };

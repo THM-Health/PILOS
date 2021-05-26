@@ -1,6 +1,10 @@
 export default {
   myRooms: 'My rooms',
+  allRooms: 'All rooms',
+  findRooms: 'Find rooms',
+  findRoomsInfo: 'List of all public listed rooms without an access code',
   noRoomsAvailable: 'No rooms available',
+  noRoomsAvailableSearch: 'No rooms found for this search query',
   rooms: 'Rooms',
   roomLimit: 'Room limit: {has}/{max}',
   sharedBy: 'Shared by {name}',
@@ -18,6 +22,7 @@ export default {
   login: 'Login',
   placeholderName: 'John Doe',
   placeholderAccessCode: 'Access code',
+  roomTypeInvalidAlert: 'The usage of the room type {roomTypeName} is only permitted for special user groups. If you are the owner of this room, please change the room type so that the room can be started again.',
   flash: {
     noNewRoom: {
       message: 'You do not have the necessary permission to create a new room.',
@@ -27,9 +32,9 @@ export default {
       message: 'The room could not be started by you.',
       title: 'Starting failed'
     },
-    accessCodeChanged: {
-      message: 'The access code was changed in the meantime.',
-      title: 'Access code invalid'
+    accessCodeInvalid: {
+      message: 'The access code is invalid.',
+      title: 'Login to room failed'
     },
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
@@ -89,8 +94,8 @@ export default {
     roles: {
       guest: 'Guest',
       participant: 'Participant',
-      moderator: 'Moderator'
-
+      moderator: 'Moderator',
+      co_owner: 'Co-owner'
     },
     modals: {
       edit: {
@@ -140,7 +145,8 @@ export default {
       accessCode: 'Access code',
       accessCodeNote: 'Access restriction for joining the room and room membership (if enabled).',
       allowGuests: 'Allow guests',
-      allowNewMembers: 'Allow new members'
+      allowNewMembers: 'Allow new members',
+      listed: 'Include in room search'
     },
     participants: {
       title: 'Participants',
@@ -174,6 +180,11 @@ export default {
       disableNoteEdit: 'Disable editing of notes',
       hideParticipantsList: 'Hide list of participants'
     }
+  },
+  filter: {
+    title: 'Filter',
+    roomTypes: 'Room types',
+    apply: 'Apply'
   }
 
 };

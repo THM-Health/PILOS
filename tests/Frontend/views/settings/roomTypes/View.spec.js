@@ -63,7 +63,8 @@ describe('RoomTypeView', function () {
         color: '#333333',
         description: 'Meeting',
         model_name: 'RoomType',
-        updated_at: '2020-09-08 15:13:26'
+        updated_at: '2020-09-08 15:13:26',
+        roles: []
       }
     };
 
@@ -90,6 +91,28 @@ describe('RoomTypeView', function () {
     moxios.stubRequest('/api/v1/serverPools?page=1', {
       status: 200,
       response: serverPoolsResponse
+    });
+
+    moxios.stubRequest('/api/v1/roles?page=1', {
+      status: 200,
+      response: {
+        data: Array.from(Array(5).keys()).map(item => {
+          return {
+            id: item + 1,
+            name: 'Test ' + (item + 1),
+            default: true,
+            updated_at: '2020-01-01 01:00:00',
+            model_name: 'Role',
+            room_limit: null
+          };
+        }),
+        meta: {
+          per_page: 5,
+          current_page: 1,
+          total: 10,
+          last_page: 2
+        }
+      }
     });
   });
 

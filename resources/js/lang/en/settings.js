@@ -107,6 +107,8 @@ export default {
     color: 'Icon color',
     customColor: 'Custom color',
     preview: 'Preview',
+    allowListing: 'Room search allowed',
+    allowListingDescription: 'In the room settings the rooms can be made visible for the room search.',
     serverPool: 'Server pool',
     selectServerPool: 'Select server pool',
     serverPoolDescription: 'Servers of this server pool are used for load balancing',
@@ -123,12 +125,20 @@ export default {
       noReplacement: '-- No replacement --',
       replacementInfo: 'If there are rooms associated with this room type, you need to select a replacement room type.'
     },
-    loadingError: 'An error occurred during loading of the room types.'
+    loadingError: 'An error occurred during loading of the room types.',
+    restrict: 'Restrict usage',
+    restrictDescription: 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
+    roles: 'Roles',
+    selectRoles: 'Select roles'
   },
 
   application: {
     title: 'Application',
     tileDescription: 'Controls system-wide settings such as logo, maintenance banner and page sizes.',
+    defaultPresentation: 'Default presentation',
+    viewDefaultPresentation: 'View',
+    deleteDefaultPresentation: 'Delete',
+    resetDefaultPresentation: 'Reset',
     logo: {
       title: 'Logo',
       uploadTitle: 'Upload a logo (max. 500 KB)',
@@ -152,6 +162,11 @@ export default {
     name: {
       title: 'Name of the application',
       description: 'Changes the site title'
+    },
+
+    helpUrl: {
+      title: 'URL to the help',
+      description: 'If not set, no help button will be displayed.'
     },
 
     roomLimit: {
@@ -186,8 +201,9 @@ export default {
       selectLinkStyle: 'Select link style'
     },
 
-    password_self_reset_enabled: 'Give registered users the possibility to reset their password',
-    default_timezone: 'Default timezone'
+    userSettings: 'User settings',
+    passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
+    defaultTimezone: 'Default timezone'
   },
 
   servers: {

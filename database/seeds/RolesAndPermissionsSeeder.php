@@ -18,7 +18,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermissions = [];
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
-        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.delete' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.viewAll' ])->id;
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.manage' ])->id;
+
+        $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ])->id;
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'settings.manage' ])->id;
 
@@ -66,6 +69,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Setup permission inheritances
         /// Eg. If you have permission x, you also get the permissions a,b,c
+        Permission::SetupIncludedPermissions('rooms.manage', ['rooms.create','rooms.viewAll']);
+
+        Permission::SetupIncludedPermissions('meetings.viewAny', ['rooms.viewAll']);
 
         Permission::SetupIncludedPermissions('applicationSettings.update', ['applicationSettings.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('applicationSettings.viewAny', ['settings.manage']);
@@ -82,10 +88,10 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::SetupIncludedPermissions('users.view', ['users.viewAny','roles.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('users.viewAny', ['settings.manage']);
 
-        Permission::SetupIncludedPermissions('roomTypes.delete', ['roomTypes.create','roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage']);
-        Permission::SetupIncludedPermissions('roomTypes.create', ['roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage']);
-        Permission::SetupIncludedPermissions('roomTypes.update', ['roomTypes.view','serverPools.viewAny','settings.manage']);
-        Permission::SetupIncludedPermissions('roomTypes.view', ['serverPools.viewAny','settings.manage']);
+        Permission::SetupIncludedPermissions('roomTypes.delete', ['roomTypes.create','roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage','roles.viewAny']);
+        Permission::SetupIncludedPermissions('roomTypes.create', ['roomTypes.update','roomTypes.view','serverPools.viewAny','settings.manage','roles.viewAny']);
+        Permission::SetupIncludedPermissions('roomTypes.update', ['roomTypes.view','serverPools.viewAny','settings.manage','roles.viewAny']);
+        Permission::SetupIncludedPermissions('roomTypes.view', ['serverPools.viewAny','settings.manage','roles.viewAny']);
 
         Permission::SetupIncludedPermissions('servers.delete', ['servers.create','servers.update','servers.view','servers.viewAny','settings.manage']);
         Permission::SetupIncludedPermissions('servers.create', ['servers.update','servers.view','servers.viewAny','settings.manage']);

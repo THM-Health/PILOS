@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Meeting;
 use App\Room;
+use App\RoomType;
 use App\Server;
 use Auth;
 use Illuminate\Http\Request;
@@ -28,31 +29,60 @@ class RoomController extends Controller
      */
     public function index(Request $request)
     {
-        $collection = null;
+        $collection     = null;
+        $additionalMeta = [];
 
         if ($request->has('filter')) {
             switch ($request->filter) {
                 case 'own':
-                    $collection = Auth::user()->myRooms()->with('owner');
+                    $collection                                = Auth::user()->myRooms()->with('owner');
+                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
                     break;
                 case 'shared':
-                    $collection =  Auth::user()->sharedRooms()->with('owner');
+                    $collection                                =  Auth::user()->sharedRooms()->with('owner');
+                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
                     break;
                 default:
                     abort(400);
             }
-        } else {
-            //TODO implement public room list
-            abort(400);
+
+            if ($request->has('search') && trim($request->search) != '') {
+                $collection = $collection->where('name', 'like', '%' . $request->search . '%');
+            }
+
+            $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+
+            return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
+        }
+
+        $collection =  Room::with('owner');
+        if (Auth::user()->cannot('viewAll', Room::class)) {
+            $collection = $collection
+                ->where('listed', 1)
+                ->whereNull('accessCode')
+                ->whereIn('room_type_id', RoomType::where('allow_listing', 1)->get('id'));
         }
 
         if ($request->has('search') && trim($request->search) != '') {
-            $collection = $collection->where('name', 'like', '%' . $request->search . '%');
+            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $collection = $collection->where(function ($query) use ($searchQuery) {
+                    $query->where('name', 'like', '%' . $searchQuery . '%')
+                            ->orWhereHas('owner', function ($query2) use ($searchQuery) {
+                                $query2->where('firstname', 'like', '%' . $searchQuery . '%')
+                                       ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                            });
+                });
+            }
         }
 
-        $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+        if ($request->has('roomTypes')) {
+            $collection->whereIn('room_type_id', $request->roomTypes);
+        }
+
+        $collection = $collection->orderBy('name')->paginate(setting('pagination_page_size'));
 
         return \App\Http\Resources\Room::collection($collection);
     }
@@ -118,6 +148,10 @@ class RoomController extends Controller
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
+            if ($room->roomTypeInvalid) {
+                abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
+            }
+
             // Create new meeting
             $meeting              = new Meeting();
             $meeting->start       = date('Y-m-d H:i:s');
@@ -223,6 +257,7 @@ class RoomController extends Controller
         $room->maxParticipants = $request->maxParticipants;
         $room->duration        = $request->duration;
         $room->accessCode      = $request->accessCode;
+        $room->listed          = $request->listed;
 
         $room->muteOnStart                    = $request->muteOnStart;
         $room->lockSettingsDisableCam         = $request->lockSettingsDisableCam;

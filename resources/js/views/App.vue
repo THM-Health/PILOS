@@ -32,9 +32,20 @@
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
         <b-collapse id="nav-collapse" is-nav>
-          <b-navbar-nav>
-            <b-nav-item :to="{ name: 'rooms.index' }" v-if='isAuthenticated'>{{ $t('rooms.rooms') }}</b-nav-item>
-            <can v-if='isAuthenticated' method='manage' policy='SettingPolicy'>
+          <b-navbar-nav v-if='isAuthenticated'>
+            <b-nav-item :to="{ name: 'rooms.own_index' }">{{ $t('rooms.myRooms') }}</b-nav-item>
+            <b-nav-item :to="{ name: 'rooms.index' }">
+              <can method='viewAll' policy='RoomPolicy'>
+                {{ $t('rooms.allRooms') }}
+              </can>
+              <cannot method='viewAll' policy='RoomPolicy'>
+                {{ $t('rooms.findRooms') }}
+              </cannot>
+            </b-nav-item>
+            <can method='viewAny' policy='MeetingPolicy'>
+              <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currentlyRunning') }}</b-nav-item>
+            </can>
+            <can method='manage' policy='SettingPolicy'>
               <b-nav-item :to="{ name: 'settings' }">
                 {{ $t('settings.title') }}
               </b-nav-item>
@@ -58,6 +69,12 @@
 
               <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
             </b-nav-item-dropdown>
+            <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-success nav-icon-item' target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')" right>
+              <i class="fas fa-question-square"></i>
+            </b-nav-item>
+            <b-nav-item class="d-block d-lg-none" target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')">
+              {{$t('app.help')}}
+            </b-nav-item>
             <locale-selector :available-locales="availableLocales"></locale-selector>
           </b-navbar-nav>
         </b-collapse>
@@ -78,10 +95,11 @@ import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
 import FooterComponent from '../components/FooterComponent';
 import Can from '../components/Permissions/Can';
+import Cannot from '../components/Permissions/Cannot';
 import Banner from '../components/Banner';
 
 export default {
-  components: { Banner, Can, LocaleSelector, FooterComponent },
+  components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },
   computed: {
     ...mapState({
       currentUser: state => state.session.currentUser,

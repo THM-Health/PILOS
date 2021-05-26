@@ -5,7 +5,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Room type restriction for specific roles ([#98], [#127])
 - Add migration command to import users, rooms and shared access from greenlight ([#117], [#118])
+
+### Fixed
+- Not listable room types in room filter ([#138], [#140])
+
+## [1.3.0] - 2021-05-05
+### Added
+- Co-owner room role, permissions to view and edit all rooms (incl. memberships, files and settings) ([#110], [#116])
+
+### Fixed
+- Incorrect count of user rooms if search is used ([#129], [#130])
+- Broken error handling on room view navigation ([#131], [#132])
+- Error on empty access code ([#136], [#137])
+- Guests were unable to download files from a room with access code ([#116])
+
+### Security
+- Limit the user details available through the user search ([#116])
+
+## [1.2.0] - 2021-04-09
+### Added 
+- System wide default presentation ([#119], [#120])
+- Configurable help link ([#123], [#125])
+
+## [1.1.0] - 2021-03-08
+### Added
+- Room list/search, room and room type setting to allow public room search ([#63], [#108])
+- List of running meetings ([#63], [#108])
+
+### Fixed
+- Failing redirect to login if session expired ([#121], [#122])
 
 ## [1.0.0] - 2021-03-02
 ### Added
@@ -72,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#55]: https://github.com/THM-Health/PILOS/issues/55
 [#60]: https://github.com/THM-Health/PILOS/pull/60
 [#62]: https://github.com/THM-Health/PILOS/issues/62
+[#63]: https://github.com/THM-Health/PILOS/issues/63
 [#64]: https://github.com/THM-Health/PILOS/issues/64
 [#65]: https://github.com/THM-Health/PILOS/pull/65
 [#66]: https://github.com/THM-Health/PILOS/pull/66
@@ -84,6 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#94]: https://github.com/THM-Health/PILOS/pull/94
 [#96]: https://github.com/THM-Health/PILOS/issues/96
 [#97]: https://github.com/THM-Health/PILOS/issues/97
+[#98]: https://github.com/THM-Health/PILOS/issues/98
 [#99]: https://github.com/THM-Health/PILOS/pull/99
 [#100]: https://github.com/THM-Health/PILOS/pull/100
 [#101]: https://github.com/THM-Health/PILOS/issues/101
@@ -92,10 +125,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#105]: https://github.com/THM-Health/PILOS/pull/105
 [#106]: https://github.com/THM-Health/PILOS/issues/106
 [#107]: https://github.com/THM-Health/PILOS/pull/107
+[#108]: https://github.com/THM-Health/PILOS/pull/108
+[#110]: https://github.com/THM-Health/PILOS/issues/110
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
+[#116]: https://github.com/THM-Health/PILOS/pull/116
 [#117]: https://github.com/THM-Health/PILOS/issues/117
 [#118]: https://github.com/THM-Health/PILOS/pull/118
+[#119]: https://github.com/THM-Health/PILOS/issues/119
+[#120]: https://github.com/THM-Health/PILOS/pull/120
+[#121]: https://github.com/THM-Health/PILOS/issues/121
+[#122]: https://github.com/THM-Health/PILOS/pull/122
+[#123]: https://github.com/THM-Health/PILOS/issues/123
+[#125]: https://github.com/THM-Health/PILOS/pull/125
+[#127]: https://github.com/THM-Health/PILOS/pull/127
+[#129]: https://github.com/THM-Health/PILOS/issues/129
+[#130]: https://github.com/THM-Health/PILOS/pull/130
+[#131]: https://github.com/THM-Health/PILOS/issues/131
+[#132]: https://github.com/THM-Health/PILOS/pull/132
+[#136]: https://github.com/THM-Health/PILOS/issues/136
+[#137]: https://github.com/THM-Health/PILOS/pull/137
+[#138]: https://github.com/THM-Health/PILOS/issues/138
+[#140]: https://github.com/THM-Health/PILOS/pull/140
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/3c8359cdb0395546fe97aeabf1a40f93002b182c...HEAD
+
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
+[1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
+[1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
+[1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0

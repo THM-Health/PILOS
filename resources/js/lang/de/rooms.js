@@ -1,6 +1,10 @@
 export default {
   myRooms: 'Meine Räume',
+  allRooms: 'Alle Räume',
+  findRooms: 'Räume finden',
+  findRoomsInfo: 'Liste aller öffentlich gelisteten Räume ohne Zugangscode',
   noRoomsAvailable: 'Keine Räume vorhanden',
+  noRoomsAvailableSearch: 'Keine Räume für diesen Suchbegriff gefunden',
   rooms: 'Räume',
   roomLimit: 'Max. Anzahl an Räumen: {has}/{max}',
   sharedBy: 'Geteilt von {name}',
@@ -18,6 +22,7 @@ export default {
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
   placeholderAccessCode: 'Zugangscode',
+  roomTypeInvalidAlert: 'Die Nutzung der Raumart {roomTypeName} ist nur für bestimmte Nutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.',
   flash: {
     noNewRoom: {
       message: 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
@@ -27,9 +32,9 @@ export default {
       message: 'Der Raum kann von Ihnen nicht gestartet werden.',
       title: 'Starten fehlgeschlagen'
     },
-    accessCodeChanged: {
-      message: 'Der Zugangscode wurde in der Zwischenzeit geändert.',
-      title: 'Zugangscode ungültig'
+    accessCodeInvalid: {
+      message: 'Der Zugangscode ist ungültig.',
+      title: 'Anmeldung am Raum fehlgeschlagen'
     },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
@@ -89,8 +94,8 @@ export default {
     roles: {
       guest: 'Gast',
       participant: 'Teilnehmer',
-      moderator: 'Moderator'
-
+      moderator: 'Moderator',
+      co_owner: 'Mitbesitzer'
     },
     modals: {
       edit: {
@@ -140,7 +145,8 @@ export default {
       accessCode: 'Zugangscode',
       accessCodeNote: 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
       allowGuests: 'Gäste zulassen',
-      allowNewMembers: 'Neue Mitglieder zulassen'
+      allowNewMembers: 'Neue Mitglieder zulassen',
+      listed: 'In Raumsuche einschließen'
     },
     participants: {
       title: 'Teilnehmer',
@@ -174,5 +180,10 @@ export default {
       disableNoteEdit: 'Bearbeiten der Notizen deaktivieren',
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
+  },
+  filter: {
+    title: 'Filter',
+    roomTypes: 'Raumarten',
+    apply: 'Anwenden'
   }
 };

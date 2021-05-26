@@ -5,6 +5,7 @@
         <div class="text-center">
           <b-spinner v-if="isBusy" ></b-spinner>
           <b-button
+            ref="reload"
             v-else
             @click="load()"
           >
@@ -18,14 +19,22 @@
           <b-col lg="3" md="6" cols="12">
             <h5>{{ $t('rooms.settings.general.title') }}</h5>
             <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-              <room-type-select :disabled="isBusy || modelLoadingError" v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"  v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="settings.roomType" :state="fieldState('roomType')" ></room-type-select>
+              <room-type-select
+                :disabled="disabled"
+                v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
+                v-on:busy="(value) => this.roomTypeSelectBusy = value"
+                ref="roomTypeSelect"
+                v-model="settings.roomType"
+                :room-id="room.id"
+                :state="fieldState('roomType')" >
+              </room-type-select>
               <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
             </b-form-group>
             <!-- Room name -->
             <b-form-group :state="fieldState('name')" :label="$t('rooms.settings.general.roomName')">
               <b-input-group>
                 <b-form-input
-                  :disabled="isBusy || modelLoadingError"
+                  :disabled="disabled"
                   :state="fieldState('name')"
                   v-model="settings.name"
                 ></b-form-input>
@@ -36,7 +45,7 @@
             <b-form-group :state="fieldState('welcome')" :label="$t('rooms.settings.general.welcomeMessage')">
               <b-input-group >
                 <b-form-textarea
-                  :disabled="isBusy || modelLoadingError"
+                  :disabled="disabled"
                   id="welcome"
                   :placeholder="$t('rooms.settings.nonePlaceholder')"
                   rows="3"
@@ -53,7 +62,7 @@
             <b-form-group :state="fieldState('duration')" :label="$t('rooms.settings.general.maxDuration')">
               <b-input-group>
                 <b-form-input
-                  :disabled="isBusy || modelLoadingError"
+                  :disabled="disabled"
                   min="1"
                   :placeholder="$t('rooms.settings.nonePlaceholder')"
                   type="number"
@@ -64,7 +73,7 @@
                   <b-input-group-text>{{$t('rooms.settings.general.minutes')}}</b-input-group-text>
                   <!-- Reset the duration -->
                   <b-button
-                    :disabled="isBusy || modelLoadingError"
+                    :disabled="disabled"
                     @click="settings.duration = null"
                     variant="outline-secondary"
                   ><i class="fas fa-trash"></i
@@ -84,7 +93,7 @@
                 <b-input-group-prepend>
                   <!-- Generate random access code -->
                   <b-button
-                    :disabled="isBusy || modelLoadingError"
+                    :disabled="disabled"
                     v-on:click="settings.accessCode = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111)"
                     variant="outline-secondary"
                   ><i class="fas fa-dice"></i
@@ -93,7 +102,8 @@
                 <b-form-input
                   id="settings-accessCode"
                   :placeholder="$t('rooms.settings.security.unprotectedPlaceholder')"
-                  readonly
+                  :disabled="disabled"
+                  readonly="readonly"
                   :state="fieldState('accessCode')"
                   type="number"
                   v-model.number="settings.accessCode"
@@ -101,7 +111,7 @@
                 <b-input-group-append>
                   <!-- Clear access code -->
                   <b-button
-                    :disabled="isBusy || modelLoadingError"
+                    :disabled="disabled"
                     @click="settings.accessCode = null"
                     variant="outline-secondary"
                   ><i class="fas fa-trash"></i
@@ -117,7 +127,7 @@
             <!-- Checkbox allow guests to access the room -->
             <b-form-group :state="fieldState('allowGuests')">
               <b-form-checkbox
-                :disabled="isBusy || modelLoadingError"
+                :disabled="disabled"
                 :state="fieldState('allowGuests')"
                 v-model="settings.allowGuests"
                 switch
@@ -130,7 +140,7 @@
             <!-- Checkbox allow users to become room members -->
             <b-form-group :state="fieldState('allowMembership')">
               <b-form-checkbox
-                :disabled="isBusy || modelLoadingError"
+                :disabled="disabled"
                 :state="fieldState('allowMembership')"
                 v-model="settings.allowMembership"
                 switch
@@ -138,6 +148,19 @@
                 {{ $t('rooms.settings.security.allowNewMembers') }}
               </b-form-checkbox>
               <template slot='invalid-feedback'><div v-html="fieldError('allowMembership')"></div></template>
+            </b-form-group>
+
+            <!-- Checkbox publicly list this room -->
+            <b-form-group :state="fieldState('listed')" v-if="settings.roomType && settings.roomType.allow_listing && !settings.accessCode">
+              <b-form-checkbox
+                :disabled="disabled"
+                :state="fieldState('listed')"
+                v-model="settings.listed"
+                switch
+              >
+                {{ $t('rooms.settings.security.listed') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('listed')"></div></template>
             </b-form-group>
           </b-col>
 
@@ -149,7 +172,7 @@
                 <b-input-group>
                   <b-form-input
                     min="1"
-                    :disabled="isBusy || modelLoadingError"
+                    :disabled="disabled"
                     :placeholder="$t('rooms.settings.nonePlaceholder')"
                     type="number"
                     :state="fieldState('maxParticipants')"
@@ -158,7 +181,7 @@
                   <b-input-group-append>
                     <!-- Clear participants limit -->
                     <b-button
-                      :disabled="isBusy || modelLoadingError"
+                      :disabled="disabled"
                       @click="settings.maxParticipants = null"
                       variant="outline-secondary"
                     ><i class="fas fa-trash"></i
@@ -174,7 +197,7 @@
                   {{ $t('rooms.settings.participants.defaultRole.title') }}<br><small>{{ $t('rooms.settings.participants.defaultRole.onlyLoggedIn') }}</small>
                 </template>
                 <b-form-radio
-                  :disabled="isBusy || modelLoadingError"
+                  :disabled="disabled"
                   name="setting-defaultRole"
                   v-model.number="settings.defaultRole"
                   :state="fieldState('defaultRole')"
@@ -183,7 +206,7 @@
                 </b-form-radio>
                 <b-form-radio
                   name="setting-defaultRole"
-                  :disabled="isBusy || modelLoadingError"
+                  :disabled="disabled"
                   v-model.number="settings.defaultRole"
                   :state="fieldState('defaultRole')"
                   value="2">
@@ -195,7 +218,7 @@
             <!-- Radio usage of the waiting room/guest lobby -->
             <b-form-group :state="fieldState('lobby')" :label="$t('rooms.settings.participants.waitingRoom.title')">
               <b-form-radio
-                :disabled="isBusy || modelLoadingError"
+                :disabled="disabled"
                 name="setting-lobby"
                 v-model.number="settings.lobby"
                 :state="fieldState('lobby')"
@@ -203,7 +226,7 @@
                 {{ $t('rooms.settings.participants.waitingRoom.disabled') }}
               </b-form-radio>
               <b-form-radio
-                :disabled="isBusy || modelLoadingError"
+                :disabled="disabled"
                 name="setting-lobby"
                 v-model.number="settings.lobby"
                 :state="fieldState('lobby')"
@@ -211,7 +234,7 @@
                 {{ $t('rooms.settings.participants.waitingRoom.enabled') }}
               </b-form-radio>
               <b-form-radio
-                :disabled="isBusy || modelLoadingError"
+                :disabled="disabled"
                 name="setting-lobby"
                 v-model.number="settings.lobby"
                 :state="fieldState('lobby')"
@@ -227,7 +250,7 @@
             <h5>{{ $t('rooms.settings.permissions.title') }}</h5>
             <!-- Everyone can start a new meeting, not only the moderator -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('everyoneCanStart')"
               v-model="settings.everyoneCanStart"
               switch
@@ -237,7 +260,7 @@
             <b-form-invalid-feedback :state="fieldState('everyoneCanStart')" v-html="fieldError('everyoneCanStart')"></b-form-invalid-feedback>
             <!-- Mute everyones microphone on meeting join -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('muteOnStart')"
               v-model="settings.muteOnStart"
               switch
@@ -249,7 +272,7 @@
             <h5>{{ $t('rooms.settings.restrictions.title') }}</h5>
             <!-- Enable the restrictions, otherwise just send the settings, can be activated during the meeting -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsLockOnJoin')"
               v-model="settings.lockSettingsLockOnJoin"
               switch
@@ -259,7 +282,7 @@
             <b-form-invalid-feedback :state="fieldState('lockSettingsLockOnJoin')" v-html="fieldError('lockSettingsLockOnJoin')"></b-form-invalid-feedback>
             <!-- Disable the ability to use the webcam for non moderator-uses, can be changed during the meeting -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsDisableCam')"
               v-model="settings.lockSettingsDisableCam"
               switch
@@ -273,7 +296,7 @@
             can be changed during the meeting
             -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('webcamsOnlyForModerator')"
               v-model="settings.webcamsOnlyForModerator"
               switch
@@ -283,7 +306,7 @@
             <b-form-invalid-feedback :state="fieldState('webcamsOnlyForModerator')" v-html="fieldError('webcamsOnlyForModerator')"></b-form-invalid-feedback>
             <!-- Disable the ability to use the microphone for non moderator-uses, can be changed during the meeting -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsDisableMic')"
               v-model="settings.lockSettingsDisableMic"
               switch
@@ -293,7 +316,7 @@
             <b-form-invalid-feedback :state="fieldState('lockSettingsDisableMic')" v-html="fieldError('lockSettingsDisableMic')"></b-form-invalid-feedback>
             <!-- Disable the ability to send messages via the public chat for non moderator-uses, can be changed during the meeting -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsDisablePublicChat')"
               v-model="settings.lockSettingsDisablePublicChat"
               switch
@@ -307,7 +330,7 @@
             can be changed during the meeting
             -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsDisablePrivateChat')"
               v-model="settings.lockSettingsDisablePrivateChat"
               switch
@@ -317,7 +340,7 @@
             <b-form-invalid-feedback :state="fieldState('lockSettingsDisablePrivateChat')" v-html="fieldError('lockSettingsDisablePrivateChat')"></b-form-invalid-feedback>
             <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsDisableNote')"
               v-model="settings.lockSettingsDisableNote"
               switch
@@ -327,7 +350,7 @@
             <b-form-invalid-feedback :state="fieldState('lockSettingsDisableNote')" v-html="fieldError('lockSettingsDisableNote')"></b-form-invalid-feedback>
             <!-- Disable the ability to see a list of all participants for non moderator-uses, can be changed during the meeting -->
             <b-form-checkbox
-              :disabled="isBusy || modelLoadingError"
+              :disabled="disabled"
               :state="fieldState('lockSettingsHideUserList')"
               v-model="settings.lockSettingsHideUserList"
               switch
@@ -341,7 +364,7 @@
         <b-row class='mt-1 mb-3 float-right'>
           <b-col sm='12'>
             <b-button
-              :disabled='isBusy || modelLoadingError || roomTypeSelectBusy || roomTypeSelectLoadingError'
+              :disabled='disabled || roomTypeSelectBusy || roomTypeSelectLoadingError'
               variant='success'
               type='submit'
               >
@@ -359,6 +382,8 @@ import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect';
+import _ from 'lodash';
+import PermissionService from '../../services/PermissionService';
 
 export default {
   mixins: [FieldErrors],
@@ -392,10 +417,14 @@ export default {
 
       // Set saving indicator
       this.isBusy = true;
+
+      const newSettings = _.clone(this.settings);
+      newSettings.roomType = newSettings.roomType ? newSettings.roomType.id : null;
+
       // Send new settings to the server
       Base.call('rooms/' + this.room.id, {
         method: 'put',
-        data: this.settings
+        data: newSettings
       }).then(response => {
         // Settings successfully saved
         // update the settings to the response from the server, feedback the changed were applied correctly
@@ -438,11 +467,18 @@ export default {
   computed: {
 
     /**
+     * Input fields are disabled: due to limited permissions, loading of settings or errors
+     */
+    disabled () {
+      return PermissionService.cannot('manageSettings', this.room) || this.isBusy || this.modelLoadingError;
+    },
+
+    /**
      * Count the chars of the welcome message
      * @returns {string} amount of chars in comparision to the limit
      */
     charactersLeftWelcomeMessage () {
-      var char = this.settings.welcome
+      const char = this.settings.welcome
         ? this.settings.welcome.length
         : 0;
       return char + ' / ' + this.welcomeMessageLimit;

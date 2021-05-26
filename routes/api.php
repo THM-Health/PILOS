@@ -87,6 +87,9 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::get('servers/{server}/panic', 'ServerController@panic')->name('servers.panic')->middleware('can:update,server');
         Route::apiResource('servers', 'ServerController');
         Route::apiResource('serverPools', 'ServerPoolController');
+
+        Route::get('meetings', 'MeetingController@index')->name('meetings.index');
+
         Route::get('getTimezones', function () {
             return response()->json([ 'timezones' => timezone_identifiers_list() ]);
         });

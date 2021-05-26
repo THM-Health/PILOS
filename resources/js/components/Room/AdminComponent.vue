@@ -7,16 +7,16 @@
             <!-- Membership tab -->
             <b-tab  active>
               <template v-slot:title>
-                <i class="fas fa-users"></i> {{ $t('rooms.members.title') }} <span v-if="countMembers>0" class="ml-2 badge badge-pill badge-dark">{{ countMembers }}</span>
+                <i class="fas fa-users"></i> {{ $t('rooms.members.title') }}
               </template>
-              <members-component @membersChanged="onMembersChange" :room="room"></members-component>
+              <members-component :room="room"></members-component>
             </b-tab>
             <!-- File management tab -->
             <b-tab>
               <template v-slot:title>
                 <i class="fas fa-folder-open"></i> {{ $t('rooms.files.title') }}
               </template>
-              <file-component :room-id="room.id" :is-owner="room.isOwner"></file-component>
+              <file-component :room="room" ></file-component>
             </b-tab>
             <!-- Statistics tab -->
             <!-- TODO Implementaion
@@ -31,7 +31,7 @@
               <template v-slot:title>
                 <i class="fas fa-cog"></i> {{ $t('rooms.settings.title') }}
               </template>
-              <settings-component @settingsChanged="onSettingsChange" :room="room"></settings-component>
+              <settings-component @settingsChanged="$emit('settingsChanged')" :room="room"></settings-component>
             </b-tab>
           </b-tabs>
         </b-card>
@@ -53,22 +53,6 @@ export default {
   },
   props: {
     room: Object
-  },
-  data () {
-    return {
-      // Amount of members
-      countMembers: 0
-    };
-  },
-  methods: {
-    // Handle event from members component to display amount of members
-    onMembersChange (value) {
-      this.countMembers = value;
-    },
-    // Handle event from settings component and emit to room view to reload
-    onSettingsChange () {
-      this.$emit('settingsChanged');
-    }
   }
 };
 </script>

@@ -1,26 +1,17 @@
 <template>
-  <li>
-    <b-dropdown
-      size="lg"
-      variant="link"
-      toggle-class="text-decoration-none">
-      <template v-slot:button-content>
-        <i class="fas fa-language"></i><span class="sr-only">{{ $t('app.selectLocale') }}</span>
-      </template>
-      <b-dropdown-item
-        v-for="(value, key) in locales"
-        :key="key"
-        @click="changeLocale(key)"
-        :active="key === currentLocale">
-        {{ value }}
-      </b-dropdown-item>
-    </b-dropdown>
-    <b-form-invalid-feedback v-if="errors !== null && errors.length > 0" :force-show="true">
-      <template v-for="error in errors">
-        {{ error }}
-      </template>
-    </b-form-invalid-feedback>
-  </li>
+  <b-nav-item-dropdown right
+    toggle-class="text-success nav-icon-item">
+    <template v-slot:button-content>
+      <i class="fas fa-language"></i><span class="sr-only">{{ $t('app.selectLocale') }}</span>
+    </template>
+    <b-dropdown-item
+      v-for="(value, key) in locales"
+      :key="key"
+      @click="changeLocale(key)"
+      :active="key === currentLocale">
+      {{ value }}
+    </b-dropdown-item>
+  </b-nav-item-dropdown>
 </template>
 
 <script>
@@ -28,6 +19,7 @@ import { loadLanguageAsync } from '../i18n';
 import { mapState } from 'vuex';
 import env from './../env.js';
 import LocaleMap from '../lang/LocaleMap';
+import Base from '../api/base';
 
 export default {
   props: {
@@ -54,27 +46,20 @@ export default {
       currentLocale: state => state.session.currentLocale
     })
   },
-
-  data () {
-    return {
-      errors: null
-    };
-  },
-
   methods: {
     async changeLocale (locale) {
       this.$store.commit('loading');
-      this.errors = null;
-
       try {
         await this.$store.dispatch('session/setLocale', { locale });
         await loadLanguageAsync(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.errors = error.response.data.errors.locale;
+          this.flashMessage.error({
+            message: error.response.data.errors.locale.join(' ')
+          });
         } else {
           this.$store.commit('loadingFinished');
-          throw error;
+          Base.error(error, this.$root, error.message);
         }
       } finally {
         this.$store.commit('loadingFinished');

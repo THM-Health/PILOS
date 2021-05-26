@@ -44,4 +44,14 @@ class Role extends Model
     {
         return $this->belongsToMany('App\Permission');
     }
+
+    /**
+     * Types of rooms that can be used by the user of this role.
+     *
+     * @return BelongsToMany
+     */
+    public function roomTypes()
+    {
+        return $this->belongsToMany(RoomType::class);
+    }
 }

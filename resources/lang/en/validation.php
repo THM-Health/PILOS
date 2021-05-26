@@ -159,7 +159,12 @@ return [
         'servers.*' => [
             'exists'   => 'The server with the ID :input could not be found.',
             'distinct' => 'The server with the ID :input was selected more than once.'
-        ]
+        ],
+        'roles.*' => [
+            'exists'   => 'One of the selected roles does not exist.',
+            'distinct' => 'At least one role was provided multiple times.'
+        ],
+        'invalid_room_type' => 'You have not the necessary permissions to have a room with the passed room type.'
     ],
 
     /*
@@ -246,9 +251,13 @@ return [
         'server_pool'                       => 'Server pool',
         'icon_text'                         => 'Icon text',
         'color'                             => 'Color',
+        'allow_listing'                     => 'Room search allowed',
+        'listed'                            => 'Include in room search',
         'password_self_reset_enabled'       => 'Give registered users the possibility to reset their password',
         'timezone'                          => 'Timezone',
-        'default_timezone'                  => 'Default timezone'
+        'default_timezone'                  => 'Default timezone',
+        'default_presentation'              => 'Default presentation',
+        'help_url'                          => 'URL to the help',
+        'restrict'                          => 'Restrict usage'
     ],
-
 ];

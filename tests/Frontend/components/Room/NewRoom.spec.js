@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/Index';
+import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
 import BootstrapVue, { BFormInput, BFormSelect, IconsPlugin } from 'bootstrap-vue';
 import moxios from 'moxios';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
@@ -79,7 +79,10 @@ describe('Create new rooms', function () {
       {
         id: 'abc-def-123',
         name: 'Meeting One',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -95,7 +98,8 @@ describe('Create new rooms', function () {
       last_page: 1,
       per_page: 10,
       to: 1,
-      total: 1
+      total: 1,
+      total_no_filter: 1
     }
   };
   const exampleSharedRoomResponse = {
@@ -103,7 +107,10 @@ describe('Create new rooms', function () {
       {
         id: 'def-abc-123',
         name: 'Meeting Two',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -115,7 +122,10 @@ describe('Create new rooms', function () {
       {
         id: 'def-abc-456',
         name: 'Meeting Three',
-        owner: 'John Doe',
+        owner: {
+          id: 1,
+          name: 'John Doe'
+        },
         type: {
           id: 2,
           short: 'ME',
@@ -131,7 +141,8 @@ describe('Create new rooms', function () {
       last_page: 1,
       per_page: 10,
       to: 5,
-      total: 2
+      total: 2,
+      total_no_filter: 2
     }
   };
   const exampleRoomTypeResponse = {
@@ -193,7 +204,7 @@ describe('Create new rooms', function () {
       status: 200,
       response: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -218,8 +229,58 @@ describe('Create new rooms', function () {
       const missingNewRoomComponent = view.findComponent(NewRoomComponent);
       expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-      view.destroy();
-      done();
+      const searchField = view.findComponent({ ref: 'search' });
+      expect(searchField.exists()).toBeTruthy();
+
+      // Enter search query
+      await searchField.setValue('test');
+      searchField.trigger('change');
+
+      moxios.requests.reset();
+      moxios.wait(async () => {
+        // Check if requests use the search string
+        const ownRequest = moxios.requests.at(0);
+        const sharedRequest = moxios.requests.at(1);
+        expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
+        expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
+
+        await ownRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+        await sharedRequest.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              current_page: 1,
+              from: null,
+              last_page: 1,
+              per_page: 10,
+              to: null,
+              total: 0,
+              total_no_filter: 1
+            }
+          }
+        });
+
+        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+        expect(missingNewRoomComponent.exists()).toBeFalsy();
+
+        view.destroy();
+        done();
+      });
     });
   });
 
@@ -229,7 +290,7 @@ describe('Create new rooms', function () {
     const router = new VueRouter();
     router.push = spy;
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -250,7 +311,10 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       await nameInput.setValue('Test');
       view.vm.handleSubmit();
@@ -259,7 +323,7 @@ describe('Create new rooms', function () {
         expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
         request.respondWith({
           status: 201,
-          response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
+          response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
         })
           .then(async () => {
             await view.vm.$nextTick();
@@ -280,7 +344,7 @@ describe('Create new rooms', function () {
       }
     };
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -301,7 +365,10 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       await nameInput.setValue('Test');
       view.vm.handleSubmit();
@@ -327,7 +394,7 @@ describe('Create new rooms', function () {
 
     sinon.stub(Base, 'error').callsFake(flashMessageSpy);
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -348,7 +415,10 @@ describe('Create new rooms', function () {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       await nameInput.setValue('Test');
       view.vm.handleSubmit();
@@ -373,7 +443,7 @@ describe('Create new rooms', function () {
   });
 
   it('submit without name', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -392,7 +462,10 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
       const nameInput = view.findComponent(BFormInput);
       view.vm.handleSubmit();
 
@@ -413,7 +486,7 @@ describe('Create new rooms', function () {
   });
 
   it('submit invalid room type', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -432,7 +505,7 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
 
-      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
         status: 200,
         response: {
           data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -440,7 +513,10 @@ describe('Create new rooms', function () {
       });
 
       const typeInput = view.findComponent(BFormSelect);
-      await typeInput.setValue(2);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
 
       view.vm.handleSubmit();
       moxios.wait(function () {
@@ -453,7 +529,7 @@ describe('Create new rooms', function () {
           expect(typeInput.classes()).toContain('is-invalid');
 
           const request = moxios.requests.mostRecent();
-          expect(request.url).toEqual('/api/v1/roomTypes');
+          expect(request.url).toEqual('/api/v1/roomTypes?filter=own');
 
           expect(view.vm.$data.room.roomType).toBeNull();
 
@@ -468,7 +544,7 @@ describe('Create new rooms', function () {
   it('cancel or close', function (done) {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -488,9 +564,14 @@ describe('Create new rooms', function () {
     moxios.wait(async () => {
       await view.vm.$nextTick();
 
-      await view.findComponent(BFormSelect).setValue(2);
+      const typeInput = view.findComponent(BFormSelect);
+      const meetingOption = typeInput.findAll('option').at(2);
+      expect(meetingOption.text()).toEqual('Meeting');
+      meetingOption.element.selected = true;
+      await typeInput.trigger('change');
+
       await view.findComponent(BFormInput).setValue('Test');
-      expect(view.vm.$data.room).toMatchObject({ roomType: 2, name: 'Test' });
+      expect(view.vm.$data.room).toMatchObject({ roomType: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
       view.vm.handleCancel();
       view.destroy();
       expect(view.vm.$data.room).toMatchObject({});

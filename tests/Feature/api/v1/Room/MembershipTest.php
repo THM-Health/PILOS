@@ -3,6 +3,8 @@
 namespace Tests\Feature\api\v1\Room;
 
 use App\Enums\RoomUserRole;
+use App\Permission;
+use App\Role;
 use App\Room;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,17 +15,27 @@ class MembershipTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected $user, $role, $managePermission, $viewAllPermission;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user                 = factory(User::class)->create();
+        $this->role                 = factory(Role::class)->create();
+
+        $this->managePermission     = factory(Permission::class)->create(['name'=>'rooms.manage']);
+        $this->viewAllPermission    = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
+    }
+
     public function testAccessCodeMembership()
     {
-        $user = factory(User::class)->create();
-
         $room = factory(Room::class)->create([
             'allowGuests'     => true,
             'allowMembership' => true,
             'accessCode'      => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
-        $this->actingAs($user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => false,  'allowMembership' => true]);
 
@@ -40,19 +52,18 @@ class MembershipTest extends TestCase
 
     public function testJoinMembership()
     {
-        $user = factory(User::class)->create();
         $room = factory(Room::class)->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
-        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
             ->assertForbidden();
 
         $room->allowMembership = true;
         $room->save();
 
-        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
             ->assertNoContent();
         // Try to get room details with access code even not needed
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -67,16 +78,15 @@ class MembershipTest extends TestCase
 
     public function testLeaveMembership()
     {
-        $user = factory(User::class)->create();
         $room = factory(Room::class)->create([
             'allowGuests'     => true,
             'allowMembership' => true,
             'accessCode'      => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
-        $room->members()->attach($user, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
 
-        $this->actingAs($user)->deleteJson(route('api.v1.rooms.membership.leave', ['room'=>$room]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.membership.leave', ['room'=>$room]))
             ->assertNoContent();
         // Check membership is removed
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -90,12 +100,14 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner adding member
+     * Test list of room members for required permissions and response content
      */
-    public function testAddMember()
+    public function testMemberList()
     {
-        $user  = factory(User::class)->create();
-        $owner = factory(User::class)->create();
+        $memberUser      = factory(User::class)->create();
+        $memberModerator = factory(User::class)->create();
+        $memberCoOwner   = factory(User::class)->create();
+        $owner           = factory(User::class)->create();
 
         $room = factory(Room::class)->create([
             'allowGuests' => true,
@@ -104,39 +116,143 @@ class MembershipTest extends TestCase
         $room->owner()->associate($owner);
         $room->save();
 
+        $room->members()->attach($memberUser, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($memberModerator, ['role'=>RoomUserRole::MODERATOR]);
+        $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
+
+        // Check member list as guest
+        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertUnauthorized();
+
+        // Check member list as user
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertForbidden();
+
+        // Check member list as member user
+        $this->actingAs($memberUser)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertForbidden();
+
+        // Check member list as member moderator
+        $this->actingAs($memberModerator)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertForbidden();
+
+        // Check member list as member moderator
+        $this->actingAs($memberCoOwner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertSuccessful();
+
+        // Check member list as owner and response
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertSuccessful()
+            ->assertJsonFragment(['id'=>$memberUser->id,'firstname'=>$memberUser->firstname,'lastname'=>$memberUser->lastname,'email'=>$memberUser->email,'role'=>RoomUserRole::USER])
+            ->assertJsonFragment(['id'=>$memberModerator->id,'firstname'=>$memberModerator->firstname,'lastname'=>$memberModerator->lastname,'email'=>$memberModerator->email,'role'=>RoomUserRole::MODERATOR])
+            ->assertJsonFragment(['id'=>$memberCoOwner->id,'firstname'=>$memberCoOwner->firstname,'lastname'=>$memberCoOwner->lastname,'email'=>$memberCoOwner->email,'role'=>RoomUserRole::CO_OWNER]);
+
+        // Check member list with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Check member list with manage rooms permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertSuccessful();
+        $this->role->permissions()->detach($this->managePermission);
+    }
+
+    /**
+     * Test functionality room owner adding member
+     */
+    public function testAddMember()
+    {
+        $newUser         = factory(User::class)->create();
+        $memberUser      = factory(User::class)->create();
+        $memberModerator = factory(User::class)->create();
+        $memberCoOwner   = factory(User::class)->create();
+        $owner           = factory(User::class)->create();
+
+        $room = factory(Room::class)->create([
+            'allowGuests' => true,
+            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+        ]);
+        $room->owner()->associate($owner);
+        $room->save();
+
+        $room->members()->sync([$memberUser->id => ['role'=>RoomUserRole::USER],$memberModerator->id => ['role'=>RoomUserRole::MODERATOR],$memberCoOwner->id => ['role'=>RoomUserRole::CO_OWNER]]);
+
         // Add member as guest
-        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>RoomUserRole::USER])
+        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
             ->assertUnauthorized();
 
         // Add member as non owner
-        $this->actingAs($user)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>RoomUserRole::USER])
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
             ->assertForbidden();
 
+        // Add user member add other member
+        $this->actingAs($memberUser)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+
+        // Add moderator member add other member
+        $this->actingAs($memberModerator)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+
+        // Add co-owner member add other member
+        $this->actingAs($memberCoOwner)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+
         // Add member with invalid role
-        $this->actingAs($owner)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>10])
+        $this->actingAs($owner)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>10])
             ->assertJsonValidationErrors(['role']);
 
         // Add member with invalid user
         $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>0,'role'=>RoomUserRole::USER])
             ->assertJsonValidationErrors(['user']);
 
-        // Add member
-        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>RoomUserRole::USER])
+        // Add member as user
+        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+
+        // Add member as moderator
+        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::MODERATOR])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+
+        // Add member as co-owner
+        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::CO_OWNER])
             ->assertNoContent();
 
         // Add same member again
-        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$user->id,'role'=>RoomUserRole::USER])
+        $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
             ->assertJsonValidationErrors('user');
 
         // Check member list
         $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertOk()
-            ->assertJsonFragment(['id'=>$user->id,'email'=>$user->email,'firstname'=>$user->firstname,'lastname'=>$user->lastname]);
+            ->assertJsonFragment(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
 
         // Check if user is member
-        $this->actingAs($user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true, 'isMember' => true]);
+
+        // Reset membership
+        $room->members()->detach($newUser->id);
+
+        // Test view all permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Test manage permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $this->role->permissions()->detach($this->managePermission);
     }
 
     /**
@@ -144,8 +260,11 @@ class MembershipTest extends TestCase
      */
     public function testRemoveMember()
     {
-        $user  = factory(User::class)->create();
-        $owner = factory(User::class)->create();
+        $newUser         = factory(User::class)->create();
+        $memberUser      = factory(User::class)->create();
+        $memberModerator = factory(User::class)->create();
+        $memberCoOwner   = factory(User::class)->create();
+        $owner           = factory(User::class)->create();
 
         $room = factory(Room::class)->create([
             'allowGuests' => true,
@@ -154,35 +273,65 @@ class MembershipTest extends TestCase
         $room->owner()->associate($owner);
         $room->save();
 
-        $room->members()->attach($user, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($newUser, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($memberUser, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($memberModerator, ['role'=>RoomUserRole::MODERATOR]);
+        $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
 
-        // Add member as guest
-        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
+        // Remove member as guest
+        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
             ->assertUnauthorized();
 
-        // Add member as non owner
-        $this->actingAs($user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
+        // Remove member as non owner
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
             ->assertForbidden();
 
-        // Add member with invalid user
+        // Remove member as user member
+        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+            ->assertForbidden();
+
+        // Remove member as moderator member
+        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+            ->assertForbidden();
+
+        // Remove member as co-owner member
+        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+            ->assertNoContent();
+        $room->members()->attach($newUser, ['role'=>RoomUserRole::USER]);
+
+        // Remove with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Remove with manage rooms permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+            ->assertNoContent();
+        $this->role->permissions()->detach($this->managePermission);
+        $room->members()->attach($newUser, ['role'=>RoomUserRole::USER]);
+
+        // Remove member with invalid user
         $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>0]))
             ->assertNotFound();
 
-        // Remove member
-        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
+        // Remove member as moderator
+        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
             ->assertNoContent();
 
         // Check member list
         $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertOk()
-            ->assertJsonMissing(['id'=>$user->id,'email'=>$user->email,'firstname'=>$user->firstname,'lastname'=>$user->lastname]);
+            ->assertJsonMissing(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
 
         // Try to remove user again
-        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$user]))
+        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
             ->assertStatus(410);
 
         // Check if user is no member
-        $this->actingAs($user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['isMember' => false]);
     }
@@ -192,9 +341,12 @@ class MembershipTest extends TestCase
      */
     public function testChangeMemberRole()
     {
-        $user       = factory(User::class)->create();
-        $otherUser  = factory(User::class)->create();
-        $owner      = factory(User::class)->create();
+        $newUser         = factory(User::class)->create();
+        $memberUser      = factory(User::class)->create();
+        $memberModerator = factory(User::class)->create();
+        $memberCoOwner   = factory(User::class)->create();
+        $owner           = factory(User::class)->create();
+        $otherUser       = factory(User::class)->create();
 
         $room = factory(Room::class)->create([
             'allowGuests' => true,
@@ -203,28 +355,51 @@ class MembershipTest extends TestCase
         $room->owner()->associate($owner);
         $room->save();
 
-        $room->members()->attach($user, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($newUser, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($memberUser, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($memberModerator, ['role'=>RoomUserRole::MODERATOR]);
+        $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
+
+        // Update with wrong role
+        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => 10])
+            ->assertJsonValidationErrors(['role']);
+
+        // Update role
+        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertNoContent();
+
+        // Update role for wrong user
+        $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$otherUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertStatus(410);
 
         // Check member list
         $this->actingAs($owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertOk()
-            ->assertJsonFragment(['id'=>$user->id,'role'=>RoomUserRole::USER]);
+            ->assertJsonFragment(['id'=>$newUser->id,'role'=>RoomUserRole::MODERATOR]);
 
-        // Update with wrong role
-        $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$user]), ['role' => 10])
-            ->assertJsonValidationErrors(['role']);
+        // Update role as member user
+        $this->actingAs($memberUser)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertForbidden();
 
-        // Update role
-        $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$user]), ['role' => RoomUserRole::MODERATOR])
+        // Update role as member moderator
+        $this->actingAs($memberModerator)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertForbidden();
+
+        // Update role as member co-owner
+        $this->actingAs($memberCoOwner)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertNoContent();
 
-        // Update role for wrong user
-        $this->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$otherUser]), ['role' => RoomUserRole::MODERATOR])
-            ->assertStatus(410);
+        // Update role with view all rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
 
-        // Check member list
-        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$user->id,'role'=>RoomUserRole::MODERATOR]);
+        // Update role with manage rooms permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
+            ->assertNoContent();
+        $this->role->permissions()->detach($this->managePermission);
     }
 }

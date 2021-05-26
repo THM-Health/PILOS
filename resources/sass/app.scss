@@ -25,7 +25,11 @@
 
 .roomicon {
     width: 40px;
+    min-width: 40px;
+    max-width: 40px;
     height: 40px;
+    min-height: 40px;
+    max-height: 40px;
     background: $green;
     display: grid;
     place-items: center center;
@@ -210,4 +214,11 @@ body {
         width: $action-column-button-width;
         height: $action-column-button-height;
     }
+}
+
+
+.nav-icon-item {
+    font-size: 1.25rem;
+    vertical-align: -35%;
+    display: inline;
 }

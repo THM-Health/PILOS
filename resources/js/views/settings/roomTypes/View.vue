@@ -63,6 +63,17 @@
 
           <b-form-group
             label-cols-sm='4'
+            :label="$t('settings.roomTypes.allowListing')"
+            :description="$t('settings.roomTypes.allowListingDescription')"
+            label-for='allow_listing'
+            :state='fieldState("allow_listing")'
+          >
+            <b-form-checkbox switch id='allow_listing' v-model='model.allow_listing' :state='fieldState("allow_listing")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
+            <template slot='invalid-feedback'><div v-html="fieldError('allow_listing')"></div></template>
+          </b-form-group>
+
+          <b-form-group
+            label-cols-sm='4'
             :label="$t('settings.roomTypes.serverPool')"
             label-for='server_pool'
             :state='fieldState("server_pool")'
@@ -116,6 +127,80 @@
             <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
           </b-form-group>
 
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.restrict')"
+            :description="$t('settings.roomTypes.restrictDescription')"
+            label-for='restrict'
+            :state='fieldState("restrict")'
+          >
+            <b-form-checkbox switch id='restrict' v-model='model.restrict' :state='fieldState("restrict")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-checkbox>
+            <template slot='invalid-feedback'><div v-html="fieldError('restrict')"></div></template>
+          </b-form-group>
+          <b-form-group
+            label-cols-sm='4'
+            :label="$t('settings.roomTypes.roles')"
+            label-for='roles'
+            :state='fieldState("roles", true)'
+            v-if='model.restrict'
+          >
+            <b-input-group>
+              <multiselect
+                :placeholder="$t('settings.roomTypes.selectRoles')"
+                ref="roles-multiselect"
+                v-model='model.roles'
+                track-by='id'
+                open-direction='bottom'
+                :multiple='true'
+                :searchable='false'
+                :internal-search='false'
+                :clear-on-select='false'
+                :close-on-select='false'
+                :show-no-results='false'
+                :showLabels='false'
+                :options='roles'
+                :disabled="isBusy || modelLoadingError || viewOnly || rolesLoadingError"
+                id='roles'
+                :loading='rolesLoading'
+                :allowEmpty='!!model.restrict'
+                :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }">
+                <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
+                <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
+                <template slot='tag' slot-scope='{ option, remove }'>
+                  <h5 class='d-inline mr-1 mb-1'>
+                    <b-badge variant='primary'>
+                      {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
+                      <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.users.removeRole')"></b-icon-x></span>
+                    </b-badge>
+                  </h5>
+                </template>
+                <template slot='afterList'>
+                  <b-button
+                    :disabled='rolesLoading || currentRolePage === 1'
+                    variant='outline-secondary'
+                    @click='loadRoles(Math.max(1, currentRolePage - 1))'>
+                    <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                  </b-button>
+                  <b-button
+                    :disabled='rolesLoading || !hasNextRolePage'
+                    variant='outline-secondary'
+                    @click='loadRoles(currentRolePage + 1)'>
+                    <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                  </b-button>
+                </template>
+              </multiselect>
+              <b-input-group-append>
+                <b-button
+                  ref="reloadRolesButton"
+                  v-if="rolesLoadingError"
+                  @click="loadRoles(currentRolePage)"
+                  variant="outline-secondary"
+                ><i class="fas fa-sync"></i></b-button>
+              </b-input-group-append>
+            </b-input-group>
+            <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
+          </b-form-group>
+
           <hr>
           <b-row class='my-1 float-right'>
             <b-col sm='12'>
@@ -126,7 +211,7 @@
                 <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
               <b-button
-                :disabled='isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading'
+                :disabled='isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError'
                 variant='success'
                 type='submit'
                 class='ml-1'
@@ -213,8 +298,16 @@ export default {
         description: null,
         short: null,
         color: '#4a5c66',
-        server_pool: null
+        server_pool: null,
+        allow_listing: false,
+        restrict: false,
+        roles: []
       },
+      roles: [],
+      rolesLoading: false,
+      rolesLoadingError: false,
+      currentRolePage: 1,
+      hasNextRolePage: false,
       swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
 
       serverPoolsLoading: false,
@@ -230,6 +323,7 @@ export default {
    */
   mounted () {
     this.loadRoomType();
+    this.loadRoles();
     this.loadServerPools();
   },
 
@@ -304,6 +398,7 @@ export default {
       };
 
       config.data.server_pool = config.data.server_pool ? config.data.server_pool.id : null;
+      config.data.roles = config.data.roles.map(role => role.id);
 
       Base.call(this.id === 'new' ? 'roomTypes' : `roomTypes/${this.id}`, config).then(() => {
         this.errors = {};
@@ -343,6 +438,34 @@ export default {
       this.model = this.staleError.new_model;
       this.staleError = {};
       this.$refs['stale-roomType-modal'].hide();
+    },
+
+    /**
+     * Loads the roles for the passed page, that can be selected through the multiselect.
+     *
+     * @param [page=1] The page to load the roles for.
+     */
+    loadRoles (page = 1) {
+      this.rolesLoading = true;
+
+      const config = {
+        params: {
+          page
+        }
+      };
+
+      Base.call('roles', config).then(response => {
+        this.rolesLoadingError = false;
+        this.roles = response.data.data;
+        this.currentRolePage = page;
+        this.hasNextRolePage = page < response.data.meta.last_page;
+      }).catch(error => {
+        this.$refs['roles-multiselect'].deactivate();
+        this.rolesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.rolesLoading = false;
+      });
     }
   }
 };

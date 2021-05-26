@@ -112,6 +112,8 @@ export default {
     color: 'Icon Farbe',
     customColor: 'Eigene Farbe',
     preview: 'Vorschau',
+    allowListing: 'Raumsuche erlaubt',
+    allowListingDescription: 'In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.',
     serverPool: 'Serverpool',
     selectServerPool: 'Serverpool auswählen',
     serverPoolDescription: 'Server dieses Serverpools werden für die Lastverteilung verwendet',
@@ -128,12 +130,20 @@ export default {
       noReplacement: '-- Kein Ersatz --',
       replacementInfo: 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.'
     },
-    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.'
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
+    restrict: 'Verwendung einschränken',
+    restrictDescription: 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
+    roles: 'Rollen',
+    selectRoles: 'Rollen auswählen'
   },
 
   application: {
     title: 'Anwendung',
     tileDescription: 'Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.',
+    defaultPresentation: 'Standard Präsentation',
+    viewDefaultPresentation: 'Anzeigen',
+    deleteDefaultPresentation: 'Löschen',
+    resetDefaultPresentation: 'Zurücksetzen',
     logo: {
       title: 'Logo',
       uploadTitle: 'Logo hochladen (max. 500 KB)',
@@ -157,6 +167,11 @@ export default {
     name: {
       title: 'Name der Anwendung',
       description: 'Ändert den Seitentitel'
+    },
+
+    helpUrl: {
+      title: 'URL zur Hilfeseite',
+      description: 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.'
     },
 
     roomLimit: {
@@ -191,8 +206,9 @@ export default {
       selectLinkStyle: 'Linkart auswählen'
     },
 
-    password_self_reset_enabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
-    default_timezone: 'Standardzeitzone'
+    userSettings: 'Benutzereinstellungen',
+    passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+    defaultTimezone: 'Standardzeitzone'
   },
 
   servers: {

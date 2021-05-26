@@ -17,7 +17,7 @@ class AddRoomMember extends FormRequest
                         $fail(__('validation.custom.room.already_member'));
                     }
                 }],
-            'role' => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR])],
+            'role' => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR,RoomUserRole::CO_OWNER])],
         ];
     }
 }

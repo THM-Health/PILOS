@@ -107,7 +107,7 @@ describe('base', function () {
     Base.error(error, vm, error.message);
     sinon.assert.calledOnceWithExactly(routerSpy, { name: 'login', query: { redirect: '/test' } });
     sinon.assert.calledOnceWithExactly(flashMessageInfoSpy, 'app.flash.unauthenticated');
-    sinon.assert.calledOnceWithExactly(storeCommitSpy, 'setCurrentUser', { currentUser: null, emit: false });
+    sinon.assert.calledOnceWithExactly(storeCommitSpy, 'session/setCurrentUser', { currentUser: null, emit: false });
     routerSpy.resetHistory();
     flashMessageInfoSpy.resetHistory();
     storeCommitSpy.resetHistory();
@@ -131,6 +131,16 @@ describe('base', function () {
     Base.error(error, vm, error.message);
     sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.tooLarge');
     flashMessageErrorSpy.resetHistory();
+
+    // 503 errors
+    const oldWindow = window.location;
+    const reloadStub = sinon.stub();
+    delete window.location;
+    window.location = { reload: reloadStub };
+    error = { response: { data: { message: '' }, status: 503, statusText: 'Service Unavailable' }, message: 'Request failed with status code 503' };
+    Base.error(error, vm, error.message);
+    sinon.assert.calledOnce(reloadStub);
+    window.location = oldWindow;
 
     // other server errors with message
     error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };

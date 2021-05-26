@@ -4,12 +4,15 @@ namespace App;
 
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;
+use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Room extends Model
 {
+    use AddsModelNameTrait;
+
     public $incrementing = false;
     protected $keyType   = 'string';
 
@@ -61,6 +64,7 @@ class Room extends Model
         'defaultRole'                    => 'integer',
         'lobby'                          => 'integer',
         'accessCode'                     => 'integer',
+        'listed'                         => 'boolean',
     ];
 
     /**
@@ -141,13 +145,22 @@ class Room extends Model
         return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
     }
 
-    /** Check if user is moderator or owner of this room
+    /** Check if user is moderator of this room
      * @param $user User|null
      * @return bool
      */
-    public function isModeratorOrOwner($user)
+    public function isModerator($user)
     {
-        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user) || $this->owner->is($user);
+        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
+    }
+
+    /** Check if user is co owner of this room
+     * @param $user User|null
+     * @return bool
+     */
+    public function isCoOwner($user)
+    {
+        return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
     }
 
     /**
@@ -171,8 +184,8 @@ class Room extends Model
             return RoomUserRole::GUEST;
         }
 
-        if ($this->owner->is($user)) {
-            return RoomUserRole::MODERATOR;
+        if ($this->owner->is($user) || $user->can('rooms.manage')) {
+            return RoomUserRole::OWNER;
         }
 
         $member = $this->members()->find($user);
@@ -196,5 +209,36 @@ class Room extends Model
         }
 
         return $message;
+    }
+
+    /**
+     * Indicates whether the type of the room is restricted for
+     * specific roles and the room owner doesn't has this role.
+     * @return bool
+     */
+    public function getRoomTypeInvalidAttribute(): bool
+    {
+        return !self::roomTypePermitted($this->owner, $this->roomType);
+    }
+
+    /**
+     * Returns true if the passed owner has rights to create a room
+     * with the passed room type.
+     *
+     * @param $owner User
+     * @param $roomType RoomType
+     * @return bool
+     */
+    public static function roomTypePermitted($owner, $roomType): bool
+    {
+        if (empty($owner) || empty($roomType)) {
+            return false;
+        }
+
+        if (!$roomType->restrict) {
+            return true;
+        }
+
+        return count(array_intersect($roomType->roles->pluck('id')->all(), $owner->roles->pluck('id')->all())) > 0;
     }
 }

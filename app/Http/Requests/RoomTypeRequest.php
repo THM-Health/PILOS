@@ -14,7 +14,11 @@ class RoomTypeRequest extends FormRequest
             'description'   => ['required', 'string', 'max:255', Rule::unique('room_types', 'description')],
             'short'         => ['required', 'string', 'max:2', Rule::unique('room_types', 'short')],
             'color'         => ['required', 'string', new Color()],
-            'server_pool'   => 'required|exists:App\ServerPool,id'
+            'allow_listing' => ['required', 'boolean'],
+            'server_pool'   => 'required|exists:App\ServerPool,id',
+            'restrict'      => ['required', 'boolean'],
+            'roles'         => [Rule::requiredIf($this->boolean('restrict')), 'array'],
+            'roles.*'       => 'distinct|exists:App\Role,id'
         ];
 
         if ($this->roomType) {
