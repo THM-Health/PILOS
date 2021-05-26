@@ -162,7 +162,7 @@ class ImportGreenlightTest extends TestCase
         $existingLdapUser->username      = 'djohn';
         $existingLdapUser->firstname     = 'John';
         $existingLdapUser->lastname      = 'Doe';
-        $existingLdapUser->email         = 'john.doe@domain.tld';
+        $existingLdapUser->email         = 'doe.john@domain.tld';
         $existingLdapUser->password      = $password;
         $existingLdapUser->save();
 
@@ -269,13 +269,31 @@ class ImportGreenlightTest extends TestCase
         $this->assertEquals(RoomLobby::DISABLED, Room::find('hij-klm-234')->lobby);
         $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-234')->defaultRole);
 
-        /**
-         * @TODO
-         * Check room owner
-         * Check user details (name, username, type, email)
-         * Check room user memberships (should be moderator, as that is the greenlight equivalent)
-         */
+        // TODO Check room name prefix
 
+        // Testing room ownership
+        $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-123')->owner);
+        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-234')->owner);
+        $this->assertEquals(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-345')->owner);
+        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->first(), Room::find('abc-def-567')->owner);
+        $this->assertEquals(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'ldap')->first(), Room::find('abc-def-678')->owner);
+
+        // Testing users
+        $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john@domain.tld'],['username', 'doejohn']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'doe.john@domain.tld'],['username', 'djohn']])->first());
+        $this->assertNotNull(User::where([['authenticator', 'users'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['username', null],['password', $password]])->first());
+        $this->assertNotNull(User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['username', null],['password', $password]])->first());
+        $this->assertNotNull(User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'doe.john@domain.tld'],['username', null],['password', $password]])->first());
+
+        // Testing room memberships (should be moderator, as that is the greenlight equivalent)
+        $this->assertCount(4, Room::find('abc-def-123')->members);
+        foreach (Room::find('abc-def-123')->members as $member) {
+            $this->assertEquals(RoomUserRole::MODERATOR, $member->pivot->role);
+        }
+        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'john@domain.tld')->where('authenticator', 'users')->first()));
+        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'users')->first()));
+        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->first()));
+        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'ldap')->first()));
     }
 
     public function test()
