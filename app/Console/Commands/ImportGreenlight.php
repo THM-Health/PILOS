@@ -39,7 +39,7 @@ class ImportGreenlight extends Command
             'sslmode'        => 'prefer',
         ]);
 
-        $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value');
+        $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')->value;
         $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id','provider','username','email','name','password_digest']);
         $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id','uid','user_id','name','room_settings','access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id','user_id']);
@@ -221,7 +221,7 @@ class ImportGreenlight extends Command
                 $dbRoom->defaultRole      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
             }
             if (isset($room->room_settings->requireModeratorApproval)) {
-                $dbRoom->muteOnStart      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
+                $dbRoom->lobby      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
             }
 
             $dbRoom->owner()->associate($userMap[$room->user_id]);
