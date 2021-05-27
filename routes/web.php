@@ -16,6 +16,7 @@ Route::get('download/file/{roomFile}/{filename?}', 'FileController@show')->name(
 
 if (config('shibboleth.enabled')) {
     Route::get('shibboleth/login', 'auth\ShibbolethController@login')->name('shibboleth.login');
+    Route::any('shibboleth-logout', 'auth\ShibbolethController@logout')->name('shibboleth.logout');
 }
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {

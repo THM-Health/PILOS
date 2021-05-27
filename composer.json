@@ -23,7 +23,8 @@
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "littleredbutton/bigbluebutton-api-php": "^3.2.0"
+        "littleredbutton/bigbluebutton-api-php": "^3.2.0",
+        "ext-soap": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",
