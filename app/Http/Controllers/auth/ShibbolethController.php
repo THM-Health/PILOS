@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Response;
-use SoapHeader;
 use SoapServer;
 
 class ShibbolethController extends Controller
@@ -96,7 +95,7 @@ class ShibbolethController extends Controller
         // validated by the validateShibbolethSession Middleware
         session(['Shib-Session-ID' => $shibSessionId]);
         Log::info('login '.session()->getId());
-        Cache::put('shib-session-'.$shibSessionId,session()->getId(), $secondsToExpire);
+        Cache::put('shib-session-'.$shibSessionId, session()->getId(), $secondsToExpire);
 
         if (config('auth.log.successful')) {
             Log::info('User ['.$user->username.'] has been successfully authenticated.', ['ip'=>$request->ip(),'user-agent'=>$request->header('User-Agent'),'authenticator'=>'shibboleth']);
@@ -111,8 +110,7 @@ class ShibbolethController extends Controller
 
     public function logout(Request $request)
     {
-        if (isset($_GET['return']) && isset($_GET['action']) && $_GET['action'] == 'logout'){
-
+        if (isset($_GET['return']) && isset($_GET['action']) && $_GET['action'] == 'logout') {
             Log::info($request);
 
             header('Location: '.$_GET['return']);
@@ -125,14 +123,13 @@ class ShibbolethController extends Controller
             $server->setClass(SoapServerHandler::class);
             ob_start();
             $server->handle();
+
             return response(ob_get_clean())
                 ->header('Content-Type', 'text/xml; charset=utf-8');
-        }
-        else {
+        } else {
             header('Content-Type: text/xml');
             echo str_replace('LOCATION_PLACEHOLDER', $request->url(), file_get_contents(__DIR__.'/LogoutNotification.wsdl'));
             exit;
         }
     }
-
 }

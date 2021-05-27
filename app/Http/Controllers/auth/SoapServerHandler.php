@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Http\Controllers\auth;
-
 
 use Cache;
 use Illuminate\Support\Facades\Log;
