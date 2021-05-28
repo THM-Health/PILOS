@@ -118,7 +118,7 @@ class ImportGreenlight extends Command
                 $bar->advance();
             }
             // import ldap users
-            if ($user->provider == 'ldap') {
+            elseif ($user->provider == 'ldap') {
 
                 // check if user with this username exists
                 $dbUser = User::where('username', $user->username)->first();

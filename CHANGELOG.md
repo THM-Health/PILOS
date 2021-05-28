@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Room type restriction for specific roles ([#98], [#127])
-- Add migration command to import users, rooms and shared access from greenlight ([#117], [#118])
+- Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
