@@ -131,10 +131,8 @@ class ImportGreenlight extends Command
                     continue;
                 }
                 // try to import user with this username
-                try {
-                    $this->callSilent('ldap:import', ['provider' => 'ldap', 'user' => $user->username, '--no-interaction', '--no-log']);
-                } catch (\Throwable $exception) {
-                }
+                $this->callSilent('ldap:import', ['provider' => 'ldap', 'user' => $user->username, '--no-interaction', '--no-log']);
+
                 // check if user is found after import
                 $dbUser = User::where('username', $user->username)->first();
 
