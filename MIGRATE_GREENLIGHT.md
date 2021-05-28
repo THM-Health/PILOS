@@ -20,6 +20,8 @@ ports:
 - 5432:5432
 ```
 
+Also make sure the internal firewall of the OS and no external firewall is not blocking access to the port and from the host PILOS is running on.
+
 ## Running migration command
 
 Before running the command make sure your ldap configuration is valid.
