@@ -70,6 +70,10 @@ class ImportGreenlightTest extends TestCase
         Role::firstOrCreate([
             'name' => $this->roleMap[$this->ldapRoleName]
         ]);
+
+        Role::firstOrCreate([
+            'name' => 'student'
+        ]);
     }
 
     /**
@@ -142,7 +146,7 @@ class ImportGreenlightTest extends TestCase
             }));
     }
 
-    protected function testCommand($roomAuth, $prefix)
+    protected function testCommand($roomAuth, ?string $prefix = null, bool $defaultRole = false)
     {
 
         // password for all users
@@ -210,10 +214,16 @@ class ImportGreenlightTest extends TestCase
         $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses));
 
         // run artisan command and text questions and outputs
-        $this->artisan('import:greenlight localhost 5432 greenlight_production postgres 12345678')
+        $result = $this->artisan('import:greenlight localhost 5432 greenlight_production postgres 12345678')
             ->expectsQuestion('What room type should the rooms be assigned to?', 'VL')
             ->expectsQuestion('Prefix for room names:', $prefix)
-            ->expectsOutput('Importing users')
+            ->expectsQuestion('Do you want to assign a default role to imported non-ldap users?', $defaultRole ? 'yes' : 'no');
+
+        if ($defaultRole) {
+            $result = $result->expectsQuestion('Please select the default role for new imported non-ldap users', 'student');
+        }
+
+        $result->expectsOutput('Importing users')
             ->expectsOutput('3 created, 2 skipped (already existed)')
             ->expectsOutput('LDAP import failed for the following 1 users:')
             ->expectsOutput('+----------+----------+')
@@ -231,7 +241,8 @@ class ImportGreenlightTest extends TestCase
             ->expectsOutput('| Test Room 9 | hij-klm-456 | 123456      |') // user was not found in greenlight DB
             ->expectsOutput('+-------------+-------------+-------------+')
             ->expectsOutput('Importing shared room accesses')
-            ->expectsOutput('4 created, 3 skipped (user or room not found)');
+            ->expectsOutput('4 created, 3 skipped (user or room not found)')
+            ->run();
 
         // check amount of rooms and users
         $this->assertCount(8, Room::all());
@@ -290,6 +301,19 @@ class ImportGreenlightTest extends TestCase
         $this->assertNotNull(User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['username', null],['password', $password]])->first());
         $this->assertNotNull(User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'doe.john@domain.tld'],['username', null],['password', $password]])->first());
 
+        // Testing user roles
+        if ($defaultRole) {
+            $this->assertEquals(['student'], User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['username', null],['password', $password]])->first()->roles->pluck('name')->toArray());
+            $this->assertEquals(['student'], User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'doe.john@domain.tld'],['username', null],['password', $password]])->first()->roles->pluck('name')->toArray());
+        } else {
+            $this->assertCount(0, User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'john@domain.tld'],['username', null],['password', $password]])->first()->roles);
+            $this->assertCount(0, User::where([['authenticator', 'users'],['firstname', 'John Doe'],['lastname', ''],['email', 'doe.john@domain.tld'],['username', null],['password', $password]])->first()->roles);
+        }
+        // ldap and existing users dont get a default role assigned
+        $this->assertCount(0, User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john@domain.tld'],['username', 'doejohn']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'doe.john@domain.tld'],['username', 'djohn']])->first()->roles);
+        $this->assertCount(0, User::where([['authenticator', 'users'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['username', null],['password', $password]])->first()->roles);
+
         // Testing room memberships (should be moderator, as that is the greenlight equivalent)
         $this->assertCount(4, Room::find('abc-def-123')->members);
         foreach (Room::find('abc-def-123')->members as $member) {
@@ -303,7 +327,7 @@ class ImportGreenlightTest extends TestCase
 
     public function test()
     {
-        $this->testCommand(false, null);
+        $this->testCommand(false);
     }
 
     public function testWithPrefix()
@@ -313,6 +337,11 @@ class ImportGreenlightTest extends TestCase
 
     public function testWithRoomAuth()
     {
-        $this->testCommand(true, null);
+        $this->testCommand(true);
+    }
+
+    public function testWithDefaultRole()
+    {
+        $this->testCommand(true, null, true);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
+use App\Role;
 use App\Room;
 use App\RoomType;
 use App\User;
@@ -40,9 +41,9 @@ class ImportGreenlight extends Command
         ]);
 
         $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')->value;
-        $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id','provider','username','email','name','password_digest']);
-        $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id','uid','user_id','name','room_settings','access_code']);
-        $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id','user_id']);
+        $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'email', 'name', 'password_digest']);
+        $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
+        $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
         // ask user what room type the imported rooms should get
         $roomTypeShort = $this->choice(
@@ -56,10 +57,32 @@ class ImportGreenlight extends Command
         // ask user to add prefix to room names
         $prefix = $this->ask('Prefix for room names:');
 
+        // ask user what room type the imported rooms should get
+        $assignRoles = $this->choice(
+            'Do you want to assign a default role to imported non-ldap users?',
+            ['yes', 'no'],
+            0,
+            $maxAttempts = null,
+            $allowMultipleSelections = false
+        );
+
+        $defaultRole = null;
+        if ($assignRoles === 'yes') {
+            // ask user what room type the imported rooms should get
+            $defaultRole = $this->choice(
+                'Please select the default role for new imported non-ldap users',
+                Role::all()->pluck('name')->toArray(),
+                null,
+                $maxAttempts = null,
+                $allowMultipleSelections = false
+            );
+            $defaultRole = Role::where('name', $defaultRole)->first()->id;
+        }
+
         // find id of the selected roomType
         $roomType = RoomType::where('short', $roomTypeShort)->first()->id;
 
-        $userMap = $this->importUsers($users);
+        $userMap = $this->importUsers($users, $defaultRole);
         $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth, $prefix);
         $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
     }
@@ -67,10 +90,11 @@ class ImportGreenlight extends Command
     /**
      * Process greenlight user collection and try to import users
      *
-     * @param  Collection $users Collection with all users found in the greenlight database
+     * @param  Collection $users       Collection with all users found in the greenlight database
+     * @param  int|null   $defaultRole IDs of the role that should be assigned to new non-ldap users
      * @return array      Array map of greenlight user ids as key and id of the found/created user as value
      */
-    protected function importUsers(Collection $users): array
+    protected function importUsers(Collection $users, ?int $defaultRole): array
     {
         $this->line('Importing users');
         $userMap  = [];
@@ -110,7 +134,13 @@ class ImportGreenlight extends Command
                 $dbUser->firstname     = $user->name;
                 $dbUser->lastname      = '';
                 $dbUser->password      = $user->password_digest;
+                $dbUser->locale        = config('app.locale');
+                $dbUser->timezone      = setting('default_timezone');
                 $dbUser->save();
+
+                if ($defaultRole) {
+                    $dbUser->roles()->attach($defaultRole);
+                }
 
                 // user was successfully created, link greenlight user id to id of new user
                 $created++;
