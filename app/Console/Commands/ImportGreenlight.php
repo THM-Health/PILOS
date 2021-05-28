@@ -54,33 +54,22 @@ class ImportGreenlight extends Command
             $allowMultipleSelections = false
         );
 
+        // find id of the selected roomType
+        $roomType = RoomType::where('short', $roomTypeShort)->first()->id;
+
         // ask user to add prefix to room names
         $prefix = $this->ask('Prefix for room names:');
 
         // ask user what room type the imported rooms should get
-        $assignRoles = $this->choice(
-            'Do you want to assign a default role to imported non-ldap users?',
-            ['yes', 'no'],
-            0,
+        $defaultRole = $this->choice(
+            'Please select the default role for new imported non-ldap users',
+            Role::all()->pluck('name')->toArray(),
+            null,
             $maxAttempts = null,
             $allowMultipleSelections = false
         );
-
-        $defaultRole = null;
-        if ($assignRoles === 'yes') {
-            // ask user what room type the imported rooms should get
-            $defaultRole = $this->choice(
-                'Please select the default role for new imported non-ldap users',
-                Role::all()->pluck('name')->toArray(),
-                null,
-                $maxAttempts = null,
-                $allowMultipleSelections = false
-            );
-            $defaultRole = Role::where('name', $defaultRole)->first()->id;
-        }
-
-        // find id of the selected roomType
-        $roomType = RoomType::where('short', $roomTypeShort)->first()->id;
+        // find id of the selected role
+        $defaultRole = Role::where('name', $defaultRole)->first()->id;
 
         $userMap = $this->importUsers($users, $defaultRole);
         $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth, $prefix);
@@ -91,10 +80,10 @@ class ImportGreenlight extends Command
      * Process greenlight user collection and try to import users
      *
      * @param  Collection $users       Collection with all users found in the greenlight database
-     * @param  int|null   $defaultRole IDs of the role that should be assigned to new non-ldap users
+     * @param  int        $defaultRole IDs of the role that should be assigned to new non-ldap users
      * @return array      Array map of greenlight user ids as key and id of the found/created user as value
      */
-    protected function importUsers(Collection $users, ?int $defaultRole): array
+    protected function importUsers(Collection $users, int $defaultRole): array
     {
         $this->line('Importing users');
         $userMap  = [];
@@ -138,9 +127,7 @@ class ImportGreenlight extends Command
                 $dbUser->timezone      = setting('default_timezone');
                 $dbUser->save();
 
-                if ($defaultRole) {
-                    $dbUser->roles()->attach($defaultRole);
-                }
+                $dbUser->roles()->attach($defaultRole);
 
                 // user was successfully created, link greenlight user id to id of new user
                 $created++;
