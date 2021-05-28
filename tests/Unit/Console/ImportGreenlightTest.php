@@ -214,7 +214,7 @@ class ImportGreenlightTest extends TestCase
         $this->fakeDatabase($roomAuth, new Collection($users), new Collection($rooms), new Collection($sharedAccesses));
 
         // run artisan command and text questions and outputs
-         $this->artisan('import:greenlight localhost 5432 greenlight_production postgres 12345678')
+        $this->artisan('import:greenlight localhost 5432 greenlight_production postgres 12345678')
             ->expectsQuestion('What room type should the rooms be assigned to?', 'VL')
             ->expectsQuestion('Prefix for room names:', $prefix)
             ->expectsQuestion('Please select the default role for new imported non-ldap users', 'student')
@@ -328,5 +328,4 @@ class ImportGreenlightTest extends TestCase
     {
         $this->testCommand(true);
     }
-
 }
