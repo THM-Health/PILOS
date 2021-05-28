@@ -78,9 +78,12 @@ class ImportGreenlight extends Command
         $bar = $this->output->createProgressBar($users->count());
         $bar->start();
 
+        // counter of user ids that already exists
         $existed = 0;
+        // counter of users that are created
         $created = 0;
-        $failed  = [];
+        // list of user that could not be created, e.g. ldap import failed
+        $failed = [];
 
         foreach ($users as $user) {
 
@@ -102,6 +105,8 @@ class ImportGreenlight extends Command
                 $dbUser                = new User();
                 $dbUser->authenticator = 'users';
                 $dbUser->email         = $user->email;
+                // as greenlight doesn't split the name in first and lastname,
+                // we have to import it as firstname and ask the users or admins to correct it later if desired
                 $dbUser->firstname     = $user->name;
                 $dbUser->lastname      = '';
                 $dbUser->password      = $user->password_digest;
@@ -147,9 +152,11 @@ class ImportGreenlight extends Command
             }
         }
 
+        // show import results
         $this->line('');
         $this->info($created. ' created, '.$existed. ' skipped (already existed)');
 
+        // if any ldap user imports failed, show name and username
         if (count($failed) > 0) {
             $this->line('');
 
@@ -181,36 +188,49 @@ class ImportGreenlight extends Command
         $bar = $this->output->createProgressBar($rooms->count());
         $bar->start();
 
+        // counter of room ids that already exists
         $existed = 0;
+        // counter of rooms that are created
         $created = 0;
-
+        // list of rooms that could not be created, e.g. room owner not found
         $failed = [];
-
+        // array with the key being the greenlight id and value the new object id
         $roomMap  = [];
+
+        // walk through all found greenlight rooms
         foreach ($rooms as $room) {
+            // convert room settings from json string to object
             $room->room_settings = json_decode($room->room_settings);
 
+            // check if a room with the same id exists
             $dbRoom = Room::find($room->uid);
             if ($dbRoom != null) {
+                // if found add counter but not add to room map
+                // this also prevents adding shared access, as we can't know if this id collision belongs to the same room
+                // and a shared access import is desired
                 $existed++;
                 $bar->advance();
 
                 continue;
             }
 
+            // try to find owner of this room
             if (!isset($userMap[$room->user_id])) {
+                // if owner was not found, eg. missing in the greenlight db or user import failed, don't import room
                 array_push($failed, [$room->name,$room->uid,$room->access_code]);
                 $bar->advance();
 
                 continue;
             }
 
+            // create room with same id, same name, access code
             $dbRoom              = new Room();
             $dbRoom->id          = $room->uid;
-            $dbRoom->name        = ($prefix != null ? ($prefix.' ') : '').$room->name;
+            $dbRoom->name        = ($prefix != null ? ($prefix.' ') : '').$room->name; // if prefix given, add prefix separated by a space from the title
             $dbRoom->accessCode  = $room->access_code == '' ? null : $room->access_code;
             $dbRoom->allowGuests = $allowGuests;
 
+            // set room settings
             if (isset($room->room_settings->muteOnStart)) {
                 $dbRoom->muteOnStart      = $room->room_settings->muteOnStart;
             }
@@ -218,24 +238,31 @@ class ImportGreenlight extends Command
                 $dbRoom->everyoneCanStart = $room->room_settings->anyoneCanStart;
             }
             if (isset($room->room_settings->joinModerator)) {
+                // in greenlight all shared accesses result in the users being moderators in the meeting
                 $dbRoom->defaultRole      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
             }
             if (isset($room->room_settings->requireModeratorApproval)) {
+                // in greenlight the lobby setting applies to all non-moderator users
                 $dbRoom->lobby      = $room->room_settings->requireModeratorApproval ? RoomLobby::ENABLED : RoomLobby::DISABLED;
             }
 
+            // associate room with the imported or found user
             $dbRoom->owner()->associate($userMap[$room->user_id]);
+            // set room type to given roomType for this import batch
             $dbRoom->roomType()->associate($roomType);
             $dbRoom->save();
 
+            // increase counter and add room to room map (key = greenlight db id, value = new db id)
             $created++;
             $roomMap[$room->id] = $room->uid;
             $bar->advance();
         }
 
+        // show import results
         $this->line('');
         $this->info($created. ' created, '.$existed. ' skipped (already existed)');
 
+        // if any room imports failed, show room name, id and access code
         if (count($failed) > 0) {
             $this->line('');
 
@@ -265,26 +292,33 @@ class ImportGreenlight extends Command
         $bar = $this->output->createProgressBar($sharedAccesses->count());
         $bar->start();
 
+        // counter of shared accesses that are created
         $created = 0;
+        // counter of shared accesses that could not be created, eg. room or user not imported
         $failed  = 0;
 
+        // walk through all found greenlight shared accesses
         foreach ($sharedAccesses as $sharedAccess) {
             $room = $sharedAccess->room_id;
             $user = $sharedAccess->user_id;
 
+            // check if user id and room id are found in the imported rooms
             if (!isset($userMap[$user]) || !isset($roomMap[$room])) {
+                // one or both are not found
                 $bar->advance();
                 $failed++;
 
                 continue;
             }
 
+            // find room object and add user as moderator to the room
             $dbRoom = Room::find($roomMap[$room]);
             $dbRoom->members()->syncWithoutDetaching([$userMap[$user] => ['role' => RoomUserRole::MODERATOR]]);
             $bar->advance();
             $created++;
         }
 
+        // show import result
         $this->line('');
         $this->info($created. ' created, '. $failed. ' skipped (user or room not found)');
     }
