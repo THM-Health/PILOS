@@ -34,6 +34,7 @@ class ExtendRoomId extends Migration
      */
     public function down()
     {
+        Schema::disableForeignKeyConstraints();
         Schema::table('rooms', function (Blueprint $table) {
             $table->string('id',11)->change();
         });
@@ -46,5 +47,6 @@ class ExtendRoomId extends Migration
         Schema::table('room_user', function (Blueprint $table) {
             $table->string('room_id',11)->change();
         });
+        Schema::enableForeignKeyConstraints();
     }
 }
