@@ -188,16 +188,16 @@ class ImportGreenlightTest extends TestCase
 
         // Create fake rooms
         $rooms          = [];
-        $rooms[]        = new GreenlightRoom(1, $users[0]->id, 'Test Room 1', 'abc-def-123');
-        $rooms[]        = new GreenlightRoom(2, $users[1]->id, 'Test Room 2', 'abc-def-234');
-        $rooms[]        = new GreenlightRoom(3, $users[2]->id, 'Test Room 3', 'abc-def-345');
-        $rooms[]        = new GreenlightRoom(4, $users[3]->id, 'Test Room 4', 'abc-def-456');
-        $rooms[]        = new GreenlightRoom(5, $users[4]->id, 'Test Room 5', 'abc-def-567');
-        $rooms[]        = new GreenlightRoom(6, $users[5]->id, 'Test Room 6', 'abc-def-678');
+        $rooms[]        = new GreenlightRoom(1, $users[0]->id, 'Test Room 1', 'abc-def-xyz-123');
+        $rooms[]        = new GreenlightRoom(2, $users[1]->id, 'Test Room 2', 'abc-def-xyz-234');
+        $rooms[]        = new GreenlightRoom(3, $users[2]->id, 'Test Room 3', 'abc-def-xyz-345');
+        $rooms[]        = new GreenlightRoom(4, $users[3]->id, 'Test Room 4', 'abc-def-xyz-456');
+        $rooms[]        = new GreenlightRoom(5, $users[4]->id, 'Test Room 5', 'abc-def-xyz-567');
+        $rooms[]        = new GreenlightRoom(6, $users[5]->id, 'Test Room 6', 'abc-def-xyz-678');
 
-        $rooms[]        = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-123', 123456, ['muteOnStart' => false,'requireModeratorApproval' => true,'anyoneCanStart' => false,'joinModerator' => true]);
-        $rooms[]        = new GreenlightRoom(8, $users[0]->id, 'Test Room 8', 'hij-klm-234', null, ['muteOnStart' => true,'requireModeratorApproval' => false,'anyoneCanStart' => true,'joinModerator' => false]);
-        $rooms[]        = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-456', 123456);
+        $rooms[]        = new GreenlightRoom(7, $users[0]->id, 'Test Room 7', 'hij-klm-xyz-123', 123456, ['muteOnStart' => false,'requireModeratorApproval' => true,'anyoneCanStart' => false,'joinModerator' => true]);
+        $rooms[]        = new GreenlightRoom(8, $users[0]->id, 'Test Room 8', 'hij-klm-xyz-234', null, ['muteOnStart' => true,'requireModeratorApproval' => false,'anyoneCanStart' => true,'joinModerator' => false]);
+        $rooms[]        = new GreenlightRoom(9, 99, 'Test Room 9', 'hij-klm-xyz-456', 123456);
         $rooms[]        = new GreenlightRoom(10, $users[0]->id, 'Test Room 10', $existingRoom->id);
 
         // Create fake shared accesses
@@ -229,12 +229,12 @@ class ImportGreenlightTest extends TestCase
             ->expectsOutput('Importing rooms')
             ->expectsOutput('7 created, 1 skipped (already existed)')
             ->expectsOutput('Room import failed for the following 2 rooms, because no room owner was found:')
-            ->expectsOutput('+-------------+-------------+-------------+')
-            ->expectsOutput('| Name        | ID          | Access code |')
-            ->expectsOutput('+-------------+-------------+-------------+')
-            ->expectsOutput('| Test Room 4 | abc-def-456 |             |') // room owner the the user that as missing in the ldap
-            ->expectsOutput('| Test Room 9 | hij-klm-456 | 123456      |') // user was not found in greenlight DB
-            ->expectsOutput('+-------------+-------------+-------------+')
+            ->expectsOutput('+-------------+-----------------+-------------+')
+            ->expectsOutput('| Name        | ID              | Access code |')
+            ->expectsOutput('+-------------+-----------------+-------------+')
+            ->expectsOutput('| Test Room 4 | abc-def-xyz-456 |             |') // room owner the the user that as missing in the ldap
+            ->expectsOutput('| Test Room 9 | hij-klm-xyz-456 | 123456      |') // user was not found in greenlight DB
+            ->expectsOutput('+-------------+-----------------+-------------+')
             ->expectsOutput('Importing shared room accesses')
             ->expectsOutput('4 created, 3 skipped (user or room not found)');
 
@@ -245,7 +245,7 @@ class ImportGreenlightTest extends TestCase
 
         // check if all rooms are created
         $this->assertEquals(
-            [$existingRoom->id,'abc-def-123','abc-def-234','abc-def-345','abc-def-567','abc-def-678' ,'hij-klm-123','hij-klm-234'],
+            [$existingRoom->id,'abc-def-xyz-123','abc-def-xyz-234','abc-def-xyz-345','abc-def-xyz-567','abc-def-xyz-678' ,'hij-klm-xyz-123','hij-klm-xyz-234'],
             Room::all()->pluck('id')->toArray()
         );
 
@@ -255,38 +255,38 @@ class ImportGreenlightTest extends TestCase
         }
 
         // check access code
-        $this->assertNull(Room::find('abc-def-123')->accessCode);
-        $this->assertNull(Room::find('abc-def-234')->accessCode);
-        $this->assertNull(Room::find('abc-def-345')->accessCode);
-        $this->assertNull(Room::find('abc-def-567')->accessCode);
-        $this->assertNull(Room::find('abc-def-678')->accessCode);
-        $this->assertEquals(123456, Room::find('hij-klm-123')->accessCode);
-        $this->assertNull(Room::find('hij-klm-234')->accessCode);
+        $this->assertNull(Room::find('abc-def-xyz-123')->accessCode);
+        $this->assertNull(Room::find('abc-def-xyz-234')->accessCode);
+        $this->assertNull(Room::find('abc-def-xyz-345')->accessCode);
+        $this->assertNull(Room::find('abc-def-xyz-567')->accessCode);
+        $this->assertNull(Room::find('abc-def-xyz-678')->accessCode);
+        $this->assertEquals(123456, Room::find('hij-klm-xyz-123')->accessCode);
+        $this->assertNull(Room::find('hij-klm-xyz-234')->accessCode);
 
         // check room settings
-        $this->assertFalse(Room::find('hij-klm-123')->muteOnStart);
-        $this->assertFalse(Room::find('hij-klm-123')->everyoneCanStart);
-        $this->assertEquals(RoomLobby::ENABLED, Room::find('hij-klm-123')->lobby);
-        $this->assertEquals(RoomUserRole::MODERATOR, Room::find('hij-klm-123')->defaultRole);
+        $this->assertFalse(Room::find('hij-klm-xyz-123')->muteOnStart);
+        $this->assertFalse(Room::find('hij-klm-xyz-123')->everyoneCanStart);
+        $this->assertEquals(RoomLobby::ENABLED, Room::find('hij-klm-xyz-123')->lobby);
+        $this->assertEquals(RoomUserRole::MODERATOR, Room::find('hij-klm-xyz-123')->defaultRole);
 
-        $this->assertTrue(Room::find('hij-klm-234')->muteOnStart);
-        $this->assertTrue(Room::find('hij-klm-234')->everyoneCanStart);
-        $this->assertEquals(RoomLobby::DISABLED, Room::find('hij-klm-234')->lobby);
-        $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-234')->defaultRole);
+        $this->assertTrue(Room::find('hij-klm-xyz-234')->muteOnStart);
+        $this->assertTrue(Room::find('hij-klm-xyz-234')->everyoneCanStart);
+        $this->assertEquals(RoomLobby::DISABLED, Room::find('hij-klm-xyz-234')->lobby);
+        $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-xyz-234')->defaultRole);
 
         // Test room name prefix
         if ($prefix != null) {
-            $this->assertEquals($prefix.' Test Room 1', Room::find('abc-def-123')->name);
+            $this->assertEquals($prefix.' Test Room 1', Room::find('abc-def-xyz-123')->name);
         } else {
-            $this->assertEquals('Test Room 1', Room::find('abc-def-123')->name);
+            $this->assertEquals('Test Room 1', Room::find('abc-def-xyz-123')->name);
         }
 
         // Testing room ownership
-        $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-123')->owner);
-        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-234')->owner);
-        $this->assertEquals(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-345')->owner);
-        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->first(), Room::find('abc-def-567')->owner);
-        $this->assertEquals(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'ldap')->first(), Room::find('abc-def-678')->owner);
+        $this->assertEquals(User::where('email', 'john.doe@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-xyz-123')->owner);
+        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-xyz-234')->owner);
+        $this->assertEquals(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'users')->first(), Room::find('abc-def-xyz-345')->owner);
+        $this->assertEquals(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->first(), Room::find('abc-def-xyz-567')->owner);
+        $this->assertEquals(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'ldap')->first(), Room::find('abc-def-xyz-678')->owner);
 
         // Testing users
         $this->assertNotNull(User::where([['authenticator', 'ldap'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john@domain.tld'],['username', 'doejohn']])->first());
@@ -304,14 +304,14 @@ class ImportGreenlightTest extends TestCase
         $this->assertCount(0, User::where([['authenticator', 'users'],['firstname', 'John'],['lastname', 'Doe'],['email', 'john.doe@domain.tld'],['username', null],['password', $password]])->first()->roles);
 
         // Testing room memberships (should be moderator, as that is the greenlight equivalent)
-        $this->assertCount(4, Room::find('abc-def-123')->members);
-        foreach (Room::find('abc-def-123')->members as $member) {
+        $this->assertCount(4, Room::find('abc-def-xyz-123')->members);
+        foreach (Room::find('abc-def-xyz-123')->members as $member) {
             $this->assertEquals(RoomUserRole::MODERATOR, $member->pivot->role);
         }
-        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'john@domain.tld')->where('authenticator', 'users')->first()));
-        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'users')->first()));
-        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->first()));
-        $this->assertTrue(Room::find('abc-def-123')->members->contains(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'ldap')->first()));
+        $this->assertTrue(Room::find('abc-def-xyz-123')->members->contains(User::where('email', 'john@domain.tld')->where('authenticator', 'users')->first()));
+        $this->assertTrue(Room::find('abc-def-xyz-123')->members->contains(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'users')->first()));
+        $this->assertTrue(Room::find('abc-def-xyz-123')->members->contains(User::where('email', 'john@domain.tld')->where('authenticator', 'ldap')->first()));
+        $this->assertTrue(Room::find('abc-def-xyz-123')->members->contains(User::where('email', 'doe.john@domain.tld')->where('authenticator', 'ldap')->first()));
     }
 
     public function test()

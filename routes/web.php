@@ -19,7 +19,7 @@ if (config('greenlight.compatibility')) {
         // room urls
         Route::get('/{id}', function ($id) {
             return redirect('/rooms/'.$id);
-        })->where('id', '([A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3})');
+        })->where('id', '([A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(-[A-Za-z0-9]{3})?)');
         // login
         Route::redirect('/ldap_signin', '/login');
         Route::redirect('/signin', '/login');
