@@ -26,13 +26,13 @@ class RoomTokenController extends Controller
     /**
      * Add membership
      *
-     * @param  Room             $room
-     * @param  RoomTokenRequest $request
+     * @param  Room              $room
+     * @param  RoomTokenRequest  $request
      * @return RoomTokenResource
      */
     public function store(Room $room, RoomTokenRequest $request)
     {
-        $token = new RoomToken();
+        $token            = new RoomToken();
         $token->token     = Str::random(100);
         $token->firstname = $request->firstname;
         $token->lastname  = $request->lastname;
@@ -45,9 +45,9 @@ class RoomTokenController extends Controller
     /**
      * Update membership role
      *
-     * @param  Room             $room
-     * @param  RoomTokenRequest $request
-     * @param  RoomToken        $token
+     * @param  Room              $room
+     * @param  RoomTokenRequest  $request
+     * @param  RoomToken         $token
      * @return RoomTokenResource
      */
     public function update(Room $room, RoomToken $token, RoomTokenRequest $request)
