@@ -4,10 +4,12 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTokenRequest;
-use App\Http\Resources\RoomToken;
+use App\Http\Resources\RoomToken as RoomTokenResource;
 use App\Room;
+use App\RoomToken;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class RoomTokenController extends Controller
 {
@@ -18,7 +20,7 @@ class RoomTokenController extends Controller
      */
     public function index(Room $room)
     {
-        return RoomToken::collection($room->tokens);
+        return RoomTokenResource::collection($room->tokens);
     }
 
     /**
@@ -26,13 +28,18 @@ class RoomTokenController extends Controller
      *
      * @param  Room             $room
      * @param  RoomTokenRequest $request
-     * @return Response
+     * @return RoomTokenResource
      */
     public function store(Room $room, RoomTokenRequest $request)
     {
-        // TODO
+        $token = new RoomToken();
+        $token->token     = Str::random(100);
+        $token->firstname = $request->firstname;
+        $token->lastname  = $request->lastname;
+        $token->role      = $request->role;
+        $room->tokens()->save($token);
 
-        return response()->noContent();
+        return new RoomTokenResource($token);
     }
 
     /**
@@ -40,14 +47,21 @@ class RoomTokenController extends Controller
      *
      * @param  Room             $room
      * @param  RoomTokenRequest $request
-     * @param  \App\RoomToken   $token
-     * @return Response
+     * @param  RoomToken        $token
+     * @return RoomTokenResource
      */
-    public function update(Room $room, \App\RoomToken $token, RoomTokenRequest $request)
+    public function update(Room $room, RoomToken $token, RoomTokenRequest $request)
     {
-        // TODO
+        if (!$token->room->is($room)) {
+            abort(404, __('app.errors.token_not_found'));
+        }
 
-        return response()->noContent();
+        $token->firstname = $request->firstname;
+        $token->lastname  = $request->lastname;
+        $token->role      = $request->role;
+        $token->save();
+
+        return new RoomTokenResource($token);
     }
 
     /**
@@ -57,9 +71,13 @@ class RoomTokenController extends Controller
      * @param  \App\RoomToken $token
      * @return Response
      */
-    public function destroy(Room $room, \App\RoomToken $token)
+    public function destroy(Room $room, RoomToken $token)
     {
-        // TODO
+        if (!$token->room->is($room)) {
+            abort(404, __('app.errors.token_not_found'));
+        }
+
+        $token->delete();
 
         return response()->noContent();
     }
