@@ -136,6 +136,10 @@ class Room extends Model
         return $this->hasMany(RoomFile::class);
     }
 
+    public function tokens() {
+        return $this->hasMany(RoomToken::class);
+    }
+
     /**
      * Get the newest running meeting
      * @return Meeting|null

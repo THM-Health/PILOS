@@ -165,6 +165,30 @@ class RoomPolicy
     }
 
     /**
+     * Determine whether the user can view all personalized tokens of the room
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewTokens(User $user, Room $room)
+    {
+        return $user->can('manageTokens', $room) || $user->can('rooms.viewAll');
+    }
+
+    /**
+     * Determine whether the user create, update, delete personalized tokens
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function manageTokens(User $user, Room $room)
+    {
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
+    }
+
+    /**
      * Determine whether the user create, update, delete files
      *
      * @param  User $user

@@ -15,16 +15,8 @@
           >
             <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
-          <!-- Add new guest user TODO
-
-          <b-button
-            variant="dark"
-          >
-            <i class="fas fa-paper-plane"></i> {{ $t('rooms.members.inviteGuest') }}
-          </b-button>
-          -->
-
           </can>
+
           <!-- Reload members list -->
           <b-button
             variant="dark"
