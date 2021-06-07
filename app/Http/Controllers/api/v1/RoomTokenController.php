@@ -9,7 +9,6 @@ use App\Room;
 use App\RoomToken;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 
 class RoomTokenController extends Controller
 {
@@ -33,7 +32,6 @@ class RoomTokenController extends Controller
     public function store(Room $room, RoomTokenRequest $request)
     {
         $token            = new RoomToken();
-        $token->token     = Str::random(100);
         $token->firstname = $request->firstname;
         $token->lastname  = $request->lastname;
         $token->role      = $request->role;

@@ -19,7 +19,7 @@ class RoomToken extends JsonResource
             'token'     => $this->token,
             'firstname' => $this->firstname,
             'lastname'  => $this->lastname,
-            'role'      => (int) $this->role,
+            'role'      => (int) $this->role
         ];
     }
 }
