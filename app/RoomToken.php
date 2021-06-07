@@ -39,6 +39,7 @@ class RoomToken extends Model
 
                     if (DB::table('room_tokens')->where('token', '=', $token)->doesntExist()) {
                         $model->token = $token;
+
                         break;
                     }
                 }

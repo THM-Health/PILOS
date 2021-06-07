@@ -181,9 +181,26 @@ export default {
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
   },
+
   filter: {
     title: 'Filter',
     roomTypes: 'Raumarten',
     apply: 'Anwenden'
+  },
+
+  tokens: {
+    nodata: 'Keine personalisierten Raumlinks vorhanden!',
+    title: 'Personalisierte Raumlinks',
+    firstname: 'Vorname',
+    lastname: 'Nachname',
+    role: 'Rolle',
+    add: 'Presonalisierten Raumlink hinzufügen',
+    edit: 'Presonalisierten Raumlink bearbeiten',
+    editDescription: 'Wenn Sie einen Raumlink erstellen oder einen erstellten bearbeiten, so ändert sich der Link, welchen Sie aus der Tabelle kopieren können und dem jeweiligen Benutzer zusenden müssen.',
+
+    roles: {
+      participant: 'Teilnehmer',
+      moderator: 'Moderator'
+    }
   }
 };

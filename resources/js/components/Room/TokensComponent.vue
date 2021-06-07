@@ -5,14 +5,14 @@
         <div class="col-12">
           <b-button-group class="float-lg-right">
             <can method="manageSettings" :policy="room">
-              <!--TODO <b-button
+              <b-button
                 variant="success"
                 :disabled="isBusy"
                 ref="add-member"
-                @click="$refs['add-token-modal'].show()"
+                @click="$refs['add-edit-token-modal'].show()"
               >
                 <i class="fas fa-user-plus"></i> {{ $t('rooms.tokens.add') }}
-              </b-button> -->
+              </b-button>
             </can>
 
             <b-button
@@ -50,10 +50,26 @@
             </template>
 
             <template v-slot:cell(actions)="data">
-              <!-- TODO -->
+              <b-button-group
+                class="float-md-right"
+              >
+                <b-button
+                  :disabled="isBusy"
+                  variant="dark"
+                  @click="showTokenEditModal(data.item)"
+                >
+                  <i class="fas fa-user-edit"></i>
+                </b-button>
+                <!--<b-button TODO
+                  :disabled="isBusy"
+                  variant="danger"
+                  @click=""
+                >
+                  <i class="fas fa-trash"></i>
+                </b-button>-->
+              </b-button-group>
             </template>
 
-            <!-- render token user role -->
             <template v-slot:cell(role)="data">
               <b-badge
                 class="text-white"
@@ -81,16 +97,96 @@
       </div>
     </b-overlay>
 
-    <!-- TODO -->
+    <b-modal
+      :busy="actionRunning"
+      :static="modalStatic"
+      ok-variant="success"
+      :cancel-title="$t('app.cancel')"
+      @cancel="resetModel"
+      @close="resetModel"
+      @ok="savePersonalizedToken"
+      ref="add-edit-token-modal"
+      :no-close-on-esc="actionRunning"
+      :no-close-on-backdrop="actionRunning"
+      :hide-header-close="actionRunning"
+    >
+      <template v-slot:modal-title>
+        {{ $t(`rooms.tokens.${model.token == null ? 'add' : 'edit'}`) }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="actionRunning"></b-spinner>  {{ $t('app.save') }}
+      </template>
+
+      <b-form-group
+        label-cols-sm='3'
+        :label="$t('settings.users.firstname')"
+        label-for='firstname'
+        :state='fieldState("firstname")'
+      >
+        <b-form-input
+          id='firstname'
+          type='text'
+          v-model='model.firstname'
+          :state='fieldState("firstname")'
+          :disabled="actionRunning"
+        ></b-form-input>
+        <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm='3'
+        :label="$t('settings.users.lastname')"
+        label-for='lastname'
+        :state='fieldState("lastname")'
+      >
+        <b-form-input
+          id='lastname'
+          type='text'
+          v-model='model.lastname'
+          :state='fieldState("lastname")'
+          :disabled="actionRunning"
+        ></b-form-input>
+        <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
+      </b-form-group>
+      <b-form-group
+        :label="$t('rooms.tokens.role')"
+        :state='fieldState("role")'
+      >
+        <b-form-radio
+          v-model.number="model.role"
+          value="1"
+        >
+          <b-badge class="text-white" variant="success">
+            {{ $t('rooms.tokens.roles.participant') }}
+          </b-badge>
+        </b-form-radio>
+        <b-form-radio
+          v-model.number="model.role"
+          value="2"
+        >
+          <b-badge variant="danger">
+            {{ $t('rooms.tokens.roles.moderator') }}
+          </b-badge>
+        </b-form-radio>
+        <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
+      </b-form-group>
+      <small>
+        {{ $t('rooms.tokens.editDescription') }}
+      </small>
+    </b-modal>
   </div>
 </template>
+
 <script>
 import Base from '../../api/base';
 import { mapGetters, mapState } from 'vuex';
 import Can from '../Permissions/Can';
 import PermissionService from '../../services/PermissionService';
+import FieldErrors from '../../mixins/FieldErrors';
+import env from '../../env';
+import _ from 'lodash';
 
 export default {
+  mixins: [FieldErrors],
   components: { Can },
 
   props: {
@@ -105,17 +201,61 @@ export default {
 
   data () {
     return {
+      actionRunning: false,
+      currentPage: 1,
+      errors: {},
       isBusy: false,
       tokens: [],
-      currentPage: 1
+      model: {
+        token: null,
+        firstname: null,
+        lastname: null,
+        role: null
+      }
     };
   },
 
   methods: {
     /**
+     * Sends a request to the server to create a new token.
+     */
+    savePersonalizedToken (bvModalEvt) {
+      bvModalEvt.preventDefault();
+
+      this.actionRunning = true;
+
+      const config = {
+        method: this.model.token == null ? 'post' : 'put',
+        data: _.cloneDeep(this.model)
+      };
+
+      Base.call(`rooms/${this.room.id}/tokens/${this.model.token == null ? '' : this.model.token}`, config).then(response => {
+        this.resetModel();
+        this.$refs['add-edit-token-modal'].hide();
+        this.reload();
+      }).catch(error => {
+        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          this.errors = error.response.data.errors;
+        } else {
+          Base.error(error, this.$root, error.message);
+        }
+      }).finally(() => {
+        this.actionRunning = false;
+      });
+    },
+
+    /**
+     * Shows the token edit modal.
+     */
+    showTokenEditModal (token) {
+      this.model = _.cloneDeep(token);
+      this.$refs['add-edit-token-modal'].show()
+    },
+
+    /**
      * Reloads list of tokens from api.
      */
-    reload: function () {
+    reload () {
       this.isBusy = true;
 
       Base.call('rooms/' + this.room.id + '/tokens')
@@ -128,6 +268,18 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
+    },
+
+    /**
+     * Resets the model that should be add or edited.
+     */
+    resetModel () {
+      this.model = {
+        token: null,
+        firstname: null,
+        lastname: null,
+        role: null
+      };
     }
   },
 
@@ -158,7 +310,7 @@ export default {
       if (PermissionService.can('manageSettings', this.room)) {
         fields.push({
           key: 'actions',
-          label: this.$t('rooms.tokens.actions'),
+          label: this.$t('app.actions'),
           sortable: false
         });
       }
