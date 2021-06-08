@@ -118,7 +118,7 @@
         <b-spinner small v-if="actionRunning"></b-spinner> {{ $t('app.yes') }}
       </template>
       <span>
-        {{ $t('rooms.members.modals.delete.confirm', { firstname: model.firstname,lastname: model.lastname }) }}
+        {{ $t('rooms.tokens.modals.delete.confirm', { firstname: model.firstname,lastname: model.lastname }) }}
       </span>
     </b-modal>
 
