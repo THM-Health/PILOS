@@ -201,7 +201,7 @@ export default {
     modals: {
       delete: {
         title: 'Personalisierten Raumlink löschen',
-        confirm: 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?'
+        confirm: 'Wollen Sie den personalisierten Raumlink für {firstname} {lastname} wirklich löschen?'
       }
     },
 

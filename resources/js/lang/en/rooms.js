@@ -201,7 +201,7 @@ export default {
     modals: {
       delete: {
         title: 'Delete personalized room link',
-        confirm: 'Do you really want to delete the personalized room link for :firstname :lastname?'
+        confirm: 'Do you really want to delete the personalized room link for {firstname} {lastname}?'
       }
     },
 
