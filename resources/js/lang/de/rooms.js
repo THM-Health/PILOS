@@ -198,6 +198,13 @@ export default {
     edit: 'Presonalisierten Raumlink bearbeiten',
     editDescription: 'Wenn Sie einen Raumlink erstellen oder einen erstellten bearbeiten, so ändert sich der Link, welchen Sie aus der Tabelle kopieren können und dem jeweiligen Benutzer zusenden müssen.',
 
+    modals: {
+      delete: {
+        title: 'Personalisierten Raumlink löschen',
+        confirm: 'Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?'
+      }
+    },
+
     roles: {
       participant: 'Teilnehmer',
       moderator: 'Moderator'

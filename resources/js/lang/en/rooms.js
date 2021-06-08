@@ -198,6 +198,13 @@ export default {
     edit: 'Edit personalized room link',
     editDescription: 'If you add a room link or edit a created room link, then the room link will change, which can be copied from the table and must be send to the user.',
 
+    modals: {
+      delete: {
+        title: 'Delete personalized room link',
+        confirm: 'Do you really want to delete the personalized room link for :firstname :lastname?'
+      }
+    },
+
     roles: {
       participant: 'Participant',
       moderator: 'Moderator'

@@ -11,7 +11,7 @@
                 ref="add-member"
                 @click="$refs['add-edit-token-modal'].show()"
               >
-                <i class="fas fa-user-plus"></i> {{ $t('rooms.tokens.add') }}
+                <i class="fas fa-link"></i> {{ $t('rooms.tokens.add') }}
               </b-button>
             </can>
 
@@ -58,15 +58,15 @@
                   variant="dark"
                   @click="showTokenEditModal(data.item)"
                 >
-                  <i class="fas fa-user-edit"></i>
+                  <i class="fas fa-pen-square"></i>
                 </b-button>
-                <!--<b-button TODO
+                <b-button
                   :disabled="isBusy"
                   variant="danger"
-                  @click=""
+                  @click="showTokenDeleteModal(data.item)"
                 >
                   <i class="fas fa-trash"></i>
-                </b-button>-->
+                </b-button>
               </b-button-group>
             </template>
 
@@ -96,6 +96,31 @@
         </div>
       </div>
     </b-overlay>
+
+    <b-modal
+      :busy="actionRunning"
+      :static='modalStatic'
+      ok-variant="danger"
+      cancel-variant="dark"
+      :cancel-title="$t('app.no')"
+      @cancel="resetModel"
+      @close="resetModel"
+      @ok="deletePersonalizedToken"
+      ref="delete-token-modal"
+      :no-close-on-esc="actionRunning"
+      :no-close-on-backdrop="actionRunning"
+      :hide-header-close="actionRunning"
+    >
+      <template v-slot:modal-title>
+        {{ $t('rooms.tokens.modals.delete.title') }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="actionRunning"></b-spinner> {{ $t('app.yes') }}
+      </template>
+      <span>
+        {{ $t('rooms.members.modals.delete.confirm', { firstname: model.firstname,lastname: model.lastname }) }}
+      </span>
+    </b-modal>
 
     <b-modal
       :busy="actionRunning"
@@ -217,7 +242,27 @@ export default {
 
   methods: {
     /**
-     * Sends a request to the server to create a new token.
+     * Sends a request to delete a new token.
+     */
+    deletePersonalizedToken (bvModalEvt) {
+      bvModalEvt.preventDefault();
+
+      this.actionRunning = true;
+
+      Base.call(`rooms/${this.room.id}/tokens/${this.model.token}`, {
+        method: 'delete'
+      }).catch((error) => {
+        Base.error(error, this.$root);
+      }).finally(() => {
+        this.resetModel();
+        this.$refs['add-edit-token-modal'].hide();
+        this.actionRunning = false;
+        this.reload();
+      });
+    },
+
+    /**
+     * Sends a request to the server to create a new token or edit a existing.
      */
     savePersonalizedToken (bvModalEvt) {
       bvModalEvt.preventDefault();
@@ -242,6 +287,14 @@ export default {
       }).finally(() => {
         this.actionRunning = false;
       });
+    },
+
+    /**
+     * Shows the token delete modal.
+     */
+    showTokenDeleteModal (token) {
+      this.model = token;
+      this.$refs['delete-token-modal'].show()
     },
 
     /**
