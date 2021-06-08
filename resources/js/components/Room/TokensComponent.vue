@@ -55,6 +55,13 @@
               >
                 <b-button
                   :disabled="isBusy"
+                  variant="success"
+                  @click="copyPersonalizedRoomLink(data.item)"
+                >
+                  <i class="fas fa-link"></i>
+                </b-button>
+                <b-button
+                  :disabled="isBusy"
                   variant="dark"
                   @click="showTokenEditModal(data.item)"
                 >
@@ -241,6 +248,14 @@ export default {
   },
 
   methods: {
+    /**
+     * Copies the room link for the personalized token to the users clipboard.
+     */
+    copyPersonalizedRoomLink (token) {
+      this.$clipboard(process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token }}).route.fullPath);
+      this.flashMessage.info({ message: this.$t('rooms.tokens.roomLinkCopied', { firstname: token.firstname,lastname: token.lastname }) });
+    },
+
     /**
      * Sends a request to delete a new token.
      */

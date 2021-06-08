@@ -197,6 +197,7 @@ export default {
     add: 'Presonalisierten Raumlink hinzufügen',
     edit: 'Presonalisierten Raumlink bearbeiten',
     editDescription: 'Wenn Sie einen Raumlink erstellen oder einen erstellten bearbeiten, so ändert sich der Link, welchen Sie aus der Tabelle kopieren können und dem jeweiligen Benutzer zusenden müssen.',
+    roomLinkCopied: 'Der persionalisierte Raumlink für {firstname} {lastname} wurde in Ihre Zwischenablage kopiert.',
 
     modals: {
       delete: {

@@ -197,6 +197,7 @@ export default {
     add: 'Add personalized room link',
     edit: 'Edit personalized room link',
     editDescription: 'If you add a room link or edit a created room link, then the room link will change, which can be copied from the table and must be send to the user.',
+    roomLinkCopied: 'The personalized room link for {firstname} {lastname} was copied to your clipboard.',
 
     modals: {
       delete: {
