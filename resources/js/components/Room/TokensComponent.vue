@@ -255,7 +255,7 @@ export default {
         Base.error(error, this.$root);
       }).finally(() => {
         this.resetModel();
-        this.$refs['add-edit-token-modal'].hide();
+        this.$refs['delete-token-modal'].hide();
         this.actionRunning = false;
         this.reload();
       });
@@ -294,7 +294,7 @@ export default {
      */
     showTokenDeleteModal (token) {
       this.model = token;
-      this.$refs['delete-token-modal'].show()
+      this.$refs['delete-token-modal'].show();
     },
 
     /**
@@ -302,7 +302,7 @@ export default {
      */
     showTokenEditModal (token) {
       this.model = _.cloneDeep(token);
-      this.$refs['add-edit-token-modal'].show()
+      this.$refs['add-edit-token-modal'].show();
     },
 
     /**
