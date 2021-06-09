@@ -537,7 +537,7 @@ export default {
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: location.protocol + '//' + location.host + location.pathname });
+      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id }}).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
         message += '\n' + this.$t('rooms.invitation.code', {
