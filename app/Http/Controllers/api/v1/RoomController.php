@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Meeting;
 use App\Room;
+use App\RoomToken;
 use App\RoomType;
 use App\Server;
 use Auth;
@@ -117,7 +118,7 @@ class RoomController extends Controller
      */
     public function show(Room $room, Request $request)
     {
-        return new \App\Http\Resources\Room($room, $request->authenticated, true);
+        return new \App\Http\Resources\Room($room, $request->authenticated, true, $request->token);
     }
 
     /**
@@ -141,9 +142,19 @@ class RoomController extends Controller
      */
     public function start(Room $room, StartJoinMeeting $request)
     {
-        $this->authorize('start', $room);
+        $token = null;
 
-        $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        if ($request->has('token')) {
+            $token = RoomToken::find($request->get('token'));
+        }
+
+        $this->authorize('start', [$room, $token]);
+
+        if ($token) {
+            $name = $token->fullname;
+        } else {
+            $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        }
         $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
         $meeting = $room->runningMeeting();
@@ -204,7 +215,7 @@ class RoomController extends Controller
         return response()->json([
             'url' => $meeting->getJoinUrl(
                 $name,
-                $room->getRole(Auth::user()),
+                $room->getRole(Auth::user(), $token),
                 $id,
                 Auth::user() ? Auth::user()->bbb_skip_check_audio : false)
         ]);
@@ -218,7 +229,14 @@ class RoomController extends Controller
      */
     public function join(Room $room, StartJoinMeeting $request)
     {
-        $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        $token = null;
+
+        if ($request->has('token')) {
+            $token = RoomToken::find($request->get('token'));
+            $name = RoomToken::find($request->token)->fullname;
+        } else {
+            $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        }
         $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
         // Check if there is a meeting running for this room, accordingly to the local database
@@ -237,7 +255,7 @@ class RoomController extends Controller
         return response()->json([
             'url' => $meeting->getJoinUrl(
                 $name,
-                $room->getRole(Auth::user()),
+                $room->getRole(Auth::user(), $token),
                 $id,
                 Auth::user() ? Auth::user()->bbb_skip_check_audio : false)
         ]);

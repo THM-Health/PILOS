@@ -101,7 +101,7 @@
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
                 <b-form-group :label="$t('rooms.firstAndLastname')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token"></b-form-input>
                   </b-input-group>
                 </b-form-group>
               </b-col>
@@ -155,6 +155,7 @@
                 :emit-errors="true"
                 v-on:error="onFileListError"
                 :access-code="accessCode"
+                :token="token"
                 :room="room"
                 :show-title="true"
                 :require-agreement="true"
@@ -228,6 +229,9 @@ import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
+import store from '../../store';
+import App from '../../app';
+import Vue from 'vue';
 
 export default {
   directives: {
@@ -252,16 +256,37 @@ export default {
       room: null, // Room object
       accessCode: null, // Access code to use for requests
       accessCodeInput: '', // Access code input modal
-      accessCodeValid: null // Is access code valid
+      accessCodeValid: null, // Is access code valid
+      token: null
     };
   },
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
+    if (to.params.token && store.getters['session/isAuthenticated']) {
+      Vue.prototype.flashMessage.info(App.$t('app.flash.guestsOnly'));
+      return next(from.matched.length !== 0 ? false : '/');
+    }
+
+    let config;
+
+    if (to.params.token) {
+      config = {
+        headers: {
+          'Token': to.params.token
+        }
+      };
+    }
+
     // Load room details
-    Base.call('rooms/' + to.params.id).then(response => {
+    Base.call('rooms/' + to.params.id, config).then(response => {
       next(vm => {
+        vm.token = to.params.token;
         vm.room = response.data.data;
         vm.room_id = to.params.id;
+
+        if (vm.room.username) {
+          vm.name = vm.room.username;
+        }
       });
     }).catch((error) => {
       if (error.response) {
@@ -339,8 +364,19 @@ export default {
       // Enable loading indicator
       this.loading = true;
       // Build room api url, include access code if set
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = {
+          'Token': this.token
+        }
+      }
+
+      if (this.accessCode != null) {
+        config.headers = config.headers || {};
+        config.headers['Access-Code'] = this.accessCode;
+      }
+
       const url = 'rooms/' + this.room_id;
 
       // Load data
@@ -354,6 +390,10 @@ export default {
 
           if (this.$refs.publicFileList) {
             this.$refs.publicFileList.reload();
+          }
+
+          if (this.room.username) {
+            this.name = this.room.username;
           }
         })
         .catch((error) => {
@@ -381,8 +421,20 @@ export default {
     start: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
-      // Build url, add accessCode if needed
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      // Build url, add accessCode and token if needed
+      const config = {};
+
+      if (this.token) {
+        config.headers = {
+          'Token': this.token
+        }
+      }
+
+      if (this.accessCode != null) {
+        config.headers = config.headers || {};
+        config.headers['Access-Code'] = this.accessCode;
+      }
+
       const url = 'rooms/' + this.room_id + '/start?name=' + this.name;
 
       Base.call(url, config)
@@ -417,8 +469,20 @@ export default {
     join: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
-      // Build url, add accessCode if needed
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      // Build url, add accessCode and token if needed
+      const config = {};
+
+      if (this.token) {
+        config.headers = {
+          'Token': this.token
+        }
+      }
+
+      if (this.accessCode != null) {
+        config.headers = config.headers || {};
+        config.headers['Access-Code'] = this.accessCode;
+      }
+
       const url = 'rooms/' + this.room_id + '/join?name=' + this.name;
 
       // Join meeting request

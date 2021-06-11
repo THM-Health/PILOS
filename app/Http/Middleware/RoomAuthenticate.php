@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Room;
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class RoomAuthenticate
 {
@@ -26,10 +27,20 @@ class RoomAuthenticate
     {
         $authenticated = false;
         $room          = $request->route('room');
+        $token         = null;
 
         // requested user is the owner or a member of the room or the room doesn't require access code
         if ($room->accessCode == null || (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class)))) {
             $authenticated = true;
+        }
+
+        if (!Auth::user() && $request->headers->has('Token')) {
+            $token = $request->header('Token');
+            if ($room->tokens->pluck('token')->contains($token)) {
+                $authenticated = true;
+            } else {
+                abort(404);
+            }
         }
 
         // request provided access code
@@ -49,7 +60,7 @@ class RoomAuthenticate
             abort(403, 'require_code');
         }
 
-        $request->merge(['authenticated' => $authenticated]);
+        $request->merge(['authenticated' => $authenticated, 'token' => $token]);
 
         return $next($request);
     }

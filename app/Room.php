@@ -152,10 +152,16 @@ class Room extends Model
 
     /** Check if user is moderator of this room
      * @param $user User|null
+     * @param $user RoomToken|null
      * @return bool
      */
-    public function isModerator($user)
+    public function isModerator($user, $token)
     {
+        if ($user == null && $token != null)
+        {
+            return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
+        }
+
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
     }
 
@@ -183,9 +189,13 @@ class Room extends Model
      * @param $user|null
      * @return int|mixed
      */
-    public function getRole($user)
+    public function getRole($user, $token)
     {
         if ($user == null) {
+            if ($token) {
+                return $token->role;
+            }
+
             return RoomUserRole::GUEST;
         }
 

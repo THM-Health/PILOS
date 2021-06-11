@@ -64,4 +64,9 @@ class RoomToken extends Model
     {
         return 'token';
     }
+
+    public function getFullnameAttribute()
+    {
+        return $this->firstname.' '.$this->lastname;
+    }
 }

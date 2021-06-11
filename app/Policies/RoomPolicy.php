@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Room;
 use App\RoomFile;
+use App\RoomToken;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -69,9 +70,9 @@ class RoomPolicy
      * @param  Room $room
      * @return bool
      */
-    public function viewAccessCode(User $user, Room $room)
+    public function viewAccessCode(User $user, Room $room, ?RoomToken $token)
     {
-        return $user->can('viewSettings', $room) || $room->isModerator($user);
+        return $user->can('viewSettings', $room) || $room->isModerator($user, $token);
     }
 
     /**
@@ -91,7 +92,7 @@ class RoomPolicy
      * @param  User $user
      * @return bool
      */
-    public function start(?User $user, Room $room)
+    public function start(?User $user, Room $room, ?RoomToken $token)
     {
         if ($room->everyoneCanStart) {
             return true;
@@ -101,7 +102,7 @@ class RoomPolicy
             return true;
         }
 
-        if ($room->isModerator($user)) {
+        if ($room->isModerator($user, $token)) {
             return true;
         }
 
