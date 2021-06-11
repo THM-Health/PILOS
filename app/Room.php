@@ -157,8 +157,7 @@ class Room extends Model
      */
     public function isModerator($user, $token)
     {
-        if ($user == null && $token != null)
-        {
+        if ($user == null && $token != null) {
             return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
         }
 

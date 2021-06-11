@@ -233,7 +233,7 @@ class RoomController extends Controller
 
         if ($request->has('token')) {
             $token = RoomToken::find($request->get('token'));
-            $name = RoomToken::find($request->token)->fullname;
+            $name  = RoomToken::find($request->token)->fullname;
         } else {
             $name = Auth::guest() ? $request->name : Auth::user()->fullname;
         }
