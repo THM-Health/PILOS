@@ -15,7 +15,7 @@ class RoomTokenController extends Controller
     /**
      * Return a list with all personalized tokens of the room.
      *
-     * @param Room $room Room for which the tokens should be listed.
+     * @param  Room                        $room Room for which the tokens should be listed.
      * @return AnonymousResourceCollection
      */
     public function index(Room $room)
@@ -66,8 +66,8 @@ class RoomTokenController extends Controller
     /**
      * Remove personalized room token.
      *
-     * @param Room $room
-     * @param RoomToken $token
+     * @param  Room       $room
+     * @param  RoomToken  $token
      * @return Response
      * @throws \Exception
      */
