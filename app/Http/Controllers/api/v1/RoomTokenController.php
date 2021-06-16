@@ -13,8 +13,9 @@ use Illuminate\Http\Response;
 class RoomTokenController extends Controller
 {
     /**
-     * Return a list with all personalized tokens of the room
+     * Return a list with all personalized tokens of the room.
      *
+     * @param Room $room Room for which the tokens should be listed.
      * @return AnonymousResourceCollection
      */
     public function index(Room $room)
@@ -23,7 +24,7 @@ class RoomTokenController extends Controller
     }
 
     /**
-     * Add membership
+     * Add a new personalized room token.
      *
      * @param  Room              $room
      * @param  RoomTokenRequest  $request
@@ -41,7 +42,7 @@ class RoomTokenController extends Controller
     }
 
     /**
-     * Update membership role
+     * Update personalized room token.
      *
      * @param  Room              $room
      * @param  RoomTokenRequest  $request
@@ -63,11 +64,12 @@ class RoomTokenController extends Controller
     }
 
     /**
-     * Remove membership
+     * Remove personalized room token.
      *
-     * @param  Room           $room
-     * @param  \App\RoomToken $token
+     * @param Room $room
+     * @param RoomToken $token
      * @return Response
+     * @throws \Exception
      */
     public function destroy(Room $room, RoomToken $token)
     {

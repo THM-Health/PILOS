@@ -68,6 +68,7 @@ class RoomPolicy
      *
      * @param  User $user
      * @param  Room $room
+     * @param ?RoomToken $token
      * @return bool
      */
     public function viewAccessCode(User $user, Room $room, ?RoomToken $token)
@@ -89,7 +90,9 @@ class RoomPolicy
     /**
      * Determine whether the user can start a new meeting in a room.
      *
-     * @param  User $user
+     * @param ?User $user
+     * @param Room $room
+     * @param ?RoomToken $token
      * @return bool
      */
     public function start(?User $user, Room $room, ?RoomToken $token)

@@ -44,7 +44,6 @@ class RoomToken extends Model
                     }
                 }
             }
-            Log::debug(var_export($model, true));
         });
     }
 
@@ -65,6 +64,10 @@ class RoomToken extends Model
         return 'token';
     }
 
+    /**
+     * Full name of the token owner.
+     * @return string
+     */
     public function getFullnameAttribute()
     {
         return $this->firstname.' '.$this->lastname;

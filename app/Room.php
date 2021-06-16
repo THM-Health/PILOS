@@ -136,6 +136,10 @@ class Room extends Model
         return $this->hasMany(RoomFile::class);
     }
 
+    /**
+     * Personalized tokens.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function tokens()
     {
         return $this->hasMany(RoomToken::class);
