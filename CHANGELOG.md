@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Room type restriction for specific roles ([#98], [#127])
+- Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
+- Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
+- Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
+
+### Fixed
+- Not listable room types in room filter ([#138], [#140])
+- Incompatible room id field for greenlight room ids ([#143], [#144])
 
 ### Added
 - Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
@@ -116,6 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#94]: https://github.com/THM-Health/PILOS/pull/94
 [#96]: https://github.com/THM-Health/PILOS/issues/96
 [#97]: https://github.com/THM-Health/PILOS/issues/97
+[#98]: https://github.com/THM-Health/PILOS/issues/98
 [#99]: https://github.com/THM-Health/PILOS/pull/99
 [#100]: https://github.com/THM-Health/PILOS/pull/100
 [#101]: https://github.com/THM-Health/PILOS/issues/101
@@ -129,12 +139,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#112]: https://github.com/THM-Health/PILOS/issues/112
 [#113]: https://github.com/THM-Health/PILOS/pull/113
 [#116]: https://github.com/THM-Health/PILOS/pull/116
+[#117]: https://github.com/THM-Health/PILOS/issues/117
+[#118]: https://github.com/THM-Health/PILOS/pull/118
 [#119]: https://github.com/THM-Health/PILOS/issues/119
 [#120]: https://github.com/THM-Health/PILOS/pull/120
 [#121]: https://github.com/THM-Health/PILOS/issues/121
 [#122]: https://github.com/THM-Health/PILOS/pull/122
 [#123]: https://github.com/THM-Health/PILOS/issues/123
 [#125]: https://github.com/THM-Health/PILOS/pull/125
+[#127]: https://github.com/THM-Health/PILOS/pull/127
 [#129]: https://github.com/THM-Health/PILOS/issues/129
 [#130]: https://github.com/THM-Health/PILOS/pull/130
 [#131]: https://github.com/THM-Health/PILOS/issues/131
@@ -143,6 +156,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#134]: https://github.com/THM-Health/PILOS/pull/134
 [#136]: https://github.com/THM-Health/PILOS/issues/136
 [#137]: https://github.com/THM-Health/PILOS/pull/137
+[#138]: https://github.com/THM-Health/PILOS/issues/138
+[#140]: https://github.com/THM-Health/PILOS/pull/140
+[#141]: https://github.com/THM-Health/PILOS/issues/141
+[#142]: https://github.com/THM-Health/PILOS/pull/142
+[#141]: https://github.com/THM-Health/PILOS/issues/143
+[#142]: https://github.com/THM-Health/PILOS/pull/144
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

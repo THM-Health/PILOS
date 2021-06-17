@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use LdapRecord\Laravel\Events\Importing;
+use LdapRecord\Laravel\Events\Import\Importing;
 
 class SetUserModelLdapAuthenticatorType
 {
@@ -14,6 +14,6 @@ class SetUserModelLdapAuthenticatorType
      */
     public function handle(Importing $event)
     {
-        $event->model->authenticator = 'ldap';
+        $event->eloquent->authenticator = 'ldap';
     }
 }

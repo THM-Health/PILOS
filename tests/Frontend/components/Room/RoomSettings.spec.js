@@ -73,7 +73,7 @@ describe('RoomSettings', function () {
 
   it('load settings, fill form fields, disable fields if no write permission, calculate welcome message', function (done) {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -196,7 +196,7 @@ describe('RoomSettings', function () {
 
   it('load settings owner, check fields disabled during loading', function (done) {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -284,7 +284,7 @@ describe('RoomSettings', function () {
 
   it('load settings co-owner', function (done) {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -364,7 +364,7 @@ describe('RoomSettings', function () {
 
   it('load settings with room manage permission', function (done) {
     PermissionService.setCurrentUser(adminUser);
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -446,7 +446,7 @@ describe('RoomSettings', function () {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = sinon.stub(Base, 'error');
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -586,7 +586,7 @@ describe('RoomSettings', function () {
   it('save settings', function (done) {
     const baseError = sinon.stub(Base, 'error');
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
       response: exampleRoomTypeResponse
     });

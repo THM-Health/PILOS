@@ -23,6 +23,7 @@ export default {
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
   placeholderAccessCode: 'Zugangscode',
+  roomTypeInvalidAlert: 'Die Nutzung der Raumart {roomTypeName} ist nur für bestimmte Nutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.',
   flash: {
     noNewRoom: {
       message: 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',

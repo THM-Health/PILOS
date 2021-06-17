@@ -148,6 +148,10 @@ class RoomController extends Controller
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
+            if ($room->roomTypeInvalid) {
+                abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
+            }
+
             // Create new meeting
             $meeting                    = new Meeting();
             $meeting->start             = date('Y-m-d H:i:s');

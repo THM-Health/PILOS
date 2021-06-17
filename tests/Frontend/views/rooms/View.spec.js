@@ -188,6 +188,10 @@ describe('Room', function () {
       nameInput.setValue('John Doe');
       await view.vm.$nextTick();
       expect(joinButton.attributes('disabled')).toBeUndefined();
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+      view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
       view.destroy();
       done();
     });
@@ -220,6 +224,10 @@ describe('Room', function () {
 
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeFalsy();
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+      view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
       view.destroy();
       done();
     });
@@ -254,6 +262,11 @@ describe('Room', function () {
       expect(view.vm.invitationText).toContain('rooms.invitation.code');
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeTruthy();
+
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+      view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
 
       PermissionService.setCurrentUser(oldUser);
       view.destroy();
@@ -290,6 +303,11 @@ describe('Room', function () {
       expect(view.vm.invitationText).toContain('rooms.invitation.code');
       const adminComponent = view.findComponent(AdminComponent);
       expect(adminComponent.exists()).toBeTruthy();
+
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+      view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
 
       PermissionService.setCurrentUser(oldUser);
       view.destroy();

@@ -158,7 +158,12 @@ return [
         'servers.*' => [
             'exists'   => 'Der Server mit der ID :input konnte nicht gefunden werden.',
             'distinct' => 'Der Server mit der ID :input wurde mehrfach ausgewählt.'
-        ]
+        ],
+        'roles.*' => [
+            'exists'   => 'Eine der ausgewählten Rollen existiert nicht.',
+            'distinct' => 'Mindestens eine Rolle wurde mehrfach ausgewählt.'
+        ],
+        'invalid_room_type' => 'Sie haben nicht die notwendigen Rechte, um einen Raum mit der übergebenen Raumart zu besitzen.'
     ],
 
     /*
@@ -252,6 +257,7 @@ return [
         'timezone'                          => 'Zeitzone',
         'default_timezone'                  => 'Standardzeitzone',
         'default_presentation'              => 'Standard Präsentation',
-        'help_url'                          => 'URL zur Hilfeseite'
+        'help_url'                          => 'URL zur Hilfeseite',
+        'restrict'                          => 'Verwendung einschränken'
     ],
 ];
