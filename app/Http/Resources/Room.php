@@ -55,7 +55,7 @@ class Room extends JsonResource
                 'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
                 'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
                 'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
-                'roomTypeInvalid'   => $this->roomTypeInvalid
+                'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'running'           => $runningMeeting != null,
                 'record_attendance' => $runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance,
             ])
