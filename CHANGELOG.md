@@ -10,13 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
 - Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
 - Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
+- Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
 - Incompatible room id field for greenlight room ids ([#143], [#144])
-
-### Added
-- Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
 
 ### Fixed
 - Start time in the list of currently running meetings not adjusted to the user's time zone setting ([#134])
