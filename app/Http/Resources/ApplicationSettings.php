@@ -71,7 +71,7 @@ class ApplicationSettings extends JsonResource
             ]),
             'default_presentation'              => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
             'help_url'                          => setting('help_url'),
-            'room_token_expiration'             => setting('room_token_expiration'),
+            'room_token_expiration'             => intval(setting('room_token_expiration')),
         ];
     }
 }
