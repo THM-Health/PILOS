@@ -208,7 +208,17 @@ export default {
 
     userSettings: 'Benutzereinstellungen',
     passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
-    defaultTimezone: 'Standardzeitzone'
+    defaultTimezone: 'Standardzeitzone',
+
+    roomTokenExpiration: {
+      title: 'Ablaufzeit für personalisierte Raumlinks',
+      description: 'Zeit in Minuten, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
+
+      mode: {
+        unlimited: 'Unbegrenzte Zeit',
+        custom: 'Benutzerdefinierter Wert'
+      }
+    }
   },
 
   servers: {

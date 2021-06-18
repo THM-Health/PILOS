@@ -197,20 +197,36 @@
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
-              :label="$t('settings.application.userSettings')"
-              :state='fieldState("password_self_reset_enabled")'
+              label-for="application-room-token-expiration-input"
+              :description="$t('settings.application.roomTokenExpiration.description')"
+              :state='fieldState("room_token_expiration")'
+              :label="$t('settings.application.roomTokenExpiration.title')"
             >
-              <b-form-checkbox
-                v-model='settings.password_self_reset_enabled'
-                :state="fieldState('password_self_reset_enabled')"
+              <b-form-radio-group
+                class='mb-2'
+                id="application-room-token-expiration-radio-group"
+                v-model='roomTokenExpirationMode'
+                :options='roomTokenExpirationModeOptions'
                 :disabled='isBusy || viewOnly || !loaded'
-                switch
-              >
-                {{ $t('settings.application.passwordSelfResetEnabled') }}
-              </b-form-checkbox>
+                required
+                :state='fieldState("room_token_expiration")'
+                @change="roomTokenExpirationModeChanged"
+                stacked
+              ></b-form-radio-group>
+
+              <b-form-input
+                id='application-room-token-expiration-input'
+                type='number'
+                :state='fieldState("room_token_expiration")'
+                v-model='settings.room_token_expiration'
+                min='-1'
+                required
+                :disabled='isBusy || viewOnly || !loaded'
+                v-if="roomTokenExpirationMode === 'custom'">
+              </b-form-input>
 
               <template slot='invalid-feedback'>
-                <div v-html="fieldError('password_self_reset_enabled')"></div>
+                <div v-html="fieldError('room_token_expiration')"></div>
               </template>
             </b-form-group>
           </b-col>
@@ -399,6 +415,30 @@
               <b-form-text v-if="!viewOnly">{{ $t('rooms.files.formats', { formats: String(settings.bbb.file_mimes).split(",").join(', ') }) }}<br>{{ $t('rooms.files.size', { size: settings.bbb.max_filesize }) }}</b-form-text>
               <template slot='invalid-feedback' v-if="!viewOnly">
                 <div v-html="fieldError('default_presentation')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <b-row cols='12'>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              :label="$t('settings.application.userSettings')"
+              :state='fieldState("password_self_reset_enabled")'
+            >
+              <b-form-checkbox
+                v-model='settings.password_self_reset_enabled'
+                :state="fieldState('password_self_reset_enabled')"
+                :disabled='isBusy || viewOnly || !loaded'
+                switch
+              >
+                {{ $t('settings.application.passwordSelfResetEnabled') }}
+              </b-form-checkbox>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('password_self_reset_enabled')"></div>
               </template>
             </b-form-group>
           </b-col>
@@ -709,6 +749,7 @@ export default {
     return {
       loaded: false,
       roomLimitMode: 'custom',
+      roomTokenExpirationMode: 'custom',
       uploadLogoFile: null,
       uploadLogoFileSrc: null,
       uploadFaviconFile: null,
@@ -721,7 +762,8 @@ export default {
         link_btn_styles: [],
         link_targets: [],
         bbb: {},
-        default_presentation: undefined
+        default_presentation: undefined,
+        room_token_expiration: undefined
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
@@ -741,6 +783,7 @@ export default {
         .then(response => {
           this.settings = response.data.data;
           this.roomLimitMode = (this.settings.room_limit === -1 ? 'unlimited' : 'custom');
+          this.roomTokenExpirationMode = (this.settings.room_token_expiration === -1 ? 'unlimited' : 'custom');
           this.loaded = true;
         })
         .catch((error) => {
@@ -797,6 +840,7 @@ export default {
       }
       formData.append('name', this.settings.name);
       formData.append('room_limit', this.settings.room_limit);
+      formData.append('room_token_expiration', this.settings.room_token_expiration);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
@@ -843,6 +887,7 @@ export default {
           // update form input
           this.settings = response.data.data;
           this.roomLimitMode = (this.settings.room_limit === -1 ? 'unlimited' : 'custom');
+          this.roomTokenExpirationMode = (this.settings.room_token_expiration === -1 ? 'unlimited' : 'custom');
         })
         .catch((error) => {
           if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -855,6 +900,23 @@ export default {
           this.isBusy = false;
         });
     },
+
+    /**
+     * Sets the roomTokenExpiration on the model depending on the selected radio button.
+     *
+     * @param value Value of the radio button that was selected.
+     */
+    roomTokenExpirationModeChanged (value) {
+      switch (value) {
+        case 'unlimited':
+          this.$set(this.settings, 'room_token_expiration', -1);
+          break;
+        case 'custom':
+          this.$set(this.settings, 'room_token_expiration', 0);
+          break;
+      }
+    },
+
     /**
      * Sets the roomLimit on the model depending on the selected radio button.
      *
@@ -916,6 +978,16 @@ export default {
       return [
         { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
         { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' }
+      ];
+    },
+
+    /**
+     * Options for the room token expiration mode radio button group.
+     */
+    roomTokenExpirationModeOptions () {
+      return [
+        { text: this.$t('settings.application.roomTokenExpiration.mode.unlimited'), value: 'unlimited' },
+        { text: this.$t('settings.application.roomTokenExpiration.mode.custom'), value: 'custom' }
       ];
     }
   },

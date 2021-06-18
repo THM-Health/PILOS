@@ -203,7 +203,17 @@ export default {
 
     userSettings: 'User settings',
     passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
-    defaultTimezone: 'Default timezone'
+    defaultTimezone: 'Default timezone',
+
+    roomTokenExpiration: {
+      title: 'Expiration time for personalized room links',
+      description: 'Time in minutes, after which personalized room links gets automatically removed.',
+
+      mode: {
+        unlimited: 'Unlimited time',
+        custom: 'Custom value'
+      }
+    }
   },
 
   servers: {
