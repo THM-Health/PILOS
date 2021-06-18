@@ -272,7 +272,7 @@ export default {
     if (to.params.token) {
       config = {
         headers: {
-          'Token': to.params.token
+          Token: to.params.token
         }
       };
     }
@@ -368,8 +368,8 @@ export default {
 
       if (this.token) {
         config.headers = {
-          'Token': this.token
-        }
+          Token: this.token
+        };
       }
 
       if (this.accessCode != null) {
@@ -426,8 +426,8 @@ export default {
 
       if (this.token) {
         config.headers = {
-          'Token': this.token
-        }
+          Token: this.token
+        };
       }
 
       if (this.accessCode != null) {
@@ -474,8 +474,8 @@ export default {
 
       if (this.token) {
         config.headers = {
-          'Token': this.token
-        }
+          Token: this.token
+        };
       }
 
       if (this.accessCode != null) {
@@ -601,7 +601,7 @@ export default {
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id }}).route.fullPath });
+      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
         message += '\n' + this.$t('rooms.invitation.code', {

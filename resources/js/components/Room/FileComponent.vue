@@ -269,7 +269,7 @@ export default {
 
       if (this.token) {
         config.headers = {
-          'Token': this.token
+          Token: this.token
         };
       }
 
@@ -409,7 +409,7 @@ export default {
 
       if (this.token) {
         config.headers = {
-          'Token': this.token
+          Token: this.token
         };
       }
 
