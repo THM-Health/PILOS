@@ -200,7 +200,8 @@ class SettingsTest extends TestCase
             ],
             'password_self_reset_enabled' => '1',
             'default_timezone'            => 'Europe/Berlin',
-            'help_url'                    => 'http://localhost'
+            'help_url'                    => 'http://localhost',
+            'room_token_expiration'       => -1
         ];
 
         $role       = factory(Role::class)->create();
@@ -229,7 +230,8 @@ class SettingsTest extends TestCase
                     ],
                     'password_self_reset_enabled' => true,
                     'default_timezone'            => 'Europe/Berlin',
-                    'help_url'                    => 'http://localhost'
+                    'help_url'                    => 'http://localhost',
+                    'room_token_expiration'       => -1
                 ]
             ]);
         $this->assertTrue(setting()->has('help_url'));
@@ -259,7 +261,8 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => false,
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1
         ];
 
         // Unauthorized Test
@@ -296,7 +299,8 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1
         ];
 
         // Unauthorized Test
@@ -336,7 +340,8 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1
         ];
 
         // Add necessary role and permission to user to update application settings
@@ -375,7 +380,8 @@ class SettingsTest extends TestCase
             'room_limit'                     => 'notnumber',
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
-            'help_url'                       => 33
+            'help_url'                       => 33,
+            'room_token_expiration'          => -1
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
@@ -406,7 +412,8 @@ class SettingsTest extends TestCase
             'banner'                         => false,
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
-            'help_url'                       => 'http://localhost'
+            'help_url'                       => 'http://localhost',
+            'room_token_expiration'          => -1
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -542,7 +549,8 @@ class SettingsTest extends TestCase
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
-            'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon')
+            'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'room_token_expiration'          => -1
         ];
 
         // Invalid mime

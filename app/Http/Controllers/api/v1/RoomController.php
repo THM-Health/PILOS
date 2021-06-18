@@ -12,7 +12,6 @@ use App\Meeting;
 use App\Room;
 use App\RoomToken;
 use App\RoomType;
-use App\Server;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -144,7 +143,7 @@ class RoomController extends Controller
     {
         $token = null;
 
-        if ($request->has('token')) {
+        if ($request->filled('token')) {
             $token = RoomToken::find($request->get('token'));
         }
 
@@ -231,7 +230,7 @@ class RoomController extends Controller
     {
         $token = null;
 
-        if ($request->has('token')) {
+        if ($request->filled('token')) {
             $token = RoomToken::find($request->get('token'));
             $name  = $token->fullname;
         } else {
