@@ -68,6 +68,7 @@
                 v-b-tooltip.hover
                 :title="$t('meetings.viewMeetingStats')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
+                v-if="data.item.statistical"
                 variant='primary'
                 @click="loadMeetingStats(data.item)"
               >
@@ -77,7 +78,7 @@
                 v-b-tooltip.hover
                 :title="$t('meetings.viewMeetingAttendance')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
-                v-if="data.item.record_attendance && data.item.end != null"
+                v-if="data.item.attendance && data.item.end != null"
                 variant='primary'
                 @click="loadMeetingAttendance(data.item)"
               >
@@ -94,6 +95,13 @@
             align='center'
             :disabled='meetingsLoading || meetingsLoadingError'
           ></b-pagination>
+
+          <div v-if="settings('attendance.enabled') || settings('statistics.meetings.enabled')">
+            <hr>
+            <b>{{ $t('meetings.retentionPeriod') }}</b><br>
+            <span v-if="settings('statistics.meetings.enabled')">{{ $t('meetings.stats.retentionPeriod', {'days': settings('statistics.meetings.retention_period')}) }}</span><br>
+            <span v-if="settings('attendance.enabled')">{{ $t('meetings.attendance.retentionPeriod', {'days': settings('attendance.retention_period')}) }}</span><br>
+          </div>
         </div>
       </div>
 
@@ -303,11 +311,16 @@ export default {
 
     // table fields of meetings table
     meetingsTableFields () {
-      return [
+      const table = [
         { key: 'start', label: this.$t('meetings.start'), sortable: false },
-        { key: 'end', label: this.$t('meetings.end'), sortable: false },
-        { key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'actionColumn' }
+        { key: 'end', label: this.$t('meetings.end'), sortable: false }
       ];
+
+      if (this.settings('attendance.enabled') || this.settings('statistics.meetings.enabled')) {
+        table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'actionColumn' });
+      }
+
+      return table;
     },
 
     // table fields of attendance table

@@ -189,6 +189,25 @@ export default {
       description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
     },
 
+    statistics: {
+      servers: {
+        enabledTitle: 'Auslastung der Server aufzeichnen',
+        enabled: 'Aktivieren',
+        retentionPeriodTitle: 'Speicherdauer der Serverauslastung in Tagen'
+      },
+      meetings: {
+        enabledTitle: 'Auslastung der Meetings aufzeichnen',
+        enabled: 'Aktivieren',
+        retentionPeriodTitle: 'Speicherdauer der Meetingauslastung in Tagen'
+      }
+    },
+
+    attendance: {
+      enabledTitle: 'Protokollierung der Anwesenheit zulassen',
+      enabled: 'Zulassen',
+      retentionPeriodTitle: 'Speicherdauer der Anwesenheitsprotokollierung in Tagen'
+    },
+
     banner: {
       title: 'Banner für Mitteilungen',
       enabled: 'Anzeigen',

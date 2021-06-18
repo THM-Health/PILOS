@@ -12,9 +12,10 @@ export default {
   viewRoom: 'Raum "{name}" anzeigen',
   nodata: 'Aktuell laufen keine Meetings!',
   nodataFiltered: 'Für die Suchanfrage wurden keine laufenden Meetings gefunden!',
-  viewMeetingStats: 'Statistiken anzeigen',
+  viewMeetingStats: 'Auslastung anzeigen',
   viewMeetingAttendance: 'Anwesenheit anzeigen',
   now: 'Jetzt',
+  retentionPeriod: 'Aufbewahrungsfristen',
   attendance: {
     view: 'Anwesenheit anzeigen',
     name: 'Name',
@@ -25,7 +26,8 @@ export default {
     modalTitle: 'Anwesenheit für {room}',
     nodata: 'Keine protokollierte Anwesenheit gefunden.',
     download: 'Herunterladen',
-    noBreakoutSupport: 'Die Anwesenheit in Breakout-Räumen wird aktuell nicht unterstützt. Es wird nur die Anwesenheit im Hauptraum protokolliert.'
+    noBreakoutSupport: 'Die Anwesenheit in Breakout-Räumen wird aktuell nicht unterstützt. Es wird nur die Anwesenheit im Hauptraum protokolliert.',
+    retentionPeriod: 'Die Anwesenheit wird für {days} Tage gespeichert.'
   },
   stats: {
     modalTitle: 'Auslastung für {room}',
@@ -34,6 +36,7 @@ export default {
     videos: 'Webcams',
     amount: 'Anzahl',
     time: 'Uhrzeit',
-    noBreakoutSupport: 'Die Auslastung der Breakout-Räume wird aktuell nicht unterstützt. Es wird nur die Auslastung des Hauptraums gemessen.'
+    noBreakoutSupport: 'Die Auslastung der Breakout-Räume wird aktuell nicht unterstützt. Es wird nur die Auslastung des Hauptraums gemessen.',
+    retentionPeriod: 'Die Auslastung der Räume wird für {days} Tage gespeichert.'
   }
 };

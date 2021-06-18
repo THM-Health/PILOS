@@ -104,6 +104,11 @@ class MeetingController extends Controller
     {
         $this->authorize('viewStatistics', $meeting->room);
 
+        // check if statistical data is globally enabled
+        if (!setting('statistics.meetings.enabled')) {
+            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_statistics_disabled'));
+        }
+
         return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
     }
 
@@ -117,9 +122,9 @@ class MeetingController extends Controller
     {
         $this->authorize('viewStatistics', $meeting->room);
 
-        // check if attendance recording is enabled for this meeting
-        if (!$meeting->record_attendance) {
-            abort(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED, __('app.errors.meeting_attendance_disabled'));
+        // check if attendance recording is enabled for this meeting and globally enabled
+        if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended

@@ -157,7 +157,7 @@ class RoomController extends Controller
             $meeting->start             = date('Y-m-d H:i:s');
             $meeting->attendeePW        = bin2hex(random_bytes(5));
             $meeting->moderatorPW       = bin2hex(random_bytes(5));
-            $meeting->record_attendance = $room->record_attendance;
+            $meeting->record_attendance = setting('attendance.enabled') && $room->record_attendance;
 
             // Basic load balancing, get server with lowest usage
             $server =  $room->roomType->serverPool->lowestUsage();

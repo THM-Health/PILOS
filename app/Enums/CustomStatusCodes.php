@@ -19,6 +19,6 @@ final class CustomStatusCodes extends Enum
     const STALE_MODEL                  =   428;
     const PASSWORD_RESET_FAILED        =   466;
     const ROOM_TYPE_INVALID            =   467;
-    const MEETING_ATTENDANCE_DISABLED  =   468;
+    const FEATURE_DISABLED             =   468;
     const MEETING_ATTENDANCE_NOT_ENDED =   469;
 }

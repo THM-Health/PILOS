@@ -16,7 +16,8 @@ return [
         'server_pool_delete_failed'     => 'The server pool could not be deleted. To delete the server pool, it must not be used by any room type.',
         'room_type_invalid'             => 'The type of the room is restricted for special user groups. Please change the room type to start the room, if you are the owner if this room.',
         'no_room_access'                => 'You does not have the necessary permissions, to edit this room.',
-        'meeting_attendance_disabled'   => 'The logging of attendance is not activated for this room.',
+        'meeting_attendance_disabled'   => 'The logging of attendance is unavailable.',
+        'meeting_statistics_disabled'   => 'The usage data is unavailable.',
         'meeting_attendance_not_ended'  => 'The logging of attendance is not yet completed for this room.',
     ],
     'model' => [

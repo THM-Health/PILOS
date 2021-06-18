@@ -19,7 +19,8 @@ class Meeting extends JsonResource
             'id'                => $this->id,
             'start'             => $this->start,
             'end'               => $this->end,
-            'record_attendance' => $this->record_attendance,
+            'attendance'        => setting('attendance.enabled') && $this->attendees()->count() > 0,
+            'statistical'       => setting('statistics.meetings.enabled') && $this->stats()->count() > 0,
         ];
     }
 }

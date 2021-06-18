@@ -12,9 +12,10 @@ export default {
   viewRoom: 'Show room \'{name}\'',
   nodata: 'There are currently no meetings running!',
   nodataFiltered: 'No running meetings were found for the search query!',
-  viewMeetingStats: 'Show statistics',
+  viewMeetingStats: 'Show utilisation',
   viewMeetingAttendance: 'Show attendance',
   now: 'now',
+  retentionPeriod: 'Retention period',
   attendance: {
     view: 'Show attendance',
     name: 'Name',
@@ -25,7 +26,8 @@ export default {
     modalTitle: 'Attendance for {room}',
     nodata: 'No logged attendance found.',
     download: 'Download',
-    noBreakoutSupport: 'Attendance in breakout rooms is currently not supported. Only attendance in the main room is logged.'
+    noBreakoutSupport: 'Attendance in breakout rooms is currently not supported. Only attendance in the main room is logged.',
+    retentionPeriod: 'The attendance is stored for {days} days.'
   },
   stats: {
     modalTitle: 'Utilisation statistic of {room}',
@@ -34,6 +36,7 @@ export default {
     videos: 'Webcams',
     amount: 'Amount',
     time: 'Time',
-    noBreakoutSupport: 'The utilisation of the breakout rooms is currently not supported. Only the utilisation of the main room is measured.'
+    noBreakoutSupport: 'The utilisation of the breakout rooms is currently not supported. Only the utilisation of the main room is measured.',
+    retentionPeriod: 'The utilisation of the rooms is stored for {days} days.'
   }
 };

@@ -224,6 +224,11 @@ class Meeting extends Model
             return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
         });
 
+        // if no guests present, just return list of users, sorted by name
+        if ($guests->count() == 0) {
+            return $users->sortBy('name')->values();
+        }
+
         // return guest and user attendees, sorted by name
         return $guests->merge($users)->sortBy('name')->values();
     }

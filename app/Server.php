@@ -221,8 +221,11 @@ class Server extends Model
             // Server is offline, end all meetings  in database
             if ($bbbMeetings === null) {
                 $this->apiCallFailed();
-                $serverStat = new ServerStat();
-                $this->stats()->save($serverStat);
+                // Add server statistics if enabled
+                if (setting('statistics.servers.enabled')) {
+                    $serverStat = new ServerStat();
+                    $this->stats()->save($serverStat);
+                }
             } else {
                 $serverStat                          = new ServerStat();
                 $serverStat->participant_count       = 0;
@@ -259,7 +262,8 @@ class Server extends Model
                     $meeting->room->voice_participant_count = $meetingStat->voice_participant_count = $bbbMeeting->getVoiceParticipantCount();
                     $meeting->room->video_count             = $meetingStat->video_count             = $bbbMeeting->getVideoCount();
 
-                    if ($meeting->record_attendance) {
+                    // Record meeting attendance if enabled globally and for this running meeting
+                    if ($meeting->record_attendance && setting('attendance.enabled')) {
                         // Get collection of all attendees, remove duplicated (user joins twice)
                         $collection      = collect($bbbMeeting->getAttendees());
                         $uniqueAttendees = $collection->unique(function ($attendee) {
@@ -334,7 +338,11 @@ class Server extends Model
                         }
                     }
 
-                    $meeting->stats()->save($meetingStat);
+                    // Save meeting statistics if enabled
+                    if (setting('statistics.meetings.enabled')) {
+                        $meeting->stats()->save($meetingStat);
+                    }
+
                     $meeting->room->save();
                 }
 
@@ -348,7 +356,10 @@ class Server extends Model
                 $this->timestamps              = false;
                 $this->save();
 
-                $this->stats()->save($serverStat);
+                // Save server statistics if enabled
+                if (setting('statistics.servers.enabled')) {
+                    $this->stats()->save($serverStat);
+                }
             }
         }
         // find meetings that are marked as running in the database, but have not been found on the servers

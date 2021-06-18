@@ -26,8 +26,8 @@ class MeetingController extends Controller
         $this->authorize('viewStatistics', $meeting->room);
 
         // check if attendance recording is enabled for this meeting
-        if (!$meeting->record_attendance) {
-            abort(CustomStatusCodes::MEETING_ATTENDANCE_DISABLED, __('app.errors.meeting_attendance_disabled'));
+        if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended

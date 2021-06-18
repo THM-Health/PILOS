@@ -245,7 +245,7 @@
             </b-form-group>
 
             <!-- Checkbox record attendance of users and guests -->
-            <b-form-group :state="fieldState('record_attendance')">
+            <b-form-group :state="fieldState('record_attendance')" v-if="globalSettings('attendance.enabled')">
               <b-form-checkbox
                 :disabled="disabled"
                 :state="fieldState('record_attendance')"
@@ -397,6 +397,7 @@ import FieldErrors from '../../mixins/FieldErrors';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
+import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors],
@@ -478,6 +479,10 @@ export default {
     }
   },
   computed: {
+
+    ...mapGetters({
+      globalSettings: 'session/settings'
+    }),
 
     /**
      * Input fields are disabled: due to limited permissions, loading of settings or errors

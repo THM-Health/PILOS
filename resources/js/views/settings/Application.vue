@@ -404,6 +404,148 @@
           </b-col>
         </b-row>
 
+        <b-row cols='12'>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("statistics.servers.enabled")'
+              :label="$t('settings.application.statistics.servers.enabledTitle')"
+              ref='statistics-server-form-group'
+            >
+                <b-form-checkbox
+                  id='statistics-server-enabled'
+                  v-model='settings.statistics.servers.enabled'
+                  :state="fieldState('statistics.servers.enabled')"
+                  :disabled='isBusy || viewOnly || !loaded'
+                  switch
+                >
+                  {{ $t('settings.application.statistics.servers.enabled') }}
+                </b-form-checkbox>
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('statistics.servers.enabled')"></div>
+                </template>
+              </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("statistics.servers.retention_period")'
+              :label="$t('settings.application.statistics.servers.retentionPeriodTitle')"
+              ref='statistics-server-form-group'
+            >
+              <b-form-input
+                id='statistics-server-retention-period-input'
+                type='number'
+                :state='fieldState("statistics.servers.retention_period")'
+                v-model='settings.statistics.servers.retention_period'
+                min='1'
+                max="365"
+                required
+                :disabled='isBusy || viewOnly || !loaded'
+               >
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('statistics.servers.retention_period')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row cols='12'>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("statistics.meetings.enabled")'
+              :label="$t('settings.application.statistics.meetings.enabledTitle')"
+              ref='statistics-meetings-form-group'
+            >
+              <b-form-checkbox
+                id='statistics-meetings-enabled'
+                v-model='settings.statistics.meetings.enabled'
+                :state="fieldState('statistics.meetings.enabled')"
+                :disabled='isBusy || viewOnly || !loaded'
+                switch
+              >
+                {{ $t('settings.application.statistics.meetings.enabled') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('statistics.meetings.enabled')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("statistics.meetings.retention_period")'
+              :label="$t('settings.application.statistics.meetings.retentionPeriodTitle')"
+              ref='statistics-meetings-form-group'
+            >
+              <b-form-input
+                id='statistics-meetings-retention-period-input'
+                type='number'
+                :state='fieldState("statistics.meetings.retention_period")'
+                v-model='settings.statistics.meetings.retention_period'
+                min='1'
+                max="365"
+                required
+                :disabled='isBusy || viewOnly || !loaded'
+              >
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('statistics.meetings.retention_period')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row cols='12'>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("attendance.enabled")'
+              :label="$t('settings.application.attendance.enabledTitle')"
+              ref='statistics-meetings-form-group'
+            >
+              <b-form-checkbox
+                id='attendance-enabled'
+                v-model='settings.attendance.enabled'
+                :state="fieldState('attendance.enabled')"
+                :disabled='isBusy || viewOnly || !loaded'
+                switch
+              >
+                {{ $t('settings.application.attendance.enabled') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('attendance.enabled')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("attendance.retention_period")'
+              :label="$t('settings.application.attendance.retentionPeriodTitle')"
+              ref='statistics-meetings-form-group'
+            >
+              <b-form-input
+                id='statistics-meetings-retention-period-input'
+                type='number'
+                :state='fieldState("attendance.retention_period")'
+                v-model='settings.attendance.retention_period'
+                min='1'
+                max="365"
+                required
+                :disabled='isBusy || viewOnly || !loaded'
+              >
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('attendance.retention_period')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
         <hr>
 
         <!-- Banner -->
@@ -721,7 +863,12 @@ export default {
         link_btn_styles: [],
         link_targets: [],
         bbb: {},
-        default_presentation: undefined
+        default_presentation: undefined,
+        statistics: {
+          servers: {},
+          meetings: {}
+        },
+        attendance: {}
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
@@ -802,6 +949,13 @@ export default {
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
       formData.append('help_url', this.settings.help_url || '');
+
+      formData.append('statistics[servers][enabled]', this.settings.statistics.servers.enabled ? 1 : 0);
+      formData.append('statistics[servers][retention_period]', this.settings.statistics.servers.retention_period);
+      formData.append('statistics[meetings][enabled]', this.settings.statistics.meetings.enabled ? 1 : 0);
+      formData.append('statistics[meetings][retention_period]', this.settings.statistics.meetings.retention_period);
+      formData.append('attendance[enabled]', this.settings.attendance.enabled ? 1 : 0);
+      formData.append('attendance[retention_period]', this.settings.attendance.retention_period);
 
       if (this.default_presentation !== null) {
         formData.append('default_presentation', this.default_presentation);

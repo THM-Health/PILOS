@@ -57,7 +57,7 @@ class Room extends JsonResource
                 'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'running'           => $runningMeeting != null,
-                'record_attendance' => $runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance,
+                'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
             ])
         ];
     }
