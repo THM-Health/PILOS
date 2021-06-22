@@ -17,8 +17,9 @@ return [
         'room_type_invalid'             => 'Die Art des Raumes ist für bestimmte Nutzergruppen eingeschränkt. Wenn Sie der Beistzer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum gestartet werden kann.',
         'no_room_access'                => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.',
         'meeting_attendance_disabled'   => 'Die Protokollierung der Anwesenheit ist nicht verfügbar.',
-        'meeting_statistics_disabled'   => 'Die Aulastungsdaten sind nicht verfügbar.',
+        'meeting_statistics_disabled'   => 'Die Auslastungsdaten sind nicht verfügbar.',
         'meeting_attendance_not_ended'  => 'Die Protokollierung der Anwesenheit ist für diesen Raum noch nicht abgeschlossen.',
+        'attendance_agreement_missing'  => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.'
     ],
     'model' => [
         'roles'        => 'Rollen',

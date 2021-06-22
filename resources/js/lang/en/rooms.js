@@ -14,6 +14,7 @@ export default {
   tryAgain: 'Try again',
   join: 'Join',
   recordingAttendanceInfo: 'The presence in this room is logged.',
+  recordingAttendanceAccept: 'I agree with the logging.',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',

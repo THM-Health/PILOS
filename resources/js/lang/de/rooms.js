@@ -14,6 +14,7 @@ export default {
   tryAgain: 'Erneut versuchen',
   join: 'Teilnehmen',
   recordingAttendanceInfo: 'Die Anwesenheit in diesem Raum wird protokolliert.',
+  recordingAttendanceAccept: 'Ich bin mit der Protokollierung einverstanden.',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',

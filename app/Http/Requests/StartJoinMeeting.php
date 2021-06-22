@@ -9,7 +9,8 @@ class StartJoinMeeting extends FormRequest
     public function rules()
     {
         return [
-            'name' => auth()->check() ? '' : 'required|min:2|regex:/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.\'-]+$/u|max:50',
+            'name'              => auth()->check() ? '' : 'required|min:2|regex:/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.\'-]+$/u|max:50',
+            'record_attendance' => 'required|in:not_accepted,accepted',
         ];
     }
 }

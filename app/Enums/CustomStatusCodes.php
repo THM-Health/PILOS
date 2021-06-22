@@ -21,4 +21,5 @@ final class CustomStatusCodes extends Enum
     const ROOM_TYPE_INVALID            =   467;
     const FEATURE_DISABLED             =   468;
     const MEETING_ATTENDANCE_NOT_ENDED =   469;
+    const ATTENDANCE_AGREEMENT_MISSING =   470;
 }

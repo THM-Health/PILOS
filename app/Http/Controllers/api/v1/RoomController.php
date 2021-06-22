@@ -152,6 +152,11 @@ class RoomController extends Controller
                 abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
             }
 
+            // Check if user didn't see the attendance recording note, but the attendance is recorded
+            if (setting('attendance.enabled') && $room->record_attendance && $request->record_attendance != 'accepted') {
+                abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+            }
+
             // Create new meeting
             $meeting                    = new Meeting();
             $meeting->start             = date('Y-m-d H:i:s');
@@ -232,6 +237,11 @@ class RoomController extends Controller
         if (!$meeting->isRunning() ) {
             $meeting->setEnd();
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+        }
+
+        // Check if user didn't see the attendance recording note, but the attendance is recorded
+        if (setting('attendance.enabled') && $meeting->record_attendance && $request->record_attendance != 'accepted') {
+            abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
         }
 
         return response()->json([
