@@ -49,6 +49,18 @@ class SettingsTest extends TestCase
         ]]);
         setting(['help_url' => 'http://localhost']);
 
+        setting(['statistics' => [
+            'meetings' => [
+                'enabled'           => true,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => false,
+            'retention_period'  => 14
+        ]]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -65,7 +77,17 @@ class SettingsTest extends TestCase
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
                     ],
-                    'help_url' => 'http://localhost'
+                    'help_url'   => 'http://localhost',
+                    'statistics' => [
+                        'meetings' => [
+                            'enabled'           => true,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => false,
+                        'retention_period'  => 14
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -81,6 +103,18 @@ class SettingsTest extends TestCase
         ]]);
         setting(['help_url' => null]);
 
+        setting(['statistics' => [
+            'meetings' => [
+                'enabled'           => false,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => true,
+            'retention_period'  => 14
+        ]]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -91,7 +125,17 @@ class SettingsTest extends TestCase
                     'banner'                         => [
                         'enabled'    => false
                     ],
-                    'help_url' => null
+                    'help_url'   => null,
+                    'statistics' => [
+                        'meetings' => [
+                            'enabled'           => false,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => true,
+                        'retention_period'  => 14
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -119,6 +163,22 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
 
+        setting(['statistics' => [
+            'servers' => [
+                'enabled'           => true,
+                'retention_period'  => 7
+            ],
+            'meetings' => [
+                'enabled'           => false,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => true,
+            'retention_period'  => 14
+        ]]);
+
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
@@ -142,6 +202,20 @@ class SettingsTest extends TestCase
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
+                    ],
+                    'statistics' => [
+                        'servers' => [
+                            'enabled'           => true,
+                            'retention_period'  => 7
+                        ],
+                        'meetings' => [
+                            'enabled'           => false,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => true,
+                        'retention_period'  => 14
                     ]
                 ]
             ])
@@ -155,6 +229,22 @@ class SettingsTest extends TestCase
             'background' => '#4a5c66',
             'link'       => 'http://localhost',
             'icon'       => 'fas fa-door-open',
+        ]]);
+
+        setting(['statistics' => [
+            'servers' => [
+                'enabled'           => false,
+                'retention_period'  => 7
+            ],
+            'meetings' => [
+                'enabled'           => true,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => false,
+            'retention_period'  => 14
         ]]);
 
         $this->getJson(route('api.v1.application.complete'))
@@ -172,6 +262,20 @@ class SettingsTest extends TestCase
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
+                    ],
+                    'statistics' => [
+                        'servers' => [
+                            'enabled'           => false,
+                            'retention_period'  => 7
+                        ],
+                        'meetings' => [
+                            'enabled'           => true,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => false,
+                        'retention_period'  => 14
                     ]
                 ]
             ])
@@ -200,7 +304,21 @@ class SettingsTest extends TestCase
             ],
             'password_self_reset_enabled' => '1',
             'default_timezone'            => 'Europe/Berlin',
-            'help_url'                    => 'http://localhost'
+            'help_url'                    => 'http://localhost',
+            'statistics'                  => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         $role       = factory(Role::class)->create();
@@ -229,7 +347,21 @@ class SettingsTest extends TestCase
                     ],
                     'password_self_reset_enabled' => true,
                     'default_timezone'            => 'Europe/Berlin',
-                    'help_url'                    => 'http://localhost'
+                    'help_url'                    => 'http://localhost',
+                    'statistics'                  => [
+                        'servers' => [
+                            'enabled'           => false,
+                            'retention_period'  => 7
+                        ],
+                        'meetings' => [
+                            'enabled'           => true,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => false,
+                        'retention_period'  => 14
+                    ]
                 ]
             ]);
         $this->assertTrue(setting()->has('help_url'));
@@ -259,7 +391,21 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => false,
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         // Unauthorized Test
@@ -296,7 +442,21 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         // Unauthorized Test
@@ -336,7 +496,21 @@ class SettingsTest extends TestCase
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
-            'default_timezone'               => 'Europe/Berlin'
+            'default_timezone'               => 'Europe/Berlin',
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         // Add necessary role and permission to user to update application settings
@@ -375,7 +549,21 @@ class SettingsTest extends TestCase
             'room_limit'                     => 'notnumber',
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
-            'help_url'                       => 33
+            'help_url'                       => 33,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => 'test',
+                    'retention_period'  => false
+                ],
+                'meetings' => [
+                    'enabled'           => null,
+                    'retention_period'  => true
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => 90,
+                'retention_period'  => 'test'
+            ]
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
@@ -393,7 +581,13 @@ class SettingsTest extends TestCase
                 'banner.enabled',
                 'password_self_reset_enabled',
                 'default_timezone',
-                'help_url'
+                'help_url',
+                'statistics.servers.enabled',
+                'statistics.servers.retention_period',
+                'statistics.meetings.enabled',
+                'statistics.meetings.retention_period',
+                'attendance.enabled',
+                'attendance.retention_period'
             ]);
 
         $payload = [
@@ -406,7 +600,21 @@ class SettingsTest extends TestCase
             'banner'                         => false,
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
-            'help_url'                       => 'http://localhost'
+            'help_url'                       => 'http://localhost',
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => true,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => true,
+                'retention_period'  => 14
+            ]
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -492,14 +700,31 @@ class SettingsTest extends TestCase
                 'pagination_page_size'           => '0',
                 'own_rooms_pagination_page_size' => '0',
                 'room_limit'                     => '-2',
-                'banner'                         => ['enabled' => false]
+                'banner'                         => ['enabled' => false],
+                'statistics'                     => [
+                    'servers' => [
+                        'enabled'           => true,
+                        'retention_period'  => 0
+                    ],
+                    'meetings' => [
+                        'enabled'           => true,
+                        'retention_period'  => 0
+                    ]
+                ],
+                'attendance' => [
+                    'enabled'           => true,
+                    'retention_period'  => 0
+                ]
             ]
         )
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'pagination_page_size',
                 'own_rooms_pagination_page_size',
-                'room_limit'
+                'room_limit',
+                'statistics.servers.retention_period',
+                'statistics.meetings.retention_period',
+                'attendance.retention_period'
             ]);
 
         // inputs higher than allowed minimum
@@ -511,14 +736,31 @@ class SettingsTest extends TestCase
                 'pagination_page_size'           => '101',
                 'own_rooms_pagination_page_size' => '26',
                 'room_limit'                     => '101',
-                'banner'                         => ['enabled' => false]
+                'banner'                         => ['enabled' => false],
+                'statistics'                     => [
+                    'servers' => [
+                        'enabled'           => true,
+                        'retention_period'  => 366
+                    ],
+                    'meetings' => [
+                        'enabled'           => true,
+                        'retention_period'  => 366
+                    ]
+                ],
+                'attendance' => [
+                    'enabled'           => true,
+                    'retention_period'  => 366
+                ]
             ]
         )
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'pagination_page_size',
                 'own_rooms_pagination_page_size',
-                'room_limit'
+                'room_limit',
+                'statistics.servers.retention_period',
+                'statistics.meetings.retention_period',
+                'attendance.retention_period'
             ]);
     }
 
@@ -542,7 +784,21 @@ class SettingsTest extends TestCase
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
-            'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon')
+            'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => true,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => true,
+                'retention_period'  => 14
+            ]
         ];
 
         // Invalid mime

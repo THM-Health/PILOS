@@ -66,13 +66,14 @@ class BuildHistoryTest extends TestCase
     public function testServerOnline()
     {
         $room = factory(Room::class)->create([]);
-        setting(['log_attendance' => false]);
+        setting(['statistics.servers.enabled' => true]);
+        setting(['statistics.meetings.enabled' => true]);
 
         // Adding server(s)
         $this->seed('ServerSeeder');
 
         // Start meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 'accepted']))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 
@@ -112,6 +113,20 @@ class BuildHistoryTest extends TestCase
         $this->assertNotNull($runningMeeting->server->voice_participant_count);
         $this->assertNotNull($runningMeeting->server->video_count);
         $this->assertNotNull($runningMeeting->server->meeting_count);
+
+        // check with disabled server stats
+        setting(['statistics.servers.enabled' => false]);
+        setting(['statistics.meetings.enabled' => true]);
+        $this->artisan('history:build');
+        $this->assertEquals(1, $runningMeeting->server->stats()->count());
+        $this->assertEquals(2, $runningMeeting->stats()->count());
+
+        // check with disabled meeting stats
+        setting(['statistics.servers.enabled' => true]);
+        setting(['statistics.meetings.enabled' => false]);
+        $this->artisan('history:build');
+        $this->assertEquals(2, $runningMeeting->server->stats()->count());
+        $this->assertEquals(2, $runningMeeting->stats()->count());
 
         // Cleanup
         $runningMeeting->endMeeting();
