@@ -410,7 +410,7 @@
               label-class="font-weight-bold"
               :state='fieldState("statistics.servers.enabled")'
               :label="$t('settings.application.statistics.servers.enabledTitle')"
-              ref='statistics-server-form-group'
+              ref='statistics-servers-enabled-form-group'
             >
                 <b-form-checkbox
                   id='statistics-server-enabled'
@@ -431,7 +431,7 @@
               label-class="font-weight-bold"
               :state='fieldState("statistics.servers.retention_period")'
               :label="$t('settings.application.statistics.servers.retentionPeriodTitle')"
-              ref='statistics-server-form-group'
+              ref='statistics-servers-retention-form-group'
             >
               <b-form-input
                 id='statistics-server-retention-period-input'
@@ -457,7 +457,7 @@
               label-class="font-weight-bold"
               :state='fieldState("statistics.meetings.enabled")'
               :label="$t('settings.application.statistics.meetings.enabledTitle')"
-              ref='statistics-meetings-form-group'
+              ref='statistics-meetings-enabled-form-group'
             >
               <b-form-checkbox
                 id='statistics-meetings-enabled'
@@ -478,7 +478,7 @@
               label-class="font-weight-bold"
               :state='fieldState("statistics.meetings.retention_period")'
               :label="$t('settings.application.statistics.meetings.retentionPeriodTitle')"
-              ref='statistics-meetings-form-group'
+              ref='statistics-meetings-retention-form-group'
             >
               <b-form-input
                 id='statistics-meetings-retention-period-input'
@@ -504,7 +504,7 @@
               label-class="font-weight-bold"
               :state='fieldState("attendance.enabled")'
               :label="$t('settings.application.attendance.enabledTitle')"
-              ref='statistics-meetings-form-group'
+              ref='attendance-enabled-form-group'
             >
               <b-form-checkbox
                 id='attendance-enabled'
@@ -525,7 +525,7 @@
               label-class="font-weight-bold"
               :state='fieldState("attendance.retention_period")'
               :label="$t('settings.application.attendance.retentionPeriodTitle')"
-              ref='statistics-meetings-form-group'
+              ref='attendance-retention-form-group'
             >
               <b-form-input
                 id='statistics-meetings-retention-period-input'

@@ -79,7 +79,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -90,6 +104,13 @@ describe('Application', function () {
         expect(view.vm.$data.settings.pagination_page_size).toBe(10);
         expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('unlimited');
+
+        expect(view.vm.$data.settings.statistics.servers.enabled).toBeTruthy();
+        expect(view.vm.$data.settings.statistics.meetings.enabled).toBeFalsy();
+        expect(view.vm.$data.settings.attendance.enabled).toBeTruthy();
+        expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
+        expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
+        expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
         done();
       });
     });
@@ -117,7 +138,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -168,7 +203,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -191,7 +240,21 @@ describe('Application', function () {
                 banner: {
                   enabled: false
                 },
-                bbb: bbbSettings
+                bbb: bbbSettings,
+                statistics: {
+                  servers: {
+                    enabled: false,
+                    retention_period: 14
+                  },
+                  meetings: {
+                    enabled: true,
+                    retention_period: 90
+                  }
+                },
+                attendance: {
+                  enabled: false,
+                  retention_period: 7
+                }
               }
             }
           }).then(() => {
@@ -203,6 +266,13 @@ describe('Application', function () {
             expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
             expect(view.vm.$data.roomLimitMode).toBe('custom');
             expect(view.vm.$data.isBusy).toBeFalsy();
+
+            expect(view.vm.$data.settings.statistics.servers.enabled).toBeFalsy();
+            expect(view.vm.$data.settings.statistics.meetings.enabled).toBeTruthy();
+            expect(view.vm.$data.settings.attendance.enabled).toBeFalsy();
+            expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(14);
+            expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(90);
+            expect(view.vm.$data.settings.attendance.retention_period).toBe(7);
             done();
           });
         });
@@ -245,7 +315,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -268,7 +352,21 @@ describe('Application', function () {
                 banner: {
                   enabled: false
                 },
-                bbb: bbbSettings
+                bbb: bbbSettings,
+                statistics: {
+                  servers: {
+                    enabled: true,
+                    retention_period: 7
+                  },
+                  meetings: {
+                    enabled: false,
+                    retention_period: 30
+                  }
+                },
+                attendance: {
+                  enabled: true,
+                  retention_period: 14
+                }
               }
             }
           }).then(() => {
@@ -377,7 +475,21 @@ describe('Application', function () {
               link: null
             },
             bbb: bbbSettings,
-            help_url: null
+            help_url: null,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -385,7 +497,7 @@ describe('Application', function () {
         const bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
         expect(bannerEnableBox.props('checked')).toBe(true);
         return bannerEnableBox.get('input').trigger('click');
-      }).then(() => {
+      }).then(async () => {
         const bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
         const bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
         expect(bannerEnableBox.props('checked')).toBe(false);
@@ -404,6 +516,18 @@ describe('Application', function () {
           link: null
         });
 
+        const statisticsServersEnabledCheckbox = view.findComponent({ ref: 'statistics-servers-enabled-form-group' }).findComponent(BFormCheckbox);
+        expect(statisticsServersEnabledCheckbox.props('checked')).toBe(true);
+        await statisticsServersEnabledCheckbox.get('input').trigger('click');
+
+        const statisticsMeetingsEnabledCheckbox = view.findComponent({ ref: 'statistics-meetings-enabled-form-group' }).findComponent(BFormCheckbox);
+        expect(statisticsMeetingsEnabledCheckbox.props('checked')).toBe(false);
+        await statisticsMeetingsEnabledCheckbox.get('input').trigger('click');
+
+        const attendanceEnabledCheckbox = view.findComponent({ ref: 'attendance-enabled-form-group' }).findComponent(BFormCheckbox);
+        expect(attendanceEnabledCheckbox.props('checked')).toBe(true);
+        await attendanceEnabledCheckbox.get('input').trigger('click');
+
         const saveSettingsButton = view.find('#application-save-button');
         expect(saveSettingsButton.exists()).toBeTruthy();
         saveSettingsButton.trigger('click');
@@ -418,6 +542,11 @@ describe('Application', function () {
           expect(request.config.data.get('banner[icon]')).toStrictEqual('');
           expect(request.config.data.get('banner[link]')).toStrictEqual('');
           expect(request.config.data.get('help_url')).toStrictEqual('');
+
+          expect(request.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
+          expect(request.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
+          expect(request.config.data.get('attendance[enabled]')).toStrictEqual('0');
+
           view.destroy();
           done();
         });
@@ -450,7 +579,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -503,7 +646,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -561,7 +718,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -704,7 +875,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -754,7 +939,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -803,7 +1002,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -863,7 +1076,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -913,7 +1140,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -972,7 +1213,21 @@ describe('Application', function () {
             banner: {
               enabled: false
             },
-            bbb: bbbSettings
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -1032,7 +1287,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -1091,7 +1360,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {
@@ -1157,7 +1440,21 @@ describe('Application', function () {
               enabled: false
             },
             bbb: bbbSettings,
-            default_presentation: 'foo.pdf'
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
           }
         }
       }).then(() => {

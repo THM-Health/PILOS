@@ -54,7 +54,7 @@ const store = new Vuex.Store({
       },
       getters: {
         isAuthenticated: () => true,
-        settings: () => (setting) => null
+        settings: () => (setting) => setting === 'attendance.enabled' ? true : null
       }
     }
   },
@@ -169,6 +169,7 @@ describe('RoomSettings', function () {
       expect(radios.at(3).element.checked).toBeTruthy();
       expect(radios.at(4).element.checked).toBeFalsy();
       expect(checkboxes.at(3).element.checked).toBeTruthy();
+      expect(checkboxes.at(3).element.parentElement.outerHTML).toContain('rooms.settings.participants.recordAttendance');
 
       // permissions
       expect(checkboxes.at(4).element.checked).toBeFalsy();
@@ -769,6 +770,139 @@ describe('RoomSettings', function () {
             done();
           });
         });
+      });
+    });
+  });
+
+  it('load and save settings with attendance logging globally disabled', function (done) {
+    const store = new Vuex.Store({
+      modules: {
+        session: {
+          namespaced: true,
+          actions: {
+            getCurrentUser () {}
+          },
+          state: {
+            currentUser: exampleUser
+          },
+          getters: {
+            isAuthenticated: () => true,
+            settings: () => (setting) => setting === 'attendance.enabled' ? false : null
+          }
+        }
+      },
+      state: {
+        loadingCounter: 0
+      }
+    });
+
+    PermissionService.setCurrentUser(exampleUser);
+    moxios.stubRequest(`/api/v1/roomTypes?filter=${ownerRoom.id}`, {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
+    const view = mount(SettingsComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+      },
+      propsData: {
+        room: ownerRoom
+      },
+      store,
+      attachTo: createContainer(),
+      data () {
+        return {
+          welcomeMessageLimit: '50'
+        };
+      }
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      // check for settings request and reply with settings
+      const request = moxios.requests.at(0);
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            name: 'Meeting One',
+            roomType: {
+              id: 1,
+              short: 'VL',
+              description: 'Vorlesung',
+              color: '#80BA27',
+              allow_listing: true,
+              model_name: 'RoomType',
+              updated_at: '2021-02-04T11:36:39.000000Z'
+            },
+            accessCode: null,
+            muteOnStart: true,
+            lockSettingsDisableCam: false,
+            webcamsOnlyForModerator: true,
+            lockSettingsDisableMic: false,
+            lockSettingsDisablePrivateChat: false,
+            lockSettingsDisablePublicChat: true,
+            lockSettingsDisableNote: true,
+            lockSettingsLockOnJoin: true,
+            lockSettingsHideUserList: false,
+            everyoneCanStart: false,
+            allowGuests: true,
+            allowMembership: false,
+            welcome: 'welcome',
+            maxParticipants: 10,
+            duration: 5,
+            defaultRole: 1,
+            lobby: 1,
+            listed: true,
+            record_attendance: true
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      // check if the checkbox with the record attendance is missing
+      const checkboxes = view.findAll('input[type="checkbox"]');
+      expect(checkboxes.at(3).element.parentElement.outerHTML).not.toContain('rooms.settings.participants.recordAttendance');
+
+      // search for save button
+      const saveButton = view.findAllComponents(BButton).at(5);
+      expect(saveButton.text()).toBe('app.save');
+
+      // test server error
+      await saveButton.trigger('click');
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toEqual('/api/v1/rooms/123-456-789');
+        expect(request.config.method).toBe('put');
+        expect(JSON.parse(request.config.data)).toMatchObject({
+          name: 'Meeting One',
+          roomType: 1,
+          accessCode: null,
+          muteOnStart: true,
+          lockSettingsDisableCam: false,
+          webcamsOnlyForModerator: true,
+          lockSettingsDisableMic: false,
+          lockSettingsDisablePrivateChat: false,
+          lockSettingsDisablePublicChat: true,
+          lockSettingsDisableNote: true,
+          lockSettingsLockOnJoin: true,
+          lockSettingsHideUserList: false,
+          everyoneCanStart: false,
+          allowGuests: true,
+          allowMembership: false,
+          welcome: 'welcome',
+          maxParticipants: 10,
+          duration: 5,
+          defaultRole: 1,
+          lobby: 1,
+          listed: true,
+          record_attendance: true
+        });
+
+        done();
       });
     });
   });
