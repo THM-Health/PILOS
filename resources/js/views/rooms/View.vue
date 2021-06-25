@@ -230,8 +230,8 @@ import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
 import store from '../../store';
-import App from '../../app';
 import Vue from 'vue';
+import i18n from '../../i18n';
 
 export default {
   directives: {
@@ -263,7 +263,7 @@ export default {
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
     if (to.params.token && store.getters['session/isAuthenticated']) {
-      Vue.prototype.flashMessage.info(App.$t('app.flash.guestsOnly'));
+      Vue.prototype.flashMessage.info(i18n.t('app.flash.guestsOnly'));
       return next(from.matched.length !== 0 ? false : '/');
     }
 
