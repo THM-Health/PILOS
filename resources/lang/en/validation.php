@@ -258,6 +258,7 @@ return [
         'default_timezone'                  => 'Default timezone',
         'default_presentation'              => 'Default presentation',
         'help_url'                          => 'URL to the help',
-        'restrict'                          => 'Restrict usage'
+        'restrict'                          => 'Restrict usage',
+        'room_token_expiration'             => 'Expiration time for personalized room links'
     ],
 ];

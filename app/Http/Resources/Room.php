@@ -14,6 +14,7 @@ class Room extends JsonResource
      */
     private $authenticated;
     private $details;
+    private $token;
 
     /**
      * Create a new resource instance.
@@ -21,11 +22,12 @@ class Room extends JsonResource
      * @param mixed $resource
      * @param $authenticated boolean is user authenticated (has valid access code, member or owner)
      */
-    public function __construct($resource, $authenticated, $details = false)
+    public function __construct($resource, $authenticated, $details = false, $token = null)
     {
         parent::__construct($resource);
         $this->authenticated = $authenticated;
         $this->details       = $details;
+        $this->token         = \App\RoomToken::find($token);
     }
 
     /**
@@ -46,14 +48,15 @@ class Room extends JsonResource
             'type'              => new RoomType($this->roomType),
             'model_name'        => $this->model_name,
             $this->mergeWhen($this->details, [
+                'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
                 'authenticated'     => $this->authenticated,
                 'allowMembership'   => $this->allowMembership,
                 'isMember'          => $this->resource->isMember(Auth::user()),
-                'isModerator'       => $this->resource->isModerator(Auth::user()),
+                'isModerator'       => $this->resource->isModerator(Auth::user(), $this->token),
                 'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
-                'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
+                'canStart'          => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
                 'running'           => $this->resource->runningMeeting() != null,
-                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
+                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource, $this->token])->allowed(), $this->accessCode),
                 'roomTypeInvalid'   => $this->roomTypeInvalid
             ])
         ];

@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\CreateAdminUser;
 use App\Console\Commands\BuildHistory;
+use App\Console\Commands\DeleteObsoleteTokens;
 use App\Console\Commands\DeleteUnverifiedNewUsers;
 use App\Console\Commands\ImportGreenlight;
 use Illuminate\Console\Scheduling\Schedule;
@@ -19,7 +20,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         BuildHistory::class,
         CreateAdminUser::class,
-        ImportGreenlight::class
+        ImportGreenlight::class,
+        DeleteObsoleteTokens::class
     ];
 
     /**
@@ -32,6 +34,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(BuildHistory::class)->everyMinute();
         $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute();
+        $schedule->command(DeleteObsoleteTokens::class)->daily();
     }
 
     /**

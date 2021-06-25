@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
 - Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
 - Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
+- Personalized room tokens ([#72], [#145])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
@@ -152,8 +153,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#140]: https://github.com/THM-Health/PILOS/pull/140
 [#141]: https://github.com/THM-Health/PILOS/issues/141
 [#142]: https://github.com/THM-Health/PILOS/pull/142
-[#141]: https://github.com/THM-Health/PILOS/issues/143
-[#142]: https://github.com/THM-Health/PILOS/pull/144
+[#143]: https://github.com/THM-Health/PILOS/issues/143
+[#144]: https://github.com/THM-Health/PILOS/pull/144
+[#72]: https://github.com/THM-Health/PILOS/issues/72
+[#145]: https://github.com/THM-Health/PILOS/pull/145
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

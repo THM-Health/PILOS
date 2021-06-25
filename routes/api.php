@@ -71,6 +71,13 @@ Route::prefix('v1')->namespace('api\v1')->name('api.v1.')->group(function () {
         Route::post('rooms/{room}/member', 'RoomMemberController@store')->name('rooms.member.add')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/{user}', 'RoomMemberController@update')->name('rooms.member.update')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/{user}', 'RoomMemberController@destroy')->name('rooms.member.remove')->middleware('can:manageMembers,room');
+
+        // Personalized room tokens
+        Route::get('rooms/{room}/tokens', 'RoomTokenController@index')->name('rooms.tokens.get')->middleware('can:viewTokens,room');
+        Route::post('rooms/{room}/tokens', 'RoomTokenController@store')->name('rooms.tokens.add')->middleware('can:manageTokens,room');
+        Route::put('rooms/{room}/tokens/{token}', 'RoomTokenController@update')->name('rooms.tokens.update')->middleware('can:manageTokens,room');
+        Route::delete('rooms/{room}/tokens/{token}', 'RoomTokenController@destroy')->name('rooms.tokens.remove')->middleware('can:manageTokens,room');
+
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
             Route::post('rooms/{room}/files', 'RoomFileController@store')->name('rooms.files.add');

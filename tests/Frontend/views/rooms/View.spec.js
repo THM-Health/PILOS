@@ -26,6 +26,8 @@ localVue.use(Clipboard);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
+let routerMock;
+
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
 const store = new Vuex.Store({
@@ -72,6 +74,14 @@ function overrideStub (url, response) {
 describe('Room', function () {
   beforeEach(function () {
     moxios.install();
+    routerMock = new VueRouter({
+      mode: 'abstract',
+      routes: [{
+        path: '/rooms/:id/:token?',
+        name: 'rooms.view',
+        component: RoomView
+      }]
+    });
   });
   afterEach(function () {
     moxios.uninstall();
@@ -170,6 +180,7 @@ describe('Room', function () {
         $t: (key) => key
       },
       store,
+      router: routerMock,
       attachTo: createContainer()
     });
 
@@ -210,6 +221,7 @@ describe('Room', function () {
         $t: (key) => key
       },
       store,
+      router: routerMock,
       attachTo: createContainer()
     });
 
@@ -248,6 +260,7 @@ describe('Room', function () {
         $t: (key) => key
       },
       store,
+      router: routerMock,
       attachTo: createContainer()
     });
 
@@ -289,6 +302,7 @@ describe('Room', function () {
         $t: (key) => key
       },
       store,
+      router: routerMock,
       attachTo: createContainer()
     });
 
@@ -368,6 +382,7 @@ describe('Room', function () {
         $t: (key) => key
       },
       store,
+      router: routerMock,
       attachTo: createContainer()
     });
 

@@ -15,7 +15,8 @@ return [
         'server_delete_failed'        => 'The server could not be deleted. To delete the server, it must be deactivated and no meetings must be running.',
         'server_pool_delete_failed'   => 'The server pool could not be deleted. To delete the server pool, it must not be used by any room type.',
         'room_type_invalid'           => 'The type of the room is restricted for special user groups. Please change the room type to start the room, if you are the owner if this room.',
-        'no_room_access'              => 'You does not have the necessary permissions, to edit this room.'
+        'no_room_access'              => 'You does not have the necessary permissions, to edit this room.',
+        'token_not_found'             => 'The personalized room link could not be found.',
     ],
     'model' => [
         'roles'        => 'role',

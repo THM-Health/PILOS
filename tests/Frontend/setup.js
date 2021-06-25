@@ -1,5 +1,5 @@
 require('jsdom-global')(undefined, {
-  url: 'http://test.de'
+  url: 'http://localhost'
 });
 
 global.expect = require('expect');

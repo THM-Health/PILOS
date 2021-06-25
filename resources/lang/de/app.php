@@ -15,7 +15,8 @@ return [
         'server_delete_failed'        => 'Der Server konnte nicht gelöscht werden. Um den Server zu löschen, muss dieser deaktivert werden und es dürfen keine Meetings laufen.',
         'server_pool_delete_failed'   => 'Der Serverpool konnte nicht gelöscht werden. Um den Serverpool zu löschen, darf dieser von keiner Raumart verwendet werden.',
         'room_type_invalid'           => 'Die Art des Raumes ist für bestimmte Nutzergruppen eingeschränkt. Wenn Sie der Beistzer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum gestartet werden kann.',
-        'no_room_access'              => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.'
+        'no_room_access'              => 'Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.',
+        'token_not_found'             => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'model' => [
         'roles'        => 'Rollen',
