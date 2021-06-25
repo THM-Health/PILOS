@@ -131,36 +131,4 @@ class BuildHistoryTest extends TestCase
         // Cleanup
         $runningMeeting->endMeeting();
     }
-
-    /**
-     * Check if attendance is getting logged
-     */
-
-    /**
-    public function testLogAttendance()
-    {
-        $room = factory(Room::class)->create([]);
-        setting(['log_attendance' => true]);
-
-        // Adding server(s)
-        $this->seed('ServerSeeder');
-
-        // Start meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
-            ->assertSuccessful();
-        $this->assertIsString($response->json('url'));
-
-        // Get new meeting
-        $runningMeeting = $room->runningMeeting();
-
-        // Refresh usage and build history
-        $this->artisan('history:build');
-
-        // Check if array with attendees was created
-        $this->assertNotNull($runningMeeting->stats->last()->attendees);
-
-        // Cleanup
-        $runningMeeting->endMeeting();
-    }
-     */
 }
