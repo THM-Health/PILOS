@@ -293,7 +293,7 @@ export default {
     });
   },
   mounted () {
-    // Reload room details in a set inteval, change in the .env
+    // Reload room details in a set interval, change in the .env
     this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
   },
   destroyed () {

@@ -192,6 +192,8 @@ describe('Room', function () {
       view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
+
+      store.commit('session/setCurrentUser', { currentUser: exampleUser });
       view.destroy();
       done();
     });
@@ -586,6 +588,9 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
+      stubs: {
+        'file-component': true
+      },
       store,
       attachTo: createContainer()
     });
@@ -626,6 +631,7 @@ describe('Room', function () {
 
         expect(window.location).toEqual('test.tld');
         window.location = oldWindow;
+        view.destroy();
         done();
       });
     });
@@ -645,6 +651,9 @@ describe('Room', function () {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
       },
       store,
       attachTo: createContainer()
@@ -679,6 +688,8 @@ describe('Room', function () {
 
         expect(window.location).toEqual('test.tld');
         window.location = oldWindow;
+
+        view.destroy();
         done();
       });
     });
@@ -700,6 +711,9 @@ describe('Room', function () {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
       },
       store,
       attachTo: createContainer()
@@ -740,6 +754,8 @@ describe('Room', function () {
 
         expect(window.location).toEqual('test.tld');
         window.location = oldWindow;
+        store.commit('session/setCurrentUser', { currentUser: exampleUser });
+        view.destroy();
         done();
       });
     });
@@ -758,6 +774,9 @@ describe('Room', function () {
       mocks: {
         $t: (key) => key
       },
+      stubs: {
+        'file-component': true
+      },
       store,
       attachTo: createContainer()
     });
@@ -771,6 +790,7 @@ describe('Room', function () {
       expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
 
       const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      expect(joinButton.attributes('disabled')).toBeUndefined();
       await joinButton.trigger('click');
 
       moxios.wait(async () => {
@@ -797,6 +817,7 @@ describe('Room', function () {
         await agreementCheckbox.get('input').trigger('click');
 
         const joinButton = view.findComponent({ ref: 'joinMeeting' });
+        expect(joinButton.attributes('disabled')).toBeUndefined();
         await joinButton.trigger('click');
 
         moxios.wait(async () => {
@@ -820,6 +841,7 @@ describe('Room', function () {
 
           Base.error.restore();
 
+          view.destroy();
           done();
         });
       });
