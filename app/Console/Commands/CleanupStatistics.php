@@ -29,9 +29,12 @@ class CleanupStatistics extends Command
      */
     public function handle()
     {
-        // Remove all attendance data older than the retention period
-        $day = now()->subDays(setting('attendance.retention_period'))->toDateString();
-        ServerStat::where('created_at', '<', $day)->delete();
-        MeetingStat::where('created_at', '<', $day)->delete();
+        // Remove all server statistics data older than the retention period
+        $serverDay = now()->subDays(setting('statistics.servers.retention_period'))->toDateString();
+        ServerStat::where('created_at', '<', $serverDay)->delete();
+
+        // Remove all meeting statistics data older than the retention period
+        $meetingDay = now()->subDays(setting('statistics.meetings.retention_period'))->toDateString();
+        MeetingStat::where('created_at', '<', $meetingDay)->delete();
     }
 }
