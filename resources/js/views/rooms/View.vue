@@ -107,20 +107,20 @@
               </b-col>
               <!-- Show room start or join button -->
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
+
+                <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
+                  <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  <b-form-checkbox
+                    v-model="recordAttendanceAgreement"
+                    value="accepted"
+                    unchecked-value="not_accepted"
+                  >
+                    {{ $t('rooms.recordingAttendanceAccept')}}
+                  </b-form-checkbox>
+                </b-alert>
+
                 <!-- If room is running, show join button -->
                 <template v-if="room.running">
-
-                  <b-alert show v-if="room.record_attendance" class="text-center p-3">
-                    <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
-                    <b-form-checkbox
-                      v-model="recordAttendanceAgreement"
-                      value="accepted"
-                      unchecked-value="not_accepted"
-                    >
-                      {{ $t('rooms.files.termsOfUse.accept')}}
-                    </b-form-checkbox>
-                  </b-alert>
-
                   <!-- If user is guest, join is only possible if a name is provided -->
                   <b-button
                     block
@@ -134,18 +134,6 @@
                 </template>
                 <!-- If room is not running -->
                 <template v-else>
-
-                  <b-alert show v-if="room.record_attendance" class="text-center p-3">
-                    <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
-                    <b-form-checkbox
-                      v-model="recordAttendanceAgreement"
-                      value="accepted"
-                      unchecked-value="not_accepted"
-                    >
-                      {{ $t('rooms.recordingAttendanceAccept')}}
-                    </b-form-checkbox>
-                  </b-alert>
-
                   <b-button
                     block
                     ref="startMeeting"

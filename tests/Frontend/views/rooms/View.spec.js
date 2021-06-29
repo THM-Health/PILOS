@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
@@ -569,5 +569,260 @@ describe('Room', function () {
       done();
     };
     RoomView.beforeRouteEnter.call(view.vm, to, undefined, next);
+  });
+
+  it('join running meeting', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-789', {
+      status: 200,
+      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false } }
+    });
+
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-789' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
+
+      const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      await view.vm.$nextTick();
+      expect(joinButton.attributes('disabled')).toBeUndefined();
+
+      await joinButton.trigger('click');
+      await view.vm.$nextTick();
+
+      expect(joinButton.attributes('disabled')).toEqual('disabled');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+        expect(request.config.params).toEqual({ name: '', record_attendance: 'not_accepted' });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            url: 'test.tld'
+          }
+        });
+
+        await view.vm.$nextTick();
+
+        expect(joinButton.attributes('disabled')).toBeUndefined();
+
+        expect(window.location).toEqual('test.tld');
+        window.location = oldWindow;
+        done();
+      });
+    });
+  });
+
+  it('join running meeting, attendance logging', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-789', {
+      status: 200,
+      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: true } }
+    });
+
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-789' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
+      const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
+      await agreementCheckbox.get('input').trigger('click');
+
+      const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      await view.vm.$nextTick();
+      await joinButton.trigger('click');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+        expect(request.config.params).toEqual({ name: '', record_attendance: 'accepted' });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            url: 'test.tld'
+          }
+        });
+
+        expect(window.location).toEqual('test.tld');
+        window.location = oldWindow;
+        done();
+      });
+    });
+  });
+
+  it('join running meeting guests', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-789', {
+      status: 200,
+      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: true } }
+    });
+
+    store.commit('session/setCurrentUser', { currentUser: null });
+
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-789' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
+      const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
+      await agreementCheckbox.get('input').trigger('click');
+
+      const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      const nameInput = view.findComponent({ ref: 'guestName' });
+      expect(joinButton.attributes('disabled')).toEqual('disabled');
+      nameInput.setValue('John Doe');
+      await view.vm.$nextTick();
+      expect(joinButton.attributes('disabled')).toBeUndefined();
+
+      await view.vm.$nextTick();
+      await joinButton.trigger('click');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 'accepted' });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            url: 'test.tld'
+          }
+        });
+
+        expect(window.location).toEqual('test.tld');
+        window.location = oldWindow;
+        done();
+      });
+    });
+  });
+
+  it('join meeting errors', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-789', {
+      status: 200,
+      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false } }
+    });
+
+    const baseError = sinon.stub(Base, 'error');
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-789' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
+
+      const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      await joinButton.trigger('click');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+        expect(request.config.params).toEqual({ name: '', record_attendance: 'not_accepted' });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 470,
+          response: {
+            message: 'Consent to record attendance is required.'
+          }
+        });
+
+        await view.vm.$nextTick();
+
+        expect(baseError.calledOnce).toBeTruthy();
+        expect(baseError.getCall(0).args[0].response.status).toEqual(470);
+        expect(baseError.getCall(0).args[0].response.data.message).toEqual('Consent to record attendance is required.');
+
+        expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
+        const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
+        await agreementCheckbox.get('input').trigger('click');
+
+        const joinButton = view.findComponent({ ref: 'joinMeeting' });
+        await joinButton.trigger('click');
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('get');
+          expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+          expect(request.config.params).toEqual({ name: '', record_attendance: 'accepted' });
+
+          await moxios.requests.mostRecent().respondWith({
+            status: 460,
+            response: {
+              message: 'Joining failed! The room is currently closed.'
+            }
+          });
+
+          expect(baseError.calledTwice).toBeTruthy();
+          expect(baseError.getCall(1).args[0].response.status).toEqual(460);
+          expect(baseError.getCall(1).args[0].response.data.message).toEqual('Joining failed! The room is currently closed.');
+
+          expect(view.findComponent({ ref: 'joinMeeting' }).exists()).toBeFalsy();
+
+          Base.error.restore();
+
+          done();
+        });
+      });
+    });
   });
 });
