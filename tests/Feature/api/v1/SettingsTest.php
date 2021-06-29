@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Meeting;
+use App\MeetingAttendee;
 use App\Permission;
 use App\Role;
 use App\User;
@@ -851,5 +853,68 @@ class SettingsTest extends TestCase
             ->assertSuccessful();
         $this->assertEmpty(setting('default_presentation'));
         Storage::disk('public')->assertMissing('default_presentation/default.jpg');
+    }
+
+    /**
+     * Test if the attendance recording is getting disabled for a running meeting and attendance data removed, if the global setting is changed
+     * After the global setting is disabled new attendees would not see a warning, but are recorded if this global setting is re-enabled during the meeting
+     * To prevent this, the attendance recording is disabled until the end of the meeting
+     */
+    public function testRecordAttendanceIsDisabledForRunningMeetings()
+    {
+        // Enable attendance record
+        setting(['attendance.enabled'=>true]);
+
+        // Create two fake meetings
+        $meetingRunning = factory(Meeting::class)->create(['end'=>null,'record_attendance'=>true]);
+        $meetingEnded   = factory(Meeting::class)->create(['record_attendance'=>true]);
+
+        $meetingRunning->attendees()->save(new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']));
+
+        // Payload to disable attendance recording
+        $payload = [
+            'name'                           => 'test',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false,
+            'default_timezone'               => 'Europe/Berlin',
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
+        ];
+
+        // Add necessary role and permission to user to update application settings
+        $role       = factory(Role::class)->create();
+        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Update global settings
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful();
+
+        // Check if record attendance was disabled for running meetings
+        $meetingRunning->refresh();
+        $meetingEnded->refresh();
+        $this->assertFalse($meetingRunning->record_attendance);
+        $this->assertTrue($meetingEnded->record_attendance);
+
+        // Check if all attendance data is removed
+        $this->assertCount(0, $meetingRunning->attendees);
     }
 }
