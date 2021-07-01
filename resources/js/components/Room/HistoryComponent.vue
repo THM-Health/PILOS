@@ -37,7 +37,7 @@
             fixed
             hover
             stacked='lg'
-            show-empty
+            :show-empty="!meetingsLoadingError"
             :busy.sync='meetingsLoading'
             :fields='meetingsTableFields'
             :items='fetchMeetings'
@@ -96,7 +96,7 @@
             :disabled='meetingsLoading || meetingsLoadingError'
           ></b-pagination>
 
-          <div v-if="settings('attendance.enabled') || settings('statistics.meetings.enabled')">
+          <div v-if="settings('attendance.enabled') || settings('statistics.meetings.enabled')" id="retentionPeriodInfo">
             <hr>
             <b>{{ $t('meetings.retentionPeriod') }}</b><br>
             <span v-if="settings('statistics.meetings.enabled')">{{ $t('meetings.stats.retentionPeriod', {'days': settings('statistics.meetings.retention_period')}) }}</span><br>
@@ -106,20 +106,21 @@
       </div>
 
       <!-- Statistics modal -->
-      <b-modal v-model="statsModal" size="xl" hide-footer>
+      <b-modal :static="modalStatic" size="xl" hide-footer id="statsModal">
         <template #modal-title>
-          {{ $t('meetings.stats.modalTitle',{room: room.name }) }}
+          <h5 v-if="statsMeeting">{{ $t('meetings.stats.modalTitle',{room: room.name }) }}
           <br><small>{{ $date.utc(statsMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $date.utc(statsMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
+          </h5>
         </template>
         <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
 
-        <line-chart :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
+        <line-chart v-if="statsMeeting" :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
       </b-modal>
       <!-- Attendance modal -->
-      <b-modal v-model="attendanceModal" size="xl" hide-footer title-tag="div" title-class="w-100">
+      <b-modal :static="modalStatic" size="xl" hide-footer id="attendanceModal" title-tag="div" title-class="w-100">
         <template #modal-title >
           <div class="d-flex justify-content-between align-items-center">
-            <h5>{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
+            <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
               <br><small>{{ $date.utc(attendanceMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(attendanceMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
             </h5>
             <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fas fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
@@ -133,7 +134,6 @@
           :per-page="settings('pagination_page_size')"
           :fields="attendanceTableFields"
           sort-by="name"
-          :sort-desc="true"
           v-if="attendance"
           :items="attendance"
           hover
@@ -154,9 +154,7 @@
           </template>
 
           <template v-slot:cell(sessions)="data">
-            <p v-for="session in data.item.sessions" :key="session.id" >
-              {{ $date.utc(session.join).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(session.leave).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text>
-            </p>
+            <p v-for="session in data.item.sessions" :key="session.id" >{{ $date.utc(session.join).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(session.leave).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text></p>
           </template>
         </b-table>
         <b-pagination
@@ -182,7 +180,11 @@ import RawText from '../RawText';
 export default {
   components: { RawText, LineChart },
   props: {
-    room: Object
+    room: Object,
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data () {
@@ -198,7 +200,6 @@ export default {
 
       // statistics of meeting
       statsLoading: false,
-      statsModal: false,
       statsMeeting: null,
       chartDataRows: {
         participants: [],
@@ -208,10 +209,9 @@ export default {
 
       // attendance of meeting
       attendanceLoading: false,
-      attendanceModal: false,
       attendanceMeeting: null,
       attendance: [],
-      attendanceCurrentPage: 0
+      attendanceCurrentPage: 1
     };
   },
   methods: {
@@ -271,7 +271,7 @@ export default {
           });
 
           // show modal
-          this.statsModal = true;
+          this.$bvModal.show('statsModal');
         }).catch((error) => {
           // error during stats loading
           Base.error(error, this.$root);
@@ -294,7 +294,7 @@ export default {
           // set attendance data
           this.attendance = response.data.data;
           // show modal
-          this.attendanceModal = true;
+          this.$bvModal.show('attendanceModal');
         }).catch((error) => {
           Base.error(error, this.$root);
         }).finally(() => {
