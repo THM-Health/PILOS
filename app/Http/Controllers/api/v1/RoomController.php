@@ -153,7 +153,7 @@ class RoomController extends Controller
             }
 
             // Check if user didn't see the attendance recording note, but the attendance is recorded
-            if (setting('attendance.enabled') && $room->record_attendance && $request->record_attendance != 'accepted') {
+            if (setting('attendance.enabled') && $room->record_attendance && !$request->record_attendance) {
                 abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
             }
 
@@ -240,7 +240,7 @@ class RoomController extends Controller
         }
 
         // Check if user didn't see the attendance recording note, but the attendance is recorded
-        if (setting('attendance.enabled') && $meeting->record_attendance && $request->record_attendance != 'accepted') {
+        if (setting('attendance.enabled') && $meeting->record_attendance && !$request->record_attendance) {
             abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
         }
 
@@ -306,6 +306,13 @@ class RoomController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * List of all meeting of the given room
+     *
+     * @param  Room                                                        $room
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function meetings(Room $room)
     {
         $this->authorize('viewStatistics', $room);

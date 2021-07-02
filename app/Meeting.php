@@ -148,11 +148,17 @@ class Meeting extends Model
         $this->setEnd();
     }
 
+    /**
+     * Set end time of the meeting and
+     * set end time of attendance
+     */
     public function setEnd()
     {
         $this->end = now();
         $this->save();
 
+        // set end time of the attendance to the end time of the meeting
+        // for all users that have been present to the end
         foreach ($this->attendees()->whereNull('leave')->get() as $attendee) {
             $attendee->leave = now();
             $attendee->save();

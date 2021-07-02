@@ -112,8 +112,8 @@
                   <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
                   <b-form-checkbox
                     v-model="recordAttendanceAgreement"
-                    value="accepted"
-                    unchecked-value="not_accepted"
+                    :value="true"
+                    :unchecked-value="false"
                   >
                     {{ $t('rooms.recordingAttendanceAccept')}}
                   </b-form-checkbox>
@@ -126,7 +126,7 @@
                     block
                     ref="joinMeeting"
                     v-on:click="join"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && recordAttendanceAgreement !== 'accepted')"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     variant="success"
                   >
                     <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.join') }}
@@ -138,7 +138,7 @@
                     block
                     ref="startMeeting"
                     v-if="room.canStart"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && recordAttendanceAgreement !== 'accepted')"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     v-on:click="start"
                     variant="success"
                   >
@@ -265,7 +265,7 @@ export default {
       accessCode: null, // Access code to use for requests
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
-      recordAttendanceAgreement: 'not_accepted'
+      recordAttendanceAgreement: false
     };
   },
   // Component not loaded yet
@@ -398,7 +398,7 @@ export default {
       const config = {
         params: {
           name: this.name,
-          record_attendance: this.recordAttendanceAgreement
+          record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
 
@@ -448,7 +448,7 @@ export default {
       const config = {
         params: {
           name: this.name,
-          record_attendance: this.recordAttendanceAgreement
+          record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
 

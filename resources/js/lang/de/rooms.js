@@ -165,7 +165,7 @@ export default {
         enabled: 'Aktiviert',
         onlyForGuestsEnabled: 'Aktiviert für Gäste'
       },
-      recordAttendance: 'Anwesenheit protokollieren'
+      recordAttendance: 'Anwesenheit der Teilnehmer protokollieren'
     },
     permissions: {
       title: 'Berechtigungen',

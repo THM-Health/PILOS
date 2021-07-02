@@ -73,7 +73,7 @@ class BuildHistoryTest extends TestCase
         $this->seed('ServerSeeder');
 
         // Start meeting
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 'accepted']))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 

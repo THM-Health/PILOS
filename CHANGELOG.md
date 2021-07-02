@@ -15,8 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
 - Incompatible room id field for greenlight room ids ([#143], [#144])
-
-### Fixed
 - Start time in the list of currently running meetings not adjusted to the user's time zone setting ([#134])
 
 ## [1.3.0] - 2021-05-05

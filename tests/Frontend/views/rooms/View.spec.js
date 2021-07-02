@@ -616,7 +616,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-        expect(request.config.params).toEqual({ name: '', record_attendance: 'not_accepted' });
+        expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 200,
@@ -677,7 +677,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-        expect(request.config.params).toEqual({ name: '', record_attendance: 'accepted' });
+        expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 200,
@@ -743,7 +743,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 'accepted' });
+        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 200,
@@ -797,7 +797,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-        expect(request.config.params).toEqual({ name: '', record_attendance: 'not_accepted' });
+        expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 470,
@@ -824,7 +824,7 @@ describe('Room', function () {
           const request = moxios.requests.mostRecent();
           expect(request.config.method).toEqual('get');
           expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-          expect(request.config.params).toEqual({ name: '', record_attendance: 'accepted' });
+          expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
 
           await moxios.requests.mostRecent().respondWith({
             status: 460,
@@ -891,7 +891,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-        expect(request.config.params).toEqual({ name: '', record_attendance: 'not_accepted' });
+        expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 200,
@@ -952,7 +952,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-        expect(request.config.params).toEqual({ name: '', record_attendance: 'accepted' });
+        expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 200,
@@ -1018,7 +1018,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 'accepted' });
+        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 200,
@@ -1090,7 +1090,7 @@ describe('Room', function () {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-        expect(request.config.params).toEqual({ name: '', record_attendance: 'not_accepted' });
+        expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
         await moxios.requests.mostRecent().respondWith({
           status: 470,
@@ -1119,7 +1119,7 @@ describe('Room', function () {
           const request = moxios.requests.mostRecent();
           expect(request.config.method).toEqual('get');
           expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-          expect(request.config.params).toEqual({ name: '', record_attendance: 'accepted' });
+          expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
 
           await moxios.requests.mostRecent().respondWith({
             status: 403,

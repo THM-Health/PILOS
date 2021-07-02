@@ -9,8 +9,8 @@
         <hr>
         <b-form-checkbox
           v-model="downloadAgreement"
-          value="accepted"
-          unchecked-value="not_accepted"
+          :value="true"
+          :unchecked-value="false"
         >
           {{ $t('rooms.files.termsOfUse.accept')}}
         </b-form-checkbox>
@@ -241,7 +241,7 @@ export default {
       // file list from api
       files: [],
       errors: {},
-      downloadAgreement: 'not_accepted',
+      downloadAgreement: false,
       currentPage: 1
     };
   },
@@ -447,7 +447,7 @@ export default {
 
     // compute if the download buttons should be disabled
     disableDownload () {
-      return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');
+      return this.loadingDownload !== null || (this.requireAgreement && !this.downloadAgreement);
     },
 
     // file table labels for columns

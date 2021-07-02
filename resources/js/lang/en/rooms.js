@@ -13,7 +13,7 @@ export default {
   notRunning: 'This room is not started yet.',
   tryAgain: 'Try again',
   join: 'Join',
-  recordingAttendanceInfo: 'The presence in this room is logged.',
+  recordingAttendanceInfo: 'The attendance in this room is logged.',
   recordingAttendanceAccept: 'I agree with the logging.',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
@@ -124,8 +124,8 @@ export default {
       }
     }
   },
-  statistics: {
-    title: 'Statistics'
+  meetingHistory: {
+    title: 'History'
   },
   settings: {
     title: 'Settings',
@@ -165,7 +165,7 @@ export default {
         enabled: 'Enabled',
         onlyForGuestsEnabled: 'Enabled only for guests'
       },
-      recordAttendance: 'Log attendance'
+      recordAttendance: 'Log attendance of participants'
     },
     permissions: {
       title: 'Permissions',
