@@ -140,7 +140,7 @@
 
         <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
         <template v-slot:cell(uploaded)="data">
-         {{ $d(new Date(data.item.uploaded), 'long') }}
+         {{ $d(new Date(data.item.uploaded), 'datetimeLong') }}
         </template>
 
       </b-table>

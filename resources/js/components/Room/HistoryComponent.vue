@@ -56,11 +56,11 @@
             </template>
 
             <template v-slot:cell(start)="data">
-              {{ $date.utc(data.item.start).tz(userTimezone).format('DD.MM.YY HH:mm') }}
+              {{ $d($date.utc(data.item.start).tz(userTimezone),'datetimeShort') }}
             </template>
 
             <template v-slot:cell(end)="data">
-              {{ data.item.end == null ? $t('meetings.now') : $date.utc(data.item.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}
+              {{ data.item.end == null ? $t('meetings.now') : $d($date.utc(data.item.end).tz(userTimezone),'datetimeShort') }}
             </template>
 
             <template v-slot:cell(actions)="data">
@@ -109,7 +109,7 @@
       <b-modal :static="modalStatic" size="xl" hide-footer id="statsModal">
         <template #modal-title>
           <h5 v-if="statsMeeting">{{ $t('meetings.stats.modalTitle',{room: room.name }) }}
-          <br><small>{{ $date.utc(statsMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $date.utc(statsMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
+          <br><small>{{ $d($date.utc(statsMeeting.start).tz(userTimezone),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d($date.utc(statsMeeting.end).tz(userTimezone),'datetimeShort') }}</small>
           </h5>
         </template>
         <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
@@ -121,7 +121,7 @@
         <template #modal-title >
           <div class="d-flex justify-content-between align-items-center">
             <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
-              <br><small>{{ $date.utc(attendanceMeeting.start).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(attendanceMeeting.end).tz(userTimezone).format('DD.MM.YY HH:mm') }}</small>
+              <br><small>{{ $d($date.utc(attendanceMeeting.start).tz(userTimezone),'datetimeShort') }} <raw-text>-</raw-text> {{ $d($date.utc(attendanceMeeting.end).tz(userTimezone),'datetimeShort') }}</small>
             </h5>
             <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fas fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
           </div>
@@ -154,7 +154,7 @@
           </template>
 
           <template v-slot:cell(sessions)="data">
-            <p v-for="session in data.item.sessions" :key="session.id" >{{ $date.utc(session.join).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>-</raw-text> {{ $date.utc(session.leave).tz(userTimezone).format('DD.MM.YY HH:mm') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text></p>
+            <p v-for="session in data.item.sessions" :key="session.id" >{{ $d($date.utc(session.join).tz(userTimezone),'datetimeShort') }} <raw-text>-</raw-text> {{ $d($date.utc(session.leave).tz(userTimezone),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text></p>
           </template>
         </b-table>
         <b-pagination

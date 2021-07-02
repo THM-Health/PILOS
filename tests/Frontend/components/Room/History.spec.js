@@ -18,6 +18,10 @@ dayjs.extend(timezone);
 
 const localVue = createLocalVue();
 
+const i18nDateMock = (date, format) => {
+  return new Date(date).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+};
+
 const createContainer = (tag = 'div') => {
   const container = document.createElement(tag);
   document.body.appendChild(container);
@@ -89,6 +93,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       propsData: {
@@ -128,20 +133,20 @@ describe('History', function () {
 
       const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
 
-      expect(rows[0].at(0).text()).toBe('22.06.21 13:05');
+      expect(rows[0].at(0).text()).toBe('06/22/2021, 13:05');
       expect(rows[0].at(1).text()).toBe('meetings.now');
       expect(rows[0].length).toBe(2);
 
-      expect(rows[1].at(0).text()).toBe('22.06.21 12:04');
-      expect(rows[1].at(1).text()).toBe('22.06.21 12:06');
+      expect(rows[1].at(0).text()).toBe('06/22/2021, 12:04');
+      expect(rows[1].at(1).text()).toBe('06/22/2021, 12:06');
       expect(rows[1].length).toBe(2);
 
-      expect(rows[2].at(0).text()).toBe('22.06.21 11:45');
-      expect(rows[2].at(1).text()).toBe('22.06.21 11:46');
+      expect(rows[2].at(0).text()).toBe('06/22/2021, 11:45');
+      expect(rows[2].at(1).text()).toBe('06/22/2021, 11:46');
       expect(rows[2].length).toBe(2);
 
-      expect(rows[3].at(0).text()).toBe('22.06.21 10:51');
-      expect(rows[3].at(1).text()).toBe('22.06.21 10:51');
+      expect(rows[3].at(0).text()).toBe('06/22/2021, 10:51');
+      expect(rows[3].at(1).text()).toBe('06/22/2021, 10:51');
       expect(rows[3].length).toBe(2);
 
       expect(view.find('#retentionPeriodInfo').exists()).toBeFalsy();
@@ -187,6 +192,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       propsData: {
@@ -227,34 +233,34 @@ describe('History', function () {
 
       const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
 
-      expect(rows[0].at(0).text()).toBe('22.06.21 13:05');
+      expect(rows[0].at(0).text()).toBe('06/22/2021, 13:05');
       expect(rows[0].at(1).text()).toBe('meetings.now');
       const buttonsRow0 = rows[0].at(2).findAll('button');
       expect(buttonsRow0.length).toBe(0);
       expect(rows[0].length).toBe(3);
 
-      expect(rows[1].at(0).text()).toBe('22.06.21 12:04');
-      expect(rows[1].at(1).text()).toBe('22.06.21 12:06');
+      expect(rows[1].at(0).text()).toBe('06/22/2021, 12:04');
+      expect(rows[1].at(1).text()).toBe('06/22/2021, 12:06');
       const buttonsRow1 = rows[1].at(2).findAll('button');
       expect(buttonsRow1.length).toBe(0);
       expect(rows[1].length).toBe(3);
 
-      expect(rows[2].at(0).text()).toBe('22.06.21 11:45');
-      expect(rows[2].at(1).text()).toBe('22.06.21 11:46');
+      expect(rows[2].at(0).text()).toBe('06/22/2021, 11:45');
+      expect(rows[2].at(1).text()).toBe('06/22/2021, 11:46');
       const buttonsRow2 = rows[2].at(2).findAll('button');
       expect(buttonsRow2.length).toBe(1);
       expect(buttonsRow2.at(0).html()).toContain('fas fa-user-clock');
       expect(rows[2].length).toBe(3);
 
-      expect(rows[3].at(0).text()).toBe('22.06.21 10:51');
-      expect(rows[3].at(1).text()).toBe('22.06.21 10:51');
+      expect(rows[3].at(0).text()).toBe('06/22/2021, 10:51');
+      expect(rows[3].at(1).text()).toBe('06/22/2021, 10:51');
       const buttonsRow3 = rows[3].at(2).findAll('button');
       expect(buttonsRow3.length).toBe(1);
       expect(buttonsRow3.at(0).html()).toContain('fas fa-chart-line');
       expect(rows[3].length).toBe(3);
 
-      expect(rows[4].at(0).text()).toBe('22.06.21 10:49');
-      expect(rows[4].at(1).text()).toBe('22.06.21 10:50');
+      expect(rows[4].at(0).text()).toBe('06/22/2021, 10:49');
+      expect(rows[4].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow4 = rows[4].at(2).findAll('button');
       expect(buttonsRow4.length).toBe(2);
       expect(buttonsRow4.at(0).html()).toContain('fas fa-chart-line');
@@ -279,6 +285,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       propsData: {
@@ -350,6 +357,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       propsData: {
@@ -391,8 +399,8 @@ describe('History', function () {
 
       const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
 
-      expect(rows[0].at(0).text()).toBe('22.06.21 10:49');
-      expect(rows[0].at(1).text()).toBe('22.06.21 10:50');
+      expect(rows[0].at(0).text()).toBe('06/22/2021, 10:49');
+      expect(rows[0].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow = rows[0].at(2).findAll('button');
       expect(buttonsRow.length).toBe(2);
       expect(buttonsRow.at(0).html()).toContain('fas fa-chart-line');
@@ -436,6 +444,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock,
         $date: dayjs
       },
       propsData: {
@@ -476,8 +485,8 @@ describe('History', function () {
 
       const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
 
-      expect(rows[0].at(0).text()).toBe('22.06.21 10:49');
-      expect(rows[0].at(1).text()).toBe('22.06.21 10:50');
+      expect(rows[0].at(0).text()).toBe('06/22/2021, 10:49');
+      expect(rows[0].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow = rows[0].at(2).findAll('button');
       expect(buttonsRow.length).toBe(2);
       expect(buttonsRow.at(1).html()).toContain('fas fa-user-clock');
@@ -523,13 +532,13 @@ describe('History', function () {
         expect(rows[0].at(0).text()).toBe('Claus Doe');
         expect(rows[0].at(1).text()).toBe('claus.doe@demo.tld');
         expect(rows[0].at(2).text()).toBe('meetings.attendance.durationMinute:{"duration":33}');
-        expect(rows[0].at(3).text()).toContain('18.06.21 09:13 - 18.06.21 09:42 (meetings.attendance.durationMinute:{"duration":28})');
-        expect(rows[0].at(3).text()).toContain('18.06.21 09:44 - 18.06.21 09:49 (meetings.attendance.durationMinute:{"duration":5})');
+        expect(rows[0].at(3).text()).toContain('06/18/2021, 09:13 - 06/18/2021, 09:42 (meetings.attendance.durationMinute:{"duration":28})');
+        expect(rows[0].at(3).text()).toContain('06/18/2021, 09:44 - 06/18/2021, 09:49 (meetings.attendance.durationMinute:{"duration":5})');
 
         expect(rows[1].at(0).text()).toBe('John Doe');
         expect(rows[1].at(1).text()).toBe('---');
         expect(rows[1].at(2).text()).toBe('meetings.attendance.durationMinute:{"duration":4}');
-        expect(rows[1].at(3).text()).toContain('18.06.21 09:41 - 18.06.21 09:45 (meetings.attendance.durationMinute:{"duration":4})');
+        expect(rows[1].at(3).text()).toContain('06/18/2021, 09:41 - 06/18/2021, 09:45 (meetings.attendance.durationMinute:{"duration":4})');
 
         const downloadButton = view.find('#attendanceModal').find('a');
         expect(downloadButton.text()).toBe('meetings.attendance.download');

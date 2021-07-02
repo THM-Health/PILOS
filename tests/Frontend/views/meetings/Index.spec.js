@@ -92,6 +92,10 @@ function overrideStub (url, response) {
   }
 }
 
+const i18nDateMock = (date, format) => {
+  return new Date(date).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+};
+
 const currentUser = {
   firstname: 'Darth',
   lastname: 'Vader',
@@ -136,6 +140,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       attachTo: createContainer()
@@ -161,7 +166,7 @@ describe('MeetingsIndex', function () {
       // test correct display of meeting info
       const rows = view.findComponent(BTbody).findAllComponents(BTr);
       const firstRowColumns = rows.at(0).findAll('td');
-      expect(firstRowColumns.at(0).text()).toBe('12.02.21 19:09');
+      expect(firstRowColumns.at(0).text()).toBe('02/12/2021, 19:09');
       expect(firstRowColumns.at(1).text()).toContain('Meeting One');
       expect(firstRowColumns.at(2).text()).toContain('John Doe');
       expect(firstRowColumns.at(3).text()).toContain('Server 01');
@@ -261,7 +266,7 @@ describe('MeetingsIndex', function () {
         // check if table content was updated
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
         const firstRowColumns = rows.at(0).findAll('td');
-        expect(firstRowColumns.at(0).text()).toContain('12.02.21 19:12');
+        expect(firstRowColumns.at(0).text()).toContain('02/12/2021, 19:12');
         expect(firstRowColumns.at(1).text()).toContain('Meeting Three');
         expect(firstRowColumns.at(2).text()).toContain('John Doe');
         expect(firstRowColumns.at(3).text()).toContain('Server 01');
@@ -296,6 +301,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       attachTo: createContainer()
@@ -346,6 +352,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       attachTo: createContainer()
@@ -417,6 +424,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
+        $d: i18nDateMock,
         $date: dayjs
       },
       attachTo: createContainer()
@@ -496,7 +504,7 @@ describe('MeetingsIndex', function () {
         // check if table was updated
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
         const firstRowColumns = rows.at(0).findAll('td');
-        expect(firstRowColumns.at(0).text()).toContain('12.02.21 19:10');
+        expect(firstRowColumns.at(0).text()).toContain('02/12/2021, 19:10');
         expect(firstRowColumns.at(1).text()).toContain('Meeting Two');
         expect(firstRowColumns.at(2).text()).toContain('Max Doe');
         expect(firstRowColumns.at(3).text()).toContain('Server 01');

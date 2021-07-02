@@ -81,7 +81,7 @@
       </template>
 
       <template v-slot:cell(start)="data">
-       {{ $date.utc(data.item.start).tz(userTimezone).format('DD.MM.YY HH:mm') }}
+       {{  $d($date.utc(data.item.start).tz(userTimezone),'datetimeShort') }}
       </template>
 
       <template v-slot:cell(room.name)="data">
