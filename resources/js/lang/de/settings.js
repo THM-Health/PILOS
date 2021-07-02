@@ -203,7 +203,7 @@ export default {
     },
 
     attendance: {
-      enabledTitle: 'Protokollierung der Anwesenheit zulassen',
+      enabledTitle: 'Protokollierung der Teilnehmeranwenheit in Meetings zulassen',
       enabled: 'Zulassen',
       retentionPeriodTitle: 'Speicherdauer der Anwesenheitsprotokollierung in Tagen'
     },
