@@ -36,6 +36,8 @@ class Room extends JsonResource
      */
     public function toArray($request)
     {
+        $runningMeeting = $this->resource->runningMeeting();
+
         return [
             'id'                => $this->id,
             'name'              => $this->name,
@@ -52,9 +54,10 @@ class Room extends JsonResource
                 'isModerator'       => $this->resource->isModerator(Auth::user()),
                 'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
                 'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
-                'running'           => $this->resource->runningMeeting() != null,
                 'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
-                'roomTypeInvalid'   => $this->roomTypeInvalid
+                'roomTypeInvalid'   => $this->roomTypeInvalid,
+                'running'           => $runningMeeting != null,
+                'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
             ])
         ];
     }

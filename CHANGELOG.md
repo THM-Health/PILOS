@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
 - Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
 - Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
+- Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
 - Incompatible room id field for greenlight room ids ([#143], [#144])
+- Start time in the list of currently running meetings not adjusted to the user's time zone setting ([#134])
 
 ## [1.3.0] - 2021-05-05
 ### Added
@@ -146,6 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#130]: https://github.com/THM-Health/PILOS/pull/130
 [#131]: https://github.com/THM-Health/PILOS/issues/131
 [#132]: https://github.com/THM-Health/PILOS/pull/132
+[#133]: https://github.com/THM-Health/PILOS/issues/133
+[#134]: https://github.com/THM-Health/PILOS/pull/134
 [#136]: https://github.com/THM-Health/PILOS/issues/136
 [#137]: https://github.com/THM-Health/PILOS/pull/137
 [#138]: https://github.com/THM-Health/PILOS/issues/138

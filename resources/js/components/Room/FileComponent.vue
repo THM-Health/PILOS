@@ -9,8 +9,8 @@
         <hr>
         <b-form-checkbox
           v-model="downloadAgreement"
-          value="accepted"
-          unchecked-value="not_accepted"
+          :value="true"
+          :unchecked-value="false"
         >
           {{ $t('rooms.files.termsOfUse.accept')}}
         </b-form-checkbox>
@@ -140,7 +140,7 @@
 
         <!-- Checkbox if the file should be default/first in the next api call to start a meeting -->
         <template v-slot:cell(uploaded)="data">
-         {{ $d(new Date(data.item.uploaded), 'long') }}
+         {{ $d(new Date(data.item.uploaded), 'datetimeLong') }}
         </template>
 
       </b-table>
@@ -241,7 +241,7 @@ export default {
       // file list from api
       files: [],
       errors: {},
-      downloadAgreement: 'not_accepted',
+      downloadAgreement: false,
       currentPage: 1
     };
   },
@@ -447,7 +447,7 @@ export default {
 
     // compute if the download buttons should be disabled
     disableDownload () {
-      return this.loadingDownload !== null || (this.requireAgreement && this.downloadAgreement !== 'accepted');
+      return this.loadingDownload !== null || (this.requireAgreement && !this.downloadAgreement);
     },
 
     // file table labels for columns

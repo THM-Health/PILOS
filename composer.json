@@ -23,7 +23,8 @@
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "littleredbutton/bigbluebutton-api-php": "^3.2.0"
+        "littleredbutton/bigbluebutton-api-php": "^3.2.0",
+        "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",
@@ -37,7 +38,8 @@
         "php-coveralls/php-coveralls": "~2.2.0",
         "phpunit/phpunit": "^8.5",
         "squizlabs/php_codesniffer": "3.*",
-        "timacdonald/log-fake": "^1.9"
+        "timacdonald/log-fake": "^1.9",
+        "ext-simplexml": "*"
     },
     "config": {
         "optimize-autoloader": true,

@@ -38,6 +38,12 @@ class Meeting extends Model
      */
     protected $guarded = [];
 
+    protected $casts = [
+        'start'              => 'datetime',
+        'end'                => 'datetime',
+        'record_attendance'  => 'boolean'
+    ];
+
     /**
      * Server the meeting is/should be running on
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -139,8 +145,24 @@ class Meeting extends Model
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
         $this->server->bbb()->endMeeting($endParams)->success();
-        $this->end = date('Y-m-d H:i:s');
+        $this->setEnd();
+    }
+
+    /**
+     * Set end time of the meeting and
+     * set end time of attendance
+     */
+    public function setEnd()
+    {
+        $this->end = now();
         $this->save();
+
+        // set end time of the attendance to the end time of the meeting
+        // for all users that have been present to the end
+        foreach ($this->attendees()->whereNull('leave')->get() as $attendee) {
+            $attendee->leave = now();
+            $attendee->save();
+        }
     }
 
     /**
@@ -172,5 +194,60 @@ class Meeting extends Model
     public function stats()
     {
         return $this->hasMany(MeetingStat::class);
+    }
+
+    /**
+     * Attendees of this meeting
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendees()
+    {
+        return $this->hasMany(MeetingAttendee::class);
+    }
+
+    /**
+     * Collection of the attendance of users and guests
+     * Multiple sessions of the same user/guest are grouped and the length of each session summed
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
+    public function attendance()
+    {
+        // Load guest and user attendances, group by session or user_id
+        $guests = $this->attendees()->whereNotNull('session_id')->get()->groupBy('session_id');
+        $users  = $this->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
+
+        // create array of guest attendees
+        $guests = $guests->map(function ($guest, $key) {
+            $sessions = $this->mapAttendanceSessions($guest);
+
+            return ['name' => $guest[0]->name, 'email' => null, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
+        });
+
+        // create array of user attendees
+        $users = $users->map(function ($user, $key) {
+            $sessions = $this->mapAttendanceSessions($user);
+
+            return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
+        });
+
+        // if no guests present, just return list of users, sorted by name
+        if ($guests->count() == 0) {
+            return $users->sortBy('name')->values();
+        }
+
+        // return guest and user attendees, sorted by name
+        return $guests->merge($users)->sortBy('name')->values();
+    }
+
+    /**
+     * Helper function for attendance(), map each attendance database entry to an attendance session array
+     * @param $sessions
+     * @return mixed
+     */
+    private function mapAttendanceSessions($sessions)
+    {
+        return $sessions->map(function ($session, $key) {
+            return ['id'=> $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+        });
     }
 }

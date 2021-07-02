@@ -13,6 +13,8 @@ export default {
   notRunning: 'Der Raum ist noch nicht gestartet.',
   tryAgain: 'Erneut versuchen',
   join: 'Teilnehmen',
+  recordingAttendanceInfo: 'Die Anwesenheit in diesem Raum wird protokolliert.',
+  recordingAttendanceAccept: 'Ich bin mit der Protokollierung einverstanden.',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
@@ -122,8 +124,8 @@ export default {
       }
     }
   },
-  statistics: {
-    title: 'Statistiken'
+  meetingHistory: {
+    title: 'Historie'
   },
   settings: {
     title: 'Einstellungen',
@@ -162,7 +164,8 @@ export default {
         disabled: 'Deaktiviert',
         enabled: 'Aktiviert',
         onlyForGuestsEnabled: 'Aktiviert für Gäste'
-      }
+      },
+      recordAttendance: 'Anwesenheit der Teilnehmer protokollieren'
     },
     permissions: {
       title: 'Berechtigungen',

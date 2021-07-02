@@ -81,7 +81,7 @@
       </template>
 
       <template v-slot:cell(start)="data">
-       {{ $date.utc(data.item.start).local().format('DD.MM.YY HH:mm') }}
+       {{  $d($date.utc(data.item.start).tz(userTimezone),'datetimeShort') }}
       </template>
 
       <template v-slot:cell(room.name)="data">
@@ -149,11 +149,17 @@
 import Base from '../../api/base';
 import RawText from '../../components/RawText';
 import TextTruncate from '../../components/TextTruncate';
+import { mapGetters } from 'vuex';
 
 export default {
   components: { TextTruncate, RawText },
 
   computed: {
+
+    ...mapGetters({
+      userTimezone: 'session/userTimezone'
+    }),
+
     tableFields () {
       return [
         { key: 'start', label: this.$t('meetings.start'), sortable: true, thStyle: { width: '120px' } },

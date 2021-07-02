@@ -276,7 +276,9 @@ class RoomTypeTest extends TestCase
                 'roles'         => []
             ]);
 
-        $data['restrict'] = true;
+        $roomType->refresh();
+        $data['restrict']   = true;
+        $data['updated_at'] = $roomType->updated_at;
         $this->actingAs($this->user)->putJson(route('api.v1.roomTypes.update', ['roomType'=>$roomType->id]), $data)
             ->assertSuccessful()
             ->assertJsonFragment([
