@@ -83,7 +83,8 @@ export default {
     authenticator: {
       title: 'Anmeldeart',
       users: 'Registrierter Nutzer',
-      ldap: 'LDAP'
+      ldap: 'LDAP',
+      shibboleth: 'Shibboleth'
     },
 
     delete: {

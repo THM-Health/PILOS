@@ -32,6 +32,11 @@ if (config('greenlight.compatibility')) {
     });
 }
 
+if (config('shibboleth.enabled')) {
+    Route::get('shibboleth/login', 'auth\ShibbolethController@login')->name('shibboleth.login');
+    Route::any('shibboleth-logout', 'auth\ShibbolethController@logout')->name('shibboleth.logout');
+}
+
 if (!env('DISABLE_CATCHALL_ROUTES')) {
     Route::any('/{any}', 'ApplicationController@index')->where('any', '.*');
 }

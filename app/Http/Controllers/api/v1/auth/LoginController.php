@@ -21,7 +21,9 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers {
+        logout as traitLogout;
+    }
 
     private $guard = null;
 
@@ -43,6 +45,23 @@ class LoginController extends Controller
         }
 
         return 'email';
+    }
+
+    public function logout(Request $request)
+    {
+        // Get currently logged in user
+        $user = Auth::user();
+
+        // Call trait logout method
+        $response = $this->traitLogout($request);
+
+        // If logged in user was a shibboleth user, redirect to shibboleth logout
+        if ($user->authenticator == 'shibboleth') {
+            return redirect('/Shibboleth.sso/Logout?return='.url('/'));
+        }
+
+        // return result of the trait logout
+        return $response;
     }
 
     public function ldapLogin(Request $request)

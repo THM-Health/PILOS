@@ -86,7 +86,9 @@ class ApplicationSettings extends JsonResource
             'attendance' => [
                 'enabled'           => boolval(setting('attendance.enabled')),
                 'retention_period'  => intval(setting('attendance.retention_period')),
-            ]
+            ],
+            'shibboleth'           => config('shibboleth.enabled'),
+            'ldap'                 => config('ldap.enabled'),
         ];
     }
 }

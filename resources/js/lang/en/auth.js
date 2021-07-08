@@ -17,6 +17,11 @@ export default {
     usernameHelp: 'Input the username (not email) of your LDAP-Account'
   },
 
+  shibboleth: {
+    tabTitle: 'Shibboleth',
+    title: 'Login with Shibboleth'
+  },
+
   email: {
     tabTitle: 'Email',
     title: 'Login with Email',

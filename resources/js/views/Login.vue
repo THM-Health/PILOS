@@ -4,7 +4,14 @@
       <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
         <b-card no-body bg-variant="light">
           <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-success text-white">
-            <b-tab :title="$t('auth.ldap.tabTitle')" active>
+            <b-tab :title="$t('auth.shibboleth.tabTitle')" v-if="settings('shibboleth')" >
+              <shibboleth-login-component
+                id="shibboleth"
+                :title="$t('auth.shibboleth.title')"
+                :submit-label="$t('auth.login')"
+              ></shibboleth-login-component>
+            </b-tab>
+            <b-tab :title="$t('auth.ldap.tabTitle')" v-if="settings('ldap')" >
               <ldap-login-component
                 id="ldap"
                 :title="$t('auth.ldap.title')"
@@ -38,13 +45,16 @@
 <script>
 import EmailLoginComponent from '../components/Login/EmailLoginComponent';
 import LdapLoginComponent from '../components/Login/LdapLoginComponent';
+import ShibbolethLoginComponent from '../components/Login/ShibbolethLoginComponent';
 import env from '../env';
 import Base from '../api/base';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
     EmailLoginComponent,
-    LdapLoginComponent
+    LdapLoginComponent,
+    ShibbolethLoginComponent
   },
   data () {
     return {
@@ -54,6 +64,11 @@ export default {
         ldap: null
       }
     };
+  },
+  computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    })
   },
   methods: {
     /**
