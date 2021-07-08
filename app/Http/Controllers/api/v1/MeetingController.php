@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Attendee;
+use App\Http\Resources\MeetingStat;
 use App\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\Meeting as MeetingResource;
+use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
 
 /**
  * Class MeetingController
@@ -87,8 +90,48 @@ class MeetingController extends Controller
         // Only set end of meeting, if not set before
         if ($meeting->end == null) {
             // Set end of meeting
-            $meeting->end = date('Y-m-d H:i:s');
-            $meeting->save();
+            $meeting->setEnd();
         }
+    }
+
+    /**
+     * Usage statistics for this meeting (count of participants, voices, videos)
+     * @param  Meeting                                                     $meeting
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function stats(Meeting $meeting)
+    {
+        $this->authorize('viewStatistics', $meeting->room);
+
+        // check if statistical data is globally enabled
+        if (!setting('statistics.meetings.enabled')) {
+            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_statistics_disabled'));
+        }
+
+        return MeetingStat::collection($meeting->stats()->orderBy('created_at')->get());
+    }
+
+    /**
+     * Attendance of users and guests during a meeting
+     * @param  Meeting                                                     $meeting
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function attendance(Meeting $meeting)
+    {
+        $this->authorize('viewStatistics', $meeting->room);
+
+        // check if attendance recording is enabled for this meeting and globally enabled
+        if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+            abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
+        }
+
+        // check if meeting is ended
+        if ($meeting->end == null) {
+            abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
+        }
+
+        return Attendee::collection($meeting->attendance());
     }
 }

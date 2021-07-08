@@ -131,7 +131,11 @@ export default {
       noReplacement: '-- Kein Ersatz --',
       replacementInfo: 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.'
     },
-    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.'
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
+    restrict: 'Verwendung einschränken',
+    restrictDescription: 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
+    roles: 'Rollen',
+    selectRoles: 'Rollen auswählen'
   },
 
   application: {
@@ -184,6 +188,25 @@ export default {
     ownRoomsPaginationPageSize: {
       title: 'Größe der Paginierung für eigene Räume',
       description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
+    },
+
+    statistics: {
+      servers: {
+        enabledTitle: 'Auslastung der Server aufzeichnen',
+        enabled: 'Aktivieren',
+        retentionPeriodTitle: 'Speicherdauer der Serverauslastung in Tagen'
+      },
+      meetings: {
+        enabledTitle: 'Auslastung der Meetings aufzeichnen',
+        enabled: 'Aktivieren',
+        retentionPeriodTitle: 'Speicherdauer der Meetingauslastung in Tagen'
+      }
+    },
+
+    attendance: {
+      enabledTitle: 'Protokollierung der Teilnehmeranwenheit in Meetings zulassen',
+      enabled: 'Zulassen',
+      retentionPeriodTitle: 'Speicherdauer der Anwesenheitsprotokollierung in Tagen'
     },
 
     banner: {

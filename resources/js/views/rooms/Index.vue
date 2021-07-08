@@ -105,6 +105,7 @@
 import Base from '../../api/base';
 import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
+import PermissionService from '../../services/PermissionService';
 
 export default {
   components: { Can, Cannot },
@@ -170,7 +171,18 @@ export default {
      */
     loadRoomTypes () {
       this.roomTypesBusy = true;
-      Base.call('roomTypes').then(response => {
+
+      let config;
+
+      if (PermissionService.cannot('viewAll', 'RoomPolicy')) {
+        config = {
+          params: {
+            filter: 'searchable'
+          }
+        };
+      }
+
+      Base.call('roomTypes', config).then(response => {
         this.roomTypes = response.data.data;
         this.roomTypesLoadingError = false;
       }).catch(error => {

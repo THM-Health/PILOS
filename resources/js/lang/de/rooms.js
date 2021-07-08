@@ -13,6 +13,8 @@ export default {
   notRunning: 'Der Raum ist noch nicht gestartet.',
   tryAgain: 'Erneut versuchen',
   join: 'Teilnehmen',
+  recordingAttendanceInfo: 'Die Anwesenheit in diesem Raum wird protokolliert.',
+  recordingAttendanceAccept: 'Ich bin mit der Protokollierung einverstanden.',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
@@ -22,6 +24,7 @@ export default {
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
   placeholderAccessCode: 'Zugangscode',
+  roomTypeInvalidAlert: 'Die Nutzung der Raumart {roomTypeName} ist nur für bestimmte Nutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.',
   flash: {
     noNewRoom: {
       message: 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
@@ -121,8 +124,8 @@ export default {
       }
     }
   },
-  statistics: {
-    title: 'Statistiken'
+  meetingHistory: {
+    title: 'Historie'
   },
   settings: {
     title: 'Einstellungen',
@@ -161,7 +164,8 @@ export default {
         disabled: 'Deaktiviert',
         enabled: 'Aktiviert',
         onlyForGuestsEnabled: 'Aktiviert für Gäste'
-      }
+      },
+      recordAttendance: 'Anwesenheit der Teilnehmer protokollieren'
     },
     permissions: {
       title: 'Berechtigungen',

@@ -19,7 +19,15 @@
           <b-col lg="3" md="6" cols="12">
             <h5>{{ $t('rooms.settings.general.title') }}</h5>
             <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
-              <room-type-select :disabled="disabled" v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"  v-on:busy="(value) => this.roomTypeSelectBusy = value" ref="roomTypeSelect" v-model="settings.roomType" :state="fieldState('roomType')" ></room-type-select>
+              <room-type-select
+                :disabled="disabled"
+                v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
+                v-on:busy="(value) => this.roomTypeSelectBusy = value"
+                ref="roomTypeSelect"
+                v-model="settings.roomType"
+                :room-id="room.id"
+                :state="fieldState('roomType')" >
+              </room-type-select>
               <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
             </b-form-group>
             <!-- Room name -->
@@ -235,6 +243,19 @@
               </b-form-radio>
               <template slot='invalid-feedback'><div v-html="fieldError('lobby')"></div></template>
             </b-form-group>
+
+            <!-- Checkbox record attendance of users and guests -->
+            <b-form-group :state="fieldState('record_attendance')" v-if="globalSettings('attendance.enabled')">
+              <b-form-checkbox
+                :disabled="disabled"
+                :state="fieldState('record_attendance')"
+                v-model="settings.record_attendance"
+                switch
+              >
+                {{ $t('rooms.settings.participants.recordAttendance') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('record_attendance')"></div></template>
+            </b-form-group>
           </b-col>
 
           <!-- Permissions & Restrictions tab -->
@@ -376,6 +397,7 @@ import FieldErrors from '../../mixins/FieldErrors';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
+import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors],
@@ -458,6 +480,10 @@ export default {
   },
   computed: {
 
+    ...mapGetters({
+      globalSettings: 'session/settings'
+    }),
+
     /**
      * Input fields are disabled: due to limited permissions, loading of settings or errors
      */
@@ -470,7 +496,7 @@ export default {
      * @returns {string} amount of chars in comparision to the limit
      */
     charactersLeftWelcomeMessage () {
-      var char = this.settings.welcome
+      const char = this.settings.welcome
         ? this.settings.welcome.length
         : 0;
       return char + ' / ' + this.welcomeMessageLimit;

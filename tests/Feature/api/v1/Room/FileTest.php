@@ -687,7 +687,7 @@ class FileTest extends TestCase
         $this->seed('ServerSeeder');
 
         // Create server
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 

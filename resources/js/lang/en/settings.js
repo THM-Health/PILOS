@@ -126,7 +126,11 @@ export default {
       noReplacement: '-- No replacement --',
       replacementInfo: 'If there are rooms associated with this room type, you need to select a replacement room type.'
     },
-    loadingError: 'An error occurred during loading of the room types.'
+    loadingError: 'An error occurred during loading of the room types.',
+    restrict: 'Restrict usage',
+    restrictDescription: 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
+    roles: 'Roles',
+    selectRoles: 'Select roles'
   },
 
   application: {
@@ -179,6 +183,25 @@ export default {
     ownRoomsPaginationPageSize: {
       title: 'Own rooms pagination page size',
       description: 'Limits the number of page size for own rooms pagination'
+    },
+
+    statistics: {
+      servers: {
+        enabledTitle: 'Record server utilisation',
+        enabled: 'Enable',
+        retentionPeriodTitle: 'Retention period of the server utilisation in days'
+      },
+      meetings: {
+        enabledTitle: 'Record utilisation of meetings',
+        enabled: 'Enable',
+        retentionPeriodTitle: 'Retention period of the meeting utilisation in days'
+      }
+    },
+
+    attendance: {
+      enabledTitle: 'Allow logging of participant attendance at meetings',
+      enabled: 'Enable',
+      retentionPeriodTitle: 'Retention period of the attendance logging in days'
     },
 
     banner: {

@@ -2,9 +2,12 @@
 
 namespace App\Console;
 
+use App\Console\Commands\CleanupAttendance;
+use App\Console\Commands\CleanupStatistics;
 use App\Console\Commands\CreateAdminUser;
 use App\Console\Commands\BuildHistory;
 use App\Console\Commands\DeleteUnverifiedNewUsers;
+use App\Console\Commands\ImportGreenlight;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,7 +20,10 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         BuildHistory::class,
-        CreateAdminUser::class
+        CreateAdminUser::class,
+        ImportGreenlight::class,
+        CleanupAttendance::class,
+        CleanupStatistics::class,
     ];
 
     /**
@@ -30,6 +36,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command(BuildHistory::class)->everyMinute();
         $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute();
+        $schedule->command(CleanupStatistics::class)->daily();
+        $schedule->command(CleanupAttendance::class)->daily();
     }
 
     /**

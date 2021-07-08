@@ -10,6 +10,12 @@ import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTyp
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(IconsPlugin);
+localVue.use(VueRouter);
+localVue.use(Vuex);
+
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
   for (let i = 0; i < l; i++) {
@@ -51,12 +57,6 @@ const store = new Vuex.Store({
   }
 });
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
-localVue.use(VueRouter);
-localVue.use(Vuex);
-
 describe('RoomType Select', function () {
   beforeEach(function () {
     moxios.install();
@@ -76,7 +76,7 @@ describe('RoomType Select', function () {
   };
 
   it('value passed', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -102,7 +102,7 @@ describe('RoomType Select', function () {
   });
 
   it('disabled param', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -135,7 +135,7 @@ describe('RoomType Select', function () {
   });
 
   it('invalid value passed', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -161,7 +161,7 @@ describe('RoomType Select', function () {
   });
 
   it('busy events emitted', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -200,7 +200,7 @@ describe('RoomType Select', function () {
   });
 
   it('error events emitted', function (done) {
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 500,
       response: {
         message: 'Test'
@@ -228,7 +228,7 @@ describe('RoomType Select', function () {
       sinon.assert.calledOnce(Base.error);
       Base.error.restore();
 
-      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
         status: 200,
         response: {
           data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -251,7 +251,7 @@ describe('RoomType Select', function () {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
-    moxios.stubRequest('/api/v1/roomTypes', {
+    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -279,7 +279,7 @@ describe('RoomType Select', function () {
         await view.vm.$nextTick();
         expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
-        let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+        let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
           status: 200,
           response: {
             data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -293,7 +293,7 @@ describe('RoomType Select', function () {
 
           expect(view.vm.$data.roomType).toBeNull();
           restoreRoomTypeResponse();
-          restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes', {
+          restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
             status: 500,
             response: {
               message: 'Test'

@@ -148,11 +148,21 @@ class RoomController extends Controller
 
         $meeting = $room->runningMeeting();
         if (!$meeting) {
+            if ($room->roomTypeInvalid) {
+                abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
+            }
+
+            // Check if user didn't see the attendance recording note, but the attendance is recorded
+            if (setting('attendance.enabled') && $room->record_attendance && !$request->record_attendance) {
+                abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+            }
+
             // Create new meeting
-            $meeting              = new Meeting();
-            $meeting->start       = date('Y-m-d H:i:s');
-            $meeting->attendeePW  = bin2hex(random_bytes(5));
-            $meeting->moderatorPW = bin2hex(random_bytes(5));
+            $meeting                    = new Meeting();
+            $meeting->start             = date('Y-m-d H:i:s');
+            $meeting->attendeePW        = bin2hex(random_bytes(5));
+            $meeting->moderatorPW       = bin2hex(random_bytes(5));
+            $meeting->record_attendance = setting('attendance.enabled') && $room->record_attendance;
 
             // Basic load balancing, get server with lowest usage
             $server =  $room->roomType->serverPool->lowestUsage();
@@ -225,9 +235,13 @@ class RoomController extends Controller
 
         // Check if the meeting is actually running on the server
         if (!$meeting->isRunning() ) {
-            $meeting->end = date('Y-m-d H:i:s');
-            $meeting->save();
+            $meeting->setEnd();
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+        }
+
+        // Check if user didn't see the attendance recording note, but the attendance is recorded
+        if (setting('attendance.enabled') && $meeting->record_attendance && !$request->record_attendance) {
+            abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
         }
 
         return response()->json([
@@ -268,6 +282,8 @@ class RoomController extends Controller
         $room->allowMembership                = $request->allowMembership;
         $room->allowGuests                    = $request->allowGuests;
 
+        $room->record_attendance              = $request->record_attendance;
+
         $room->defaultRole = $request->defaultRole;
         $room->lobby       = $request->lobby;
         $room->roomType()->associate($request->roomType);
@@ -288,5 +304,19 @@ class RoomController extends Controller
         $room->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * List of all meeting of the given room
+     *
+     * @param  Room                                                        $room
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function meetings(Room $room)
+    {
+        $this->authorize('viewStatistics', $room);
+
+        return \App\Http\Resources\Meeting::collection($room->meetings()->orderByDesc('start')->paginate(setting('pagination_page_size')));
     }
 }

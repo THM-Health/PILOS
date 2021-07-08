@@ -13,6 +13,8 @@ export default {
   notRunning: 'This room is not started yet.',
   tryAgain: 'Try again',
   join: 'Join',
+  recordingAttendanceInfo: 'The attendance in this room is logged.',
+  recordingAttendanceAccept: 'I agree with the logging.',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
@@ -22,6 +24,7 @@ export default {
   login: 'Login',
   placeholderName: 'John Doe',
   placeholderAccessCode: 'Access code',
+  roomTypeInvalidAlert: 'The usage of the room type {roomTypeName} is only permitted for special user groups. If you are the owner of this room, please change the room type so that the room can be started again.',
   flash: {
     noNewRoom: {
       message: 'You do not have the necessary permission to create a new room.',
@@ -121,8 +124,8 @@ export default {
       }
     }
   },
-  statistics: {
-    title: 'Statistics'
+  meetingHistory: {
+    title: 'History'
   },
   settings: {
     title: 'Settings',
@@ -161,7 +164,8 @@ export default {
         disabled: 'Disabled',
         enabled: 'Enabled',
         onlyForGuestsEnabled: 'Enabled only for guests'
-      }
+      },
+      recordAttendance: 'Log attendance of participants'
     },
     permissions: {
       title: 'Permissions',
