@@ -11,11 +11,6 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import dayjs from 'dayjs';
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -27,7 +22,7 @@ const defaultResponse = {
   data: [
     {
       id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-      start: '2021-02-12 18:09:29',
+      start: '2021-02-12T18:09:29.000000Z',
       end: null,
       room: {
         id: 'abc-def-123',
@@ -45,7 +40,7 @@ const defaultResponse = {
     },
     {
       id: '5866d99e-ea44-4221-afa8-54f397ab07c8',
-      start: '2021-02-12 18:10:20',
+      start: '2021-02-12T18:10:20.000000Z',
       end: null,
       room: {
         id: 'abc-def-345',
@@ -111,8 +106,7 @@ const store = new Vuex.Store({
       },
       getters: {
         isAuthenticated: () => true,
-        settings: () => (setting) => null,
-        userTimezone: () => 'Europe/Berlin'
+        settings: () => (setting) => null
       }
     }
   },
@@ -140,8 +134,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -206,7 +199,7 @@ describe('MeetingsIndex', function () {
             data: [
               {
                 id: '64b0f3b5-7409-4682-9d15-2cafb34eb283',
-                start: '2021-02-12 18:12:05',
+                start: '2021-02-12T18:12:05.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-456',
@@ -224,7 +217,7 @@ describe('MeetingsIndex', function () {
               },
               {
                 id: '520671dc-cde5-40d0-86c8-341446051a43',
-                start: '2021-02-12 18:14:48',
+                start: '2021-02-12T18:14:48.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-678',
@@ -301,8 +294,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -352,8 +344,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -381,7 +372,7 @@ describe('MeetingsIndex', function () {
             data: [
               {
                 id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-                start: '2021-02-12 18:09:29',
+                start: '2021-02-12T18:09:29.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-123',
@@ -424,8 +415,7 @@ describe('MeetingsIndex', function () {
       store,
       mocks: {
         $t: key => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -453,7 +443,7 @@ describe('MeetingsIndex', function () {
             data: [
               {
                 id: '5866d99e-ea44-4221-afa8-54f397ab07c8',
-                start: '2021-02-12 18:10:20',
+                start: '2021-02-12T18:10:20.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-345',
@@ -471,7 +461,7 @@ describe('MeetingsIndex', function () {
               },
               {
                 id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-                start: '2021-02-12 18:09:29',
+                start: '2021-02-12T18:09:29.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-123',

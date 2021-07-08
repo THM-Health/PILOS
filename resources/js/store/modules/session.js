@@ -1,6 +1,6 @@
 import auth from '../../api/auth';
 import base from '../../api/base';
-import { loadLanguageAsync } from '../../i18n';
+import { loadLanguageAsync, setTimeZone } from '../../i18n';
 import PermissionService from '../../services/PermissionService';
 import _ from 'lodash';
 
@@ -13,10 +13,6 @@ const state = () => ({
 const getters = {
   isAuthenticated: state => {
     return !$.isEmptyObject(state.currentUser);
-  },
-
-  userTimezone: state => {
-    return $.isEmptyObject(state.currentUser) ? undefined : state.currentUser.timezone;
   },
 
   settings: (state) => (setting) => {
@@ -43,6 +39,7 @@ const actions = {
   async getCurrentUser ({ commit }) {
     let currentUser = await auth.getCurrentUser();
     if ($.isEmptyObject(currentUser)) { currentUser = null; }
+    setTimeZone(currentUser == null ? undefined : currentUser.timezone);
     commit('setCurrentUser', { currentUser });
   },
 
@@ -50,6 +47,7 @@ const actions = {
     commit('loading', null, { root: true });
     await auth.logout();
     commit('setCurrentUser', { currentUser: null, emit: false });
+    setTimeZone(undefined);
     commit('loadingFinished', null, { root: true });
   },
 

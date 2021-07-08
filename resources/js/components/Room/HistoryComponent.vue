@@ -56,11 +56,11 @@
             </template>
 
             <template v-slot:cell(start)="data">
-              {{ $d($date.utc(data.item.start).tz(userTimezone),'datetimeShort') }}
+              {{ $d(new Date(data.item.start),'datetimeShort') }}
             </template>
 
             <template v-slot:cell(end)="data">
-              {{ data.item.end == null ? $t('meetings.now') : $d($date.utc(data.item.end).tz(userTimezone),'datetimeShort') }}
+              {{ data.item.end == null ? $t('meetings.now') : $d(new Date(data.item.end),'datetimeShort') }}
             </template>
 
             <template v-slot:cell(actions)="data">
@@ -109,7 +109,7 @@
       <b-modal :static="modalStatic" size="xl" hide-footer id="statsModal">
         <template #modal-title>
           <h5 v-if="statsMeeting">{{ $t('meetings.stats.modalTitle',{room: room.name }) }}
-          <br><small>{{ $d($date.utc(statsMeeting.start).tz(userTimezone),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d($date.utc(statsMeeting.end).tz(userTimezone),'datetimeShort') }}</small>
+          <br><small>{{ $d(new Date(statsMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d(new Date(statsMeeting.end),'datetimeShort') }}</small>
           </h5>
         </template>
         <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
@@ -121,7 +121,7 @@
         <template #modal-title >
           <div class="d-flex justify-content-between align-items-center">
             <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
-              <br><small>{{ $d($date.utc(attendanceMeeting.start).tz(userTimezone),'datetimeShort') }} <raw-text>-</raw-text> {{ $d($date.utc(attendanceMeeting.end).tz(userTimezone),'datetimeShort') }}</small>
+              <br><small>{{ $d(new Date(attendanceMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(attendanceMeeting.end),'datetimeShort') }}</small>
             </h5>
             <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fas fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
           </div>
@@ -154,7 +154,7 @@
           </template>
 
           <template v-slot:cell(sessions)="data">
-            <p v-for="session in data.item.sessions" :key="session.id" >{{ $d($date.utc(session.join).tz(userTimezone),'datetimeShort') }} <raw-text>-</raw-text> {{ $d($date.utc(session.leave).tz(userTimezone),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text></p>
+            <p v-for="session in data.item.sessions" :key="session.id" >{{ $d(new Date(session.join),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(session.leave),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text></p>
           </template>
         </b-table>
         <b-pagination
@@ -264,7 +264,7 @@ export default {
             videos: []
           };
           response.data.data.forEach(stat => {
-            const datetime = this.$date.utc(stat.created_at).tz(this.userTimezone).format('YYYY-MM-DD HH:mm');
+            const datetime = stat.created_at;
             this.chartDataRows.participants.push({ x: datetime, y: stat.participant_count });
             this.chartDataRows.voices.push({ x: datetime, y: stat.voice_participant_count });
             this.chartDataRows.videos.push({ x: datetime, y: stat.video_count });
@@ -305,8 +305,7 @@ export default {
   computed: {
 
     ...mapGetters({
-      settings: 'session/settings',
-      userTimezone: 'session/userTimezone'
+      settings: 'session/settings'
     }),
 
     // table fields of meetings table
@@ -371,6 +370,9 @@ export default {
               major: {
                 fontStyle: 'bold',
                 fontColor: '#FF0000'
+              },
+              callback: (label, index, ticks) => {
+                return this.$d(ticks[index].value, 'time');
               }
             }
           }],
@@ -380,6 +382,13 @@ export default {
               labelString: this.$t('meetings.stats.amount')
             }
           }]
+        },
+        tooltips: {
+          callbacks: {
+            title: (data) => {
+              return this.$d(new Date(data[0].xLabel), 'datetimeShort');
+            }
+          }
         }
       };
     },

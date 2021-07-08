@@ -22,6 +22,17 @@ const loadedLanguages = [defaultLocale];
 
 export default i18n;
 
+export function setTimeZone (timezone) {
+  const locales = i18n.availableLocales;
+  locales.forEach((locale) => {
+    const formats = i18n.getDateTimeFormat(locale);
+    Object.keys(formats).forEach((index) => {
+      formats[index].timeZone = timezone;
+    });
+    i18n.setDateTimeFormat(locale, formats);
+  });
+}
+
 function setI18nLanguage (lang) {
   i18n.locale = lang;
   axios.defaults.headers.common['Accept-Language'] = lang;
