@@ -73,7 +73,7 @@ describe('RolesView', function () {
         default: false,
         model_name: 'Role',
         room_limit: null,
-        updated_at: '2020-09-08 15:13:26',
+        updated_at: '2020-09-08T15:13:26.000000Z',
         permissions: [
           {
             id: 1,
@@ -438,7 +438,7 @@ describe('RolesView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
       let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
         status: env.HTTP_STALE_MODEL,
@@ -503,7 +503,7 @@ describe('RolesView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.name = 'Test';
 
       const restoreRoleResponse = overrideStub('/api/v1/roles/1', {

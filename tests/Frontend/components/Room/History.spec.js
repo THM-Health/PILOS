@@ -9,12 +9,7 @@ import HistoryComponent from '../../../../resources/js/components/Room/HistoryCo
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import dayjs from 'dayjs';
 import sinon from 'sinon';
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const localVue = createLocalVue();
 
@@ -48,8 +43,7 @@ const store = new Vuex.Store({
       },
       getters: {
         isAuthenticated: () => true,
-        settings: () => (setting) => setting === 'attendance.enabled' ? true : setting === 'statistics.meetings.enabled' ? true : null,
-        userTimezone: () => 'Europe/Berlin'
+        settings: () => (setting) => setting === 'attendance.enabled' ? true : setting === 'statistics.meetings.enabled' ? true : null
       }
     }
   },
@@ -79,8 +73,7 @@ describe('History', function () {
           },
           getters: {
             isAuthenticated: () => true,
-            settings: () => (setting) => setting === 'attendance.enabled' ? false : setting === 'statistics.meetings.enabled' ? false : null,
-            userTimezone: () => 'Europe/Berlin'
+            settings: () => (setting) => setting === 'attendance.enabled' ? false : setting === 'statistics.meetings.enabled' ? false : null
           }
         }
       },
@@ -93,8 +86,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom
@@ -192,8 +184,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom
@@ -285,8 +276,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom
@@ -357,15 +347,13 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom,
         modalStatic: true
       },
       stubs: {
-        'line-chart': true,
         transition: false
       },
       store,
@@ -428,10 +416,18 @@ describe('History', function () {
         await view.vm.$nextTick();
 
         expect(view.vm.$data.chartDataRows).toMatchObject({
-          participants: [{ x: '2021-06-18 09:13', y: 5 }, { x: '2021-06-18 09:14', y: 6 }],
-          voices: [{ x: '2021-06-18 09:13', y: 4 }, { x: '2021-06-18 09:14', y: 5 }],
-          videos: [{ x: '2021-06-18 09:13', y: 1 }, { x: '2021-06-18 09:14', y: 2 }]
+          participants: [{ x: '2021-06-18T07:13:49.000000Z', y: 5 }, { x: '2021-06-18T07:14:51.000000Z', y: 6 }],
+          voices: [{ x: '2021-06-18T07:13:49.000000Z', y: 4 }, { x: '2021-06-18T07:14:51.000000Z', y: 5 }],
+          videos: [{ x: '2021-06-18T07:13:49.000000Z', y: 1 }, { x: '2021-06-18T07:14:51.000000Z', y: 2 }]
         });
+
+        const chartOptions = view.vm.chartOptions;
+
+        const ticksCallback = chartOptions.scales.xAxes[0].ticks.callback('10:35 am', 0, [{ value: 1623746102000, major: false }]);
+        const tooltipTitleCallback = chartOptions.tooltips.callbacks.title([{ xLabel: '2021-06-15T08:35:02.000000Z', yLabel: 0, label: '2021-06-15T08:35:02.000000Z', value: '0', index: 1, datasetIndex: 1, x: 1103, y: 638.44 }, { xLabel: '2021-06-15T08:35:02.000000Z', yLabel: 0, label: '2021-06-15T08:35:02.000000Z', value: '0', index: 1, datasetIndex: 2, x: 1103, y: 638.44 }]);
+
+        expect(ticksCallback).toBe('06/15/2021, 10:35');
+        expect(tooltipTitleCallback).toBe('06/15/2021, 10:35');
 
         view.destroy();
         done();
@@ -444,8 +440,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom,

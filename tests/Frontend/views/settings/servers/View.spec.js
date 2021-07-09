@@ -411,7 +411,7 @@ describe('ServerView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
       let restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: env.HTTP_STALE_MODEL,
@@ -465,7 +465,7 @@ describe('ServerView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.name = 'Server 02';
 
       const restoreServerResponse = overrideStub('/api/v1/servers/1', {
