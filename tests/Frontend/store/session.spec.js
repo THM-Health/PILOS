@@ -1,7 +1,7 @@
 import Session from '../../../resources/js/store/modules/session';
 import sinon from 'sinon';
 import moxios from 'moxios';
-import i18n, { loadLanguageAsync } from '../../../resources/js/i18n';
+import i18n, { importLanguage } from '../../../resources/js/i18n';
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -41,6 +41,9 @@ describe('store/session', function () {
   });
 
   it('getCurrentUser and set i18n timezone', async function () {
+    const messagesEN = require('../../../resources/js/lang/en/index.js').default;
+    importLanguage('en', messagesEN);
+
     const commit = sinon.spy();
 
     const user = {
@@ -65,7 +68,6 @@ describe('store/session', function () {
     });
 
     await Session.actions.getCurrentUser({ commit });
-    await loadLanguageAsync(user.user_locale);
 
     sinon.assert.calledOnce(commit);
     sinon.assert.calledWith(commit, 'setCurrentUser', { currentUser: user });
