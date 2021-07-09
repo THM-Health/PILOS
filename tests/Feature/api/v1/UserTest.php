@@ -168,15 +168,17 @@ class UserTest extends TestCase
         $result = $this->actingAs($users[0])->getJson(route('api.v1.users.search'))
             ->assertSuccessful()
             ->assertJsonPath('data.0.firstname', $users[4]->firstname)
+            ->assertJsonPath('data.0.lastname', $users[4]->lastname)
+            ->assertJsonPath('data.0.email', $users[4]->email)
             ->assertJsonPath('data.1.firstname', $users[5]->firstname)
             ->assertJsonPath('data.2.firstname', $users[0]->firstname)
             ->assertJsonPath('data.3.firstname', $users[2]->firstname)
             ->assertJsonPath('data.4.firstname', $users[1]->firstname)
             ->assertJsonCount($page_size, 'data');
 
-        // check only the three attributes are returned
+        // check only the four attributes are returned
         foreach ($result->json('data') as $user) {
-            $this->assertEquals(array_keys($user), ['id','firstname','lastname']);
+            $this->assertEquals(array_keys($user), ['id','firstname','lastname','email']);
         }
 
         // Check with lastname query
