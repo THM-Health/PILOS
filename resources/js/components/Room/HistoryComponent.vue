@@ -356,10 +356,7 @@ export default {
           xAxes: [{
             type: 'time',
             time: {
-              unit: 'minute',
-              displayFormats: {
-                minute: 'HH:mm'
-              }
+              unit: 'minute'
             },
             display: true,
             scaleLabel: {
