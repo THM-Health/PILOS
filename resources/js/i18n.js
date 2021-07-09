@@ -55,12 +55,16 @@ export function loadLanguageAsync (lang) {
       /* webpackInclude: /\.js/ */
       `./lang/${lang}`
     ).then(messages => {
-      const existingLocaleMessages = i18n.getLocaleMessage(lang);
-      i18n.setLocaleMessage(lang, $.extend(true, {}, messages.default, existingLocaleMessages));
-      loadedLanguages.push(lang);
-      return setI18nLanguage(lang);
+      return Promise.resolve(importLanguage(lang, messages));
     });
   } else {
     return Promise.resolve(setI18nLanguage(lang));
   }
+}
+
+export function importLanguage (lang, messages) {
+  const existingLocaleMessages = i18n.getLocaleMessage(lang);
+  i18n.setLocaleMessage(lang, $.extend(true, {}, messages.default, existingLocaleMessages));
+  loadedLanguages.push(lang);
+  return setI18nLanguage(lang);
 }
