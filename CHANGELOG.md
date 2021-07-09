@@ -5,13 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.4.0] - 2021-07-09
 ### Added
 - Room type restriction for specific roles ([#98], [#127])
 - Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
 - Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
 - Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
 - Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
-- Email to user search dialog in room membership ([#147], [#150])
+- Email in user search dialog in room membership ([#147], [#150])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
@@ -167,3 +169,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
 [1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
+[1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
