@@ -55,7 +55,7 @@ describe('UsersIndex', function () {
             user_locale: 'en',
             model_name: 'User',
             room_limit: 0,
-            updated_at: '2020-01-01 01:00:00'
+            updated_at: '2020-01-01T01:00:00.000000Z'
           }],
           meta: {
             per_page: 1,
@@ -92,7 +92,7 @@ describe('UsersIndex', function () {
                 user_locale: 'de',
                 model_name: 'User',
                 room_limit: 0,
-                updated_at: '2020-01-01 01:00:00'
+                updated_at: '2020-01-01T01:00:00.000000Z'
               }],
               meta: {
                 per_page: 1,
@@ -138,7 +138,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
           authenticator: 'users',
@@ -149,7 +149,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00',
+          updated_at: '2020-01-01T01:00:00.000000Z',
           initial_password_set: true
         }, {
           id: 3,
@@ -161,7 +161,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 3,
@@ -264,7 +264,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
           authenticator: 'users',
@@ -275,7 +275,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00',
+          updated_at: '2020-01-01T01:00:00.000000Z',
           initial_password_set: true
         }, {
           id: 3,
@@ -287,7 +287,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 3,
@@ -359,7 +359,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
           authenticator: 'ldap',
@@ -370,7 +370,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 2,
@@ -459,7 +459,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 2,
@@ -524,7 +524,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 2,
