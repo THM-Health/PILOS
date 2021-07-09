@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
 - Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
 - Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
+- Email to user search dialog in room membership ([#147], [#150])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
@@ -158,6 +159,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#142]: https://github.com/THM-Health/PILOS/pull/142
 [#141]: https://github.com/THM-Health/PILOS/issues/143
 [#142]: https://github.com/THM-Health/PILOS/pull/144
+[#147]: https://github.com/THM-Health/PILOS/issues/147
+[#150]: https://github.com/THM-Health/PILOS/pull/150
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

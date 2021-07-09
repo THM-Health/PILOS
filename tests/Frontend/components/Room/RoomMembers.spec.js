@@ -351,8 +351,8 @@ describe('RoomMembers', function () {
               const userOptions = modal.findAll('li');
               // amount of users + no result and no options items
               expect(userOptions.length).toBe(4);
-              expect(userOptions.at(0).text()).toBe('Laura Rivera');
-              expect(userOptions.at(1).text()).toBe('Laura Walter');
+              expect(userOptions.at(0).text()).toBe('Laura RiveraLauraWRivera@domain.tld');
+              expect(userOptions.at(1).text()).toBe('Laura WalterLauraMWalter@domain.tld');
               expect(userOptions.at(2).text()).toBe('rooms.members.modals.add.noResult');
               expect(userOptions.at(3).text()).toBe('rooms.members.modals.add.noOptions');
 
