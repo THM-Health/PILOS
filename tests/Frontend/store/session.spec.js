@@ -50,7 +50,7 @@ describe('store/session', function () {
       username: 'user',
       firstname: 'John',
       lastname: 'Doe',
-      user_locale: 'de',
+      user_locale: 'en',
       permissions: [],
       model_name: 'User',
       room_limit: -1,

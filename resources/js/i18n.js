@@ -22,6 +22,10 @@ const loadedLanguages = [defaultLocale];
 
 export default i18n;
 
+/**
+ * Set the timezone for showing date and time
+ * @param {string=} timezone Timezone string e.g. 'Europe/Berlin', if undefined (default) use users system timezone
+ */
 export function setTimeZone (timezone) {
   const locales = i18n.availableLocales;
   locales.forEach((locale) => {

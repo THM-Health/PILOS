@@ -368,7 +368,15 @@ export default {
                 fontStyle: 'bold',
                 fontColor: '#FF0000'
               },
+              /**
+               * Callback to set the ticks label of the x-axes
+               * @param label the tick value in the internal data format of the associated scale
+               * @param index the tick index in the ticks array
+               * @param ticks the array containing all of the tick objects
+               * @return {string} Localised human readable string with the timezone of the user
+               */
               callback: (label, index, ticks) => {
+                // get value of the current tick that is the unix timestamp chart-js parsed from the ISO 8601 datetime string
                 return this.$d(ticks[index].value, 'time');
               }
             }
@@ -382,7 +390,13 @@ export default {
         },
         tooltips: {
           callbacks: {
+            /**
+             * Callback to set the title of the tooltip (hover on datapoint)
+             * @param data Array with charts x-y data of this datapoint
+             * @return {string} Localised human readable string with the timezone of the user
+             */
             title: (data) => {
+              // get xLabel of the first dataset (all have the same xLabel) that is a ISO 8601 datetime string
               return this.$d(new Date(data[0].xLabel), 'datetimeShort');
             }
           }

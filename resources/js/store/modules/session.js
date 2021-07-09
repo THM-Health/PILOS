@@ -39,6 +39,7 @@ const actions = {
   async getCurrentUser ({ commit }) {
     let currentUser = await auth.getCurrentUser();
     if ($.isEmptyObject(currentUser)) { currentUser = null; }
+    // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
     setTimeZone(currentUser == null ? undefined : currentUser.timezone);
     commit('setCurrentUser', { currentUser });
   },
@@ -47,6 +48,7 @@ const actions = {
     commit('loading', null, { root: true });
     await auth.logout();
     commit('setCurrentUser', { currentUser: null, emit: false });
+    // reset timezone of i18n to use local system timezone
     setTimeZone(undefined);
     commit('loadingFinished', null, { root: true });
   },
