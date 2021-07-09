@@ -1,7 +1,7 @@
 import Session from '../../../resources/js/store/modules/session';
 import sinon from 'sinon';
 import moxios from 'moxios';
-import i18n from '../../../resources/js/i18n';
+import i18n, { loadLanguageAsync } from '../../../resources/js/i18n';
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -65,11 +65,12 @@ describe('store/session', function () {
     });
 
     await Session.actions.getCurrentUser({ commit });
+    await loadLanguageAsync(user.user_locale);
 
     sinon.assert.calledOnce(commit);
     sinon.assert.calledWith(commit, 'setCurrentUser', { currentUser: user });
 
-    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('2021-02-13 05:09');
+    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/13/2021, 05:09');
 
     user.timezone = 'Europe/Berlin';
     const restoreCurrentUserResponse = overrideStub('/api/v1/currentUser', {
@@ -84,7 +85,7 @@ describe('store/session', function () {
     sinon.assert.calledTwice(commit);
     sinon.assert.calledWith(commit, 'setCurrentUser', { currentUser: user });
 
-    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('2021-02-12 19:09');
+    expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/12/2021, 19:09');
 
     restoreCurrentUserResponse();
   });
