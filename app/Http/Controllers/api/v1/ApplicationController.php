@@ -65,6 +65,25 @@ class ApplicationController extends Controller
             }
         }
 
+        if ($request->has('bbb.logo_file')) {
+            $path     = $request->file('bbb.logo_file')->store('images', 'public');
+            $url      = Storage::url($path);
+            setting()->set('bbb_logo', url($url));
+        } elseif ($request->has('bbb.logo')) {
+            setting()->set('bbb_logo', $request->bbb['logo']);
+        } else {
+            setting()->forget('bbb_logo');
+        }
+
+        if ($request->has('bbb.style')) {
+            if (!empty($request->file('bbb.style'))) {
+                $path = $request->file('bbb.style')->storeAs('styles', 'bbb-style.css', 'public');
+                setting()->set('bbb_style', Storage::url($path));
+            } else {
+                setting()->forget('bbb_style');
+            }
+        }
+
         setting()->set('logo', $logo);
         setting()->set('favicon', $favicon);
         setting()->set('name', $request->name);

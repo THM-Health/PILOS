@@ -222,7 +222,26 @@ export default {
 
     userSettings: 'User settings',
     passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
-    defaultTimezone: 'Default timezone'
+    defaultTimezone: 'Default timezone',
+
+    bbb: {
+      title: 'BigBlueButton Customization',
+      logo: {
+        title: 'Logo',
+        uploadTitle: 'Upload a logo (max. 500 KB)',
+        urlTitle: 'URL to logo file',
+        description: 'Changes the application logo. Enter the image URL',
+        hint: 'https://domain.tld/path/logo.svg',
+        selectFile: 'Select logo file',
+        alt: 'Logo preview'
+      },
+      style: {
+        title: 'CSS style file',
+        view: 'View',
+        delete: 'Delete',
+        reset: 'Reset'
+      }
+    }
   },
 
   servers: {

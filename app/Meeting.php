@@ -120,6 +120,10 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
+        if (setting()->has('bbb_logo')) {
+            $meetingParams->setLogo(setting('bbb_logo'));
+        }
+
         return $this->server->bbb()->createMeeting($meetingParams);
     }
 
@@ -183,6 +187,10 @@ class Meeting extends Model
         $joinMeetingParams->setUserId($userid);
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
         $joinMeetingParams->addUserData('bbb_skip_check_audio', $skipAudioCheck);
+
+        if (setting()->has('bbb_style')) {
+            $joinMeetingParams->addUserData('bbb_custom_style_url', url(setting('bbb_style')));
+        }
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }

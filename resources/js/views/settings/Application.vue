@@ -819,6 +819,131 @@
         </b-form-group>
 
         <hr>
+        <h4>{{ $t('settings.application.bbb.title') }}</h4>
+
+        <!--Logo Settings-->
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          label-for="application-logo-input"
+          :state='(fieldState("bbb.logo") == null && fieldState("bbb.logo_file") == null) ? null : false'
+          :label="$t('settings.application.bbb.logo.title')"
+        >
+          <b-row class="my-3" align-v="center">
+            <b-col sm="6" lg="3" class="text-center">
+              <b-img
+                v-if="uploadBBBLogoFileSrc!==null || settings.bbb.logo!==null"
+                :src="uploadBBBLogoFileSrc ? uploadBBBLogoFileSrc : settings.bbb.logo"
+                class="my-2"
+                rounded="0"
+                :alt="$t('settings.application.bbb.logo.alt')"
+                width="150"
+                height="100"
+                fluid
+              >
+              </b-img>
+            </b-col>
+            <b-col sm="6" lg="9">
+              <b-form-text v-if="!uploadBBBLogoFile">{{ $t('settings.application.bbb.logo.urlTitle') }}</b-form-text>
+              <b-form-input
+                id="bbb-logo-input"
+                v-if="!uploadBBBLogoFile"
+                :placeholder="$t('settings.application.bbb.logo.hint')"
+                v-model="settings.bbb.logo"
+                :disabled="isBusy || viewOnly || !loaded"
+                class="my-2"
+                :state='fieldState("bbb.logo")'
+              >
+              </b-form-input>
+              <b-form-text v-if="!viewOnly">{{ $t('settings.application.bbb.logo.uploadTitle') }}</b-form-text>
+              <b-input-group v-if="!viewOnly">
+                <b-form-file
+                  id="bbb-logo-form-file"
+                  :state='fieldState("bbb.logo_file")'
+                  :disabled="isBusy || viewOnly || !loaded"
+                  :browse-text="$t('app.browse')"
+                  :placeholder="$t('settings.application.bbb.logo.selectFile')"
+                  v-model="uploadBBBLogoFile"
+                  accept="image/jpeg, image/png, image/gif, image/svg+xml"
+                >
+                </b-form-file>
+                <template #append v-if="uploadBBBLogoFile">
+                  <b-button id="bbb-upload-button" variant="danger" @click="uploadBBBLogoFile = null">
+                    <b-icon-x></b-icon-x>
+                  </b-button>
+                </template>
+              </b-input-group>
+            </b-col>
+          </b-row>
+
+          <template slot='invalid-feedback'>
+            <div v-html="fieldError('logo')"></div>
+            <div v-html="fieldError('logo_file')"></div>
+          </template>
+        </b-form-group>
+
+        <b-form-group
+          label-class="font-weight-bold"
+          class="mb-4"
+          :label="$t('settings.application.bbb.style.title')"
+          label-for='default_presentation'
+          :state='fieldState("bbb.style")'
+        >
+          <b-input-group>
+            <b-form-file
+              accept="text/css,.css"
+              :disabled="isBusy || viewOnly || !loaded"
+              id='default_presentation'
+              :state="fieldState('bbb.style')"
+              :browse-text="$t('app.browse')"
+              :placeholder="$t('settings.application.bbb.style.title')"
+              v-model="bbb_style"
+            >
+            </b-form-file>
+            <b-input-group-append v-if='settings.bbb.style || !!bbb_style'>
+              <!-- View file -->
+              <b-button
+                v-if='settings.bbb.style'
+                variant='dark'
+                :href='settings.bbb.style'
+                target='_blank'
+                ref='view-bbb-style'
+                v-b-tooltip
+                :title="$t('settings.application.bbb.style.view')"
+              >
+                <i class="fas fa-eye"></i>
+              </b-button>
+              <b-button
+                v-if='!viewOnly && (bbb_style !== null || bbb_style_deleted)'
+                variant='secondary'
+                @click='bbb_style = null; bbb_style_deleted = false'
+                ref='reset-bbb-style'
+                v-b-tooltip
+                :title="$t('settings.application.bbb.style.reset')"
+              >
+                <i class="fas fa-undo"></i>
+              </b-button>
+              <!-- Delete file -->
+              <b-button
+                v-if='!viewOnly && bbb_style === null && !bbb_style_deleted'
+                variant='danger'
+                @click="bbb_style_deleted = true"
+                ref='delete-bbb-style'
+                v-b-tooltip
+                :title="$t('settings.application.bbb.style.delete')"
+              >
+                <i class="fas fa-trash"></i>
+              </b-button>
+
+            </b-input-group-append>
+          </b-input-group>
+          <template slot='invalid-feedback' v-if="!viewOnly">
+            <div v-html="fieldError('bbb.style')"></div>
+          </template>
+        </b-form-group>
+
+        <hr>
+
         <div class="clearfix">
           <b-button id="application-save-button"
                     class="float-right mr-1 mb-1"
@@ -853,16 +978,22 @@ export default {
       roomLimitMode: 'custom',
       uploadLogoFile: null,
       uploadLogoFileSrc: null,
+      uploadBBBLogoFile: null,
+      uploadBBBLogoFileSrc: null,
       uploadFaviconFile: null,
       uploadFaviconFileSrc: null,
       isBusy: false,
       default_presentation: null,
       default_presentation_deleted: false,
+      bbb_style: null,
+      bbb_style_deleted: false,
       settings: {
         banner: {},
         link_btn_styles: [],
         link_targets: [],
-        bbb: {},
+        bbb: {
+          style: undefined
+        },
         default_presentation: undefined,
         statistics: {
           servers: {},
@@ -942,6 +1073,13 @@ export default {
       } else {
         formData.append('favicon', this.settings.favicon);
       }
+
+      if (this.uploadBBBLogoFile) {
+        formData.append('bbb[logo_file]', this.uploadBBBLogoFile);
+      } else {
+        formData.append('bbb[logo]', this.settings.bbb.logo);
+      }
+
       formData.append('name', this.settings.name);
       formData.append('room_limit', this.settings.room_limit);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
@@ -961,6 +1099,12 @@ export default {
         formData.append('default_presentation', this.default_presentation);
       } else if (this.default_presentation_deleted) {
         formData.append('default_presentation', '');
+      }
+
+      if (this.bbb_style !== null) {
+        formData.append('bbb[style]', this.bbb_style);
+      } else if (this.bbb_style_deleted) {
+        formData.append('bbb[style]', '');
       }
 
       Object.keys(this.settings.banner).forEach(key => {
@@ -993,6 +1137,9 @@ export default {
           this.uploadLogoFile = null;
           this.default_presentation = null;
           this.default_presentation_deleted = false;
+          this.uploadBBBLogoFile = null;
+          this.bbb_style = null;
+          this.bbb_style_deleted = false;
 
           // update form input
           this.settings = response.data.data;
@@ -1091,6 +1238,26 @@ export default {
             });
         } else {
           this.uploadLogoFileSrc = null;
+        }
+      }
+    },
+    /**
+     * watch for bbb logo file select changes, encode to base64 and display image
+     * @param newValue
+     * @param oldValue
+     */
+    uploadBBBLogoFile (newValue, oldValue) {
+      if (newValue !== oldValue) {
+        if (newValue) {
+          this.base64Encode(newValue)
+            .then(value => {
+              this.uploadBBBLogoFileSrc = value;
+            })
+            .catch(() => {
+              this.uploadBBBLogoFileSrc = null;
+            });
+        } else {
+          this.uploadBBBLogoFileSrc = null;
         }
       }
     },

@@ -151,7 +151,7 @@ export default {
       description: 'URL zum Logo',
       hint: 'https://domain.tld/path/logo.svg',
       selectFile: 'Logo-Datei auswählen',
-      alt: 'Favicon Vorschau'
+      alt: 'Logo Vorschau'
     },
 
     favicon: {
@@ -227,7 +227,26 @@ export default {
 
     userSettings: 'Benutzereinstellungen',
     passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
-    defaultTimezone: 'Standardzeitzone'
+    defaultTimezone: 'Standardzeitzone',
+
+    bbb: {
+      title: 'BigBlueButton Anpassungen',
+      logo: {
+        title: 'Logo',
+        uploadTitle: 'Logo hochladen (max. 500 KB)',
+        urlTitle: 'URL zu Logo-Datei',
+        description: 'URL zum Logo',
+        hint: 'https://domain.tld/path/logo.svg',
+        selectFile: 'Logo-Datei auswählen',
+        alt: 'Logo Vorschau'
+      },
+      style: {
+        title: 'CSS Style Datei',
+        view: 'Anzeigen',
+        delete: 'Löschen',
+        reset: 'Zurücksetzen'
+      }
+    }
   },
 
   servers: {
