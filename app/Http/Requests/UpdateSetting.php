@@ -49,8 +49,8 @@ class UpdateSetting extends FormRequest
             'attendance.enabled'                   => 'required|boolean',
             'attendance.retention_period'          => 'required|numeric|min:1|max:365',
             'bbb.logo'                             => 'nullable|string|max:255',
-            'bbb.logo_file'                        => 'nullable|image|max:500', // 500 KB, larger files are bad for loading times
-            'bbb.style'                            => ['nullable','file','max:500'],
+            'bbb.logo_file'                        => 'nullable|image|max:500',
+            'bbb.style'                            => 'nullable|file|max:500',
         ];
     }
 }
