@@ -120,6 +120,7 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
+        // if a logo is defined, set logo
         if (setting()->has('bbb_logo')) {
             $meetingParams->setLogo(setting('bbb_logo'));
         }
@@ -188,8 +189,9 @@ class Meeting extends Model
         $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
         $joinMeetingParams->addUserData('bbb_skip_check_audio', $skipAudioCheck);
 
+        // If a custom style file is set, pass url to bbb html5 client
         if (setting()->has('bbb_style')) {
-            $joinMeetingParams->addUserData('bbb_custom_style_url', url(setting('bbb_style')));
+            $joinMeetingParams->addUserData('bbb_custom_style_url', setting('bbb_style'));
         }
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);

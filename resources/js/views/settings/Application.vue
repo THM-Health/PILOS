@@ -1063,11 +1063,13 @@ export default {
 
       // Build form data
       const formData = new FormData();
+
       if (this.uploadLogoFile) {
         formData.append('logo_file', this.uploadLogoFile);
       } else {
         formData.append('logo', this.settings.logo);
       }
+
       if (this.uploadFaviconFile) {
         formData.append('favicon_file', this.uploadFaviconFile);
       } else {
