@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Missing a slash after hostname in email template and room join url in bbb room ([#153], [#154])
 
 ## [1.4.0] - 2021-07-09
 ### Added
@@ -163,6 +165,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#142]: https://github.com/THM-Health/PILOS/pull/144
 [#147]: https://github.com/THM-Health/PILOS/issues/147
 [#150]: https://github.com/THM-Health/PILOS/pull/150
+[#153]: https://github.com/THM-Health/PILOS/issues/153
+[#154]: https://github.com/THM-Health/PILOS/pull/154
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
