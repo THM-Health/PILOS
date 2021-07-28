@@ -24,8 +24,10 @@
         "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
+        "ext-simplexml": "*",
         "barryvdh/laravel-ide-helper": "^2.7",
         "brainmaestro/composer-git-hooks": "^2.8",
+        "brianium/paratest": "^6.3",
         "facade/ignition": "^2.5",
         "friendsofphp/php-cs-fixer": "2.*",
         "fzaninotto/faker": "^1.9.1",
@@ -35,8 +37,7 @@
         "php-coveralls/php-coveralls": "^2.3.0",
         "phpunit/phpunit": "^9.3.3",
         "squizlabs/php_codesniffer": "3.*",
-        "timacdonald/log-fake": "^1.9",
-        "ext-simplexml": "*"
+        "timacdonald/log-fake": "^1.9"
     },
     "config": {
         "optimize-autoloader": true,
