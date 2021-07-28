@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Server;
+use Faker\Factory;
 use Illuminate\Database\Seeder;
 
 class ServerSeeder extends Seeder
@@ -15,7 +16,7 @@ class ServerSeeder extends Seeder
      */
     public function run()
     {
-        $faker = Faker\Factory::create();
+        $faker = Factory::create();
         $servers = config('bigbluebutton.testserver');
 
         foreach ($servers as $server){

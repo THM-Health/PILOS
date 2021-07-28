@@ -58,7 +58,7 @@ class RoomTypeTest extends TestCase
         $roomType1->roles()->sync([$role1->id]);
         $roomType2->roles()->sync([$role2->id]);
 
-        $room = Role::factory()->create([
+        $room = Room::factory()->create([
             'room_type_id' => $roomType1->id
         ]);
 
