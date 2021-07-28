@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Update BBB api to v4.0.0 ([#155], [#156])
+
 ## [1.4.1] - 2021-07-28
 ### Fixed
 - Missing a slash after hostname in email template and room join url in bbb room ([#153], [#154])
@@ -169,6 +172,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#150]: https://github.com/THM-Health/PILOS/pull/150
 [#153]: https://github.com/THM-Health/PILOS/issues/153
 [#154]: https://github.com/THM-Health/PILOS/pull/154
+[#155]: https://github.com/THM-Health/PILOS/issues/155
+[#156]: https://github.com/THM-Health/PILOS/pull/156
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
