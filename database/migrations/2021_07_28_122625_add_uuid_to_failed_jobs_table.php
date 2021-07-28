@@ -10,12 +10,12 @@ class AddUuidToFailedJobsTable extends Migration
     {
         Schema::table('failed_jobs', function (Blueprint $table) {
             $table->string('uuid')->after('id')->nullable()->unique();
+        });
 
-            DB::table('failed_jobs')->whereNull('uuid')->cursor()->each(function ($job) {
-                DB::table('failed_jobs')
-                    ->where('id', $job->id)
-                    ->update(['uuid' => (string) Illuminate\Support\Str::uuid()]);
-            });
+        DB::table('failed_jobs')->whereNull('uuid')->cursor()->each(function ($job) {
+            DB::table('failed_jobs')
+                ->where('id', $job->id)
+                ->update(['uuid' => (string) Illuminate\Support\Str::uuid()]);
         });
     }
 
