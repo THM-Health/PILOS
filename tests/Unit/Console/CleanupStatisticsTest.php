@@ -20,8 +20,8 @@ class CleanupStatisticsTest extends TestCase
         setting()->set('statistics.meetings.retention_period', 20);
 
         // Create fake data
-        $server  = factory(Server::class)->create();
-        $meeting = factory(Meeting::class)->create();
+        $server  = Server::factory()->create();
+        $meeting = Meeting::factory()->create();
 
         $serverStat1                          = new ServerStat();
         $serverStat1->created_at              = now()->subDays(11)->toDateString();

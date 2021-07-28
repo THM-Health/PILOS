@@ -25,9 +25,9 @@ class RoleTest extends TestCase
         $page_size = 1;
         setting(['pagination_page_size' => $page_size]);
 
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create();
-        $roleB      = factory(Role::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create();
+        $roleB      = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         $this->getJson(route('api.v1.roles.index'))->assertUnauthorized();
@@ -61,8 +61,8 @@ class RoleTest extends TestCase
 
     public function testCreate()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create();
         $user->roles()->attach([$roleA->id]);
 
         $role = ['name' => $roleA->name, 'default' => true, 'permissions' => 'test', 'room_limit' => -2];
@@ -102,9 +102,9 @@ class RoleTest extends TestCase
 
     public function testUpdate()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create(['default' => true, 'room_limit' => 20]);
-        $roleB      = factory(Role::class)->create(['default' => true, 'room_limit' => 20]);
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create(['default' => true, 'room_limit' => 20]);
+        $roleB      = Role::factory()->create(['default' => true, 'room_limit' => 20]);
         $user->roles()->attach([$roleA->id]);
 
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
@@ -188,8 +188,8 @@ class RoleTest extends TestCase
 
     public function testUpdatePermissionLost()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create();
         $user->roles()->attach([$roleA->id]);
 
         $new_permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ])->id;
@@ -216,9 +216,9 @@ class RoleTest extends TestCase
 
     public function testShow()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create();
-        $roleB      = factory(Role::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create();
+        $roleB      = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))->assertUnauthorized();
@@ -239,9 +239,9 @@ class RoleTest extends TestCase
 
     public function testDelete()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create(['default' => true]);
-        $roleB      = factory(Role::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create(['default' => true]);
+        $roleB      = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleA]))->assertUnauthorized();

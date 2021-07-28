@@ -50,7 +50,7 @@ class LocalesTest extends TestCase
      */
     public function testLocaleOfAuthenticatedUser()
     {
-        $user = factory(User::class)->create([
+        $user = User::factory()->create([
             'password' => Hash::make('bar')
         ]);
         $response = $this->actingAs($user)->withHeaders([
@@ -115,7 +115,7 @@ class LocalesTest extends TestCase
      */
     public function testLocaleDifferentLocalesEverywhere()
     {
-        $user = factory(User::class)->create([
+        $user = User::factory()->create([
             'password' => Hash::make('bar'),
             'locale'   => 'fr'
         ]);
@@ -164,7 +164,7 @@ class LocalesTest extends TestCase
      */
     public function testSetLocaleUpdatesCurrentUsersLocale()
     {
-        $user = factory(User::class)->create([
+        $user = User::factory()->create([
             'password' => Hash::make('bar'),
             'locale'   => 'fr'
         ]);

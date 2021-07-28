@@ -9,6 +9,8 @@ use App\Permission;
 use App\Role;
 use App\Server;
 use App\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -29,8 +31,8 @@ class ServerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed('RolesAndPermissionsSeeder');
-        $this->user = factory(User::class)->create();
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -41,9 +43,9 @@ class ServerTest extends TestCase
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
 
-        $servers  = factory(Server::class, 8)->create(['description'=>'test']);
-        $server01 = factory(Server::class)->create(['name'=>'server01','status'=>ServerStatus::DISABLED]);
-        $server02 = factory(Server::class)->create(['name'=>'server02','status'=>ServerStatus::OFFLINE]);
+        $servers  = Server::factory()->count(8)->create(['description'=>'test']);
+        $server01 = Server::factory()->create(['name'=>'server01','status'=>ServerStatus::DISABLED]);
+        $server02 = Server::factory()->create(['name'=>'server02','status'=>ServerStatus::OFFLINE]);
 
         // Test guests
         $this->getJson(route('api.v1.servers.index'))
@@ -53,7 +55,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = factory(Role::class)->create(['default' => true]);
+        $role       = Role::factory()->create(['default' => true]);
         $permission = Permission::firstOrCreate([ 'name' => 'servers.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);
@@ -148,7 +150,7 @@ class ServerTest extends TestCase
      */
     public function testShow()
     {
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
 
         // Test guests
         $this->getJson(route('api.v1.servers.show', ['server' => $server->id]))
@@ -159,7 +161,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.view']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -201,7 +203,7 @@ class ServerTest extends TestCase
      */
     public function testCreate()
     {
-        $server = factory(Server::class)->make();
+        $server = Server::factory()->make();
         $data   = [
             'name'        => $server->name,
             'description' => $server->description,
@@ -220,7 +222,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -251,8 +253,8 @@ class ServerTest extends TestCase
      */
     public function testUpdate()
     {
-        $server  = factory(Server::class)->create(['base_url'=>'https://host1.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
-        $server2 = factory(Server::class)->create(['base_url'=>'https://host2.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
+        $server  = Server::factory()->create(['base_url'=>'https://host1.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
+        $server2 = Server::factory()->create(['base_url'=>'https://host2.notld/bigbluebutton/','status'=>ServerStatus::DISABLED]);
 
         $data = [
             'name'        => $server->name,
@@ -272,7 +274,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -331,7 +333,7 @@ class ServerTest extends TestCase
      */
     public function testDelete()
     {
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
 
         // Test guests
         $this->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
@@ -342,7 +344,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.delete']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -356,7 +358,7 @@ class ServerTest extends TestCase
         $server->save();
 
         // Create new running meeting on the server
-        $meeting = factory(Meeting::class)->create(['server_id'=>$server->id,'end'=>null]);
+        $meeting = Meeting::factory()->create(['server_id'=>$server->id,'end'=>null]);
 
         // Try delete while meeting still running
         $this->actingAs($this->user)->deleteJson(route('api.v1.servers.destroy', ['server'=>$server->id]))
@@ -383,7 +385,7 @@ class ServerTest extends TestCase
     public function testCheck()
     {
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
         $server = Server::all()->first();
 
         $data = ['base_url'=>'https://host.tld/bigbluebutton','salt'=>'t64e8rtefererrg43erbgffrgz'];
@@ -397,7 +399,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -427,7 +429,7 @@ class ServerTest extends TestCase
      */
     public function testPanic()
     {
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
 
         // Test guests
         $this->getJson(route('api.v1.servers.panic', ['server'=>$server]))
@@ -438,7 +440,7 @@ class ServerTest extends TestCase
             ->assertForbidden();
 
         // Authorize user for view servers
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate(['name' => 'servers.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -451,7 +453,7 @@ class ServerTest extends TestCase
         $permission = Permission::firstOrCreate(['name' => 'servers.update']);
         $role->permissions()->attach($permission);
 
-        $meeting = factory(Meeting::class)->create(['server_id'=>$server->id,'end'=>null]);
+        $meeting = Meeting::factory()->create(['server_id'=>$server->id,'end'=>null]);
 
         // Test without update permission
         $this->actingAs($this->user)->getJson(route('api.v1.servers.panic', ['server'=>$server]))

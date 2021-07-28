@@ -5,13 +5,14 @@ namespace App;
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Room extends Model
 {
-    use AddsModelNameTrait;
+    use AddsModelNameTrait, HasFactory;
 
     public $incrementing = false;
     protected $keyType   = 'string';

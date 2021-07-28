@@ -18,8 +18,8 @@ class ResetPasswordTest extends TestCase
     public function testResetPassword()
     {
         setting(['password_self_reset_enabled' => true]);
-        $user    = factory(User::class)->create();
-        $newUser = factory(User::class)->create([
+        $user    = User::factory()->create();
+        $newUser = User::factory()->create([
             'initial_password_set' => true
         ]);
         $newUserToken = Password::createToken($newUser);

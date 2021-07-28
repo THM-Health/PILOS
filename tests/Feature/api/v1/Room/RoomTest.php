@@ -12,6 +12,8 @@ use App\Room;
 use App\RoomType;
 use App\Server;
 use App\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Http;
@@ -34,13 +36,13 @@ class RoomTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create([
+        $this->user = User::factory()->create([
             'bbb_skip_check_audio' => true
         ]);
 
-        $this->seed('RolesAndPermissionsSeeder');
+        $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->role                 = factory(Role::class)->create();
+        $this->role                 = Role::factory()->create();
         $this->createPermission     = Permission::where('name', 'rooms.create')->first();
         $this->managePermission     = Permission::where('name', 'rooms.manage')->first();
         $this->viewAllPermission    = Permission::where('name', 'rooms.viewAll')->first();
@@ -98,7 +100,7 @@ class RoomTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
         $this->user->roles()->attach($role);
 
@@ -124,7 +126,7 @@ class RoomTest extends TestCase
      */
     public function testCreateNewRoomReachLimit()
     {
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $role->permissions()->attach($this->createPermission);
         $this->user->roles()->attach($role);
         setting(['room_limit' => '1']);
@@ -146,7 +148,7 @@ class RoomTest extends TestCase
      */
     public function testDeleteRoom()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         // Test unauthenticated user
         $this->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
@@ -188,7 +190,7 @@ class RoomTest extends TestCase
         $this->role->permissions()->detach($this->managePermission);
 
         // Recreate room
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         // Add ownership
         $room->owner()->associate($this->user);
@@ -208,7 +210,7 @@ class RoomTest extends TestCase
      */
     public function testGuestAccess()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true
         ]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -220,7 +222,7 @@ class RoomTest extends TestCase
      */
     public function testDisableGuestAccess()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(403);
     }
@@ -230,7 +232,7 @@ class RoomTest extends TestCase
      */
     public function testAccessCodeGuests()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
@@ -258,7 +260,7 @@ class RoomTest extends TestCase
      */
     public function testAccessCodeUser()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
@@ -326,7 +328,7 @@ class RoomTest extends TestCase
      */
     public function testRoomView()
     {
-        $room = factory(Room::class)->create([
+        $room = Role::factory()->create([
         ]);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -367,16 +369,16 @@ class RoomTest extends TestCase
     public function testRoomList()
     {
         setting(['pagination_page_size' => 10]);
-        $user      = factory(User::class)->create(['firstname'=>'John','lastname'=>'Doe']);
-        $roomType1 = factory(RoomType::class)->create();
-        $roomType2 = factory(RoomType::class)->create(['allow_listing'=>false]);
-        $roomType3 = factory(RoomType::class)->create(['allow_listing'=>true]);
+        $user      = User::factory()->create(['firstname'=>'John','lastname'=>'Doe']);
+        $roomType1 = RoomType::factory()->create();
+        $roomType2 = RoomType::factory()->create(['allow_listing'=>false]);
+        $roomType3 = RoomType::factory()->create(['allow_listing'=>true]);
 
-        $room1 = factory(Room::class)->create(['name'=>'test a','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>123456789]);
-        $room2 = factory(Room::class)->create(['name'=>'test b','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>null]);
-        $room3 = factory(Room::class)->create(['name'=>'room a','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>123456789]);
-        $room4 = factory(Room::class)->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>null]);
-        $room5 = factory(Room::class)->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType3->id,'listed'=>true,'accessCode'=>null]);
+        $room1 = Room::factory()->create(['name'=>'test a','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>123456789]);
+        $room2 = Room::factory()->create(['name'=>'test b','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'accessCode'=>null]);
+        $room3 = Room::factory()->create(['name'=>'room a','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>123456789]);
+        $room4 = Room::factory()->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'accessCode'=>null]);
+        $room5 = Room::factory()->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType3->id,'listed'=>true,'accessCode'=>null]);
 
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index'))
@@ -391,7 +393,7 @@ class RoomTest extends TestCase
             ->assertJsonCount(7, 'meta');
 
         // Test with viewAll rooms permission
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $role->permissions()->attach($this->viewAllPermission);
         $this->user->roles()->attach($role);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
@@ -459,7 +461,7 @@ class RoomTest extends TestCase
      */
     public function testRoomListWithFilter()
     {
-        $rooms = factory(Room::class, 4)->create();
+        $rooms = Room::factory()->count(4)->create();
 
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index').'?filter=own')
@@ -499,7 +501,7 @@ class RoomTest extends TestCase
      */
     public function testRoomSearch()
     {
-        $room = factory(Room::class)->create(['name'=>'Meeting One']);
+        $room = Room::factory()->create(['name'=>'Meeting One']);
 
         // Testing ownership and membership
         $room->owner()->associate($this->user);
@@ -546,7 +548,7 @@ class RoomTest extends TestCase
      */
     public function testEndMeetingCallback()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         $server               = new Server();
         $server->base_url     = $this->faker->url;
@@ -589,7 +591,7 @@ class RoomTest extends TestCase
 
     public function testSettingsAccess()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         // Testing guests access
         $this->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
@@ -631,7 +633,7 @@ class RoomTest extends TestCase
 
     public function testAccessCodeShown()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
@@ -683,7 +685,7 @@ class RoomTest extends TestCase
 
     public function testUpdateSettings()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
         // Get current settings
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertSuccessful();
@@ -767,7 +769,7 @@ class RoomTest extends TestCase
 
     public function testUpdateSettingsInvalid()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
         // Get current settings
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertSuccessful();
@@ -791,7 +793,7 @@ class RoomTest extends TestCase
      */
     public function testStartRestrictedNoServer()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
@@ -849,7 +851,7 @@ class RoomTest extends TestCase
      */
     public function testStartNoServer()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests'      => true,
             'everyoneCanStart' => true,
             'accessCode'       => $this->faker->numberBetween(111111111, 999999999)
@@ -891,10 +893,10 @@ class RoomTest extends TestCase
 
     public function testStartAndJoinWithWrongServerDetails()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         // Adding fake server(s)
-        $server =  factory(Server::class)->create();
+        $server =  Server::factory()->create();
         $room->roomType->serverPool->servers()->sync([$server->id]);
 
         // Create meeting
@@ -917,11 +919,11 @@ class RoomTest extends TestCase
         // Allow attendance recording
         setting(['attendance.enabled' => true]);
 
-        $room = factory(Room::class)->create(['record_attendance' => true]);
+        $room = Room::factory()->create(['record_attendance' => true]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
 
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Create meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
@@ -968,7 +970,7 @@ class RoomTest extends TestCase
             $server->salt = 'TEST';
             $server->save();
         }
-        $room2 = factory(Room::class)->create(['room_type_id'=>$room->roomType->id]);
+        $room2 = Room::factory()->create(['room_type_id'=>$room->roomType->id]);
         $this->actingAs($room2->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room2,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
 
@@ -991,12 +993,12 @@ class RoomTest extends TestCase
      */
     public function testRecordAttendanceStatus()
     {
-        $room1 = factory(Room::class)->create(['record_attendance'=>true]);
-        $room2 = factory(Room::class)->create(['record_attendance'=>false]);
-        $room3 = factory(Room::class)->create(['record_attendance'=>true]);
+        $room1 = Room::factory()->create(['record_attendance'=>true]);
+        $room2 = Room::factory()->create(['record_attendance'=>false]);
+        $room3 = Room::factory()->create(['record_attendance'=>true]);
 
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Create meeting with attendance allowed globally
         setting(['attendance.enabled' => true]);
@@ -1091,7 +1093,7 @@ class RoomTest extends TestCase
         // Allow attendance recording
         setting(['attendance.enabled' => true]);
 
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests'       => true,
             'accessCode'        => $this->faker->numberBetween(111111111, 999999999),
             'record_attendance' => true,
@@ -1099,7 +1101,7 @@ class RoomTest extends TestCase
         $room->owner->update(['bbb_skip_check_audio' => true]);
 
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Testing join with meeting not running
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
@@ -1214,12 +1216,12 @@ class RoomTest extends TestCase
      */
     public function testJoinUrl()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true
         ]);
 
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Start meeting
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
@@ -1314,13 +1316,13 @@ class RoomTest extends TestCase
      */
     public function testLobbyEnabled()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'lobby'       => RoomLobby::ENABLED,
         ]);
 
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Start meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
@@ -1356,12 +1358,12 @@ class RoomTest extends TestCase
      */
     public function testLobbyOnlyGuests()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'lobby'       => RoomLobby::ONLY_GUEST,
         ]);
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Start meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))

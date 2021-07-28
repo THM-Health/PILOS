@@ -8,6 +8,7 @@ use App\Role;
 use App\Room;
 use App\Server;
 use App\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -28,8 +29,8 @@ class MeetingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed('RolesAndPermissionsSeeder');
-        $this->user = factory(User::class)->create();
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -40,17 +41,17 @@ class MeetingTest extends TestCase
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
 
-        $oldMeeting      = factory(Meeting::class)->create();
-        $runningMeetings = factory(Meeting::class, 7)->create(['end'=>null]);
-        $server          = factory(Server::class)->create(['name'=>'Testserver']);
-        $user1           = factory(User::class)->create(['firstname'=>'John','lastname'=>'Doe']);
-        $user2           = factory(User::class)->create(['firstname'=>'Max','lastname'=>'Doe']);
-        $room1           = factory(Room::class)->create(['name'=>'Test room 1','user_id'=>$user1->id,'participant_count'=>5]);
-        $room2           = factory(Room::class)->create(['name'=>'Test room 2','user_id'=>$user1->id,'participant_count'=>4]);
-        $room3           = factory(Room::class)->create(['name'=>'Test room 3','user_id'=>$user2->id,'participant_count'=>1]);
-        $meeting1        = factory(Meeting::class)->create(['server_id'=>$server->id,'room_id'=>$room1->id,'start'=>'2021-01-12 8:40:20','end'=>null]);
-        $meeting2        = factory(Meeting::class)->create(['server_id'=>$server->id,'room_id'=>$room2->id,'start'=>'2021-01-12 8:42:30','end'=>null]);
-        $meeting3        = factory(Meeting::class)->create(['server_id'=>$server->id,'room_id'=>$room3->id,'start'=>'2021-01-12 8:42:55','end'=>null]);
+        $oldMeeting      = Meeting::factory()->create();
+        $runningMeetings = Meeting::factory()->count(7)->create(['end'=>null]);
+        $server          = Server::factory()->create(['name'=>'Testserver']);
+        $user1           = User::factory()->create(['firstname'=>'John','lastname'=>'Doe']);
+        $user2           = User::factory()->create(['firstname'=>'Max','lastname'=>'Doe']);
+        $room1           = Room::factory()->create(['name'=>'Test room 1','user_id'=>$user1->id,'participant_count'=>5]);
+        $room2           = Room::factory()->create(['name'=>'Test room 2','user_id'=>$user1->id,'participant_count'=>4]);
+        $room3           = Room::factory()->create(['name'=>'Test room 3','user_id'=>$user2->id,'participant_count'=>1]);
+        $meeting1        = Meeting::factory()->create(['server_id'=>$server->id,'room_id'=>$room1->id,'start'=>'2021-01-12 8:40:20','end'=>null]);
+        $meeting2        = Meeting::factory()->create(['server_id'=>$server->id,'room_id'=>$room2->id,'start'=>'2021-01-12 8:42:30','end'=>null]);
+        $meeting3        = Meeting::factory()->create(['server_id'=>$server->id,'room_id'=>$room3->id,'start'=>'2021-01-12 8:42:55','end'=>null]);
 
         // Test guests
         $this->getJson(route('api.v1.meetings.index'))
@@ -61,7 +62,7 @@ class MeetingTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = factory(Role::class)->create(['default' => true]);
+        $role       = Role::factory()->create(['default' => true]);
         $permission = Permission::firstOrCreate([ 'name' => 'meetings.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);

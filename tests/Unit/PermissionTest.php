@@ -18,9 +18,9 @@ class PermissionTest extends TestCase
      */
     public function testUserHasPermission()
     {
-        $user       = factory(User::class)->create();
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create();
+        $user       = User::factory()->create();
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create();
         $role->permissions()->attach($permission);
         $this->assertFalse($user->can($permission->name));
         $user->roles()->attach($role);
@@ -32,10 +32,10 @@ class PermissionTest extends TestCase
      */
     public function testUserHasInheritedPermission()
     {
-        $user                = factory(User::class)->create();
-        $role                = factory(Role::class)->create();
-        $permission          = factory(Permission::class)->create();
-        $inheritedPermission = factory(Permission::class)->create();
+        $user                = User::factory()->create();
+        $role                = Role::factory()->create();
+        $permission          = Permission::factory()->create();
+        $inheritedPermission = Permission::factory()->create();
 
         $role->permissions()->attach($permission);
         $user->roles()->attach($role);
@@ -50,10 +50,10 @@ class PermissionTest extends TestCase
      */
     public function testUserHasInheritedPermissionReverse()
     {
-        $user                = factory(User::class)->create();
-        $role                = factory(Role::class)->create();
-        $permission          = factory(Permission::class)->create();
-        $inheritedPermission = factory(Permission::class)->create();
+        $user                = User::factory()->create();
+        $role                = Role::factory()->create();
+        $permission          = Permission::factory()->create();
+        $inheritedPermission = Permission::factory()->create();
 
         $role->permissions()->attach($inheritedPermission);
         $user->roles()->attach($role);
@@ -68,7 +68,7 @@ class PermissionTest extends TestCase
      */
     public function testNonExistingPermission()
     {
-        $user       = factory(User::class)->create();
+        $user       = User::factory()->create();
         $this->assertFalse($user->can($this->faker->word));
     }
 }

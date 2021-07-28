@@ -37,7 +37,7 @@ class EnsureModelNotStaleTest extends TestCase
 
     public function testInvalidUpdatedAt()
     {
-        $role = factory(Role::class)->create();
+        $role = Role::factory()->create();
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['updated_at' => 'test'])
             ->assertStatus(422)
@@ -46,7 +46,7 @@ class EnsureModelNotStaleTest extends TestCase
 
     public function testStaleModel()
     {
-        $role = factory(Role::class)->create();
+        $role = Role::factory()->create();
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => $role->updated_at->sub(new DateInterval('P1D'))])
             ->assertStatus(CustomStatusCodes::STALE_MODEL)
@@ -59,7 +59,7 @@ class EnsureModelNotStaleTest extends TestCase
 
     public function testActualModel()
     {
-        $role = factory(Role::class)->create(['updated_at' => null]);
+        $role = Role::factory()->create(['updated_at' => null]);
 
         $this->postJson(route('test.stale.check', ['role' => $role]), ['name' => 'foo', 'updated_at' => null])
             ->assertSuccessful()
