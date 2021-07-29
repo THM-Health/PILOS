@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,7 +14,7 @@ use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 
 class User extends Authenticatable
 {
-    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait;
+    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
 
     /**
      * The attributes that are mass assignable.

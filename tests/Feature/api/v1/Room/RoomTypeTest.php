@@ -10,6 +10,7 @@ use App\Role;
 use App\Room;
 use App\RoomType;
 use App\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -30,8 +31,8 @@ class RoomTypeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed('RolesAndPermissionsSeeder');
-        $this->user = factory(User::class)->create();
+        $this->seed(RolesAndPermissionsSeeder::class);
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -40,24 +41,24 @@ class RoomTypeTest extends TestCase
     public function testIndex()
     {
         RoomType::query()->truncate();
-        $roomType  = factory(RoomType::class)->create();
-        $roomType1 = factory(RoomType::class)->create([
+        $roomType  = RoomType::factory()->create();
+        $roomType1 = RoomType::factory()->create([
             'restrict' => true
         ]);
-        $roomType2 = factory(RoomType::class)->create([
+        $roomType2 = RoomType::factory()->create([
             'restrict' => true
         ]);
-        $roomTypeListed = factory(RoomType::class)->create([
+        $roomTypeListed = RoomType::factory()->create([
             'allow_listing' => true
         ]);
 
-        $role1 = factory(Role::class)->create();
-        $role2 = factory(Role::class)->create();
+        $role1 = Role::factory()->create();
+        $role2 = Role::factory()->create();
 
         $roomType1->roles()->sync([$role1->id]);
         $roomType2->roles()->sync([$role2->id]);
 
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'room_type_id' => $roomType1->id
         ]);
 
@@ -138,7 +139,7 @@ class RoomTypeTest extends TestCase
      */
     public function testShow()
     {
-        $roomType = factory(RoomType::class)->create();
+        $roomType = RoomType::factory()->create();
 
         // Test guests
         $this->getJson(route('api.v1.roomTypes.show', ['roomType' => $roomType->id]))
@@ -149,7 +150,7 @@ class RoomTypeTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.view' ]);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -172,8 +173,8 @@ class RoomTypeTest extends TestCase
      */
     public function testCreate()
     {
-        $roomType = factory(RoomType::class)->make(['short'=>'TA']);
-        $role1    = factory(Role::class)->create();
+        $roomType = RoomType::factory()->make(['short'=>'TA']);
+        $role1    = Role::factory()->create();
 
         $data = [
             'short'         => $roomType->short,
@@ -194,7 +195,7 @@ class RoomTypeTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -230,9 +231,9 @@ class RoomTypeTest extends TestCase
      */
     public function testUpdate()
     {
-        $roomType  = factory(RoomType::class)->create(['short'=>'TA']);
-        $roomType2 = factory(RoomType::class)->create(['short'=>'TB']);
-        $role1     = factory(Role::class)->create();
+        $roomType  = RoomType::factory()->create(['short'=>'TA']);
+        $roomType2 = RoomType::factory()->create(['short'=>'TB']);
+        $role1     = Role::factory()->create();
 
         $data = [
             'short'         => $roomType->short,
@@ -253,7 +254,7 @@ class RoomTypeTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.update' ]);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -314,7 +315,7 @@ class RoomTypeTest extends TestCase
      */
     public function testDelete()
     {
-        $roomType = factory(RoomType::class)->create();
+        $roomType = RoomType::factory()->create();
 
         // Test guests
         $this->deleteJson(route('api.v1.roomTypes.destroy', ['roomType'=>$roomType->id]))
@@ -325,7 +326,7 @@ class RoomTypeTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
+        $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'roomTypes.delete' ]);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
@@ -341,7 +342,7 @@ class RoomTypeTest extends TestCase
         $this->assertDatabaseMissing('room_types', ['id'=>$roomType->id]);
 
         // Create new rooms
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         // Test delete for room type with room attached
         $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType'=>$room->roomType->id]))
@@ -355,7 +356,7 @@ class RoomTypeTest extends TestCase
         $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType'=>$room->roomType->id]), ['replacement_room_type'=>'0'])
             ->assertJsonValidationErrors(['replacement_room_type']);
 
-        $newRoomType = factory(RoomType::class)->create();
+        $newRoomType = RoomType::factory()->create();
 
         // Test with valid replacement
         $this->actingAs($this->user)->deleteJson(route('api.v1.roomTypes.destroy', ['roomType'=>$room->roomType->id]), ['replacement_room_type'=>$newRoomType->id])

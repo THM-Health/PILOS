@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\FileController;
+use App\Http\Controllers\MeetingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,8 +15,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('download/file/{roomFile}/{filename?}', 'FileController@show')->name('download.file')->middleware('signed');
-Route::get('download/attendance/{meeting}', 'MeetingController@attendance')->name('download.attendance')->middleware('auth:users,ldap');
+Route::get('download/file/{roomFile}/{filename?}', [FileController::class,'show'])->name('download.file')->middleware('signed');
+Route::get('download/attendance/{meeting}', [MeetingController::class,'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 
 if (config('greenlight.compatibility')) {
     Route::prefix(config('greenlight.base'))->group(function () {
@@ -33,5 +36,5 @@ if (config('greenlight.compatibility')) {
 }
 
 if (!env('DISABLE_CATCHALL_ROUTES')) {
-    Route::any('/{any}', 'ApplicationController@index')->where('any', '.*');
+    Route::any('/{any}', [ApplicationController::class,'index'])->where('any', '.*');
 }

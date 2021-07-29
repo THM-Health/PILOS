@@ -13,8 +13,9 @@ return [
     | using this caching library. This connection is used when another is
     | not explicitly specified when executing a given caching function.
     |
-    | Supported: "apc", "array", "database", "file",
-    |            "memcached", "redis", "dynamodb"
+    | Supported drivers: "apc", "array", "database", "file",
+    |         "memcached", "redis", "dynamodb", "octane", "null"
+    |
     |
     */
 
@@ -46,6 +47,7 @@ return [
             'driver' => 'database',
             'table' => 'cache',
             'connection' => null,
+            'lock_connection' => null,
         ],
 
         'file' => [
@@ -75,6 +77,7 @@ return [
         'redis' => [
             'driver' => 'redis',
             'connection' => 'cache',
+            'lock_connection' => 'default',
         ],
 
         'dynamodb' => [
@@ -84,6 +87,10 @@ return [
             'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
             'endpoint' => env('DYNAMODB_ENDPOINT'),
+        ],
+
+        'octane' => [
+            'driver' => 'octane',
         ],
 
     ],

@@ -18,17 +18,17 @@ class UserTest extends TestCase
     {
         parent::setUp();
 
-        $this->users[] = factory(User::class)->create([
+        $this->users[] = User::factory()->create([
             'firstname' => 'Max',
             'lastname'  => 'Mustermann'
         ]);
 
-        $this->users[] = factory(User::class)->create([
+        $this->users[] = User::factory()->create([
             'firstname' => 'John',
             'lastname'  => 'Doe'
         ]);
 
-        $this->users[] = factory(User::class)->create([
+        $this->users[] = User::factory()->create([
             'firstname' => 'Erika',
             'lastname'  => 'Mustermann'
         ]);
@@ -92,7 +92,7 @@ class UserTest extends TestCase
      */
     public function testEmptyPermissionsForUserWithoutRoles()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
         $this->assertCount(0, $user->permissions);
     }
 
@@ -104,8 +104,8 @@ class UserTest extends TestCase
      */
     public function testEmptyPermissionsForRolesWithoutPermissions()
     {
-        $user = factory(User::class)->create();
-        $user->roles()->attach(factory(Role::class)->create()->id);
+        $user = User::factory()->create();
+        $user->roles()->attach(Role::factory()->create()->id);
         $this->assertCount(0, $user->permissions);
     }
 
@@ -117,10 +117,10 @@ class UserTest extends TestCase
      */
     public function testUniquePermissionNames()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create();
-        $roleB      = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create();
+        $roleB      = Role::factory()->create();
+        $permission = Permission::factory()->create();
         $roleA->permissions()->attach($permission->id);
         $roleB->permissions()->attach($permission->id);
         $user->roles()->attach([$roleA->id, $roleB->id]);
@@ -133,9 +133,9 @@ class UserTest extends TestCase
      */
     public function testRoomLimitCalc()
     {
-        $user       = factory(User::class)->create();
-        $roleA      = factory(Role::class)->create();
-        $roleB      = factory(Role::class)->create();
+        $user       = User::factory()->create();
+        $roleA      = Role::factory()->create();
+        $roleB      = Role::factory()->create();
         $user->roles()->attach([$roleA->id, $roleB->id]);
 
         // Only global limit, unlimited

@@ -32,7 +32,7 @@ class CreateAdminUserTest extends TestCase
      */
     public function testInvalidInputs()
     {
-        factory(Role::class)->create(['name' => 'admin']);
+        Role::factory()->create(['name' => 'admin']);
 
         $this->artisan('users:create:admin')
             ->expectsOutput('Creating an new admin user, please notify your inputs.')
@@ -66,7 +66,7 @@ class CreateAdminUserTest extends TestCase
      */
     public function testValidInputs()
     {
-        factory(Role::class)->create(['name' => 'admin']);
+        Role::factory()->create(['name' => 'admin']);
 
         $this->artisan('users:create:admin')
             ->expectsOutput('Creating an new admin user, please notify your inputs.')

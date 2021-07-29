@@ -26,7 +26,7 @@ class SettingsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -184,8 +184,8 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.viewAny']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -323,8 +323,8 @@ class SettingsTest extends TestCase
             ]
         ];
 
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -419,8 +419,8 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -470,8 +470,8 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -516,8 +516,8 @@ class SettingsTest extends TestCase
         ];
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -535,8 +535,8 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithInvalidInputs()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -688,8 +688,8 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsMinMax()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -768,8 +768,8 @@ class SettingsTest extends TestCase
 
     public function testApplicationSettingsDefaultPresentation()
     {
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -866,8 +866,8 @@ class SettingsTest extends TestCase
         setting(['attendance.enabled'=>true]);
 
         // Create two fake meetings
-        $meetingRunning = factory(Meeting::class)->create(['end'=>null,'record_attendance'=>true]);
-        $meetingEnded   = factory(Meeting::class)->create(['record_attendance'=>true]);
+        $meetingRunning = Meeting::factory()->create(['end'=>null,'record_attendance'=>true]);
+        $meetingEnded   = Meeting::factory()->create(['record_attendance'=>true]);
 
         $meetingRunning->attendees()->save(new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']));
 
@@ -899,8 +899,8 @@ class SettingsTest extends TestCase
         ];
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 

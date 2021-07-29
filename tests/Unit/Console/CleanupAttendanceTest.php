@@ -17,7 +17,7 @@ class CleanupAttendanceTest extends TestCase
         setting()->set('attendance.retention_period', 15);
 
         // Create fake data
-        $meeting = factory(Meeting::class)->create();
+        $meeting = Meeting::factory()->create();
 
         $meetingAttendee1 = new MeetingAttendee();
         $meetingAttendee1->meeting()->associate($meeting);

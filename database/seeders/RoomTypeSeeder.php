@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\RoomType;
 use Illuminate\Database\Seeder;
 

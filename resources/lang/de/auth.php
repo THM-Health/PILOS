@@ -13,6 +13,7 @@ return [
     */
 
     'failed'    => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
+    'password'  => 'Das angegebene Passwort ist falsch.',
     'throttle'  => 'Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
     'loginform' => [
         'header' => 'In Ihr Konto einloggen',

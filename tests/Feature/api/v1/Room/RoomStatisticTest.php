@@ -11,6 +11,7 @@ use App\Permission;
 use App\Role;
 use App\Room;
 use App\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -31,11 +32,11 @@ class RoomStatisticTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
 
-        $this->seed('RolesAndPermissionsSeeder');
+        $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->role                 = factory(Role::class)->create();
+        $this->role                 = Role::factory()->create();
         $this->managePermission     = Permission::where('name', 'rooms.manage')->first();
         $this->viewAllPermission    = Permission::where('name', 'rooms.viewAll')->first();
     }
@@ -50,7 +51,7 @@ class RoomStatisticTest extends TestCase
         setting(['attendance.enabled' => true]);
 
         // create room
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         // create meetings for room
         $meetings   = [];
@@ -193,7 +194,7 @@ class RoomStatisticTest extends TestCase
         setting(['statistics.meetings.enabled' => true]);
 
         // create room
-        $meeting = factory(Meeting::class)->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:18:23']);
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:18:23']);
 
         // create meetings for room
         $stats   = [];
@@ -277,7 +278,7 @@ class RoomStatisticTest extends TestCase
         setting(['attendance.enabled' => true]);
 
         // create room
-        $meeting = factory(Meeting::class)->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
 
         // set firstname, lastname and email to fixes values to make api output predictable
         $this->user->firstname = 'Mable';
@@ -436,7 +437,7 @@ class RoomStatisticTest extends TestCase
         setting(['attendance.enabled' => true]);
 
         // create room
-        $meeting = factory(Meeting::class)->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>false]);
 
         // set firstname, lastname and email to fixes values to make api output predictable
         $this->user->firstname = 'Mable';

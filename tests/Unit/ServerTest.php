@@ -23,7 +23,7 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithStatusAndOffline()
     {
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
 
         // Server marked as inactive
         $server->status = ServerStatus::DISABLED;
@@ -111,7 +111,7 @@ class ServerTest extends TestCase
     public function testUsageClearedOnOffline()
     {
         // Create new fake server
-        $server                          = factory(Server::class)->create();
+        $server                          = Server::factory()->create();
 
         // Set the live usage data of server
         $server->participant_count       = 1;
@@ -149,7 +149,7 @@ class ServerTest extends TestCase
     public function testUsageClearedOnDisabled()
     {
         // Create new fake server
-        $server                          = factory(Server::class)->create();
+        $server                          = Server::factory()->create();
 
         // Set the live usage data of server
         $server->participant_count       = 1;
@@ -189,15 +189,15 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
         });
 
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
         $server->setBBB($bbbMock);
 
-        $meeting = factory(Meeting::class)->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 
-        $userA = factory(User::class)->create(['id'=>99,'firstname'=> 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
-        $userB = factory(User::class)->create(['id'=>100,'firstname'=> 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
+        $userA = User::factory()->create(['id'=>99,'firstname'=> 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
+        $userB = User::factory()->create(['id'=>100,'firstname'=> 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
 
         $server->updateUsage();
         $meeting->refresh();
@@ -288,10 +288,10 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getMeetings')->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')));
         });
 
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
         $server->setBBB($bbbMock);
 
-        $meeting = factory(Meeting::class)->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 

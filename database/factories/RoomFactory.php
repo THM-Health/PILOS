@@ -2,17 +2,19 @@
 
 namespace Database\Factories;
 
-use App\Permission;
+use App\Room;
+use App\RoomType;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class PermissionFactory extends Factory
+class RoomFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Permission::class;
+    protected $model = Room::class;
 
     /**
      * Define the model's default state.
@@ -22,7 +24,9 @@ class PermissionFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->unique()->word,
+            'name'         => $this->faker->word,
+            'room_type_id' => RoomType::factory(),
+            'user_id'      => User::factory(),
         ];
     }
 }

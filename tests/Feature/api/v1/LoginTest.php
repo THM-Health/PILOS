@@ -24,7 +24,7 @@ class LoginTest extends TestCase
      */
     public function testLoginWrongCredentials()
     {
-        $user = factory(User::class)->create([
+        $user = User::factory()->create([
             'password' => Hash::make('bar')
         ]);
         $response = $this->from(config('app.url'))->postJson(route('api.v1.login'), [
@@ -42,7 +42,7 @@ class LoginTest extends TestCase
      */
     public function testLoginSuccessUserProvider()
     {
-        $user           = factory(User::class)->make();
+        $user           = User::factory()->make();
         $password       = $user->password;
         $user->password = Hash::make($password);
         $user->save();
@@ -80,7 +80,7 @@ class LoginTest extends TestCase
      */
     public function testAuthenticatedCurrentUser()
     {
-        $user     = factory(User::class)->make();
+        $user     = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
         $response->assertOk();
         $response->assertJsonFragment([
@@ -105,7 +105,7 @@ class LoginTest extends TestCase
         $b = Role::firstOrCreate(['name' => 'b']);
         $b->permissions()->attach($permission->id);
 
-        $user     = factory(User::class)->create();
+        $user     = User::factory()->create();
         $user->roles()->attach([$a->id, $b->id]);
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
         $response->assertOk();
@@ -134,7 +134,7 @@ class LoginTest extends TestCase
      */
     public function testLogoutAuthenticated()
     {
-        $user     = factory(User::class)->make();
+        $user     = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
         $response->assertNoContent();
         $this->assertGuest();
@@ -161,7 +161,7 @@ class LoginTest extends TestCase
      */
     public function testLogging()
     {
-        $user = factory(User::class)->create([
+        $user = User::factory()->create([
             'password' => Hash::make('bar')
         ]);
 
