@@ -22,6 +22,21 @@ const loadedLanguages = [defaultLocale];
 
 export default i18n;
 
+/**
+ * Set the timezone for showing date and time
+ * @param {string=} timezone Timezone string e.g. 'Europe/Berlin', if undefined (default) use users system timezone
+ */
+export function setTimeZone (timezone) {
+  const locales = i18n.availableLocales;
+  locales.forEach((locale) => {
+    const formats = i18n.getDateTimeFormat(locale);
+    Object.keys(formats).forEach((index) => {
+      formats[index].timeZone = timezone;
+    });
+    i18n.setDateTimeFormat(locale, formats);
+  });
+}
+
 function setI18nLanguage (lang) {
   i18n.locale = lang;
   axios.defaults.headers.common['Accept-Language'] = lang;
@@ -40,12 +55,16 @@ export function loadLanguageAsync (lang) {
       /* webpackInclude: /\.js/ */
       `./lang/${lang}`
     ).then(messages => {
-      const existingLocaleMessages = i18n.getLocaleMessage(lang);
-      i18n.setLocaleMessage(lang, $.extend(true, {}, messages.default, existingLocaleMessages));
-      loadedLanguages.push(lang);
-      return setI18nLanguage(lang);
+      return Promise.resolve(importLanguage(lang, messages));
     });
   } else {
     return Promise.resolve(setI18nLanguage(lang));
   }
+}
+
+export function importLanguage (lang, messages) {
+  const existingLocaleMessages = i18n.getLocaleMessage(lang);
+  i18n.setLocaleMessage(lang, $.extend(true, {}, messages.default, existingLocaleMessages));
+  loadedLanguages.push(lang);
+  return setI18nLanguage(lang);
 }

@@ -184,6 +184,25 @@ export default {
       description: 'Limits the number of page size for own rooms pagination'
     },
 
+    statistics: {
+      servers: {
+        enabledTitle: 'Record server utilisation',
+        enabled: 'Enable',
+        retentionPeriodTitle: 'Retention period of the server utilisation in days'
+      },
+      meetings: {
+        enabledTitle: 'Record utilisation of meetings',
+        enabled: 'Enable',
+        retentionPeriodTitle: 'Retention period of the meeting utilisation in days'
+      }
+    },
+
+    attendance: {
+      enabledTitle: 'Allow logging of participant attendance at meetings',
+      enabled: 'Enable',
+      retentionPeriodTitle: 'Retention period of the attendance logging in days'
+    },
+
     banner: {
       title: 'Banner for messages',
       enabled: 'Show',

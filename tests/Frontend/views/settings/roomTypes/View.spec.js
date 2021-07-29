@@ -63,7 +63,7 @@ describe('RoomTypeView', function () {
         color: '#333333',
         description: 'Meeting',
         model_name: 'RoomType',
-        updated_at: '2020-09-08 15:13:26',
+        updated_at: '2020-09-08T15:13:26.000000Z',
         roles: []
       }
     };
@@ -101,7 +101,7 @@ describe('RoomTypeView', function () {
             id: item + 1,
             name: 'Test ' + (item + 1),
             default: true,
-            updated_at: '2020-01-01 01:00:00',
+            updated_at: '2020-01-01T01:00:00.000000Z',
             model_name: 'Role',
             room_limit: null
           };
@@ -593,7 +593,7 @@ describe('RoomTypeView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
       let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
         status: env.HTTP_STALE_MODEL,
@@ -652,7 +652,7 @@ describe('RoomTypeView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.description = 'Test';
 
       const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {

@@ -5,13 +5,14 @@ namespace App;
 use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServerPool extends Model
 {
-    use AddsModelNameTrait;
+    use AddsModelNameTrait, HasFactory;
 
     protected $fillable = ['name','description'];
 

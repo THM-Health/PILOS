@@ -79,9 +79,9 @@ describe('RoomFile', function () {
         response: {
           data: {
             files: [
-              { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '21.09.2020 07:08' },
-              { id: 2, filename: 'File2.pdf', download: true, useinmeeting: true, default: true, uploaded: '21.09.2020 07:08' },
-              { id: 3, filename: 'File3.pdf', download: false, useinmeeting: false, default: false, uploaded: '21.09.2020 07:09' }
+              { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' },
+              { id: 2, filename: 'File2.pdf', download: true, useinmeeting: true, default: true, uploaded: '2020-09-21T07:08:00.000000Z' },
+              { id: 3, filename: 'File3.pdf', download: false, useinmeeting: false, default: false, uploaded: '2020-09-21T07:09:00.000000Z' }
             ],
             default: 2
           }
@@ -315,7 +315,7 @@ describe('RoomFile', function () {
           response: {
             data: {
               files: [
-                { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '21.09.2020 07:08' }
+                { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
               ],
               default: null
             }
@@ -589,7 +589,7 @@ describe('RoomFile', function () {
                 download: true,
                 useinmeeting: false,
                 default: false,
-                uploaded: '21.09.2020 07:08'
+                uploaded: '2020-09-21T07:08:00.000000Z'
               },
               {
                 id: 2,
@@ -597,7 +597,7 @@ describe('RoomFile', function () {
                 download: true,
                 useinmeeting: true,
                 default: true,
-                uploaded: '21.09.2020 07:08'
+                uploaded: '2020-09-21T07:08:00.000000Z'
               },
               {
                 id: 3,
@@ -605,7 +605,7 @@ describe('RoomFile', function () {
                 download: false,
                 useinmeeting: false,
                 default: false,
-                uploaded: '21.09.2020 07:09'
+                uploaded: '2020-09-21T07:09:00.000000Z'
               }
             ],
             default: 2
@@ -665,7 +665,7 @@ describe('RoomFile', function () {
                 download: true,
                 useinmeeting: false,
                 default: false,
-                uploaded: '21.09.2020 07:08'
+                uploaded: '2020-09-21T07:08:00.000000Z'
               },
               {
                 id: 2,
@@ -673,7 +673,7 @@ describe('RoomFile', function () {
                 download: true,
                 useinmeeting: true,
                 default: true,
-                uploaded: '21.09.2020 07:09'
+                uploaded: '2020-09-21T07:09:00.000000Z'
               },
               {
                 id: 3,
@@ -681,7 +681,7 @@ describe('RoomFile', function () {
                 download: false,
                 useinmeeting: false,
                 default: false,
-                uploaded: '21.09.2020 07:10'
+                uploaded: '2020-09-21T07:10:00.000000Z'
               }
             ],
             default: 2
@@ -732,7 +732,7 @@ describe('RoomFile', function () {
                       download: true,
                       useinmeeting: false,
                       default: false,
-                      uploaded: '21.09.2020 07:08'
+                      uploaded: '2020-09-21T07:08:00.000000Z'
                     },
                     {
                       id: 2,
@@ -740,7 +740,7 @@ describe('RoomFile', function () {
                       download: true,
                       useinmeeting: true,
                       default: true,
-                      uploaded: '21.09.2020 07:09'
+                      uploaded: '2020-09-21T07:09:00.000000Z'
                     }
                   ],
                   default: 2
@@ -873,7 +873,7 @@ describe('RoomFile', function () {
               {
                 id: 1,
                 filename: 'File1.pdf',
-                uploaded: '21.09.2020 07:08'
+                uploaded: '2020-09-21T07:08:00.000000Z'
               }
             ]
           }
@@ -941,7 +941,7 @@ describe('RoomFile', function () {
                             view.vm.$nextTick();
                             expect(flashMessageSpy.calledOnce).toBeTruthy();
                             expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.fileForbidden');
-                            expect(removeFile.calledWith({ id: 1, filename: 'File1.pdf', uploaded: '21.09.2020 07:08' })).toBeTruthy();
+                            expect(removeFile.calledWith({ id: 1, filename: 'File1.pdf', uploaded: '2020-09-21T07:08:00.000000Z' })).toBeTruthy();
 
                             // Test 404
                             view.vm.downloadFile(view.vm.$data.files.files[0]);
@@ -1021,7 +1021,7 @@ describe('RoomFile', function () {
                 download: false,
                 useinmeeting: true,
                 default: true,
-                uploaded: '21.09.2020 07:08'
+                uploaded: '2020-09-21T07:08:00.000000Z'
               }
             ]
           }
@@ -1042,7 +1042,7 @@ describe('RoomFile', function () {
         response: {
           data: {
             files: [
-              { id: 1, filename: 'File1.pdf', download: true, useinmeeting: true, default: false, uploaded: '21.09.2020 07:08' }
+              { id: 1, filename: 'File1.pdf', download: true, useinmeeting: true, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
             ],
             default: 1,
             file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',

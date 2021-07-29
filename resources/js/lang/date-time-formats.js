@@ -1,11 +1,17 @@
 const dateTimeFormats = {
   de: {
-    short: { year: 'numeric', month: 'short', day: '2-digit' },
-    long: { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }
+    dateShort: { year: 'numeric', month: '2-digit' },
+    dateLong: { year: 'numeric', month: 'short', day: '2-digit' },
+    time: { hour: '2-digit', minute: '2-digit' },
+    datetimeShort: { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' },
+    datetimeLong: { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }
   },
   en: {
-    short: { year: 'numeric', month: 'short', day: '2-digit' },
-    long: { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }
+    dateShort: { year: 'numeric', month: '2-digit', day: '2-digit' },
+    dateLong: { year: 'numeric', month: 'short', day: '2-digit' },
+    time: { hour: '2-digit', minute: '2-digit', hour12: false },
+    datetimeShort: { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false },
+    datetimeLong: { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }
   }
 };
 

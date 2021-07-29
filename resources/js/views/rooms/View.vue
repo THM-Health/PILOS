@@ -107,6 +107,18 @@
               </b-col>
               <!-- Show room start or join button -->
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
+
+                <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
+                  <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  <b-form-checkbox
+                    v-model="recordAttendanceAgreement"
+                    :value="true"
+                    :unchecked-value="false"
+                  >
+                    {{ $t('rooms.recordingAttendanceAccept')}}
+                  </b-form-checkbox>
+                </b-alert>
+
                 <!-- If room is running, show join button -->
                 <template v-if="room.running">
                   <!-- If user is guest, join is only possible if a name is provided -->
@@ -114,7 +126,7 @@
                     block
                     ref="joinMeeting"
                     v-on:click="join"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     variant="success"
                   >
                     <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.join') }}
@@ -126,7 +138,7 @@
                     block
                     ref="startMeeting"
                     v-if="room.canStart"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     v-on:click="start"
                     variant="success"
                   >
@@ -257,6 +269,7 @@ export default {
       accessCode: null, // Access code to use for requests
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
+      recordAttendanceAgreement: false,
       token: null
     };
   },
@@ -305,7 +318,7 @@ export default {
     });
   },
   mounted () {
-    // Reload room details in a set inteval, change in the .env
+    // Reload room details in a set interval, change in the .env
     this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
   },
   destroyed () {
@@ -422,7 +435,12 @@ export default {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
       // Build url, add accessCode and token if needed
-      const config = {};
+      const config = {
+        params: {
+          name: this.name,
+          record_attendance: this.recordAttendanceAgreement ? 1 : 0
+        }
+      };
 
       if (this.token) {
         config.headers = {
@@ -435,7 +453,7 @@ export default {
         config.headers['Access-Code'] = this.accessCode;
       }
 
-      const url = 'rooms/' + this.room_id + '/start?name=' + this.name;
+      const url = 'rooms/' + this.room_id + '/start';
 
       Base.call(url, config)
         .then(response => {
@@ -456,6 +474,11 @@ export default {
               this.reload();
               return;
             }
+
+            // Attendance logging agreement required but not accepted
+            if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
+              this.room.record_attendance = true;
+            }
           }
           Base.error(error, this.$root);
         }).finally(() => {
@@ -469,8 +492,14 @@ export default {
     join: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
+
       // Build url, add accessCode and token if needed
-      const config = {};
+      const config = {
+        params: {
+          name: this.name,
+          record_attendance: this.recordAttendanceAgreement ? 1 : 0
+        }
+      };
 
       if (this.token) {
         config.headers = {
@@ -483,7 +512,7 @@ export default {
         config.headers['Access-Code'] = this.accessCode;
       }
 
-      const url = 'rooms/' + this.room_id + '/join?name=' + this.name;
+      const url = 'rooms/' + this.room_id + '/join';
 
       // Join meeting request
       Base.call(url, config)
@@ -498,6 +527,11 @@ export default {
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;
+            }
+
+            // Attendance logging agreement required but not accepted
+            if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
+              this.room.record_attendance = true;
             }
           }
           Base.error(error, this.$root);

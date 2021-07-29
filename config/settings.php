@@ -40,7 +40,7 @@ return [
 	'table' => 'settings',
 	// If you want to use custom column names in database store you could
 	// set them in this configuration
-	'keyColumn' => 'key',
+	'keyColumn'   => 'key',
 	'valueColumn' => 'value',
 
     /*
@@ -68,19 +68,32 @@ return [
     |
     */
     'defaults' => [
-        'name' => env('APP_NAME', 'PILOS'),
-        'logo' => env('DEFAULT_LOGO', '/images/logo.svg'),
-        'favicon' => env('DEFAULT_FAVICON', '/images/favicon.ico'),
-        'room_limit' => env('DEFAULT_ROOM_LIMIT',-1),
-        'own_rooms_pagination_page_size' => env('OWN_ROOMS_PAGINATION_PAGE_SIZE',5),
-        'pagination_page_size' => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
-        'log_attendance' => env('LOG_ATTENDANCE', false),
-        'banner' => [
+        'name'                           => env('APP_NAME', 'PILOS'),
+        'logo'                           => env('DEFAULT_LOGO', '/images/logo.svg'),
+        'favicon'                        => env('DEFAULT_FAVICON', '/images/favicon.ico'),
+        'room_limit'                     => env('DEFAULT_ROOM_LIMIT', -1),
+        'own_rooms_pagination_page_size' => env('OWN_ROOMS_PAGINATION_PAGE_SIZE', 5),
+        'pagination_page_size'           => env('DEFAULT_PAGINATION_PAGE_SIZE', 15),
+        'statistics'                     => [
+            'servers' => [
+                'enabled'           => env('STATISTICS_SERVERS_ENABLED', false),
+                'retention_period'  => env('STATISTICS_SERVERS_RETENTION_PERIOD', 30),
+            ],
+            'meetings' => [
+                'enabled'           => env('STATISTICS_MEETINGS_ENABLED', false),
+                'retention_period'  => env('STATISTICS_MEETINGS_RETENTION_PERIOD', 30),
+            ],
+        ],
+        'attendance'                     => [
+            'enabled'           => env('ATTENDANCE_ENABLED', false),
+            'retention_period'  => env('ATTENDANCE_RETENTION_PERIOD', 14),
+        ],
+        'banner'                         => [
             'enabled' => false
         ],
         'password_self_reset_enabled' => env('PASSWORD_SELF_RESET_ENABLED', false),
-        'default_timezone' => env('DEFAULT_TIMEZONE', 'UTC'),
-        'help_url' => env('HELP_URL'),
-        'room_token_expiration' => env('ROOM_TOKEN_EXPIRATION', -1)
+        'default_timezone'            => env('DEFAULT_TIMEZONE', 'UTC'),
+        'help_url'                    => env('HELP_URL'),
+        'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1)
     ]
 ];

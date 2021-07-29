@@ -212,7 +212,7 @@
                      @search-change="asyncFind">
           <template slot="noResult">{{ $t('rooms.members.modals.add.noResult') }}</template>
           <template slot="noOptions">{{ $t('rooms.members.modals.add.noOptions') }}</template>
-          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
+          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
           <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
         </multiselect>
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>

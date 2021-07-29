@@ -56,7 +56,7 @@ describe('UsersView', function () {
           id: item + 1,
           name: 'Test ' + (item + 1),
           default: true,
-          updated_at: '2020-01-01 01:00:00',
+          updated_at: '2020-01-01T01:00:00.000000Z',
           model_name: 'Role',
           room_limit: null
         };
@@ -80,7 +80,7 @@ describe('UsersView', function () {
         user_locale: 'en',
         model_name: 'User',
         room_limit: -1,
-        updated_at: '2020-01-01 01:00:00',
+        updated_at: '2020-01-01T01:00:00.000000Z',
         roles: [{
           id: 1,
           name: 'Test 1',
@@ -104,7 +104,7 @@ describe('UsersView', function () {
         user_locale: 'en',
         model_name: 'User',
         room_limit: -1,
-        updated_at: '2020-01-01 01:00:00',
+        updated_at: '2020-01-01T01:00:00.000000Z',
         roles: [{
           id: 1,
           name: 'Test 1',
@@ -128,7 +128,7 @@ describe('UsersView', function () {
         user_locale: 'en',
         model_name: 'User',
         room_limit: -1,
-        updated_at: '2020-01-01 01:00:00',
+        updated_at: '2020-01-01T01:00:00.000000Z',
         roles: [{
           id: 1,
           name: 'Test 1',
@@ -805,7 +805,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.firstname = 'Tester';
 
       let restoreUserResponse = overrideStub('/api/v1/users/1', {
@@ -873,7 +873,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.firstname = 'Test';
 
       const restoreUserResponse = overrideStub('/api/v1/users/1', {

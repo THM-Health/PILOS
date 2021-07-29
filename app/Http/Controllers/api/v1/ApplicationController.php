@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSetting;
 use App\Http\Resources\ApplicationSettings;
 use App\Http\Resources\User as UserResource;
+use App\Meeting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -76,6 +77,25 @@ class ApplicationController extends Controller
         setting()->set('banner', array_filter($request->banner, function ($setting) {
             return $setting !== null;
         }));
+
+        // reset record_attendance for running meetings and remove attendance data,
+        // as new attendees would not see a warning, but are recorded
+        // if this global setting is re-enabled during the meeting
+        if (setting('attendance.enabled') && !$request->attendance['enabled']) {
+            $meetings = Meeting::whereNull('end')->where('record_attendance', '=', 1)->get();
+            foreach ($meetings as $meeting) {
+                $meeting->record_attendance = false;
+                $meeting->save();
+                $meeting->attendees()->delete();
+            }
+        }
+
+        setting()->set('statistics.servers.enabled', $request->statistics['servers']['enabled']);
+        setting()->set('statistics.servers.retention_period', $request->statistics['servers']['retention_period']);
+        setting()->set('statistics.meetings.enabled', $request->statistics['meetings']['enabled']);
+        setting()->set('statistics.meetings.retention_period', $request->statistics['meetings']['retention_period']);
+        setting()->set('attendance.enabled', $request->attendance['enabled']);
+        setting()->set('attendance.retention_period', $request->attendance['retention_period']);
 
         if (!empty($request->help_url)) {
             setting()->set('help_url', $request->help_url);

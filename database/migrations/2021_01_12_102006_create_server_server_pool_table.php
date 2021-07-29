@@ -1,5 +1,6 @@
 <?php
 
+use Database\Seeders\ServerPoolSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

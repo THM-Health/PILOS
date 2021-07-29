@@ -7,6 +7,7 @@ use App\Permission;
 use App\Role;
 use App\Room;
 use App\User;
+use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -25,11 +26,11 @@ class FileTest extends TestCase
     {
         parent::setUp();
         Storage::fake('local');
-        $this->user                 = factory(User::class)->create();
-        $this->role                 = factory(Role::class)->create();
-        $this->managePermission     = factory(Permission::class)->create(['name'=>'rooms.manage']);
-        $this->viewAllPermission    = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
-        $this->room                 = factory(Room::class)->create();
+        $this->user                 = User::factory()->create();
+        $this->role                 = Role::factory()->create();
+        $this->managePermission     = Permission::factory()->create(['name'=>'rooms.manage']);
+        $this->viewAllPermission    = Permission::factory()->create(['name'=>'rooms.viewAll']);
+        $this->room                 = Room::factory()->create();
         $this->file_valid           = UploadedFile::fake()->create('document.pdf', config('bigbluebutton.max_filesize') * 1000 - 1, 'application/pdf');
         $this->file_wrongmime       = UploadedFile::fake()->create('documents.zip', config('bigbluebutton.max_filesize') * 1000 - 1, 'application/zip');
         $this->file_toobig          = UploadedFile::fake()->create('document.pdf', config('bigbluebutton.max_filesize') * 1000 + 1, 'application/pdf');
@@ -359,7 +360,7 @@ class FileTest extends TestCase
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
-        $other_room = factory(Room::class)->create();
+        $other_room = Room::factory()->create();
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
@@ -522,7 +523,7 @@ class FileTest extends TestCase
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
-        $other_room = factory(Room::class)->create();
+        $other_room = Room::factory()->create();
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
@@ -609,7 +610,7 @@ class FileTest extends TestCase
         $this->assertTrue($room_file->default); // Manually setting default to false is forbidden
 
         // Testing for other room
-        $other_room = factory(Room::class)->create();
+        $other_room = Room::factory()->create();
         // Testing for room without permission
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$other_room->id, 'file' => $room_file]), $params)
             ->assertForbidden();
@@ -678,16 +679,16 @@ class FileTest extends TestCase
      */
     public function testStartMeetingWithFile()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
 
         $this->actingAs($room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
         // Adding server(s)
-        $this->seed('ServerSeeder');
+        $this->seed(ServerSeeder::class);
 
         // Create server
-        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room]))
+        $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertSuccessful();
         $this->assertIsString($response->json('url'));
 

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Meeting;
+use App\MeetingAttendee;
 use App\Permission;
 use App\Role;
 use App\User;
@@ -24,7 +26,7 @@ class SettingsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -49,6 +51,18 @@ class SettingsTest extends TestCase
         ]]);
         setting(['help_url' => 'http://localhost']);
 
+        setting(['statistics' => [
+            'meetings' => [
+                'enabled'           => true,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => false,
+            'retention_period'  => 14
+        ]]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -65,7 +79,17 @@ class SettingsTest extends TestCase
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
                     ],
-                    'help_url' => 'http://localhost'
+                    'help_url'   => 'http://localhost',
+                    'statistics' => [
+                        'meetings' => [
+                            'enabled'           => true,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => false,
+                        'retention_period'  => 14
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -81,6 +105,18 @@ class SettingsTest extends TestCase
         ]]);
         setting(['help_url' => null]);
 
+        setting(['statistics' => [
+            'meetings' => [
+                'enabled'           => false,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => true,
+            'retention_period'  => 14
+        ]]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -91,7 +127,17 @@ class SettingsTest extends TestCase
                     'banner'                         => [
                         'enabled'    => false
                     ],
-                    'help_url' => null
+                    'help_url'   => null,
+                    'statistics' => [
+                        'meetings' => [
+                            'enabled'           => false,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => true,
+                        'retention_period'  => 14
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -119,11 +165,27 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
 
+        setting(['statistics' => [
+            'servers' => [
+                'enabled'           => true,
+                'retention_period'  => 7
+            ],
+            'meetings' => [
+                'enabled'           => false,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => true,
+            'retention_period'  => 14
+        ]]);
+
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.viewAny']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -142,6 +204,20 @@ class SettingsTest extends TestCase
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
+                    ],
+                    'statistics' => [
+                        'servers' => [
+                            'enabled'           => true,
+                            'retention_period'  => 7
+                        ],
+                        'meetings' => [
+                            'enabled'           => false,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => true,
+                        'retention_period'  => 14
                     ]
                 ]
             ])
@@ -155,6 +231,22 @@ class SettingsTest extends TestCase
             'background' => '#4a5c66',
             'link'       => 'http://localhost',
             'icon'       => 'fas fa-door-open',
+        ]]);
+
+        setting(['statistics' => [
+            'servers' => [
+                'enabled'           => false,
+                'retention_period'  => 7
+            ],
+            'meetings' => [
+                'enabled'           => true,
+                'retention_period'  => 90
+            ],
+        ]]);
+
+        setting(['attendance' => [
+            'enabled'           => false,
+            'retention_period'  => 14
         ]]);
 
         $this->getJson(route('api.v1.application.complete'))
@@ -172,6 +264,20 @@ class SettingsTest extends TestCase
                         'background' => '#4a5c66',
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
+                    ],
+                    'statistics' => [
+                        'servers' => [
+                            'enabled'           => false,
+                            'retention_period'  => 7
+                        ],
+                        'meetings' => [
+                            'enabled'           => true,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => false,
+                        'retention_period'  => 14
                     ]
                 ]
             ])
@@ -201,11 +307,25 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled' => '1',
             'default_timezone'            => 'Europe/Berlin',
             'help_url'                    => 'http://localhost',
-            'room_token_expiration'       => -1
+            'room_token_expiration'       => -1,
+            'statistics'                  => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -231,7 +351,21 @@ class SettingsTest extends TestCase
                     'password_self_reset_enabled' => true,
                     'default_timezone'            => 'Europe/Berlin',
                     'help_url'                    => 'http://localhost',
-                    'room_token_expiration'       => -1
+                    'room_token_expiration'       => -1,
+                    'statistics'                  => [
+                        'servers' => [
+                            'enabled'           => false,
+                            'retention_period'  => 7
+                        ],
+                        'meetings' => [
+                            'enabled'           => true,
+                            'retention_period'  => 90
+                        ]
+                    ],
+                    'attendance' => [
+                        'enabled'           => false,
+                        'retention_period'  => 14
+                    ]
                 ]
             ]);
         $this->assertTrue(setting()->has('help_url'));
@@ -262,7 +396,21 @@ class SettingsTest extends TestCase
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => false,
             'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         // Unauthorized Test
@@ -274,8 +422,8 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -300,7 +448,21 @@ class SettingsTest extends TestCase
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         // Unauthorized Test
@@ -312,8 +474,8 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -341,12 +503,26 @@ class SettingsTest extends TestCase
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
-            'room_token_expiration'          => -1
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
         ];
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -364,8 +540,8 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithInvalidInputs()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -381,7 +557,21 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
             'help_url'                       => 33,
-            'room_token_expiration'          => -1
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => 'test',
+                    'retention_period'  => false
+                ],
+                'meetings' => [
+                    'enabled'           => null,
+                    'retention_period'  => true
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => 90,
+                'retention_period'  => 'test'
+            ]
         ];
 
         $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
@@ -399,7 +589,13 @@ class SettingsTest extends TestCase
                 'banner.enabled',
                 'password_self_reset_enabled',
                 'default_timezone',
-                'help_url'
+                'help_url',
+                'statistics.servers.enabled',
+                'statistics.servers.retention_period',
+                'statistics.meetings.enabled',
+                'statistics.meetings.retention_period',
+                'attendance.enabled',
+                'attendance.retention_period'
             ]);
 
         $payload = [
@@ -413,7 +609,21 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
             'help_url'                       => 'http://localhost',
-            'room_token_expiration'          => -1
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => true,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => true,
+                'retention_period'  => 14
+            ]
         ];
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -485,8 +695,8 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsMinMax()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -499,14 +709,31 @@ class SettingsTest extends TestCase
                 'pagination_page_size'           => '0',
                 'own_rooms_pagination_page_size' => '0',
                 'room_limit'                     => '-2',
-                'banner'                         => ['enabled' => false]
+                'banner'                         => ['enabled' => false],
+                'statistics'                     => [
+                    'servers' => [
+                        'enabled'           => true,
+                        'retention_period'  => 0
+                    ],
+                    'meetings' => [
+                        'enabled'           => true,
+                        'retention_period'  => 0
+                    ]
+                ],
+                'attendance' => [
+                    'enabled'           => true,
+                    'retention_period'  => 0
+                ]
             ]
         )
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'pagination_page_size',
                 'own_rooms_pagination_page_size',
-                'room_limit'
+                'room_limit',
+                'statistics.servers.retention_period',
+                'statistics.meetings.retention_period',
+                'attendance.retention_period'
             ]);
 
         // inputs higher than allowed minimum
@@ -518,21 +745,38 @@ class SettingsTest extends TestCase
                 'pagination_page_size'           => '101',
                 'own_rooms_pagination_page_size' => '26',
                 'room_limit'                     => '101',
-                'banner'                         => ['enabled' => false]
+                'banner'                         => ['enabled' => false],
+                'statistics'                     => [
+                    'servers' => [
+                        'enabled'           => true,
+                        'retention_period'  => 366
+                    ],
+                    'meetings' => [
+                        'enabled'           => true,
+                        'retention_period'  => 366
+                    ]
+                ],
+                'attendance' => [
+                    'enabled'           => true,
+                    'retention_period'  => 366
+                ]
             ]
         )
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'pagination_page_size',
                 'own_rooms_pagination_page_size',
-                'room_limit'
+                'room_limit',
+                'statistics.servers.retention_period',
+                'statistics.meetings.retention_period',
+                'attendance.retention_period'
             ]);
     }
 
     public function testApplicationSettingsDefaultPresentation()
     {
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -550,7 +794,21 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
             'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
-            'room_token_expiration'          => -1
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => true,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => true,
+                'retention_period'  => 14
+            ]
         ];
 
         // Invalid mime
@@ -603,5 +861,69 @@ class SettingsTest extends TestCase
             ->assertSuccessful();
         $this->assertEmpty(setting('default_presentation'));
         Storage::disk('public')->assertMissing('default_presentation/default.jpg');
+    }
+
+    /**
+     * Test if the attendance recording is getting disabled for a running meeting and attendance data removed, if the global setting is changed
+     * After the global setting is disabled new attendees would not see a warning, but are recorded if this global setting is re-enabled during the meeting
+     * To prevent this, the attendance recording is disabled until the end of the meeting
+     */
+    public function testRecordAttendanceIsDisabledForRunningMeetings()
+    {
+        // Enable attendance record
+        setting(['attendance.enabled'=>true]);
+
+        // Create two fake meetings
+        $meetingRunning = Meeting::factory()->create(['end'=>null,'record_attendance'=>true]);
+        $meetingEnded   = Meeting::factory()->create(['record_attendance'=>true]);
+
+        $meetingRunning->attendees()->save(new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']));
+
+        // Payload to disable attendance recording
+        $payload = [
+            'name'                           => 'test',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false,
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ]
+        ];
+
+        // Add necessary role and permission to user to update application settings
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Update global settings
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful();
+
+        // Check if record attendance was disabled for running meetings
+        $meetingRunning->refresh();
+        $meetingEnded->refresh();
+        $this->assertFalse($meetingRunning->record_attendance);
+        $this->assertTrue($meetingEnded->record_attendance);
+
+        // Check if all attendance data is removed
+        $this->assertCount(0, $meetingRunning->attendees);
     }
 }

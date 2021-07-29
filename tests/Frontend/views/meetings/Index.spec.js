@@ -22,7 +22,7 @@ const defaultResponse = {
   data: [
     {
       id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-      start: '2021-02-12 18:09:29',
+      start: '2021-02-12T18:09:29.000000Z',
       end: null,
       room: {
         id: 'abc-def-123',
@@ -40,7 +40,7 @@ const defaultResponse = {
     },
     {
       id: '5866d99e-ea44-4221-afa8-54f397ab07c8',
-      start: '2021-02-12 18:10:20',
+      start: '2021-02-12T18:10:20.000000Z',
       end: null,
       room: {
         id: 'abc-def-345',
@@ -87,19 +87,33 @@ function overrideStub (url, response) {
   }
 }
 
-const dateUtcMock = {
-  utc: (date) => {
-    return {
-      local: () => {
-        return {
-          format: (format) => {
-            return date;
-          }
-        };
-      }
-    };
-  }
+const i18nDateMock = (date, format) => {
+  return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
+
+const currentUser = {
+  firstname: 'Darth',
+  lastname: 'Vader',
+  permissions: []
+};
+
+const store = new Vuex.Store({
+  modules: {
+    session: {
+      namespaced: true,
+      state: {
+        currentUser
+      },
+      getters: {
+        isAuthenticated: () => true,
+        settings: () => (setting) => null
+      }
+    }
+  },
+  state: {
+    loadingCounter: 0
+  }
+});
 
 let oldUser;
 
@@ -117,9 +131,10 @@ describe('MeetingsIndex', function () {
   it('list of meetings with pagination gets displayed', function (done) {
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -144,7 +159,7 @@ describe('MeetingsIndex', function () {
       // test correct display of meeting info
       const rows = view.findComponent(BTbody).findAllComponents(BTr);
       const firstRowColumns = rows.at(0).findAll('td');
-      expect(firstRowColumns.at(0).text()).toContain('2021-02-12 18:09:29');
+      expect(firstRowColumns.at(0).text()).toBe('02/12/2021, 19:09');
       expect(firstRowColumns.at(1).text()).toContain('Meeting One');
       expect(firstRowColumns.at(2).text()).toContain('John Doe');
       expect(firstRowColumns.at(3).text()).toContain('Server 01');
@@ -184,7 +199,7 @@ describe('MeetingsIndex', function () {
             data: [
               {
                 id: '64b0f3b5-7409-4682-9d15-2cafb34eb283',
-                start: '2021-02-12 18:12:05',
+                start: '2021-02-12T18:12:05.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-456',
@@ -202,7 +217,7 @@ describe('MeetingsIndex', function () {
               },
               {
                 id: '520671dc-cde5-40d0-86c8-341446051a43',
-                start: '2021-02-12 18:14:48',
+                start: '2021-02-12T18:14:48.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-678',
@@ -244,7 +259,7 @@ describe('MeetingsIndex', function () {
         // check if table content was updated
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
         const firstRowColumns = rows.at(0).findAll('td');
-        expect(firstRowColumns.at(0).text()).toContain('2021-02-12 18:12:05');
+        expect(firstRowColumns.at(0).text()).toContain('02/12/2021, 19:12');
         expect(firstRowColumns.at(1).text()).toContain('Meeting Three');
         expect(firstRowColumns.at(2).text()).toContain('John Doe');
         expect(firstRowColumns.at(3).text()).toContain('Server 01');
@@ -276,9 +291,10 @@ describe('MeetingsIndex', function () {
 
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -325,9 +341,10 @@ describe('MeetingsIndex', function () {
   it('search', function (done) {
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -355,7 +372,7 @@ describe('MeetingsIndex', function () {
             data: [
               {
                 id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-                start: '2021-02-12 18:09:29',
+                start: '2021-02-12T18:09:29.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-123',
@@ -395,9 +412,10 @@ describe('MeetingsIndex', function () {
   it('sort', function (done) {
     const view = mount(Index, {
       localVue,
+      store,
       mocks: {
         $t: key => key,
-        $date: dateUtcMock
+        $d: i18nDateMock
       },
       attachTo: createContainer()
     });
@@ -425,7 +443,7 @@ describe('MeetingsIndex', function () {
             data: [
               {
                 id: '5866d99e-ea44-4221-afa8-54f397ab07c8',
-                start: '2021-02-12 18:10:20',
+                start: '2021-02-12T18:10:20.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-345',
@@ -443,7 +461,7 @@ describe('MeetingsIndex', function () {
               },
               {
                 id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
-                start: '2021-02-12 18:09:29',
+                start: '2021-02-12T18:09:29.000000Z',
                 end: null,
                 room: {
                   id: 'abc-def-123',
@@ -476,7 +494,7 @@ describe('MeetingsIndex', function () {
         // check if table was updated
         const rows = view.findComponent(BTbody).findAllComponents(BTr);
         const firstRowColumns = rows.at(0).findAll('td');
-        expect(firstRowColumns.at(0).text()).toContain('2021-02-12 18:10:20');
+        expect(firstRowColumns.at(0).text()).toContain('02/12/2021, 19:10');
         expect(firstRowColumns.at(1).text()).toContain('Meeting Two');
         expect(firstRowColumns.at(2).text()).toContain('Max Doe');
         expect(firstRowColumns.at(3).text()).toContain('Server 01');

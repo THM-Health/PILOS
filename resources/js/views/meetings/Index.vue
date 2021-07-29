@@ -81,7 +81,7 @@
       </template>
 
       <template v-slot:cell(start)="data">
-       {{ $date.utc(data.item.start).local().format('DD.MM.YY HH:mm') }}
+        {{  $d(new Date(data.item.start),'datetimeShort') }}
       </template>
 
       <template v-slot:cell(room.name)="data">
@@ -154,6 +154,7 @@ export default {
   components: { TextTruncate, RawText },
 
   computed: {
+
     tableFields () {
       return [
         { key: 'start', label: this.$t('meetings.start'), sortable: true, thStyle: { width: '120px' } },

@@ -30,7 +30,7 @@ class DeleteUnverifiedNewUsersTest extends TestCase
     public function testDeletionOfUnverifiedUsersWithTokens()
     {
         // Newly created user with expired token
-        factory(User::class)->create([
+        User::factory()->create([
             'email'                => 'john@doe.com',
             'initial_password_set' => true,
             'authenticator'        => 'users'
@@ -43,14 +43,14 @@ class DeleteUnverifiedNewUsersTest extends TestCase
             ]);
 
         // LDAP user with same email
-        factory(User::class)->create([
+        User::factory()->create([
             'email'                => 'john@doe.com',
             'initial_password_set' => true, // accidentally set to true
             'authenticator'        => 'ldap'
         ]);
 
         // Registered user with expired password reset token
-        factory(User::class)->create([
+        User::factory()->create([
             'email'         => 'max@muster.de',
             'authenticator' => 'users'
         ]);

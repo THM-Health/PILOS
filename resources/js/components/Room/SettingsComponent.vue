@@ -243,6 +243,19 @@
               </b-form-radio>
               <template slot='invalid-feedback'><div v-html="fieldError('lobby')"></div></template>
             </b-form-group>
+
+            <!-- Checkbox record attendance of users and guests -->
+            <b-form-group :state="fieldState('record_attendance')" v-if="globalSettings('attendance.enabled')">
+              <b-form-checkbox
+                :disabled="disabled"
+                :state="fieldState('record_attendance')"
+                v-model="settings.record_attendance"
+                switch
+              >
+                {{ $t('rooms.settings.participants.recordAttendance') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('record_attendance')"></div></template>
+            </b-form-group>
           </b-col>
 
           <!-- Permissions & Restrictions tab -->
@@ -384,6 +397,7 @@ import FieldErrors from '../../mixins/FieldErrors';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
+import { mapGetters } from 'vuex';
 
 export default {
   mixins: [FieldErrors],
@@ -465,6 +479,10 @@ export default {
     }
   },
   computed: {
+
+    ...mapGetters({
+      globalSettings: 'session/settings'
+    }),
 
     /**
      * Input fields are disabled: due to limited permissions, loading of settings or errors

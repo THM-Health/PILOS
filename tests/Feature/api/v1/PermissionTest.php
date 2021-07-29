@@ -14,8 +14,8 @@ class PermissionTest extends TestCase
 
     public function testIndex()
     {
-        $user        = factory(User::class)->create();
-        $permissions = factory(Permission::class, 10)->create()->toArray();
+        $user        = User::factory()->create();
+        $permissions = Permission::factory()->count(10)->create()->toArray();
 
         $this->getJson(route('api.v1.roles.index'))->assertStatus(401);
         $this->actingAs($user)->getJson(route('api.v1.permissions.index'))
@@ -27,10 +27,10 @@ class PermissionTest extends TestCase
 
     public function testIncludedPermissionsIndex()
     {
-        $user                = factory(User::class)->create();
-        $permission          = factory(Permission::class)->create();
-        $includedPermission1 = factory(Permission::class)->create();
-        $includedPermission2 = factory(Permission::class)->create();
+        $user                = User::factory()->create();
+        $permission          = Permission::factory()->create();
+        $includedPermission1 = Permission::factory()->create();
+        $includedPermission2 = Permission::factory()->create();
 
         Permission::SetupIncludedPermissions($permission->name, [$includedPermission1->name,$includedPermission2->name]);
         // check if permissions that include each other cause any problems

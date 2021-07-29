@@ -9,13 +9,14 @@ use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 
 class Meeting extends Model
 {
-    use Uuid;
+    use Uuid, HasFactory;
 
     /**
      * The "type" of the auto-incrementing ID.
@@ -37,6 +38,12 @@ class Meeting extends Model
      * @var array
      */
     protected $guarded = [];
+
+    protected $casts = [
+        'start'              => 'datetime',
+        'end'                => 'datetime',
+        'record_attendance'  => 'boolean'
+    ];
 
     /**
      * Server the meeting is/should be running on
@@ -79,12 +86,12 @@ class Meeting extends Model
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
-        $meetingParams->setModeratorPassword($this->moderatorPW)
-            ->setAttendeePassword($this->attendeePW)
-            ->setLogoutUrl(url('rooms/'.$this->room->id))
+        $meetingParams->setModeratorPW($this->moderatorPW)
+            ->setAttendeePW($this->attendeePW)
+            ->setLogoutURL(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
-            ->setWelcomeMessage($this->room->welcome)
+            ->setWelcome($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
             ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
@@ -123,8 +130,7 @@ class Meeting extends Model
      */
     public function isRunning()
     {
-        // TODO Remove blank password, after PHP BBB library is updated
-        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id, null);
+        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
         $response               = $this->server->bbb()->getMeetingInfo($isMeetingRunningParams);
 
@@ -139,8 +145,24 @@ class Meeting extends Model
     {
         $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
         $this->server->bbb()->endMeeting($endParams)->success();
-        $this->end = date('Y-m-d H:i:s');
+        $this->setEnd();
+    }
+
+    /**
+     * Set end time of the meeting and
+     * set end time of attendance
+     */
+    public function setEnd()
+    {
+        $this->end = now();
         $this->save();
+
+        // set end time of the attendance to the end time of the meeting
+        // for all users that have been present to the end
+        foreach ($this->attendees()->whereNull('leave')->get() as $attendee) {
+            $attendee->leave = now();
+            $attendee->save();
+        }
     }
 
     /**
@@ -156,10 +178,11 @@ class Meeting extends Model
         $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderatorPW : $this->attendeePW;
 
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $password);
-        $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
-        $joinMeetingParams->setUserId($userid);
-        $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
+        $joinMeetingParams->setUserID($userid);
+        if ($role == RoomUserRole::GUEST) {
+            $joinMeetingParams->setGuest(true);
+        }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', $skipAudioCheck);
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
@@ -172,5 +195,60 @@ class Meeting extends Model
     public function stats()
     {
         return $this->hasMany(MeetingStat::class);
+    }
+
+    /**
+     * Attendees of this meeting
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attendees()
+    {
+        return $this->hasMany(MeetingAttendee::class);
+    }
+
+    /**
+     * Collection of the attendance of users and guests
+     * Multiple sessions of the same user/guest are grouped and the length of each session summed
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
+    public function attendance()
+    {
+        // Load guest and user attendances, group by session or user_id
+        $guests = $this->attendees()->whereNotNull('session_id')->get()->groupBy('session_id');
+        $users  = $this->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
+
+        // create array of guest attendees
+        $guests = $guests->map(function ($guest, $key) {
+            $sessions = $this->mapAttendanceSessions($guest);
+
+            return ['name' => $guest[0]->name, 'email' => null, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
+        });
+
+        // create array of user attendees
+        $users = $users->map(function ($user, $key) {
+            $sessions = $this->mapAttendanceSessions($user);
+
+            return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
+        });
+
+        // if no guests present, just return list of users, sorted by name
+        if ($guests->count() == 0) {
+            return $users->sortBy('name')->values();
+        }
+
+        // return guest and user attendees, sorted by name
+        return $guests->merge($users)->sortBy('name')->values();
+    }
+
+    /**
+     * Helper function for attendance(), map each attendance database entry to an attendance session array
+     * @param $sessions
+     * @return mixed
+     */
+    private function mapAttendanceSessions($sessions)
+    {
+        return $sessions->map(function ($session, $key) {
+            return ['id'=> $session->id, 'join' => $session->join, 'leave' => $session->leave, 'duration' => $session->join->diffInMinutes($session->leave)];
+        });
     }
 }

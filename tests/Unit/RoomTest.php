@@ -22,14 +22,14 @@ class RoomTest extends TestCase
 
     public function testCreateRoom()
     {
-        $room = factory(Room::class)->create();
+        $room = Room::factory()->create();
         $this->assertDatabaseHas('rooms', ['id' => $room->id,'name' => $room->name]);
     }
 
     public function testCreateRoomUniqueID()
     {
-        $roomType = factory(RoomType::class)->create();
-        factory(Room::class, 1000)->create(['room_type_id'=>$roomType]);
+        $roomType = RoomType::factory()->create();
+        Room::factory()->count(1000)->create(['room_type_id'=>$roomType]);
         $this->assertDatabaseCount('rooms', 1000);
     }
 }

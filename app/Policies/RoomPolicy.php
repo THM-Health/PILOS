@@ -52,7 +52,7 @@ class RoomPolicy
     }
 
     /**
-     * Determine whether the user can view the room.
+     * Determine whether the user can view the room settings.
      *
      * @param  User $user
      * @param  Room $room
@@ -74,6 +74,18 @@ class RoomPolicy
     public function viewAccessCode(User $user, Room $room, ?RoomToken $token)
     {
         return $user->can('viewSettings', $room) || $room->isModerator($user, $token);
+    }
+
+    /**
+     * Determine whether the user can view the statistics of the room.
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewStatistics(User $user, Room $room)
+    {
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.viewAll');
     }
 
     /**

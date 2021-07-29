@@ -8,7 +8,6 @@ import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
-import './plugins/Dayjs';
 
 Vue.use(Clipboard);
 // Install BootstrapVue

@@ -1,0 +1,48 @@
+<response>
+    <returncode>SUCCESS</returncode>
+    <meetings>
+        <meeting>
+            <meetingName>Testmeeting 1</meetingName>
+            <meetingID>409e94ee-e317-4040-8cb2-8000a289b49d</meetingID>
+            <internalMeetingID>5400b2af9176c1be733b9a4f1adbc7fb41a72123-1624606850899</internalMeetingID>
+            <createTime>1624606850899</createTime>
+            <createDate>Fri Jun 25 09:40:50 CEST 2021</createDate>
+            <voiceBridge>70663</voiceBridge>
+            <dialNumber>613-555-1234</dialNumber>
+            <attendeePW>asdfgh32343</attendeePW>
+            <moderatorPW>h6gfdew423</moderatorPW>
+            <running>true</running>
+            <duration>0</duration>
+            <hasUserJoined>true</hasUserJoined>
+            <recording>false</recording>
+            <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+            <startTime>1624606850956</startTime>
+            <endTime>0</endTime>
+            <participantCount>4</participantCount>
+            <listenerCount>3</listenerCount>
+            <voiceParticipantCount>3</voiceParticipantCount>
+            <videoCount>2</videoCount>
+            <maxUsers>0</maxUsers>
+            <moderatorCount>1</moderatorCount>
+            <attendees>
+                <attendee>
+                    <userID>sPogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb</userID>
+                    <fullName>Marie Walker</fullName>
+                </attendee>
+                <attendee>
+                    <userID>sLQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG</userID>
+                    <fullName>Bertha Luff</fullName>
+                </attendee>
+                <attendee>
+                    <userID>u99</userID>
+                    <fullName>Mable Torres</fullName>
+                </attendee>
+                <attendee>
+                    <userID>u100</userID>
+                    <fullName>Gregory Dumas</fullName>
+                </attendee>
+            </attendees>
+            <isBreakout>false</isBreakout>
+        </meeting>
+    </meetings>
+</response>

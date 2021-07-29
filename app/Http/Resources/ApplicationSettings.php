@@ -69,9 +69,25 @@ class ApplicationSettings extends JsonResource
                 'link_btn_styles' => LinkButtonStyle::getValues(),
                 'link_targets'    => LinkTarget::getValues()
             ]),
-            'default_presentation'              => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
-            'help_url'                          => setting('help_url'),
-            'room_token_expiration'             => intval(setting('room_token_expiration')),
+            'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
+            'help_url'             => setting('help_url'),
+            'statistics'           => [
+                $this->mergeWhen($this->allSettings, [
+                    'servers' => [
+                        'enabled'           => boolval(setting('statistics.servers.enabled')),
+                        'retention_period'  => intval(setting('statistics.servers.retention_period')),
+                    ]
+                ]),
+                'meetings' => [
+                    'enabled'           => boolval(setting('statistics.meetings.enabled')),
+                    'retention_period'  => intval(setting('statistics.meetings.retention_period')),
+                ],
+            ],
+            'attendance' => [
+                'enabled'           => boolval(setting('attendance.enabled')),
+                'retention_period'  => intval(setting('attendance.retention_period')),
+            ],
+            'room_token_expiration' => intval(setting('room_token_expiration')),
         ];
     }
 }
