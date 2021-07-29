@@ -646,7 +646,7 @@ class SettingsTest extends TestCase
             'enabled' => 'foo'
         ];
         $payload['room_token_expiration'] = 1000;
-        $payload['help_url'] = '';
+        $payload['help_url']              = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
             ->assertStatus(422)

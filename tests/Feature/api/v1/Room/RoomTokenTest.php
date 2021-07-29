@@ -112,8 +112,8 @@ class RoomTokenTest extends TestCase
         ]);
         $payload = [
             'firstname' => 1,
-            'lastname' => 1,
-            'role' => 'test'
+            'lastname'  => 1,
+            'role'      => 'test'
         ];
 
         // Create as guest
@@ -144,8 +144,8 @@ class RoomTokenTest extends TestCase
         // Create as co-owner valid data
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'role' => RoomUserRole::USER
+            'lastname'  => $this->faker->lastName,
+            'role'      => RoomUserRole::USER
         ];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.tokens.add', ['room' => $this->room]), $payload)
             ->assertSuccessful()
@@ -189,8 +189,8 @@ class RoomTokenTest extends TestCase
         ]);
         $payload = [
             'firstname' => 1,
-            'lastname' => 1,
-            'role' => 'test'
+            'lastname'  => 1,
+            'role'      => 'test'
         ];
 
         // Update as guest
@@ -221,8 +221,8 @@ class RoomTokenTest extends TestCase
         // Update as co-owner valid data
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'role' => RoomUserRole::USER
+            'lastname'  => $this->faker->lastName,
+            'role'      => RoomUserRole::USER
         ];
         $response = $this->actingAs($this->user)->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
             ->assertSuccessful()
@@ -237,8 +237,8 @@ class RoomTokenTest extends TestCase
         // Update as owner
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'role' => RoomUserRole::USER
+            'lastname'  => $this->faker->lastName,
+            'role'      => RoomUserRole::USER
         ];
         $response = $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.tokens.update', ['room' => $this->room, 'token' => $token]), $payload)
             ->assertSuccessful()
@@ -253,8 +253,8 @@ class RoomTokenTest extends TestCase
         // Update with viewAllPermission
         $payload = [
             'firstname' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
-            'role' => RoomUserRole::USER
+            'lastname'  => $this->faker->lastName,
+            'role'      => RoomUserRole::USER
         ];
         $this->room->members()->sync([]);
         $this->user->roles()->attach(Role::where(['name' => 'admin', 'default' => true])->first());
