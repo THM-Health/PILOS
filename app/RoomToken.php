@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
@@ -9,6 +10,8 @@ use Illuminate\Support\Str;
 
 class RoomToken extends Model
 {
+    use HasFactory;
+
     /**
      * @var string Override primary key with correct value.
      */

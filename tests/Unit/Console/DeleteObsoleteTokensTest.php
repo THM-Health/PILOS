@@ -23,7 +23,7 @@ class DeleteObsoleteTokensTest extends TestCase
     public function testNoRoomTokenExpiration()
     {
         setting(['room_token_expiration' => -1]);
-        factory(RoomToken::class, 2)->create();
+        RoomToken::factory()->count(2)->create();
         $this->assertDatabaseCount('room_tokens', 2);
         $this->artisan('room:tokens:delete')
             ->assertExitCode(0);
@@ -33,9 +33,9 @@ class DeleteObsoleteTokensTest extends TestCase
     public function testDeletionOfExpiredRoomTokens()
     {
         setting(['room_token_expiration' => 10]);
-        factory(RoomToken::class, 2)->create();
+        RoomToken::factory()->count(2)->create();
 
-        factory(RoomToken::class)->create([
+        RoomToken::factory()->create([
             'created_at' => Carbon::now()->subMinutes(11)
         ]);
         $this->assertDatabaseCount('room_tokens', 3);
