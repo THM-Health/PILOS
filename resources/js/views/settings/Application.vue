@@ -825,7 +825,7 @@
         <b-form-group
           label-class="font-weight-bold"
           class="mb-4"
-          label-for="application-logo-input"
+          label-for="bbb-logo-input"
           :state='(fieldState("bbb.logo") == null && fieldState("bbb.logo_file") == null) ? null : false'
           :label="$t('settings.application.bbb.logo.title')"
         >
@@ -886,14 +886,14 @@
           label-class="font-weight-bold"
           class="mb-4"
           :label="$t('settings.application.bbb.style.title')"
-          label-for='default_presentation'
+          label-for='bbb-style-form-file'
           :state='fieldState("bbb.style")'
         >
           <b-input-group>
             <b-form-file
               accept="text/css,.css"
               :disabled="isBusy || viewOnly || !loaded"
-              id='default_presentation'
+              id='bbb-style-form-file'
               :state="fieldState('bbb.style')"
               :browse-text="$t('app.browse')"
               :placeholder="$t('settings.application.bbb.style.title')"
