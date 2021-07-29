@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Permission;
+use App\Server;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class PermissionFactory extends Factory
+class ServerFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Permission::class;
+    protected $model = Server::class;
 
     /**
      * Define the model's default state.
@@ -22,7 +22,11 @@ class PermissionFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->unique()->word,
+            'base_url' => 'https://test.notld/bigbluebutton/',
+            'salt'     => $this->faker->sha1,
+            'name'     => $this->faker->unique()->word,
+            'status'   => \App\Enums\ServerStatus::ONLINE,
+            'strength' => 1,
         ];
     }
 }

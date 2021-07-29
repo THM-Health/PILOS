@@ -26,11 +26,11 @@ class UserTest extends TestCase
         setting(['pagination_page_size' => $page_size]);
 
         // Create Users + Ldap User with roles
-        $users  = factory(User::class, 10)->create([
+        $users  = User::factory()->count(10)->create([
             'firstname' => 'Darth',
             'lastname'  => 'Vader'
         ]);
-        $user   = factory(User::class)->create([
+        $user   = User::factory()->create([
             'firstname' => 'John',
             'lastname'  => 'Doe'
         ]);
@@ -60,7 +60,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->getJson(route('api.v1.users.index'))->assertForbidden();
 
         // Authenticated user with permission
-        $role = factory(Role::class)->create(['default' => true]);
+        $role = Role::factory()->create(['default' => true]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ]);
         $role->permissions()->attach($permission->id);
@@ -154,12 +154,12 @@ class UserTest extends TestCase
         config(['bigbluebutton.user_search_limit' => $page_size]);
 
         $users   = [];
-        $users[] = factory(User::class)->create(['firstname' => 'Gregory', 'lastname'  => 'Dumas']);
-        $users[] = factory(User::class)->create(['firstname' => 'Mable', 'lastname'  => 'Torres']);
-        $users[] = factory(User::class)->create(['firstname' => 'Bertha', 'lastname'  => 'Luff']);
-        $users[] = factory(User::class)->create(['firstname' => 'Marie', 'lastname'  => 'Walker']);
-        $users[] = factory(User::class)->create(['firstname' => 'Connie', 'lastname'  => 'Braun']);
-        $users[] = factory(User::class)->create(['firstname' => 'Deborah', 'lastname'  => 'Braun']);
+        $users[] = User::factory()->create(['firstname' => 'Gregory', 'lastname'  => 'Dumas']);
+        $users[] = User::factory()->create(['firstname' => 'Mable', 'lastname'  => 'Torres']);
+        $users[] = User::factory()->create(['firstname' => 'Bertha', 'lastname'  => 'Luff']);
+        $users[] = User::factory()->create(['firstname' => 'Marie', 'lastname'  => 'Walker']);
+        $users[] = User::factory()->create(['firstname' => 'Connie', 'lastname'  => 'Braun']);
+        $users[] = User::factory()->create(['firstname' => 'Deborah', 'lastname'  => 'Braun']);
 
         // Unauthenticated user
         $this->getJson(route('api.v1.users.search'))->assertUnauthorized();
@@ -205,7 +205,7 @@ class UserTest extends TestCase
 
     public function testCreate()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $request = [];
 
@@ -216,7 +216,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->postJson(route('api.v1.users.store', $request))->assertForbidden();
 
         // Invalid request
-        $role = factory(Role::class)->create(['default' => true]);
+        $role = Role::factory()->create(['default' => true]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
         $role->permissions()->attach($permission->id);
@@ -305,9 +305,9 @@ class UserTest extends TestCase
             'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
-        $newRole = factory(Role::class)->create(['default' => true]);
+        $newRole = Role::factory()->create(['default' => true]);
 
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $changes = [
             'firstname'            => $this->faker->firstName,
@@ -320,7 +320,7 @@ class UserTest extends TestCase
             'timezone'             => 'Foo/Bar'
         ];
 
-        $userToUpdate = factory(User::class)->create();
+        $userToUpdate = User::factory()->create();
 
         DirectoryEmulator::setup('default');
         LdapUser::create([
@@ -347,7 +347,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Own user
-        $role = factory(Role::class)->create(['default' => true]);
+        $role = Role::factory()->create(['default' => true]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
         $role->permissions()->attach($permission->id);
@@ -442,7 +442,7 @@ class UserTest extends TestCase
 
     public function testShow()
     {
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         DirectoryEmulator::setup('default');
         LdapUser::create([
@@ -479,7 +479,7 @@ class UserTest extends TestCase
             ]);
 
         // Not existing user
-        $role = factory(Role::class)->create(['default' => true]);
+        $role = Role::factory()->create(['default' => true]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.view' ]);
         $role->permissions()->attach($permission->id);
@@ -502,8 +502,8 @@ class UserTest extends TestCase
 
     public function testDelete()
     {
-        $userToDelete = factory(User::class)->create();
-        $user         = factory(User::class)->create();
+        $userToDelete = User::factory()->create();
+        $user         = User::factory()->create();
 
         DirectoryEmulator::setup('default');
         LdapUser::create([
@@ -538,7 +538,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // User other model
-        $role = factory(Role::class)->create(['default' => true]);
+        $role = Role::factory()->create(['default' => true]);
         $role->users()->attach([$userToDelete->id, $user->id]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
@@ -556,12 +556,12 @@ class UserTest extends TestCase
 
     public function testResetPassword()
     {
-        $resetUser = factory(User::class)->create([
+        $resetUser = User::factory()->create([
             'initial_password_set' => true,
             'authenticator'        => 'ldap',
             'locale'               => 'de'
         ]);
-        $user = factory(User::class)->create();
+        $user = User::factory()->create();
 
         $this->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertUnauthorized();
@@ -569,7 +569,7 @@ class UserTest extends TestCase
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertForbidden();
 
-        $role = factory(Role::class)->create(['default' => true]);
+        $role = Role::factory()->create(['default' => true]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
         $role->permissions()->attach($permission->id);
@@ -602,8 +602,8 @@ class UserTest extends TestCase
 
     public function testCreateUserWithGeneratedPassword()
     {
-        $user = factory(User::class)->create();
-        $role = factory(Role::class)->create(['default' => true]);
+        $user = User::factory()->create();
+        $role = Role::factory()->create(['default' => true]);
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.create' ]);
         $role->permissions()->attach($permission->id);

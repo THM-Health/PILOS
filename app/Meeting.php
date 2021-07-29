@@ -9,13 +9,14 @@ use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 
 class Meeting extends Model
 {
-    use Uuid;
+    use Uuid, HasFactory;
 
     /**
      * The "type" of the auto-incrementing ID.
@@ -85,12 +86,12 @@ class Meeting extends Model
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
-        $meetingParams->setModeratorPassword($this->moderatorPW)
-            ->setAttendeePassword($this->attendeePW)
-            ->setLogoutUrl(url('rooms/'.$this->room->id))
+        $meetingParams->setModeratorPW($this->moderatorPW)
+            ->setAttendeePW($this->attendeePW)
+            ->setLogoutURL(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
-            ->setWelcomeMessage($this->room->welcome)
+            ->setWelcome($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
             ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
@@ -134,8 +135,7 @@ class Meeting extends Model
      */
     public function isRunning()
     {
-        // TODO Remove blank password, after PHP BBB library is updated
-        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id, null);
+        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
         $response               = $this->server->bbb()->getMeetingInfo($isMeetingRunningParams);
 
@@ -183,10 +183,11 @@ class Meeting extends Model
         $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderatorPW : $this->attendeePW;
 
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $password);
-        $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
-        $joinMeetingParams->setUserId($userid);
-        $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
+        $joinMeetingParams->setUserID($userid);
+        if ($role == RoomUserRole::GUEST) {
+            $joinMeetingParams->setGuest(true);
+        }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', $skipAudioCheck);
 
         // If a custom style file is set, pass url to bbb html5 client

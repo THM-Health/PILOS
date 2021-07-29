@@ -18,7 +18,7 @@ class UserWelcomeTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = factory(User::class)->create([
+        $this->user = User::factory()->create([
             'firstname' => 'Max',
             'lastname'  => 'Mustermann',
             'email'     => 'test@test.de',

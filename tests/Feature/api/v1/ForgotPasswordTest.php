@@ -25,11 +25,11 @@ class ForgotPasswordTest extends TestCase
 
     public function testForgotPassword()
     {
-        $user     = factory(User::class)->create();
-        $ldapUser = factory(User::class)->create([
+        $user     = User::factory()->create();
+        $ldapUser = User::factory()->create([
             'authenticator' => 'ldap'
         ]);
-        $newUser = factory(User::class)->create([
+        $newUser = User::factory()->create([
             'initial_password_set' => true
         ]);
 

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Logo and custom css for BBB room ([#68], [#152])
+- Support for parallel testing ([#157], [#158])
+
+### Changed
+- Update BBB api to v4.0.0 ([#155], [#156])
+- Update Laravel to v8 and bump other dependencies ([#157], [#158])
+
+## [1.4.1] - 2021-07-28
+### Fixed
+- Missing a slash after hostname in email template and room join url in bbb room ([#153], [#154])
 
 ## [1.4.0] - 2021-07-09
 ### Added
@@ -167,6 +176,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#147]: https://github.com/THM-Health/PILOS/issues/147
 [#150]: https://github.com/THM-Health/PILOS/pull/150
 [#152]: https://github.com/THM-Health/PILOS/pull/152
+[#153]: https://github.com/THM-Health/PILOS/issues/153
+[#154]: https://github.com/THM-Health/PILOS/pull/154
+[#155]: https://github.com/THM-Health/PILOS/issues/155
+[#156]: https://github.com/THM-Health/PILOS/pull/156
+[#157]: https://github.com/THM-Health/PILOS/issues/157
+[#158]: https://github.com/THM-Health/PILOS/pull/158
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
@@ -174,3 +189,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
 [1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
 [1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
+[1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1

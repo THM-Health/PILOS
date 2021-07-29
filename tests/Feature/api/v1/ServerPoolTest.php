@@ -29,7 +29,7 @@ class ServerPoolTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -40,8 +40,8 @@ class ServerPoolTest extends TestCase
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
         ServerPool::truncate();
-        $serverPools  = factory(ServerPool::class, 9)->create();
-        $serverPool1  = factory(ServerPool::class)->create(['name'=>'testPool']);
+        $serverPools  = ServerPool::factory()->count(9)->create();
+        $serverPool1  = ServerPool::factory()->create(['name'=>'testPool']);
 
         // Test guests
         $this->getJson(route('api.v1.serverPools.index'))
@@ -51,7 +51,7 @@ class ServerPoolTest extends TestCase
             ->assertForbidden();
 
         // Authenticated user with permission
-        $role       = factory(Role::class)->create(['default' => true]);
+        $role       = Role::factory()->create(['default' => true]);
         $permission = Permission::firstOrCreate([ 'name' => 'serverPools.viewAny' ]);
         $role->permissions()->attach($permission->id);
         $role->users()->attach($this->user->id);
@@ -105,7 +105,7 @@ class ServerPoolTest extends TestCase
             ->assertJsonMissing(['id' => ServerPool::orderBy('name')->first()->id]);
 
         // Add fake servers to pools
-        $servers = factory(Server::class, 4)->create();
+        $servers = Server::factory()->count(4)->create();
         $serverPools[1]->servers()->sync($servers);
         $serverPools[3]->servers()->sync([$servers[0]->id,$servers[1]->id]);
         $serverPools[6]->servers()->sync([$servers[0]->id]);
@@ -131,8 +131,8 @@ class ServerPoolTest extends TestCase
      */
     public function testShow()
     {
-        $serverPool = factory(ServerPool::class)->create();
-        $server     = factory(Server::class, 5)->create();
+        $serverPool = ServerPool::factory()->create();
+        $server     = Server::factory()->count(5)->create();
         $serverPool->servers()->sync($server);
 
         // Test guests
@@ -144,8 +144,8 @@ class ServerPoolTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'serverPools.view']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'serverPools.view']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -173,7 +173,7 @@ class ServerPoolTest extends TestCase
      */
     public function testCreate()
     {
-        $serverPool = factory(ServerPool::class)->make();
+        $serverPool = ServerPool::factory()->make();
         $data       = [
             'name'        => $serverPool->name,
             'description' => $serverPool->description,
@@ -188,8 +188,8 @@ class ServerPoolTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'serverPools.create']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'serverPools.create']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -211,7 +211,7 @@ class ServerPoolTest extends TestCase
             ->assertJsonValidationErrors(['name','servers']);
 
         // Create servers
-        $servers = factory(Server::class, 2)->create();
+        $servers = Server::factory()->count(2)->create();
 
         // Test with invalid servers value
         $data['name']    = 'TestPool';
@@ -248,8 +248,8 @@ class ServerPoolTest extends TestCase
      */
     public function testUpdate()
     {
-        $serverPool  = factory(ServerPool::class)->create();
-        $serverPool2 = factory(ServerPool::class)->create();
+        $serverPool  = ServerPool::factory()->create();
+        $serverPool2 = ServerPool::factory()->create();
 
         $data = [
             'name'        => $serverPool->name,
@@ -265,8 +265,8 @@ class ServerPoolTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'serverPools.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'serverPools.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -299,7 +299,7 @@ class ServerPoolTest extends TestCase
             ->assertJsonValidationErrors(['name','servers']);
 
         // Create servers
-        $servers = factory(Server::class, 2)->create();
+        $servers = Server::factory()->count(2)->create();
 
         // Add two servers
         $serverPool->refresh();
@@ -339,8 +339,8 @@ class ServerPoolTest extends TestCase
      */
     public function testDelete()
     {
-        $serverPool = factory(ServerPool::class)->create();
-        $roomTypes  = factory(RoomType::class, 2)->create(['server_pool_id'=>$serverPool]);
+        $serverPool = ServerPool::factory()->create();
+        $roomTypes  = RoomType::factory()->count(2)->create(['server_pool_id'=>$serverPool]);
 
         // Test guests
         $this->deleteJson(route('api.v1.serverPools.destroy', ['serverPool'=>$serverPool->id]))
@@ -351,8 +351,8 @@ class ServerPoolTest extends TestCase
             ->assertForbidden();
 
         // Authorize user
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'serverPools.delete']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'serverPools.delete']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
