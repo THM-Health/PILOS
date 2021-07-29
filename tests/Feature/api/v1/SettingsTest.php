@@ -50,6 +50,7 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
         setting(['help_url' => 'http://localhost']);
+        setting(['room_token_expiration' => -1]);
 
         setting(['statistics' => [
             'meetings' => [
@@ -89,7 +90,8 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => false,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_token_expiration' => -1
                 ]
             ])
             ->assertSuccessful();
@@ -116,6 +118,7 @@ class SettingsTest extends TestCase
             'enabled'           => true,
             'retention_period'  => 14
         ]]);
+        setting(['room_token_expiration' => 100]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -137,7 +140,8 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => true,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_token_expiration' => 100
                 ]
             ])
             ->assertSuccessful();
@@ -557,7 +561,7 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
             'help_url'                       => 33,
-            'room_token_expiration'          => -1,
+            'room_token_expiration'          => 'foo',
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => 'test',
@@ -595,7 +599,8 @@ class SettingsTest extends TestCase
                 'statistics.meetings.enabled',
                 'statistics.meetings.retention_period',
                 'attendance.enabled',
-                'attendance.retention_period'
+                'attendance.retention_period',
+                'room_token_expiration'
             ]);
 
         $payload = [
@@ -609,7 +614,7 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
             'help_url'                       => 'http://localhost',
-            'room_token_expiration'          => -1,
+            'room_token_expiration'          => -2,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => true,
@@ -630,7 +635,8 @@ class SettingsTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'banner',
-                'banner.enabled'
+                'banner.enabled',
+                'room_token_expiration'
             ])
             ->assertJsonMissingValidationErrors([
                 'help_url'
@@ -639,6 +645,7 @@ class SettingsTest extends TestCase
         $payload['banner'] = [
             'enabled' => 'foo'
         ];
+        $payload['room_token_expiration'] = 1000;
         $payload['help_url'] = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
@@ -647,7 +654,8 @@ class SettingsTest extends TestCase
                 'banner.enabled'
             ])
             ->assertJsonMissingValidationErrors([
-                'help_url'
+                'help_url',
+                'room_token_expiration'
             ]);
 
         $payload['banner'] = [
