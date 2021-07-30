@@ -832,7 +832,7 @@
           <b-row class="my-3" align-v="center">
             <b-col sm="6" lg="3" class="text-center">
               <b-img
-                v-if="uploadBBBLogoFileSrc!==null || settings.bbb.logo!==null"
+                v-if="(uploadBBBLogoFileSrc!==null || settings.bbb.logo!==null) && !bbb_logo_deleted"
                 :src="uploadBBBLogoFileSrc ? uploadBBBLogoFileSrc : settings.bbb.logo"
                 class="my-2"
                 rounded="0"
@@ -845,18 +845,42 @@
             </b-col>
             <b-col sm="6" lg="9">
               <b-form-text v-if="!uploadBBBLogoFile">{{ $t('settings.application.bbb.logo.urlTitle') }}</b-form-text>
+              <b-input-group class="my-2" v-if="!uploadBBBLogoFile">
               <b-form-input
                 id="bbb-logo-input"
-                v-if="!uploadBBBLogoFile"
                 :placeholder="$t('settings.application.bbb.logo.hint')"
                 v-model="settings.bbb.logo"
-                :disabled="isBusy || viewOnly || !loaded"
-                class="my-2"
+                :disabled="isBusy || viewOnly || !loaded || bbb_logo_deleted"
                 :state='fieldState("bbb.logo")'
+                trim
               >
               </b-form-input>
-              <b-form-text v-if="!viewOnly">{{ $t('settings.application.bbb.logo.uploadTitle') }}</b-form-text>
-              <b-input-group v-if="!viewOnly">
+              <template #append>
+                <b-button
+                  v-if='!viewOnly && bbb_logo_deleted'
+                  variant='secondary'
+                  @click='bbb_logo_deleted = false'
+                  ref='reset-bbb-logo'
+                  v-b-tooltip
+                  :title="$t('settings.application.bbb.logo.reset')"
+                >
+                  <i class="fas fa-undo"></i>
+                </b-button>
+                <!-- Delete file -->
+                <b-button
+                  v-if='!viewOnly && !bbb_logo_deleted && settings.bbb.logo!=null'
+                  variant='danger'
+                  @click="bbb_logo_deleted = true"
+                  ref='delete-bbb-logo'
+                  v-b-tooltip
+                  :title="$t('settings.application.bbb.logo.delete')"
+                >
+                  <i class="fas fa-trash"></i>
+                </b-button>
+              </template>
+              </b-input-group>
+              <b-form-text v-if="!viewOnly && !bbb_logo_deleted">{{ $t('settings.application.bbb.logo.uploadTitle') }}</b-form-text>
+              <b-input-group v-if="!viewOnly && !bbb_logo_deleted">
                 <b-form-file
                   id="bbb-logo-form-file"
                   :state='fieldState("bbb.logo_file")'
@@ -987,6 +1011,7 @@ export default {
       default_presentation_deleted: false,
       bbb_style: null,
       bbb_style_deleted: false,
+      bbb_logo_deleted: false,
       settings: {
         banner: {},
         link_btn_styles: [],
@@ -1078,7 +1103,7 @@ export default {
 
       if (this.uploadBBBLogoFile) {
         formData.append('bbb[logo_file]', this.uploadBBBLogoFile);
-      } else {
+      } else if (!this.bbb_logo_deleted) {
         formData.append('bbb[logo]', this.settings.bbb.logo);
       }
 
@@ -1142,6 +1167,7 @@ export default {
           this.uploadBBBLogoFile = null;
           this.bbb_style = null;
           this.bbb_style_deleted = false;
+          this.bbb_logo_deleted = false;
 
           // update form input
           this.settings = response.data.data;

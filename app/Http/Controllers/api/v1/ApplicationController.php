@@ -73,7 +73,7 @@ class ApplicationController extends Controller
             $path = $request->file('bbb.logo_file')->store('images', 'public');
             $url  = Storage::url($path);
             setting()->set('bbb_logo', url($url));
-        } elseif ($request->has('bbb.logo')) {
+        } elseif ($request->has('bbb.logo') && trim($request->bbb['logo']) != '') {
             setting()->set('bbb_logo', $request->bbb['logo']);
         } else {
             setting()->forget('bbb_logo');

@@ -238,7 +238,9 @@ export default {
         description: 'URL zum Logo',
         hint: 'https://domain.tld/path/logo.svg',
         selectFile: 'Logo-Datei auswählen',
-        alt: 'Logo Vorschau'
+        alt: 'Logo Vorschau',
+        delete: 'Löschen',
+        reset: 'Zurücksetzen'
       },
       style: {
         title: 'CSS Style Datei',

@@ -233,7 +233,9 @@ export default {
         description: 'Changes the application logo. Enter the image URL',
         hint: 'https://domain.tld/path/logo.svg',
         selectFile: 'Select logo file',
-        alt: 'Logo preview'
+        alt: 'Logo preview',
+        delete: 'Delete',
+        reset: 'Reset'
       },
       style: {
         title: 'CSS style file',
