@@ -9,6 +9,7 @@ use App\Enums\ServerStatus;
 use App\Permission;
 use App\Role;
 use App\Room;
+use App\RoomToken;
 use App\RoomType;
 use App\Server;
 use App\User;
@@ -16,8 +17,10 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Symfony\Component\Routing\Route;
 use Tests\TestCase;
 
 /**
@@ -964,6 +967,78 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $room->runningMeeting()->endMeeting();
 
+        // Room token moderator
+        Auth::logout();
+
+        $moderatorToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role'    => RoomUserRole::MODERATOR,
+            'firstname' => 'John',
+            'lastname' => 'Doe'
+        ]);
+
+        $this->withHeaders(['Token' => $moderatorToken->token])
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
+            ->assertForbidden();
+
+        $this->flushHeaders();
+
+        $room->allowGuests = true;
+        $room->everyoneCanStart = false;
+        $room->save();
+
+        $this->withHeaders(['Token' => 'Test'])
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
+            ->assertNotFound();
+
+        $this->flushHeaders();
+
+        $response = $this->withHeaders(['Token' => $moderatorToken->token])
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals('John Doe', $params['fullName']);
+        $room->runningMeeting()->endMeeting();
+
+        $this->flushHeaders();
+
+        // Room token user
+        $userToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role'    => RoomUserRole::USER,
+            'firstname' => 'John',
+            'lastname' => 'Doe'
+        ]);
+
+        $this->withHeaders(['Token' => $userToken->token])
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
+            ->assertForbidden();
+
+        $this->flushHeaders();
+
+        $room->everyoneCanStart = true;
+        $room->save();
+
+        $response = $this->withHeaders(['Token' => $userToken->token])
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals('John Doe', $params['fullName']);
+        $room->runningMeeting()->endMeeting();
+
+        $this->flushHeaders();
+
+        // Token with authenticated user
+        $response = $this->withHeaders(['Token' => $userToken->token])
+            ->actingAs($this->user)
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals($this->user->fullName, $params['fullName']);
+        $room->runningMeeting()->endMeeting();
+
+        $this->flushHeaders();
+
         // Check with wrong salt/secret
         foreach (Server::all() as $server) {
             $server->salt = 'TEST';
@@ -1158,6 +1233,50 @@ class RoomTest extends TestCase
         $this->assertEquals('false', $queryParams['userdata-bbb_skip_check_audio']);
 
         $this->flushHeaders();
+
+        // Join token moderator
+        Auth::logout();
+
+        $moderatorToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role'    => RoomUserRole::MODERATOR,
+            'firstname' => 'John',
+            'lastname' => 'Doe'
+        ]);
+
+        $response = $this->withHeaders(['Token' => $moderatorToken->token])
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1]))
+            ->assertSuccessful();
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals('John Doe', $params['fullName']);
+        $this->flushHeaders();
+
+        // Join token user
+        $userToken = RoomToken::factory()->create([
+            'room_id' => $room->id,
+            'role'    => RoomUserRole::USER,
+            'firstname' => 'John',
+            'lastname' => 'Doe'
+        ]);
+
+        $response = $this->withHeaders(['Token' => $userToken->token])
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1]))
+            ->assertSuccessful();
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals('John Doe', $params['fullName']);
+        $this->flushHeaders();
+
+        // Join as authorized users with token
+        $response = $this->actingAs($this->user)->withHeaders(['Access-Code' => $room->accessCode, 'Token' => $userToken->token])
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1]))
+            ->assertSuccessful();
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals($this->user->fullName, $params['fullName']);
+        $this->flushHeaders();
+        Auth::logout();
 
         // Join as authorized users
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
