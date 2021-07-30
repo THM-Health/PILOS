@@ -971,10 +971,10 @@ class RoomTest extends TestCase
         Auth::logout();
 
         $moderatorToken = RoomToken::factory()->create([
-            'room_id' => $room->id,
-            'role'    => RoomUserRole::MODERATOR,
+            'room_id'   => $room->id,
+            'role'      => RoomUserRole::MODERATOR,
             'firstname' => 'John',
-            'lastname' => 'Doe'
+            'lastname'  => 'Doe'
         ]);
 
         $this->withHeaders(['Token' => $moderatorToken->token])
@@ -983,7 +983,7 @@ class RoomTest extends TestCase
 
         $this->flushHeaders();
 
-        $room->allowGuests = true;
+        $room->allowGuests      = true;
         $room->everyoneCanStart = false;
         $room->save();
 
@@ -1004,10 +1004,10 @@ class RoomTest extends TestCase
 
         // Room token user
         $userToken = RoomToken::factory()->create([
-            'room_id' => $room->id,
-            'role'    => RoomUserRole::USER,
+            'room_id'   => $room->id,
+            'role'      => RoomUserRole::USER,
             'firstname' => 'John',
-            'lastname' => 'Doe'
+            'lastname'  => 'Doe'
         ]);
 
         $this->withHeaders(['Token' => $userToken->token])
@@ -1238,10 +1238,10 @@ class RoomTest extends TestCase
         Auth::logout();
 
         $moderatorToken = RoomToken::factory()->create([
-            'room_id' => $room->id,
-            'role'    => RoomUserRole::MODERATOR,
+            'room_id'   => $room->id,
+            'role'      => RoomUserRole::MODERATOR,
             'firstname' => 'John',
-            'lastname' => 'Doe'
+            'lastname'  => 'Doe'
         ]);
 
         $response = $this->withHeaders(['Token' => $moderatorToken->token])
@@ -1254,10 +1254,10 @@ class RoomTest extends TestCase
 
         // Join token user
         $userToken = RoomToken::factory()->create([
-            'room_id' => $room->id,
-            'role'    => RoomUserRole::USER,
+            'room_id'   => $room->id,
+            'role'      => RoomUserRole::USER,
             'firstname' => 'John',
-            'lastname' => 'Doe'
+            'lastname'  => 'Doe'
         ]);
 
         $response = $this->withHeaders(['Token' => $userToken->token])
