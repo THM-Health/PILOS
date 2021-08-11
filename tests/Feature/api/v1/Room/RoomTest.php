@@ -863,8 +863,27 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertJsonValidationErrors('name');
+        // Join as guest with invalid/dangerous name
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>'<script>alert("HI");</script>','record_attendance' => 1]))
-            ->assertJsonValidationErrors('name');
+            ->assertJsonValidationErrors('name')
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        __('validation.validname', ['chars'=> '<>(");'])
+                    ]
+                ]
+            ]);
+        // Join as guest with invalid/dangerous name that contains non utf8 chars
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>'§´`','record_attendance' => 1]))
+            ->assertJsonValidationErrors('name')
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        __('validation.validname_error')
+                    ]
+                ]
+            ]);
+
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>$this->faker->name,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
 
@@ -1148,7 +1167,14 @@ class RoomTest extends TestCase
 
         // Join as guest with invalid/dangerous name
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>'<script>alert("HI");</script>','record_attendance' => 1]))
-            ->assertJsonValidationErrors('name');
+            ->assertJsonValidationErrors('name')
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        __('validation.validname', ['chars'=> '<>(");'])
+                    ]
+                ]
+            ]);
 
         // Join as guest
         $response = $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$this->faker->name,'record_attendance' => 1]))

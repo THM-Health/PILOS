@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Rule;
 
 class ValidName implements Rule
 {
-    const ALLOWED_CHARS = "A-Za-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆŠŽ∂ð ,.'-+/&";
+    const ALLOWED_CHARS = "A-Za-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆŠŽ∂ð ,.'\-+/&";
     private $failedChars;
     private $attribute;
 
@@ -24,11 +24,11 @@ class ValidName implements Rule
      */
     public function passes($attribute, $value)
     {
-        if (preg_match('#^['.self::ALLOWED_CHARS.']+$#', $value)) {
+        if (preg_match('#^['.self::ALLOWED_CHARS.']+$#u', $value)) {
             return true;
         }
         $this->attribute   = $attribute;
-        $this->failedChars = array_unique(str_split(preg_replace('#['.self::ALLOWED_CHARS.']+#', '', $value)));
+        $this->failedChars = array_unique(str_split(preg_replace('#['.self::ALLOWED_CHARS.']+#u', '', $value)));
 
         return false;
     }
@@ -43,9 +43,9 @@ class ValidName implements Rule
         $invalidChars = implode('', $this->failedChars);
         $validUTF8    = mb_check_encoding($invalidChars, 'UTF-8');
         if ($validUTF8) {
-            return trans('validation.validname', ['chars'=> $invalidChars]);
+            return __('validation.validname', ['chars'=> $invalidChars]);
         } else {
-            return trans('validation.validname_error');
+            return __('validation.validname_error');
         }
     }
 }
