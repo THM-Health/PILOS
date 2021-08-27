@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support for parallel testing ([#157], [#158])
+- Modal to confirm end of room membership ([#159], [#165])
 
 ### Changed
 - Update BBB api to v4.0.0 ([#155], [#156])
@@ -181,8 +182,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#156]: https://github.com/THM-Health/PILOS/pull/156
 [#157]: https://github.com/THM-Health/PILOS/issues/157
 [#158]: https://github.com/THM-Health/PILOS/pull/158
+[#159]: https://github.com/THM-Health/PILOS/issues/159
 [#162]: https://github.com/THM-Health/PILOS/issues/162
 [#163]: https://github.com/THM-Health/PILOS/pull/163
+[#165]: https://github.com/THM-Health/PILOS/pull/165
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

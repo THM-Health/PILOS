@@ -41,14 +41,29 @@
           </can>
           <!-- If user is member, allow user to end the membership -->
           <b-button
+            id="leave-membership-button"
             class="float-right"
             v-if="room.isMember"
-            v-on:click="leaveMembership"
+            v-b-modal.leave-membership-modal
             :disabled="loading"
             variant="danger"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
           </b-button>
+
+          <b-modal
+            :static='modalStatic'
+            :title="$t('rooms.endMembership.title')"
+            ok-variant="danger"
+            cancel-variant="dark"
+            :ok-title="$t('rooms.endMembership.yes')"
+            :cancel-title="$t('rooms.endMembership.no')"
+            @ok="leaveMembership"
+            id="leave-membership-modal"
+            ref="leave-membership-modal"
+          >
+            {{ $t('rooms.endMembership.message') }}
+          </b-modal>
         </div>
       </div>
 
@@ -247,6 +262,14 @@ export default {
   directives: {
     mask: AwesomeMask
   },
+
+  props: {
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   components: {
     FileComponent,
     DeleteRoomComponent,
@@ -549,7 +572,6 @@ export default {
     leaveMembership: function (event) {
       // Enable loading indicator
       this.loading = true;
-
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'delete'
       }).catch((error) => {

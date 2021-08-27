@@ -202,7 +202,7 @@ describe('Room', function () {
   it('room details moderator', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-123', {
       status: 200,
-      response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
     PermissionService.setCurrentUser(exampleUser);
 
@@ -281,7 +281,7 @@ describe('Room', function () {
 
     moxios.stubRequest('/api/v1/rooms/gs4-6fb-kk8', {
       status: 200,
-      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
     PermissionService.setCurrentUser(exampleUser);
 
@@ -360,7 +360,7 @@ describe('Room', function () {
   it('reload', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-345', {
       status: 200,
-      response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
     PermissionService.setCurrentUser(exampleUser);
 
@@ -386,7 +386,7 @@ describe('Room', function () {
 
       overrideStub('/api/v1/rooms/cba-fed-345', {
         status: 200,
-        response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+        response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
       });
       await moxios.wait(() => {
         expect(view.html()).toContain('Meeting Two');
@@ -1198,6 +1198,101 @@ describe('Room', function () {
 
           view.destroy();
           done();
+        });
+      });
+    });
+  });
+
+  it('end membership', function (done) {
+    moxios.stubRequest('/api/v1/rooms/cba-fed-123', {
+      status: 200,
+      response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+    });
+    moxios.stubRequest('/api/v1/rooms/cba-fed-123/files', {
+      status: 200,
+      response: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
+    PermissionService.setCurrentUser(exampleUser);
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      }
+    });
+
+    const to = { params: { id: 'cba-fed-123' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      // Find confirm modal and check if it is hidden
+      const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
+      expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
+      // Click button to leave membership
+      await view.find('#leave-membership-button').trigger('click');
+
+      // Wait until modal is open
+      view.vm.$root.$once('bv::modal::shown', async () => {
+        await view.vm.$nextTick();
+
+        // Confirm modal is shown
+        expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
+
+        // Find the confirm button and click it
+        const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
+        expect(leaveConfirmButton.text()).toBe('rooms.endMembership.yes');
+        await leaveConfirmButton.trigger('click');
+
+        // Check if modal is closed
+        view.vm.$root.$once('bv::modal::hidden', async () => {
+          await view.vm.$nextTick();
+
+          // Check if the modal is hidden
+          expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
+
+          // Check leave membership request
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('delete');
+            expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-123/membership');
+
+            // Stub response for room reload, now with the user not beeing a member anymore
+            const roomResponse = overrideStub('/api/v1/rooms/cba-fed-123', {
+              status: 200,
+              response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+            });
+
+            // Respond to leave membership request
+            await moxios.requests.mostRecent().respondWith({
+              status: 204,
+              response: {}
+            });
+
+            await view.vm.$nextTick();
+
+            // Check if the leave membership button is not shown anymore, as the user is no longer a member
+            expect(view.find('#leave-membership-button').exists()).toBeFalsy();
+
+            roomResponse();
+            view.destroy();
+            done();
+          });
         });
       });
     });
