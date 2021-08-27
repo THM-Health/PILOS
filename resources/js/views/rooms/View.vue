@@ -41,14 +41,29 @@
           </can>
           <!-- If user is member, allow user to end the membership -->
           <b-button
+            id="leave-membership-button"
             class="float-right"
             v-if="room.isMember"
-            v-on:click="leaveMembership"
+            v-b-modal.leave-membership-modal
             :disabled="loading"
             variant="danger"
           >
             <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
           </b-button>
+
+          <b-modal
+            :static='modalStatic'
+            :title="$t('rooms.endMembership.title')"
+            ok-variant="danger"
+            cancel-variant="dark"
+            :ok-title="$t('rooms.endMembership.yes')"
+            :cancel-title="$t('rooms.endMembership.no')"
+            @ok="leaveMembership"
+            id="leave-membership-modal"
+            ref="leave-membership-modal"
+          >
+            {{ $t('rooms.endMembership.message') }}
+          </b-modal>
         </div>
       </div>
 
@@ -247,6 +262,14 @@ export default {
   directives: {
     mask: AwesomeMask
   },
+
+  props: {
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   components: {
     FileComponent,
     DeleteRoomComponent,
@@ -547,29 +570,16 @@ export default {
      * @param event
      */
     leaveMembership: function (event) {
-      this.$bvModal.msgBoxConfirm(this.$t('rooms.endMembership.message'), {
-        title: this.$t('rooms.endMembership.title'),
-        okVariant: 'danger',
-        okTitle: this.$t('rooms.endMembership.yes'),
-        cancelTitle: this.$t('rooms.endMembership.no'),
-        footerClass: 'p-2',
-        hideHeaderClose: false,
-        centered: true
-      })
-        .then(value => {
-          if (value === true) {
-            // Enable loading indicator
-            this.loading = true;
-            Base.call('rooms/' + this.room.id + '/membership', {
-              method: 'delete'
-            }).catch((error) => {
-              Base.error(error, this.$root);
-            }).finally(() => {
-              // Reload without membership
-              this.reload();
-            });
-          }
-        });
+      // Enable loading indicator
+      this.loading = true;
+      Base.call('rooms/' + this.room.id + '/membership', {
+        method: 'delete'
+      }).catch((error) => {
+        Base.error(error, this.$root);
+      }).finally(() => {
+        // Reload without membership
+        this.reload();
+      });
     },
     /**
      * Handle login with access code
