@@ -47,7 +47,7 @@
             :disabled="loading"
             variant="danger"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
           </b-button>
         </div>
       </div>
@@ -547,17 +547,29 @@ export default {
      * @param event
      */
     leaveMembership: function (event) {
-      // Enable loading indicator
-      this.loading = true;
-
-      Base.call('rooms/' + this.room.id + '/membership', {
-        method: 'delete'
-      }).catch((error) => {
-        Base.error(error, this.$root);
-      }).finally(() => {
-        // Reload without membership
-        this.reload();
-      });
+      this.$bvModal.msgBoxConfirm(this.$t('rooms.endMembership.message'), {
+        title: this.$t('rooms.endMembership.title'),
+        okVariant: 'danger',
+        okTitle: this.$t('rooms.endMembership.yes'),
+        cancelTitle: this.$t('rooms.endMembership.no'),
+        footerClass: 'p-2',
+        hideHeaderClose: false,
+        centered: true
+      })
+        .then(value => {
+          if (value === true) {
+            // Enable loading indicator
+            this.loading = true;
+            Base.call('rooms/' + this.room.id + '/membership', {
+              method: 'delete'
+            }).catch((error) => {
+              Base.error(error, this.$root);
+            }).finally(() => {
+              // Reload without membership
+              this.reload();
+            });
+          }
+        });
     },
     /**
      * Handle login with access code

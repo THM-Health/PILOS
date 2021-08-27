@@ -19,7 +19,13 @@ export default {
   accessForParticipants: 'Access for participants',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
   becomeMember: 'Become member',
-  endMembership: 'End membership',
+  endMembership: {
+    button: 'End membership',
+    title: 'Are you sure you want to end the membership?',
+    message: 'You will lose the role associated with your membership. To become a member again, you may need to ask the room owner. If the room has an access code, you will need to know it to continue to have access to the room.',
+    yes: 'Yes, end membership',
+    no: 'No, keep membership'
+  },
   requireAccessCode: 'An access code is required to join this room',
   login: 'Login',
   placeholderName: 'John Doe',

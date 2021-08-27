@@ -19,7 +19,13 @@ export default {
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
   becomeMember: 'Mitglied werden',
-  endMembership: 'Mitgliedschaft beenden',
+  endMembership: {
+    button: 'Mitgliedschaft beenden',
+    title: 'Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?',
+    message: 'Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumbesitzer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.',
+    yes: 'Ja, Mitgliedschaft beenden',
+    no: 'Nein, Mitgliedschaft beibehalten'
+  },
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
