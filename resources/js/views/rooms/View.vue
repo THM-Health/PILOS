@@ -99,10 +99,11 @@
             <b-row>
               <!-- Ask guests for their first and lastname -->
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
-                <b-form-group :label="$t('rooms.firstAndLastname')">
+                <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
+                  <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->
@@ -240,6 +241,7 @@ import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
   directives: {
@@ -253,6 +255,8 @@ export default {
     Cannot
   },
 
+  mixins: [FieldErrors],
+
   data () {
     return {
       reloadInterval: null,
@@ -265,7 +269,8 @@ export default {
       accessCode: null, // Access code to use for requests
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
-      recordAttendanceAgreement: false
+      recordAttendanceAgreement: false,
+      errors: []
     };
   },
   // Component not loaded yet
@@ -394,6 +399,8 @@ export default {
     start: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
+      // Reset errors
+      this.errors = [];
       // Build url, add accessCode if needed
       const config = {
         params: {
@@ -426,6 +433,12 @@ export default {
               return;
             }
 
+            // Form validation error
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
+              return;
+            }
+
             // Attendance logging agreement required but not accepted
             if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
               this.room.record_attendance = true;
@@ -443,6 +456,8 @@ export default {
     join: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
+      // Reset errors
+      this.errors = [];
 
       // Build url, add accessCode if needed
       const config = {
@@ -469,6 +484,12 @@ export default {
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;
+            }
+
+            // Form validation error
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
+              return;
             }
 
             // Attendance logging agreement required but not accepted

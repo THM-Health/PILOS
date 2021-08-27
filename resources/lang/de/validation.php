@@ -265,4 +265,7 @@ return [
         'help_url'                          => 'URL zur Hilfeseite',
         'restrict'                          => 'Verwendung einschränken'
     ],
+
+    'validname'       => 'Der Name enthält die folgenden nicht erlaubten Zeichen: :chars',
+    'validname_error' => 'Der Name enthält nicht erlaubten Zeichen'
 ];

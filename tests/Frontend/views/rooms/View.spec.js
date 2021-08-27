@@ -732,31 +732,63 @@ describe('Room', function () {
       const joinButton = view.findComponent({ ref: 'joinMeeting' });
       const nameInput = view.findComponent({ ref: 'guestName' });
       expect(joinButton.attributes('disabled')).toEqual('disabled');
-      nameInput.setValue('John Doe');
+      nameInput.setValue('John Doe 123!');
       await view.vm.$nextTick();
       expect(joinButton.attributes('disabled')).toBeUndefined();
 
       await view.vm.$nextTick();
       await joinButton.trigger('click');
 
+      // Check with invalid chars in guest name
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+        expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
+        // respond with validation errors
         await moxios.requests.mostRecent().respondWith({
-          status: 200,
+          status: 422,
           response: {
-            url: 'test.tld'
+            message: 'The given data was invalid.',
+            errors: { name: ['The name contains the following non-permitted characters: 123!'] }
           }
         });
 
-        expect(window.location).toEqual('test.tld');
-        window.location = oldWindow;
-        store.commit('session/setCurrentUser', { currentUser: exampleUser });
-        view.destroy();
-        done();
+        // check if error is shown
+        await view.vm.$nextTick();
+        const nameGroup = view.find('#guest-name-group');
+        expect(nameGroup.classes()).toContain('is-invalid');
+        expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
+
+        // Check with valid name
+        nameInput.setValue('John Doe');
+        await view.vm.$nextTick();
+        await joinButton.trigger('click');
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('get');
+          expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+          expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+
+          // check if errors are removed on new request
+          expect(nameGroup.classes()).not.toContain('is-invalid');
+          expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
+
+          await moxios.requests.mostRecent().respondWith({
+            status: 200,
+            response: {
+              url: 'test.tld'
+            }
+          });
+
+          expect(window.location).toEqual('test.tld');
+          window.location = oldWindow;
+          store.commit('session/setCurrentUser', { currentUser: exampleUser });
+          view.destroy();
+          done();
+        });
       });
     });
   });
@@ -1007,31 +1039,63 @@ describe('Room', function () {
       const startButton = view.findComponent({ ref: 'startMeeting' });
       const nameInput = view.findComponent({ ref: 'guestName' });
       expect(startButton.attributes('disabled')).toEqual('disabled');
-      nameInput.setValue('John Doe');
+      nameInput.setValue('John Doe 123!');
       await view.vm.$nextTick();
       expect(startButton.attributes('disabled')).toBeUndefined();
 
       await view.vm.$nextTick();
       await startButton.trigger('click');
 
+      // Check with invalid chars in name
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+        expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
+        // respond with validation errors
         await moxios.requests.mostRecent().respondWith({
-          status: 200,
+          status: 422,
           response: {
-            url: 'test.tld'
+            message: 'The given data was invalid.',
+            errors: { name: ['The name contains the following non-permitted characters: 123!'] }
           }
         });
 
-        expect(window.location).toEqual('test.tld');
-        window.location = oldWindow;
-        store.commit('session/setCurrentUser', { currentUser: exampleUser });
-        view.destroy();
-        done();
+        // check if error is shown
+        await view.vm.$nextTick();
+        const nameGroup = view.find('#guest-name-group');
+        expect(nameGroup.classes()).toContain('is-invalid');
+        expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
+
+        // try without invalid chars
+        nameInput.setValue('John Doe');
+        await view.vm.$nextTick();
+        await startButton.trigger('click');
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('get');
+          expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+          expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+
+          // check if errors are removed on new request
+          expect(nameGroup.classes()).not.toContain('is-invalid');
+          expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
+
+          await moxios.requests.mostRecent().respondWith({
+            status: 200,
+            response: {
+              url: 'test.tld'
+            }
+          });
+
+          expect(window.location).toEqual('test.tld');
+          window.location = oldWindow;
+          store.commit('session/setCurrentUser', { currentUser: exampleUser });
+          view.destroy();
+          done();
+        });
       });
     });
   });

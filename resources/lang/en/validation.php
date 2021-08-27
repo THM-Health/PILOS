@@ -265,4 +265,7 @@ return [
         'help_url'                          => 'URL to the help',
         'restrict'                          => 'Restrict usage'
     ],
+
+    'validname'       => 'The name contains the following non-permitted characters: :chars',
+    'validname_error' => 'The name contains non-permitted characters'
 ];
