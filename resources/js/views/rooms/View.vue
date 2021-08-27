@@ -99,7 +99,7 @@
             <b-row>
               <!-- Ask guests for their first and lastname -->
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
-                <b-form-group :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
+                <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
                   <b-input-group>
                     <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
