@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update BBB api to v4.0.0 ([#155], [#156])
 - Update Laravel to v8 and bump other dependencies ([#157], [#158])
+- Allow more special chars in guest name and show invalid chars ([#162], [#163])
 
 ## [1.4.1] - 2021-07-28
 ### Fixed
@@ -180,6 +181,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#156]: https://github.com/THM-Health/PILOS/pull/156
 [#157]: https://github.com/THM-Health/PILOS/issues/157
 [#158]: https://github.com/THM-Health/PILOS/pull/158
+[#162]: https://github.com/THM-Health/PILOS/issues/162
+[#163]: https://github.com/THM-Health/PILOS/pull/163
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
