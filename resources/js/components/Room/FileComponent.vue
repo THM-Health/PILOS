@@ -63,7 +63,7 @@
         v-if="files.files"
         :items="files.files"
         hover
-        stacked="md"
+        stacked="lg"
         show-empty
       >
         <!-- Show message on empty file list -->

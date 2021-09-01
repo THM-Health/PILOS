@@ -97,6 +97,57 @@
                 ></b-form-input>
                 <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
               </b-form-group>
+
+              <!-- Profile image-->
+              <b-form-group
+                label-cols-sm='3'
+                label-for="application-favicon-input"
+                :state='fieldState("image")'
+                :label="$t('settings.users.image.title')"
+              >
+                <b-row>
+                  <b-col sm="12" lg="9" v-if="config.type !== 'view'">
+                    <b-button variant='dark' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.FileInput.click()"  v-if="!image_deleted"><i class="fas fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
+                    <input ref="FileInput" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
+
+                    <b-button variant='danger' v-if="croppedImage" @click="resetFileUpload">
+                        <i class="fas fa-times"></i> {{ $t('settings.users.image.cancel') }}
+                    </b-button>
+
+                    <b-button v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fas fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
+                    <b-button v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fas fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
+
+                  </b-col>
+
+                  <b-col sm="12" lg="3" class="text-left">
+                    <b-img
+                      v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
+                      :src="croppedImage ? croppedImage : model.image"
+                      :alt="$t('settings.users.image.title')"
+                      width="80"
+                      height="80"
+                    >
+                    </b-img>
+                    <b-img
+                      v-else
+                      src="/images/default_profile.png"
+                      :alt="$t('settings.users.image.title')"
+                      width="80"
+                      height="80"
+                    >
+                    </b-img>
+                  </b-col>
+                </b-row>
+
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('image')"></div>
+                </template>
+              </b-form-group>
+
+              <b-modal id="modal-1" :title="$t('settings.users.image.crop')" @ok="saveImage" ok-variant="success" :ok-title="$t('settings.users.image.save')" cancel-variant="dark" :cancel-title="$t('settings.users.image.cancel')">
+                <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" alt="Source Image"></VueCropper>
+              </b-modal>
+
               <b-form-group
                 label-cols-sm='3'
                 :label="$t('settings.users.user_locale')"
@@ -352,11 +403,12 @@ import EventBus from '../../../services/EventBus';
 import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
-import _ from 'lodash';
+import VueCropper from 'vue-cropperjs';
+import 'cropperjs/dist/cropper.css';
 
 export default {
   mixins: [FieldErrors],
-  components: { Multiselect },
+  components: { Multiselect, VueCropper },
 
   computed: {
     /**
@@ -439,7 +491,12 @@ export default {
       rolesLoadingError: false,
       timezonesLoading: false,
       timezonesLoadingError: false,
-      timezones: []
+      timezones: [],
+
+      croppedImage: null,
+      croppedImageBlob: null,
+      selectedFile: '',
+      image_deleted: false
     };
   },
 
@@ -481,6 +538,36 @@ export default {
   },
 
   methods: {
+
+    resetFileUpload () {
+      this.croppedImage = null;
+      this.croppedImageBlob = null;
+      this.$refs.FileInput.value = null;
+    },
+
+    saveImage () {
+      this.croppedImage = this.$refs.cropper.getCroppedCanvas().toDataURL('image/jpeg ');
+      this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
+        this.croppedImageBlob = blob;
+        console.log('blob done');
+      }, 'image/jpeg');
+    },
+
+    onFileSelect (e) {
+      const file = e.target.files[0];
+      if (typeof FileReader === 'function') {
+        this.$bvModal.show('modal-1');
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          this.selectedFile = event.target.result;
+          this.$refs.cropper.replace(this.selectedFile);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Sorry, FileReader API not supported');
+      }
+    },
+
     loadUserModel () {
       this.isBusy = true;
 
@@ -569,31 +656,54 @@ export default {
 
       this.isBusy = true;
 
-      const config = {
-        method: this.config.id === 'new' ? 'post' : 'put',
-        data: _.cloneDeep(this.model)
-      };
-      config.data.roles = config.data.roles.map(role => role.id);
+      const formData = new FormData();
+
+      for (var i = 0; i < this.model.roles.length; i++) {
+        const role = this.model.roles[i].id;
+        formData.append('roles[' + i + ']', role);
+      }
+
+      formData.append('user_locale', this.model.user_locale);
+      formData.append('bbb_skip_check_audio', this.model.bbb_skip_check_audio ? 1 : 0);
+      formData.append('timezone', this.model.timezone);
+      formData.append('firstname', this.model.firstname);
+      formData.append('lastname', this.model.lastname);
+      formData.append('email', this.model.email);
+
+      formData.append('updated_at', this.model.updated_at);
 
       if (this.config.id === 'new') {
-        config.data.generate_password = this.generate_password;
-
-        if (this.generate_password) {
-          delete config.data.password;
-          delete config.data.password_confirmation;
-        }
+        formData.append('generate_password', this.generate_password);
       }
+      if (!this.generate_password && this.model.password != null) {
+        formData.append('password', this.model.password);
+        formData.append('password_confirmation', this.model.password_confirmation);
+      }
+
+      // croppedImage
+      if (this.croppedImageBlob != null) {
+        formData.append('image', this.croppedImageBlob, 'image.png');
+      } else if (this.image_deleted) {
+        formData.append('image', '');
+      }
+
+      formData.append('_method', this.config.id === 'new' ? 'POST' : 'PUT');
+
+      const config = {
+        method: 'POST',
+        data: formData
+      };
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
         this.errors = {};
-        const localeChanged = this.$store.state.session.currentLocale !== config.data.user_locale;
+        const localeChanged = this.$store.state.session.currentLocale !== this.model.user_locale;
 
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
         if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id) {
           return this.$store.dispatch('session/getCurrentUser').then(() => {
             if (localeChanged) {
-              return loadLanguageAsync(config.data.user_locale).then(() => {
-                this.$store.commit('session/setCurrentLocale', config.data.user_locale);
+              return loadLanguageAsync(this.model.user_locale).then(() => {
+                this.$store.commit('session/setCurrentLocale', this.model.user_locale);
                 return response;
               });
             }
@@ -615,6 +725,9 @@ export default {
           this.model.roles.forEach(role => {
             role.$isDisabled = role.automatic;
           });
+
+          this.resetFileUpload();
+          this.image_deleted = false;
         }
       }).catch(error => {
         // If the user wasn't found and it is the current user log him out!

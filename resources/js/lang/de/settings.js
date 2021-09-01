@@ -61,6 +61,16 @@ export default {
     nodata: 'Es sind keine Benutzer vorhanden!',
     nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
 
+    image: {
+      title: 'Profilbild',
+      upload: 'Neues Bild hochladen',
+      crop: 'Profilbild zuschneiden',
+      save: 'Übernehmen',
+      cancel: 'Abbrechen',
+      delete: 'Bild löschen',
+      undo_delete: 'Löschen rückgänig machen'
+    },
+
     id: 'ID',
     firstname: 'Vorname',
     lastname: 'Nachname',

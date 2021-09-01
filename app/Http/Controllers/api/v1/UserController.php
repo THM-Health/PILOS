@@ -11,6 +11,7 @@ use App\Notifications\UserWelcome;
 use App\User;
 use Carbon\Carbon;
 use Exception;
+use Intervention\Image\Facades\Image;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Storage;
 
 class UserController extends Controller
 {
@@ -147,6 +149,29 @@ class UserController extends Controller
         if ($user->authenticator === 'users') {
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
+            }
+        }
+
+        // User requested to change image
+        if ($request->has('image')) {
+            // If user already has a profile image, delete current one to save disk space
+            if ($user->image != null) {
+                Storage::disk('public')->delete($user->image);
+            }
+            // User has provided a new profile image
+            if (!empty($request->file('image'))) {
+                // Save new image
+                $path = $request->file('image')->storePublicly('profile_images', 'public');
+                // Get new image, resize to 100x100 pixels and overwrite
+                $user->image = $path;
+                $img         = Image::make(Storage::disk('public')->path($path));
+                $img->resize(100, 100, function ($const) {
+                    $const->aspectRatio();
+                })->save();
+            }
+            // Image should be removed
+            else {
+                $user->image = null;
             }
         }
 

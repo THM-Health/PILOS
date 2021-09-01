@@ -94,6 +94,7 @@ export default {
     nodata: 'No members available',
     addUser: 'Add user',
     inviteGuest: 'Invite guest',
+    image: 'Picture',
     firstname: 'Firstname',
     lastname: 'Lastname',
     email: 'Email',
