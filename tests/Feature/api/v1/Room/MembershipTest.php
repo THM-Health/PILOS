@@ -104,7 +104,7 @@ class MembershipTest extends TestCase
      */
     public function testMemberList()
     {
-        $memberUser      = User::factory()->create();
+        $memberUser      = User::factory()->create(['image' => 'test.jpg']);
         $memberModerator = User::factory()->create();
         $memberCoOwner   = User::factory()->create();
         $owner           = User::factory()->create();
@@ -143,9 +143,9 @@ class MembershipTest extends TestCase
         // Check member list as owner and response
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['id'=>$memberUser->id,'firstname'=>$memberUser->firstname,'lastname'=>$memberUser->lastname,'email'=>$memberUser->email,'role'=>RoomUserRole::USER])
-            ->assertJsonFragment(['id'=>$memberModerator->id,'firstname'=>$memberModerator->firstname,'lastname'=>$memberModerator->lastname,'email'=>$memberModerator->email,'role'=>RoomUserRole::MODERATOR])
-            ->assertJsonFragment(['id'=>$memberCoOwner->id,'firstname'=>$memberCoOwner->firstname,'lastname'=>$memberCoOwner->lastname,'email'=>$memberCoOwner->email,'role'=>RoomUserRole::CO_OWNER]);
+            ->assertJsonFragment(['id'=>$memberUser->id,'firstname'=>$memberUser->firstname,'lastname'=>$memberUser->lastname,'email'=>$memberUser->email,'role'=>RoomUserRole::USER, 'image' => $memberUser->imageUrl])
+            ->assertJsonFragment(['id'=>$memberModerator->id,'firstname'=>$memberModerator->firstname,'lastname'=>$memberModerator->lastname,'email'=>$memberModerator->email,'role'=>RoomUserRole::MODERATOR, 'image' => $memberUser->imageUrl])
+            ->assertJsonFragment(['id'=>$memberCoOwner->id,'firstname'=>$memberCoOwner->firstname,'lastname'=>$memberCoOwner->lastname,'email'=>$memberCoOwner->email,'role'=>RoomUserRole::CO_OWNER, 'image' => $memberUser->imageUrl]);
 
         // Check member list with view all rooms permission
         $this->user->roles()->attach($this->role);
