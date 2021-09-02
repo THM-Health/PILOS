@@ -474,13 +474,13 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['image']);
 
         // Try with wrong dimensions
-        $changes['image'] = UploadedFile::fake()->image('avatar.jpg', 200, 300);
+        $changes['image'] = UploadedFile::fake()->image('avatar.jpg', 200, 200);
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
             ->assertJsonValidationErrors(['image']);
 
         // Try with wrong file type, only jpeg is allowed
-        $changes['image'] = UploadedFile::fake()->image('avatar.png', 200, 200);
+        $changes['image'] = UploadedFile::fake()->image('avatar.png', 100, 100);
         $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
             ->assertJsonValidationErrors(['image']);
@@ -489,8 +489,8 @@ class UserTest extends TestCase
         Storage::fake('public');
 
         // Create fake files
-        $file  = UploadedFile::fake()->image('avatar.jpg', 200, 200);
-        $file2 = UploadedFile::fake()->image('avatar2.jpg', 200, 200);
+        $file  = UploadedFile::fake()->image('avatar.jpg', 100, 100);
+        $file2 = UploadedFile::fake()->image('avatar2.jpg', 100, 100);
         $path  = 'profile_images/'.$file->hashName();
         $path2 = 'profile_images/'.$file2->hashName();
 
@@ -505,11 +505,6 @@ class UserTest extends TestCase
         // Check if database is updated
         $user->refresh();
         $this->assertEquals($path, $user->image);
-
-        // Check if image was resized
-        $dimensions = getimagesize(Storage::disk('public')->path($path));
-        $this->assertEquals(100, $dimensions[0]);
-        $this->assertEquals(100, $dimensions[1]);
 
         // Upload a new image
         $changes['image']      = $file2;
