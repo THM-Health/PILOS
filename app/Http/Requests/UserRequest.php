@@ -21,7 +21,7 @@ class UserRequest extends FormRequest
             'timezone'              => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'roles'                 => 'required|array',
             'roles.*'               => 'distinct|exists:App\Role,id',
-            'image'                 => 'nullable|mimes:jpg|dimensions:ratio=1/1',
+            'image'                 => 'nullable|mimes:jpg|dimensions:width=100,height=100',
         ];
 
         if (!$this->user || $this->user->authenticator === 'users') {

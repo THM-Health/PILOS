@@ -68,7 +68,11 @@ export default {
       save: 'Übernehmen',
       cancel: 'Abbrechen',
       delete: 'Bild löschen',
-      undo_delete: 'Löschen rückgänig machen'
+      undo_delete: 'Löschen rückgänig machen',
+      invalidMime: {
+        message: 'Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.',
+        title: 'Ungültiges Dateiformat'
+      }
     },
 
     id: 'ID',

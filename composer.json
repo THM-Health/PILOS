@@ -15,7 +15,6 @@
         "fruitcake/laravel-cors": "^2.0",
         "goldspecdigital/laravel-eloquent-uuid": "^8.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "intervention/image": "^2.6",
         "laravel-lang/lang": "~6.1",
         "laravel/framework": "^8.40",
         "laravel/sanctum": "^2.3",

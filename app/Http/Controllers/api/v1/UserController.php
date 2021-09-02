@@ -11,7 +11,6 @@ use App\Notifications\UserWelcome;
 use App\User;
 use Carbon\Carbon;
 use Exception;
-use Intervention\Image\Facades\Image;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -161,13 +160,8 @@ class UserController extends Controller
             // User has provided a new profile image
             if (!empty($request->file('image'))) {
                 // Save new image
-                $path = $request->file('image')->storePublicly('profile_images', 'public');
-                // Get new image, resize to 100x100 pixels and overwrite
+                $path        = $request->file('image')->storePublicly('profile_images', 'public');
                 $user->image = $path;
-                $img         = Image::make(Storage::disk('public')->path($path));
-                $img->resize(100, 100, function ($const) {
-                    $const->aspectRatio();
-                })->save();
             }
             // Image should be removed
             else {

@@ -65,7 +65,11 @@ export default {
       save: 'confirm',
       cancel: 'cancel',
       delete: 'Delete picture',
-      undo_delete: 'Undo deletion'
+      undo_delete: 'Undo deletion',
+      invalidMime: {
+        message: 'The file format is not supported. Please select a jpg or png file.',
+        title: 'Invalid file format'
+      }
     },
 
     base_data: 'Base data',

@@ -142,12 +142,11 @@
                 <template slot='invalid-feedback'>
                   <div v-html="fieldError('image')"></div>
                 </template>
+
+                <b-modal id="modal-image-upload" :busy="imageToBlobLoading" :hide-header-close="true" :no-close-on-backdrop="true" :no-close-on-esc="true" :title="$t('settings.users.image.crop')" @ok="saveImage" ok-variant="success" :ok-title="$t('settings.users.image.save')" cancel-variant="dark" :cancel-title="$t('settings.users.image.cancel')">
+                  <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" alt="Source Image"></VueCropper>
+                </b-modal>
               </b-form-group>
-
-              <b-modal id="modal-1" :title="$t('settings.users.image.crop')" @ok="saveImage" ok-variant="success" :ok-title="$t('settings.users.image.save')" cancel-variant="dark" :cancel-title="$t('settings.users.image.cancel')">
-                <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" alt="Source Image"></VueCropper>
-              </b-modal>
-
               <b-form-group
                 label-cols-sm='3'
                 :label="$t('settings.users.user_locale')"
@@ -355,7 +354,7 @@
                   <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
                 </b-button>
                 <b-button
-                  :disabled='isBusy || modelLoadingError || rolesLoadingError || timezonesLoadingError'
+                  :disabled='isBusy || modelLoadingError || rolesLoadingError || timezonesLoadingError || imageToBlobLoading'
                   variant='success'
                   type='submit'
                   class='ml-1'
@@ -493,9 +492,10 @@ export default {
       timezonesLoadingError: false,
       timezones: [],
 
+      imageToBlobLoading: false,
       croppedImage: null,
       croppedImageBlob: null,
-      selectedFile: '',
+      selectedFile: null,
       image_deleted: false
     };
   },
@@ -539,33 +539,59 @@ export default {
 
   methods: {
 
+    /**
+     * Reset other previously uploaded images
+     */
     resetFileUpload () {
       this.croppedImage = null;
       this.croppedImageBlob = null;
       this.$refs.FileInput.value = null;
+      this.selectedFile = null;
     },
 
-    saveImage () {
-      this.croppedImage = this.$refs.cropper.getCroppedCanvas().toDataURL('image/jpeg ');
-      this.$refs.cropper.getCroppedCanvas().toBlob((blob) => {
-        this.croppedImageBlob = blob;
-        console.log('blob done');
-      }, 'image/jpeg');
+    /**
+     * User cropped image and confirmed to continue
+     * Convert image to data url to display and to blob to upload to server
+     */
+    saveImage (event) {
+      event.preventDefault();
+      this.imageToBlobLoading = true;
+      setTimeout(() => {
+        const oc = document.createElement('canvas');
+        oc.width = 100;
+        oc.height = 100;
+        const octx = oc.getContext('2d');
+        octx.fillStyle = 'white';
+        octx.fillRect(0, 0, oc.width, oc.height);
+        octx.drawImage(this.$refs.cropper.getCroppedCanvas(), 0, 0, oc.width, oc.height);
+
+        this.croppedImage = oc.toDataURL('image/jpeg ');
+        console.log(oc);
+        oc.toBlob((blob) => {
+          this.croppedImageBlob = blob;
+          this.imageToBlobLoading = false;
+          this.$bvModal.hide('modal-image-upload');
+        }, 'image/jpeg');
+      }, 100);
     },
 
+    /**
+     * User selected file, open modal and show image in cropper
+     */
     onFileSelect (e) {
       const file = e.target.files[0];
-      if (typeof FileReader === 'function') {
-        this.$bvModal.show('modal-1');
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          this.selectedFile = event.target.result;
-          this.$refs.cropper.replace(this.selectedFile);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert('Sorry, FileReader API not supported');
+      if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+        this.resetFileUpload();
+        this.flashMessage.error(this.$t('settings.users.image.invalidMime'));
+        return;
       }
+      this.$bvModal.show('modal-image-upload');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        this.selectedFile = event.target.result;
+        this.$refs.cropper.replace(this.selectedFile);
+      };
+      reader.readAsDataURL(file);
     },
 
     loadUserModel () {

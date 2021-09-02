@@ -47,6 +47,10 @@ export default {
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
       title: 'Access forbidden'
+    },
+    fileGone: {
+      message: 'The file has been deleted in the meantime.',
+      title: 'File not found'
     }
   },
   modals: {
