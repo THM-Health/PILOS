@@ -463,16 +463,15 @@ describe('UsersView', function () {
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
 
-          expect(data.firstname).toBe('Max');
-          expect(data.lastname).toBe('Mustermann');
-          expect(data.email).toBe('max@mustermann.de');
-          expect(data.password).toBe(undefined);
-          expect(data.password_confirmation).toBe(undefined);
-          expect(data.roles).toStrictEqual([3]);
-          expect(data.user_locale).toBe('de');
-          expect(data.generate_password).toBe(true);
+          expect(request.config.data.get('firstname')).toBe('Max');
+          expect(request.config.data.get('lastname')).toBe('Mustermann');
+          expect(request.config.data.get('email')).toBe('max@mustermann.de');
+          expect(request.config.data.has('password')).toBeFalsy();
+          expect(request.config.data.has('password_confirmation')).toBeFalsy();
+          expect(request.config.data.get('roles[0]')).toBe('3');
+          expect(request.config.data.get('user_locale')).toBe('de');
+          expect(request.config.data.get('generate_password')).toBe('1');
 
           done();
         });
@@ -534,8 +533,8 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const buttons = view.findAllComponents(BButton);
-      expect(buttons.length).toEqual(3);
-      expect(buttons.at(2).text()).toEqual('app.save');
+      expect(buttons.length).toEqual(4);
+      expect(buttons.at(3).text()).toEqual('app.save');
 
       done();
     });
@@ -620,16 +619,17 @@ describe('UsersView', function () {
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
 
-          expect(data.firstname).toBe('Max');
-          expect(data.lastname).toBe('Mustermann');
-          expect(data.email).toBe('max@mustermann.de');
-          expect(data.password).toBe('Test_123');
-          expect(data.password_confirmation).toBe('Test_123');
-          expect(data.roles).toStrictEqual([1, 2, 3]);
-          expect(data.user_locale).toBe('de');
-          expect(data.generate_password).toBe(undefined);
+          expect(request.config.data.get('firstname')).toBe('Max');
+          expect(request.config.data.get('lastname')).toBe('Mustermann');
+          expect(request.config.data.get('email')).toBe('max@mustermann.de');
+          expect(request.config.data.get('password')).toBe('Test_123');
+          expect(request.config.data.get('password_confirmation')).toBe('Test_123');
+          expect(request.config.data.get('roles[0]')).toStrictEqual('1');
+          expect(request.config.data.get('roles[1]')).toStrictEqual('2');
+          expect(request.config.data.get('roles[2]')).toStrictEqual('3');
+          expect(request.config.data.get('user_locale')).toBe('de');
+          expect(request.config.data.has('generate_password')).toBeFalsy();
 
           const restoreUserResponse = overrideStub('/api/v1/users/2', {
             status: 204
@@ -835,10 +835,9 @@ describe('UsersView', function () {
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
 
-          expect(data.updated_at).toBe(newModel.updated_at);
-          expect(data.firstname).toBe('Darth');
+          expect(request.config.data.get('updated_at')).toBe(newModel.updated_at);
+          expect(request.config.data.get('firstname')).toBe('Darth');
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
 
           restoreUserResponse();

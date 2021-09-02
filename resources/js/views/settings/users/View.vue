@@ -673,7 +673,7 @@ export default {
       formData.append('updated_at', this.model.updated_at);
 
       if (this.config.id === 'new') {
-        formData.append('generate_password', this.generate_password);
+        formData.append('generate_password', this.generate_password ? 1 : 0);
       }
       if (!this.generate_password && this.model.password != null) {
         formData.append('password', this.model.password);
