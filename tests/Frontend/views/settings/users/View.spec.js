@@ -157,15 +157,15 @@ describe('UsersView', function () {
     });
     moxios.stubRequest('/api/v1/users/1', {
       status: 200,
-      response: ownUserResponse
+      response: _.cloneDeep(ownUserResponse)
     });
     moxios.stubRequest('/api/v1/users/2', {
       status: 200,
-      response: userResponse
+      response: _.cloneDeep(userResponse)
     });
     moxios.stubRequest('/api/v1/users/3', {
       status: 200,
-      response: ldapUserResponse
+      response: _.cloneDeep(ldapUserResponse)
     });
 
     let res;
@@ -233,6 +233,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(view.html()).toContain('settings.users.view John Doe');
+      view.destroy();
       done();
     });
   });
@@ -255,6 +256,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(view.html()).toContain('settings.users.edit John Doe');
+      view.destroy();
       done();
     });
   });
@@ -300,6 +302,7 @@ describe('UsersView', function () {
       expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
 
       View.__ResetDependency__('LocaleMap');
+      view.destroy();
       done();
     });
   });
@@ -322,6 +325,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(view.findComponent(Multiselect).vm.disabled).toBe(true);
+      view.destroy();
       done();
     });
   });
@@ -347,6 +351,7 @@ describe('UsersView', function () {
 
       expect(multiselect.vm.value[0].$isDisabled).toBe(true);
       expect(multiselect.vm.value[1].$isDisabled).toBe(false);
+      view.destroy();
       done();
     });
   });
@@ -383,6 +388,7 @@ describe('UsersView', function () {
       multiSelects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(true);
       });
+      view.destroy();
       done();
     });
   });
@@ -420,6 +426,7 @@ describe('UsersView', function () {
         multiSelects.wrappers.forEach((select) => {
           expect(select.vm.disabled).toBe(false);
         });
+        view.destroy();
         done();
       });
     });
@@ -476,7 +483,7 @@ describe('UsersView', function () {
           expect(request.config.data.get('roles[0]')).toBe('3');
           expect(request.config.data.get('user_locale')).toBe('de');
           expect(request.config.data.get('generate_password')).toBe('1');
-
+          view.destroy();
           done();
         });
       });
@@ -515,6 +522,7 @@ describe('UsersView', function () {
       multiSelects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(false);
       });
+      view.destroy();
       done();
     });
   });
@@ -539,7 +547,7 @@ describe('UsersView', function () {
       const buttons = view.findAllComponents(BButton);
       expect(buttons.length).toEqual(5);
       expect(buttons.at(4).text()).toEqual('app.save');
-
+      view.destroy();
       done();
     });
   });
@@ -576,6 +584,7 @@ describe('UsersView', function () {
       const multiSelects = view.findAllComponents(Multiselect);
       expect(multiSelects.length).toBe(1);
       expect(multiSelects.at(0).vm.value.map(val => val.id)).toStrictEqual([1, 2]);
+      view.destroy();
       done();
     });
   });
@@ -646,6 +655,7 @@ describe('UsersView', function () {
               sinon.assert.calledOnce(spy);
               sinon.assert.calledWith(spy, { name: 'settings.users' });
               restoreUserResponse();
+              view.destroy();
               done();
             });
           });
@@ -692,6 +702,7 @@ describe('UsersView', function () {
       Base.error.restore();
       restoreRolesResponse();
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -711,7 +722,7 @@ describe('UsersView', function () {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -734,6 +745,7 @@ describe('UsersView', function () {
       sinon.assert.calledOnce(spy);
       sinon.assert.calledWith(spy, { name: 'home' });
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -779,6 +791,7 @@ describe('UsersView', function () {
         sinon.assert.calledOnce(spy);
         sinon.assert.calledWith(spy, { name: 'home' });
         restoreUserResponse();
+        view.destroy();
         done();
       });
     });
@@ -826,7 +839,6 @@ describe('UsersView', function () {
       moxios.wait(function () {
         const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
         expect(staleModelModal.vm.$data.isVisible).toBe(true);
-
         restoreUserResponse();
         restoreUserResponse = overrideStub('/api/v1/users/1', {
           status: 204,
@@ -845,6 +857,7 @@ describe('UsersView', function () {
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
 
           restoreUserResponse();
+          view.destroy();
           done();
         });
       });
@@ -902,6 +915,7 @@ describe('UsersView', function () {
         view.vm.$nextTick().then(() => {
           expect(view.findComponent(BFormInput).element.value).toBe('Test');
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          view.destroy();
           done();
         });
       });
@@ -948,6 +962,7 @@ describe('UsersView', function () {
         expect(button.exists()).toBe(false);
         expect(spy.notCalled).toBe(true);
         Base.error.restore();
+        view.destroy();
         done();
       });
     });
@@ -969,7 +984,7 @@ describe('UsersView', function () {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -992,6 +1007,7 @@ describe('UsersView', function () {
       sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
       Base.error.restore();
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -1007,7 +1023,7 @@ describe('UsersView', function () {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -1027,6 +1043,7 @@ describe('UsersView', function () {
       sinon.assert.calledOnce(Base.error);
       Base.error.restore();
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -1073,6 +1090,7 @@ describe('UsersView', function () {
         sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
         Base.error.restore();
         restoreUserResponse();
+        view.destroy();
         done();
       });
     });
