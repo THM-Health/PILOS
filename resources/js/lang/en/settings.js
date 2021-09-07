@@ -62,8 +62,8 @@ export default {
       title: 'Profile picture',
       upload: 'Upload new picture',
       crop: 'Crop profile picture',
-      save: 'confirm',
-      cancel: 'cancel',
+      save: 'Confirm',
+      cancel: 'Cancel',
       delete: 'Delete picture',
       undo_delete: 'Undo deletion',
       invalidMime: {

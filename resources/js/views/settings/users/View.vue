@@ -101,25 +101,22 @@
               <!-- Profile image-->
               <b-form-group
                 label-cols-sm='3'
-                label-for="application-favicon-input"
+                label-for="profile-image"
                 :state='fieldState("image")'
                 :label="$t('settings.users.image.title')"
               >
                 <b-row>
                   <b-col sm="12" lg="9" v-if="config.type !== 'view'">
-                    <b-button variant='dark' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.FileInput.click()"  v-if="!image_deleted"><i class="fas fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
-                    <input ref="FileInput" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
+                    <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
 
-                    <b-button variant='danger' v-if="croppedImage" @click="resetFileUpload">
-                        <i class="fas fa-times"></i> {{ $t('settings.users.image.cancel') }}
-                    </b-button>
-
-                    <b-button v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fas fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
-                    <b-button v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fas fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
+                    <b-button class="my-1 my-lg-0" variant='dark' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fas fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
+                    <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fas fa-times"></i> {{ $t('settings.users.image.cancel') }}</b-button>
+                    <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fas fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
+                    <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fas fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
 
                   </b-col>
 
-                  <b-col sm="12" lg="3" class="text-left">
+                  <b-col sm="12" lg="3" class="text-left text-lg-right">
                     <b-img
                       v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
                       :src="croppedImage ? croppedImage : model.image"
@@ -558,7 +555,7 @@ export default {
     resetFileUpload () {
       this.croppedImage = null;
       this.croppedImageBlob = null;
-      this.$refs.FileInput.value = null;
+      this.$refs.ProfileImage.value = null;
       this.selectedFile = null;
     },
 
