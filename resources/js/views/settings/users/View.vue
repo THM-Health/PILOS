@@ -143,7 +143,21 @@
                   <div v-html="fieldError('image')"></div>
                 </template>
 
-                <b-modal id="modal-image-upload" :busy="imageToBlobLoading" :hide-header-close="true" :no-close-on-backdrop="true" :no-close-on-esc="true" :title="$t('settings.users.image.crop')" @ok="saveImage" ok-variant="success" :ok-title="$t('settings.users.image.save')" cancel-variant="dark" :cancel-title="$t('settings.users.image.cancel')">
+                <b-modal
+                  :static='modalStatic'
+                  id="modal-image-upload"
+                  ref="modal-image-upload"
+                  :busy="imageToBlobLoading"
+                  :hide-header-close="true"
+                  :no-close-on-backdrop="true"
+                  :no-close-on-esc="true"
+                  :title="$t('settings.users.image.crop')"
+                  @ok="saveImage"
+                  ok-variant="success"
+                  :ok-title="$t('settings.users.image.save')"
+                  cancel-variant="dark"
+                  :cancel-title="$t('settings.users.image.cancel')"
+                >
                   <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" alt="Source Image"></VueCropper>
                 </b-modal>
               </b-form-group>
@@ -538,7 +552,6 @@ export default {
   },
 
   methods: {
-
     /**
      * Reset other previously uploaded images
      */
@@ -565,8 +578,7 @@ export default {
         octx.fillRect(0, 0, oc.width, oc.height);
         octx.drawImage(this.$refs.cropper.getCroppedCanvas(), 0, 0, oc.width, oc.height);
 
-        this.croppedImage = oc.toDataURL('image/jpeg ');
-        console.log(oc);
+        this.croppedImage = oc.toDataURL('image/jpeg');
         oc.toBlob((blob) => {
           this.croppedImageBlob = blob;
           this.imageToBlobLoading = false;
