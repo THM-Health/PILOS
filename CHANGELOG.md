@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2021-09-07
 ### Added
 - Support for parallel testing ([#157], [#158])
 - Modal to confirm end of room membership ([#159], [#165])
@@ -197,3 +198,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
 [1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
 [1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
+[1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
