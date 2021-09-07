@@ -47,6 +47,10 @@ export default {
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
       title: 'Zugriff verweigert'
+    },
+    fileGone: {
+      message: 'Die Datei wurde in der Zwischenzeit gelöscht.',
+      title: 'Datei nicht gefunden'
     }
   },
   modals: {
@@ -94,6 +98,7 @@ export default {
     nodata: 'Keine Mitglieder vorhanden',
     addUser: 'Nutzer hinzufügen',
     inviteGuest: 'Gast einladen',
+    image: 'Bild',
     firstname: 'Vorname',
     lastname: 'Nachname',
     email: 'Email',

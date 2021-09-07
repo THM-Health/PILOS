@@ -47,6 +47,10 @@ export default {
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
       title: 'Access forbidden'
+    },
+    fileGone: {
+      message: 'The file has been deleted in the meantime.',
+      title: 'File not found'
     }
   },
   modals: {
@@ -94,6 +98,7 @@ export default {
     nodata: 'No members available',
     addUser: 'Add user',
     inviteGuest: 'Invite guest',
+    image: 'Picture',
     firstname: 'Firstname',
     lastname: 'Lastname',
     email: 'Email',

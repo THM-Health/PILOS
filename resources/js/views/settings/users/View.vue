@@ -97,6 +97,67 @@
                 ></b-form-input>
                 <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
               </b-form-group>
+
+              <!-- Profile image-->
+              <b-form-group
+                label-cols-sm='3'
+                label-for="profile-image"
+                :state='fieldState("image")'
+                :label="$t('settings.users.image.title')"
+              >
+                <b-row>
+                  <b-col sm="12" lg="9" v-if="config.type !== 'view'">
+                    <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
+
+                    <b-button class="my-1 my-lg-0" variant='dark' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fas fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
+                    <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fas fa-times"></i> {{ $t('settings.users.image.cancel') }}</b-button>
+                    <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fas fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
+                    <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fas fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
+
+                  </b-col>
+
+                  <b-col sm="12" lg="3" class="text-left text-lg-right">
+                    <b-img
+                      v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
+                      :src="croppedImage ? croppedImage : model.image"
+                      :alt="$t('settings.users.image.title')"
+                      width="80"
+                      height="80"
+                    >
+                    </b-img>
+                    <b-img
+                      v-else
+                      src="/images/default_profile.png"
+                      :alt="$t('settings.users.image.title')"
+                      width="80"
+                      height="80"
+                    >
+                    </b-img>
+                  </b-col>
+                </b-row>
+
+                <template slot='invalid-feedback'>
+                  <div v-html="fieldError('image')"></div>
+                </template>
+
+                <b-modal
+                  :static='modalStatic'
+                  id="modal-image-upload"
+                  ref="modal-image-upload"
+                  :busy="imageToBlobLoading"
+                  :hide-header-close="true"
+                  :no-close-on-backdrop="true"
+                  :no-close-on-esc="true"
+                  :title="$t('settings.users.image.crop')"
+                  @ok="saveImage"
+                  ok-variant="success"
+                  :ok-title="$t('settings.users.image.save')"
+                  cancel-variant="dark"
+                  :cancel-title="$t('settings.users.image.cancel')"
+                >
+                  <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" alt="Source Image"></VueCropper>
+                </b-modal>
+              </b-form-group>
               <b-form-group
                 label-cols-sm='3'
                 :label="$t('settings.users.user_locale')"
@@ -304,7 +365,7 @@
                   <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
                 </b-button>
                 <b-button
-                  :disabled='isBusy || modelLoadingError || rolesLoadingError || timezonesLoadingError'
+                  :disabled='isBusy || modelLoadingError || rolesLoadingError || timezonesLoadingError || imageToBlobLoading'
                   variant='success'
                   type='submit'
                   class='ml-1'
@@ -352,11 +413,12 @@ import EventBus from '../../../services/EventBus';
 import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
-import _ from 'lodash';
+import VueCropper from 'vue-cropperjs';
+import 'cropperjs/dist/cropper.css';
 
 export default {
   mixins: [FieldErrors],
-  components: { Multiselect },
+  components: { Multiselect, VueCropper },
 
   computed: {
     /**
@@ -439,7 +501,13 @@ export default {
       rolesLoadingError: false,
       timezonesLoading: false,
       timezonesLoadingError: false,
-      timezones: []
+      timezones: [],
+
+      imageToBlobLoading: false,
+      croppedImage: null,
+      croppedImageBlob: null,
+      selectedFile: null,
+      image_deleted: false
     };
   },
 
@@ -481,6 +549,60 @@ export default {
   },
 
   methods: {
+    /**
+     * Reset other previously uploaded images
+     */
+    resetFileUpload () {
+      this.croppedImage = null;
+      this.croppedImageBlob = null;
+      this.$refs.ProfileImage.value = null;
+      this.selectedFile = null;
+    },
+
+    /**
+     * User cropped image and confirmed to continue
+     * Convert image to data url to display and to blob to upload to server
+     */
+    saveImage (event) {
+      event.preventDefault();
+      this.imageToBlobLoading = true;
+      setTimeout(() => {
+        const oc = document.createElement('canvas');
+        oc.width = 100;
+        oc.height = 100;
+        const octx = oc.getContext('2d');
+        octx.fillStyle = 'white';
+        octx.fillRect(0, 0, oc.width, oc.height);
+        octx.drawImage(this.$refs.cropper.getCroppedCanvas(), 0, 0, oc.width, oc.height);
+
+        this.croppedImage = oc.toDataURL('image/jpeg');
+        oc.toBlob((blob) => {
+          this.croppedImageBlob = blob;
+          this.imageToBlobLoading = false;
+          this.$bvModal.hide('modal-image-upload');
+        }, 'image/jpeg');
+      }, 100);
+    },
+
+    /**
+     * User selected file, open modal and show image in cropper
+     */
+    onFileSelect (e) {
+      const file = e.target.files[0];
+      if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+        this.resetFileUpload();
+        this.flashMessage.error(this.$t('settings.users.image.invalidMime'));
+        return;
+      }
+      this.$bvModal.show('modal-image-upload');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        this.selectedFile = event.target.result;
+        this.$refs.cropper.replace(this.selectedFile);
+      };
+      reader.readAsDataURL(file);
+    },
+
     loadUserModel () {
       this.isBusy = true;
 
@@ -569,31 +691,54 @@ export default {
 
       this.isBusy = true;
 
-      const config = {
-        method: this.config.id === 'new' ? 'post' : 'put',
-        data: _.cloneDeep(this.model)
-      };
-      config.data.roles = config.data.roles.map(role => role.id);
+      const formData = new FormData();
+
+      for (var i = 0; i < this.model.roles.length; i++) {
+        const role = this.model.roles[i].id;
+        formData.append('roles[' + i + ']', role);
+      }
+
+      formData.append('user_locale', this.model.user_locale);
+      formData.append('bbb_skip_check_audio', this.model.bbb_skip_check_audio ? 1 : 0);
+      formData.append('timezone', this.model.timezone);
+      formData.append('firstname', this.model.firstname);
+      formData.append('lastname', this.model.lastname);
+      formData.append('email', this.model.email);
+
+      formData.append('updated_at', this.model.updated_at);
 
       if (this.config.id === 'new') {
-        config.data.generate_password = this.generate_password;
-
-        if (this.generate_password) {
-          delete config.data.password;
-          delete config.data.password_confirmation;
-        }
+        formData.append('generate_password', this.generate_password ? 1 : 0);
       }
+      if (!this.generate_password && this.model.password != null) {
+        formData.append('password', this.model.password);
+        formData.append('password_confirmation', this.model.password_confirmation);
+      }
+
+      // croppedImage
+      if (this.croppedImageBlob != null) {
+        formData.append('image', this.croppedImageBlob, 'image.png');
+      } else if (this.image_deleted) {
+        formData.append('image', '');
+      }
+
+      formData.append('_method', this.config.id === 'new' ? 'POST' : 'PUT');
+
+      const config = {
+        method: 'POST',
+        data: formData
+      };
 
       Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
         this.errors = {};
-        const localeChanged = this.$store.state.session.currentLocale !== config.data.user_locale;
+        const localeChanged = this.$store.state.session.currentLocale !== this.model.user_locale;
 
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
         if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id) {
           return this.$store.dispatch('session/getCurrentUser').then(() => {
             if (localeChanged) {
-              return loadLanguageAsync(config.data.user_locale).then(() => {
-                this.$store.commit('session/setCurrentLocale', config.data.user_locale);
+              return loadLanguageAsync(this.model.user_locale).then(() => {
+                this.$store.commit('session/setCurrentLocale', this.model.user_locale);
                 return response;
               });
             }
@@ -615,6 +760,9 @@ export default {
           this.model.roles.forEach(role => {
             role.$isDisabled = role.automatic;
           });
+
+          this.resetFileUpload();
+          this.image_deleted = false;
         }
       }).catch(error => {
         // If the user wasn't found and it is the current user log him out!
