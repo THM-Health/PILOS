@@ -866,8 +866,27 @@ class RoomTest extends TestCase
             ->assertUnauthorized();
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertJsonValidationErrors('name');
+        // Join as guest with invalid/dangerous name
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>'<script>alert("HI");</script>','record_attendance' => 1]))
-            ->assertJsonValidationErrors('name');
+            ->assertJsonValidationErrors('name')
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        __('validation.validname', ['chars'=> '<>(");'])
+                    ]
+                ]
+            ]);
+        // Join as guest with invalid/dangerous name that contains non utf8 chars
+        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>'§´`','record_attendance' => 1]))
+            ->assertJsonValidationErrors('name')
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        __('validation.validname_error')
+                    ]
+                ]
+            ]);
+
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.start', ['room'=>$room,'name'=>$this->faker->name,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
 
@@ -1223,7 +1242,14 @@ class RoomTest extends TestCase
 
         // Join as guest with invalid/dangerous name
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>'<script>alert("HI");</script>','record_attendance' => 1]))
-            ->assertJsonValidationErrors('name');
+            ->assertJsonValidationErrors('name')
+            ->assertJsonFragment([
+                'errors' => [
+                    'name' => [
+                        __('validation.validname', ['chars'=> '<>(");'])
+                    ]
+                ]
+            ]);
 
         // Join as guest
         $response = $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.join', ['room'=>$room,'name'=>$this->faker->name,'record_attendance' => 1]))
@@ -1338,6 +1364,10 @@ class RoomTest extends TestCase
             'allowGuests' => true
         ]);
 
+        // Set user profile image
+        $this->user->image = 'test.jpg';
+        $this->user->save();
+
         // Adding server(s)
         $this->seed(ServerSeeder::class);
 
@@ -1367,6 +1397,8 @@ class RoomTest extends TestCase
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals($attendeePW, $queryParams['password']);
         $this->assertEquals($this->user->fullname, $queryParams['fullName']);
+        // Check if avatarURL is set, if profile image exists
+        $this->assertEquals($this->user->imageUrl, $queryParams['avatarURL']);
 
         // Testing owner
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
@@ -1374,6 +1406,8 @@ class RoomTest extends TestCase
         $queryParams = [];
         parse_str(parse_url($response->json('url'))['query'], $queryParams);
         $this->assertEquals($moderatorPW, $queryParams['password']);
+        // Check if avatarURL empty, if no profile image is set
+        $this->assertFalse(isset($queryParams['avatarURL']));
 
         // Testing member user
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::USER]]);

@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Support for parallel testing ([#157], [#158])
 - Personalized room tokens ([#72], [#145])
+
+## [1.5.0] - 2021-09-07
+### Added
+- Support for parallel testing ([#157], [#158])
+- Modal to confirm end of room membership ([#159], [#165])
+- Profile image for room member list and user avatar in BBB ([#166], [#167])
 
 ### Changed
 - Update BBB api to v4.0.0 ([#155], [#156])
 - Update Laravel to v8 and bump other dependencies ([#157], [#158])
+- Allow more special chars in guest name and show invalid chars ([#162], [#163])
 
 ## [1.4.1] - 2021-07-28
 ### Fixed
@@ -183,6 +189,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#156]: https://github.com/THM-Health/PILOS/pull/156
 [#157]: https://github.com/THM-Health/PILOS/issues/157
 [#158]: https://github.com/THM-Health/PILOS/pull/158
+[#159]: https://github.com/THM-Health/PILOS/issues/159
+[#162]: https://github.com/THM-Health/PILOS/issues/162
+[#163]: https://github.com/THM-Health/PILOS/pull/163
+[#165]: https://github.com/THM-Health/PILOS/pull/165
+[#166]: https://github.com/THM-Health/PILOS/issues/166
+[#167]: https://github.com/THM-Health/PILOS/pull/167
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
@@ -191,3 +203,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
 [1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
 [1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
+[1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0

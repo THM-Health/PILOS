@@ -222,7 +222,9 @@ class RoomController extends Controller
                 $name,
                 $room->getRole(Auth::user(), $token),
                 $id,
-                Auth::user() ? Auth::user()->bbb_skip_check_audio : false)
+                Auth::user() ? Auth::user()->bbb_skip_check_audio : false,
+                Auth::user() ? Auth::user()->imageUrl : null
+            )
         ]);
     }
 
@@ -266,7 +268,9 @@ class RoomController extends Controller
                 $name,
                 $room->getRole(Auth::user(), $token),
                 $id,
-                Auth::user() ? Auth::user()->bbb_skip_check_audio : false)
+                Auth::user() ? Auth::user()->bbb_skip_check_audio : false,
+                Auth::user() ? Auth::user()->imageUrl : null
+            )
         ]);
     }
 

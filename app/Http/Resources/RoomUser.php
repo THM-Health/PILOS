@@ -21,6 +21,7 @@ class RoomUser extends JsonResource
             'lastname'  => $this->lastname,
             'email'     => $this->email,
             'role'      => (int) $this->pivot->role,
+            'image'     => $this->imageUrl,
         ];
     }
 }

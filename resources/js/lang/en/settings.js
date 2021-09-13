@@ -58,6 +58,20 @@ export default {
     nodata: 'No users found!',
     nodataFiltered: 'For the filter query no users were found!',
 
+    image: {
+      title: 'Profile picture',
+      upload: 'Upload new picture',
+      crop: 'Crop profile picture',
+      save: 'Confirm',
+      cancel: 'Cancel',
+      delete: 'Delete picture',
+      undo_delete: 'Undo deletion',
+      invalidMime: {
+        message: 'The file format is not supported. Please select a jpg or png file.',
+        title: 'Invalid file format'
+      }
+    },
+
     base_data: 'Base data',
     room_settings: 'Custom room settings',
     skip_check_audio: 'Disable echo audio test',

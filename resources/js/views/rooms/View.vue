@@ -41,14 +41,29 @@
           </can>
           <!-- If user is member, allow user to end the membership -->
           <b-button
+            id="leave-membership-button"
             class="float-right"
             v-if="room.isMember"
-            v-on:click="leaveMembership"
+            v-b-modal.leave-membership-modal
             :disabled="loading"
             variant="danger"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
           </b-button>
+
+          <b-modal
+            :static='modalStatic'
+            :title="$t('rooms.endMembership.title')"
+            ok-variant="danger"
+            cancel-variant="dark"
+            :ok-title="$t('rooms.endMembership.yes')"
+            :cancel-title="$t('rooms.endMembership.no')"
+            @ok="leaveMembership"
+            id="leave-membership-modal"
+            ref="leave-membership-modal"
+          >
+            {{ $t('rooms.endMembership.message') }}
+          </b-modal>
         </div>
       </div>
 
@@ -99,10 +114,11 @@
             <b-row>
               <!-- Ask guests for their first and lastname -->
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
-                <b-form-group :label="$t('rooms.firstAndLastname')">
+                <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token" :state="fieldState('name')"></b-form-input> 
                   </b-input-group>
+                  <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->
@@ -241,6 +257,7 @@ import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
+import FieldErrors from '../../mixins/FieldErrors';
 import store from '../../store';
 import Vue from 'vue';
 import i18n from '../../i18n';
@@ -249,6 +266,14 @@ export default {
   directives: {
     mask: AwesomeMask
   },
+
+  props: {
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   components: {
     FileComponent,
     DeleteRoomComponent,
@@ -256,6 +281,8 @@ export default {
     Can,
     Cannot
   },
+
+  mixins: [FieldErrors],
 
   data () {
     return {
@@ -270,7 +297,8 @@ export default {
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
       recordAttendanceAgreement: false,
-      token: null
+      token: null,
+      errors: []
     };
   },
   // Component not loaded yet
@@ -434,6 +462,8 @@ export default {
     start: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
+      // Reset errors
+      this.errors = [];
       // Build url, add accessCode and token if needed
       const config = {
         params: {
@@ -475,6 +505,12 @@ export default {
               return;
             }
 
+            // Form validation error
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
+              return;
+            }
+
             // Attendance logging agreement required but not accepted
             if (error.response.status === env.HTTP_ATTENDANCE_AGREEMENT_MISSING) {
               this.room.record_attendance = true;
@@ -492,6 +528,8 @@ export default {
     join: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
+      // Reset errors
+      this.errors = [];
 
       // Build url, add accessCode and token if needed
       const config = {
@@ -527,6 +565,12 @@ export default {
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;
+            }
+
+            // Form validation error
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
+              return;
             }
 
             // Attendance logging agreement required but not accepted
@@ -586,7 +630,6 @@ export default {
     leaveMembership: function (event) {
       // Enable loading indicator
       this.loading = true;
-
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'delete'
       }).catch((error) => {

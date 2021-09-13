@@ -266,4 +266,7 @@ return [
         'restrict'                          => 'Restrict usage',
         'room_token_expiration'             => 'Expiration time for personalized room links'
     ],
+
+    'validname'       => 'The name contains the following non-permitted characters: :chars',
+    'validname_error' => 'The name contains non-permitted characters'
 ];

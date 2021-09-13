@@ -213,7 +213,7 @@ describe('Room', function () {
   it('room details moderator', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-123', {
       status: 200,
-      response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
     PermissionService.setCurrentUser(exampleUser);
 
@@ -294,7 +294,7 @@ describe('Room', function () {
 
     moxios.stubRequest('/api/v1/rooms/gs4-6fb-kk8', {
       status: 200,
-      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
     PermissionService.setCurrentUser(exampleUser);
 
@@ -374,7 +374,7 @@ describe('Room', function () {
   it('reload', function (done) {
     moxios.stubRequest('/api/v1/rooms/cba-fed-345', {
       status: 200,
-      response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+      response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
     });
     PermissionService.setCurrentUser(exampleUser);
 
@@ -401,7 +401,7 @@ describe('Room', function () {
 
       overrideStub('/api/v1/rooms/cba-fed-345', {
         status: 200,
-        response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
+        response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
       });
       await moxios.wait(() => {
         expect(view.html()).toContain('Meeting Two');
@@ -747,31 +747,63 @@ describe('Room', function () {
       const joinButton = view.findComponent({ ref: 'joinMeeting' });
       const nameInput = view.findComponent({ ref: 'guestName' });
       expect(joinButton.attributes('disabled')).toEqual('disabled');
-      nameInput.setValue('John Doe');
+      nameInput.setValue('John Doe 123!');
       await view.vm.$nextTick();
       expect(joinButton.attributes('disabled')).toBeUndefined();
 
       await view.vm.$nextTick();
       await joinButton.trigger('click');
 
+      // Check with invalid chars in guest name
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+        expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
+        // respond with validation errors
         await moxios.requests.mostRecent().respondWith({
-          status: 200,
+          status: 422,
           response: {
-            url: 'test.tld'
+            message: 'The given data was invalid.',
+            errors: { name: ['The name contains the following non-permitted characters: 123!'] }
           }
         });
 
-        expect(window.location).toEqual('test.tld');
-        window.location = oldWindow;
-        store.commit('session/setCurrentUser', { currentUser: exampleUser });
-        view.destroy();
-        done();
+        // check if error is shown
+        await view.vm.$nextTick();
+        const nameGroup = view.find('#guest-name-group');
+        expect(nameGroup.classes()).toContain('is-invalid');
+        expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
+
+        // Check with valid name
+        nameInput.setValue('John Doe');
+        await view.vm.$nextTick();
+        await joinButton.trigger('click');
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('get');
+          expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+          expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+
+          // check if errors are removed on new request
+          expect(nameGroup.classes()).not.toContain('is-invalid');
+          expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
+
+          await moxios.requests.mostRecent().respondWith({
+            status: 200,
+            response: {
+              url: 'test.tld'
+            }
+          });
+
+          expect(window.location).toEqual('test.tld');
+          window.location = oldWindow;
+          store.commit('session/setCurrentUser', { currentUser: exampleUser });
+          view.destroy();
+          done();
+        });
       });
     });
   });
@@ -1022,31 +1054,63 @@ describe('Room', function () {
       const startButton = view.findComponent({ ref: 'startMeeting' });
       const nameInput = view.findComponent({ ref: 'guestName' });
       expect(startButton.attributes('disabled')).toEqual('disabled');
-      nameInput.setValue('John Doe');
+      nameInput.setValue('John Doe 123!');
       await view.vm.$nextTick();
       expect(startButton.attributes('disabled')).toBeUndefined();
 
       await view.vm.$nextTick();
       await startButton.trigger('click');
 
+      // Check with invalid chars in name
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-        expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+        expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
+        // respond with validation errors
         await moxios.requests.mostRecent().respondWith({
-          status: 200,
+          status: 422,
           response: {
-            url: 'test.tld'
+            message: 'The given data was invalid.',
+            errors: { name: ['The name contains the following non-permitted characters: 123!'] }
           }
         });
 
-        expect(window.location).toEqual('test.tld');
-        window.location = oldWindow;
-        store.commit('session/setCurrentUser', { currentUser: exampleUser });
-        view.destroy();
-        done();
+        // check if error is shown
+        await view.vm.$nextTick();
+        const nameGroup = view.find('#guest-name-group');
+        expect(nameGroup.classes()).toContain('is-invalid');
+        expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
+
+        // try without invalid chars
+        nameInput.setValue('John Doe');
+        await view.vm.$nextTick();
+        await startButton.trigger('click');
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('get');
+          expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+          expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+
+          // check if errors are removed on new request
+          expect(nameGroup.classes()).not.toContain('is-invalid');
+          expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
+
+          await moxios.requests.mostRecent().respondWith({
+            status: 200,
+            response: {
+              url: 'test.tld'
+            }
+          });
+
+          expect(window.location).toEqual('test.tld');
+          window.location = oldWindow;
+          store.commit('session/setCurrentUser', { currentUser: exampleUser });
+          view.destroy();
+          done();
+        });
       });
     });
   });
@@ -1149,6 +1213,101 @@ describe('Room', function () {
 
           view.destroy();
           done();
+        });
+      });
+    });
+  });
+
+  it('end membership', function (done) {
+    moxios.stubRequest('/api/v1/rooms/cba-fed-123', {
+      status: 200,
+      response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+    });
+    moxios.stubRequest('/api/v1/rooms/cba-fed-123/files', {
+      status: 200,
+      response: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
+    PermissionService.setCurrentUser(exampleUser);
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      }
+    });
+
+    const to = { params: { id: 'cba-fed-123' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      // Find confirm modal and check if it is hidden
+      const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
+      expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
+      // Click button to leave membership
+      await view.find('#leave-membership-button').trigger('click');
+
+      // Wait until modal is open
+      view.vm.$root.$once('bv::modal::shown', async () => {
+        await view.vm.$nextTick();
+
+        // Confirm modal is shown
+        expect(leaveMembershipModal.vm.$data.isVisible).toBe(true);
+
+        // Find the confirm button and click it
+        const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
+        expect(leaveConfirmButton.text()).toBe('rooms.endMembership.yes');
+        await leaveConfirmButton.trigger('click');
+
+        // Check if modal is closed
+        view.vm.$root.$once('bv::modal::hidden', async () => {
+          await view.vm.$nextTick();
+
+          // Check if the modal is hidden
+          expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
+
+          // Check leave membership request
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('delete');
+            expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-123/membership');
+
+            // Stub response for room reload, now with the user not beeing a member anymore
+            const roomResponse = overrideStub('/api/v1/rooms/cba-fed-123', {
+              status: 200,
+              response: { data: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
+            });
+
+            // Respond to leave membership request
+            await moxios.requests.mostRecent().respondWith({
+              status: 204,
+              response: {}
+            });
+
+            await view.vm.$nextTick();
+
+            // Check if the leave membership button is not shown anymore, as the user is no longer a member
+            expect(view.find('#leave-membership-button').exists()).toBeFalsy();
+
+            roomResponse();
+            view.destroy();
+            done();
+          });
         });
       });
     });
