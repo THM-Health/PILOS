@@ -155,7 +155,7 @@
                   cancel-variant="dark"
                   :cancel-title="$t('settings.users.image.cancel')"
                 >
-                  <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" alt="Source Image"></VueCropper>
+                  <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" :alt="$t('settings.users.image.title')"></VueCropper>
                 </b-modal>
               </b-form-group>
               <b-form-group
