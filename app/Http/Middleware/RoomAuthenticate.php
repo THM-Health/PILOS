@@ -19,17 +19,17 @@ class RoomAuthenticate
      *
      * @param  \Illuminate\Http\Request $request
      * @param  \Closure                 $next
-     * @param  bool                     $allowAuthenticated Allow users that are unauthenticated to pass
+     * @param  bool                     $allowUnAuthenticated Allow users that are unauthenticated to pass
      * @return mixed
      */
-    public function handle($request, Closure $next, $allowAuthenticated = false)
+    public function handle($request, Closure $next, $allowUnAuthenticated = false)
     {
         $authenticated = false;
         $room          = $request->route('room');
         $token         = null;
 
-        // requested user is the owner or a member of the room or the room doesn't require access code
-        if ($room->accessCode == null || (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class)))) {
+        // requested user is the owner or a member of the room
+        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
             $authenticated = true;
         }
 
@@ -40,6 +40,16 @@ class RoomAuthenticate
             } else {
                 abort(404);
             }
+        }
+
+        // user is not authenticated and room is not allowed for guests
+        if (!$room->allowGuests && !$authenticated && !Auth::user()) {
+            abort(403, 'guests_not_allowed');
+        }
+
+        // if room has not access code
+        if ($room->accessCode == null) {
+            $authenticated = true;
         }
 
         // request provided access code
@@ -55,7 +65,7 @@ class RoomAuthenticate
         }
 
         // user is not  authenticated and should not continue with the request
-        if (!$allowAuthenticated && !$authenticated) {
+        if (!$allowUnAuthenticated && !$authenticated) {
             abort(403, 'require_code');
         }
 

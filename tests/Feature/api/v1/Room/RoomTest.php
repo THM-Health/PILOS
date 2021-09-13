@@ -996,9 +996,12 @@ class RoomTest extends TestCase
             'lastname'  => 'Doe'
         ]);
 
-        $this->withHeaders(['Token' => $moderatorToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
-            ->assertForbidden();
+        $response = $this->withHeaders(['Token' => $moderatorToken->token])
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+        $url_components = parse_url($response['url']);
+        parse_str($url_components['query'], $params);
+        $this->assertEquals('John Doe', $params['fullName']);
+        $room->runningMeeting()->endMeeting();
 
         $this->flushHeaders();
 
@@ -1009,15 +1012,6 @@ class RoomTest extends TestCase
         $this->withHeaders(['Token' => 'Test'])
             ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
             ->assertNotFound();
-
-        $this->flushHeaders();
-
-        $response = $this->withHeaders(['Token' => $moderatorToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
-        $url_components = parse_url($response['url']);
-        parse_str($url_components['query'], $params);
-        $this->assertEquals('John Doe', $params['fullName']);
-        $room->runningMeeting()->endMeeting();
 
         $this->flushHeaders();
 
