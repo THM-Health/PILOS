@@ -267,6 +267,6 @@ return [
         'room_token_expiration'             => 'Ablaufzeit für personalisierte Raumlinks'
     ],
 
-    'validname'       => 'Der Name enthält die folgenden nicht erlaubten Zeichen: :chars',
-    'validname_error' => 'Der Name enthält nicht erlaubten Zeichen'
+    'validname'       => ':attribute enthält die folgenden nicht erlaubten Zeichen: :chars',
+    'validname_error' => ':attribute enthält nicht erlaubte Zeichen'
 ];

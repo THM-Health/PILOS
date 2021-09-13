@@ -116,7 +116,7 @@
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
                 <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token" :state="fieldState('name')"></b-form-input> 
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
                   <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
@@ -467,7 +467,7 @@ export default {
       // Build url, add accessCode and token if needed
       const config = {
         params: {
-          name: this.name,
+          name: this.token ? null : this.name,
           record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
@@ -534,7 +534,7 @@ export default {
       // Build url, add accessCode and token if needed
       const config = {
         params: {
-          name: this.name,
+          name: this.token ? null : this.name,
           record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };

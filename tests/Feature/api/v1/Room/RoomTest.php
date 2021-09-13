@@ -872,7 +872,7 @@ class RoomTest extends TestCase
             ->assertJsonFragment([
                 'errors' => [
                     'name' => [
-                        __('validation.validname', ['chars'=> '<>(");'])
+                        'Name contains the following non-permitted characters: <>(");'
                     ]
                 ]
             ]);
@@ -882,7 +882,7 @@ class RoomTest extends TestCase
             ->assertJsonFragment([
                 'errors' => [
                     'name' => [
-                        __('validation.validname_error')
+                       'Name contains non-permitted characters'
                     ]
                 ]
             ]);
@@ -1246,7 +1246,7 @@ class RoomTest extends TestCase
             ->assertJsonFragment([
                 'errors' => [
                     'name' => [
-                        __('validation.validname', ['chars'=> '<>(");'])
+                        'Name contains the following non-permitted characters: <>(");'
                     ]
                 ]
             ]);
