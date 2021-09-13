@@ -201,9 +201,6 @@
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
       </b-form-group>
-      <small>
-        {{ $t('rooms.tokens.editDescription') }}
-      </small>
     </b-modal>
   </div>
 </template>
@@ -289,7 +286,7 @@ export default {
         data: _.cloneDeep(this.model)
       };
 
-      Base.call(`rooms/${this.room.id}/tokens/${this.model.token == null ? '' : this.model.token}`, config).then(response => {
+      Base.call(`rooms/${this.room.id}/tokens${this.model.token == null ? '' : '/' + this.model.token}`, config).then(response => {
         this.resetModel();
         this.$refs['add-edit-token-modal'].hide();
         this.reload();

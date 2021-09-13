@@ -237,8 +237,8 @@ describe('Application', function () {
       }).then(() => {
         expect(view.vm.$data.settings.room_token_expiration).toBe(0);
         expect(view.vm.$data.roomTokenExpirationMode).toBe('custom');
-        console.log(view.find('#application-room-token-expiration-input' ));
-        return view.find('#application-room-token-expiration-input' ).setValue('100');
+        console.log(view.find('#application-room-token-expiration-input'));
+        return view.find('#application-room-token-expiration-input').setValue('100');
       }).then(() => {
         // Save button, which triggers updateSettings method when clicked
         const saveSettingsButton = view.find('#application-save-button');

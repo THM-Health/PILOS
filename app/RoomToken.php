@@ -34,16 +34,13 @@ class RoomToken extends Model
      */
     protected static function booted()
     {
-        static::saving(function ($model) {
-            if ($model->isDirty()) {
-                while (true) {
-                    $token = Str::random(100);
+        static::creating(function ($model) {
+            while (true) {
+                $token = Str::random(100);
+                if (DB::table('room_tokens')->where('token', '=', $token)->doesntExist()) {
+                    $model->token = $token;
 
-                    if (DB::table('room_tokens')->where('token', '=', $token)->doesntExist()) {
-                        $model->token = $token;
-
-                        break;
-                    }
+                    break;
                 }
             }
         });

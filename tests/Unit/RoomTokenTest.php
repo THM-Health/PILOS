@@ -21,12 +21,12 @@ class RoomTokenTest extends TestCase
         $this->assertDatabaseCount('room_tokens', 1000);
     }
 
-    public function testCreateRoomTokenUpdateNewID()
+    public function testCreateRoomTokenUpdate()
     {
         $token            = RoomToken::factory()->create();
         $old_token        = $token->token;
         $token->firstname = 'Test';
         $token->save();
-        $this->assertNotEquals($old_token, $token->token);
+        $this->assertEquals($old_token, $token->token);
     }
 }

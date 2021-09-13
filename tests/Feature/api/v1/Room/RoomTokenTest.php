@@ -231,7 +231,6 @@ class RoomTokenTest extends TestCase
                 'lastname',
                 'role'
             ]);
-        $this->assertNotEquals($token->token, $response['data']['token']);
         $token = RoomToken::find($response['data']['token']);
 
         // Update as owner
@@ -247,7 +246,6 @@ class RoomTokenTest extends TestCase
                 'lastname',
                 'role'
             ]);
-        $this->assertNotEquals($token->token, $response['data']['token']);
         $token = RoomToken::find($response['data']['token']);
 
         // Update with viewAllPermission
@@ -265,7 +263,6 @@ class RoomTokenTest extends TestCase
                 'lastname',
                 'role'
             ]);
-        $this->assertNotEquals($token->token, $response['data']['token']);
     }
 
     public function testDelete()
