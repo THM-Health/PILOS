@@ -12,6 +12,10 @@ class RoomToken extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'last_usage' => 'datetime',
+    ];
+
     /**
      * @var string Override primary key with correct value.
      */
@@ -78,6 +82,6 @@ class RoomToken extends Model
      */
     public function getExpiresAttribute()
     {
-        return setting('room_token_expiration') > -1 ? $this->created_at->addMinutes(setting('room_token_expiration')) : null;
+        return setting('room_token_expiration') > -1 ? ($this->last_usage != null ? $this->last_usage->addMinutes(setting('room_token_expiration')) : $this->created_at->addMinutes(setting('room_token_expiration'))) : null;
     }
 }

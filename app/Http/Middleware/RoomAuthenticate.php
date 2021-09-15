@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Room;
+use App\RoomToken;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,12 +35,10 @@ class RoomAuthenticate
         }
 
         if (!Auth::user() && $request->headers->has('Token')) {
-            $token = $request->header('Token');
-            if ($room->tokens->pluck('token')->contains($token)) {
-                $authenticated = true;
-            } else {
-                abort(404);
-            }
+            $token             = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->firstOrFail();
+            $token->last_usage = now();
+            $token->save();
+            $authenticated = true;
         }
 
         // user is not authenticated and room is not allowed for guests

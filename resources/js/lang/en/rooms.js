@@ -209,6 +209,7 @@ export default {
     lastname: 'Lastname',
     role: 'Role',
     expires: 'Expiry date',
+    lastUsage: 'Last used',
     add: 'Add personalized room link',
     edit: 'Edit personalized room link',
     roomLinkCopied: 'The personalized room link for {firstname} {lastname} was copied to your clipboard.',

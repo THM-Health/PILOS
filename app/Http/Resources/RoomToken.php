@@ -16,11 +16,12 @@ class RoomToken extends JsonResource
     public function toArray($request)
     {
         return [
-            'token'     => $this->token,
-            'firstname' => $this->firstname,
-            'lastname'  => $this->lastname,
-            'role'      => (int) $this->role,
-            'expires'   => $this->expires
+            'token'      => $this->token,
+            'firstname'  => $this->firstname,
+            'lastname'   => $this->lastname,
+            'role'       => (int) $this->role,
+            'expires'    => $this->expires,
+            'last_usage' => $this->last_usage,
         ];
     }
 }

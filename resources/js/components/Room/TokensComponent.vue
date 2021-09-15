@@ -48,6 +48,11 @@
               <span v-else>{{ $d(new Date(data.item.expires),'datetimeShort') }}</span>
             </template>
 
+            <template v-slot:cell(last_usage)="data">
+              <raw-text v-if="data.item.last_usage == null">-</raw-text>
+              <span v-else>{{ $d(new Date(data.item.last_usage),'datetimeShort') }}</span>
+            </template>
+
             <template v-slot:table-busy>
               <div class="text-center my-2">
                 <b-spinner class="align-middle"></b-spinner>
@@ -375,6 +380,11 @@ export default {
       }, {
         key: 'role',
         label: this.$t('rooms.tokens.role'),
+        sortable: true
+      },
+      {
+        key: 'last_usage',
+        label: this.$t('rooms.tokens.lastUsage'),
         sortable: true
       },
       {

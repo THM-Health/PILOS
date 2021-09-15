@@ -38,9 +38,20 @@ class DeleteObsoleteTokensTest extends TestCase
         RoomToken::factory()->create([
             'created_at' => Carbon::now()->subMinutes(11)
         ]);
-        $this->assertDatabaseCount('room_tokens', 3);
+
+        RoomToken::factory()->create([
+            'created_at' => Carbon::now()->subMinutes(11),
+            'last_usage' => Carbon::now()->subMinutes(5),
+        ]);
+
+        RoomToken::factory()->create([
+            'created_at' => Carbon::now()->subMinutes(20),
+            'last_usage' => Carbon::now()->subMinutes(11),
+        ]);
+
+        $this->assertDatabaseCount('room_tokens', 5);
         $this->artisan('room:tokens:delete')
             ->assertExitCode(0);
-        $this->assertDatabaseCount('room_tokens', 2);
+        $this->assertDatabaseCount('room_tokens', 3);
     }
 }

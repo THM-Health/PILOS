@@ -240,7 +240,7 @@ export default {
 
     roomTokenExpiration: {
       title: 'Expiration time for personalized room links',
-      description: 'Time in minutes, after which personalized room links gets automatically removed.',
+      description: 'Time in minutes since last usage, after which personalized room links gets automatically removed.',
 
       mode: {
         unlimited: 'Unlimited time',

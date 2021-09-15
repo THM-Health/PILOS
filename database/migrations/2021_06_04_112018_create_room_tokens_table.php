@@ -21,6 +21,7 @@ class CreateRoomTokensTable extends Migration
             $table->string('firstname');
             $table->string('lastname');
             $table->tinyInteger('role')->default(\App\Enums\RoomUserRole::USER);
+            $table->dateTime('last_usage')->nullable();
             $table->timestamps();
         });
     }

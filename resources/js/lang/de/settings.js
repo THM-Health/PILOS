@@ -245,7 +245,7 @@ export default {
 
     roomTokenExpiration: {
       title: 'Ablaufzeit für personalisierte Raumlinks',
-      description: 'Zeit in Minuten, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
+      description: 'Zeit in Minuten ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
 
       mode: {
         unlimited: 'Unbegrenzte Zeit',

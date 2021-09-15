@@ -10,7 +10,6 @@ use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Meeting;
 use App\Room;
-use App\RoomToken;
 use App\RoomType;
 use Auth;
 use Illuminate\Http\Request;
@@ -141,11 +140,7 @@ class RoomController extends Controller
      */
     public function start(Room $room, StartJoinMeeting $request)
     {
-        $token = null;
-
-        if ($request->filled('token')) {
-            $token = RoomToken::find($request->get('token'));
-        }
+        $token = $request->get('token');
 
         $this->authorize('start', [$room, $token]);
 
@@ -236,11 +231,10 @@ class RoomController extends Controller
      */
     public function join(Room $room, StartJoinMeeting $request)
     {
-        $token = null;
+        $token = $request->get('token');
 
-        if ($request->filled('token')) {
-            $token = RoomToken::find($request->get('token'));
-            $name  = $token->fullname;
+        if ($token) {
+            $name = $token->fullname;
         } else {
             $name = Auth::guest() ? $request->name : Auth::user()->fullname;
         }

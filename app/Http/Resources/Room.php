@@ -27,7 +27,7 @@ class Room extends JsonResource
         parent::__construct($resource);
         $this->authenticated = $authenticated;
         $this->details       = $details;
-        $this->token         = \App\RoomToken::find($token);
+        $this->token         = $token;
     }
 
     /**
