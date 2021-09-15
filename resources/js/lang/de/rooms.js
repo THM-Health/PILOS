@@ -208,6 +208,7 @@ export default {
     firstname: 'Vorname',
     lastname: 'Nachname',
     role: 'Rolle',
+    expires: 'Verfallsdatum',
     add: 'Personalisierten Raumlink hinzufügen',
     edit: 'Personalisierten Raumlink bearbeiten',
     roomLinkCopied: 'Der persionalisierte Raumlink für {firstname} {lastname} wurde in Ihre Zwischenablage kopiert.',

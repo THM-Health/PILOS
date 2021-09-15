@@ -43,6 +43,11 @@
               <i>{{ $t('rooms.tokens.nodata') }}</i>
             </template>
 
+            <template v-slot:cell(expires)="data">
+              <raw-text v-if="data.item.expires == null">-</raw-text>
+              <span v-else>{{ $d(new Date(data.item.expires),'datetimeShort') }}</span>
+            </template>
+
             <template v-slot:table-busy>
               <div class="text-center my-2">
                 <b-spinner class="align-middle"></b-spinner>
@@ -213,10 +218,11 @@ import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import _ from 'lodash';
+import RawText from '../RawText';
 
 export default {
   mixins: [FieldErrors],
-  components: { Can },
+  components: { Can, RawText },
 
   props: {
     room: Object,
@@ -370,7 +376,13 @@ export default {
         key: 'role',
         label: this.$t('rooms.tokens.role'),
         sortable: true
-      }];
+      },
+      {
+        key: 'expires',
+        label: this.$t('rooms.tokens.expires'),
+        sortable: true
+      }
+      ];
 
       if (PermissionService.can('manageSettings', this.room)) {
         fields.push({

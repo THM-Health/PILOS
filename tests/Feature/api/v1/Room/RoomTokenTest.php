@@ -32,6 +32,8 @@ class RoomTokenTest extends TestCase
 
     public function testIndex()
     {
+        setting(['room_token_expiration' => 90]);
+
         RoomToken::query()->truncate();
         RoomToken::factory()->count(10)->create([
             'room_id' => $this->room
@@ -66,7 +68,8 @@ class RoomTokenTest extends TestCase
                     'token',
                     'firstname',
                     'lastname',
-                    'role'
+                    'role',
+                    'expires'
                 ]
             ]])
             ->assertJsonCount(11, 'data');
@@ -82,7 +85,8 @@ class RoomTokenTest extends TestCase
                     'token',
                     'firstname',
                     'lastname',
-                    'role'
+                    'role',
+                    'expires'
                 ]
             ]])
             ->assertJsonCount(11, 'data');
@@ -97,10 +101,20 @@ class RoomTokenTest extends TestCase
                     'token',
                     'firstname',
                     'lastname',
-                    'role'
+                    'role',
+                    'expires'
                 ]
             ]])
             ->assertJsonCount(11, 'data');
+
+        // Check expire date
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
+        $token   = RoomToken::find($results[0]['token']);
+        self::assertEquals($token->created_at->addMinutes(90)->toISOString(), $results[0]['expires']);
+
+        setting(['room_token_expiration' => -1]);
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.tokens.get', ['room' => $this->room]))->json('data');
+        self::assertNull($results[0]['expires']);
     }
 
     public function testCreate()

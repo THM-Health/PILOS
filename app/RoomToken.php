@@ -71,4 +71,13 @@ class RoomToken extends Model
     {
         return $this->firstname.' '.$this->lastname;
     }
+
+    /**
+     * Expire datetime of the token
+     * @return null
+     */
+    public function getExpiresAttribute()
+    {
+        return setting('room_token_expiration') > -1 ? $this->created_at->addMinutes(setting('room_token_expiration')) : null;
+    }
 }

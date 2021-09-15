@@ -1024,7 +1024,7 @@ class RoomTest extends TestCase
         ]);
 
         $this->withHeaders(['Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
             ->assertForbidden();
 
         $this->flushHeaders();
@@ -1033,7 +1033,7 @@ class RoomTest extends TestCase
         $room->save();
 
         $response = $this->withHeaders(['Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]));
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
@@ -1044,7 +1044,7 @@ class RoomTest extends TestCase
         // Token with authenticated user
         $response = $this->withHeaders(['Token' => $userToken->token])
             ->actingAs($this->user)
-            ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]));
+            ->getJson(route('api.v1.rooms.start', ['room' => $room,  'record_attendance' => 0]));
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
@@ -1281,7 +1281,7 @@ class RoomTest extends TestCase
         ]);
 
         $response = $this->withHeaders(['Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1]))
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
@@ -1290,7 +1290,7 @@ class RoomTest extends TestCase
 
         // Join as authorized users with token
         $response = $this->actingAs($this->user)->withHeaders(['Access-Code' => $room->accessCode, 'Token' => $userToken->token])
-            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 1]))
+            ->getJson(route('api.v1.rooms.join', ['room' => $room, 'record_attendance' => 1]))
             ->assertSuccessful();
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
