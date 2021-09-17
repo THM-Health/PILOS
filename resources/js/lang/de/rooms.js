@@ -18,6 +18,7 @@ export default {
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
+  invalidPersonalLink: 'Dieser personalisierte Raumlink ist ungültig.',
   becomeMember: 'Mitglied werden',
   endMembership: {
     button: 'Mitgliedschaft beenden',
@@ -43,6 +44,10 @@ export default {
     accessCodeInvalid: {
       message: 'Der Zugangscode ist ungültig.',
       title: 'Anmeldung am Raum fehlgeschlagen'
+    },
+    tokenInvalid: {
+      message: 'Der personalisierte Raumlink ist nicht mehr gültig.',
+      title: 'Raumlink ungültig'
     },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',

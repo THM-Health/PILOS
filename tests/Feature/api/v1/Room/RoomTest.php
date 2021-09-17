@@ -1011,7 +1011,7 @@ class RoomTest extends TestCase
 
         $this->withHeaders(['Token' => 'Test'])
             ->getJson(route('api.v1.rooms.start', ['room' => $room, 'name' => 'Max Mustermann', 'record_attendance' => 0]))
-            ->assertNotFound();
+            ->assertUnauthorized();
 
         $this->flushHeaders();
 

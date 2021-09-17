@@ -268,15 +268,11 @@ export default {
       const config = {};
 
       if (this.token) {
-        config.headers = {
-          Token: this.token
-        };
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
       }
 
-      if (this.accessCode != null) {
-        config.headers = config.headers || {};
-        config.headers['Access-Code'] = this.accessCode;
-      }
       const url = 'rooms/' + this.room.id + '/files/' + file.id;
 
       // Load data
@@ -289,6 +285,11 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.$emit('error', error);
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
               return this.$emit('error', error);
             }
 
@@ -408,14 +409,9 @@ export default {
       const config = {};
 
       if (this.token) {
-        config.headers = {
-          Token: this.token
-        };
-      }
-
-      if (this.accessCode != null) {
-        config.headers = config.headers || {};
-        config.headers['Access-Code'] = this.accessCode;
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
       }
 
       Base.call('rooms/' + this.room.id + '/files', config)

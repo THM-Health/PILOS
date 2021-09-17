@@ -89,7 +89,10 @@ describe('Room', function () {
 
   it('guest forbidden', function (done) {
     moxios.stubRequest('/api/v1/rooms/abc-def-123', {
-      status: 403
+      status: 403,
+      response: {
+        message: 'guests_not_allowed'
+      }
     });
 
     const routerSpy = sinon.spy();
@@ -522,6 +525,8 @@ describe('Room', function () {
 
   it('handle file list errors', function () {
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
+    const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
+    const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
     const baseError = sinon.stub(Base, 'error');
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
@@ -550,9 +555,11 @@ describe('Room', function () {
     view.vm.onFileListError({ response: { status: 403, data: { message: 'require_code' } } });
     expect(handleInvalidCode.calledTwice).toBeTruthy();
 
-    view.vm.onFileListError({ response: { status: 403, data: { message: 'This action is unauthorized.' } } });
-    expect(view.vm.$data.accessCode).toBeNull();
-    expect(view.vm.$data.room).toBeNull();
+    view.vm.onFileListError({ response: { status: 403, data: { message: 'guests_not_allowed' } } });
+    expect(handleGuestsNotAllowed.calledOnce).toBeTruthy();
+
+    view.vm.onFileListError({ response: { status: 401, data: { message: 'invalid_token' } } });
+    expect(handleInvalidToken.calledOnce).toBeTruthy();
 
     view.vm.onFileListError({ response: { status: 500, data: { message: 'Internal server error' } } });
     expect(baseError.calledOnce).toBeTruthy();

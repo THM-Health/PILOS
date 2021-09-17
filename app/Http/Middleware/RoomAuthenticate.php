@@ -35,7 +35,12 @@ class RoomAuthenticate
         }
 
         if (!Auth::user() && $request->headers->has('Token')) {
-            $token             = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->firstOrFail();
+            $token             = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
+
+            if ($token == null) {
+                abort(401, 'invalid_token');
+            }
+
             $token->last_usage = now();
             $token->save();
             $authenticated = true;

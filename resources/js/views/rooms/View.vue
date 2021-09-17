@@ -221,28 +221,40 @@
         </b-input-group>
       </div>
     </template>
-    <!-- Room object is empty, access forbidden, room is only for logged in users -->
+    <!-- Room object is empty, access forbidden -->
     <template v-else>
-      <!-- Show message that room can only be used by logged in users -->
-      <b-alert show>
-        <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
-      </b-alert>
-      <b-button-group>
-        <!-- Reload page, in case the room settings changed -->
-        <b-button
-          v-on:click="reload"
-          :disabled="loading"
-        >
-          <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
-        </b-button>
-        <!-- Redirect the login the access room -->
-        <b-button
-          @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
-          variant="success"
-        >
-          <i class="fas fa-lock"></i> {{$t('rooms.login')}}
-        </b-button>
-      </b-button-group>
+
+      <!-- room token is invalid -->
+      <template v-if="token !== null">
+        <!-- Show message that room can only be used by logged in users -->
+        <b-alert show variant="danger">
+          <i class="fas fa-unlink"></i> {{ $t('rooms.invalidPersonalLink') }}
+        </b-alert>
+      </template>
+      <!-- room is only for logged in users -->
+      <template v-else>
+        <!-- Show message that room can only be used by logged in users -->
+        <b-alert show>
+          <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
+        </b-alert>
+        <b-button-group>
+          <!-- Reload page, in case the room settings changed -->
+          <b-button
+            v-on:click="reload"
+            :disabled="loading"
+          >
+            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
+          </b-button>
+          <!-- Redirect the login the access room -->
+          <b-button
+            @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
+            variant="success"
+          >
+            <i class="fas fa-lock"></i> {{$t('rooms.login')}}
+          </b-button>
+        </b-button-group>
+      </template>
+
     </template>
   </div>
 </template>
@@ -335,6 +347,15 @@ export default {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           return next('/404');
         }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return next(vm => {
+            vm.token = to.params.token;
+            vm.room_id = to.params.id;
+          });
+        }
+
         // Room is not open for guests
         if (error.response.status === env.HTTP_FORBIDDEN) {
           return next(vm => {
@@ -368,8 +389,13 @@ export default {
           return this.handleInvalidCode();
         }
 
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return this.handleInvalidToken();
+        }
+
         // Forbidden, guests not allowed
-        if (error.response.status === env.HTTP_FORBIDDEN) {
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
           return this.handleGuestsNotAllowed();
         }
       }
@@ -399,6 +425,17 @@ export default {
     },
 
     /**
+     * Reset room due to token error
+     */
+    handleInvalidToken: function () {
+      // Show error message
+      this.room = null;
+      this.flashMessage.error(this.$t('rooms.flash.tokenInvalid'));
+      // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
+      clearInterval(this.reloadInterval);
+    },
+
+    /**
      * Reload the room details/settings
      */
     reload: function () {
@@ -408,14 +445,9 @@ export default {
       const config = {};
 
       if (this.token) {
-        config.headers = {
-          Token: this.token
-        };
-      }
-
-      if (this.accessCode != null) {
-        config.headers = config.headers || {};
-        config.headers['Access-Code'] = this.accessCode;
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
       }
 
       const url = 'rooms/' + this.room_id;
@@ -444,8 +476,13 @@ export default {
               return this.handleInvalidCode();
             }
 
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
             // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN) {
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
               return this.handleGuestsNotAllowed();
             }
           }
@@ -473,14 +510,9 @@ export default {
       };
 
       if (this.token) {
-        config.headers = {
-          Token: this.token
-        };
-      }
-
-      if (this.accessCode != null) {
-        config.headers = config.headers || {};
-        config.headers['Access-Code'] = this.accessCode;
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
       }
 
       const url = 'rooms/' + this.room_id + '/start';
@@ -494,6 +526,21 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
+            // Forbidden, guests not allowed
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+              return this.handleGuestsNotAllowed();
+            }
+
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
@@ -540,14 +587,9 @@ export default {
       };
 
       if (this.token) {
-        config.headers = {
-          Token: this.token
-        };
-      }
-
-      if (this.accessCode != null) {
-        config.headers = config.headers || {};
-        config.headers['Access-Code'] = this.accessCode;
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
       }
 
       const url = 'rooms/' + this.room_id + '/join';
@@ -562,6 +604,21 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
+            // Forbidden, guests not allowed
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+              return this.handleGuestsNotAllowed();
+            }
+
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;

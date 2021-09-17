@@ -18,6 +18,7 @@ export default {
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
+  invalidPersonalLink: 'This personalised room link is invalid.',
   becomeMember: 'Become member',
   endMembership: {
     button: 'End membership',
@@ -43,6 +44,10 @@ export default {
     accessCodeInvalid: {
       message: 'The access code is invalid.',
       title: 'Login to room failed'
+    },
+    tokenInvalid: {
+      message: 'The personalised room link is no longer valid.',
+      title: 'Room link invalid'
     },
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
