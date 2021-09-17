@@ -13,6 +13,9 @@ import Vue from 'vue';
 import _ from 'lodash';
 import env from '../../../../resources/js/env';
 
+import storeOrg from '../../../../resources/js/store';
+import i18n from '../../../../resources/js/i18n';
+
 const localVue = createLocalVue();
 
 const createContainer = (tag = 'div') => {
@@ -139,6 +142,120 @@ describe('Room', function () {
         sandbox.restore();
         view.destroy();
         done();
+      });
+    });
+  });
+
+  it('room token', function (done) {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      info (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+    const sandbox = sinon.createSandbox();
+    sandbox.replaceGetter(router, 'currentRoute', function () {
+      return { path: '/rooms/knz-6ah-anr' };
+    });
+    sandbox.stub(storeOrg, 'getters').value({ 'session/isAuthenticated': false });
+    Vue.prototype.flashMessage = flashMessage;
+
+    store.commit('session/setCurrentUser', { currentUser: null });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      router,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-123', token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      expect(view.html()).toContain('Meeting One');
+      expect(view.html()).toContain('Max Doe');
+
+      expect(view.findComponent({ ref: 'guestName' }).element.value).toBe('John Doe');
+
+      store.commit('session/setCurrentUser', { currentUser: exampleUser });
+      sandbox.restore();
+      view.destroy();
+      done();
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+      expect(request.config.method).toEqual('get');
+      expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
+      expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+      await moxios.requests.mostRecent().respondWith({
+        status: 200,
+        response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false } }
+      });
+    });
+  });
+
+  it('room token as authenticated user', function (done) {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      info (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+    const sandbox = sinon.createSandbox();
+    sandbox.stub(storeOrg, 'getters').value({ 'session/isAuthenticated': true });
+    sandbox.stub(i18n, 't').callsFake((key) => key);
+
+    Vue.prototype.flashMessage = flashMessage;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      router,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-123', token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      expect(next).toBe('/');
+      expect(flashMessageSpy.calledOnce).toBeTruthy();
+      expect(flashMessageSpy.getCall(0).args[0]).toBe('app.flash.guestsOnly');
+
+      Vue.prototype.flashMessage = undefined;
+
+      sandbox.restore();
+      view.destroy();
+      done();
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+      expect(request.config.method).toEqual('get');
+      expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
+      expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+      await moxios.requests.mostRecent().respondWith({
+        status: 200,
+        response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false } }
       });
     });
   });

@@ -317,7 +317,7 @@ export default {
   beforeRouteEnter (to, from, next) {
     if (to.params.token && store.getters['session/isAuthenticated']) {
       Vue.prototype.flashMessage.info(i18n.t('app.flash.guestsOnly'));
-      return next(from.matched.length !== 0 ? false : '/');
+      return next('/');
     }
 
     let config;
