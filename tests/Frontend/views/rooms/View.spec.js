@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormCheckbox } from 'bootstrap-vue';
+import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
@@ -187,6 +187,8 @@ describe('Room', function () {
 
       expect(view.findComponent({ ref: 'guestName' }).element.value).toBe('John Doe');
 
+      expect(view.vm.$data.reloadInterval).not.toBeNull();
+
       store.commit('session/setCurrentUser', { currentUser: exampleUser });
       sandbox.restore();
       view.destroy();
@@ -202,6 +204,67 @@ describe('Room', function () {
       await moxios.requests.mostRecent().respondWith({
         status: 200,
         response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false } }
+      });
+    });
+  });
+
+  it('room token invalid', function (done) {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      info (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const routerSpy = sinon.spy();
+    const router = new VueRouter();
+    router.push = routerSpy;
+    const sandbox = sinon.createSandbox();
+    sandbox.replaceGetter(router, 'currentRoute', function () {
+      return { path: '/rooms/knz-6ah-anr' };
+    });
+    sandbox.stub(storeOrg, 'getters').value({ 'session/isAuthenticated': false });
+    Vue.prototype.flashMessage = flashMessage;
+
+    store.commit('session/setCurrentUser', { currentUser: null });
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      router,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-123', token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      const alert = view.findComponent(BAlert);
+      expect(alert.exists()).toBeTruthy();
+      expect(alert.text()).toBe('rooms.invalidPersonalLink');
+
+      expect(view.vm.$data.reloadInterval).toBeNull();
+
+      store.commit('session/setCurrentUser', { currentUser: exampleUser });
+      sandbox.restore();
+      view.destroy();
+      done();
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+      expect(request.config.method).toEqual('get');
+      expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
+      expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+      await moxios.requests.mostRecent().respondWith({
+        status: 401,
+        response: { message: 'invalid_token' }
       });
     });
   });

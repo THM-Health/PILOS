@@ -340,6 +340,8 @@ export default {
         if (vm.room.username) {
           vm.name = vm.room.username;
         }
+
+        vm.startAutoRefresh();
       });
     }).catch((error) => {
       if (error.response) {
@@ -360,20 +362,26 @@ export default {
         if (error.response.status === env.HTTP_FORBIDDEN) {
           return next(vm => {
             vm.room_id = to.params.id;
+
+            vm.startAutoRefresh();
           });
         }
         next(error);
       }
     });
   },
-  mounted () {
-    // Reload room details in a set interval, change in the .env
-    this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
-  },
   destroyed () {
     clearInterval(this.reloadInterval);
   },
   methods: {
+
+    /**
+     * Reload room details in a set interval, change in the .env
+     */
+    startAutoRefresh: function () {
+      this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
+    },
+
     /**
      *  Handle errors of the file list
      */
