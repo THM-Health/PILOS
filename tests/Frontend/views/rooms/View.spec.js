@@ -323,6 +323,38 @@ describe('Room', function () {
     });
   });
 
+  it('room not found', function (done) {
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-123' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      expect(next).toBe('/404');
+      view.destroy();
+      done();
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+      expect(request.config.method).toEqual('get');
+      expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
+
+      await moxios.requests.mostRecent().respondWith({
+        status: 404,
+        response: {
+          message: 'No query results for model [App\\Room] abc-def-123'
+        }
+      });
+    });
+  });
+
   it('ask access token', function (done) {
     moxios.stubRequest('/api/v1/rooms/abc-def-456', {
       status: 200,
@@ -555,6 +587,10 @@ describe('Room', function () {
   });
 
   it('reload', function (done) {
+    const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
+    const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
+    const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
+
     moxios.stubRequest('/api/v1/rooms/cba-fed-345', {
       status: 200,
       response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] } }
@@ -582,14 +618,51 @@ describe('Room', function () {
       const reloadButton = view.findComponent({ ref: 'reloadButton' });
       reloadButton.trigger('click');
 
-      overrideStub('/api/v1/rooms/cba-fed-345', {
+      let restoreRoomResponse = overrideStub('/api/v1/rooms/cba-fed-345', {
         status: 200,
         response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, files: [] } }
       });
-      await moxios.wait(() => {
+      await moxios.wait(async () => {
         expect(view.html()).toContain('Meeting Two');
-        view.destroy();
-        done();
+
+        restoreRoomResponse();
+        restoreRoomResponse = overrideStub('/api/v1/rooms/cba-fed-345', {
+          status: 401,
+          response: { message: 'invalid_code' }
+        });
+
+        await reloadButton.trigger('click');
+        await moxios.wait(async () => {
+          expect(handleInvalidCode.calledOnce).toBeTruthy();
+          restoreRoomResponse();
+          restoreRoomResponse = overrideStub('/api/v1/rooms/cba-fed-345', {
+            status: 401,
+            response: { message: 'invalid_token' }
+          });
+
+          await reloadButton.trigger('click');
+          await moxios.wait(async () => {
+            expect(handleInvalidToken.calledOnce).toBeTruthy();
+
+            restoreRoomResponse();
+            restoreRoomResponse = overrideStub('/api/v1/rooms/cba-fed-345', {
+              status: 403,
+              response: { message: 'guests_not_allowed' }
+            });
+
+            await reloadButton.trigger('click');
+            await moxios.wait(async () => {
+              expect(handleGuestsNotAllowed.calledOnce).toBeTruthy();
+
+              handleGuestsNotAllowed.restore();
+              handleInvalidToken.restore();
+              handleInvalidCode.restore();
+              restoreRoomResponse();
+              view.destroy();
+              done();
+            });
+          });
+        });
       });
     });
   });
@@ -746,6 +819,8 @@ describe('Room', function () {
     expect(baseError.getCall(0).args[0].response.status).toEqual(500);
 
     Base.error.restore();
+    handleGuestsNotAllowed.restore();
+    handleInvalidToken.restore();
     handleInvalidCode.restore();
     view.destroy();
   });
@@ -995,7 +1070,73 @@ describe('Room', function () {
     });
   });
 
+  it('join running meeting token', function (done) {
+    moxios.stubRequest('/api/v1/rooms/abc-def-789', {
+      status: 200,
+      response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false } }
+    });
+
+    store.commit('session/setCurrentUser', { currentUser: null });
+
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    const to = { params: { id: 'abc-def-789', token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR' } };
+
+    RoomView.beforeRouteEnter.call(view.vm, to, undefined, async next => {
+      next(view.vm);
+      await view.vm.$nextTick();
+
+      const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      const nameInput = view.findComponent({ ref: 'guestName' });
+      expect(joinButton.attributes('disabled')).toBeUndefined();
+      expect(nameInput.attributes('disabled')).toBe('disabled');
+      expect(nameInput.element.value).toBe('John Doe');
+
+      await joinButton.trigger('click');
+
+      // Check with invalid chars in guest name
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+        expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+        expect(request.config.params).toEqual({ name: null, record_attendance: 0 });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            url: 'test.tld'
+          }
+        });
+
+        expect(window.location).toEqual('test.tld');
+        window.location = oldWindow;
+        store.commit('session/setCurrentUser', { currentUser: exampleUser });
+        view.destroy();
+        done();
+      });
+    });
+  });
+
   it('join meeting errors', function (done) {
+    const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
+    const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
+    const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
+
     moxios.stubRequest('/api/v1/rooms/abc-def-789', {
       status: 200,
       response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false } }
@@ -1021,62 +1162,111 @@ describe('Room', function () {
       next(view.vm);
       await view.vm.$nextTick();
 
-      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
-
       const joinButton = view.findComponent({ ref: 'joinMeeting' });
       expect(joinButton.attributes('disabled')).toBeUndefined();
-      await joinButton.trigger('click');
 
+      // Test guests not allowed
+      await joinButton.trigger('click');
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
         expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-
         await moxios.requests.mostRecent().respondWith({
-          status: 470,
-          response: {
-            message: 'Consent to record attendance is required.'
-          }
+          status: 403,
+          response: { message: 'guests_not_allowed' }
         });
-
         await view.vm.$nextTick();
 
-        expect(baseError.calledOnce).toBeTruthy();
-        expect(baseError.getCall(0).args[0].response.status).toEqual(470);
-        expect(baseError.getCall(0).args[0].response.data.message).toEqual('Consent to record attendance is required.');
+        expect(handleGuestsNotAllowed.calledOnce).toBeTruthy();
 
-        expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
-        const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
-        await agreementCheckbox.get('input').trigger('click');
-
-        const joinButton = view.findComponent({ ref: 'joinMeeting' });
-        expect(joinButton.attributes('disabled')).toBeUndefined();
+        // Test invalid access token
         await joinButton.trigger('click');
-
         moxios.wait(async () => {
           const request = moxios.requests.mostRecent();
           expect(request.config.method).toEqual('get');
           expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-          expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
-
+          expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
           await moxios.requests.mostRecent().respondWith({
-            status: 460,
-            response: {
-              message: 'Joining failed! The room is currently closed.'
-            }
+            status: 401,
+            response: { message: 'invalid_code' }
           });
+          await view.vm.$nextTick();
+          expect(handleInvalidCode.calledOnce).toBeTruthy();
 
-          expect(baseError.calledTwice).toBeTruthy();
-          expect(baseError.getCall(1).args[0].response.status).toEqual(460);
-          expect(baseError.getCall(1).args[0].response.data.message).toEqual('Joining failed! The room is currently closed.');
+          // Test invalid token
+          await joinButton.trigger('click');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('get');
+            expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+            expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
-          expect(view.findComponent({ ref: 'joinMeeting' }).exists()).toBeFalsy();
+            await moxios.requests.mostRecent().respondWith({
+              status: 401,
+              response: { message: 'invalid_token' }
+            });
 
-          Base.error.restore();
+            await view.vm.$nextTick();
+            expect(handleInvalidToken.calledOnce).toBeTruthy();
 
-          view.destroy();
-          done();
+            // Test without required recording agreement
+            expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
+            await joinButton.trigger('click');
+
+            moxios.wait(async () => {
+              const request = moxios.requests.mostRecent();
+              expect(request.config.method).toEqual('get');
+              expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+              expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
+              await moxios.requests.mostRecent().respondWith({
+                status: 470,
+                response: {
+                  message: 'Consent to record attendance is required.'
+                }
+              });
+              await view.vm.$nextTick();
+              expect(baseError.calledOnce).toBeTruthy();
+              expect(baseError.getCall(0).args[0].response.status).toEqual(470);
+              expect(baseError.getCall(0).args[0].response.data.message).toEqual('Consent to record attendance is required.');
+              expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
+
+              // Test Room closed
+              const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
+              await agreementCheckbox.get('input').trigger('click');
+
+              const joinButton = view.findComponent({ ref: 'joinMeeting' });
+              expect(joinButton.attributes('disabled')).toBeUndefined();
+              await joinButton.trigger('click');
+
+              moxios.wait(async () => {
+                const request = moxios.requests.mostRecent();
+                expect(request.config.method).toEqual('get');
+                expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+                expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
+
+                await moxios.requests.mostRecent().respondWith({
+                  status: 460,
+                  response: {
+                    message: 'Joining failed! The room is currently closed.'
+                  }
+                });
+
+                expect(baseError.calledTwice).toBeTruthy();
+                expect(baseError.getCall(1).args[0].response.status).toEqual(460);
+                expect(baseError.getCall(1).args[0].response.data.message).toEqual('Joining failed! The room is currently closed.');
+
+                expect(view.findComponent({ ref: 'joinMeeting' }).exists()).toBeFalsy();
+
+                Base.error.restore();
+                handleGuestsNotAllowed.restore();
+                handleInvalidToken.restore();
+                handleInvalidCode.restore();
+                view.destroy();
+                done();
+              });
+            });
+          });
         });
       });
     });
@@ -1303,6 +1493,10 @@ describe('Room', function () {
   });
 
   it('start meeting errors', function (done) {
+    const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
+    const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
+    const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
+
     moxios.stubRequest('/api/v1/rooms/abc-def-789', {
       status: 200,
       response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false } }
@@ -1350,56 +1544,107 @@ describe('Room', function () {
 
       const startButton = view.findComponent({ ref: 'startMeeting' });
       expect(startButton.attributes('disabled')).toBeUndefined();
-      await startButton.trigger('click');
 
+      // Test guests not allowed
+      await startButton.trigger('click');
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.method).toEqual('get');
         expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
         expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-
         await moxios.requests.mostRecent().respondWith({
-          status: 470,
-          response: {
-            message: 'Consent to record attendance is required.'
-          }
+          status: 403,
+          response: { message: 'guests_not_allowed' }
         });
-
         await view.vm.$nextTick();
 
-        expect(baseError.calledOnce).toBeTruthy();
-        expect(baseError.getCall(0).args[0].response.status).toEqual(470);
-        expect(baseError.getCall(0).args[0].response.data.message).toEqual('Consent to record attendance is required.');
-        Base.error.restore();
+        expect(handleGuestsNotAllowed.calledOnce).toBeTruthy();
 
-        expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
-        const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
-        await agreementCheckbox.get('input').trigger('click');
-
-        const startButton = view.findComponent({ ref: 'startMeeting' });
-        expect(startButton.exists()).toBeTruthy();
-        expect(startButton.attributes('disabled')).toBeUndefined();
+        // Test invalid access token
         await startButton.trigger('click');
-
         moxios.wait(async () => {
           const request = moxios.requests.mostRecent();
           expect(request.config.method).toEqual('get');
           expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-          expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
-
+          expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
           await moxios.requests.mostRecent().respondWith({
-            status: 403,
-            response: {
-              message: 'This action is unauthorized.'
-            }
+            status: 401,
+            response: { message: 'invalid_code' }
           });
+          await view.vm.$nextTick();
+          expect(handleInvalidCode.calledOnce).toBeTruthy();
 
-          sinon.assert.calledOnceWithExactly(flashMessageSpy, 'rooms.flash.startForbidden');
-          expect(view.findComponent({ ref: 'startMeeting' }).exists()).toBeFalsy();
-          sinon.assert.calledOnce(fileComponentReloadSpy);
+          // Test invalid token
+          await startButton.trigger('click');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('get');
+            expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+            expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
-          view.destroy();
-          done();
+            await moxios.requests.mostRecent().respondWith({
+              status: 401,
+              response: { message: 'invalid_token' }
+            });
+
+            await view.vm.$nextTick();
+            expect(handleInvalidToken.calledOnce).toBeTruthy();
+
+            await startButton.trigger('click');
+            moxios.wait(async () => {
+              const request = moxios.requests.mostRecent();
+              expect(request.config.method).toEqual('get');
+              expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+              expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
+
+              await moxios.requests.mostRecent().respondWith({
+                status: 470,
+                response: {
+                  message: 'Consent to record attendance is required.'
+                }
+              });
+
+              await view.vm.$nextTick();
+
+              expect(baseError.calledOnce).toBeTruthy();
+              expect(baseError.getCall(0).args[0].response.status).toEqual(470);
+              expect(baseError.getCall(0).args[0].response.data.message).toEqual('Consent to record attendance is required.');
+              Base.error.restore();
+
+              expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
+              const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
+              await agreementCheckbox.get('input').trigger('click');
+
+              const startButton = view.findComponent({ ref: 'startMeeting' });
+              expect(startButton.exists()).toBeTruthy();
+              expect(startButton.attributes('disabled')).toBeUndefined();
+              await startButton.trigger('click');
+
+              moxios.wait(async () => {
+                const request = moxios.requests.mostRecent();
+                expect(request.config.method).toEqual('get');
+                expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+                expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
+
+                await moxios.requests.mostRecent().respondWith({
+                  status: 403,
+                  response: {
+                    message: 'This action is unauthorized.'
+                  }
+                });
+
+                sinon.assert.calledOnceWithExactly(flashMessageSpy, 'rooms.flash.startForbidden');
+                expect(view.findComponent({ ref: 'startMeeting' }).exists()).toBeFalsy();
+                sinon.assert.calledOnce(fileComponentReloadSpy);
+
+                handleGuestsNotAllowed.restore();
+                handleInvalidToken.restore();
+                handleInvalidCode.restore();
+                view.destroy();
+                done();
+              });
+            });
+          });
         });
       });
     });
