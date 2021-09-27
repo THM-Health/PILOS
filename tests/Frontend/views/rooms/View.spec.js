@@ -352,7 +352,6 @@ describe('Room', function () {
     RoomView.beforeRouteEnter.call(view.vm, to, undefined, next);
   });
 
-
   it('ask access token', function (done) {
     const view = mount(RoomView, {
       localVue,
@@ -362,12 +361,12 @@ describe('Room', function () {
       store,
       attachTo: createContainer(),
       router: routerMock,
-      data() {
+      data () {
         return {
-          room: {id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: false, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: exampleUser },
-          room_id:  'abc-def-456'
-        }
-      },
+          room: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: false, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: exampleUser },
+          room_id: 'abc-def-456'
+        };
+      }
     });
 
     view.vm.$nextTick().then(() => {
@@ -387,12 +386,12 @@ describe('Room', function () {
       store,
       router: routerMock,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
-          room: {id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, current_user: null },
-          room_id:  'abc-def-789'
-        }
-      },
+          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, current_user: null },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -413,24 +412,24 @@ describe('Room', function () {
 
       view.destroy();
       done();
-     });
+    });
   });
 
   it('room details moderator', function (done) {
     const view = mount(RoomView, {
       localVue,
       mocks: {
-        $t: (key) => key,
+        $t: (key) => key
       },
       store,
       router: routerMock,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
-          room_id:  'cba-fed-123'
-        }
-      },
+          room_id: 'cba-fed-123'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -450,7 +449,7 @@ describe('Room', function () {
   });
 
   it('room admin components for owner', function (done) {
-      const view = mount(RoomView, {
+    const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -458,12 +457,12 @@ describe('Room', function () {
       store,
       router: routerMock,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
-          room_id:  'gs4-6fb-kk8'
-        }
-      },
+          room_id: 'gs4-6fb-kk8'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -486,7 +485,7 @@ describe('Room', function () {
   });
 
   it('room admin components for co-owner', function (done) {
-  const view = mount(RoomView, {
+    const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -494,12 +493,12 @@ describe('Room', function () {
       store,
       router: routerMock,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
-          room_id:  'gs4-6fb-kk8'
-        }
-      },
+          room_id: 'gs4-6fb-kk8'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -529,12 +528,12 @@ describe('Room', function () {
       store,
       router: routerMock,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
-          room_id:  'gs4-6fb-kk8'
-        }
-      },
+          room_id: 'gs4-6fb-kk8'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -571,12 +570,12 @@ describe('Room', function () {
       store,
       router: routerMock,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
-         room_id: 'cba-fed-234'
-        }
-      },
+          room_id: 'cba-fed-234'
+        };
+      }
     });
 
     view.vm.$nextTick(async () => {
@@ -686,14 +685,13 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-456', name: 'Meeting One', owner: 'John Doe', type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: false, allowMembership: false, isMember: false, isOwner: false, isGuest: true, isModerator: false, canStart: false, running: false, current_user: null },
-          room_id:  'abc-def-456'
-        }
-      },
+          room_id: 'abc-def-456'
+        };
+      }
     });
-
 
     // load room view
     view.vm.$nextTick().then(async () => {
@@ -794,7 +792,6 @@ describe('Room', function () {
     view.destroy();
   });
 
-
   it('join running meeting', function (done) {
     const oldWindow = window.location;
     delete window.location;
@@ -810,12 +807,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false, current_user: exampleUser },
-          room_id:  'abc-def-789'
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -871,12 +868,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: true, current_user: exampleUser },
-          room_id:  'abc-def-789'
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -911,7 +908,7 @@ describe('Room', function () {
   });
 
   it('join running meeting guests', function (done) {
-   store.commit('session/setCurrentUser', { currentUser: null });
+    store.commit('session/setCurrentUser', { currentUser: null });
 
     const oldWindow = window.location;
     delete window.location;
@@ -927,12 +924,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: true, current_user: null },
-          room_id:  'abc-def-789'
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1020,14 +1017,14 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false, current_user: null },
-          room_id:  'abc-def-789',
+          room_id: 'abc-def-789',
           name: 'John Doe',
           token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
-        }
-      },
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1079,12 +1076,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false, current_user: exampleUser },
-          room_id:  'abc-def-789',
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1213,12 +1210,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false, current_user: exampleUser },
-          room_id:  'abc-def-789',
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1273,12 +1270,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: true, current_user: exampleUser },
-          room_id:  'abc-def-789',
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1329,12 +1326,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: true, current_user: null },
-          room_id:  'abc-def-789',
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1440,12 +1437,12 @@ describe('Room', function () {
       },
       store,
       attachTo: createContainer(),
-      data() {
+      data () {
         return {
           room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false, current_user: exampleUser },
-          room_id:  'abc-def-789',
-        }
-      },
+          room_id: 'abc-def-789'
+        };
+      }
     });
 
     view.vm.$nextTick().then(async () => {
@@ -1552,7 +1549,7 @@ describe('Room', function () {
 
                   await moxios.requests.mostRecent().respondWith({
                     status: 200,
-                    response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false, current_user: exampleUser } },
+                    response: { data: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false, current_user: exampleUser } }
                   });
 
                   sinon.assert.calledOnce(fileComponentReloadSpy);
@@ -1595,14 +1592,13 @@ describe('Room', function () {
       stubs: {
         transition: false
       },
-      data() {
+      data () {
         return {
           room: { id: 'cba-fed-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
-          room_id:  'cba-fed-123',
-        }
-      },
+          room_id: 'cba-fed-123'
+        };
+      }
     });
-
 
     view.vm.$nextTick().then(async () => {
       // Find confirm modal and check if it is hidden
@@ -1670,17 +1666,17 @@ describe('Room', function () {
     const view = mount(RoomView, {
       localVue,
       mocks: {
-        $t: (key) => key,
+        $t: (key) => key
       },
-      data() {
+      data () {
         return {
           room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, accessCode: 123456789, current_user: exampleUser },
-          room_id:  'cba-fed-234'
-        }
+          room_id: 'cba-fed-234'
+        };
       },
       store,
       router: routerMock,
-      attachTo: createContainer(),
+      attachTo: createContainer()
     });
 
     view.vm.$nextTick().then(() => {
@@ -1700,7 +1696,7 @@ describe('Room', function () {
 
         await view.vm.$nextTick();
         expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
-        expect(store.getters["session/isAuthenticated"]).toBeFalsy();
+        expect(store.getters['session/isAuthenticated']).toBeFalsy();
 
         await reloadButton.trigger('click');
         moxios.wait(async () => {
@@ -1709,7 +1705,7 @@ describe('Room', function () {
             response: { data: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser } }
           });
 
-          expect(store.getters["session/isAuthenticated"]).toBeTruthy();
+          expect(store.getters['session/isAuthenticated']).toBeTruthy();
           expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
 
           await reloadButton.trigger('click');
@@ -1720,7 +1716,7 @@ describe('Room', function () {
             });
 
             expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
-            expect(store.getters["session/isAuthenticated"]).toBeFalsy();
+            expect(store.getters['session/isAuthenticated']).toBeFalsy();
 
             view.destroy();
             done();

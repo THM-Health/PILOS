@@ -8,7 +8,7 @@
 <script>
 import EventBus from '../../services/EventBus';
 import PermissionService from '../../services/PermissionService';
-import frag from "vue-frag";
+import frag from 'vue-frag';
 
 /**
  * Checks whether the passed permissions aren't given and depending

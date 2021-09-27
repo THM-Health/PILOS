@@ -62,7 +62,7 @@ class Room extends JsonResource
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'running'           => $runningMeeting != null,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
-                'current_user' =>  (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()
+                'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()
             ])
         ];
     }
