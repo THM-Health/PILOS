@@ -669,6 +669,40 @@ describe('Room', function () {
     view.destroy();
   });
 
+  it('handle invalid token', function () {
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      data () {
+        return {
+          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false, current_user: null },
+          room_id: 'abc-def-789',
+          name: 'John Doe',
+          token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
+        };
+      },
+      store,
+      attachTo: createContainer()
+    });
+
+    view.vm.handleInvalidToken();
+    expect(view.vm.$data.room).toBeNull();
+    expect(flashMessageSpy.calledOnce).toBeTruthy();
+    expect(flashMessageSpy.getCall(0).args[0]).toBe('rooms.flash.tokenInvalid');
+    expect(view.vm.$data.reloadInterval).toBeNull();
+    view.destroy();
+  });
+
   it('handle empty code', function (done) {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
