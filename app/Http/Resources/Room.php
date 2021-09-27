@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\User as UserResource;
 use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
@@ -61,6 +62,7 @@ class Room extends JsonResource
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'running'           => $runningMeeting != null,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
+                'current_user' =>  (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()
             ])
         ];
     }

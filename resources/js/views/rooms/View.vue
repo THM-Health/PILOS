@@ -333,7 +333,7 @@ export default {
     // Load room details
     Base.call('rooms/' + to.params.id, config).then(response => {
       next(vm => {
-        vm.token = to.params.token;
+        vm.token = to.params.token ? to.params.token : null;
         vm.room = response.data.data;
         vm.room_id = to.params.id;
 
@@ -353,7 +353,7 @@ export default {
         // Room token is invalid
         if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
           return next(vm => {
-            vm.token = to.params.token;
+            vm.token = to.params.token ? to.params.token : null;
             vm.room_id = to.params.id;
           });
         }
@@ -417,6 +417,9 @@ export default {
       this.room = null;
       // Remove a potential access code
       this.accessCode = null;
+      // Set current user to null, as the user is not logged in
+
+      this.$store.commit('session/setCurrentUser', { currentUser: null });
     },
 
     /**
@@ -476,6 +479,10 @@ export default {
           if (this.room.username) {
             this.name = this.room.username;
           }
+
+          // Update current user, if logged in/out in another tab or session expired
+          // to have the can/cannot component use the correct state
+          this.$store.commit('session/setCurrentUser', { currentUser: this.room.current_user });
         })
         .catch((error) => {
           if (error.response) {

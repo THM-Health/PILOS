@@ -1,12 +1,14 @@
 <template>
-  <fragment>
+  <div v-frag>
     <slot></slot>
-  </fragment>
+  </div>
 </template>
 
 <script>
-import { Fragment } from 'vue-fragment';
+import frag from "vue-frag";
 export default {
-  components: { Fragment }
+  directives: {
+    frag
+  },
 };
 </script>
