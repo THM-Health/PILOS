@@ -217,7 +217,8 @@ class RoomTest extends TestCase
             'allowGuests' => true
         ]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
-            ->assertStatus(200);
+            ->assertStatus(200)
+            ->assertJsonFragment(['current_user' => null]);
     }
 
     /**
@@ -242,7 +243,8 @@ class RoomTest extends TestCase
         // Try without access code
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false]);
+            ->assertJsonFragment(['authenticated' => false])
+            ->assertJsonFragment(['current_user' => null]);
 
         // Try with empty access code
         $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -255,7 +257,8 @@ class RoomTest extends TestCase
         // Try with correct access code
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonFragment(['current_user' => null]);
     }
 
     /**
@@ -271,7 +274,8 @@ class RoomTest extends TestCase
         // Try without access code
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false, 'allowMembership' => false]);
+            ->assertJsonFragment(['authenticated' => false, 'allowMembership' => false])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try with empty access code
         $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
@@ -284,7 +288,8 @@ class RoomTest extends TestCase
         // Try with correct access code
         $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try without access code but membership
         $this->flushHeaders();
@@ -293,19 +298,22 @@ class RoomTest extends TestCase
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try with member moderator
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try with member co-owner
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
 
         $room->members()->sync([]);
 
@@ -314,7 +322,8 @@ class RoomTest extends TestCase
         $this->role->permissions()->attach($this->viewAllPermission);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Try as owner
@@ -323,7 +332,8 @@ class RoomTest extends TestCase
         $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true]);
+            ->assertJsonFragment(['authenticated' => true])
+            ->assertJsonPath('data.current_user.id', $this->user->id);
     }
 
     /**
@@ -360,7 +370,13 @@ class RoomTest extends TestCase
                     'isCoOwner'         => false,
                     'canStart'          => false,
                     'running'           => false,
-                    'record_attendance' => false
+                    'record_attendance' => false,
+                    'current_user'      => [
+                        'id'        => $this->user->id,
+                        'firstname' => $this->user->firstname,
+                        'lastname'  => $this->user->lastname,
+                        'email'     => $this->user->email,
+                    ]
                 ]
             ]);
     }
