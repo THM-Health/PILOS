@@ -45,7 +45,7 @@ class RoomTypeController extends Controller
             } else {
                 $room = Room::find($filter);
 
-                if (is_null($room) || Auth::user()->cannot('update', $room)) {
+                if (is_null($room) || Auth::user()->cannot('viewSettings', $room)) {
                     abort(403, __('app.errors.no_room_access'));
                 }
 

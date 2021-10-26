@@ -70,20 +70,22 @@
                 >
                   <i class="fas fa-link"></i>
                 </b-button>
-                <b-button
-                  :disabled="isBusy"
-                  variant="dark"
-                  @click="showTokenEditModal(data.item)"
-                >
-                  <i class="fas fa-pen-square"></i>
-                </b-button>
-                <b-button
-                  :disabled="isBusy"
-                  variant="danger"
-                  @click="showTokenDeleteModal(data.item)"
-                >
-                  <i class="fas fa-trash"></i>
-                </b-button>
+                <can method="manageSettings" :policy="room">
+                  <b-button
+                    :disabled="isBusy"
+                    variant="dark"
+                    @click="showTokenEditModal(data.item)"
+                  >
+                    <i class="fas fa-pen-square"></i>
+                  </b-button>
+                  <b-button
+                    :disabled="isBusy"
+                    variant="danger"
+                    @click="showTokenDeleteModal(data.item)"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </b-button>
+                </can>
               </b-button-group>
             </template>
 
@@ -219,7 +221,6 @@
 import Base from '../../api/base';
 import { mapGetters, mapState } from 'vuex';
 import Can from '../Permissions/Can';
-import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import _ from 'lodash';
@@ -369,7 +370,7 @@ export default {
     }),
 
     tableFields () {
-      const fields = [{
+      return [{
         key: 'firstname',
         label: this.$t('rooms.tokens.firstname'),
         sortable: true
@@ -391,18 +392,13 @@ export default {
         key: 'expires',
         label: this.$t('rooms.tokens.expires'),
         sortable: true
+      },
+      {
+        key: 'actions',
+        label: this.$t('app.actions'),
+        sortable: false
       }
       ];
-
-      if (PermissionService.can('manageSettings', this.room)) {
-        fields.push({
-          key: 'actions',
-          label: this.$t('app.actions'),
-          sortable: false
-        });
-      }
-
-      return fields;
     }
   },
 
