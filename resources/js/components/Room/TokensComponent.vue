@@ -219,7 +219,7 @@
 
 <script>
 import Base from '../../api/base';
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 import Can from '../Permissions/Can';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
@@ -363,10 +363,6 @@ export default {
   computed: {
     ...mapGetters({
       settings: 'session/settings'
-    }),
-
-    ...mapState({
-      currentUser: state => state.session.currentUser
     }),
 
     tableFields () {

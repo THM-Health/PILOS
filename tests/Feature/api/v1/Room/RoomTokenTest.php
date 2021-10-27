@@ -193,6 +193,8 @@ class RoomTokenTest extends TestCase
     public function testUpdate()
     {
         RoomToken::query()->truncate();
+        $otherRoom = Room::factory()->create();
+
         $token = RoomToken::factory()->create([
             'room_id' => $this->room,
             'role'    => RoomUserRole::MODERATOR
@@ -277,10 +279,15 @@ class RoomTokenTest extends TestCase
                 'lastname',
                 'role'
             ]);
+
+        // Check trying to update with wrong room id
+        $this->actingAs($this->user)->putJson(route('api.v1.rooms.tokens.update', ['room' => $otherRoom, 'token' => $token]), $payload)
+            ->assertNotFound();
     }
 
     public function testDelete()
     {
+        $otherRoom = Room::factory()->create();
         RoomToken::query()->truncate();
         $token = RoomToken::factory()->create([
             'room_id' => $this->room
@@ -328,6 +335,11 @@ class RoomTokenTest extends TestCase
         $token = RoomToken::factory()->create([
             'room_id' => $this->room
         ]);
+
+        // Check trying to delete with wrong room id
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.update', ['room' => $otherRoom, 'token' => $token]))
+            ->assertNotFound();
+
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
             ->assertSuccessful();
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))

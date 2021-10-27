@@ -13,6 +13,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import VueRouter from 'vue-router';
 import RoomView from '../../../../resources/js/views/rooms/View';
 import _ from 'lodash';
+import Base from '../../../../resources/js/api/base';
 
 const routerMock = new VueRouter({
   mode: 'abstract',
@@ -81,6 +82,9 @@ describe('Room Token', function () {
   });
 
   it('load tokens', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -183,8 +187,25 @@ describe('Room Token', function () {
           expect(buttonsRow0.length).toBe(1);
           expect(buttonsRow0.at(0).html()).toContain('fas fa-link');
 
-          view.destroy();
-          done();
+          // reload without owner permissions to check edit buttons missing
+          await reloadButton.trigger('click');
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            const request = moxios.requests.mostRecent();
+            expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+            await request.respondWith({
+              status: 500,
+              response: {
+                message: 'Internal server error'
+              }
+            });
+
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
+
+            view.destroy();
+            done();
+          });
         });
       });
     });
@@ -348,6 +369,117 @@ describe('Room Token', function () {
     });
   });
 
+  it('delete token error', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(TokensComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      propsData: {
+        room: exampleRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      router: routerMock,
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [
+            { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
+            { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
+          ]
+        }
+      });
+
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'delete-token-modal' }).find('.modal').element.style.display).toEqual('none');
+      const table = view.findComponent(BTbody);
+      const buttonsRow0 = table.findAll('tr').at(0).findAll('td').at(5).findAll('button');
+      expect(buttonsRow0.at(2).html()).toContain('fas fa-trash');
+      await buttonsRow0.at(2).trigger('click');
+
+      view.vm.$root.$once('bv::modal::shown', async () => {
+        await view.vm.$nextTick();
+
+        const modal = view.findComponent({ ref: 'delete-token-modal' });
+        expect(modal.find('.modal').element.style.display).toEqual('block');
+        expect(modal.find('.modal-body').text()).toContain('rooms.tokens.modals.delete.confirm:{"firstname":"John","lastname":"Doe"}');
+
+        const confirmButton = modal.findAllComponents(BButton).at(1);
+        expect(confirmButton.text()).toBe('app.yes');
+        await confirmButton.trigger('click');
+
+        moxios.wait(async () => {
+          await view.vm.$nextTick();
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('delete');
+          expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+
+          view.vm.$root.$once('bv::modal::hidden', async () => {
+            await view.vm.$nextTick();
+            expect(modal.find('.modal').element.style.display).toEqual('none');
+
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
+
+            moxios.wait(async () => {
+              await view.vm.$nextTick();
+              const request = moxios.requests.mostRecent();
+              expect(request.config.method).toEqual('get');
+              expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+
+              await request.respondWith({
+                status: 200,
+                response: {
+                  data: [
+                    { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
+                    { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
+                  ]
+                }
+              });
+
+              await view.vm.$nextTick();
+
+              const table = view.findComponent(BTbody);
+              const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
+              expect(rows[0].at(0).text()).toBe('John');
+              expect(rows[0].at(1).text()).toBe('Doe');
+              expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.participant');
+              expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
+              expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
+              expect(rows.length).toBe(2);
+
+              view.destroy();
+              done();
+            });
+          });
+
+          await request.respondWith({
+            status: 500,
+            response: {
+              message: 'Internal server error'
+            }
+          });
+        });
+      });
+    });
+  });
+
   it('edit token', function (done) {
     const view = mount(TokensComponent, {
       localVue,
@@ -415,8 +547,8 @@ describe('Room Token', function () {
         moxios.wait(async () => {
           await view.vm.$nextTick();
           const request = moxios.requests.mostRecent();
-          expect(request.config.method).toEqual('put');
           expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+          expect(request.config.method).toEqual('put');
 
           const data = JSON.parse(request.config.data);
 
@@ -442,8 +574,8 @@ describe('Room Token', function () {
           moxios.wait(async () => {
             await view.vm.$nextTick();
             const request = moxios.requests.mostRecent();
-            expect(request.config.method).toEqual('put');
             expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+            expect(request.config.method).toEqual('put');
 
             const data = JSON.parse(request.config.data);
 
@@ -458,8 +590,8 @@ describe('Room Token', function () {
               moxios.wait(async () => {
                 await view.vm.$nextTick();
                 const request = moxios.requests.mostRecent();
-                expect(request.config.method).toEqual('get');
                 expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+                expect(request.config.method).toEqual('get');
 
                 await request.respondWith({
                   status: 200,
@@ -481,6 +613,156 @@ describe('Room Token', function () {
                 expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
                 expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
                 expect(rows.length).toBe(2);
+
+                view.destroy();
+                done();
+              });
+            });
+
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'Richard', lastname: 'Roe', role: 2, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' }
+              }
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it('add token', function (done) {
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    const view = mount(TokensComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      propsData: {
+        room: exampleRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      router: routerMock,
+      store,
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      await view.vm.$nextTick();
+      const request = moxios.requests.mostRecent();
+      expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [
+
+          ]
+        }
+      });
+
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'add-edit-token-modal' }).find('.modal').element.style.display).toEqual('none');
+
+      const addButton = view.findComponent(BButton);
+      expect(addButton.text()).toContain('rooms.tokens.add');
+      await addButton.trigger('click');
+
+      view.vm.$root.$once('bv::modal::shown', async () => {
+        await view.vm.$nextTick();
+
+        const modal = view.findComponent({ ref: 'add-edit-token-modal' });
+
+        expect(modal.find('.modal').element.style.display).toEqual('block');
+        expect(modal.find('.modal-header').text()).toContain('rooms.tokens.add');
+
+        expect(modal.findAllComponents(BFormInput).at(0).element.value).toBe('');
+        expect(modal.findAllComponents(BFormInput).at(1).element.value).toBe('');
+
+        await modal.findAllComponents(BFormInput).at(0).setValue('Richard');
+        await modal.findAllComponents(BFormInput).at(1).setValue('Roe');
+
+        expect(modal.findAllComponents(BFormRadio).at(0).find('input').element.checked).toBeFalsy();
+        expect(modal.findAllComponents(BFormRadio).at(1).find('input').element.checked).toBeFalsy();
+
+        await modal.findAllComponents(BFormRadio).at(1).find('input').setChecked();
+
+        const confirmButton = modal.findAllComponents(BButton).at(1);
+        expect(confirmButton.text()).toBe('app.save');
+        await confirmButton.trigger('click');
+
+        moxios.wait(async () => {
+          await view.vm.$nextTick();
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('post');
+          expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+
+          const data = JSON.parse(request.config.data);
+
+          expect(data.firstname).toEqual('Richard');
+          expect(data.lastname).toEqual('Roe');
+          expect(data.role).toEqual(2);
+
+          await request.respondWith({
+            status: 500,
+            response: {
+              message: 'Internal server error'
+            }
+          });
+
+          expect(modal.find('.modal').element.style.display).toEqual('block');
+
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+
+          await confirmButton.trigger('click');
+
+          moxios.wait(async () => {
+            await view.vm.$nextTick();
+            const request = moxios.requests.mostRecent();
+            expect(request.config.method).toEqual('post');
+            expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+
+            const data = JSON.parse(request.config.data);
+
+            expect(data.firstname).toEqual('Richard');
+            expect(data.lastname).toEqual('Roe');
+            expect(data.role).toEqual(2);
+
+            view.vm.$root.$once('bv::modal::hidden', async () => {
+              await view.vm.$nextTick();
+              expect(modal.find('.modal').element.style.display).toEqual('none');
+
+              moxios.wait(async () => {
+                await view.vm.$nextTick();
+                const request = moxios.requests.mostRecent();
+                expect(request.config.method).toEqual('get');
+                expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+
+                await request.respondWith({
+                  status: 200,
+                  response: {
+                    data: [
+                      { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'Richard', lastname: 'Roe', role: 2, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' }
+                    ]
+                  }
+                });
+
+                await view.vm.$nextTick();
+
+                const table = view.findComponent(BTbody);
+                const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
+                expect(rows[0].at(0).text()).toBe('Richard');
+                expect(rows[0].at(1).text()).toBe('Roe');
+                expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.moderator');
+                expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
+                expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
+                expect(rows.length).toBe(1);
 
                 view.destroy();
                 done();
