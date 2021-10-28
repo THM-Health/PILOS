@@ -175,9 +175,25 @@ describe('Room', function () {
 
       expect(view.vm.$data.reloadInterval).not.toBeNull();
 
-      sandbox.restore();
-      view.destroy();
-      done();
+      const reloadButton = view.findComponent({ ref: 'reloadButton' });
+      await reloadButton.trigger('click');
+      await moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
+        expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'Peter Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: null } }
+        });
+
+        await view.vm.$nextTick();
+        expect(view.findComponent({ ref: 'guestName' }).element.value).toBe('Peter Doe');
+
+        sandbox.restore();
+        view.destroy();
+        done();
+      });
     });
 
     moxios.wait(async () => {
@@ -188,7 +204,7 @@ describe('Room', function () {
 
       await moxios.requests.mostRecent().respondWith({
         status: 200,
-        response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: exampleUser } }
+        response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: null } }
       });
     });
   });
@@ -555,6 +571,8 @@ describe('Room', function () {
   });
 
   it('reload', function (done) {
+    const baseError = sinon.stub(Base, 'error');
+
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
     const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
@@ -627,8 +645,21 @@ describe('Room', function () {
               handleGuestsNotAllowed.restore();
               handleInvalidToken.restore();
               handleInvalidCode.restore();
-              view.destroy();
-              done();
+
+              await reloadButton.trigger('click');
+              await moxios.wait(async () => {
+                await moxios.requests.mostRecent().respondWith({
+                  status: 500,
+                  data: { message: 'Internal server error' }
+                });
+
+                expect(baseError.calledOnce).toBeTruthy();
+                expect(baseError.getCall(0).args[0].response.status).toEqual(500);
+                Base.error.restore();
+
+                view.destroy();
+                done();
+              });
             });
           });
         });
@@ -1012,6 +1043,102 @@ describe('Room', function () {
           const request = moxios.requests.mostRecent();
           expect(request.config.method).toEqual('get');
           expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+          expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+
+          // check if errors are removed on new request
+          expect(nameGroup.classes()).not.toContain('is-invalid');
+          expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
+
+          await moxios.requests.mostRecent().respondWith({
+            status: 200,
+            response: {
+              url: 'test.tld'
+            }
+          });
+
+          expect(window.location).toEqual('test.tld');
+          window.location = oldWindow;
+          view.destroy();
+          done();
+        });
+      });
+    });
+  });
+
+  it('join running meeting guests with access token', function (done) {
+    store.commit('session/setCurrentUser', { currentUser: null });
+
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
+      },
+      store,
+      attachTo: createContainer(),
+      data () {
+        return {
+          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: true, current_user: null },
+          room_id: 'abc-def-789',
+          accessCode: '905992606'
+        };
+      }
+    });
+
+    view.vm.$nextTick().then(async () => {
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
+      const agreementCheckbox = view.findComponent({ ref: 'recordingAttendanceInfo' }).findComponent(BFormCheckbox);
+      await agreementCheckbox.get('input').trigger('click');
+
+      const joinButton = view.findComponent({ ref: 'joinMeeting' });
+      const nameInput = view.findComponent({ ref: 'guestName' });
+      expect(joinButton.attributes('disabled')).toEqual('disabled');
+      nameInput.setValue('John Doe 123!');
+      await view.vm.$nextTick();
+      expect(joinButton.attributes('disabled')).toBeUndefined();
+
+      await view.vm.$nextTick();
+      await joinButton.trigger('click');
+
+      // Check with invalid chars in guest name
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+        expect(request.config.headers['Access-Code']).toBe('905992606');
+        expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
+
+        // respond with validation errors
+        await moxios.requests.mostRecent().respondWith({
+          status: 422,
+          response: {
+            message: 'The given data was invalid.',
+            errors: { name: ['The name contains the following non-permitted characters: 123!'] }
+          }
+        });
+
+        // check if error is shown
+        await view.vm.$nextTick();
+        const nameGroup = view.find('#guest-name-group');
+        expect(nameGroup.classes()).toContain('is-invalid');
+        expect(nameGroup.text()).toContain('The name contains the following non-permitted characters: 123!');
+
+        // Check with valid name
+        nameInput.setValue('John Doe');
+        await view.vm.$nextTick();
+        await joinButton.trigger('click');
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.method).toEqual('get');
+          expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
+          expect(request.config.headers['Access-Code']).toBe('905992606');
           expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
 
           // check if errors are removed on new request
@@ -1598,6 +1725,130 @@ describe('Room', function () {
             });
           });
         });
+      });
+    });
+  });
+
+  it('start meeting access token', function (done) {
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
+      },
+      store,
+      attachTo: createContainer(),
+      data () {
+        return {
+          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false, current_user: exampleUser },
+          room_id: 'abc-def-789',
+          accessCode: '905992606'
+        };
+      }
+    });
+
+    view.vm.$nextTick().then(async () => {
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
+
+      const startButton = view.findComponent({ ref: 'startMeeting' });
+      await view.vm.$nextTick();
+      expect(startButton.attributes('disabled')).toBeUndefined();
+
+      await startButton.trigger('click');
+      await view.vm.$nextTick();
+
+      expect(startButton.attributes('disabled')).toEqual('disabled');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+        expect(request.config.headers['Access-Code']).toBe('905992606');
+        expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            url: 'test.tld'
+          }
+        });
+
+        await view.vm.$nextTick();
+
+        expect(startButton.attributes('disabled')).toBeUndefined();
+
+        expect(window.location).toEqual('test.tld');
+        window.location = oldWindow;
+        view.destroy();
+        done();
+      });
+    });
+  });
+
+  it('start meeting token', function (done) {
+    const oldWindow = window.location;
+    delete window.location;
+    window.location = null;
+
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      stubs: {
+        'file-component': true
+      },
+      store,
+      attachTo: createContainer(),
+      data () {
+        return {
+          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: true, running: false, record_attendance: false, current_user: exampleUser },
+          room_id: 'abc-def-789',
+          token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
+        };
+      }
+    });
+
+    view.vm.$nextTick().then(async () => {
+      expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
+
+      const startButton = view.findComponent({ ref: 'startMeeting' });
+      await view.vm.$nextTick();
+      expect(startButton.attributes('disabled')).toBeUndefined();
+
+      await startButton.trigger('click');
+      await view.vm.$nextTick();
+
+      expect(startButton.attributes('disabled')).toEqual('disabled');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.method).toEqual('get');
+        expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
+        expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+        expect(request.config.params).toEqual({ name: null, record_attendance: 0 });
+
+        await moxios.requests.mostRecent().respondWith({
+          status: 200,
+          response: {
+            url: 'test.tld'
+          }
+        });
+
+        await view.vm.$nextTick();
+
+        expect(startButton.attributes('disabled')).toBeUndefined();
+
+        expect(window.location).toEqual('test.tld');
+        window.location = oldWindow;
+        view.destroy();
+        done();
       });
     });
   });

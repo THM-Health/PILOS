@@ -728,22 +728,6 @@ export default {
     ...mapGetters({
       isAuthenticated: 'session/isAuthenticated'
     }),
-    /**
-     * Filestable heading
-     */
-    filefields () {
-      return [
-        {
-          key: 'filename',
-          label: this.$t('rooms.files.filename'),
-          sortable: true
-        },
-        {
-          key: 'actions',
-          label: this.$t('rooms.files.actions')
-        }
-      ];
-    },
 
     /**
      * Build invitation message
