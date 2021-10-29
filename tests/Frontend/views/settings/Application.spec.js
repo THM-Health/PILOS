@@ -74,6 +74,7 @@ describe('Application', function () {
           data: {
             logo: 'test.svg',
             room_limit: -1,
+            room_token_expiration: 525600,
             pagination_page_size: 10,
             own_rooms_pagination_page_size: 5,
             banner: {
@@ -111,6 +112,7 @@ describe('Application', function () {
         expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
         expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
         expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
+        expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
         done();
       });
     });
@@ -133,6 +135,7 @@ describe('Application', function () {
           data: {
             logo: 'test.svg',
             room_limit: 32,
+            room_token_expiration: 525600,
             pagination_page_size: 10,
             own_rooms_pagination_page_size: 5,
             banner: {
@@ -163,12 +166,13 @@ describe('Application', function () {
         expect(view.vm.$data.settings.pagination_page_size).toBe(10);
         expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('custom');
+        expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
         done();
       });
     });
   });
 
-  it('updateSettings method works properly with response data room_limit is not -1', function (done) {
+  it('update room_token_expiration', function (done) {
     const actions = {
       getSettings () {
       }
@@ -223,33 +227,16 @@ describe('Application', function () {
         }
       });
 
-      // Check if radio is set correct
-      const roomTokenExpirationRadioGroup = view.find('#application-room-token-expiration-radio-group');
-      expect(roomTokenExpirationRadioGroup.exists()).toBeTruthy();
-      expect(roomTokenExpirationRadioGroup.props('checked')).toBe('unlimited');
+      // Check if option is selected
+      const roomTokenExpiration = view.find('#application-room-token-expiration');
+      expect(roomTokenExpiration.exists()).toBeTruthy();
+      expect(roomTokenExpiration.element.value).toBe('-1');
       expect(view.vm.$data.settings.room_token_expiration).toBe(-1);
 
-      // Check radio set to custom sets the time to 0
-      const radios = roomTokenExpirationRadioGroup.findAll('input[type="radio"]');
-      await radios.at(1).trigger('click');
-      await view.vm.$nextTick();
-      expect(view.vm.$data.settings.room_token_expiration).toBe(0);
-      expect(view.vm.$data.roomTokenExpirationMode).toBe('custom');
-      await view.find('#application-room-token-expiration-input').setValue('100');
+      // Check change to other option
+      await roomTokenExpiration.setValue('1440');
+      expect(view.vm.$data.settings.room_token_expiration).toBe(1440);
 
-      // Check if radio set the unlimited resets time value
-      expect(view.vm.$data.settings.room_token_expiration).toBe('100');
-      await radios.at(0).trigger('click');
-      await view.vm.$nextTick();
-      expect(view.vm.$data.settings.room_token_expiration).toBe(-1);
-      expect(view.vm.$data.roomTokenExpirationMode).toBe('unlimited');
-
-      // Change back to custom and send form with a time value
-      await radios.at(1).trigger('click');
-      await view.vm.$nextTick();
-      expect(view.vm.$data.settings.room_token_expiration).toBe(0);
-      expect(view.vm.$data.roomTokenExpirationMode).toBe('custom');
-      await view.find('#application-room-token-expiration-input').setValue('100');
       // Save button, which triggers updateSettings method when clicked
       const saveSettingsButton = view.find('#application-save-button');
       expect(saveSettingsButton.exists()).toBeTruthy();
@@ -258,7 +245,7 @@ describe('Application', function () {
 
       moxios.wait(async () => {
         const request = moxios.requests.mostRecent();
-        expect(request.config.data.get('room_token_expiration')).toStrictEqual('100');
+        expect(request.config.data.get('room_token_expiration')).toStrictEqual('1440');
         await request.respondWith({
           status: 200,
           response: {
@@ -285,7 +272,7 @@ describe('Application', function () {
                 enabled: false,
                 retention_period: 7
               },
-              room_token_expiration: 150
+              room_token_expiration: 1440
             }
           }
         });
@@ -295,9 +282,8 @@ describe('Application', function () {
         expect(view.vm.$data.settings.room_limit).toBe(33);
         expect(view.vm.$data.settings.pagination_page_size).toBe(11);
         expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
-        expect(view.vm.$data.settings.room_token_expiration).toBe(150);
+        expect(view.vm.$data.settings.room_token_expiration).toBe(1440);
         expect(view.vm.$data.roomLimitMode).toBe('custom');
-        expect(view.vm.$data.roomTokenExpirationMode).toBe('custom');
         expect(view.vm.$data.isBusy).toBeFalsy();
 
         expect(view.vm.$data.settings.statistics.servers.enabled).toBeFalsy();

@@ -191,45 +191,32 @@
           </template>
         </b-form-group>
 
-        <!--Room limit settings-->
         <b-row cols='12'>
+          <!--Token expiration time-->
           <b-col md='6'>
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
-              label-for="application-room-token-expiration-input"
+              label-for="application-room-token-expiration"
               :description="$t('settings.application.roomTokenExpiration.description')"
               :state='fieldState("room_token_expiration")'
               :label="$t('settings.application.roomTokenExpiration.title')"
             >
-              <b-form-radio-group
+              <b-form-select
+                v-model="settings.room_token_expiration"
+                :disabled='isBusy || viewOnly || !loaded'
+                required
+                :options="roomTokenExpirationOptions"
+                :state='fieldState("room_token_expiration")'
                 class='mb-2'
-                id="application-room-token-expiration-radio-group"
-                v-model='roomTokenExpirationMode'
-                :options='roomTokenExpirationModeOptions'
-                :disabled='isBusy || viewOnly || !loaded'
-                required
-                :state='fieldState("room_token_expiration")'
-                @change="roomTokenExpirationModeChanged"
-                stacked
-              ></b-form-radio-group>
-
-              <b-form-input
-                id='application-room-token-expiration-input'
-                type='number'
-                :state='fieldState("room_token_expiration")'
-                v-model='settings.room_token_expiration'
-                min='-1'
-                required
-                :disabled='isBusy || viewOnly || !loaded'
-                v-if="roomTokenExpirationMode === 'custom'">
-              </b-form-input>
-
+                id="application-room-token-expiration"
+              ></b-form-select>
               <template slot='invalid-feedback'>
                 <div v-html="fieldError('room_token_expiration')"></div>
               </template>
             </b-form-group>
           </b-col>
+          <!--Room limit settings-->
           <b-col md='6'>
             <b-form-group
               label-class="font-weight-bold"
@@ -891,7 +878,6 @@ export default {
     return {
       loaded: false,
       roomLimitMode: 'custom',
-      roomTokenExpirationMode: 'custom',
       uploadLogoFile: null,
       uploadLogoFileSrc: null,
       uploadFaviconFile: null,
@@ -930,7 +916,6 @@ export default {
         .then(response => {
           this.settings = response.data.data;
           this.roomLimitMode = (this.settings.room_limit === -1 ? 'unlimited' : 'custom');
-          this.roomTokenExpirationMode = (this.settings.room_token_expiration === -1 ? 'unlimited' : 'custom');
           this.loaded = true;
         })
         .catch((error) => {
@@ -1041,7 +1026,6 @@ export default {
           // update form input
           this.settings = response.data.data;
           this.roomLimitMode = (this.settings.room_limit === -1 ? 'unlimited' : 'custom');
-          this.roomTokenExpirationMode = (this.settings.room_token_expiration === -1 ? 'unlimited' : 'custom');
         })
         .catch((error) => {
           if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -1053,22 +1037,6 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
-    },
-
-    /**
-     * Sets the roomTokenExpiration on the model depending on the selected radio button.
-     *
-     * @param value Value of the radio button that was selected.
-     */
-    roomTokenExpirationModeChanged (value) {
-      switch (value) {
-        case 'unlimited':
-          this.$set(this.settings, 'room_token_expiration', -1);
-          break;
-        case 'custom':
-          this.$set(this.settings, 'room_token_expiration', 0);
-          break;
-      }
     },
 
     /**
@@ -1138,10 +1106,15 @@ export default {
     /**
      * Options for the room token expiration mode radio button group.
      */
-    roomTokenExpirationModeOptions () {
+    roomTokenExpirationOptions () {
       return [
-        { text: this.$t('settings.application.roomTokenExpiration.mode.unlimited'), value: 'unlimited' },
-        { text: this.$t('settings.application.roomTokenExpiration.mode.custom'), value: 'custom' }
+        { value: 1440, text: this.$t('settings.application.roomTokenExpiration.oneDay') },
+        { value: 10080, text: this.$t('settings.application.roomTokenExpiration.oneWeek') },
+        { value: 43200, text: this.$t('settings.application.roomTokenExpiration.oneMonth') },
+        { value: 129600, text: this.$t('settings.application.roomTokenExpiration.threeMonth') },
+        { value: 262800, text: this.$t('settings.application.roomTokenExpiration.sixMonth') },
+        { value: 525600, text: this.$t('settings.application.roomTokenExpiration.oneYear') },
+        { value: -1, text: this.$t('settings.application.roomTokenExpiration.unlimited') }
       ];
     }
   },

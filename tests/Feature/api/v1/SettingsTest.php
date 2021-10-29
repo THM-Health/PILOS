@@ -561,7 +561,7 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
             'help_url'                       => 33,
-            'room_token_expiration'          => 'foo',
+            'room_token_expiration'          => 123,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => 'test',
@@ -645,7 +645,7 @@ class SettingsTest extends TestCase
         $payload['banner'] = [
             'enabled' => 'foo'
         ];
-        $payload['room_token_expiration'] = 1000;
+        $payload['room_token_expiration'] = 1440;
         $payload['help_url']              = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
