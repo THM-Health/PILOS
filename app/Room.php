@@ -157,11 +157,11 @@ class Room extends Model
     }
 
     /** Check if user is moderator of this room
-     * @param $user User|null
-     * @param $user RoomToken|null
+     * @param  User|null      $user
+     * @param  RoomToken|null $token
      * @return bool
      */
-    public function isModerator($user, $token)
+    public function isModerator(?User $user, RoomToken $token = null)
     {
         if ($user == null && $token != null) {
             return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
@@ -171,10 +171,10 @@ class Room extends Model
     }
 
     /** Check if user is co owner of this room
-     * @param $user User|null
+     * @param  User|null $user
      * @return bool
      */
-    public function isCoOwner($user)
+    public function isCoOwner(?User $user)
     {
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
     }

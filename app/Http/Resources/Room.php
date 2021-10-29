@@ -58,7 +58,7 @@ class Room extends JsonResource
                 'isModerator'       => $this->resource->isModerator(Auth::user(), $this->token),
                 'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
                 'canStart'          => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
-                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource, $this->token])->allowed(), $this->accessCode),
+                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->accessCode),
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'running'           => $runningMeeting != null,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),

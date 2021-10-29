@@ -66,14 +66,14 @@ class RoomPolicy
     /**
      * Determine whether the user can view the room access code.
      *
-     * @param  User       $user
+     * @param  User|null  $user
      * @param  Room       $room
      * @param  ?RoomToken $token
      * @return bool
      */
-    public function viewAccessCode(User $user, Room $room, ?RoomToken $token)
+    public function viewAccessCode(User $user, Room $room)
     {
-        return $user->can('viewSettings', $room) || $room->isModerator($user, $token);
+        return $user->can('viewSettings', $room) || $room->isModerator($user);
     }
 
     /**
