@@ -546,6 +546,11 @@ export default {
               return this.handleInvalidCode();
             }
 
+            // Access code invalid
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+              return this.handleInvalidCode();
+            }
+
             // Room token is invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
               return this.handleInvalidToken();
@@ -621,6 +626,11 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Access code invalid
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
               return this.handleInvalidCode();
             }
 
