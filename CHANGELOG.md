@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2021-11-01
 ### Added
 - Personalized room tokens ([#72], [#145])
 
@@ -196,7 +197,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#166]: https://github.com/THM-Health/PILOS/issues/166
 [#167]: https://github.com/THM-Health/PILOS/pull/167
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.6.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -204,3 +205,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
 [1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
 [1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
+[1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
