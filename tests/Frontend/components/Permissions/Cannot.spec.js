@@ -10,6 +10,12 @@ const testComponent = {
   template: '<p>test</p>'
 };
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 describe('Cannot', function () {
   it('hides the content if the necessary permission is available', async function () {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
@@ -21,7 +27,8 @@ describe('Cannot', function () {
       },
       slots: {
         default: testComponent
-      }
+      },
+      attachTo: createContainer()
     });
 
     await Vue.nextTick();
@@ -41,7 +48,8 @@ describe('Cannot', function () {
       },
       slots: {
         default: testComponent
-      }
+      },
+      attachTo: createContainer()
     });
 
     await Vue.nextTick();
@@ -62,7 +70,8 @@ describe('Cannot', function () {
       },
       slots: {
         default: testComponent
-      }
+      },
+      attachTo: createContainer()
     });
 
     await Vue.nextTick();
@@ -89,7 +98,8 @@ describe('Cannot', function () {
       },
       slots: {
         default: testComponent
-      }
+      },
+      attachTo: createContainer()
     });
 
     await Vue.nextTick();

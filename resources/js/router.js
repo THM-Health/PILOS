@@ -86,7 +86,7 @@ export const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/rooms/:id',
+    path: '/rooms/:id/:token?',
     name: 'rooms.view',
     component: RoomView
   },

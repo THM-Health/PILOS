@@ -11,6 +11,12 @@
               </template>
               <members-component :room="room"></members-component>
             </b-tab>
+            <b-tab>
+              <template v-slot:title>
+                <i class="fas fa-link"></i> {{ $t('rooms.tokens.title') }}
+              </template>
+              <tokens-component :room="room"></tokens-component>
+            </b-tab>
             <!-- File management tab -->
             <b-tab>
               <template v-slot:title>
@@ -43,6 +49,7 @@ import SettingsComponent from './SettingsComponent';
 import MembersComponent from './MembersComponent';
 import FileComponent from './FileComponent';
 import HistoryComponent from './HistoryComponent';
+import TokensComponent from './TokensComponent';
 
 export default {
 
@@ -50,7 +57,8 @@ export default {
     HistoryComponent,
     SettingsComponent,
     MembersComponent,
-    FileComponent
+    FileComponent,
+    TokensComponent
   },
   props: {
     room: Object

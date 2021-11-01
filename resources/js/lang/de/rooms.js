@@ -18,6 +18,7 @@ export default {
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
+  invalidPersonalLink: 'Dieser personalisierte Raumlink ist ungültig.',
   becomeMember: 'Mitglied werden',
   endMembership: {
     button: 'Mitgliedschaft beenden',
@@ -43,6 +44,10 @@ export default {
     accessCodeInvalid: {
       message: 'Der Zugangscode ist ungültig.',
       title: 'Anmeldung am Raum fehlgeschlagen'
+    },
+    tokenInvalid: {
+      message: 'Der personalisierte Raumlink ist nicht mehr gültig.',
+      title: 'Raumlink ungültig'
     },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
@@ -195,9 +200,35 @@ export default {
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
   },
+
   filter: {
     title: 'Filter',
     roomTypes: 'Raumarten',
     apply: 'Anwenden'
+  },
+
+  tokens: {
+    nodata: 'Keine personalisierten Raumlinks vorhanden!',
+    title: 'Personalisierte Raumlinks',
+    firstname: 'Vorname',
+    lastname: 'Nachname',
+    role: 'Rolle',
+    expires: 'Verfallsdatum',
+    lastUsage: 'Zuletzt verwendet',
+    add: 'Personalisierten Raumlink hinzufügen',
+    edit: 'Personalisierten Raumlink bearbeiten',
+    roomLinkCopied: 'Der persionalisierte Raumlink für {firstname} {lastname} wurde in Ihre Zwischenablage kopiert.',
+
+    modals: {
+      delete: {
+        title: 'Personalisierten Raumlink löschen',
+        confirm: 'Wollen Sie den personalisierten Raumlink für {firstname} {lastname} wirklich löschen?'
+      }
+    },
+
+    roles: {
+      participant: 'Teilnehmer',
+      moderator: 'Moderator'
+    }
   }
 };

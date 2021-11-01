@@ -93,6 +93,7 @@ return [
         ],
         'password_self_reset_enabled' => env('PASSWORD_SELF_RESET_ENABLED', false),
         'default_timezone'            => env('DEFAULT_TIMEZONE', 'UTC'),
-        'help_url'                    => env('HELP_URL')
+        'help_url'                    => env('HELP_URL'),
+        'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1)
     ]
 ];

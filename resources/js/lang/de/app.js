@@ -9,6 +9,7 @@ export default {
   search: 'Suche',
   actions: 'Aktionen',
   profile: 'Profil',
+  cancel: 'Abbrechen',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',

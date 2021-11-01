@@ -14,6 +14,7 @@ use App\Http\Controllers\api\v1\RoomTypeController;
 use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
 use App\Http\Controllers\api\v1\UserController;
+use \App\Http\Controllers\api\v1\RoomTokenController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -83,6 +84,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('rooms/{room}/member', [RoomMemberController::class,'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/{user}', [RoomMemberController::class,'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.remove')->middleware('can:manageMembers,room');
+
+        // Personalized room tokens
+        Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
+        Route::post('rooms/{room}/tokens', [RoomTokenController::class, 'store'])->name('rooms.tokens.add')->middleware('can:manageTokens,room');
+        Route::put('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'update'])->name('rooms.tokens.update')->middleware('can:manageTokens,room');
+        Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.remove')->middleware('can:manageTokens,room');
+
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
             Route::post('rooms/{room}/files', [RoomFileController::class,'store'])->name('rooms.files.add');
@@ -111,13 +119,13 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
     });
 
-    Route::middleware('can:view,room')->group(function () {
-        Route::get('rooms/{room}', [RoomController::class,'show'])->name('rooms.show')->middleware('room.authenticate:true');
-        Route::get('rooms/{room}/start', [RoomController::class,'start'])->name('rooms.start')->middleware('room.authenticate');
-        Route::get('rooms/{room}/join', [RoomController::class,'join'])->name('rooms.join')->middleware('room.authenticate');
-        Route::get('rooms/{room}/files', [RoomFileController::class,'index'])->name('rooms.files.get')->middleware('room.authenticate');
-        Route::get('rooms/{room}/files/{file}', [RoomFileController::class,'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
-    });
+
+    Route::get('rooms/{room}', [RoomController::class,'show'])->name('rooms.show')->middleware('room.authenticate:true');
+    Route::get('rooms/{room}/start', [RoomController::class,'start'])->name('rooms.start')->middleware('room.authenticate');
+    Route::get('rooms/{room}/join', [RoomController::class,'join'])->name('rooms.join')->middleware('room.authenticate');
+    Route::get('rooms/{room}/files', [RoomFileController::class,'index'])->name('rooms.files.get')->middleware('room.authenticate');
+    Route::get('rooms/{room}/files/{file}', [RoomFileController::class,'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
+
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class,'endMeetingCallback'])->name('meetings.endcallback');
 });

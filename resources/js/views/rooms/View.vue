@@ -116,7 +116,7 @@
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
                 <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :state="fieldState('name')"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
                   <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
@@ -183,6 +183,7 @@
                 :emit-errors="true"
                 v-on:error="onFileListError"
                 :access-code="accessCode"
+                :token="token"
                 :room="room"
                 :show-title="true"
                 :require-agreement="true"
@@ -220,28 +221,40 @@
         </b-input-group>
       </div>
     </template>
-    <!-- Room object is empty, access forbidden, room is only for logged in users -->
+    <!-- Room object is empty, access forbidden -->
     <template v-else>
-      <!-- Show message that room can only be used by logged in users -->
-      <b-alert show>
-        <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
-      </b-alert>
-      <b-button-group>
-        <!-- Reload page, in case the room settings changed -->
-        <b-button
-          v-on:click="reload"
-          :disabled="loading"
-        >
-          <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
-        </b-button>
-        <!-- Redirect the login the access room -->
-        <b-button
-          @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
-          variant="success"
-        >
-          <i class="fas fa-lock"></i> {{$t('rooms.login')}}
-        </b-button>
-      </b-button-group>
+
+      <!-- room token is invalid -->
+      <template v-if="token !== null">
+        <!-- Show message that room can only be used by logged in users -->
+        <b-alert show variant="danger">
+          <i class="fas fa-unlink"></i> {{ $t('rooms.invalidPersonalLink') }}
+        </b-alert>
+      </template>
+      <!-- room is only for logged in users -->
+      <template v-else>
+        <!-- Show message that room can only be used by logged in users -->
+        <b-alert show>
+          <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
+        </b-alert>
+        <b-button-group>
+          <!-- Reload page, in case the room settings changed -->
+          <b-button
+            v-on:click="reload"
+            :disabled="loading"
+          >
+            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
+          </b-button>
+          <!-- Redirect the login the access room -->
+          <b-button
+            @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
+            variant="success"
+          >
+            <i class="fas fa-lock"></i> {{$t('rooms.login')}}
+          </b-button>
+        </b-button-group>
+      </template>
+
     </template>
   </div>
 </template>
@@ -257,6 +270,9 @@ import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
+import store from '../../store';
+import Vue from 'vue';
+import i18n from '../../i18n';
 
 export default {
   directives: {
@@ -293,16 +309,39 @@ export default {
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
       recordAttendanceAgreement: false,
+      token: null,
       errors: []
     };
   },
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
+    if (to.params.token && store.getters['session/isAuthenticated']) {
+      Vue.prototype.flashMessage.info(i18n.t('app.flash.guestsOnly'));
+      return next('/');
+    }
+
+    let config;
+
+    if (to.params.token) {
+      config = {
+        headers: {
+          Token: to.params.token
+        }
+      };
+    }
+
     // Load room details
-    Base.call('rooms/' + to.params.id).then(response => {
+    Base.call('rooms/' + to.params.id, config).then(response => {
       next(vm => {
+        vm.token = to.params.token ? to.params.token : null;
         vm.room = response.data.data;
         vm.room_id = to.params.id;
+
+        if (vm.room.username) {
+          vm.name = vm.room.username;
+        }
+
+        vm.startAutoRefresh();
       });
     }).catch((error) => {
       if (error.response) {
@@ -310,24 +349,39 @@ export default {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           return next('/404');
         }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return next(vm => {
+            vm.token = to.params.token ? to.params.token : null;
+            vm.room_id = to.params.id;
+          });
+        }
+
         // Room is not open for guests
         if (error.response.status === env.HTTP_FORBIDDEN) {
           return next(vm => {
             vm.room_id = to.params.id;
+
+            vm.startAutoRefresh();
           });
         }
         next(error);
       }
     });
   },
-  mounted () {
-    // Reload room details in a set interval, change in the .env
-    this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
-  },
   destroyed () {
     clearInterval(this.reloadInterval);
   },
   methods: {
+
+    /**
+     * Reload room details in a set interval, change in the .env
+     */
+    startAutoRefresh: function () {
+      this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
+    },
+
     /**
      *  Handle errors of the file list
      */
@@ -343,8 +397,13 @@ export default {
           return this.handleInvalidCode();
         }
 
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return this.handleInvalidToken();
+        }
+
         // Forbidden, guests not allowed
-        if (error.response.status === env.HTTP_FORBIDDEN) {
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
           return this.handleGuestsNotAllowed();
         }
       }
@@ -358,6 +417,9 @@ export default {
       this.room = null;
       // Remove a potential access code
       this.accessCode = null;
+      // Set current user to null, as the user is not logged in
+
+      this.$store.commit('session/setCurrentUser', { currentUser: null });
     },
 
     /**
@@ -374,14 +436,31 @@ export default {
     },
 
     /**
+     * Reset room due to token error
+     */
+    handleInvalidToken: function () {
+      // Show error message
+      this.room = null;
+      this.flashMessage.error(this.$t('rooms.flash.tokenInvalid'));
+      // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
+      clearInterval(this.reloadInterval);
+    },
+
+    /**
      * Reload the room details/settings
      */
     reload: function () {
       // Enable loading indicator
       this.loading = true;
       // Build room api url, include access code if set
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
+
       const url = 'rooms/' + this.room_id;
 
       // Load data
@@ -396,6 +475,14 @@ export default {
           if (this.$refs.publicFileList) {
             this.$refs.publicFileList.reload();
           }
+
+          if (this.room.username) {
+            this.name = this.room.username;
+          }
+
+          // Update current user, if logged in/out in another tab or session expired
+          // to have the can/cannot component use the correct state
+          this.$store.commit('session/setCurrentUser', { currentUser: this.room.current_user });
         })
         .catch((error) => {
           if (error.response) {
@@ -404,8 +491,13 @@ export default {
               return this.handleInvalidCode();
             }
 
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
             // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN) {
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
               return this.handleGuestsNotAllowed();
             }
           }
@@ -424,15 +516,19 @@ export default {
       this.loadingJoinStart = true;
       // Reset errors
       this.errors = [];
-      // Build url, add accessCode if needed
+      // Build url, add accessCode and token if needed
       const config = {
         params: {
-          name: this.name,
+          name: this.token ? null : this.name,
           record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
 
-      if (this.accessCode != null) { config.headers = { 'Access-Code': this.accessCode }; }
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
 
       const url = 'rooms/' + this.room_id + '/start';
 
@@ -445,6 +541,26 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Access code invalid
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
+            // Forbidden, guests not allowed
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+              return this.handleGuestsNotAllowed();
+            }
+
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
@@ -482,15 +598,19 @@ export default {
       // Reset errors
       this.errors = [];
 
-      // Build url, add accessCode if needed
+      // Build url, add accessCode and token if needed
       const config = {
         params: {
-          name: this.name,
+          name: this.token ? null : this.name,
           record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
 
-      if (this.accessCode != null) { config.headers = { 'Access-Code': this.accessCode }; }
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
 
       const url = 'rooms/' + this.room_id + '/join';
 
@@ -504,6 +624,26 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Access code invalid
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
+            // Forbidden, guests not allowed
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+              return this.handleGuestsNotAllowed();
+            }
+
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;
@@ -598,29 +738,13 @@ export default {
     ...mapGetters({
       isAuthenticated: 'session/isAuthenticated'
     }),
-    /**
-     * Filestable heading
-     */
-    filefields () {
-      return [
-        {
-          key: 'filename',
-          label: this.$t('rooms.files.filename'),
-          sortable: true
-        },
-        {
-          key: 'actions',
-          label: this.$t('rooms.files.actions')
-        }
-      ];
-    },
 
     /**
      * Build invitation message
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: location.protocol + '//' + location.host + location.pathname });
+      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
         message += '\n' + this.$t('rooms.invitation.code', {

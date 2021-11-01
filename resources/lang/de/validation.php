@@ -263,9 +263,10 @@ return [
         'default_timezone'                  => 'Standardzeitzone',
         'default_presentation'              => 'Standard Präsentation',
         'help_url'                          => 'URL zur Hilfeseite',
-        'restrict'                          => 'Verwendung einschränken'
+        'restrict'                          => 'Verwendung einschränken',
+        'room_token_expiration'             => 'Ablaufzeit für personalisierte Raumlinks'
     ],
 
-    'validname'       => 'Der Name enthält die folgenden nicht erlaubten Zeichen: :chars',
-    'validname_error' => 'Der Name enthält nicht erlaubten Zeichen'
+    'validname'       => ':attribute enthält die folgenden nicht erlaubten Zeichen: :chars',
+    'validname_error' => ':attribute enthält nicht erlaubte Zeichen'
 ];

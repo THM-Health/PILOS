@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Personalized room tokens ([#72], [#145])
+
 ## [1.5.0] - 2021-09-07
 ### Added
 - Support for parallel testing ([#157], [#158])
@@ -131,6 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#65]: https://github.com/THM-Health/PILOS/pull/65
 [#66]: https://github.com/THM-Health/PILOS/pull/66
 [#67]: https://github.com/THM-Health/PILOS/issues/67
+[#72]: https://github.com/THM-Health/PILOS/issues/72
 [#73]: https://github.com/THM-Health/PILOS/pull/73
 [#81]: https://github.com/THM-Health/PILOS/pull/81
 [#87]: https://github.com/THM-Health/PILOS/pull/87
@@ -174,8 +178,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#140]: https://github.com/THM-Health/PILOS/pull/140
 [#141]: https://github.com/THM-Health/PILOS/issues/141
 [#142]: https://github.com/THM-Health/PILOS/pull/142
-[#141]: https://github.com/THM-Health/PILOS/issues/143
-[#142]: https://github.com/THM-Health/PILOS/pull/144
+[#143]: https://github.com/THM-Health/PILOS/issues/143
+[#144]: https://github.com/THM-Health/PILOS/pull/144
+[#145]: https://github.com/THM-Health/PILOS/pull/145
 [#147]: https://github.com/THM-Health/PILOS/issues/147
 [#150]: https://github.com/THM-Health/PILOS/pull/150
 [#153]: https://github.com/THM-Health/PILOS/issues/153

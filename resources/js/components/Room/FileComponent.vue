@@ -203,6 +203,10 @@ export default {
       type: String,
       required: false
     },
+    token: {
+      type: String,
+      required: false
+    },
     showTitle: {
       type: Boolean,
       default: false,
@@ -261,8 +265,14 @@ export default {
     downloadFile: function (file) {
       this.loadingDownload = file.id;
       // Update value for the setting and the effected file
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
+
       const url = 'rooms/' + this.room.id + '/files/' + file.id;
 
       // Load data
@@ -275,6 +285,11 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.$emit('error', error);
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
               return this.$emit('error', error);
             }
 
@@ -391,8 +406,13 @@ export default {
       // Change table to busy state
       this.isBusy = true;
       // Fetch file list
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
 
       Base.call('rooms/' + this.room.id + '/files', config)
         .then(response => {

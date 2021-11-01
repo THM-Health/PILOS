@@ -18,6 +18,7 @@ export default {
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
+  invalidPersonalLink: 'This personalised room link is invalid.',
   becomeMember: 'Become member',
   endMembership: {
     button: 'End membership',
@@ -43,6 +44,10 @@ export default {
     accessCodeInvalid: {
       message: 'The access code is invalid.',
       title: 'Login to room failed'
+    },
+    tokenInvalid: {
+      message: 'The personalised room link is no longer valid.',
+      title: 'Room link invalid'
     },
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
@@ -195,10 +200,35 @@ export default {
       hideParticipantsList: 'Hide list of participants'
     }
   },
+
   filter: {
     title: 'Filter',
     roomTypes: 'Room types',
     apply: 'Apply'
-  }
+  },
 
+  tokens: {
+    nodata: 'No personalized room links available!',
+    title: 'Personalized room links',
+    firstname: 'Firstname',
+    lastname: 'Lastname',
+    role: 'Role',
+    expires: 'Expiry date',
+    lastUsage: 'Last used',
+    add: 'Add personalized room link',
+    edit: 'Edit personalized room link',
+    roomLinkCopied: 'The personalized room link for {firstname} {lastname} was copied to your clipboard.',
+
+    modals: {
+      delete: {
+        title: 'Delete personalized room link',
+        confirm: 'Do you really want to delete the personalized room link for {firstname} {lastname}?'
+      }
+    },
+
+    roles: {
+      participant: 'Participant',
+      moderator: 'Moderator'
+    }
+  }
 };
