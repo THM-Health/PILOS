@@ -153,7 +153,7 @@ class Room extends Model
      */
     public function runningMeeting()
     {
-        return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
+        return $this->meetings()->whereNull('end')->orderByDesc('created_at')->first();
     }
 
     /** Check if user is moderator of this room

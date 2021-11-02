@@ -37,7 +37,7 @@ class MeetingController extends Controller
             ->select('meetings.*');
 
         // Filter only running meetings
-        $resource = $resource->whereNull('end');
+        $resource = $resource->whereNull('end')->whereNotNull('start');
 
         // And-search, sub queries split by space
         if ($request->has('search') && trim($request->search) != '') {

@@ -213,7 +213,7 @@ class Server extends Model
     {
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->pluck('id');
+        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
         $allRunningMeetingsOnServers = new Collection();
 
         if ($this->status != ServerStatus::DISABLED) {
