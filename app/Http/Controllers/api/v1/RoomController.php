@@ -230,7 +230,6 @@ class RoomController extends Controller
                 $meeting->save();
                 $lock->release();
             } else {
-                \Log::info('meeting running');
                 // meeting in still starting
                 if ($meeting->start == null) {
                     $lock->release();
