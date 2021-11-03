@@ -155,11 +155,11 @@ class RoomController extends Controller
 
         // Atomic lock for room start to prevent users from simultaneously starting the same room
         // Maximum waiting time 45sec before failing
-        $lock = Cache::lock('startroom-'.$room->id, 45);
+        $lock = Cache::lock('startroom-'.$room->id, config('bigbluebutton.server_timeout'));
 
         try {
             // Block the lock for a max. of 45sec
-            $lock->block(45);
+            $lock->block(config('bigbluebutton.server_timeout'));
 
             $meeting = $room->runningMeeting();
             if (!$meeting) {

@@ -16,9 +16,11 @@ use App\Server;
 use App\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Symfony\Component\Routing\Route;
@@ -1125,6 +1127,29 @@ class RoomTest extends TestCase
             ->assertSuccessful();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
             ->assertStatus(470);
+    }
+
+    /**
+     * Tests parallel starting of the same room
+     */
+    public function testStartWhileStarting()
+    {
+        config(['bigbluebutton.server_timeout' => 2]);
+        $room = Room::factory()->create();
+        $lock = Cache::lock('startroom-'.$room->id, config('bigbluebutton.server_timeout'));
+
+        try {
+            // Simulate that another request is currently starting this room
+            $lock->block(config('bigbluebutton.server_timeout'));
+
+            // Try to start the room
+            $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+                ->assertStatus(462);
+
+            $lock->release();
+        } catch (LockTimeoutException $e) {
+            $this->fail('lock did not work');
+        }
     }
 
     /**

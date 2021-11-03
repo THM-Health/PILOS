@@ -5,6 +5,7 @@ namespace App;
 use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
+use BigBlueButton\Http\Transport\CurlTransport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,7 +71,8 @@ class Server extends Model
     public function bbb()
     {
         if ($this->bbb == null) {
-            $this->setBBB(new BigBlueButton($this->base_url, $this->salt));
+            $transport  = CurlTransport::createWithDefaultOptions([CURLOPT_TIMEOUT => config('bigbluebutton.server_timeout')]);
+            $this->setBBB(new BigBlueButton($this->base_url, $this->salt, $transport));
         }
 
         return $this->bbb;
