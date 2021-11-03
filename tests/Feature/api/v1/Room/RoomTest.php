@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\ServerStatus;
+use App\Meeting;
 use App\Permission;
 use App\Role;
 use App\Room;
@@ -1092,6 +1093,41 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Tests starting new meeting with a running bbb server
+     */
+    public function testStartWithServerMeetingRunning()
+    {
+        // Add room, real servers and a fake meeting
+        $room = Room::factory()->create();
+        $this->seed(ServerSeeder::class);
+        $meeting = Meeting::factory()->create(['room_id'=> $room->id, 'start' => null, 'end' => null, 'server_id' => Server::all()->first()]);
+
+        // Start room that is currently starting but not ready yet
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->assertStatus(460);
+        $meeting->refresh();
+        $this->assertNull($meeting->end);
+
+        // Start room that should run on the server but isn't
+        $meeting->start = now();
+        $meeting->save();
+        // Start room that is currently starting but not ready yet
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->assertStatus(460);
+        $meeting->refresh();
+        $this->assertNotNull($meeting->end);
+
+        // Start room without recording acceptance, but a room with attendance recording is already running
+        setting(['attendance.enabled' => true]);
+        $room->record_attendance = true;
+        $room->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
+            ->assertSuccessful();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
+            ->assertStatus(470);
+    }
+
+    /**
      * Tests if record attendance is set on start
      */
     public function testRecordAttendanceStatus()
@@ -1209,6 +1245,16 @@ class RoomTest extends TestCase
         // Testing join with meeting not running
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+
+        // Testing join with meeting that is starting, but not ready yet
+        $meeting              = $room->meetings()->create();
+        $meeting->attendeePW  = bin2hex(random_bytes(5));
+        $meeting->moderatorPW = bin2hex(random_bytes(5));
+        $meeting->server()->associate(Server::where('status', ServerStatus::ONLINE)->get()->random());
+        $meeting->save();
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+        $meeting->delete();
 
         // Test to join a meeting marked in the db as running, but isn't running on the server
         $meeting              = $room->meetings()->create();
