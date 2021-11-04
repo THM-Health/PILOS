@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use LdapRecord\Models\ModelNotFoundException;
-use LdapRecord\Models\OpenLDAP\User;
+use LdapRecord\Models\OpenLDAP\User as LdapUser;
 
 class LoginController extends Controller
 {
@@ -125,7 +125,7 @@ class LoginController extends Controller
     protected function mapLdapRoles($user)
     {
         $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
-        $ldapUser          = User::findByGuidOrFail($user->getLdapGuid());
+        $ldapUser          = LdapUser::findByGuidOrFail($user->getLdapGuid());
 
         if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
             $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
