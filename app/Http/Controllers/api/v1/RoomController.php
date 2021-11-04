@@ -12,7 +12,9 @@ use App\Meeting;
 use App\Room;
 use App\RoomType;
 use Auth;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class RoomController extends Controller
 {
@@ -151,65 +153,104 @@ class RoomController extends Controller
         }
         $id   = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
 
-        $meeting = $room->runningMeeting();
-        if (!$meeting) {
-            if ($room->roomTypeInvalid) {
-                abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
-            }
+        // Atomic lock for room start to prevent users from simultaneously starting the same room
+        // Maximum waiting time 45sec before failing
+        $lock = Cache::lock('startroom-'.$room->id, config('bigbluebutton.server_timeout'));
 
-            // Check if user didn't see the attendance recording note, but the attendance is recorded
-            if (setting('attendance.enabled') && $room->record_attendance && !$request->record_attendance) {
-                abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
-            }
+        try {
+            // Block the lock for a max. of 45sec
+            $lock->block(config('bigbluebutton.server_timeout'));
 
-            // Create new meeting
-            $meeting                    = new Meeting();
-            $meeting->start             = date('Y-m-d H:i:s');
-            $meeting->attendeePW        = bin2hex(random_bytes(5));
-            $meeting->moderatorPW       = bin2hex(random_bytes(5));
-            $meeting->record_attendance = setting('attendance.enabled') && $room->record_attendance;
-
-            // Basic load balancing, get server with lowest usage
-            $server =  $room->roomType->serverPool->lowestUsage();
-
-            // If no server found, throw error
-            if ($server == null) {
-                abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
-            }
-
-            $meeting->server()->associate($server);
-            $meeting->room()->associate($room);
-            $meeting->save();
-
-            // Try to start meeting
-            try {
-                $result = $meeting->startMeeting();
-            } // Catch exceptions, e.g. network connection issues
-            catch (\Exception $exception) {
-                // Remove meeting and set server to offline
-                $meeting->forceDelete();
-                $server->apiCallFailed();
-                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
-            }
-
-            // Check server response for meeting creation
-            if (!$result->success()) {
-                // Meeting creation failed, remove meeting
-                $meeting->forceDelete();
-                // Check for some errors
-                switch ($result->getMessageKey()) {
-                    // checksum error, api token invalid, set server to offline, try to create on other server
-                    case 'checksumError':
-                        $server->apiCallFailed();
-
-                        break;
-                    // for other unknown reasons, just respond, that room creation failed
-                    // the error is probably server independent
-                    default:
-                        break;
+            $meeting = $room->runningMeeting();
+            if (!$meeting) {
+                if ($room->roomTypeInvalid) {
+                    $lock->release();
+                    abort(CustomStatusCodes::ROOM_TYPE_INVALID, __('app.errors.room_type_invalid'));
                 }
-                abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+
+                // Check if user didn't see the attendance recording note, but the attendance is recorded
+                if (setting('attendance.enabled') && $room->record_attendance && !$request->record_attendance) {
+                    $lock->release();
+                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+                }
+
+                // Create new meeting
+                $meeting                    = new Meeting();
+                $meeting->attendeePW        = bin2hex(random_bytes(5));
+                $meeting->moderatorPW       = bin2hex(random_bytes(5));
+                $meeting->record_attendance = setting('attendance.enabled') && $room->record_attendance;
+
+                // Basic load balancing, get server with lowest usage
+                $server = $room->roomType->serverPool->lowestUsage();
+
+                // If no server found, throw error
+                if ($server == null) {
+                    $lock->release();
+                    abort(CustomStatusCodes::NO_SERVER_AVAILABLE, __('app.errors.no_server_available'));
+                }
+
+                $meeting->server()->associate($server);
+                $meeting->room()->associate($room);
+                $meeting->save();
+
+                // Try to start meeting
+                try {
+                    $result = $meeting->startMeeting();
+                } // Catch exceptions, e.g. network connection issues
+                catch (\Exception $exception) {
+                    // Remove meeting and set server to offline
+                    $meeting->forceDelete();
+                    $server->apiCallFailed();
+                    $lock->release();
+                    abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+                }
+
+                // Check server response for meeting creation
+                if (!$result->success()) {
+                    // Meeting creation failed, remove meeting
+                    $meeting->forceDelete();
+                    // Check for some errors
+                    switch ($result->getMessageKey()) {
+                        // checksum error, api token invalid, set server to offline, try to create on other server
+                        case 'checksumError':
+                            $server->apiCallFailed();
+
+                            break;
+                        // for other unknown reasons, just respond, that room creation failed
+                        // the error is probably server independent
+                        default:
+                            break;
+                    }
+                    $lock->release();
+                    abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
+                }
+
+                // Set start time after successful api call, prevents user from tying to join this meeting before it is ready
+                $meeting->start = date('Y-m-d H:i:s');
+                $meeting->save();
+                $lock->release();
+            } else {
+                // meeting in still starting
+                if ($meeting->start == null) {
+                    $lock->release();
+                    abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+                }
+                // Check if the meeting is actually running on the server
+                if (!$meeting->isRunning()) {
+                    $meeting->setEnd();
+                    $lock->release();
+                    abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+                }
+
+                // Check if user didn't see the attendance recording note, but the attendance is recorded
+                if (setting('attendance.enabled') && $meeting->record_attendance && !$request->record_attendance) {
+                    $lock->release();
+                    abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
+                }
+                $lock->release();
             }
+        } catch (LockTimeoutException $e) {
+            abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
         }
 
         return response()->json([
@@ -242,7 +283,12 @@ class RoomController extends Controller
 
         // Check if there is a meeting running for this room, accordingly to the local database
         $meeting = $room->runningMeeting();
+        // no meeting found
         if ($meeting == null) {
+            abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+        }
+        // meeting in still starting
+        if ($meeting->start == null) {
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 
@@ -332,6 +378,6 @@ class RoomController extends Controller
     {
         $this->authorize('viewStatistics', $room);
 
-        return \App\Http\Resources\Meeting::collection($room->meetings()->orderByDesc('start')->paginate(setting('pagination_page_size')));
+        return \App\Http\Resources\Meeting::collection($room->meetings()->orderByDesc('start')->whereNotNull('start')->paginate(setting('pagination_page_size')));
     }
 }

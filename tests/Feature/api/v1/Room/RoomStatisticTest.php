@@ -61,6 +61,7 @@ class RoomStatisticTest extends TestCase
         $meetings[] = new Meeting(['start' => '2020-10-09 17:12:23', 'end' => '2020-10-09 17:45:11']);
         $meetings[] = new Meeting(['start' => '2020-12-03 10:54:34', 'end' => '2020-12-03 11:09:53']);
         $meetings[] = new Meeting(['start' => '2021-01-07 19:32:54', 'end' => null]);
+        $meetings[] = new Meeting(['start' => null, 'end' => null]);
         $room->meetings()->saveMany($meetings);
 
         // create meetings for room

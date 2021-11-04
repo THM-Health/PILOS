@@ -5,6 +5,7 @@ namespace App;
 use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
+use BigBlueButton\Http\Transport\CurlTransport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -70,7 +71,8 @@ class Server extends Model
     public function bbb()
     {
         if ($this->bbb == null) {
-            $this->setBBB(new BigBlueButton($this->base_url, $this->salt));
+            $transport  = CurlTransport::createWithDefaultOptions([CURLOPT_TIMEOUT => config('bigbluebutton.server_timeout')]);
+            $this->setBBB(new BigBlueButton($this->base_url, $this->salt, $transport));
         }
 
         return $this->bbb;
@@ -213,7 +215,7 @@ class Server extends Model
     {
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->pluck('id');
+        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
         $allRunningMeetingsOnServers = new Collection();
 
         if ($this->status != ServerStatus::DISABLED) {
