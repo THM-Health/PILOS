@@ -250,7 +250,7 @@ export default {
       oneYear: '1 Year (365 Days)',
       unlimited: 'Unlimited'
     },
-    
+
     bbb: {
       title: 'BigBlueButton Customization',
       logo: {

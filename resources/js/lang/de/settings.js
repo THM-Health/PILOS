@@ -255,7 +255,7 @@ export default {
       oneYear: '1 Jahr (365 Tage)',
       unlimited: 'Unbegrenzt'
     },
-    
+
     bbb: {
       title: 'BigBlueButton Anpassungen',
       logo: {
