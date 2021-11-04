@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2021-11-04
 ### Fixed
 - Rooms can be started simultaneously which leads to users being in different bbb rooms ([#172])
 - Rooms can be closed directly after being created by a failed join request or cronjob, if the bbb api response is slow ([#170], [#172])
@@ -206,7 +207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#172]: https://github.com/THM-Health/PILOS/pull/172
 [#173]: https://github.com/THM-Health/PILOS/pull/173
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.6.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.6.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -215,3 +216,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
 [1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
 [1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
+[1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
