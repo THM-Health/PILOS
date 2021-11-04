@@ -18,8 +18,15 @@ export default {
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
+  invalidPersonalLink: 'Dieser personalisierte Raumlink ist ungültig.',
   becomeMember: 'Mitglied werden',
-  endMembership: 'Mitgliedschaft beenden',
+  endMembership: {
+    button: 'Mitgliedschaft beenden',
+    title: 'Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?',
+    message: 'Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumbesitzer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.',
+    yes: 'Ja, Mitgliedschaft beenden',
+    no: 'Nein, Mitgliedschaft beibehalten'
+  },
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
@@ -38,9 +45,17 @@ export default {
       message: 'Der Zugangscode ist ungültig.',
       title: 'Anmeldung am Raum fehlgeschlagen'
     },
+    tokenInvalid: {
+      message: 'Der personalisierte Raumlink ist nicht mehr gültig.',
+      title: 'Raumlink ungültig'
+    },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
       title: 'Zugriff verweigert'
+    },
+    fileGone: {
+      message: 'Die Datei wurde in der Zwischenzeit gelöscht.',
+      title: 'Datei nicht gefunden'
     }
   },
   modals: {
@@ -88,6 +103,7 @@ export default {
     nodata: 'Keine Mitglieder vorhanden',
     addUser: 'Nutzer hinzufügen',
     inviteGuest: 'Gast einladen',
+    image: 'Bild',
     firstname: 'Vorname',
     lastname: 'Nachname',
     email: 'Email',
@@ -184,9 +200,35 @@ export default {
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
   },
+
   filter: {
     title: 'Filter',
     roomTypes: 'Raumarten',
     apply: 'Anwenden'
+  },
+
+  tokens: {
+    nodata: 'Keine personalisierten Raumlinks vorhanden!',
+    title: 'Personalisierte Raumlinks',
+    firstname: 'Vorname',
+    lastname: 'Nachname',
+    role: 'Rolle',
+    expires: 'Verfallsdatum',
+    lastUsage: 'Zuletzt verwendet',
+    add: 'Personalisierten Raumlink hinzufügen',
+    edit: 'Personalisierten Raumlink bearbeiten',
+    roomLinkCopied: 'Der persionalisierte Raumlink für {firstname} {lastname} wurde in Ihre Zwischenablage kopiert.',
+
+    modals: {
+      delete: {
+        title: 'Personalisierten Raumlink löschen',
+        confirm: 'Wollen Sie den personalisierten Raumlink für {firstname} {lastname} wirklich löschen?'
+      }
+    },
+
+    roles: {
+      participant: 'Teilnehmer',
+      moderator: 'Moderator'
+    }
   }
 };

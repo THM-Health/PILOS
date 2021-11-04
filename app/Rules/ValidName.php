@@ -43,9 +43,9 @@ class ValidName implements Rule
         $invalidChars = implode('', $this->failedChars);
         $validUTF8    = mb_check_encoding($invalidChars, 'UTF-8');
         if ($validUTF8) {
-            return __('validation.validname', ['chars'=> $invalidChars]);
+            return __('validation.validname', ['attribute' => __('validation.attributes.'.$this->attribute),'chars'=> $invalidChars]);
         } else {
-            return __('validation.validname_error');
+            return __('validation.validname_error', ['attribute' => __('validation.attributes.'.$this->attribute)]);
         }
     }
 }

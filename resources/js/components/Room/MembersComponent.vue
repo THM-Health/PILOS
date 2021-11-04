@@ -15,16 +15,8 @@
           >
             <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
-          <!-- Add new guest user TODO
-
-          <b-button
-            variant="dark"
-          >
-            <i class="fas fa-paper-plane"></i> {{ $t('rooms.members.inviteGuest') }}
-          </b-button>
-          -->
-
           </can>
+
           <!-- Reload members list -->
           <b-button
             variant="dark"
@@ -47,7 +39,7 @@
           :fields="tableFields"
           :items="members"
           hover
-          stacked="md"
+          stacked="lg"
           show-empty
         >
           <!-- message on no members -->
@@ -84,6 +76,11 @@
             </b-button-group>
           </template>
 
+          <!-- render user profile image -->
+          <template v-slot:cell(image)="data">
+            <img :src="data.value ? data.value : '/images/default_profile.png'" class="profileImage" />
+          </template>
+
           <!-- render user role -->
           <template v-slot:cell(role)="data">
             <b-badge v-if="data.value === 0" variant="primary">{{ $t('rooms.members.roles.guest') }}</b-badge>
@@ -100,6 +97,7 @@
             >{{ $t('rooms.members.roles.co_owner') }}
             </b-badge>
           </template>
+
         </b-table>
         <b-row>
           <b-col cols="12" class="my-1">
@@ -476,6 +474,12 @@ export default {
     tableFields () {
       const fields = [
         {
+          key: 'image',
+          label: this.$t('rooms.members.image'),
+          sortable: false,
+          thClass: 'profileImageColumn'
+        },
+        {
           key: 'firstname',
           label: this.$t('rooms.members.firstname'),
           sortable: true
@@ -499,7 +503,9 @@ export default {
       if (PermissionService.can('manageSettings', this.room)) {
         fields.push({
           key: 'actions',
-          label: this.$t('rooms.members.actions')
+          label: this.$t('rooms.members.actions'),
+          thClass: 'actionColumn',
+          tdClass: 'actionButton'
         });
       }
 

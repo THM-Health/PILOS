@@ -20,7 +20,8 @@ class UserRequest extends FormRequest
             'bbb_skip_check_audio'  => 'required|boolean',
             'timezone'              => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'roles'                 => 'required|array',
-            'roles.*'               => 'distinct|exists:App\Role,id'
+            'roles.*'               => 'distinct|exists:App\Role,id',
+            'image'                 => 'nullable|mimes:jpg|dimensions:width=100,height=100',
         ];
 
         if (!$this->user || $this->user->authenticator === 'users') {

@@ -11,9 +11,11 @@ use Carbon\Carbon;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
+use Storage;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -87,7 +89,8 @@ class UserTest extends TestCase
                         'user_locale',
                         'updated_at',
                         'room_limit',
-                        'model_name'
+                        'model_name',
+                        'image'
                     ]
                 ]
             ]);
@@ -440,6 +443,99 @@ class UserTest extends TestCase
         ]);
     }
 
+    public function testUpdateNewImage()
+    {
+        config([
+            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+        ]);
+
+        $user       = User::factory()->create(['locale' => 'de', 'timezone' => 'Europe/Berlin' ,'bbb_skip_check_audio' => false]);
+        $role       = Role::factory()->create(['default' => true]);
+        $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
+        $role->permissions()->attach($permission->id);
+        $role->users()->attach([$user->id]);
+
+        $changes = [
+            'firstname'            => $user->firstname,
+            'lastname'             => $user->lastname,
+            'email'                => $user->email,
+            'roles'                => [$role->id],
+            'username'             => $user->username,
+            'user_locale'          => $user->locale,
+            'bbb_skip_check_audio' => $user->bbb_skip_check_audio,
+            'timezone'             => $user->timezone,
+            'image'                => 'test',
+            'updated_at'           => $user->updated_at,
+        ];
+
+        // Try with invalid type, string not image
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['image']);
+
+        // Try with wrong dimensions
+        $changes['image'] = UploadedFile::fake()->image('avatar.jpg', 200, 200);
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['image']);
+
+        // Try with wrong file type, only jpeg is allowed
+        $changes['image'] = UploadedFile::fake()->image('avatar.png', 100, 100);
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['image']);
+
+        // Create fake storage disk
+        Storage::fake('public');
+
+        // Create fake files
+        $file  = UploadedFile::fake()->image('avatar.jpg', 100, 100);
+        $file2 = UploadedFile::fake()->image('avatar2.jpg', 100, 100);
+        $path  = 'profile_images/'.$file->hashName();
+        $path2 = 'profile_images/'.$file2->hashName();
+
+        // Upload first image
+        $changes['image'] = $file;
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+
+        // Check if image exists on drive
+        Storage::disk('public')->assertExists($path);
+
+        // Check if database is updated
+        $user->refresh();
+        $this->assertEquals($path, $user->image);
+
+        // Upload a new image
+        $changes['image']      = $file2;
+        $changes['updated_at'] = $user->updated_at;
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+
+        // Check if new image was saved
+        Storage::disk('public')->assertExists($path2);
+
+        // Check if database is updated
+        $user->refresh();
+        $this->assertEquals($path2, $user->image);
+
+        // Check if old image was deleted
+        Storage::disk('public')->assertMissing($path);
+
+        // Delete image
+        $changes['image']      = null;
+        $changes['updated_at'] = $user->updated_at;
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+
+        // Check if image was deleted
+        Storage::disk('public')->assertMissing($path2);
+
+        // Check if database is updated
+        $user->refresh();
+        $this->assertNull($user->image);
+    }
+
     public function testShow()
     {
         $user = User::factory()->create();
@@ -475,7 +571,8 @@ class UserTest extends TestCase
             ->assertJsonFragment([
                 'firstname'     => $user->firstname,
                 'lastname'      => $user->lastname,
-                'authenticator' => 'users'
+                'authenticator' => 'users',
+                'image'         => null,
             ]);
 
         // Not existing user
@@ -497,6 +594,18 @@ class UserTest extends TestCase
                 'lastname'      => $ldapUser->lastname,
                 'authenticator' => 'ldap',
                 'roles'         => [['id' => $role->id, 'name' => $role->name, 'automatic' => false]]
+            ]);
+
+        // Check user image path
+        $user->image = 'test.jpg';
+        $user->save();
+        $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => $user]))
+            ->assertSuccessful()
+            ->assertJsonFragment([
+                'firstname'     => $user->firstname,
+                'lastname'      => $user->lastname,
+                'authenticator' => 'users',
+                'image'         => $user->imageUrl,
             ]);
     }
 

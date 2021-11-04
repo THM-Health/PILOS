@@ -61,6 +61,20 @@ export default {
     nodata: 'Es sind keine Benutzer vorhanden!',
     nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
 
+    image: {
+      title: 'Profilbild',
+      upload: 'Neues Bild hochladen',
+      crop: 'Profilbild zuschneiden',
+      save: 'Übernehmen',
+      cancel: 'Abbrechen',
+      delete: 'Bild löschen',
+      undo_delete: 'Löschen rückgänig machen',
+      invalidMime: {
+        message: 'Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.',
+        title: 'Ungültiges Dateiformat'
+      }
+    },
+
     id: 'ID',
     firstname: 'Vorname',
     lastname: 'Nachname',
@@ -229,6 +243,19 @@ export default {
     passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
     defaultTimezone: 'Standardzeitzone',
 
+    roomTokenExpiration: {
+      title: 'Ablaufzeit für personalisierte Raumlinks',
+      description: 'Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
+
+      oneDay: '1 Tag (24 Stunden)',
+      oneWeek: '1 Woche (7 Tage)',
+      oneMonth: '1 Monat (30 Tage)',
+      threeMonth: '3 Monate (90 Tage)',
+      sixMonth: '6 Monate (180 Tage)',
+      oneYear: '1 Jahr (365 Tage)',
+      unlimited: 'Unbegrenzt'
+    },
+    
     bbb: {
       title: 'BigBlueButton Anpassungen',
       logo: {

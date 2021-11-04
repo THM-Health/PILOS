@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoomUser extends JsonResource
+class RoomToken extends JsonResource
 {
 
     /**
@@ -16,12 +16,12 @@ class RoomUser extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'        => $this->id,
-            'firstname' => $this->firstname,
-            'lastname'  => $this->lastname,
-            'email'     => $this->email,
-            'role'      => (int) $this->pivot->role,
-            'image'     => $this->imageUrl,
+            'token'      => $this->token,
+            'firstname'  => $this->firstname,
+            'lastname'   => $this->lastname,
+            'role'       => (int) $this->role,
+            'expires'    => $this->expires,
+            'last_usage' => $this->last_usage,
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Room;
+use App\RoomToken;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,16 +20,39 @@ class RoomAuthenticate
      *
      * @param  \Illuminate\Http\Request $request
      * @param  \Closure                 $next
-     * @param  bool                     $allowAuthenticated Allow users that are unauthenticated to pass
+     * @param  bool                     $allowUnAuthenticated Allow users that are unauthenticated to pass
      * @return mixed
      */
-    public function handle($request, Closure $next, $allowAuthenticated = false)
+    public function handle($request, Closure $next, $allowUnAuthenticated = false)
     {
         $authenticated = false;
         $room          = $request->route('room');
+        $token         = null;
 
-        // requested user is the owner or a member of the room or the room doesn't require access code
-        if ($room->accessCode == null || (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class)))) {
+        // requested user is the owner or a member of the room
+        if (Auth::user() && ($room->owner->is(Auth::user()) || $room->members->contains(Auth::user()) || Auth::user()->can('viewAll', Room::class))) {
+            $authenticated = true;
+        }
+
+        if (!Auth::user() && $request->headers->has('Token')) {
+            $token             = RoomToken::where('token', $request->header('Token'))->where('room_id', $room->id)->first();
+
+            if ($token == null) {
+                abort(401, 'invalid_token');
+            }
+
+            $token->last_usage = now();
+            $token->save();
+            $authenticated = true;
+        }
+
+        // user is not authenticated and room is not allowed for guests
+        if (!$room->allowGuests && !$authenticated && !Auth::user()) {
+            abort(403, 'guests_not_allowed');
+        }
+
+        // if room has not access code
+        if ($room->accessCode == null) {
             $authenticated = true;
         }
 
@@ -45,11 +69,11 @@ class RoomAuthenticate
         }
 
         // user is not  authenticated and should not continue with the request
-        if (!$allowAuthenticated && !$authenticated) {
+        if (!$allowUnAuthenticated && !$authenticated) {
             abort(403, 'require_code');
         }
 
-        $request->merge(['authenticated' => $authenticated]);
+        $request->merge(['authenticated' => $authenticated, 'token' => $token]);
 
         return $next($request);
     }

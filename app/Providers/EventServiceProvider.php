@@ -3,10 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\FailedLoginAttempt;
-use App\Listeners\SetDefaultRoleForLdapUser;
 use App\Listeners\SetUserModelDefaults;
 use App\Listeners\SetUserModelLdapAuthenticatorType;
-use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -23,9 +21,6 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
-        ],
-        Authenticated::class => [
-            SetDefaultRoleForLdapUser::class
         ],
         Importing::class => [
             SetUserModelLdapAuthenticatorType::class,

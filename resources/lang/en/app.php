@@ -19,7 +19,8 @@ return [
         'meeting_attendance_disabled'   => 'The logging of attendance is unavailable.',
         'meeting_statistics_disabled'   => 'The usage data is unavailable.',
         'meeting_attendance_not_ended'  => 'The logging of attendance is not yet completed for this room.',
-        'attendance_agreement_missing'  => 'Consent to record attendance is required.'
+        'attendance_agreement_missing'  => 'Consent to record attendance is required.',
+        'token_not_found'               => 'The personalized room link could not be found.',
     ],
     'model' => [
         'roles'        => 'role',

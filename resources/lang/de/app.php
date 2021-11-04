@@ -19,7 +19,8 @@ return [
         'meeting_attendance_disabled'   => 'Die Protokollierung der Anwesenheit ist nicht verfügbar.',
         'meeting_statistics_disabled'   => 'Die Auslastungsdaten sind nicht verfügbar.',
         'meeting_attendance_not_ended'  => 'Die Protokollierung der Anwesenheit ist für diesen Raum noch nicht abgeschlossen.',
-        'attendance_agreement_missing'  => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.'
+        'attendance_agreement_missing'  => 'Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.',
+        'token_not_found'               => 'Der personalisierte Raumlink konnte nicht gefunden werden.',
     ],
     'model' => [
         'roles'        => 'Rollen',

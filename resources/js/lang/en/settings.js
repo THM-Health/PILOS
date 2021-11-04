@@ -58,6 +58,20 @@ export default {
     nodata: 'No users found!',
     nodataFiltered: 'For the filter query no users were found!',
 
+    image: {
+      title: 'Profile picture',
+      upload: 'Upload new picture',
+      crop: 'Crop profile picture',
+      save: 'Confirm',
+      cancel: 'Cancel',
+      delete: 'Delete picture',
+      undo_delete: 'Undo deletion',
+      invalidMime: {
+        message: 'The file format is not supported. Please select a jpg or png file.',
+        title: 'Invalid file format'
+      }
+    },
+
     base_data: 'Base data',
     room_settings: 'Custom room settings',
     skip_check_audio: 'Disable echo audio test',
@@ -224,6 +238,19 @@ export default {
     passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
     defaultTimezone: 'Default timezone',
 
+    roomTokenExpiration: {
+      title: 'Expiration time for personalized room links',
+      description: 'Time period since last usage, after which personalized room links gets automatically removed.',
+
+      oneDay: '1 Day (24 Hours)',
+      oneWeek: '1 Week (7 Day)',
+      oneMonth: '1 Month (30 Days)',
+      threeMonth: '3 Months (90 Days)',
+      sixMonth: '6 Months (180 Days)',
+      oneYear: '1 Year (365 Days)',
+      unlimited: 'Unlimited'
+    },
+    
     bbb: {
       title: 'BigBlueButton Customization',
       logo: {

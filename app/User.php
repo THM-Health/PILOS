@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use Storage;
 
 class User extends Authenticatable
 {
@@ -51,6 +52,15 @@ class User extends Authenticatable
     public function getFullnameAttribute()
     {
         return $this->firstname.' '.$this->lastname;
+    }
+
+    /**
+     * Get public url of the users profile picture
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->image != null ? Storage::disk('public')->url($this->image) : null;
     }
 
     /**

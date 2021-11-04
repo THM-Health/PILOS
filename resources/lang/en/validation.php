@@ -263,9 +263,10 @@ return [
         'default_timezone'                  => 'Default timezone',
         'default_presentation'              => 'Default presentation',
         'help_url'                          => 'URL to the help',
-        'restrict'                          => 'Restrict usage'
+        'restrict'                          => 'Restrict usage',
+        'room_token_expiration'             => 'Expiration time for personalized room links'
     ],
 
-    'validname'       => 'The name contains the following non-permitted characters: :chars',
-    'validname_error' => 'The name contains non-permitted characters'
+    'validname'       => ':attribute contains the following non-permitted characters: :chars',
+    'validname_error' => ':attribute contains non-permitted characters'
 ];

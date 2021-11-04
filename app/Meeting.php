@@ -176,15 +176,17 @@ class Meeting extends Model
      * @param $role RoomUserRole Role of the user inside the meeting
      * @param $userid integer unique identifier for this user/guest
      * @param $skipAudioCheck boolean Flag, whether to skip the audio check or not
+     * @param $avatar string URL to user avatar
      * @return mixed
      */
-    public function getJoinUrl($name, $role, $userid, $skipAudioCheck)
+    public function getJoinUrl($name, $role, $userid, $skipAudioCheck, $avatar)
     {
         $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderatorPW : $this->attendeePW;
 
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $password);
         $joinMeetingParams->setRedirect(true);
         $joinMeetingParams->setUserID($userid);
+        $joinMeetingParams->setAvatarURL($avatar);
         if ($role == RoomUserRole::GUEST) {
             $joinMeetingParams->setGuest(true);
         }

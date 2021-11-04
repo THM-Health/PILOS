@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Logo and custom css for BBB room ([#68], [#152])
+
+## [1.6.1] - 2021-11-04
+### Fixed
+- Rooms can be started simultaneously which leads to users being in different bbb rooms ([#172])
+- Rooms can be closed directly after being created by a failed join request or cronjob, if the bbb api response is slow ([#170], [#172])
+- Unnecessary ldap requests ([#171], [#173])
+
+## [1.6.0] - 2021-11-01
+### Added
+- Personalized room tokens ([#72], [#145])
+
+## [1.5.0] - 2021-09-07
+### Added
 - Support for parallel testing ([#157], [#158])
+- Modal to confirm end of room membership ([#159], [#165])
+- Profile image for room member list and user avatar in BBB ([#166], [#167])
 
 ### Changed
 - Update BBB api to v4.0.0 ([#155], [#156])
@@ -129,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#66]: https://github.com/THM-Health/PILOS/pull/66
 [#67]: https://github.com/THM-Health/PILOS/issues/67
 [#68]: https://github.com/THM-Health/PILOS/issues/68
+[#72]: https://github.com/THM-Health/PILOS/issues/72
 [#73]: https://github.com/THM-Health/PILOS/pull/73
 [#81]: https://github.com/THM-Health/PILOS/pull/81
 [#87]: https://github.com/THM-Health/PILOS/pull/87
@@ -172,8 +188,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#140]: https://github.com/THM-Health/PILOS/pull/140
 [#141]: https://github.com/THM-Health/PILOS/issues/141
 [#142]: https://github.com/THM-Health/PILOS/pull/142
-[#141]: https://github.com/THM-Health/PILOS/issues/143
-[#142]: https://github.com/THM-Health/PILOS/pull/144
+[#143]: https://github.com/THM-Health/PILOS/issues/143
+[#144]: https://github.com/THM-Health/PILOS/pull/144
+[#145]: https://github.com/THM-Health/PILOS/pull/145
 [#147]: https://github.com/THM-Health/PILOS/issues/147
 [#150]: https://github.com/THM-Health/PILOS/pull/150
 [#152]: https://github.com/THM-Health/PILOS/pull/152
@@ -183,13 +200,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#156]: https://github.com/THM-Health/PILOS/pull/156
 [#157]: https://github.com/THM-Health/PILOS/issues/157
 [#158]: https://github.com/THM-Health/PILOS/pull/158
+[#159]: https://github.com/THM-Health/PILOS/issues/159
 [#162]: https://github.com/THM-Health/PILOS/issues/162
 [#163]: https://github.com/THM-Health/PILOS/pull/163
+[#165]: https://github.com/THM-Health/PILOS/pull/165
+[#166]: https://github.com/THM-Health/PILOS/issues/166
+[#167]: https://github.com/THM-Health/PILOS/pull/167
+[#170]: https://github.com/THM-Health/PILOS/issues/170
+[#171]: https://github.com/THM-Health/PILOS/issues/171
+[#172]: https://github.com/THM-Health/PILOS/pull/172
+[#173]: https://github.com/THM-Health/PILOS/pull/173
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.6.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
 [1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
 [1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
 [1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
+[1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
+[1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
+[1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
