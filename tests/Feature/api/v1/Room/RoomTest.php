@@ -1445,6 +1445,8 @@ class RoomTest extends TestCase
             'allowGuests' => true
         ]);
 
+        setting()->set('bbb_style', url('style.css'));
+
         // Set user profile image
         $this->user->image = 'test.jpg';
         $this->user->save();
@@ -1471,6 +1473,10 @@ class RoomTest extends TestCase
         $this->assertEquals('true', $queryParams['guest']);
         $this->assertEquals($guestName, $queryParams['fullName']);
 
+        // check bbb style url
+        $this->assertEquals(url('style.css'), $queryParams['userdata-bbb_custom_style_url']);
+        setting()->set('bbb_style', null);
+
         // Join as authorized users
         $response = $this->actingAs($this->user)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
             ->assertSuccessful();
@@ -1480,6 +1486,8 @@ class RoomTest extends TestCase
         $this->assertEquals($this->user->fullname, $queryParams['fullName']);
         // Check if avatarURL is set, if profile image exists
         $this->assertEquals($this->user->imageUrl, $queryParams['avatarURL']);
+        // check bbb style url missing if not set
+        $this->assertArrayNotHasKey('userdata-bbb_custom_style_url', $queryParams);
 
         // Testing owner
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$room,'record_attendance' => 1]))
