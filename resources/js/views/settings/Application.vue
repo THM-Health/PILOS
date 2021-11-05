@@ -1131,7 +1131,7 @@ export default {
 
       if (this.uploadBBBLogoFile) {
         formData.append('bbb[logo_file]', this.uploadBBBLogoFile);
-      } else if (!this.bbb_logo_deleted) {
+      } else if (!this.bbb_logo_deleted && this.settings.bbb.logo != null) {
         formData.append('bbb[logo]', this.settings.bbb.logo);
       }
 

@@ -86,6 +86,7 @@ class ApplicationController extends Controller
                 $url  = Storage::url($path);
                 setting()->set('bbb_style', url($url));
             } else {
+                Storage::disk('public')->delete('styles/bbb.css');
                 setting()->forget('bbb_style');
             }
         }
