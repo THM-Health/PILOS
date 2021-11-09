@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
-import BootstrapVue, { BFormCheckbox, BFormInput, BFormTextarea, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormCheckbox, BFormInput, BFormTextarea, IconsPlugin } from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application';
@@ -22,7 +22,10 @@ const createContainer = (tag = 'div') => {
 
 const bbbSettings = {
   file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
-  max_filesize: 30
+  max_filesize: 30,
+  room_name_limit: 50,
+  welcome_message_limit: 500,
+  style: null
 };
 
 describe('Application', function () {
@@ -821,6 +824,13 @@ describe('Application', function () {
     await view.setData({ uploadFaviconFile: [] });
 
     expect(spy.calledTwice).toBeTruthy();
+
+    expect(view.vm.$data.uploadBBBLogoFile).toBe(null);
+    expect(view.vm.$data.uploadBBBLogoFileSrc).toBe(null);
+
+    await view.setData({ uploadBBBLogoFile: [] });
+
+    expect(spy.calledThrice).toBeTruthy();
   });
 
   it('disable edit button if user does not have permission', function (done) {
@@ -1490,6 +1500,247 @@ describe('Application', function () {
 
           view.destroy();
           done();
+        });
+      });
+    });
+  });
+
+  it('bbb style', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    const file = new window.File(['foo'], 'foo.css', {
+      type: 'text/css',
+      lastModified: Date.now()
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: bbbSettings,
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
+          }
+        }
+      });
+
+      // check no buttons if no style uploaded
+      const formGroup = view.findComponent({ ref: 'bbb-style-form-group' });
+      expect(formGroup.findAllComponents(BButton).length).toBe(0);
+
+      // set file and save
+      view.setData({
+        bbb_style: file
+      });
+      const saveSettingsButton = view.find('#application-save-button');
+      expect(saveSettingsButton.exists()).toBeTruthy();
+      saveSettingsButton.trigger('click');
+      await view.vm.$nextTick();
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('bbb[style]')).toBe(file);
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test.svg',
+              room_limit: -1,
+              pagination_page_size: 10,
+              own_rooms_pagination_page_size: 5,
+              banner: {
+                enabled: false
+              },
+              bbb: {
+                file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                max_filesize: 30,
+                room_name_limit: 50,
+                welcome_message_limit: 500,
+                style: 'http://localhost/storage/styles/bbb.css'
+              },
+              default_presentation: 'foo.pdf',
+              statistics: {
+                servers: {
+                  enabled: true,
+                  retention_period: 7
+                },
+                meetings: {
+                  enabled: false,
+                  retention_period: 30
+                }
+              },
+              attendance: {
+                enabled: true,
+                retention_period: 14
+              }
+            }
+          }
+        });
+
+        // check if buttons are visible after upload
+        expect(formGroup.findAllComponents(BButton).length).toBe(2);
+        // check view button
+        let viewBtn = formGroup.findAllComponents(BButton).at(0);
+        expect(viewBtn.html()).toContain('fas fa-eye');
+        expect(viewBtn.attributes('href')).toBe('http://localhost/storage/styles/bbb.css');
+
+        // save without changing anything
+        saveSettingsButton.trigger('click');
+        await view.vm.$nextTick();
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('bbb[style]')).toBeNull();
+
+          await request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                logo: 'test.svg',
+                room_limit: -1,
+                pagination_page_size: 10,
+                own_rooms_pagination_page_size: 5,
+                banner: {
+                  enabled: false
+                },
+                bbb: {
+                  file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                  max_filesize: 30,
+                  room_name_limit: 50,
+                  welcome_message_limit: 500,
+                  style: 'http://localhost/storage/styles/bbb.css'
+                },
+                default_presentation: 'foo.pdf',
+                statistics: {
+                  servers: {
+                    enabled: true,
+                    retention_period: 7
+                  },
+                  meetings: {
+                    enabled: false,
+                    retention_period: 30
+                  }
+                },
+                attendance: {
+                  enabled: true,
+                  retention_period: 14
+                }
+              }
+            }
+          });
+
+          // delete file
+          let deleteBtn = formGroup.findAllComponents(BButton).at(1);
+          expect(deleteBtn.html()).toContain('fas fa-trash');
+          await deleteBtn.trigger('click');
+
+          // check if delete button disappears and revert button is shown
+          expect(formGroup.findAllComponents(BButton).length).toBe(2);
+          viewBtn = formGroup.findAllComponents(BButton).at(0);
+          const revertBtn = formGroup.findAllComponents(BButton).at(1);
+          expect(revertBtn.html()).toContain('fas fa-undo');
+
+          // check if revert button disapears on click and delete button is shown
+          await revertBtn.trigger('click');
+          expect(formGroup.findAllComponents(BButton).length).toBe(2);
+          viewBtn = formGroup.findAllComponents(BButton).at(0);
+          deleteBtn = formGroup.findAllComponents(BButton).at(1);
+          expect(deleteBtn.html()).toContain('fas fa-trash');
+
+          // delete file and save
+          await deleteBtn.trigger('click');
+          await saveSettingsButton.trigger('click');
+          await view.vm.$nextTick();
+
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.data.get('bbb[style]')).toBe('');
+
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: {
+                  logo: 'test.svg',
+                  room_limit: -1,
+                  pagination_page_size: 10,
+                  own_rooms_pagination_page_size: 5,
+                  banner: {
+                    enabled: false
+                  },
+                  bbb: {
+                    file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                    max_filesize: 30,
+                    room_name_limit: 50,
+                    welcome_message_limit: 500,
+                    style: null
+                  },
+                  default_presentation: 'foo.pdf',
+                  statistics: {
+                    servers: {
+                      enabled: true,
+                      retention_period: 7
+                    },
+                    meetings: {
+                      enabled: false,
+                      retention_period: 30
+                    }
+                  },
+                  attendance: {
+                    enabled: true,
+                    retention_period: 14
+                  }
+                }
+              }
+            });
+
+            view.destroy();
+            done();
+          });
         });
       });
     });

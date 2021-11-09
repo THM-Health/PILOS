@@ -935,6 +935,7 @@
 
         <b-form-group
           label-class="font-weight-bold"
+          ref='bbb-style-form-group'
           class="mb-4"
           :label="$t('settings.application.bbb.style.title')"
           label-for='bbb-style-form-file'
