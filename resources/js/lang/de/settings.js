@@ -165,7 +165,7 @@ export default {
       description: 'URL zum Logo',
       hint: 'https://domain.tld/path/logo.svg',
       selectFile: 'Logo-Datei auswählen',
-      alt: 'Favicon Vorschau'
+      alt: 'Logo Vorschau'
     },
 
     favicon: {
@@ -254,6 +254,27 @@ export default {
       sixMonth: '6 Monate (180 Tage)',
       oneYear: '1 Jahr (365 Tage)',
       unlimited: 'Unbegrenzt'
+    },
+
+    bbb: {
+      title: 'BigBlueButton Anpassungen',
+      logo: {
+        title: 'Logo',
+        uploadTitle: 'Logo hochladen (max. 500 KB)',
+        urlTitle: 'URL zu Logo-Datei',
+        description: 'URL zum Logo',
+        hint: 'https://domain.tld/path/logo.svg',
+        selectFile: 'Logo-Datei auswählen',
+        alt: 'Logo Vorschau',
+        delete: 'Löschen',
+        reset: 'Zurücksetzen'
+      },
+      style: {
+        title: 'CSS Style Datei',
+        view: 'Anzeigen',
+        delete: 'Löschen',
+        reset: 'Zurücksetzen'
+      }
     }
   },
 

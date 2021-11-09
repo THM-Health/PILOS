@@ -48,6 +48,10 @@ class UpdateSetting extends FormRequest
             'statistics.meetings.retention_period' => 'required|numeric|min:1|max:365',
             'attendance.enabled'                   => 'required|boolean',
             'attendance.retention_period'          => 'required|numeric|min:1|max:365',
-            'room_token_expiration'                => 'required|numeric|in:,-1,1440,10080,43200,129600,262800,525600'];
+            'bbb.logo'                             => 'string|max:255',
+            'bbb.logo_file'                        => 'image|max:500',
+            'bbb.style'                            => 'nullable|file|max:500',
+            'room_token_expiration'                => 'required|numeric|in:,-1,1440,10080,43200,129600,262800,525600'
+        ];
     }
 }

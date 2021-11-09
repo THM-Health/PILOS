@@ -49,7 +49,11 @@ class ApplicationSettings extends JsonResource
                 'file_mimes'            => config('bigbluebutton.allowed_file_mimes'),
                 'max_filesize'          => intval(config('bigbluebutton.max_filesize')),
                 'room_name_limit'       => intval(config('bigbluebutton.room_name_limit')),
-                'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit'))
+                'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit')),
+                $this->mergeWhen($this->allSettings, [
+                    'style' => setting('bbb_style'),
+                    'logo'  => setting('bbb_logo'),
+                ])
             ],
             'banner' => [
                 'enabled'    => boolval(setting('banner.enabled')),

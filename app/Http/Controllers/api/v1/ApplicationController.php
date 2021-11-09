@@ -36,6 +36,7 @@ class ApplicationController extends Controller
      */
     public function updateSettings(UpdateSetting $request)
     {
+        // Logo for frontend
         if ($request->has('logo_file')) {
             $path = $request->file('logo_file')->store('images', 'public');
             $url  = Storage::url($path);
@@ -44,6 +45,7 @@ class ApplicationController extends Controller
             $logo = $request->logo;
         }
 
+        // Favicon for frontend
         if ($request->has('favicon_file')) {
             $path    = $request->file('favicon_file')->store('images', 'public');
             $url     = Storage::url($path);
@@ -52,6 +54,7 @@ class ApplicationController extends Controller
             $favicon = $request->favicon;
         }
 
+        // Default presentation for BBB
         if ($request->has('default_presentation')) {
             if (!empty(setting('default_presentation'))) {
                 Storage::deleteDirectory('public/default_presentation');
@@ -62,6 +65,29 @@ class ApplicationController extends Controller
                 setting()->set('default_presentation', Storage::disk('public')->url($path));
             } else {
                 setting()->forget('default_presentation');
+            }
+        }
+
+        // Logo for BBB
+        if ($request->has('bbb.logo_file')) {
+            $path = $request->file('bbb.logo_file')->store('images', 'public');
+            $url  = Storage::url($path);
+            setting()->set('bbb_logo', url($url));
+        } elseif ($request->has('bbb.logo') && trim($request->bbb['logo']) != '') {
+            setting()->set('bbb_logo', $request->bbb['logo']);
+        } else {
+            setting()->forget('bbb_logo');
+        }
+
+        // Custom style file for BBB
+        if ($request->has('bbb.style')) {
+            if (!empty($request->file('bbb.style'))) {
+                $path = $request->file('bbb.style')->storeAs('styles', 'bbb.css', 'public');
+                $url  = Storage::url($path);
+                setting()->set('bbb_style', url($url));
+            } else {
+                Storage::disk('public')->delete('styles/bbb.css');
+                setting()->forget('bbb_style');
             }
         }
 

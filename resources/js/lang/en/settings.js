@@ -249,6 +249,27 @@ export default {
       sixMonth: '6 Months (180 Days)',
       oneYear: '1 Year (365 Days)',
       unlimited: 'Unlimited'
+    },
+
+    bbb: {
+      title: 'BigBlueButton Customization',
+      logo: {
+        title: 'Logo',
+        uploadTitle: 'Upload a logo (max. 500 KB)',
+        urlTitle: 'URL to logo file',
+        description: 'Changes the application logo. Enter the image URL',
+        hint: 'https://domain.tld/path/logo.svg',
+        selectFile: 'Select logo file',
+        alt: 'Logo preview',
+        delete: 'Delete',
+        reset: 'Reset'
+      },
+      style: {
+        title: 'CSS style file',
+        view: 'View',
+        delete: 'Delete',
+        reset: 'Reset'
+      }
     }
   },
 
