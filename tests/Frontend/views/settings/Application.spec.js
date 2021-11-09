@@ -1,6 +1,14 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
-import BootstrapVue, { BButton, BFormCheckbox, BFormInput, BFormTextarea, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, {
+  BButton,
+  BFormCheckbox,
+  BFormFile,
+  BFormInput,
+  BFormTextarea,
+  BImg,
+  IconsPlugin
+} from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application';
@@ -25,7 +33,8 @@ const bbbSettings = {
   max_filesize: 30,
   room_name_limit: 50,
   welcome_message_limit: 500,
-  style: null
+  style: null,
+  logo: null
 };
 
 describe('Application', function () {
@@ -1742,6 +1751,403 @@ describe('Application', function () {
             done();
           });
         });
+      });
+    });
+  });
+
+  it('bbb logo', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    const img = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAwIDUwMCIgd2lkdGg9IjUwMCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHRleHQgc3R5bGU9IndoaXRlLXNwYWNlOiBwcmU7IGZpbGw6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE2LjNweDsiIHg9IjIwNi4wNTQiIHk9IjIzNy40ODUiPlRlc3QgTG9nbzwvdGV4dD4KPC9zdmc+';
+
+    sinon.replace(view.vm, 'base64Encode', sinon.fake.resolves(img));
+
+    const file = new window.File(['foo'], 'foo.png', {
+      type: 'image/png',
+      lastModified: Date.now()
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: bbbSettings,
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
+          }
+        }
+      });
+
+      // check no buttons if no style uploaded
+      const formGroup = view.findComponent({ ref: 'bbb-logo-form-group' });
+      expect(formGroup.findComponent(BFormInput).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BFormInput).element.value).toBe('');
+      expect(formGroup.findAllComponents(BButton).length).toBe(0);
+      expect(formGroup.findComponent(BImg).exists()).toBeFalsy();
+
+      // set file and save
+      await view.setData({
+        uploadBBBLogoFile: file
+      });
+      await view.vm.$nextTick();
+
+      expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
+      expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BImg).attributes('src')).toBe(img);
+
+      const saveSettingsButton = view.find('#application-save-button');
+      expect(saveSettingsButton.exists()).toBeTruthy();
+      await saveSettingsButton.trigger('click');
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('bbb[logo]')).toBeNull();
+        expect(request.config.data.get('bbb[logo_file]')).toBe(file);
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test.svg',
+              room_limit: -1,
+              pagination_page_size: 10,
+              own_rooms_pagination_page_size: 5,
+              banner: {
+                enabled: false
+              },
+              bbb: {
+                file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                max_filesize: 30,
+                room_name_limit: 50,
+                welcome_message_limit: 500,
+                style: null,
+                logo: 'http://localhost/storage/logo.png'
+              },
+              default_presentation: 'foo.pdf',
+              statistics: {
+                servers: {
+                  enabled: true,
+                  retention_period: 7
+                },
+                meetings: {
+                  enabled: false,
+                  retention_period: 30
+                }
+              },
+              attendance: {
+                enabled: true,
+                retention_period: 14
+              }
+            }
+          }
+        });
+
+        // check if image and image url are shown after upload
+        expect(formGroup.findComponent(BFormInput).exists()).toBeTruthy();
+        expect(formGroup.findComponent(BFormInput).element.value).toBe('http://localhost/storage/logo.png');
+        expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+        expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo.png');
+
+        // change url
+        await formGroup.findComponent(BFormInput).setValue('http://localhost/storage/logo2.png');
+        expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo2.png');
+
+        // save
+        await saveSettingsButton.trigger('click');
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('bbb[logo]')).toBe('http://localhost/storage/logo2.png');
+          expect(request.config.data.get('bbb[logo_file]')).toBeNull();
+
+          await request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                logo: 'test.svg',
+                room_limit: -1,
+                pagination_page_size: 10,
+                own_rooms_pagination_page_size: 5,
+                banner: {
+                  enabled: false
+                },
+                bbb: {
+                  file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                  max_filesize: 30,
+                  room_name_limit: 50,
+                  welcome_message_limit: 500,
+                  style: null,
+                  logo: 'http://localhost/storage/logo2.png'
+                },
+                default_presentation: 'foo.pdf',
+                statistics: {
+                  servers: {
+                    enabled: true,
+                    retention_period: 7
+                  },
+                  meetings: {
+                    enabled: false,
+                    retention_period: 30
+                  }
+                },
+                attendance: {
+                  enabled: true,
+                  retention_period: 14
+                }
+              }
+            }
+          });
+
+          // check if image and image url are shown after upload
+          expect(formGroup.findComponent(BFormInput).element.value).toBe('http://localhost/storage/logo2.png');
+          expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo2.png');
+          expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
+
+          // set file and save
+          await view.setData({
+            uploadBBBLogoFile: file
+          });
+          await view.vm.$nextTick();
+
+          expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
+          expect(formGroup.findComponent(BImg).attributes('src')).toBe(img);
+
+          // save
+          await saveSettingsButton.trigger('click');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.data.get('bbb[logo]')).toBeNull();
+            expect(request.config.data.get('bbb[logo_file]')).toBe(file);
+
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: {
+                  logo: 'test.svg',
+                  room_limit: -1,
+                  pagination_page_size: 10,
+                  own_rooms_pagination_page_size: 5,
+                  banner: {
+                    enabled: false
+                  },
+                  bbb: {
+                    file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                    max_filesize: 30,
+                    room_name_limit: 50,
+                    welcome_message_limit: 500,
+                    style: null,
+                    logo: 'http://localhost/storage/logo3.png'
+                  },
+                  default_presentation: 'foo.pdf',
+                  statistics: {
+                    servers: {
+                      enabled: true,
+                      retention_period: 7
+                    },
+                    meetings: {
+                      enabled: false,
+                      retention_period: 30
+                    }
+                  },
+                  attendance: {
+                    enabled: true,
+                    retention_period: 14
+                  }
+                }
+              }
+            });
+
+            sinon.restore();
+            view.destroy();
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('bbb logo delete', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: {
+              file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+              max_filesize: 30,
+              room_name_limit: 50,
+              welcome_message_limit: 500,
+              style: null,
+              logo: 'http://localhost/storage/logo.png'
+            },
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            }
+          }
+        }
+      });
+
+      const formGroup = view.findComponent({ ref: 'bbb-logo-form-group' });
+      const saveSettingsButton = view.find('#application-save-button');
+
+      // check if file upload and image exists
+      expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+
+      // delete file
+      let deleteBtn = formGroup.findAllComponents(BButton).at(0);
+      expect(deleteBtn.html()).toContain('fas fa-trash');
+      await deleteBtn.trigger('click');
+
+      // check if delete button and image disappears and revert button is shown
+      expect(formGroup.findComponent(BFormFile).exists()).toBeFalsy();
+      expect(formGroup.findComponent(BImg).exists()).toBeFalsy();
+      const revertBtn = formGroup.findAllComponents(BButton).at(0);
+      expect(revertBtn.html()).toContain('fas fa-undo');
+
+      // check if revert button disappears on click and delete button and image is shown
+      await revertBtn.trigger('click');
+      deleteBtn = formGroup.findAllComponents(BButton).at(0);
+      expect(deleteBtn.html()).toContain('fas fa-trash');
+      expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+
+      // delete file and save
+      await deleteBtn.trigger('click');
+      await saveSettingsButton.trigger('click');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('bbb[logo]')).toBeNull();
+        expect(request.config.data.get('bbb[logo_file]')).toBeNull();
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test.svg',
+              room_limit: -1,
+              pagination_page_size: 10,
+              own_rooms_pagination_page_size: 5,
+              banner: {
+                enabled: false
+              },
+              bbb: {
+                file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                max_filesize: 30,
+                room_name_limit: 50,
+                welcome_message_limit: 500,
+                style: null,
+                logo: null
+              },
+              default_presentation: 'foo.pdf',
+              statistics: {
+                servers: {
+                  enabled: true,
+                  retention_period: 7
+                },
+                meetings: {
+                  enabled: false,
+                  retention_period: 30
+                }
+              },
+              attendance: {
+                enabled: true,
+                retention_period: 14
+              }
+            }
+          }
+        });
+
+        sinon.restore();
+        view.destroy();
+        done();
       });
     });
   });

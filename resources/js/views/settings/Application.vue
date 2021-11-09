@@ -851,6 +851,7 @@
         <!--Logo Settings-->
         <b-form-group
           label-class="font-weight-bold"
+          ref='bbb-logo-form-group'
           class="mb-4"
           label-for="bbb-logo-input"
           :state='(fieldState("bbb.logo") == null && fieldState("bbb.logo_file") == null) ? null : false'
