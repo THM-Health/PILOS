@@ -84,6 +84,7 @@ class UserTest extends TestCase
                         'id',
                         'authenticator',
                         'email',
+                        'roles',
                         'firstname',
                         'lastname',
                         'user_locale',
@@ -94,10 +95,6 @@ class UserTest extends TestCase
                     ]
                 ]
             ]);
-
-        foreach ($response['data'] as $item) {
-            $this->assertArrayNotHasKey('roles', $item);
-        }
 
         // Pagination
         $this->getJson(route('api.v1.users.index') . '?page=2')
