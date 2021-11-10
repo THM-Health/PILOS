@@ -33,7 +33,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -54,6 +55,10 @@ describe('UsersIndex', function () {
             lastname: 'Doe',
             user_locale: 'en',
             model_name: 'User',
+            roles: [
+              { id: 3, name: 'Students', automatic: true },
+              { id: 1, name: 'admin', automatic: false }
+            ],
             room_limit: 0,
             updated_at: '2020-01-01T01:00:00.000000Z'
           }],
@@ -67,10 +72,13 @@ describe('UsersIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         let html = view.findComponent(BTbody).findComponent(BTr).html();
+
         expect(html).toContain('1');
         expect(html).toContain('John');
         expect(html).toContain('Doe');
         expect(html).toContain('john@doe.com');
+        expect(html).toContain('Students');
+        expect(html).toContain('app.roles.admin');
         expect(html).toContain('settings.users.authenticator.users');
 
         view.vm.$root.$emit('bv::refresh::table', 'users-table');
@@ -91,6 +99,9 @@ describe('UsersIndex', function () {
                 lastname: 'Vader',
                 user_locale: 'de',
                 model_name: 'User',
+                roles: [
+                  { id: 3, name: 'Students', automatic: true }
+                ],
                 room_limit: 0,
                 updated_at: '2020-01-01T01:00:00.000000Z'
               }],
@@ -105,6 +116,7 @@ describe('UsersIndex', function () {
             expect(html).toContain('2');
             expect(html).toContain('Darth');
             expect(html).toContain('Vader');
+            expect(html).toContain('Students');
             expect(html).toContain('darth@vader.com');
             expect(html).toContain('settings.users.authenticator.ldap');
 
@@ -174,7 +186,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -301,6 +314,7 @@ describe('UsersIndex', function () {
       localVue,
       mocks: {
         $t: key => key,
+        $te: (key) => key === 'app.roles.admin',
         flashMessage
       },
       attachTo: createContainer(),
@@ -383,7 +397,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -418,7 +433,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -472,7 +488,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -537,7 +554,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -579,7 +597,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });

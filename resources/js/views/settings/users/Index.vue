@@ -20,7 +20,7 @@
     </b-row>
 
         <b-row>
-          <b-col sm='12' md='3'>
+          <b-col sm='12' md='4'>
             <b-input-group>
               <b-form-input
                 v-model='filter.name'
@@ -33,7 +33,7 @@
             </b-input-group>
           </b-col>
 
-          <b-col sm='12' md='3' offset-md="6">
+          <b-col sm='12' md='4' offset-md="4">
 
           <b-input-group>
             <multiselect
@@ -63,15 +63,15 @@
               </template>
               <template slot='afterList'>
                 <b-button
-                  :disabled='rolesLoading || currentPage === 1'
+                  :disabled='rolesLoading || rolesCurrentPage === 1'
                   variant='outline-secondary'
-                  @click='loadRoles(Math.max(1, currentPage - 1))'>
+                  @click='loadRoles(Math.max(1, rolesCurrentPage - 1))'>
                   <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
                 </b-button>
                 <b-button
-                  :disabled='rolesLoading || !hasNextPage'
+                  :disabled='rolesLoading || !rolesHasNextPage'
                   variant='outline-secondary'
-                  @click='loadRoles(currentPage + 1)'>
+                  @click='loadRoles(rolesCurrentPage + 1)'>
                   <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
                 </b-button>
               </template>
@@ -80,7 +80,7 @@
               <b-button
                 ref="reloadRolesButton"
                 v-if="rolesLoadingError"
-                @click="loadRoles(currentPage)"
+                @click="loadRoles(rolesCurrentPage)"
                 variant="outline-secondary"
               ><i class="fas fa-sync"></i></b-button>
             </b-input-group-append>
@@ -123,10 +123,8 @@
       </template>
 
       <template v-slot:cell(roles)="data">
-        <text-truncate>
-        <p class="mb-0" v-for="role in data.item.roles" :key="role.id">
+        <text-truncate  v-for="role in data.item.roles" :key="role.id">
           {{ $te(`app.roles.${role.name}`) ? $t(`app.roles.${role.name}`) : role.name }}
-        </p>
         </text-truncate>
       </template>
 
@@ -305,7 +303,9 @@ export default {
       },
       roles: [],
       rolesLoading: false,
-      rolesLoadingError: false
+      rolesLoadingError: false,
+      rolesCurrentPage: 1,
+      rolesHasNextPage: false
 
     };
   },
@@ -338,8 +338,8 @@ export default {
       Base.call('roles', config).then(response => {
         this.rolesLoadingError = false;
         this.roles = response.data.data;
-        this.currentPage = page;
-        this.hasNextPage = page < response.data.meta.last_page;
+        this.rolesCurrentPage = page;
+        this.rolesHasNextPage = page < response.data.meta.last_page;
       }).catch(error => {
         this.$refs['roles-multiselect'].deactivate();
         this.rolesLoadingError = true;
