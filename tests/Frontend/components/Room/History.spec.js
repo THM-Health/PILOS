@@ -171,7 +171,7 @@ describe('History', function () {
         const table = view.findComponent(BTbody);
         const rows = table.findAll('tr');
         expect(rows.length).toBe(1);
-        expect(rows.at(0).text()).toContain('meetings.nodata');
+        expect(rows.at(0).text()).toContain('meetings.noHistoricalData');
 
         view.destroy();
         done();

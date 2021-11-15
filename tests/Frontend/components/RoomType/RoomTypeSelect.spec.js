@@ -16,6 +16,12 @@ localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
+
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
   for (let i = 0; i < l; i++) {
@@ -89,7 +95,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -115,7 +122,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -148,7 +156,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 10, short: 'VL', description: 'Test', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -174,7 +183,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -218,7 +228,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -261,7 +272,8 @@ describe('RoomType Select', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {

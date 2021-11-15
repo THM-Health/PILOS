@@ -67,6 +67,8 @@
                   :disabled="isBusy"
                   variant="success"
                   @click="copyPersonalizedRoomLink(data.item)"
+                  :title="$t('rooms.tokens.copy')"
+                  v-b-tooltip.hover
                 >
                   <i class="fas fa-link"></i>
                 </b-button>
@@ -75,6 +77,8 @@
                     :disabled="isBusy"
                     variant="dark"
                     @click="showTokenEditModal(data.item)"
+                    :title="$t('rooms.tokens.edit')"
+                    v-b-tooltip.hover
                   >
                     <i class="fas fa-pen-square"></i>
                   </b-button>
@@ -82,6 +86,8 @@
                     :disabled="isBusy"
                     variant="danger"
                     @click="showTokenDeleteModal(data.item)"
+                    :title="$t('rooms.tokens.delete')"
+                    v-b-tooltip.hover
                   >
                     <i class="fas fa-trash"></i>
                   </b-button>

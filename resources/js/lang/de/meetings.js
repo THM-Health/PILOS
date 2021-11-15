@@ -11,6 +11,7 @@ export default {
   videoCount: 'Teilnehmer mit Video',
   viewRoom: 'Raum "{name}" anzeigen',
   nodata: 'Aktuell laufen keine Meetings!',
+  noHistoricalData: 'Es sind keine vergangenen Meetings verfügbar',
   nodataFiltered: 'Für die Suchanfrage wurden keine laufenden Meetings gefunden!',
   viewMeetingStats: 'Auslastung anzeigen',
   viewMeetingAttendance: 'Anwesenheit anzeigen',

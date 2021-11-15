@@ -15,7 +15,7 @@
         <b-input-group>
           <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="success"><b-icon icon="search"></b-icon></b-button>
+            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="success" v-b-tooltip.hover :title="$t('app.toSearch')"><b-icon icon="search"></b-icon></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>

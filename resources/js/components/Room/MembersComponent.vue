@@ -62,6 +62,8 @@
                 :disabled="isBusy"
                 variant="dark"
                 @click="showEditMemberModal(data.item)"
+                v-b-tooltip.hover
+                :title="$t('rooms.members.editUser')"
               >
                 <i class="fas fa-user-edit"></i>
               </b-button>
@@ -70,6 +72,8 @@
                 :disabled="isBusy"
                 variant="danger"
                 @click="showRemoveMemberModal(data.item)"
+                v-b-tooltip.hover
+                :title="$t('rooms.members.deleteUser')"
               >
                 <i class="fas fa-trash"></i>
               </b-button>
