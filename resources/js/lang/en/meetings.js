@@ -11,6 +11,7 @@ export default {
   videoCount: 'Participant with video',
   viewRoom: 'Show room \'{name}\'',
   nodata: 'There are currently no meetings running!',
+  noHistoricalData: 'There are no historical meetings available',
   nodataFiltered: 'No running meetings were found for the search query!',
   viewMeetingStats: 'Show utilisation',
   viewMeetingAttendance: 'Show attendance',

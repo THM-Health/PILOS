@@ -17,6 +17,7 @@ export default {
   recordingAttendanceAccept: 'I agree with the logging.',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
+  copyAccessForParticipants: 'Copy access for participants to clipboard',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
   invalidPersonalLink: 'This personalised room link is invalid.',
   becomeMember: 'Become member',
@@ -79,6 +80,8 @@ export default {
     uploadedAt: 'Uploaded at',
     useInNextMeeting: 'Use in the next meeting',
     selectordrag: 'Select a file or drag and drop it here...',
+    view: 'View file',
+    delete: 'Delete file',
     modals: {
       delete: {
         title: 'Delete file',
@@ -115,6 +118,8 @@ export default {
       moderator: 'Moderator',
       co_owner: 'Co-owner'
     },
+    editUser: 'Edit member',
+    deleteUser: 'Delete member',
     modals: {
       edit: {
         title: 'Edit {firstname} {lastname}',
@@ -150,10 +155,10 @@ export default {
     general: {
       title: 'General',
       type: 'Type',
-      selectType: '-- Select room type --',
       roomName: 'Room name',
       welcomeMessage: 'Welcome message',
       maxDuration: 'Max. duration',
+      resetDuration: 'Reset duration',
       minutes: 'min.',
       chars: 'Characters: {chars}'
     },
@@ -161,6 +166,8 @@ export default {
       title: 'Security',
       unprotectedPlaceholder: '-- unprotected --',
       accessCode: 'Access code',
+      generateAccessCode: 'Create new access code',
+      deleteAccessCode: 'Remove access code',
       accessCodeNote: 'Access restriction for joining the room and room membership (if enabled).',
       allowGuests: 'Allow guests',
       allowNewMembers: 'Allow new members',
@@ -169,6 +176,7 @@ export default {
     participants: {
       title: 'Participants',
       maxParticipants: 'Max. participants',
+      clearMaxParticipants: 'Reset max. participants',
       defaultRole: {
         title: 'Default role',
         onlyLoggedIn: '(only for authenticated users)',
@@ -217,6 +225,8 @@ export default {
     lastUsage: 'Last used',
     add: 'Add personalized room link',
     edit: 'Edit personalized room link',
+    delete: 'Delete personalized room link',
+    copy: 'Copy personalized room link to clipboard',
     roomLinkCopied: 'The personalized room link for {firstname} {lastname} was copied to your clipboard.',
 
     modals: {
@@ -230,5 +240,11 @@ export default {
       participant: 'Participant',
       moderator: 'Moderator'
     }
+  },
+  roomTypes: {
+    loadingError: 'An error occurred during loading of the room types.',
+    selectType: '-- Select room type --',
+    reload: 'Reload room types'
   }
+
 };

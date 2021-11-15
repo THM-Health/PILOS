@@ -304,7 +304,8 @@ describe('Create new rooms', function () {
       propsData: {
         modalStatic: true
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -358,7 +359,8 @@ describe('Create new rooms', function () {
       propsData: {
         modalStatic: true
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -408,7 +410,8 @@ describe('Create new rooms', function () {
         modalStatic: true
       },
       store,
-      Base
+      Base,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -456,7 +459,8 @@ describe('Create new rooms', function () {
       propsData: {
         modalStatic: true
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -499,7 +503,8 @@ describe('Create new rooms', function () {
       propsData: {
         modalStatic: true
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -558,7 +563,8 @@ describe('Create new rooms', function () {
         roomTypes: roomTypes,
         modalStatic: true
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {

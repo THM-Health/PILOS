@@ -7,6 +7,7 @@ export default {
   yes: 'Yes',
   no: 'No',
   search: 'Search',
+  toSearch: 'Search',
   actions: 'Actions',
   profile: 'Profile',
   cancel: 'Cancel',

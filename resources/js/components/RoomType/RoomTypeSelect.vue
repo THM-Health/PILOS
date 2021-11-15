@@ -1,11 +1,11 @@
 <template>
   <b-input-group>
     <b-input-group-prepend class="flex-grow-1" style="width: 1%" v-if="modelLoadingError" >
-    <b-alert class="mb-0 w-100" show variant="danger">{{ $t('settings.roomTypes.loadingError') }}</b-alert>
+    <b-alert class="mb-0 w-100" show variant="danger">{{ $t('rooms.roomTypes.loadingError') }}</b-alert>
     </b-input-group-prepend>
     <b-form-select v-else :disabled="disabled || isLoadingAction" :state="state" v-model="roomType" :options="roomTypeSelect">
       <template #first>
-        <b-form-select-option :value="null" disabled>{{ $t('rooms.settings.general.selectType') }}</b-form-select-option>
+        <b-form-select-option :value="null" disabled>{{ $t('rooms.roomTypes.selectType') }}</b-form-select-option>
       </template>
     </b-form-select>
     <b-input-group-append>
@@ -14,6 +14,8 @@
         @click="reloadRoomTypes"
         :disabled="disabled || isLoadingAction"
         variant="outline-secondary"
+        :title="$t('rooms.roomTypes.reload')"
+        v-b-tooltip.hover
       ><i class="fas fa-sync"  v-bind:class="{ 'fa-spin': isLoadingAction  }"></i
       ></b-button>
     </b-input-group-append>

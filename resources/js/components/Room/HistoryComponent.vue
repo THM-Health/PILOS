@@ -46,7 +46,7 @@
             :current-page='meetingsMeta.current_page'>
 
             <template v-slot:empty>
-              <i>{{ $t('meetings.nodata') }}</i>
+              <i>{{ $t('meetings.noHistoricalData') }}</i>
             </template>
 
             <template v-slot:table-busy>

@@ -103,6 +103,8 @@
               <b-button
                 class="float-right"
                 v-clipboard="() => invitationText"
+                v-b-tooltip.hover
+                :title="$t('rooms.copyAccessForParticipants')"
                 variant="light"
               >
                 <i class="fas fa-copy"></i>

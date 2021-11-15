@@ -140,7 +140,6 @@ export default {
       noReplacement: '-- No replacement --',
       replacementInfo: 'If there are rooms associated with this room type, you need to select a replacement room type.'
     },
-    loadingError: 'An error occurred during loading of the room types.',
     restrict: 'Restrict usage',
     restrictDescription: 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
     roles: 'Roles',

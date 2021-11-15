@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Logo and custom css for BBB room ([#68], [#152])
 - Role filter in user list ([#161], [#174])
 
+### Fixed
+- Missing tooltips on some buttons ([#175], [#176])
+
 ## [1.6.1] - 2021-11-04
 ### Fixed
 - Rooms can be started simultaneously which leads to users being in different bbb rooms ([#172])
@@ -212,7 +215,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#171]: https://github.com/THM-Health/PILOS/issues/171
 [#172]: https://github.com/THM-Health/PILOS/pull/172
 [#173]: https://github.com/THM-Health/PILOS/pull/173
-[#174]: https://github.com/THM-Health/PILOS/pull/173
+[#174]: https://github.com/THM-Health/PILOS/pull/174
+[#175]: https://github.com/THM-Health/PILOS/issues/175
+[#176]: https://github.com/THM-Health/PILOS/pull/176
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.6.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
