@@ -17,6 +17,7 @@ export default {
   recordingAttendanceAccept: 'Ich bin mit der Protokollierung einverstanden.',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
+  copyAccessForParticipants: 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
   invalidPersonalLink: 'Dieser personalisierte Raumlink ist ungültig.',
   becomeMember: 'Mitglied werden',
@@ -79,6 +80,8 @@ export default {
     uploadedAt: 'Hochgeladen am',
     useInNextMeeting: 'Im nächsten Meeting nutzen',
     selectordrag: 'Wählen Sie eine Datei aus, oder ziehen Sie eine Datei per Drag & Drop in dieses Feld ...',
+    view: 'Datei anzeigen',
+    delete: 'Datei löschen',
     modals: {
       delete: {
         title: 'Datei löschen',
@@ -115,6 +118,8 @@ export default {
       moderator: 'Moderator',
       co_owner: 'Mitbesitzer'
     },
+    editUser: 'Mitglied bearbeiten',
+    deleteUser: 'Mitglied löschen',
     modals: {
       edit: {
         title: '{firstname} {lastname} bearbeiten',
@@ -150,10 +155,10 @@ export default {
     general: {
       title: 'Allgemein',
       type: 'Art',
-      selectType: '-- Raumart auswählen --',
       roomName: 'Raumname',
       welcomeMessage: 'Begrüßungsnachricht',
       maxDuration: 'Max. Dauer',
+      resetDuration: 'Dauer zurücksetzen',
       minutes: 'min.',
       chars: 'Zeichen: {chars}'
     },
@@ -161,6 +166,8 @@ export default {
       title: 'Sicherheit',
       unprotectedPlaceholder: '-- ungeschützt --',
       accessCode: 'Zugangscode',
+      generateAccessCode: 'Neuen Zugangscode erstellen',
+      deleteAccessCode: 'Zugangscode entfernen',
       accessCodeNote: 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
       allowGuests: 'Gäste zulassen',
       allowNewMembers: 'Neue Mitglieder zulassen',
@@ -169,6 +176,7 @@ export default {
     participants: {
       title: 'Teilnehmer',
       maxParticipants: 'Max. Teilnehmeranzahl',
+      clearMaxParticipants: 'Max. Teilnehmeranzahl zurücksetzen',
       defaultRole: {
         title: 'Standardrolle',
         onlyLoggedIn: '(nur für angemeldete Nutzer)',
@@ -217,6 +225,8 @@ export default {
     lastUsage: 'Zuletzt verwendet',
     add: 'Personalisierten Raumlink hinzufügen',
     edit: 'Personalisierten Raumlink bearbeiten',
+    delete: 'Personalisierten Raumlink löschen',
+    copy: 'Personalisierten Raumlink in Zwischenablage kopieren',
     roomLinkCopied: 'Der persionalisierte Raumlink für {firstname} {lastname} wurde in Ihre Zwischenablage kopiert.',
 
     modals: {
@@ -230,5 +240,11 @@ export default {
       participant: 'Teilnehmer',
       moderator: 'Moderator'
     }
+  },
+
+  roomTypes: {
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
+    selectType: '-- Raumart auswählen --',
+    reload: 'Raumarten neuladen'
   }
 };

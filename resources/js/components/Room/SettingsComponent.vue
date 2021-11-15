@@ -76,6 +76,8 @@
                     :disabled="disabled"
                     @click="settings.duration = null"
                     variant="outline-secondary"
+                    :title="$t('rooms.settings.general.resetDuration')"
+                    v-b-tooltip.hover
                   ><i class="fas fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
@@ -96,6 +98,8 @@
                     :disabled="disabled"
                     v-on:click="settings.accessCode = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111)"
                     variant="outline-secondary"
+                    :title="$t('rooms.settings.security.generateAccessCode')"
+                    v-b-tooltip.hover
                   ><i class="fas fa-dice"></i
                   ></b-button>
                 </b-input-group-prepend>
@@ -114,6 +118,8 @@
                     :disabled="disabled"
                     @click="settings.accessCode = null"
                     variant="outline-secondary"
+                    :title="$t('rooms.settings.security.deleteAccessCode')"
+                    v-b-tooltip.hover
                   ><i class="fas fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
@@ -164,7 +170,7 @@
             </b-form-group>
           </b-col>
 
-          <!-- Paticipants settings tab -->
+          <!-- Participants settings tab -->
           <b-col lg="3" md="6" cols="12">
             <h5>{{ $t('rooms.settings.participants.title') }}</h5>
               <!-- Max amount of participants -->
@@ -184,6 +190,8 @@
                       :disabled="disabled"
                       @click="settings.maxParticipants = null"
                       variant="outline-secondary"
+                      :title="$t('rooms.settings.participants.clearMaxParticipants')"
+                      v-b-tooltip.hover
                     ><i class="fas fa-trash"></i
                     ></b-button>
                   </b-input-group-append>

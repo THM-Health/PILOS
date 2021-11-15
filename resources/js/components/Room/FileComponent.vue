@@ -87,6 +87,8 @@
                 variant="danger"
                 :disabled="loadingDownload===data.item.id"
                 @click="showDeleteFileModal(data.item)"
+                :title="$t('rooms.files.delete')"
+                v-b-tooltip.hover
               >
                 <i class="fas fa-trash"></i>
               </b-button>
@@ -97,6 +99,8 @@
               @click="downloadFile(data.item)"
               :disabled="disableDownload"
               target="_blank"
+              :title="$t('rooms.files.view')"
+              v-b-tooltip.hover
             >
               <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fas fa-eye"></i>
             </b-button>
