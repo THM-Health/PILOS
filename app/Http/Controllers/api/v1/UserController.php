@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
 use Storage;
 
 class UserController extends Controller
@@ -27,7 +28,7 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\User', ['only' => 'update']);
     }
 
     /**
@@ -57,6 +58,13 @@ class UserController extends Controller
             if (in_array($by, ['id', 'firstname', 'lastname', 'email', 'authenticator']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
+        }
+
+        if ($request->has('role')) {
+            Validator::make($request->all(), [
+                'role' => 'required|exists:roles,id',
+            ])->validate();
+            $resource = $resource->withRole($request->query('role'));
         }
 
         if ($request->has('name')) {
@@ -110,7 +118,7 @@ class UserController extends Controller
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
         }
 
-        return (new UserResource($user))->withRoles();
+        return new UserResource($user);
     }
 
     /**
@@ -121,7 +129,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return (new UserResource($user))->withRoles();
+        return new UserResource($user);
     }
 
     /**
@@ -183,7 +191,7 @@ class UserController extends Controller
 
         $user->refresh();
 
-        return (new UserResource($user))->withRoles();
+        return new UserResource($user);
     }
 
     /**

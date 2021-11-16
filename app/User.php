@@ -118,6 +118,18 @@ class User extends Authenticatable
     }
 
     /**
+     * Scope a query to only get users that are members of a given role.
+     *
+     * @param  Builder $query Query that should be scoped
+     * @param  int     $role  Role the user has
+     * @return Builder The scoped query
+     */
+    public function scopeWithRole(Builder $query, $role)
+    {
+        return $query->join('role_user', 'role_user.user_id', '=', 'users.id')->where('role_user.role_id', $role);
+    }
+
+    /**
      * Scope a query to only get users that have a lastname like the passed one.
      *
      * @param  Builder $query    Query that should be scoped

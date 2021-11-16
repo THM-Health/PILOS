@@ -66,10 +66,12 @@ class UserTest extends TestCase
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.viewAny' ]);
         $role->permissions()->attach($permission->id);
-
         $role->users()->attach([$ldapUser->id, $user->id]);
 
-        $response = $this->actingAs($user)->getJson(route('api.v1.users.index'))
+        $role2 = Role::factory()->create();
+        $role2->users()->attach([$users[0]->id, $user->id]);
+
+        $this->actingAs($user)->getJson(route('api.v1.users.index'))
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonFragment(['firstname' => $users[0]->firstname])
@@ -84,6 +86,7 @@ class UserTest extends TestCase
                         'id',
                         'authenticator',
                         'email',
+                        'roles',
                         'firstname',
                         'lastname',
                         'user_locale',
@@ -94,10 +97,6 @@ class UserTest extends TestCase
                     ]
                 ]
             ]);
-
-        foreach ($response['data'] as $item) {
-            $this->assertArrayNotHasKey('roles', $item);
-        }
 
         // Pagination
         $this->getJson(route('api.v1.users.index') . '?page=2')
@@ -149,6 +148,30 @@ class UserTest extends TestCase
             ->assertJsonCount(2, 'data')
             ->assertJsonFragment(['firstname' => $user->firstname])
             ->assertJsonFragment(['firstname' => $ldapUser->firstname]);
+
+        // Filtering by role
+        $this->getJson(route('api.v1.users.index') . '?role='.$role2->id)
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(['id' => $users[0]->id])
+            ->assertJsonFragment(['id' => $user->id]);
+
+        // Filtering by invalid role
+        $this->getJson(route('api.v1.users.index') . '?role=0')
+            ->assertJsonValidationErrors(['role']);
+
+        // Filtering by name
+        $this->getJson(route('api.v1.users.index') . '?name=J%20Doe')
+            ->assertSuccessful()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(['firstname' => $user->firstname])
+            ->assertJsonFragment(['firstname' => $ldapUser->firstname]);
+
+        // Filtering by role and name
+        $this->getJson(route('api.v1.users.index') . '?name=John&role='.$role2->id)
+            ->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment(['id' => $user->id]);
     }
 
     public function testSearch()
