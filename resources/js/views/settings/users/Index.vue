@@ -54,6 +54,7 @@
               id='roles'
               :loading='rolesLoading'
               :allowEmpty='true'
+              class="multiselect-form-control"
              >
               <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
               <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
@@ -77,6 +78,13 @@
               </template>
             </multiselect>
             <b-input-group-append>
+              <b-button
+                ref="clearRolesButton"
+                v-if="!rolesLoadingError && filter.role"
+                @click="filter.role = null"
+                variant="outline-secondary"
+              ><b-icon icon='x'></b-icon></b-button>
+
               <b-button
                 ref="reloadRolesButton"
                 v-if="rolesLoadingError"
