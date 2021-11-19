@@ -245,6 +245,22 @@ export default {
     loadingError: 'An error occurred during loading of the room types.',
     selectType: '-- Select room type --',
     reload: 'Reload room types'
+  },
+
+  notification: {
+    enable: 'Notify on room start',
+    enabled: 'You will be notified by your browser when the room starts. Do not close this window/tab.',
+    body: 'The room was started at {time}',
+
+    denied: {
+      message: 'The browser denied notifications.',
+      title: 'No permission'
+    },
+
+    browserSupport: {
+      message: 'Your browser does not support notification.',
+      title: 'Missing support'
+    }
   }
 
 };
