@@ -170,6 +170,8 @@
                     {{ $t('rooms.notRunning') }}
                   </div>
                 </template>
+
+                <browser-notification :running="room.running" :name="room.name"></browser-notification>
               </b-col>
             </b-row>
           </b-col>
@@ -275,6 +277,7 @@ import FieldErrors from '../../mixins/FieldErrors';
 import store from '../../store';
 import Vue from 'vue';
 import i18n from '../../i18n';
+import BrowserNotification from '../../components/Room/BrowserNotification';
 
 export default {
   directives: {
@@ -289,6 +292,7 @@ export default {
   },
 
   components: {
+    BrowserNotification,
     FileComponent,
     DeleteRoomComponent,
     RoomAdmin,
