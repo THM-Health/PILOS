@@ -249,7 +249,7 @@ export default {
   },
 
   notification: {
-    enable: 'Bei Start des Raumes benachrichtigen',
+    enable: 'Beim Start des Raumes benachrichtigen',
     enabled: 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
     body: 'Der Raum wurde um {time} gestartet',
 
