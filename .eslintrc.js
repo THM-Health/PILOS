@@ -15,7 +15,9 @@ module.exports = {
     SharedArrayBuffer: 'readonly',
     expect: 'readonly'
   },
+  parser: 'vue-eslint-parser',
   parserOptions: {
+    parser: '@babel/eslint-parser',
     ecmaVersion: 11,
     sourceType: 'module'
   },

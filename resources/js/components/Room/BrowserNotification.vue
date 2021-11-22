@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!notificationSupport && !running" class="w-100 text-center my-2">
+  <div v-if="notificationSupport && !running" class="w-100 text-center my-2">
     <b-button v-if="!notificationEnabled" block @click="enableNotification"><i class="fas fa-bell"></i> {{ $t('rooms.notification.enable') }} </b-button>
     <b-alert v-else variant="success" show>
       <i class="fas fa-bell"></i> {{ $t('rooms.notification.enabled') }}
