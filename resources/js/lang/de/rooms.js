@@ -246,5 +246,21 @@ export default {
     loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
     selectType: '-- Raumart auswählen --',
     reload: 'Raumarten neuladen'
+  },
+
+  notification: {
+    enable: 'Beim Start des Raumes benachrichtigen',
+    enabled: 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
+    body: 'Der Raum wurde um {time} gestartet',
+
+    denied: {
+      message: 'Der Browser verweigert Benachrichtigungen.',
+      title: 'Keine Berechtigung'
+    },
+
+    browserSupport: {
+      message: 'Ihr Browser unterstützt keine Benachrichtigung.',
+      title: 'Fehlende Unterstützung'
+    }
   }
 };

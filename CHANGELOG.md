@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Browser notifications on room start ([#124], [#178])
 
 ## [1.7.0] - 2021-11-16
 ### Added
@@ -180,6 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#121]: https://github.com/THM-Health/PILOS/issues/121
 [#122]: https://github.com/THM-Health/PILOS/pull/122
 [#123]: https://github.com/THM-Health/PILOS/issues/123
+[#124]: https://github.com/THM-Health/PILOS/issues/124
 [#125]: https://github.com/THM-Health/PILOS/pull/125
 [#127]: https://github.com/THM-Health/PILOS/pull/127
 [#129]: https://github.com/THM-Health/PILOS/issues/129
@@ -220,6 +223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#174]: https://github.com/THM-Health/PILOS/pull/174
 [#175]: https://github.com/THM-Health/PILOS/issues/175
 [#176]: https://github.com/THM-Health/PILOS/pull/176
+[#178]: https://github.com/THM-Health/PILOS/pull/178
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.7.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
