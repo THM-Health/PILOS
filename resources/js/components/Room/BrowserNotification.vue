@@ -78,24 +78,21 @@ export default {
      * Send notification that the room was started
      */
     sendNotification: function () {
-      // only send notification if it was enabled
-      if (this.notificationEnabled) {
-        const options = {
-          body: this.$t('rooms.notification.body', { time: this.$d(new Date(), 'time') }),
-          icon: this.settings('favicon')
-        };
-        try {
-          this.notification = new Notification(this.name, options);
-          // on click open current window and remove notification
-          this.notification.addEventListener('click', () => {
-            window.focus();
-            this.clearNotification();
-          });
-        } catch (e) {
-          // missing full notification api support, e.g. Android
-          if (e.name === 'TypeError') {
-            this.noSupportHandler(true);
-          }
+      const options = {
+        body: this.$t('rooms.notification.body', { time: this.$d(new Date(), 'time') }),
+        icon: this.settings('favicon')
+      };
+      try {
+        this.notification = new Notification(this.name, options);
+        // on click open current window and remove notification
+        this.notification.addEventListener('click', () => {
+          window.focus();
+          this.clearNotification();
+        });
+      } catch (e) {
+        // missing full notification api support, e.g. Android
+        if (e.name === 'TypeError') {
+          this.noSupportHandler(true);
         }
       }
     },
@@ -137,16 +134,19 @@ export default {
      * @param wasRunning previous running status
      */
     running: function (running, wasRunning) {
-      // room was not running and now is running
-      // clear older notifications and send new notification if notifications are enabled
-      if (wasRunning === false && running === true) {
-        this.clearNotification();
-        this.sendNotification();
-      }
-      // room was running and now stopped running
-      // clear notification to prevent confusion
-      if (wasRunning === true && running === false) {
-        this.clearNotification();
+      // only check for changes it notifications is enabled
+      if (this.notificationEnabled) {
+        // room was not running and now is running
+        // clear older notifications and send new notification if notifications are enabled
+        if (wasRunning === false && running === true) {
+          this.clearNotification();
+          this.sendNotification();
+        }
+        // room was running and now stopped running
+        // clear notification to prevent confusion
+        if (wasRunning === true && running === false) {
+          this.clearNotification();
+        }
       }
     }
   }
