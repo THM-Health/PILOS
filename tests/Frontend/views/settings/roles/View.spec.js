@@ -312,12 +312,14 @@ describe('RolesView', function () {
       attachTo: createContainer()
     });
 
-    const requestCount = moxios.requests.count();
+    moxios.wait(function () {
+      const requestCount = moxios.requests.count();
 
-    view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
-      expect(moxios.requests.count()).toBe(requestCount);
-      sinon.assert.calledOnce(spy);
-      done();
+      view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
+        expect(moxios.requests.count()).toBe(requestCount);
+        sinon.assert.calledOnce(spy);
+        done();
+      });
     });
   });
 
