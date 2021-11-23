@@ -454,38 +454,33 @@ describe('UsersView', function () {
       router
     });
 
-    moxios.wait(function () {
+    moxios.wait(async () => {
       const inputs = view.findAllComponents(BFormInput);
-      inputs.at(0).setValue('Max').then(() => {
-        return inputs.at(1).setValue('Mustermann');
-      }).then(() => {
-        return inputs.at(2).setValue('max@mustermann.de');
-      }).then(() => {
-        const selects = view.findAllComponents(BFormSelect);
-        return selects.at(0).setValue('de');
-      }).then(() => {
-        view.vm.model.roles.push(rolesResponse1.data[2]);
-        return view.vm.$nextTick();
-      }).then(() => {
-        const checkboxes = view.findAllComponents(BFormCheckbox);
-        return checkboxes.at(0).get('input').trigger('click');
-      }).then(() => {
-        view.findComponent(BForm).trigger('submit');
+      await inputs.at(0).setValue('Max');
+      await inputs.at(1).setValue('Mustermann');
+      await inputs.at(2).setValue('max@mustermann.de');
+      const selects = view.findAllComponents(BFormSelect);
+      await selects.at(0).setValue('de');
+      view.vm.model.roles.push(rolesResponse1.data[2]);
+      await view.vm.$nextTick();
+      const checkboxes = view.findAllComponents(BFormCheckbox);
+      await checkboxes.at(0).get('input').setChecked();
+      await view.vm.$nextTick();
+      await view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
 
-          expect(request.config.data.get('firstname')).toBe('Max');
-          expect(request.config.data.get('lastname')).toBe('Mustermann');
-          expect(request.config.data.get('email')).toBe('max@mustermann.de');
-          expect(request.config.data.has('password')).toBeFalsy();
-          expect(request.config.data.has('password_confirmation')).toBeFalsy();
-          expect(request.config.data.get('roles[0]')).toBe('3');
-          expect(request.config.data.get('user_locale')).toBe('de');
-          expect(request.config.data.get('generate_password')).toBe('1');
-          view.destroy();
-          done();
-        });
+        expect(request.config.data.get('firstname')).toBe('Max');
+        expect(request.config.data.get('lastname')).toBe('Mustermann');
+        expect(request.config.data.get('email')).toBe('max@mustermann.de');
+        expect(request.config.data.has('password')).toBeFalsy();
+        expect(request.config.data.has('password_confirmation')).toBeFalsy();
+        expect(request.config.data.get('roles[0]')).toBe('3');
+        expect(request.config.data.get('user_locale')).toBe('de');
+        expect(request.config.data.get('generate_password')).toBe('1');
+        view.destroy();
+        done();
       });
     });
   });
