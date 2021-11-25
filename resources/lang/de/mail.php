@@ -18,5 +18,16 @@ return [
         'description' => 'Sie erhalten diese E-Mail, weil ein neues Nutzerkonto für Ihre E-Mail-Adresse erstellt wurde.',
         'action'      => 'Passwort ändern',
         'expire'      => 'Sie haben bis zum :date Zeit, Ihr Passwort zu ändern.'
-    ]
+    ],
+
+    'room_expires' => [
+        'subject'     => 'Der Raum ":name" wird wegen Inaktivität gelöscht',
+        'intro'       => 'um Serverressourcen  zu sparen, werden nicht genutzte Räume automatisch gelöscht.',
+        'no_meeting'  => 'Ihr Raum ":name" wurde am :date erstellt, jedoch noch nie gestartet.',
+        'inactivity'  => 'Ihr Raum ":name" wurde am :date erstellt, die letzte Nutzung liegt jedoch schon :days Tage zurück.',
+        'open'        => 'Raum anzeigen',
+        'expire'      => 'Wenn Sie nichts weiter tun, wird der Raum am :date automatisch gelöscht.',
+        'keep'        => 'Möchten Sie den Raum weiterhin nutzen, starten Sie den Raum bitte vor Ablauf der Frist.',
+        'delete'      => 'Sollten Sie den Raum nicht mehr benötigen, können Sie diesen auch selbständig löschen.'
+    ],
 ];

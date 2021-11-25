@@ -18,6 +18,18 @@ class User extends Authenticatable
     use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
 
     /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($model) {
+            $model->myRooms->each->delete();
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
