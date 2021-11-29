@@ -51,17 +51,28 @@ class CleanupRoomsTest extends TestCase
         $this->assertNotNull($roomInactiveTooLong->delete_inactive);
 
         $this->assertEquals(7, ceil(now()->floatDiffInHours($roomInactiveTooLong->delete_inactive)) / 24);
-        Notification::assertSentTo($roomInactiveTooLong->owner, RoomExpires::class);
+        Notification::assertSentTo($roomInactiveTooLong->owner, RoomExpires::class, function ($notification) use ($roomInactiveTooLong) {
+            $mail = $notification->toMail($roomInactiveTooLong->owner)->toArray();
+            $this->assertEquals($mail['actionUrl'], url('rooms/'.$roomInactiveTooLong->id));
+
+            return true;
+        });
 
         // Check if room is not marked as to be deleted and no email send
         $roomInactiveNotTooLong->refresh();
         $this->assertNull($roomInactiveNotTooLong->delete_inactive);
         Notification::assertNotSentTo($roomInactiveNotTooLong->owner, RoomExpires::class);
+
         // Check if room is marked as to be deleted and email send
         $roomNeverUsedTooLong->refresh();
         $this->assertNotNull($roomNeverUsedTooLong->delete_inactive);
         $this->assertEquals(7, ceil(now()->floatDiffInHours($roomNeverUsedTooLong->delete_inactive)) / 24);
-        Notification::assertSentTo($roomNeverUsedTooLong->owner, RoomExpires::class);
+        Notification::assertSentTo($roomNeverUsedTooLong->owner, RoomExpires::class, function ($notification) use ($roomNeverUsedTooLong) {
+            $mail = $notification->toMail($roomNeverUsedTooLong->owner)->toArray();
+            $this->assertEquals($mail['actionUrl'], url('rooms/'.$roomNeverUsedTooLong->id));
+
+            return true;
+        });
 
         // Check if room is not marked as to be deleted and no email send
         $roomNeverUsedNotTooLong->refresh();
