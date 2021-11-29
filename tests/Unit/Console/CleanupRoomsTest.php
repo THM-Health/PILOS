@@ -49,18 +49,18 @@ class CleanupRoomsTest extends TestCase
         // Check if room is marked as to be deleted and email send
         $roomInactiveTooLong->refresh();
         $this->assertNotNull($roomInactiveTooLong->delete_inactive);
-        $this->assertEquals(7, ceil(now()->floatDiffInDays($roomInactiveTooLong->delete_inactive)));
+
+        $this->assertEquals(7, ceil(now()->floatDiffInHours($roomInactiveTooLong->delete_inactive)) / 24);
         Notification::assertSentTo($roomInactiveTooLong->owner, RoomExpires::class);
 
         // Check if room is not marked as to be deleted and no email send
         $roomInactiveNotTooLong->refresh();
         $this->assertNull($roomInactiveNotTooLong->delete_inactive);
         Notification::assertNotSentTo($roomInactiveNotTooLong->owner, RoomExpires::class);
-
         // Check if room is marked as to be deleted and email send
         $roomNeverUsedTooLong->refresh();
         $this->assertNotNull($roomNeverUsedTooLong->delete_inactive);
-        $this->assertEquals(7, ceil(now()->floatDiffInDays($roomNeverUsedTooLong->delete_inactive)));
+        $this->assertEquals(7, ceil(now()->floatDiffInHours($roomNeverUsedTooLong->delete_inactive)) / 24);
         Notification::assertSentTo($roomNeverUsedTooLong->owner, RoomExpires::class);
 
         // Check if room is not marked as to be deleted and no email send
