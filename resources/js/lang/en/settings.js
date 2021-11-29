@@ -198,6 +198,10 @@ export default {
       description: 'Limits the number of page size for own rooms pagination'
     },
 
+    attendanceAndStatisticsTitle: 'Attendance and statistics',
+    roomsTitle: 'Rooms',
+    usersTitle: 'Users',
+
     statistics: {
       servers: {
         enabledTitle: 'Record server utilisation',

@@ -203,6 +203,10 @@ export default {
       description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
     },
 
+    attendanceAndStatisticsTitle: 'Aufzeichnung und Statistik',
+    roomsTitle: 'Räume',
+    usersTitle: 'Benutzer',
+
     statistics: {
       servers: {
         enabledTitle: 'Auslastung der Server aufzeichnen',
