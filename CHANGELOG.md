@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Browser notifications on room start ([#124], [#178])
 - Automatically delete old or unused rooms with prior email notification  ([#186], [#187])
 
+### Changed
+- More structured layout for application settings ([#187])
+- Update php dependencies ([#187])
+
 ## [1.7.0] - 2021-11-16
 ### Added
 - Logo and custom css for BBB room ([#68], [#152])
