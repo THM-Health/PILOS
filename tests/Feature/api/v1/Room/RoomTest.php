@@ -959,7 +959,7 @@ class RoomTest extends TestCase
         // Allow attendance recording
         setting(['attendance.enabled' => true]);
 
-        $room = Room::factory()->create(['record_attendance' => true]);
+        $room = Room::factory()->create(['record_attendance' => true, 'delete_inactive'=> now()->addDay()]);
         $room->owner->update(['bbb_skip_check_audio' => true]);
 
         // Adding server(s)
@@ -977,6 +977,10 @@ class RoomTest extends TestCase
         $response = Http::withOptions(['allow_redirects' => false])->get($response->json('url'));
         $this->assertEquals(302, $response->status());
         $this->assertArrayHasKey('Location', $response->headers());
+
+        // Check if delete flag is removed on start
+        $room->refresh();
+        $this->assertNull($room->delete_inactive);
 
         // Clear
         $room->runningMeeting()->endMeeting();
