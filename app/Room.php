@@ -45,6 +45,11 @@ class Room extends Model
                 $model->id = $newId;
             }
         });
+
+        static::deleting(function ($model) {
+            $model->files->each->delete();
+            \Storage::deleteDirectory($model->id);
+        });
     }
 
     protected $casts = [
@@ -67,6 +72,7 @@ class Room extends Model
         'accessCode'                     => 'integer',
         'listed'                         => 'boolean',
         'record_attendance'              => 'boolean',
+        'delete_inactive'                => 'datetime',
     ];
 
     /**
@@ -154,6 +160,15 @@ class Room extends Model
     public function runningMeeting()
     {
         return $this->meetings()->whereNull('end')->orderByDesc('created_at')->first();
+    }
+
+    /**
+     * Get the latest meeting
+     * @return Meeting|null
+     */
+    public function latestMeeting()
+    {
+        return $this->meetings()->orderByDesc('created_at')->first();
     }
 
     /** Check if user is moderator of this room

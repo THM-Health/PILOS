@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Browser notifications on room start ([#124], [#178])
+- Automatically delete old or unused rooms with prior email notification  ([#186], [#187])
+
+### Changed
+- More structured layout for application settings ([#187])
+- Update php dependencies ([#187])
 
 ## [1.7.0] - 2021-11-16
 ### Added
@@ -224,6 +229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#175]: https://github.com/THM-Health/PILOS/issues/175
 [#176]: https://github.com/THM-Health/PILOS/pull/176
 [#178]: https://github.com/THM-Health/PILOS/pull/178
+[#186]: https://github.com/THM-Health/PILOS/issues/186
+[#187]: https://github.com/THM-Health/PILOS/pull/187
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.7.0...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

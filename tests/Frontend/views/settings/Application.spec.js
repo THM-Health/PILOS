@@ -106,6 +106,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -125,6 +131,11 @@ describe('Application', function () {
         expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
         expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
         expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
+
+        expect(view.vm.$data.settings.room_auto_delete.enabled).toBeTruthy();
+        expect(view.vm.$data.settings.room_auto_delete.inactive_period).toBe(30);
+        expect(view.vm.$data.settings.room_auto_delete.never_used_period).toBe(14);
+        expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
         done();
       });
     });
@@ -167,6 +178,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -234,6 +251,12 @@ describe('Application', function () {
               enabled: true,
               retention_period: 14
             },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
+            },
             room_token_expiration: -1
           }
         }
@@ -283,6 +306,12 @@ describe('Application', function () {
               attendance: {
                 enabled: false,
                 retention_period: 7
+              },
+              room_auto_delete: {
+                enabled: true,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
               },
               room_token_expiration: 1440
             }
@@ -358,6 +387,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -395,6 +430,12 @@ describe('Application', function () {
                 attendance: {
                   enabled: true,
                   retention_period: 14
+                },
+                room_auto_delete: {
+                  enabled: true,
+                  inactive_period: 30,
+                  never_used_period: 14,
+                  deadline_period: 7
                 }
               }
             }
@@ -518,6 +559,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -557,6 +604,10 @@ describe('Application', function () {
         expect(attendanceEnabledCheckbox.props('checked')).toBe(true);
         await attendanceEnabledCheckbox.get('input').trigger('click');
 
+        const roomAutoDeleteEnabledCheckbox = view.findComponent({ ref: 'application-room-auto-delete-enabled-form-group' }).findComponent(BFormCheckbox);
+        expect(roomAutoDeleteEnabledCheckbox.props('checked')).toBe(false);
+        await roomAutoDeleteEnabledCheckbox.get('input').trigger('click');
+
         const saveSettingsButton = view.find('#application-save-button');
         expect(saveSettingsButton.exists()).toBeTruthy();
         saveSettingsButton.trigger('click');
@@ -575,6 +626,7 @@ describe('Application', function () {
           expect(request.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
           expect(request.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
           expect(request.config.data.get('attendance[enabled]')).toStrictEqual('0');
+          expect(request.config.data.get('room_auto_delete[enabled]')).toStrictEqual('1');
 
           view.destroy();
           done();
@@ -622,6 +674,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -689,6 +747,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -761,6 +825,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -925,6 +995,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -989,6 +1065,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1052,6 +1134,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1126,6 +1214,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1190,6 +1284,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1263,6 +1363,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1337,6 +1443,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1410,6 +1522,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1490,6 +1608,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1572,6 +1696,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1626,6 +1756,12 @@ describe('Application', function () {
               attendance: {
                 enabled: true,
                 retention_period: 14
+              },
+              room_auto_delete: {
+                enabled: false,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
               }
             }
           }
@@ -1678,6 +1814,12 @@ describe('Application', function () {
                 attendance: {
                   enabled: true,
                   retention_period: 14
+                },
+                room_auto_delete: {
+                  enabled: false,
+                  inactive_period: 30,
+                  never_used_period: 14,
+                  deadline_period: 7
                 }
               }
             }
@@ -1742,6 +1884,12 @@ describe('Application', function () {
                   attendance: {
                     enabled: true,
                     retention_period: 14
+                  },
+                  room_auto_delete: {
+                    enabled: false,
+                    inactive_period: 30,
+                    never_used_period: 14,
+                    deadline_period: 7
                   }
                 }
               }
@@ -1817,6 +1965,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1880,6 +2034,12 @@ describe('Application', function () {
               attendance: {
                 enabled: true,
                 retention_period: 14
+              },
+              room_auto_delete: {
+                enabled: false,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
               }
             }
           }
@@ -1935,6 +2095,12 @@ describe('Application', function () {
                 attendance: {
                   enabled: true,
                   retention_period: 14
+                },
+                room_auto_delete: {
+                  enabled: false,
+                  inactive_period: 30,
+                  never_used_period: 14,
+                  deadline_period: 7
                 }
               }
             }
@@ -1994,6 +2160,12 @@ describe('Application', function () {
                   attendance: {
                     enabled: true,
                     retention_period: 14
+                  },
+                  room_auto_delete: {
+                    enabled: false,
+                    inactive_period: 30,
+                    never_used_period: 14,
+                    deadline_period: 7
                   }
                 }
               }
@@ -2068,6 +2240,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -2140,6 +2318,12 @@ describe('Application', function () {
               attendance: {
                 enabled: true,
                 retention_period: 14
+              },
+              room_auto_delete: {
+                enabled: false,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
               }
             }
           }

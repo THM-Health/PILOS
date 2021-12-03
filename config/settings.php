@@ -94,6 +94,12 @@ return [
         'password_self_reset_enabled' => env('PASSWORD_SELF_RESET_ENABLED', false),
         'default_timezone'            => env('DEFAULT_TIMEZONE', 'UTC'),
         'help_url'                    => env('HELP_URL'),
-        'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1)
+        'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1),
+        'room_auto_delete' => [
+            'enabled' => env('ROOM_AUTO_DELETE_ENABLED', false),
+            'inactive_period' => env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),
+            'never_used_period'  => env('ROOM_AUTO_DELETE_NEVER_USED_PERIOD', 90),
+            'deadline_period' => env('ROOM_AUTO_DELETE_DEADLINE_PERIOD', 14),
+        ]
     ]
 ];

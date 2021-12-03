@@ -253,6 +253,9 @@ class RoomController extends Controller
             abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
         }
 
+        $room->delete_inactive = null;
+        $room->save();
+
         return response()->json([
             'url' => $meeting->getJoinUrl(
                 $name,

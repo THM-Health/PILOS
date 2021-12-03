@@ -118,6 +118,7 @@ class SettingsTest extends TestCase
             'enabled'           => true,
             'retention_period'  => 14
         ]]);
+
         setting(['room_token_expiration' => 100]);
 
         $this->getJson(route('api.v1.application'))
@@ -192,6 +193,13 @@ class SettingsTest extends TestCase
             'retention_period'  => 14
         ]]);
 
+        setting(['room_auto_delete' => [
+            'enabled'            => false,
+            'inactive_period'    => 7,
+            'never_used_period'  => 14,
+            'deadline_period'    => 30
+        ]]);
+
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
@@ -237,7 +245,13 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => true,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_auto_delete' => [
+                        'enabled'            => false,
+                        'inactive_period'    => 7,
+                        'never_used_period'  => 14,
+                        'deadline_period'    => 30
+                    ],
                 ]
             ])
             ->assertSuccessful();
@@ -266,6 +280,13 @@ class SettingsTest extends TestCase
         setting(['attendance' => [
             'enabled'           => false,
             'retention_period'  => 14
+        ]]);
+
+        setting(['room_auto_delete' => [
+            'enabled'            => true,
+            'inactive_period'    => 14,
+            'never_used_period'  => 7,
+            'deadline_period'    => 2
         ]]);
 
         $this->getJson(route('api.v1.application.complete'))
@@ -297,7 +318,13 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => false,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_auto_delete' => [
+                        'enabled'            => true,
+                        'inactive_period'    => 14,
+                        'never_used_period'  => 7,
+                        'deadline_period'    => 2
+                    ],
                 ]
             ])
             ->assertSuccessful();
@@ -343,6 +370,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete'           => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -390,7 +423,13 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => false,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_auto_delete' => [
+                        'enabled'           => true,
+                        'inactive_period'   => 14,
+                        'never_used_period' => 30,
+                        'deadline_period'   => 7
+                    ],
                 ]
             ]);
         $this->assertTrue(setting()->has('help_url'));
@@ -438,6 +477,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -493,6 +538,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -556,6 +607,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -616,6 +673,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => 90,
                 'retention_period'  => 'test'
+            ],
+            'room_auto_delete' => [
+                'enabled'              => 'test',
+                'inactive_period'      => false,
+                'never_used_period'    => false,
+                'deadline_period'      => false,
             ]
         ];
 
@@ -643,7 +706,12 @@ class SettingsTest extends TestCase
                 'attendance.retention_period',
                 'room_token_expiration',
                 'bbb.logo',
-                'bbb.logo_file'
+                'bbb.logo_file',
+                'room_auto_delete.enabled',
+                'room_auto_delete.inactive_period',
+                'room_auto_delete.never_used_period',
+                'room_auto_delete.deadline_period',
+
             ]);
 
         $payload = [
@@ -671,6 +739,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => true,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 30,
+                'never_used_period'    => 7,
+                'deadline_period'      => 14,
             ]
         ];
 
@@ -774,6 +848,12 @@ class SettingsTest extends TestCase
                 'attendance' => [
                     'enabled'           => true,
                     'retention_period'  => 0
+                ],
+                'room_auto_delete' => [
+                    'enabled'              => true,
+                    'inactive_period'      => 1,
+                    'never_used_period'    => 1,
+                    'deadline_period'      => 1,
                 ]
             ]
         )
@@ -784,7 +864,10 @@ class SettingsTest extends TestCase
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
-                'attendance.retention_period'
+                'attendance.retention_period',
+                'room_auto_delete.inactive_period',
+                'room_auto_delete.never_used_period',
+                'room_auto_delete.deadline_period',
             ]);
 
         // inputs higher than allowed minimum
@@ -810,6 +893,12 @@ class SettingsTest extends TestCase
                 'attendance' => [
                     'enabled'           => true,
                     'retention_period'  => 366
+                ],
+                'room_auto_delete' => [
+                    'enabled'              => true,
+                    'inactive_period'      => 1000,
+                    'never_used_period'    => 1000,
+                    'deadline_period'      => 365,
                 ]
             ]
         )
@@ -820,7 +909,10 @@ class SettingsTest extends TestCase
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
-                'attendance.retention_period'
+                'attendance.retention_period',
+                'room_auto_delete.inactive_period',
+                'room_auto_delete.never_used_period',
+                'room_auto_delete.deadline_period',
             ]);
     }
 
@@ -859,6 +951,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => true,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -955,6 +1053,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => true,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -1032,6 +1136,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => true,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -1097,6 +1207,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -1118,5 +1234,94 @@ class SettingsTest extends TestCase
 
         // Check if all attendance data is removed
         $this->assertCount(0, $meetingRunning->attendees);
+    }
+
+    /**
+     * Test if auto room deletion is disabled if booth time periods are disabled
+     */
+    public function testRoomDeletionDisabled()
+    {
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Payload with booth time periods disabled
+        $payload = [
+            'name'                           => 'test',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false,
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => -1,
+                'never_used_period'    => -1,
+                'deadline_period'      => 7
+            ]
+        ];
+
+        // Update global settings and check result
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful()
+            ->assertJsonPath('data.room_auto_delete.enabled', false);
+
+        // Payload with only one time period disabled
+        $payload = [
+            'name'                           => 'test',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false,
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 7,
+                'never_used_period'    => -1,
+                'deadline_period'      => 7
+            ]
+        ];
+
+        // Update global settings and check result
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful()
+            ->assertJsonPath('data.room_auto_delete.enabled', true);
     }
 }
