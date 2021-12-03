@@ -244,16 +244,38 @@ export default {
 
     roomTokenExpiration: {
       title: 'Expiration time for personalized room links',
-      description: 'Time period since last usage, after which personalized room links gets automatically removed.',
-
-      oneDay: '1 Day (24 Hours)',
-      oneWeek: '1 Week (7 Day)',
-      oneMonth: '1 Month (30 Days)',
-      threeMonth: '3 Months (90 Days)',
-      sixMonth: '6 Months (180 Days)',
-      oneYear: '1 Year (365 Days)',
-      unlimited: 'Unlimited'
+      description: 'Time period since last usage, after which personalized room links gets automatically removed.'
     },
+
+    room_auto_delete: {
+      enabled: {
+        title: 'Automatically delete unused rooms',
+        enabled: 'Enable'
+      },
+      deadlinePeriod: {
+        title: 'Deadline for deletion',
+        description: 'Period between delivery of the information email and the deletion'
+      },
+      inactivePeriod: {
+        title: 'Period until inactive rooms are deleted',
+        description: 'Rooms where the last meeting was longer ago than the period'
+      },
+      neverUsedPeriod: {
+        title: 'Period until never used rooms are deleted',
+        description: 'Rooms that were created before the period but have not been used yet'
+      }
+    },
+
+    oneDay: '1 Day (24 Hours)',
+    oneWeek: '1 Week (7 Day)',
+    twoWeeks: '2 Weeks (14 Days)',
+    oneMonth: '1 Month (30 Days)',
+    threeMonth: '3 Months (90 Days)',
+    sixMonth: '6 Months (180 Days)',
+    oneYear: '1 Year (365 Days)',
+    twoYears: '2 Year (730 Days)',
+    never: 'Never',
+    unlimited: 'Unlimited',
 
     bbb: {
       title: 'BigBlueButton Customization',

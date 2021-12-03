@@ -249,16 +249,38 @@ export default {
 
     roomTokenExpiration: {
       title: 'Ablaufzeit für personalisierte Raumlinks',
-      description: 'Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.',
-
-      oneDay: '1 Tag (24 Stunden)',
-      oneWeek: '1 Woche (7 Tage)',
-      oneMonth: '1 Monat (30 Tage)',
-      threeMonth: '3 Monate (90 Tage)',
-      sixMonth: '6 Monate (180 Tage)',
-      oneYear: '1 Jahr (365 Tage)',
-      unlimited: 'Unbegrenzt'
+      description: 'Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.'
     },
+
+    room_auto_delete: {
+      enabled: {
+        title: 'Ungenutzte Räume automatisch löschen',
+        enabled: 'Aktivieren'
+      },
+      deadlinePeriod: {
+        title: 'Löschfirst',
+        description: 'Zeitraum zwischen Zustellung der Informations-Email und der Löschung'
+      },
+      inactivePeriod: {
+        title: 'Zeitraum bis inaktive Räume gelöscht werden',
+        description: 'Räume deren letztes Meeting länger als der Zeitraum zurückliegt'
+      },
+      neverUsedPeriod: {
+        title: 'Zeitraum bis nie genutzte Räume gelöscht werden',
+        description: 'Räume die vor dem Zeitraum erstellt, aber bisher noch nicht verwendet wurden'
+      }
+    },
+
+    oneDay: '1 Tag (24 Stunden)',
+    oneWeek: '1 Woche (7 Tage)',
+    twoWeeks: '2 Wochen (14 Tage)',
+    oneMonth: '1 Monat (30 Tage)',
+    threeMonth: '3 Monate (90 Tage)',
+    sixMonth: '6 Monate (180 Tage)',
+    oneYear: '1 Jahr (365 Tage)',
+    twoYears: '2 Jahre (730 Tage)',
+    never: 'Nie',
+    unlimited: 'Unbegrenzt',
 
     bbb: {
       title: 'BigBlueButton Anpassungen',

@@ -553,30 +553,6 @@
         <hr>
 
         <b-row cols='12'>
-          <!--Token expiration time-->
-          <b-col md='6'>
-            <b-form-group
-              label-class="font-weight-bold"
-              class="mb-4"
-              label-for="application-room-token-expiration"
-              :description="$t('settings.application.roomTokenExpiration.description')"
-              :state='fieldState("room_token_expiration")'
-              :label="$t('settings.application.roomTokenExpiration.title')"
-            >
-              <b-form-select
-                v-model="settings.room_token_expiration"
-                :disabled='isBusy || viewOnly || !loaded'
-                required
-                :options="roomTokenExpirationOptions"
-                :state='fieldState("room_token_expiration")'
-                class='mb-2'
-                id="application-room-token-expiration"
-              ></b-form-select>
-              <template slot='invalid-feedback'>
-                <div v-html="fieldError('room_token_expiration')"></div>
-              </template>
-            </b-form-group>
-          </b-col>
           <!--Room limit settings-->
           <b-col md='6'>
             <b-form-group
@@ -612,6 +588,129 @@
 
               <template slot='invalid-feedback'>
                 <div v-html="fieldError('room_limit')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <!--Token expiration time-->
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-room-token-expiration"
+              :description="$t('settings.application.roomTokenExpiration.description')"
+              :state='fieldState("room_token_expiration")'
+              :label="$t('settings.application.roomTokenExpiration.title')"
+            >
+              <b-form-select
+                v-model="settings.room_token_expiration"
+                :disabled='isBusy || viewOnly || !loaded'
+                required
+                :options="roomTokenExpirationOptions"
+                :state='fieldState("room_token_expiration")'
+                class='mb-2'
+                id="application-room-token-expiration"
+              ></b-form-select>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('room_token_expiration')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
+        <b-row cols='12'>
+          <!--Enable room auto delete-->
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              :state='fieldState("room_auto_delete.enabled")'
+              :label="$t('settings.application.room_auto_delete.enabled.title')"
+              ref='application-room-auto-delete-enabled-form-group'
+            >
+              <b-form-checkbox
+                id='application-room-auto-delete-enabled'
+                v-model='settings.room_auto_delete.enabled'
+                :state="fieldState('room_auto_delete.enabled')"
+                :disabled='isBusy || viewOnly || !loaded'
+                switch
+              >
+                {{ $t('settings.application.room_auto_delete.enabled.enabled') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('room_auto_delete.enabled')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <!--Room delete deadline-->
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-room-token-expiration"
+              :description="$t('settings.application.room_auto_delete.deadlinePeriod.description')"
+              :state='fieldState("room_auto_delete.deadline_period")'
+              :label="$t('settings.application.room_auto_delete.deadlinePeriod.title')"
+            >
+              <b-form-select
+                v-model="settings.room_auto_delete.deadline_period"
+                :disabled='isBusy || viewOnly || !loaded'
+                required
+                :options="roomDeleteDeadlineOptions"
+                :state='fieldState("room_auto_delete.deadline_period")'
+                class='mb-2'
+                id="application-room-auto-delete-deadline-period"
+              ></b-form-select>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('room_auto_delete.deadline_period')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row cols='12'>
+          <!--Room delete inactive-->
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-room-token-expiration"
+              :description="$t('settings.application.room_auto_delete.inactivePeriod.description')"
+              :state='fieldState("room_auto_delete.inactive_period")'
+              :label="$t('settings.application.room_auto_delete.inactivePeriod.title')"
+            >
+              <b-form-select
+                v-model="settings.room_auto_delete.inactive_period"
+                :disabled='isBusy || viewOnly || !loaded'
+                required
+                :options="roomDeleteNotificationOptions"
+                :state='fieldState("room_auto_delete.inactive_period")'
+                class='mb-2'
+                id="application-room-auto-delete-inactive-period"
+              ></b-form-select>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('room_auto_delete.inactive_period')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <!--Room delete never used-->
+          <b-col md='6'>
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="application-room-token-expiration"
+              :description="$t('settings.application.room_auto_delete.neverUsedPeriod.description')"
+              :state='fieldState("room_auto_delete.never_used_period")'
+              :label="$t('settings.application.room_auto_delete.neverUsedPeriod.title')"
+            >
+              <b-form-select
+                v-model="settings.room_auto_delete.never_used_period"
+                :disabled='isBusy || viewOnly || !loaded'
+                required
+                :options="roomDeleteNotificationOptions"
+                :state='fieldState("room_auto_delete.never_used_period")'
+                class='mb-2'
+                id="application-room-auto-delete-never-used-period"
+              ></b-form-select>
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('room_auto_delete.never_used_period')"></div>
               </template>
             </b-form-group>
           </b-col>
@@ -1056,7 +1155,8 @@ export default {
           servers: {},
           meetings: {}
         },
-        attendance: {}
+        attendance: {},
+        room_auto_delete: {}
       },
       errors: {},
       colorSwatches: ['#fff', '#000'],
@@ -1154,6 +1254,11 @@ export default {
       formData.append('statistics[meetings][retention_period]', this.settings.statistics.meetings.retention_period);
       formData.append('attendance[enabled]', this.settings.attendance.enabled ? 1 : 0);
       formData.append('attendance[retention_period]', this.settings.attendance.retention_period);
+
+      formData.append('room_auto_delete[enabled]', this.settings.room_auto_delete.enabled ? 1 : 0);
+      formData.append('room_auto_delete[deadline_period]', this.settings.room_auto_delete.deadline_period);
+      formData.append('room_auto_delete[inactive_period]', this.settings.room_auto_delete.inactive_period);
+      formData.append('room_auto_delete[never_used_period]', this.settings.room_auto_delete.never_used_period);
 
       if (this.default_presentation !== null) {
         formData.append('default_presentation', this.default_presentation);
@@ -1287,15 +1392,42 @@ export default {
      */
     roomTokenExpirationOptions () {
       return [
-        { value: 1440, text: this.$t('settings.application.roomTokenExpiration.oneDay') },
-        { value: 10080, text: this.$t('settings.application.roomTokenExpiration.oneWeek') },
-        { value: 43200, text: this.$t('settings.application.roomTokenExpiration.oneMonth') },
-        { value: 129600, text: this.$t('settings.application.roomTokenExpiration.threeMonth') },
-        { value: 262800, text: this.$t('settings.application.roomTokenExpiration.sixMonth') },
-        { value: 525600, text: this.$t('settings.application.roomTokenExpiration.oneYear') },
-        { value: -1, text: this.$t('settings.application.roomTokenExpiration.unlimited') }
+        { value: 1440, text: this.$t('settings.application.oneDay') },
+        { value: 10080, text: this.$t('settings.application.oneWeek') },
+        { value: 43200, text: this.$t('settings.application.oneMonth') },
+        { value: 129600, text: this.$t('settings.application.threeMonth') },
+        { value: 262800, text: this.$t('settings.application.sixMonth') },
+        { value: 525600, text: this.$t('settings.application.oneYear') },
+        { value: -1, text: this.$t('settings.application.unlimited') }
+      ];
+    },
+
+    /**
+     * Options for the room auto deletion never used and inactive selects.
+     */
+    roomDeleteNotificationOptions () {
+      return [
+        { value: 7, text: this.$t('settings.application.oneWeek') },
+        { value: 14, text: this.$t('settings.application.twoWeeks') },
+        { value: 30, text: this.$t('settings.application.oneMonth') },
+        { value: 90, text: this.$t('settings.application.threeMonth') },
+        { value: 180, text: this.$t('settings.application.sixMonth') },
+        { value: 365, text: this.$t('settings.application.oneYear') },
+        { value: 730, text: this.$t('settings.application.twoYears') },
+        { value: -1, text: this.$t('settings.application.never') }
+      ];
+    },
+    /**
+     * Options for the room auto deletion deadline.
+     */
+    roomDeleteDeadlineOptions () {
+      return [
+        { value: 7, text: this.$t('settings.application.oneWeek') },
+        { value: 14, text: this.$t('settings.application.twoWeeks') },
+        { value: 30, text: this.$t('settings.application.oneMonth') }
       ];
     }
+
   },
   watch: {
     /**

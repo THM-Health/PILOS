@@ -15,9 +15,13 @@ class CleanupRooms extends Command
 
     public function handle()
     {
+        if (!setting('room_auto_delete.enabled') || (setting('room_auto_delete.inactive_period') == -1 && setting('room_auto_delete.never_used_period') == -1)) {
+            return;
+        }
+
         $lastStartDate     = now()->subDays(setting('room_auto_delete.inactive_period'));
         $createdDate       = now()->subDays(setting('room_auto_delete.never_used_period'));
-        $timeToDeleteDate  = now()->addDays(setting('room_auto_delete.grace_period'));
+        $timeToDeleteDate  = now()->addDays(setting('room_auto_delete.deadline_period'));
 
         // Get list of all latest meetings
         $latestMeetings = DB::table('meetings', 'm1')
@@ -34,11 +38,17 @@ class CleanupRooms extends Command
             ->select('rooms.id')
             ->whereNull('delete_inactive')
             ->where(function ($query) use ($createdDate, $lastStartDate) {
-                $query->where('most_recent_meeting.start', '<', $lastStartDate )
-                       ->orWhere(function ($query) use ($createdDate) {
-                           $query->where('rooms.created_at', '<', $createdDate)
-                                   ->whereNull('most_recent_meeting.start');
-                       });
+                $query->where(function ($query) use ($lastStartDate) {
+                    if (setting('room_auto_delete.inactive_period') != -1) {
+                        $query->where('most_recent_meeting.start', '<', $lastStartDate);
+                    }
+                })
+                ->orWhere(function ($query) use ($createdDate) {
+                    if (setting('room_auto_delete.never_used_period') != -1) {
+                        $query->where('rooms.created_at', '<', $createdDate)
+                               ->whereNull('most_recent_meeting.start');
+                    }
+                });
             })
             ->pluck('id');
 

@@ -123,6 +123,11 @@ class ApplicationController extends Controller
         setting()->set('attendance.enabled', $request->attendance['enabled']);
         setting()->set('attendance.retention_period', $request->attendance['retention_period']);
 
+        setting()->set('room_auto_delete.enabled', $request->room_auto_delete['enabled'] && !($request->room_auto_delete['inactive_period'] == -1 && $request->room_auto_delete['never_used_period'] == -1));
+        setting()->set('room_auto_delete.inactive_period', $request->room_auto_delete['inactive_period']);
+        setting()->set('room_auto_delete.never_used_period', $request->room_auto_delete['never_used_period']);
+        setting()->set('room_auto_delete.deadline_period', $request->room_auto_delete['deadline_period']);
+
         if (!empty($request->help_url)) {
             setting()->set('help_url', $request->help_url);
         } else {

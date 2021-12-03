@@ -96,9 +96,10 @@ return [
         'help_url'                    => env('HELP_URL'),
         'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1),
         'room_auto_delete' => [
+            'enabled' => env('ROOM_AUTO_DELETE_ENABLED', true),
             'inactive_period' => env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),
             'never_used_period'  => env('ROOM_AUTO_DELETE_NEVER_USED_PERIOD', 90),
-            'grace_period' => env('ROOM_AUTO_DELETE_GRACE_PERIOD', 14),
+            'deadline_period' => env('ROOM_AUTO_DELETE_DEADLINE_PERIOD', 14),
         ]
     ]
 ];
