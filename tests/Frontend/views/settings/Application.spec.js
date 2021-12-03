@@ -111,7 +111,7 @@ describe('Application', function () {
               enabled: true,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -183,7 +183,7 @@ describe('Application', function () {
               enabled: true,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -255,7 +255,7 @@ describe('Application', function () {
               enabled: true,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             },
             room_token_expiration: -1
           }
@@ -311,7 +311,7 @@ describe('Application', function () {
                 enabled: true,
                 inactive_period: 30,
                 never_used_period: 14,
-                deadline_period: 7,
+                deadline_period: 7
               },
               room_token_expiration: 1440
             }
@@ -392,7 +392,7 @@ describe('Application', function () {
               enabled: true,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -435,7 +435,7 @@ describe('Application', function () {
                   enabled: true,
                   inactive_period: 30,
                   never_used_period: 14,
-                  deadline_period: 7,
+                  deadline_period: 7
                 }
               }
             }
@@ -564,7 +564,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -679,7 +679,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -752,7 +752,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -830,7 +830,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1000,7 +1000,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1070,7 +1070,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1139,7 +1139,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1219,7 +1219,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1289,7 +1289,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1368,7 +1368,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1448,7 +1448,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1527,7 +1527,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1613,7 +1613,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1701,7 +1701,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -1761,7 +1761,7 @@ describe('Application', function () {
                 enabled: false,
                 inactive_period: 30,
                 never_used_period: 14,
-                deadline_period: 7,
+                deadline_period: 7
               }
             }
           }
@@ -1819,7 +1819,7 @@ describe('Application', function () {
                   enabled: false,
                   inactive_period: 30,
                   never_used_period: 14,
-                  deadline_period: 7,
+                  deadline_period: 7
                 }
               }
             }
@@ -1889,7 +1889,7 @@ describe('Application', function () {
                     enabled: false,
                     inactive_period: 30,
                     never_used_period: 14,
-                    deadline_period: 7,
+                    deadline_period: 7
                   }
                 }
               }
@@ -1970,7 +1970,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -2039,7 +2039,7 @@ describe('Application', function () {
                 enabled: false,
                 inactive_period: 30,
                 never_used_period: 14,
-                deadline_period: 7,
+                deadline_period: 7
               }
             }
           }
@@ -2100,7 +2100,7 @@ describe('Application', function () {
                   enabled: false,
                   inactive_period: 30,
                   never_used_period: 14,
-                  deadline_period: 7,
+                  deadline_period: 7
                 }
               }
             }
@@ -2165,7 +2165,7 @@ describe('Application', function () {
                     enabled: false,
                     inactive_period: 30,
                     never_used_period: 14,
-                    deadline_period: 7,
+                    deadline_period: 7
                   }
                 }
               }
@@ -2245,7 +2245,7 @@ describe('Application', function () {
               enabled: false,
               inactive_period: 30,
               never_used_period: 14,
-              deadline_period: 7,
+              deadline_period: 7
             }
           }
         }
@@ -2323,7 +2323,7 @@ describe('Application', function () {
                 enabled: false,
                 inactive_period: 30,
                 never_used_period: 14,
-                deadline_period: 7,
+                deadline_period: 7
               }
             }
           }
