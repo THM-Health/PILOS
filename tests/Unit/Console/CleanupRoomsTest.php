@@ -23,6 +23,7 @@ class CleanupRoomsTest extends TestCase
         Notification::fake();
 
         // Set time periods
+        setting()->set('room_auto_delete.enabled', true);
         setting()->set('room_auto_delete.inactive_period', 90);
         setting()->set('room_auto_delete.never_used_period', 30);
         setting()->set('room_auto_delete.deadline_period', 7);
@@ -89,6 +90,7 @@ class CleanupRoomsTest extends TestCase
         Notification::fake();
 
         // Set time periods
+        setting()->set('room_auto_delete.enabled', true);
         setting()->set('room_auto_delete.inactive_period', 90);
         setting()->set('room_auto_delete.never_used_period', -1);
         setting()->set('room_auto_delete.deadline_period', 7);
@@ -149,6 +151,7 @@ class CleanupRoomsTest extends TestCase
         Notification::fake();
 
         // Set time periods
+        setting()->set('room_auto_delete.enabled', true);
         setting()->set('room_auto_delete.inactive_period', -1);
         setting()->set('room_auto_delete.never_used_period', 30);
         setting()->set('room_auto_delete.deadline_period', 7);
@@ -206,6 +209,7 @@ class CleanupRoomsTest extends TestCase
     public function testSetExpireDateAndSendEmailDisabled()
     {
         // Set time periods
+        setting()->set('room_auto_delete.enabled', true);
         setting()->set('room_auto_delete.inactive_period', 90);
         setting()->set('room_auto_delete.never_used_period', 30);
         setting()->set('room_auto_delete.deadline_period', 7);
@@ -273,6 +277,8 @@ class CleanupRoomsTest extends TestCase
     public function testDelete()
     {
         Notification::fake();
+
+        setting()->set('room_auto_delete.enabled', true);
 
         $roomNotToDelete    = Room::factory()->create();
         $roomToDelete       = Room::factory()->create(['delete_inactive'=> now()->subDay()]);
