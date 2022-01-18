@@ -101,7 +101,9 @@ class Meeting extends Model
             ->setLockSettingsDisableNote($this->room->lockSettingsDisableNote)
             ->setLockSettingsHideUserList($this->room->lockSettingsHideUserList)
             ->setLockSettingsLockOnJoin($this->room->lockSettingsLockOnJoin)
-            ->setMuteOnStart($this->room->muteOnStart);
+            ->setMuteOnStart($this->room->muteOnStart)
+            ->setMeetingLayout(CreateMeetingParameters::CUSTOM_LAYOUT)
+            ->setLearningDashboardEnabled(false);
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->room->files()->where('useinmeeting', true)->orderBy('default', 'desc')->get();
