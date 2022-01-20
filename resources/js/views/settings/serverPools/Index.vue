@@ -160,7 +160,7 @@ export default {
     searchDebounce: {
       type: Number,
       default: 200,
-      required: false,
+      required: false
     },
     modalStatic: {
       type: Boolean,
