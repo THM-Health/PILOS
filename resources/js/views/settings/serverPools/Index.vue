@@ -22,7 +22,7 @@
           <b-form-input
             v-model='filter'
             :placeholder="$t('app.search')"
-            :debounce='200'
+            :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
             <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
@@ -157,6 +157,11 @@ export default {
   mixins: [ActionsColumn],
 
   props: {
+    searchDebounce: {
+      type: Number,
+      default: 200,
+      required: false,
+    },
     modalStatic: {
       type: Boolean,
       default: false

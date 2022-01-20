@@ -125,6 +125,9 @@ describe('ServerPoolsIndex', function () {
       mocks: {
         $t: key => key
       },
+      propsData: {
+        searchDebounce: 0
+      },
       store,
       attachTo: createContainer()
     });
@@ -143,7 +146,6 @@ describe('ServerPoolsIndex', function () {
         const search = view.findComponent(BFormInput);
         expect(search.exists()).toBeTruthy();
         expect(search.html()).toContain('app.search');
-        await search.setProps({ debounce: 0 });
         await search.setValue('Prod');
 
         moxios.wait(function () {
