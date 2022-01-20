@@ -63,7 +63,6 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^5.13.0",
         "@simonwep/pickr": "^1.5.1",
         "@smartweb/vue-flash-message": "^0.6.4",
         "array-flat-polyfill": "^1.0.1",
