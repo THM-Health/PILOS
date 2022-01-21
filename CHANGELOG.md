@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added 
+- Support for BBB2.4 API, disable learning dashboard and change default layout ([#190], [#191])
+
+### Changed
+- Update php und node dependencies ([#191])
 
 ## [1.7.1] - 2022-01-20
 ### Added
@@ -233,6 +238,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#178]: https://github.com/THM-Health/PILOS/pull/178
 [#186]: https://github.com/THM-Health/PILOS/issues/186
 [#187]: https://github.com/THM-Health/PILOS/pull/187
+[#190]: https://github.com/THM-Health/PILOS/issues/190
+[#191]: https://github.com/THM-Health/PILOS/pull/191
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.7.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
