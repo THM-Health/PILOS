@@ -32,6 +32,9 @@ module.exports = {
       ignoreNodes: ['raw-text']
     }],
     '@intlify/vue-i18n/no-v-html': 'warn',
-    semi: ['error', 'always']
+    semi: ['error', 'always'],
+    'vue/valid-v-slot': ['error', {
+      allowModifiers: true
+    }]
   }
 };
