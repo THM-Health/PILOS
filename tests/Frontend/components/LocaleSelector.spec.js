@@ -11,7 +11,7 @@ localVue.use(BootstrapVue);
 
 describe('LocaleSelector', function () {
   beforeEach(function () {
-    LocaleSelector.__set__('LocaleMap', {
+    LocaleSelector.__Rewire__('LocaleMap', {
       de: 'German',
       en: 'English',
       ru: 'Russian'
