@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added 
 - Support for BBB2.4 API, disable learning dashboard and change default layout ([#190], [#191])
+- Show BBB version in server list and view ([#199], [#200])
 
 ### Changed
 - Update php und node dependencies ([#191])
@@ -240,6 +241,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#187]: https://github.com/THM-Health/PILOS/pull/187
 [#190]: https://github.com/THM-Health/PILOS/issues/190
 [#191]: https://github.com/THM-Health/PILOS/pull/191
+[#199]: https://github.com/THM-Health/PILOS/issues/199
+[#200]: https://github.com/THM-Health/PILOS/pull/200
+
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.7.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
