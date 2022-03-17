@@ -44,8 +44,8 @@ class ServerTest extends TestCase
         setting(['pagination_page_size' => $page_size]);
 
         $servers  = Server::factory()->count(8)->create(['description'=>'test']);
-        $server01 = Server::factory()->create(['name'=>'server01','status'=>ServerStatus::DISABLED]);
-        $server02 = Server::factory()->create(['name'=>'server02','status'=>ServerStatus::OFFLINE]);
+        $server01 = Server::factory()->create(['name'=>'server01','status'=>ServerStatus::DISABLED, 'version' => null]);
+        $server02 = Server::factory()->create(['name'=>'server02','status'=>ServerStatus::OFFLINE, 'version' => null]);
 
         // Test guests
         $this->getJson(route('api.v1.servers.index'))
@@ -83,6 +83,7 @@ class ServerTest extends TestCase
                         'video_count',
                         'own_meeting_count',
                         'meeting_count',
+                        'version',
                         'updated_at',
                         'model_name'
                     ]
@@ -185,10 +186,10 @@ class ServerTest extends TestCase
                 'video_count'             => $server->video_count,
                 'own_meeting_count'       => $server->meetings()->count(),
                 'meeting_count'           => $server->meeting_count,
+                'version'                 => $server->version,
                 'updated_at'              => $server->updated_at,
                 'model_name'              => $server->model_name,
-                    ]
-            );
+            ]);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;

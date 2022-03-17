@@ -7,6 +7,7 @@ use App\Meeting;
 use App\Server;
 use App\User;
 use BigBlueButton\BigBlueButton;
+use BigBlueButton\Responses\ApiVersionResponse;
 use BigBlueButton\Responses\GetMeetingsResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -119,6 +120,7 @@ class ServerTest extends TestCase
         $server->voice_participant_count = 3;
         $server->video_count             = 4;
         $server->meeting_count           = 5;
+        $server->version                 = '2.4.5';
         $server->status                  = ServerStatus::ONLINE;
         $server->save();
 
@@ -129,6 +131,7 @@ class ServerTest extends TestCase
         $this->assertEquals(3, $server->voice_participant_count);
         $this->assertEquals(4, $server->video_count);
         $this->assertEquals(5, $server->meeting_count);
+        $this->assertEquals('2.4.5', $server->version);
 
         $server->status                  = ServerStatus::OFFLINE;
         $server->save();
@@ -141,6 +144,7 @@ class ServerTest extends TestCase
         $this->assertNull($server->voice_participant_count);
         $this->assertNull($server->video_count);
         $this->assertNull($server->meeting_count);
+        $this->assertNull($server->version);
     }
 
     /**
@@ -157,6 +161,7 @@ class ServerTest extends TestCase
         $server->voice_participant_count = 3;
         $server->video_count             = 4;
         $server->meeting_count           = 5;
+        $server->version                 = '2.4.5';
         $server->status                  = ServerStatus::ONLINE;
         $server->save();
 
@@ -172,6 +177,7 @@ class ServerTest extends TestCase
         $this->assertNull($server->voice_participant_count);
         $this->assertNull($server->video_count);
         $this->assertNull($server->meeting_count);
+        $this->assertNull($server->version);
     }
 
     /**
@@ -307,5 +313,30 @@ class ServerTest extends TestCase
         $server->updateUsage();
         $meeting->refresh();
         $this->assertCount(0, $meeting->attendees);
+    }
+
+    /**
+     * Check if the version is getting updated
+     */
+    public function testVersionUpdate()
+    {
+        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) {
+            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
+            $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion.xml')));
+
+            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
+            $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml')));
+        });
+
+        $server = Server::factory()->create(['version' => '2.3.0']);
+        $server->setBBB($bbbMock);
+
+        $server->updateUsage();
+        $server->refresh();
+        $this->assertEquals('2.4-rc-7', $server->version);
+
+        $server->updateUsage();
+        $server->refresh();
+        $this->assertNull($server->version);
     }
 }

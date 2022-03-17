@@ -44,6 +44,13 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
+            :label="$t('settings.servers.version')"
+            label-for='version'
+          >
+            <b-form-input id='version' type='text' :value='model.version || "---"' :disabled='true'></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label-cols-sm='4'
             :label="$t('settings.servers.baseUrl')"
             label-for='base_url'
             :state='fieldState("base_url")'

@@ -306,6 +306,7 @@ export default {
     name: 'Name',
     description: 'Description',
     status: 'Status',
+    version: 'Version',
     participantCount: 'Participants',
     videoCount: 'Videos',
     ownMeetingCount: 'Own meetings',
