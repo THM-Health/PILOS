@@ -1661,6 +1661,6 @@ class RoomTest extends TestCase
         $headersRedirect = $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER);
         $this->assertNotEmpty($headersRedirect);
 
-        return Str::contains(last($headersRedirect), 'guest-wait.html');
+        return Str::contains(last($headersRedirect), 'guestWait');
     }
 }

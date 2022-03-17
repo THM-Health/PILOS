@@ -311,6 +311,7 @@ export default {
     name: 'Name',
     description: 'Beschreibung',
     status: 'Status',
+    version: 'Version',
     participantCount: 'Teilnehmer',
     videoCount: 'Videos',
     ownMeetingCount: 'Eigene Meetings',
