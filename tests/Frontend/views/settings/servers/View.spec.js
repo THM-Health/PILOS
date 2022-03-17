@@ -74,6 +74,7 @@ describe('ServerView', function () {
         voice_participant_count: 7,
         video_count: 7,
         meeting_count: 3,
+        version: '2.4.5',
         model_name: 'Server',
         updated_at: '2020-12-21T13:43:21.000000Z'
       }
@@ -333,8 +334,8 @@ describe('ServerView', function () {
       await view.vm.$nextTick();
       await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
       await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
-      await view.findAllComponents(BFormInput).at(2).setValue('http://localhost/bbb');
-      await view.findAllComponents(BFormInput).at(3).setValue('987654321');
+      await view.findAllComponents(BFormInput).at(3).setValue('http://localhost/bbb');
+      await view.findAllComponents(BFormInput).at(4).setValue('987654321');
       await view.findComponent(BFormRating).findAll('.b-rating-star').at(4).trigger('click');
       await view.findComponent(BFormCheckbox).find('input').setChecked();
 
@@ -518,7 +519,7 @@ describe('ServerView', function () {
       await view.vm.$nextTick();
 
       expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
-      expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.online');
+      expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
 
       let restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: 200,
@@ -536,6 +537,7 @@ describe('ServerView', function () {
             voice_participant_count: 7,
             video_count: 7,
             meeting_count: 3,
+            version: '2.4.5',
             model_name: 'Server',
             updated_at: '2020-12-21T13:43:21.000000Z'
           }
@@ -549,7 +551,7 @@ describe('ServerView', function () {
         await view.vm.$nextTick();
 
         expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
-        expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.offline');
+        expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
 
         restoreServerResponse();
         restoreServerResponse = overrideStub('/api/v1/servers/1', {
@@ -568,6 +570,7 @@ describe('ServerView', function () {
               voice_participant_count: 7,
               video_count: 7,
               meeting_count: 3,
+              version: '2.4.5',
               model_name: 'Server',
               updated_at: '2020-12-21T13:43:21.000000Z'
             }
@@ -581,7 +584,7 @@ describe('ServerView', function () {
           await view.vm.$nextTick();
 
           expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeTruthy();
-          expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.unknown');
+          expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
 
           restoreServerResponse();
           view.destroy();
@@ -629,7 +632,7 @@ describe('ServerView', function () {
         });
 
         await view.vm.$nextTick();
-        expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.offline');
+        expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
         expect(view.findAllComponents(BFormText).length).toBe(3);
         expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
 
@@ -646,7 +649,7 @@ describe('ServerView', function () {
           });
 
           await view.vm.$nextTick();
-          expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.offline');
+          expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
           expect(view.findAllComponents(BFormText).length).toBe(3);
           expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
 
@@ -663,7 +666,7 @@ describe('ServerView', function () {
             });
 
             await view.vm.$nextTick();
-            expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.online');
+            expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
             expect(view.findAllComponents(BFormText).length).toBe(2);
 
             // check for response errors
@@ -678,7 +681,7 @@ describe('ServerView', function () {
               });
 
               await view.vm.$nextTick();
-              expect(view.findAllComponents(BFormInput).at(4).element.value).toBe('settings.servers.unknown');
+              expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
               expect(view.findAllComponents(BFormText).length).toBe(2);
 
               sinon.assert.calledOnce(Base.error);
@@ -729,6 +732,7 @@ describe('ServerView', function () {
             voice_participant_count: 7,
             video_count: 7,
             meeting_count: 3,
+            version: '2.4.5',
             model_name: 'Server',
             updated_at: '2020-12-21T13:43:21.000000Z'
           }
