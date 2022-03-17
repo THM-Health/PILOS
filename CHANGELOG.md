@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update php und node dependencies ([#191])
 
-## [1.7.1] - 2022-01-20
+## [1.8.0] - 2022-01-20
 ### Added
 - Browser notifications on room start ([#124], [#178])
 - Automatically delete old or unused rooms with prior email notification  ([#186], [#187])
@@ -256,4 +256,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
 [1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
 [1.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.0
-[1.7.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.1
+[1.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.8.0
