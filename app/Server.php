@@ -43,6 +43,7 @@ class Server extends Model
              */
             if ($model->status != $model->getOriginal('status')) {
                 if ($model->status != ServerStatus::ONLINE) {
+                    $model->version = null;
                     $model->participant_count = null;
                     $model->listener_count = null;
                     $model->voice_participant_count = null;
@@ -106,6 +107,30 @@ class Server extends Model
             return $response->getMeetings();
         } catch (\Exception $exception) {
             // TODO add better error handling when provided by api
+            return null;
+        }
+    }
+
+    /**
+     * Get list of currently running meeting from the api
+     * @return string|null
+     */
+    public function getBBBVersion()
+    {
+        if ($this->status == ServerStatus::DISABLED) {
+            return null;
+        }
+
+        try {
+            $response = $this->bbb()->getApiVersion();
+            if ($response->failed()) {
+                return null;
+            }
+
+            $version = $response->getBbbVersion();
+
+            return $version != '' ? $version : null;
+        } catch (\Exception $exception) {
             return null;
         }
     }
@@ -357,6 +382,7 @@ class Server extends Model
                 $this->meeting_count           = $serverStat->meeting_count;
                 $this->status                  = ServerStatus::ONLINE;
                 $this->timestamps              = false;
+                $this->version                 = $this->getBBBVersion();
                 $this->save();
 
                 // Save server statistics if enabled

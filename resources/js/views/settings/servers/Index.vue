@@ -81,6 +81,11 @@
         <raw-text v-else>---</raw-text>
       </template>
 
+      <template v-slot:cell(version)="data">
+        <span v-if="data.item.version != null">{{ data.item.version }}</span>
+        <raw-text v-else>---</raw-text>
+      </template>
+
       <template v-slot:cell(meeting_count)="data">
         <span v-if="data.item.meeting_count !== null">{{ data.item.meeting_count }}</span>
         <raw-text v-else>---</raw-text>
@@ -205,6 +210,7 @@ export default {
         { key: 'id', label: this.$t('settings.servers.id'), sortable: true, thStyle: { width: '8%' } },
         { key: 'name', label: this.$t('settings.servers.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
+        { key: 'version', label: this.$t('settings.servers.version'), sortable: true, thStyle: { width: '10%' } },
         { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },
         { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, thStyle: { width: '15%' } },
         { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true, thStyle: { width: '15%' } }

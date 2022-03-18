@@ -43,9 +43,15 @@ class ServerTest extends TestCase
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
 
-        $servers  = Server::factory()->count(8)->create(['description'=>'test']);
-        $server01 = Server::factory()->create(['name'=>'server01','status'=>ServerStatus::DISABLED]);
-        $server02 = Server::factory()->create(['name'=>'server02','status'=>ServerStatus::OFFLINE]);
+        $servers  = Server::factory()->count(8)->create(['description'=>'test', 'version' => '2.4.5']);
+        $server01 = Server::factory()->create(['name'=>'server01','status'=>ServerStatus::DISABLED, 'version' => null]);
+        $server02 = Server::factory()->create(['name'=>'server02','status'=>ServerStatus::OFFLINE, 'version' => null]);
+
+        $servers[3]->version = '2.4.4';
+        $servers[3]->save();
+
+        $servers[4]->version = '2.4.6';
+        $servers[4]->save();
 
         // Test guests
         $this->getJson(route('api.v1.servers.index'))
@@ -83,6 +89,7 @@ class ServerTest extends TestCase
                         'video_count',
                         'own_meeting_count',
                         'meeting_count',
+                        'version',
                         'updated_at',
                         'model_name'
                     ]
@@ -138,6 +145,22 @@ class ServerTest extends TestCase
             ->assertJsonFragment(['id' => Server::orderByDesc('name')->first()->id])
             ->assertJsonMissing(['id' => Server::orderBy('name')->first()->id]);
 
+        // Sorting version asc
+        $response =  $this->getJson(route('api.v1.servers.index') . '?sort_by=version&sort_direction=asc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data');
+        $this->assertNull($response->json('data.0.version'));
+        $this->assertNull($response->json('data.1.version'));
+        $this->assertEquals('2.4.4', $response->json('data.2.version'));
+        $this->assertEquals('2.4.5', $response->json('data.3.version'));
+
+        // Sorting version desc
+        $response =  $this->getJson(route('api.v1.servers.index') . '?sort_by=version&sort_direction=desc')
+            ->assertSuccessful()
+            ->assertJsonCount($page_size, 'data');
+        $this->assertEquals('2.4.6', $response->json('data.0.version'));
+        $this->assertEquals('2.4.5', $response->json('data.1.version'));
+
         // Request with forced usage update, should see that the online servers are now offline (cause it's fake data)
         $response = $this->getJson(route('api.v1.servers.index') . '?sort_by=status&sort_direction=desc&update_usage=true')
             ->assertSuccessful()
@@ -185,10 +208,10 @@ class ServerTest extends TestCase
                 'video_count'             => $server->video_count,
                 'own_meeting_count'       => $server->meetings()->count(),
                 'meeting_count'           => $server->meeting_count,
+                'version'                 => $server->version,
                 'updated_at'              => $server->updated_at,
                 'model_name'              => $server->model_name,
-                    ]
-            );
+            ]);
 
         // Test deleted
         $server->status = ServerStatus::DISABLED;

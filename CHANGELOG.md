@@ -5,13 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.9.1] - 2022-03-17
+### Fixed
+- Broken sorting of BBB version in server list ([#202], [#203])
+
+## [1.9.0] - 2022-03-17
 ### Added 
 - Support for BBB2.4 API, disable learning dashboard and change default layout ([#190], [#191])
+- Show BBB version in server list and view ([#199], [#200])
 
 ### Changed
 - Update php und node dependencies ([#191])
 
-## [1.7.1] - 2022-01-20
+## [1.8.0] - 2022-01-20
 ### Added
 - Browser notifications on room start ([#124], [#178])
 - Automatically delete old or unused rooms with prior email notification  ([#186], [#187])
@@ -240,8 +246,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#187]: https://github.com/THM-Health/PILOS/pull/187
 [#190]: https://github.com/THM-Health/PILOS/issues/190
 [#191]: https://github.com/THM-Health/PILOS/pull/191
+[#199]: https://github.com/THM-Health/PILOS/issues/199
+[#200]: https://github.com/THM-Health/PILOS/pull/200
+[#202]: https://github.com/THM-Health/PILOS/issues/202
+[#203]: https://github.com/THM-Health/PILOS/pull/203
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.7.1...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -252,4 +262,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
 [1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
 [1.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.0
-[1.7.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.1
+[1.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.8.0
+[1.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.0
+[1.9.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.1

@@ -33,6 +33,7 @@ const defaultResponse = {
       video_count: 5,
       meeting_count: 2,
       own_meeting_count: 2,
+      version: '2.4.5',
       model_name: 'Server',
       updated_at: '2020-12-21T13:43:21.000000Z'
     },
@@ -48,6 +49,7 @@ const defaultResponse = {
       video_count: 5,
       meeting_count: 10,
       own_meeting_count: 9,
+      version: null,
       model_name: 'Server',
       updated_at: '2020-12-21T13:43:21.000000Z'
     },
@@ -63,6 +65,23 @@ const defaultResponse = {
       video_count: null,
       meeting_count: null,
       own_meeting_count: null,
+      version: null,
+      model_name: 'Server',
+      updated_at: '2020-12-21T13:43:21.000000Z'
+    },
+    {
+      id: 4,
+      name: 'Server 04',
+      description: 'Testserver 04',
+      strength: 1,
+      status: 0,
+      participant_count: null,
+      listener_count: null,
+      voice_participant_count: null,
+      video_count: null,
+      meeting_count: null,
+      own_meeting_count: null,
+      version: null,
       model_name: 'Server',
       updated_at: '2020-12-21T13:43:21.000000Z'
     }
@@ -136,11 +155,37 @@ describe('ServersIndex', function () {
       }).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
-        const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
-        expect(html).toContain('Server 01');
-        expect(html).toContain(10);
-        expect(html).toContain(5);
-        expect(html).toContain(2);
+        const server01 = view.findComponent(BTbody).findAllComponents(BTr).at(0).findAll('td');
+        expect(server01.at(1).html()).toContain('Server 01');
+        expect(server01.at(2).html()).toContain('fas fa-play');
+        expect(server01.at(3).html()).toContain('2.4.5');
+        expect(server01.at(4).html()).toContain(2);
+        expect(server01.at(5).html()).toContain(10);
+        expect(server01.at(6).html()).toContain(5);
+
+        const server02 = view.findComponent(BTbody).findAllComponents(BTr).at(1).findAll('td');
+        expect(server02.at(1).html()).toContain('Server 02');
+        expect(server02.at(2).html()).toContain('fas fa-play');
+        expect(server02.at(3).html()).toContain('---');
+        expect(server02.at(4).html()).toContain(10);
+        expect(server02.at(5).html()).toContain(50);
+        expect(server02.at(6).html()).toContain(5);
+
+        const server03 = view.findComponent(BTbody).findAllComponents(BTr).at(2).findAll('td');
+        expect(server03.at(1).html()).toContain('Server 03');
+        expect(server03.at(2).html()).toContain('fas fa-pause');
+        expect(server03.at(3).html()).toContain('---');
+        expect(server03.at(4).html()).toContain('---');
+        expect(server03.at(5).html()).toContain('---');
+        expect(server03.at(6).html()).toContain('---');
+
+        const server04 = view.findComponent(BTbody).findAllComponents(BTr).at(3).findAll('td');
+        expect(server04.at(1).html()).toContain('Server 04');
+        expect(server04.at(2).html()).toContain('fas fa-stop');
+        expect(server04.at(3).html()).toContain('---');
+        expect(server04.at(4).html()).toContain('---');
+        expect(server04.at(5).html()).toContain('---');
+        expect(server04.at(6).html()).toContain('---');
 
         view.destroy();
         done();
@@ -172,7 +217,7 @@ describe('ServersIndex', function () {
         response: defaultResponse
       }).then(async () => {
         await view.vm.$nextTick();
-        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
 
         const search = view.findComponent(BFormInput);
         expect(search.exists()).toBeTruthy();
@@ -199,6 +244,7 @@ describe('ServersIndex', function () {
                   voice_participant_count: 30,
                   video_count: 5,
                   meeting_count: 10,
+                  version: null,
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
@@ -373,8 +419,8 @@ describe('ServersIndex', function () {
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
       expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // check if three servers  visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+      // check if four servers  visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
 
       // open delete modal for third server
       view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
@@ -417,6 +463,7 @@ describe('ServersIndex', function () {
                   video_count: 5,
                   meeting_count: 2,
                   own_meeting_count: 2,
+                  version: '2.4.5',
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 },
@@ -431,6 +478,23 @@ describe('ServersIndex', function () {
                   voice_participant_count: 30,
                   video_count: 5,
                   meeting_count: 10,
+                  version: '2.4.4',
+                  model_name: 'Server',
+                  updated_at: '2020-12-21T13:43:21.000000Z'
+                },
+                {
+                  id: 4,
+                  name: 'Server 04',
+                  description: 'Testserver 04',
+                  strength: 1,
+                  status: 0,
+                  participant_count: null,
+                  listener_count: null,
+                  voice_participant_count: null,
+                  video_count: null,
+                  meeting_count: null,
+                  own_meeting_count: null,
+                  version: null,
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
@@ -447,15 +511,15 @@ describe('ServersIndex', function () {
                 last_page: 1,
                 path: 'http://localhost/api/v1/servers',
                 per_page: 15,
-                to: 2,
-                total: 2
+                to: 3,
+                total: 3
               }
             }
           });
 
           await view.vm.$nextTick();
           // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
@@ -496,8 +560,8 @@ describe('ServersIndex', function () {
       expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
       expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // check if three servers visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+      // check if four servers visible
+      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
 
       // open delete modal for first server
       view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
@@ -538,6 +602,7 @@ describe('ServersIndex', function () {
                   video_count: 5,
                   meeting_count: 2,
                   own_meeting_count: 2,
+                  version: '2.4.5',
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 },
@@ -552,6 +617,23 @@ describe('ServersIndex', function () {
                   voice_participant_count: 30,
                   video_count: 5,
                   meeting_count: 10,
+                  version: '2.4.4',
+                  model_name: 'Server',
+                  updated_at: '2020-12-21T13:43:21.000000Z'
+                },
+                {
+                  id: 4,
+                  name: 'Server 04',
+                  description: 'Testserver 04',
+                  strength: 1,
+                  status: 0,
+                  participant_count: null,
+                  listener_count: null,
+                  voice_participant_count: null,
+                  video_count: null,
+                  meeting_count: null,
+                  own_meeting_count: null,
+                  version: null,
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
@@ -568,15 +650,15 @@ describe('ServersIndex', function () {
                 last_page: 1,
                 path: 'http://localhost/api/v1/servers',
                 per_page: 15,
-                to: 2,
-                total: 2
+                to: 3,
+                total: 3
               }
             }
           });
 
           await view.vm.$nextTick();
           // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
@@ -749,6 +831,7 @@ describe('ServersIndex', function () {
                   voice_participant_count: 7,
                   video_count: 7,
                   meeting_count: 3,
+                  version: '2.4.5',
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 },
@@ -763,6 +846,7 @@ describe('ServersIndex', function () {
                   voice_participant_count: 30,
                   video_count: 5,
                   meeting_count: 10,
+                  version: '2.4.4',
                   model_name: 'Server',
                   updated_at: '2020-12-21T13:43:21.000000Z'
                 }
