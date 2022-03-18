@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Room;
 use App\RoomType;
+use App\Services\RoomTestHelper;
 use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,7 +25,7 @@ class RoomFactory extends Factory
     public function definition()
     {
         return [
-            'name'         => $this->faker->word,
+            'name'         => RoomTestHelper::createValidRoomName(),
             'room_type_id' => RoomType::factory(),
             'user_id'      => User::factory(),
         ];

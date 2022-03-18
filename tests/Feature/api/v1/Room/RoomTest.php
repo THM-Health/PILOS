@@ -13,6 +13,7 @@ use App\Room;
 use App\RoomToken;
 use App\RoomType;
 use App\Server;
+use App\Services\RoomTestHelper;
 use App\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
@@ -95,7 +96,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => $this->faker->word];
+        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -738,7 +739,7 @@ class RoomTest extends TestCase
         $settings['roomType']                       = $roomType->id;
         $settings['duration']                       = $this->faker->numberBetween(1, 50);
         $settings['maxParticipants']                = $this->faker->numberBetween(1, 50);
-        $settings['name']                           = $this->faker->word;
+        $settings['name']                           = RoomTestHelper::createValidRoomName();
         $settings['welcome']                        = $this->faker->text;
         $settings['listed']                         = $this->faker->boolean;
         $settings['record_attendance']              = $this->faker->boolean;
