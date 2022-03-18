@@ -49,7 +49,7 @@ export function loadLanguageAsync (lang) {
     return Promise.resolve(setI18nLanguage(lang));
   }
 
-  if (process.env.NODE_ENV !== 'test') {
+  if (process.env.NODE_ENV !== 'testing') {
     return import(
       /* webpackChunkName: "js/lang/[request]" */
       /* webpackInclude: /\.js/ */

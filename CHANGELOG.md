@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Update node dependencies ([#195])
+
 ## [1.9.1] - 2022-03-17
 ### Fixed
 - Broken sorting of BBB version in server list ([#202], [#203])
@@ -246,6 +249,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#187]: https://github.com/THM-Health/PILOS/pull/187
 [#190]: https://github.com/THM-Health/PILOS/issues/190
 [#191]: https://github.com/THM-Health/PILOS/pull/191
+[#195]: https://github.com/THM-Health/PILOS/pull/195
 [#199]: https://github.com/THM-Health/PILOS/issues/199
 [#200]: https://github.com/THM-Health/PILOS/pull/200
 [#202]: https://github.com/THM-Health/PILOS/issues/202

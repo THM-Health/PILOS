@@ -35,6 +35,7 @@ if (fs.existsSync('resources/custom/js/')) {
 }
 
 mix.js(files, 'public/js')
+  .vue()
   .sass('resources/sass/app.scss', 'public/css')
   .copy('resources/images', 'public/images')
   .sourceMaps(false);
