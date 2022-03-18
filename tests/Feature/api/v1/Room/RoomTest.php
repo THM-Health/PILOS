@@ -802,6 +802,11 @@ class RoomTest extends TestCase
 
         $settings = $response->json('data');
 
+        // Room type invalid format
+        $settings['roomType']            = [ "id" => 5 ];
+        $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertJsonValidationErrors(['roomType']);
+
         // Name too short
         $settings['name']            = 'A';
         $settings['roomType']        = $this->faker->randomElement(RoomType::pluck('id'));
