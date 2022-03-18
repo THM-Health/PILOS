@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Room fails to start if its name has a length of 1 ([#204], [#205])
+- Server error 500 if room type is invalid ([#205])
+
 ### Changed
 - Update node dependencies ([#195])
 
@@ -254,6 +258,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#200]: https://github.com/THM-Health/PILOS/pull/200
 [#202]: https://github.com/THM-Health/PILOS/issues/202
 [#203]: https://github.com/THM-Health/PILOS/pull/203
+[#204]: https://github.com/THM-Health/PILOS/issues/204
+[#205]: https://github.com/THM-Health/PILOS/pull/205
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
