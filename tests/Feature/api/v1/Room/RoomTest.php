@@ -121,6 +121,11 @@ class RoomTest extends TestCase
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertJsonValidationErrors(['name', 'roomType']);
 
+        // name too short
+        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => 'A'];
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
+            ->assertJsonValidationErrors(['name']);
+
         // missing parameters
         $room = [];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
@@ -796,6 +801,12 @@ class RoomTest extends TestCase
             ->assertSuccessful();
 
         $settings = $response->json('data');
+
+        // Name too short
+        $settings['name']            = 'A';
+        $settings['roomType']        = $this->faker->randomElement(RoomType::pluck('id'));
+        $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
+            ->assertJsonValidationErrors(['name']);
 
         $settings['accessCode']      = $this->faker->numberBetween(1111111, 9999999);
         $settings['defaultRole']     = RoomUserRole::GUEST;
