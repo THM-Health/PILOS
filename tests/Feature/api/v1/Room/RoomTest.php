@@ -803,7 +803,7 @@ class RoomTest extends TestCase
         $settings = $response->json('data');
 
         // Room type invalid format
-        $settings['roomType']            = [ "id" => 5 ];
+        $settings['roomType']            = [ 'id' => 5 ];
         $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
             ->assertJsonValidationErrors(['roomType']);
 

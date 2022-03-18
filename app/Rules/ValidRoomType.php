@@ -33,8 +33,10 @@ class ValidRoomType implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        if(!is_numeric($value))
+        if (!is_numeric($value)) {
             return false;
+        }
+
         return Room::roomTypePermitted($this->owner, RoomType::find($value));
     }
 
