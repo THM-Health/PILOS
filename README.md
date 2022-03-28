@@ -36,7 +36,9 @@ PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework
 
 A BigBlueButton server is necessary to use this application. See how to set up a BigBlueButton server [here](https://docs.bigbluebutton.org/).
 
-PILOS allows users to login with LDAP. For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.org/) is necessary.
+PILOS allows users to login with LDAP and manual user accounts.
+For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.org/) is necessary.
+An alternative Shibboleth authenticator is in progress (#139).
 
 For the deployment of the frontend javascript nodejs is necessary. Currently, all versions above `12.0.0` are supported.
 
