@@ -3,7 +3,7 @@
 return [
     'greeting'   => 'Hallo :name,',
     'regards'    => 'Mit freundlichen Grüßen',
-    'action_url' => 'Wenn Sie Probleme haben den ":actionText" Button zu drücken, kopieren Sie die nachfolgende URL und fügen in Ihren Browser ein:',
+    'action_url' => 'Wenn Sie Probleme haben, den ":actionText" Button zu drücken, kopieren Sie die nachfolgende URL und fügen diese in Ihren Browser ein:',
 
     'password_reset' => [
         'subject'     => 'Passwort-Rücksetz-Benachrichtigung',
