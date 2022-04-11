@@ -39,14 +39,14 @@
 @endforeach
 
 {{-- Salutation --}}
-@lang('mail.regards', [], $notifiable->locale),<br>
+@lang('mail.regards', [], $notifiable->locale)<br>
 {{ setting('name') }}
 
 {{-- Subcopy --}}
 @isset($actionText)
 @slot('subcopy')
 @component('mail::subcopy')
-@lang('mail.action_url', [ 'actionText' => $actionText ], $notifiable->locale) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span>
+@lang('mail.action_url', [ 'actionText' => $actionText ], $notifiable->locale) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span> .
 @endcomponent
 @endslot
 @endisset
