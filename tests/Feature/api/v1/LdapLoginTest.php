@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\Role;
+use App\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Tests\TestCase;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use TiMacDonald\Log\LogFake;
 
-class LdapRoleMappingTest extends TestCase
+class LdapLoginTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -79,6 +80,108 @@ class LdapRoleMappingTest extends TestCase
     private function getAuthenticatedUser()
     {
         return Auth::guard($this->guard)->user();
+    }
+
+    /**
+     * Test that user can login with valid credentials
+     *
+     * @return void
+     */
+    public function testLoginSuccess()
+    {
+        $this->assertGuest($this->guard);
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+    }
+
+    /**
+     * Tests that a correct response gets returned when trying to login with invalid credentials.
+     *
+     * @return void
+     */
+    public function testLoginWrongCredentials()
+    {
+        $this->assertGuest($this->guard);
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => 'testuser',
+            'password' => 'secret'
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertGuest();
+    }
+
+    /**
+     * Test that guid of user is updated if changed in ldap
+     *
+     * @return void
+     */
+    public function testLoginGuidChange()
+    {
+        self::assertCount(0, User::all());
+        // Create new LDAP user with given uuid
+        $originalUUID = $this->faker->uuid;
+        $ldapUser     = LdapUser::create([
+            'givenName'              => $this->faker->firstName,
+            'sn'                     => $this->faker->lastName,
+            'cn'                     => $this->faker->name,
+            'mail'                   => $this->faker->unique()->safeEmail,
+            'uid'                    => $this->faker->unique()->userName,
+            $this->ldapRoleAttribute => [$this->ldapRoleName],
+            'entryuuid'              => $originalUUID,
+        ]);
+        DirectoryEmulator::setup()->actingAs($ldapUser);
+
+        // Login with this new user
+        $this->assertGuest($this->guard);
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+        $this->assertAuthenticated($this->guard);
+
+        // Check if new user with this uuid was created
+        self::assertCount(1, User::all());
+        $databaseUser = User::where('username', $ldapUser->uid[0])->where('authenticator', 'ldap')->first();
+        $this->assertNotNull($databaseUser);
+        $this->assertEquals($originalUUID, $databaseUser->guid);
+
+        // Logout user
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.logout'));
+        $response->assertNoContent();
+        $this->assertGuest();
+
+        // Remove and re-add user with the same data but different uuid
+        $newUUID     = $this->faker->uuid;
+        $newLdapUser = LdapUser::make([
+            'givenName'              => $ldapUser->givenName,
+            'sn'                     => $ldapUser->sn,
+            'cn'                     => $ldapUser->cn,
+            'mail'                   => $ldapUser->mail,
+            'uid'                    => $ldapUser->uid,
+            $this->ldapRoleAttribute => $ldapUser->{$this->ldapRoleAttribute},
+            'entryuuid'              => $newUUID,
+        ]);
+        $ldapUser->delete();
+        $newLdapUser->save();
+        DirectoryEmulator::setup()->actingAs($newLdapUser);
+
+        // Try to re-login
+        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $newLdapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        // Check if login was successful
+        $this->assertAuthenticated($this->guard);
+        // Check if no new user was created and existing user was updated
+        self::assertCount(1, User::all());
+        $databaseUser->refresh();
+        $this->assertEquals($newUUID, $databaseUser->guid);
     }
 
     /**
