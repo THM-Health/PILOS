@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Server error 500 on login, if entryUUID in ldap changed ([#212], [#213])
+
 ## [1.9.2] - 2022-03-18
 ### Fixed
 - Room fails to start if its name has a length of 1 ([#204], [#205])
@@ -261,6 +264,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#203]: https://github.com/THM-Health/PILOS/pull/203
 [#204]: https://github.com/THM-Health/PILOS/issues/204
 [#205]: https://github.com/THM-Health/PILOS/pull/205
+[#212]: https://github.com/THM-Health/PILOS/issues/212
+[#213]: https://github.com/THM-Health/PILOS/pull/213
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
