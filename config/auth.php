@@ -81,6 +81,9 @@ return [
                     'email'     => 'mail',
                     'username'  => 'uid',
                 ],
+                'sync_existing' => [
+                    'username' => 'uid',
+                ],
             ],
         ],
 
