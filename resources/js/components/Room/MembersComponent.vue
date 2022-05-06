@@ -39,19 +39,25 @@
           :fields="tableFields"
           :items="members"
           hover
+          ref="membersTable"
           stacked="lg"
           show-empty
+          selectable
+          :no-select-on-click="true"
+          @row-selected="onRowsSelected"
         >
           <!-- message on no members -->
           <template v-slot:empty>
             <i>{{ $t('rooms.members.nodata') }}</i>
           </template>
 
-          <!-- table data fetching spinner -->
-          <template v-slot:table-busy>
-            <div class="text-center my-2">
-              <b-spinner class="align-middle"></b-spinner>
-            </div>
+          <template #head(selected)>
+            <b-form-checkbox :checked="selectedMembers.length == members.length && members.length > 0" @change="onAllRowsSelected" />
+          </template>
+
+          <!-- checkbox to select the current row -->
+          <template #cell(selected)="{ rowSelected, selectRow, unselectRow }">
+            <b-form-checkbox :checked="rowSelected" @change="rowSelected ? unselectRow() : selectRow() "/>
           </template>
 
           <!-- action buttons -->
@@ -88,10 +94,7 @@
           <!-- render user role -->
           <template v-slot:cell(role)="data">
             <b-badge v-if="data.value === 0" variant="primary">{{ $t('rooms.members.roles.guest') }}</b-badge>
-            <b-badge
-              class="text-white"
-              v-if="data.value === 1"
-              variant="success"
+            <b-badge class="text-white" v-if="data.value === 1" variant="success"
             >{{ $t('rooms.members.roles.participant') }}
             </b-badge>
             <b-badge v-if="data.value === 2" variant="danger"
@@ -278,10 +281,33 @@ export default {
       editMember: null, // member to be edited
       deleteMember: null, // member to be deleted
       errors: {},
-      currentPage: 1
+      currentPage: 1,
+      selectedMembers: []
     };
   },
   methods: {
+
+    /**
+     * select all checkbox toggled
+     * @param allSelected boolean select all rows
+     */
+    onAllRowsSelected (allSelected) {
+      if (!allSelected) {
+        // If checkbox is now unchecked, remove all selections
+        this.$refs.membersTable.clearSelected();
+      } else {
+        // If checkbox is now checked, select all rows
+        this.$refs.membersTable.selectAllRows();
+      }
+    },
+
+    /**
+     * Row selection changed
+     * @param selectedRows selected rows
+     */
+    onRowsSelected (selectedRows) {
+      this.selectedMembers = selectedRows;
+    },
 
     /**
      * Remove given member from member list
@@ -477,6 +503,9 @@ export default {
     // member tables headings
     tableFields () {
       const fields = [
+        {
+          key: 'selected'
+        },
         {
           key: 'image',
           label: this.$t('rooms.members.image'),
