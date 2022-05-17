@@ -116,6 +116,29 @@
             ></b-pagination>
           </b-col>
         </b-row>
+        <!-- selected rows action buttons -->
+        <div>
+          <b-button-group class="float-md-right"> <!-- Implement visibility in b-button group via: v-if="currentUser && currentUser.id !== data.item.id" -->
+            <!-- multiple edit membership role -->
+            <b-button
+              :disabled="isBusy"
+              variant="dark"
+              v-b-tooltip.hover
+              :title="$t('rooms.members.editUser')"
+            >
+              <i class="fas fa-user-edit"></i>
+            </b-button>
+            <!-- multiple remove member -->
+            <b-button
+              :disabled="isBusy"
+              variant="danger"
+              v-b-tooltip.hover
+              :title="$t('rooms.members.deleteUser')"
+            >
+              <i class="fas fa-trash"></i>
+            </b-button>
+          </b-button-group>
+        </div>
       </div>
     </div>
 
