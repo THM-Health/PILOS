@@ -11,7 +11,7 @@ class MassDeleteRequest extends FormRequest
     public function rules()
     {
         return [
-            'users'   => ['required|array'],
+            'users'   => ['required','array'],
             'users.*' => ['required','integer','exists:App\User,id',
             function ($attribute, $value, $fail) {
                 if (!$this->room->members()->find($value) or $this->room->owner->id == $value) {

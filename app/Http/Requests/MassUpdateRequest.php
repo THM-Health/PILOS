@@ -12,7 +12,7 @@ class MassUpdateRequest extends FormRequest
     {
         return [
             'role'    => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR,RoomUserRole::CO_OWNER])],
-            'users'   => ['required|array'],
+            'users'   => ['required','array'],
             'users.*' => ['required','integer','exists:App\User,id',
             function ($attribute, $value, $fail) {
                 if (!$this->room->members()->find($value) or $this->room->owner->id == $value) {
