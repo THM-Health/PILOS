@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\RoomUserRole;
+use App\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,10 +15,11 @@ class MassDeleteRequest extends FormRequest
             'users'   => ['required','array'],
             'users.*' => ['required','integer','exists:App\User,id',
             function ($attribute, $value, $fail) {
-                if (!$this->room->members()->find($value) or $this->room->owner->id == $value) {
-                    $fail(__('validation.custom.room.not_member'));
+                $user = User::find($value);
+                if (!$this->room->members()->find($value) or $this->room->owner->is($user)) {
+                    $fail(__('validation.custom.room.not_member', ['firstname' => $user->firstname, 'lastname' => $user->lastname] ));
                 }
-                if ($value === \Auth::user()->id) {
+                if ($user->is(\Auth::user())) {
                     $fail(__('validation.custom.room.self_delete'));
                 }
             }],

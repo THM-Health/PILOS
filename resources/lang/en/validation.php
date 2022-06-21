@@ -146,7 +146,7 @@ return [
         ],
         'room' => [
             'already_member' => 'The user is already member of the room.',
-            'not_member' => 'The user isn\'t a member.',
+            'not_member' => 'The user \':firstname :lastname\' isn\'t a member.',
             'self_delete' => 'The user is not allowed to delete himself.',
             'self_edit' => 'The user is not allowed to edit himself.',
         ],
