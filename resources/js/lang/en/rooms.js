@@ -120,9 +120,12 @@ export default {
     },
     editUser: 'Edit member',
     deleteUser: 'Delete member',
+    multipleEditUser: 'Edit {numberOfSelectedUsers} members',
+    multipleDeleteUser: 'Delete {numberOfSelectedUsers} members',
     modals: {
       edit: {
         title: 'Edit {firstname} {lastname}',
+        titleMultiple: 'Edit {numberOfSelectedUsers} users',
         save: 'Save',
         cancel: 'Cancel',
         role: 'Role'
@@ -141,7 +144,9 @@ export default {
       },
       delete: {
         title: 'Remove member from this room',
-        confirm: 'Do you want to remove {firstname} {lastname} from this room?'
+        confirm: 'Do you want to remove {firstname} {lastname} from this room?',
+        titleMultiple: 'Remove {numberOfSelectedUsers} members from this room',
+        confirmMultiple: 'Do you want to remove {numberOfSelectedUsers} members from this room?'
       }
     }
   },

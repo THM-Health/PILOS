@@ -51,13 +51,13 @@
             <i>{{ $t('rooms.members.nodata') }}</i>
           </template>
 
-          <template #head(selected)>
+          <template #head(selected) v-if="currentUser">
             <b-form-checkbox :checked="selectedMembers.length == members.length && members.length > 0" @change="onAllRowsSelected" />
           </template>
 
           <!-- checkbox to select the current row -->
-          <template #cell(selected)="{ rowSelected, selectRow, unselectRow }">
-            <b-form-checkbox :checked="rowSelected" @change="rowSelected ? unselectRow() : selectRow() "/>
+          <template #cell(selected)="{ item, rowSelected, selectRow, unselectRow }">
+            <b-form-checkbox v-if="currentUser && currentUser.id !== item.id" :checked="rowSelected" @change="rowSelected ? unselectRow() : selectRow() "/>
           </template>
 
           <!-- action buttons -->
@@ -117,28 +117,28 @@
           </b-col>
         </b-row>
         <!-- selected rows action buttons -->
-        <div>
-          <b-button-group class="float-md-right"> <!-- Implement visibility in b-button group via: v-if="currentUser && currentUser.id !== data.item.id" -->
+        <b-button-group class="float-md-right" v-if="selectedMembers.length > 0 && members.length > 0">
             <!-- multiple edit membership role -->
             <b-button
               :disabled="isBusy"
               variant="dark"
+              @click="showEditMultipleMemberModal(selectedMembers)"
               v-b-tooltip.hover
-              :title="$t('rooms.members.editUser')"
+              :title="$t('rooms.members.multipleEditUser',{numberOfSelectedUsers: selectedMembers.length})"
             >
-              <i class="fas fa-user-edit"></i>
+              <i class="fas fa-users-cog"></i>
             </b-button>
             <!-- multiple remove member -->
             <b-button
               :disabled="isBusy"
               variant="danger"
+              @click="showRemoveMultipleMemberModal(selectedMembers,{numberOfSelectedUsers: selectedMembers.length})"
               v-b-tooltip.hover
-              :title="$t('rooms.members.deleteUser')"
+              :title="$t('rooms.members.multipleDeleteUser',{numberOfSelectedUsers: selectedMembers.length})"
             >
-              <i class="fas fa-trash"></i>
+              <i class="fas fa-users-slash"></i>
             </b-button>
           </b-button-group>
-        </div>
       </div>
     </div>
 
@@ -181,6 +181,47 @@
       </div>
     </b-modal>
 
+    <!-- edit multiple users role modal -->
+    <b-modal
+      :static='modalStatic'
+      :busy="isLoadingAction"
+      ok-variant="success"
+      :cancel-title="$t('rooms.members.modals.edit.cancel')"
+      @ok="saveEditMultipleMembers"
+      ref="edit-multiple-members-modal"
+      :no-close-on-esc="isLoadingAction"
+      :no-close-on-backdrop="isLoadingAction"
+      :hide-header-close="isLoadingAction"
+    >
+      <template v-slot:modal-title>
+        <span v-if="editMember">
+        {{ $t('rooms.members.modals.edit.titleMultiple', {numberOfSelectedUsers: selectedMembers.length}) }}
+          </span>
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
+      </template>
+      <div v-if="editMember">
+        <b-form-group :state="fieldState('role')" :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
+          <b-form-radio :state="fieldState('role')" v-model.number="massEditRole" name="some-radios" value="1">
+            <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+          </b-form-radio>
+          <b-form-radio :state="fieldState('role')" v-model.number="massEditRole" name="some-radios" value="2">
+            <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
+          </b-form-radio>
+          <b-form-radio :state="fieldState('role')" v-model.number="massEditRole" name="some-radios" value="3">
+            <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
+          </b-form-radio>
+
+          <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
+
+        </b-form-group>
+
+        <b-form-invalid-feedback :force-show="true"><div v-html="fieldError('users',true)"></div></b-form-invalid-feedback>
+
+      </div>
+    </b-modal>
+
     <!-- remove user modal -->
     <b-modal
       :busy="isLoadingAction"
@@ -203,6 +244,33 @@
       <span v-if="deleteMember">
         {{ $t('rooms.members.modals.delete.confirm',{firstname: deleteMember.firstname,lastname: deleteMember.lastname}) }}
       </span>
+
+    </b-modal>
+
+    <!-- remove multiple user modal -->
+    <b-modal
+      :busy="isLoadingAction"
+      :static='modalStatic'
+      ok-variant="danger"
+      cancel-variant="dark"
+      :cancel-title="$t('app.no')"
+      @ok="confirmRemoveMultipleMember"
+      ref="remove-multiple-members-modal"
+      :no-close-on-esc="isLoadingAction"
+      :no-close-on-backdrop="isLoadingAction"
+      :hide-header-close="isLoadingAction"
+    >
+      <template v-slot:modal-title>
+        {{ $t('rooms.members.modals.delete.titleMultiple', {numberOfSelectedUsers: selectedMembers.length}) }}
+      </template>
+      <template v-slot:modal-ok>
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
+      </template>
+      <span>
+        {{ $t('rooms.members.modals.delete.confirmMultiple', {numberOfSelectedUsers: selectedMembers.length}) }}
+      </span>
+
+      <b-form-invalid-feedback :force-show="true"><div v-html="fieldError('users',true)"></div></b-form-invalid-feedback>
 
     </b-modal>
 
@@ -302,6 +370,7 @@ export default {
       members: [], // list of all members
       createError: null, // error on adding new user as member
       editMember: null, // member to be edited
+      massEditRole: null, // role that will be applied to multiple members
       deleteMember: null, // member to be deleted
       errors: {},
       currentPage: 1,
@@ -329,14 +398,17 @@ export default {
      * @param selectedRows selected rows
      */
     onRowsSelected (selectedRows) {
-      this.selectedMembers = selectedRows;
+      // set selected members to all selected table columns, exclude current user (prevent self edit/delete)
+      this.selectedMembers = selectedRows.filter(user => user.id !== this.currentUser.id);
     },
 
     /**
-     * Remove given member from member list
+     * Remove given members from member list, usable for both single removal or mass removal
      */
-    removeMemberItem: function (member) {
-      this.members.splice(this.members.findIndex(item => item.id === member.id), 1);
+    removeMemberItems: function (members) {
+      members.forEach(member => {
+        this.members.splice(this.members.findIndex(item => item.id === member), 1);
+      });
     },
 
     /**
@@ -370,6 +442,16 @@ export default {
     },
 
     /**
+     * show modal to remove multiple members
+     * @param member member object
+     */
+    showRemoveMultipleMemberModal: function (member) {
+      this.deleteMember = member;
+      this.errors = {};
+      this.$refs['remove-multiple-members-modal'].show();
+    },
+
+    /**
      * Remove a member
      */
     confirmRemoveMember: function (bvModalEvt) {
@@ -382,10 +464,10 @@ export default {
         method: 'delete'
       }).then(response => {
         // remove user entry from list
-        this.removeMemberItem(this.deleteMember);
+        this.removeMemberItems([this.deleteMember.id]);
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeMemberItem(this.deleteMember);
+          this.removeMemberItems([this.deleteMember.id]);
         }
         Base.error(error, this.$root);
       }).finally(() => {
@@ -394,6 +476,44 @@ export default {
       });
     },
     /**
+     * Remove multiple members
+     * @param bvModalEvt
+     */
+    confirmRemoveMultipleMember: function (bvModalEvt) {
+      // prevent modal from closing
+      bvModalEvt.preventDefault();
+
+      this.isLoadingAction = true;
+
+      const toBeDeletedMembers = this.selectedMembers.map(user => user.id);
+
+      Base.call('rooms/' + this.room.id + '/member', {
+        method: 'delete',
+        data: { users: toBeDeletedMembers }
+      }).then(response => {
+        // remove user entry from list
+        this.removeMemberItems(toBeDeletedMembers);
+        this.$refs['remove-multiple-members-modal'].hide();
+      }).catch((error) => {
+        // removing failed
+        if (error.response) {
+          // failed due to form validation errors
+          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+            this.errors = error.response.data.errors
+            return;
+          }
+        }
+        if (error.response.status === env.HTTP_GONE) {
+          this.removeMemberItems(toBeDeletedMembers);
+        }
+        this.$refs['remove-multiple-members-modal'].hide();
+        Base.error(error, this.$root);
+      }).finally(() => {
+        this.isLoadingAction = false;
+      });
+    },
+
+    /**
      * show modal to edit user role
      * @param user user object
      */
@@ -401,6 +521,18 @@ export default {
       // Clone object to edit properties without displaying the changes in realtime in the members list
       this.editMember = _.cloneDeep(member);
       this.$refs['edit-member-modal'].show();
+    },
+
+    /**
+     * show modal to edit multiple users role
+     * @param user user object
+     */
+    showEditMultipleMemberModal: function (selectedMembers) {
+      // Clone object to edit properties without displaying the changes in realtime in the members list
+      this.editMember = _.cloneDeep(selectedMembers);
+      this.errors = {};
+      this.massEditRole = null;
+      this.$refs['edit-multiple-members-modal'].show();
     },
 
     /**
@@ -414,23 +546,33 @@ export default {
     },
 
     /**
-     * save new user role
+     * Edit role of given members from member list for both single or mass update
+     */
+    editMemberItems: function (members, role) {
+      members.forEach(member => {
+        this.members[this.members.findIndex(item => item.id === member)].role = role;
+      });
+    },
+
+    /**
+     *  save new user role
      */
     saveEditMember: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
       this.isLoadingAction = true;
+      this.errors = {};
 
       Base.call('rooms/' + this.room.id + '/member/' + this.editMember.id, {
         method: 'put',
         data: { role: this.editMember.role }
       }).then(response => {
         // user role was saved
-        this.members[this.members.findIndex(item => item.id === this.editMember.id)].role = this.editMember.role;
+        this.editMemberItems([this.editMember.id], this.editMember.role);
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeMemberItem(this.editMember);
+          this.removeMemberItems([this.editMember]);
         }
         Base.error(error, this.$root);
       }).finally(() => {
@@ -438,6 +580,46 @@ export default {
         this.isLoadingAction = false;
       });
     },
+
+    /**
+     * save new user roles for multiple members
+     * @param bvModalEvt
+     */
+    saveEditMultipleMembers: function (bvModalEvt) {
+      // prevent modal from closing
+      bvModalEvt.preventDefault();
+
+      this.isLoadingAction = true;
+      this.errors = {};
+
+      const toBeEditedMembers = this.selectedMembers.map(user => user.id);
+
+      Base.call('rooms/' + this.room.id + '/member', {
+        method: 'put',
+        data: { role: this.massEditRole, users: toBeEditedMembers }
+      }).then(response => {
+        // user role was saved
+        this.editMemberItems(toBeEditedMembers, this.massEditRole);
+        this.$refs['edit-multiple-members-modal'].hide();
+      }).catch((error) => {
+        // editing failed
+        if (error.response) {
+          // failed due to form validation errors
+          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+            this.errors = error.response.data.errors
+            return;
+          }
+        }
+        if (error.response.status === env.HTTP_GONE) {
+          toBeEditedMembers.removeMemberItems([this.editMember]);
+        }
+        Base.error(error, this.$root);
+        this.$refs['edit-multiple-members-modal'].hide();
+      }).finally(() => {
+        this.isLoadingAction = false;
+      });
+    },
+
     /**
      * add a user as a room member
      * @param bvModalEvt
@@ -527,9 +709,6 @@ export default {
     tableFields () {
       const fields = [
         {
-          key: 'selected'
-        },
-        {
           key: 'image',
           label: this.$t('rooms.members.image'),
           sortable: false,
@@ -562,6 +741,9 @@ export default {
           label: this.$t('rooms.members.actions'),
           thClass: 'actionColumn',
           tdClass: 'actionButton'
+        });
+        fields.unshift({
+          key: 'selected'
         });
       }
 

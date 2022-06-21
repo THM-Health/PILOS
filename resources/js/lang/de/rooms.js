@@ -120,9 +120,12 @@ export default {
     },
     editUser: 'Mitglied bearbeiten',
     deleteUser: 'Mitglied löschen',
+    multipleEditUser: '{numberOfSelectedUsers} Mitglieder bearbeiten',
+    multipleDeleteUser: '{numberOfSelectedUsers} Mitglieder löschen',
     modals: {
       edit: {
         title: '{firstname} {lastname} bearbeiten',
+        titleMultiple: '{numberOfSelectedUsers} Mitglieder bearbeiten',
         save: 'Speichern',
         cancel: 'Abbrechen',
         role: 'Rolle'
@@ -141,7 +144,9 @@ export default {
       },
       delete: {
         title: 'Mitglied aus dem Raum entfernen',
-        confirm: 'Soll {firstname} {lastname} aus dem Raum entfernt werden?'
+        confirm: 'Soll {firstname} {lastname} aus dem Raum entfernt werden?',
+        titleMultiple: '{numberOfSelectedUsers} Mitglieder aus dem Raum entfernen',
+        confirmMultiple: 'Sollen {numberOfSelectedUsers} Mitglieder aus dem Raum entfernt werden?'
       }
     }
   },
