@@ -144,7 +144,10 @@ return [
             'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.'
         ],
         'room' => [
-            'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.'
+            'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.',
+            'not_member' => 'Der Benutzer ist nicht Mitglied des Raums.',
+            'self_delete' => 'Der Benutzer darf sich nicht selbst löschen.',
+            'self_edit' => 'Der Benutzer darf sich nicht selbst editieren.',
         ],
         'password'              => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).',
         'replacement_room_type' => [

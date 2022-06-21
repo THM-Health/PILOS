@@ -91,6 +91,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::put('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'update'])->name('rooms.tokens.update')->middleware('can:manageTokens,room');
         Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.remove')->middleware('can:manageTokens,room');
 
+        // Membership users for mass update & delete
+        Route::put('rooms/{room}/member', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
+
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
             Route::post('rooms/{room}/files', [RoomFileController::class,'store'])->name('rooms.files.add');
