@@ -5,14 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [1.9.3] - 2022-04-14
-### Fixed
-- Server error 500 on login, if entryUUID in ldap changed ([#212], [#213])
-
 ### Changed
 - Update composer dependencies ([#221],[#222])
 - Update php-cs-fixer ([#221],[#222])
 - Add php 8.1 support ([#221],[#222])
+
+## [1.9.3] - 2022-04-14
+### Fixed
+- Server error 500 on login, if entryUUID in ldap changed ([#212], [#213])
 
 ## [1.9.2] - 2022-03-18
 ### Fixed
