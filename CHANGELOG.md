@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update composer dependencies ([#221],[#222])
 - Update php-cs-fixer ([#221],[#222])
 - Add php 8.1 support ([#221],[#222])
+- Unify used icons ([#223],[#224])
+- Update node dependencies and fontawesome ([#223],[#224])
 
 ## [1.9.3] - 2022-04-14
 ### Fixed
@@ -274,6 +276,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#213]: https://github.com/THM-Health/PILOS/pull/213
 [#221]: https://github.com/THM-Health/PILOS/issues/221
 [#222]: https://github.com/THM-Health/PILOS/pull/222
+[#223]: https://github.com/THM-Health/PILOS/issues/223
+[#224]: https://github.com/THM-Health/PILOS/pull/224
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.3...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
