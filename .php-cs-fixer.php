@@ -9,10 +9,10 @@ $finder = \PhpCsFixer\Finder::create()
     ->in(__DIR__ . '/tests')
     ->in(__DIR__ . '/resources/lang');
 
-return PhpCsFixer\Config::create()
-    ->setUsingCache(false)
+$config = new PhpCsFixer\Config();
+return $config->setUsingCache(false)
     ->setRules([
-        'psr4'                               => true,
+        'psr_autoloading'                    => true,
         'encoding'                           => true,
         'full_opening_tag'                   => true,
         'braces'                             => true,
@@ -22,7 +22,7 @@ return PhpCsFixer\Config::create()
         'function_declaration'               => true,
         'blank_line_after_namespace'         => true,
         'blank_line_before_statement'        => true,
-        'lowercase_constants'                => true,
+        'constant_case'                      => true,
         'lowercase_keywords'                 => true,
         'method_argument_space'              => true,
         'no_closing_tag'                     => true,
@@ -46,10 +46,7 @@ return PhpCsFixer\Config::create()
         'no_unneeded_control_parentheses'    => true,
         'no_unused_imports'                  => true,
         'array_syntax'                       => ['syntax' => 'short'],
-        'binary_operator_spaces'             => [
-            'align_double_arrow' => true,
-            'align_equals'       => true,
-        ]
+        'binary_operator_spaces'             => ['operators' => ['=>' => 'align', '=' => 'align']]
     ])
     ->setRiskyAllowed(true)
     ->setFinder($finder);

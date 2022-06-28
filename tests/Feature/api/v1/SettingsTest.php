@@ -826,7 +826,8 @@ class SettingsTest extends TestCase
         $this->user->roles()->attach($role);
 
         // inputs lower than allowed minimum
-        $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
+        $this->actingAs($this->user)->putJson(
+            route('api.v1.application.update'),
             [
                 'name'                           => 'test',
                 'favicon'                        => '/storage/image/favicon.ico',
@@ -871,7 +872,8 @@ class SettingsTest extends TestCase
             ]);
 
         // inputs higher than allowed minimum
-        $this->putJson(route('api.v1.application.update'),
+        $this->putJson(
+            route('api.v1.application.update'),
             [
                 'name'                           => 'test',
                 'favicon'                        => '/storage/image/favicon.ico',

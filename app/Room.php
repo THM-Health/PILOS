@@ -30,7 +30,7 @@ class Room extends Model
 
             if (!$model->id) {
                 $count_tries = 0;
-                $newId = null;
+                $newId       = null;
                 while (true) {
                     $count_tries++;
                     if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {

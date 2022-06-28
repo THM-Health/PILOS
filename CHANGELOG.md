@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Server error 500 on login, if entryUUID in ldap changed ([#212], [#213])
 
+### Changed
+- Update composer dependencies ([#221],[#222])
+- Update php-cs-fixer ([#221],[#222])
+- Add php 8.1 support ([#221],[#222])
+
 ## [1.9.2] - 2022-03-18
 ### Fixed
 - Room fails to start if its name has a length of 1 ([#204], [#205])
@@ -267,6 +272,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#205]: https://github.com/THM-Health/PILOS/pull/205
 [#212]: https://github.com/THM-Health/PILOS/issues/212
 [#213]: https://github.com/THM-Health/PILOS/pull/213
+[#221]: https://github.com/THM-Health/PILOS/issues/221
+[#222]: https://github.com/THM-Health/PILOS/pull/222
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.3...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

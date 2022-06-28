@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\api\v1\Room;
 
-use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
 

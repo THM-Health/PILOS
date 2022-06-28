@@ -119,7 +119,7 @@ class LoginController extends Controller
      * Adds the roles from the ldap user to the application user, which are mapped
      * in the config `ldap.roleMap`.
      *
-     * @param  $user
+     * @param                         $user
      * @throws ModelNotFoundException
      */
     protected function mapLdapRoles($user)
