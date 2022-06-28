@@ -3,7 +3,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BTr,
   BTbody,
   BButton,
@@ -17,7 +17,6 @@ import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 const defaultResponse = {
   data: [

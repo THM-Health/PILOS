@@ -3,7 +3,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BTr,
   BTbody,
   BButton,
@@ -17,7 +17,6 @@ import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 const defaultResponse = {
   data: [
@@ -157,7 +156,7 @@ describe('ServersIndex', function () {
       }).then(() => {
         const server01 = view.findComponent(BTbody).findAllComponents(BTr).at(0).findAll('td');
         expect(server01.at(1).html()).toContain('Server 01');
-        expect(server01.at(2).html()).toContain('fas fa-play');
+        expect(server01.at(2).html()).toContain('fa-solid fa-play');
         expect(server01.at(3).html()).toContain('2.4.5');
         expect(server01.at(4).html()).toContain(2);
         expect(server01.at(5).html()).toContain(10);
@@ -165,7 +164,7 @@ describe('ServersIndex', function () {
 
         const server02 = view.findComponent(BTbody).findAllComponents(BTr).at(1).findAll('td');
         expect(server02.at(1).html()).toContain('Server 02');
-        expect(server02.at(2).html()).toContain('fas fa-play');
+        expect(server02.at(2).html()).toContain('fa-solid fa-play');
         expect(server02.at(3).html()).toContain('---');
         expect(server02.at(4).html()).toContain(10);
         expect(server02.at(5).html()).toContain(50);
@@ -173,7 +172,7 @@ describe('ServersIndex', function () {
 
         const server03 = view.findComponent(BTbody).findAllComponents(BTr).at(2).findAll('td');
         expect(server03.at(1).html()).toContain('Server 03');
-        expect(server03.at(2).html()).toContain('fas fa-pause');
+        expect(server03.at(2).html()).toContain('fa-solid fa-pause');
         expect(server03.at(3).html()).toContain('---');
         expect(server03.at(4).html()).toContain('---');
         expect(server03.at(5).html()).toContain('---');
@@ -181,7 +180,7 @@ describe('ServersIndex', function () {
 
         const server04 = view.findComponent(BTbody).findAllComponents(BTr).at(3).findAll('td');
         expect(server04.at(1).html()).toContain('Server 04');
-        expect(server04.at(2).html()).toContain('fas fa-stop');
+        expect(server04.at(2).html()).toContain('fa-solid fa-stop');
         expect(server04.at(3).html()).toContain('---');
         expect(server04.at(4).html()).toContain('---');
         expect(server04.at(5).html()).toContain('---');

@@ -49,7 +49,7 @@
           :title="$t('app.reload')"
           v-b-tooltip.hover
         >
-          <i class="fas fa-sync"></i>
+          <i class="fa-solid fa-sync"></i>
         </b-button>
       </div>
     </div>
@@ -90,7 +90,7 @@
                 :title="$t('rooms.files.delete')"
                 v-b-tooltip.hover
               >
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
               </b-button>
             </can>
             <!-- View file -->
@@ -102,7 +102,7 @@
               :title="$t('rooms.files.view')"
               v-b-tooltip.hover
             >
-              <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fas fa-eye"></i>
+              <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fa-solid fa-eye"></i>
             </b-button>
           </b-button-group>
         </template>

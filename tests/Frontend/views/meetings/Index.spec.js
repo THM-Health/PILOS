@@ -2,7 +2,7 @@ import Index from '../../../../resources/js/views/meetings/Index';
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BTr,
   BTbody, BButton, BPagination, BFormInput, BOverlay, BThead, BTh
 } from 'bootstrap-vue';
@@ -14,7 +14,6 @@ import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 

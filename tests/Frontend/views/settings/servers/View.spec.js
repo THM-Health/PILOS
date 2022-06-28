@@ -3,7 +3,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BFormInput,
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal, BFormRating, BFormCheckbox, BFormText
@@ -17,7 +17,6 @@ import _ from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 

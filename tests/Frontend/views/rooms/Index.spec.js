@@ -6,8 +6,7 @@ import BootstrapVue, {
   BListGroupItem,
   BOverlay,
   BPagination,
-  BSpinner,
-  IconsPlugin
+  BSpinner
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import sinon from 'sinon';
@@ -19,7 +18,6 @@ import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 

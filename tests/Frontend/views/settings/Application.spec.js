@@ -6,8 +6,7 @@ import BootstrapVue, {
   BFormFile,
   BFormInput,
   BFormTextarea,
-  BImg,
-  IconsPlugin
+  BImg
 } from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
@@ -19,7 +18,6 @@ import VSwatches from 'vue-swatches';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 
 const createContainer = (tag = 'div') => {
@@ -1771,7 +1769,7 @@ describe('Application', function () {
         expect(formGroup.findAllComponents(BButton).length).toBe(2);
         // check view button
         let viewBtn = formGroup.findAllComponents(BButton).at(0);
-        expect(viewBtn.html()).toContain('fas fa-eye');
+        expect(viewBtn.html()).toContain('fa-solid fa-eye');
         expect(viewBtn.attributes('href')).toBe('http://localhost/storage/styles/bbb.css');
 
         // save without changing anything
@@ -1827,21 +1825,21 @@ describe('Application', function () {
 
           // delete file
           let deleteBtn = formGroup.findAllComponents(BButton).at(1);
-          expect(deleteBtn.html()).toContain('fas fa-trash');
+          expect(deleteBtn.html()).toContain('fa-solid fa-trash');
           await deleteBtn.trigger('click');
 
           // check if delete button disappears and revert button is shown
           expect(formGroup.findAllComponents(BButton).length).toBe(2);
           viewBtn = formGroup.findAllComponents(BButton).at(0);
           const revertBtn = formGroup.findAllComponents(BButton).at(1);
-          expect(revertBtn.html()).toContain('fas fa-undo');
+          expect(revertBtn.html()).toContain('fa-solid fa-undo');
 
           // check if revert button disapears on click and delete button is shown
           await revertBtn.trigger('click');
           expect(formGroup.findAllComponents(BButton).length).toBe(2);
           viewBtn = formGroup.findAllComponents(BButton).at(0);
           deleteBtn = formGroup.findAllComponents(BButton).at(1);
-          expect(deleteBtn.html()).toContain('fas fa-trash');
+          expect(deleteBtn.html()).toContain('fa-solid fa-trash');
 
           // delete file and save
           await deleteBtn.trigger('click');
@@ -2260,19 +2258,19 @@ describe('Application', function () {
 
       // delete file
       let deleteBtn = formGroup.findAllComponents(BButton).at(0);
-      expect(deleteBtn.html()).toContain('fas fa-trash');
+      expect(deleteBtn.html()).toContain('fa-solid fa-trash');
       await deleteBtn.trigger('click');
 
       // check if delete button and image disappears and revert button is shown
       expect(formGroup.findComponent(BFormFile).exists()).toBeFalsy();
       expect(formGroup.findComponent(BImg).exists()).toBeFalsy();
       const revertBtn = formGroup.findAllComponents(BButton).at(0);
-      expect(revertBtn.html()).toContain('fas fa-undo');
+      expect(revertBtn.html()).toContain('fa-solid fa-undo');
 
       // check if revert button disappears on click and delete button and image is shown
       await revertBtn.trigger('click');
       deleteBtn = formGroup.findAllComponents(BButton).at(0);
-      expect(deleteBtn.html()).toContain('fas fa-trash');
+      expect(deleteBtn.html()).toContain('fa-solid fa-trash');
       expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
       expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
 

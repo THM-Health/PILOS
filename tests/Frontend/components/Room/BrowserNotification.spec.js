@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert, BButton, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BAlert, BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
 import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification';
 import sinon from 'sinon';
@@ -8,7 +8,6 @@ import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 

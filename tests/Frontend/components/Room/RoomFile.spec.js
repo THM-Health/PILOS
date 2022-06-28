@@ -755,7 +755,7 @@ describe('RoomFile', function () {
 
       // find delete action button and click
       const deleteButton = tableCols.at(5).findAll('button').at(0);
-      expect(deleteButton.html()).toContain('class="fas fa-trash"');
+      expect(deleteButton.html()).toContain('class="fa-solid fa-trash"');
 
       view.vm.$nextTick()
         .then(() => {
@@ -823,7 +823,7 @@ describe('RoomFile', function () {
 
           // find delete action button and click
           const deleteButton = tableCols.at(5).findAll('button').at(0);
-          expect(deleteButton.html()).toContain('class="fas fa-trash"');
+          expect(deleteButton.html()).toContain('class="fa-solid fa-trash"');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {

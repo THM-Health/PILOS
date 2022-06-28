@@ -1,8 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton, BFormInput, BFormRadio,
-  BTbody,
-  IconsPlugin
+  BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import TokensComponent from '../../../../resources/js/components/Room/TokensComponent';
@@ -37,7 +36,6 @@ const createContainer = (tag = 'div') => {
 };
 
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 localVue.use(VueRouter);
@@ -124,16 +122,16 @@ describe('Room Token', function () {
       const buttonsRow0 = rows[0].at(5).findAll('button');
       expect(buttonsRow0.length).toBe(3);
 
-      expect(buttonsRow0.at(0).html()).toContain('fas fa-link');
-      expect(buttonsRow0.at(1).html()).toContain('fas fa-pen-square');
-      expect(buttonsRow0.at(2).html()).toContain('fas fa-trash');
+      expect(buttonsRow0.at(0).html()).toContain('fa-solid fa-link');
+      expect(buttonsRow0.at(1).html()).toContain('fa-solid fa-pen-square');
+      expect(buttonsRow0.at(2).html()).toContain('fa-solid fa-trash');
       expect(buttonsRow0.length).toBe(3);
 
       expect(rows.length).toBe(2);
 
       // reload with empty response
       const reloadButton = view.findAllComponents(BButton).at(1);
-      expect(reloadButton.html()).toContain('fas fa-sync');
+      expect(reloadButton.html()).toContain('fa-solid fa-sync');
       await reloadButton.trigger('click');
 
       moxios.wait(async () => {
@@ -178,14 +176,14 @@ describe('Room Token', function () {
           await view.vm.$nextTick();
 
           // check if reload buttons position changed due to missing add button
-          expect(view.findAllComponents(BButton).at(0).html()).toContain('fas fa-sync');
+          expect(view.findAllComponents(BButton).at(0).html()).toContain('fa-solid fa-sync');
 
           // check if the edit and delete buttons are missing
           const table = view.findComponent(BTbody);
           const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
           const buttonsRow0 = rows[0].at(5).findAll('button');
           expect(buttonsRow0.length).toBe(1);
-          expect(buttonsRow0.at(0).html()).toContain('fas fa-link');
+          expect(buttonsRow0.at(0).html()).toContain('fa-solid fa-link');
 
           // reload without owner permissions to check edit buttons missing
           await reloadButton.trigger('click');
@@ -254,7 +252,7 @@ describe('Room Token', function () {
       await view.vm.$nextTick();
       const table = view.findComponent(BTbody);
       const buttonsRow0 = table.findAll('tr').at(0).findAll('td').at(5).findAll('button');
-      expect(buttonsRow0.at(0).html()).toContain('fas fa-link');
+      expect(buttonsRow0.at(0).html()).toContain('fa-solid fa-link');
       await buttonsRow0.at(0).trigger('click');
 
       sinon.assert.calledOnce(clipboardSpy);
@@ -306,7 +304,7 @@ describe('Room Token', function () {
       expect(view.findComponent({ ref: 'delete-token-modal' }).find('.modal').element.style.display).toEqual('none');
       const table = view.findComponent(BTbody);
       const buttonsRow0 = table.findAll('tr').at(0).findAll('td').at(5).findAll('button');
-      expect(buttonsRow0.at(2).html()).toContain('fas fa-trash');
+      expect(buttonsRow0.at(2).html()).toContain('fa-solid fa-trash');
       await buttonsRow0.at(2).trigger('click');
 
       view.vm.$root.$once('bv::modal::shown', async () => {
@@ -410,7 +408,7 @@ describe('Room Token', function () {
       expect(view.findComponent({ ref: 'delete-token-modal' }).find('.modal').element.style.display).toEqual('none');
       const table = view.findComponent(BTbody);
       const buttonsRow0 = table.findAll('tr').at(0).findAll('td').at(5).findAll('button');
-      expect(buttonsRow0.at(2).html()).toContain('fas fa-trash');
+      expect(buttonsRow0.at(2).html()).toContain('fa-solid fa-trash');
       await buttonsRow0.at(2).trigger('click');
 
       view.vm.$root.$once('bv::modal::shown', async () => {
@@ -518,7 +516,7 @@ describe('Room Token', function () {
       expect(view.findComponent({ ref: 'add-edit-token-modal' }).find('.modal').element.style.display).toEqual('none');
       const table = view.findComponent(BTbody);
       const buttonsRow0 = table.findAll('tr').at(0).findAll('td').at(5).findAll('button');
-      expect(buttonsRow0.at(1).html()).toContain('fas fa-pen-square');
+      expect(buttonsRow0.at(1).html()).toContain('fa-solid fa-pen-square');
       await buttonsRow0.at(1).trigger('click');
 
       view.vm.$root.$once('bv::modal::shown', async () => {

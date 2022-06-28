@@ -16,7 +16,7 @@
             v-else
             @click="loadRoomType()"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -106,13 +106,13 @@
                     :disabled='serverPoolsLoading || currentPage === 1'
                     variant='outline-secondary'
                     @click='loadServerPools(Math.max(1, currentPage - 1))'>
-                    <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
                   </b-button>
                   <b-button
                     :disabled='serverPoolsLoading || !hasNextPage'
                     variant='outline-secondary'
                     @click='loadServerPools(currentPage + 1)'>
-                    <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
                   </b-button>
                 </template>
               </multiselect>
@@ -121,7 +121,7 @@
                   v-if="serverPoolsLoadingError"
                   @click="loadServerPools(currentPage)"
                   variant="outline-secondary"
-                ><i class="fas fa-sync"></i></b-button>
+                ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('server_pool')"></div></template>
@@ -170,7 +170,7 @@
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='primary'>
                       {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
-                      <span @click='remove(option)'><b-icon-x :aria-label="$t('settings.users.removeRole')"></b-icon-x></span>
+                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
                     </b-badge>
                   </h5>
                 </template>
@@ -179,13 +179,13 @@
                     :disabled='rolesLoading || currentRolePage === 1'
                     variant='outline-secondary'
                     @click='loadRoles(Math.max(1, currentRolePage - 1))'>
-                    <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
                   </b-button>
                   <b-button
                     :disabled='rolesLoading || !hasNextRolePage'
                     variant='outline-secondary'
                     @click='loadRoles(currentRolePage + 1)'>
-                    <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
                   </b-button>
                 </template>
               </multiselect>
@@ -195,7 +195,7 @@
                   v-if="rolesLoadingError"
                   @click="loadRoles(currentRolePage)"
                   variant="outline-secondary"
-                ><i class="fas fa-sync"></i></b-button>
+                ><i class="fa-solid fa-sync"></i></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
@@ -208,7 +208,7 @@
                 :disabled='isBusy'
                 variant='secondary'
                 @click="$router.push({ name: 'settings.room_types' })">
-                <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
+                <i class='fa-solid fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
               <b-button
                 :disabled='isBusy || modelLoadingError || serverPoolsLoadingError || serverPoolsLoading || rolesLoading || rolesLoadingError'
@@ -216,7 +216,7 @@
                 type='submit'
                 class='ml-1'
                 v-if='!viewOnly'>
-                <i class='fas fa-save'></i> {{ $t('app.save') }}
+                <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
               </b-button>
             </b-col>
           </b-row>

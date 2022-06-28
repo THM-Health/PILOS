@@ -11,7 +11,7 @@
            v-else
             @click="getSettings()"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -116,7 +116,7 @@
                 </b-form-file>
                 <template #append v-if="uploadFaviconFile">
                   <b-button variant="danger" @click="uploadFaviconFile = null">
-                    <b-icon-x></b-icon-x>
+                    <i class="fa-solid fa-xmark"></i>
                   </b-button>
                 </template>
               </b-input-group>
@@ -178,7 +178,7 @@
                 </b-form-file>
                 <template #append v-if="uploadLogoFile">
                   <b-button id="application-upload-button" variant="danger" @click="uploadLogoFile = null">
-                    <b-icon-x></b-icon-x>
+                    <i class="fa-solid fa-xmark"></i>
                   </b-button>
                 </template>
               </b-input-group>
@@ -273,7 +273,7 @@
                     v-if="timezonesLoadingError"
                     @click="loadTimezones()"
                     variant="outline-secondary"
-                  ><i class="fas fa-sync"></i></b-button>
+                  ><i class="fa-solid fa-sync"></i></b-button>
                 </b-input-group-append>
               </b-input-group>
             </b-form-group>
@@ -933,7 +933,7 @@
                   v-b-tooltip
                   :title="$t('settings.application.bbb.logo.reset')"
                 >
-                  <i class="fas fa-undo"></i>
+                  <i class="fa-solid fa-undo"></i>
                 </b-button>
                 <!-- Delete file -->
                 <b-button
@@ -944,7 +944,7 @@
                   v-b-tooltip
                   :title="$t('settings.application.bbb.logo.delete')"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fa-solid fa-trash"></i>
                 </b-button>
               </template>
               </b-input-group>
@@ -962,7 +962,7 @@
                 </b-form-file>
                 <template #append v-if="uploadBBBLogoFile">
                   <b-button id="bbb-upload-button" variant="danger" @click="uploadBBBLogoFile = null">
-                    <b-icon-x></b-icon-x>
+                    <i class="fa-solid fa-xmark"></i>
                   </b-button>
                 </template>
               </b-input-group>
@@ -1005,7 +1005,7 @@
                 v-b-tooltip
                 :title="$t('settings.application.bbb.style.view')"
               >
-                <i class="fas fa-eye"></i>
+                <i class="fa-solid fa-eye"></i>
               </b-button>
               <b-button
                 v-if='!viewOnly && (bbb_style !== null || bbb_style_deleted)'
@@ -1015,7 +1015,7 @@
                 v-b-tooltip
                 :title="$t('settings.application.bbb.style.reset')"
               >
-                <i class="fas fa-undo"></i>
+                <i class="fa-solid fa-undo"></i>
               </b-button>
               <!-- Delete file -->
               <b-button
@@ -1026,7 +1026,7 @@
                 v-b-tooltip
                 :title="$t('settings.application.bbb.style.delete')"
               >
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
               </b-button>
 
             </b-input-group-append>
@@ -1064,7 +1064,7 @@
                   v-b-tooltip
                   :title="$t('settings.application.viewDefaultPresentation')"
                 >
-                  <i class="fas fa-eye"></i>
+                  <i class="fa-solid fa-eye"></i>
                 </b-button>
                 <b-button
                   v-if='!viewOnly && (default_presentation !== null || default_presentation_deleted)'
@@ -1074,7 +1074,7 @@
                   v-b-tooltip
                   :title="$t('settings.application.resetDefaultPresentation')"
                 >
-                  <i class="fas fa-undo"></i>
+                  <i class="fa-solid fa-undo"></i>
                 </b-button>
                 <!-- Delete file -->
                 <b-button
@@ -1085,7 +1085,7 @@
                   v-b-tooltip
                   :title="$t('settings.application.deleteDefaultPresentation')"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fa-solid fa-trash"></i>
                 </b-button>
 
               </b-input-group-append>
@@ -1105,7 +1105,7 @@
                     type="submit"
                     v-if="!viewOnly"
                     :disabled="isBusy || !loaded || timezonesLoadingError">
-            <span><i class="fas fa-save mr-2"></i>{{ $t('app.save') }}</span>
+            <span><i class="fa-solid fa-save mr-2"></i>{{ $t('app.save') }}</span>
           </b-button>
         </div>
       </b-form>
