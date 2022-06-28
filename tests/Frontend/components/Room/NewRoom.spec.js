@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
-import BootstrapVue, { BFormInput, BFormSelect, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BFormInput, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
 import PermissionService from '../../../../resources/js/services/PermissionService';
@@ -55,7 +55,6 @@ const store = new Vuex.Store({
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 

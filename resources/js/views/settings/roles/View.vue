@@ -16,7 +16,7 @@
             v-else
             @click="load()"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -35,7 +35,7 @@
 
           <b-modal id="modal-help-roomlimit" :hide-footer="true">
             <template v-slot:modal-title>
-              <b-icon-info-circle></b-icon-info-circle> {{ $t('settings.roles.roomLimit.helpModal.title') }}
+              <i class="fa-solid fa-circle-info"></i> {{ $t('settings.roles.roomLimit.helpModal.title') }}
             </template>
             <p>{{ $t('settings.roles.roomLimit.helpModal.info') }}</p>
 
@@ -102,7 +102,7 @@
             label-for='room-limit'
             :state='fieldState("room_limit")'
           >
-            <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="text-dark" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><b-icon-info-circle></b-icon-info-circle></b-button></template>
+            <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="text-dark" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
             <b-form-radio-group
               class='mb-2'
               v-model='roomLimitMode'
@@ -138,10 +138,10 @@
               </b-col>
               <b-col cols="2">
                 <b>{{ $t('settings.roles.permissionIncluded') }}
-                  <b-icon-info-circle
+                  <i class="fa-solid fa-circle-info"
                     v-b-tooltip.hover
                     :title="$t('settings.roles.permissionIncludedHelp')"
-                  ></b-icon-info-circle></b>
+                  ></i></b>
               </b-col>
               <b-col cols="12">
                 <hr>
@@ -174,13 +174,13 @@
                   <b-col cols="2">
                     <i
                       v-if="includedPermissions.includes(permission.id)"
-                      class="fas fa-check-circle text-success"
+                      class="fa-solid fa-check-circle text-success"
                       v-b-tooltip.hover
                       :title="$t('settings.roles.hasIncludedPermission',{'name':$t(`app.permissions.${permission.name}`)})"
                     ></i>
                     <i
                       v-else
-                      class="fas fa-minus-circle text-danger"
+                      class="fa-solid fa-minus-circle text-danger"
                       v-b-tooltip.hover
                       :title="$t('settings.roles.hasNotIncludedPermission',{'name':$t(`app.permissions.${permission.name}`)})"
                     ></i>
@@ -205,7 +205,7 @@
                 :disabled='isBusy'
                 variant='secondary'
                 @click="$router.push({ name: 'settings.roles' })">
-                <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
+                <i class='fa-solid fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
               <b-button
                 :disabled='isBusy || modelLoadingError'
@@ -213,7 +213,7 @@
                 type='submit'
                 class='ml-1'
                 v-if='!viewOnly'>
-                <i class='fas fa-save'></i> {{ $t('app.save') }}
+                <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
               </b-button>
             </b-col>
           </b-row>

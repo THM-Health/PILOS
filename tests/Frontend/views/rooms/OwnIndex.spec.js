@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
-import BootstrapVue, { BBadge, BCard, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BBadge, BCard } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
 import sinon from 'sinon';
@@ -12,7 +12,6 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 

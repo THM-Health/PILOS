@@ -10,7 +10,7 @@
       @click="$bvModal.show('remove-modal')"
       :disabled="disabled"
     >
-      <i class="fas fa-trash"></i>
+      <i class="fa-solid fa-trash"></i>
     </b-button>
 
     <!-- Remove room modal -->

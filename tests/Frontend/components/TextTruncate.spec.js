@@ -11,6 +11,7 @@ const createContainer = (tag = 'div') => {
   return container;
 };
 localVue.use(BootstrapVue);
+
 describe('TextTruncate', function () {
   it('show hide tooltip', async function () {
     const content = 'Lorem ipsum dolor sit amet';

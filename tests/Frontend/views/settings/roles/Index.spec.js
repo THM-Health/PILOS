@@ -2,13 +2,12 @@ import Index from '../../../../../resources/js/views/settings/roles/Index';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
-import BootstrapVue, { IconsPlugin, BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
+import BootstrapVue, { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 const createContainer = (tag = 'div') => {
   const container = document.createElement(tag);

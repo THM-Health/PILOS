@@ -14,7 +14,7 @@
               variant='success'
               :title="$t('settings.users.new')"
               :to="{ name: 'settings.users.view', params: { id: 'new' } }"
-            ><b-icon-plus></b-icon-plus></b-button>
+            ><i class="fa-solid fa-plus"></i></b-button>
           </can>
         </b-col>
     </b-row>
@@ -28,7 +28,7 @@
                 :debounce='200'
               ></b-form-input>
               <b-input-group-append>
-                <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
+                <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
               </b-input-group-append>
             </b-input-group>
           </b-col>
@@ -67,13 +67,13 @@
                   :disabled='rolesLoading || rolesCurrentPage === 1'
                   variant='outline-secondary'
                   @click='loadRoles(Math.max(1, rolesCurrentPage - 1))'>
-                  <i class='fas fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                  <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
                 </b-button>
                 <b-button
                   :disabled='rolesLoading || !rolesHasNextPage'
                   variant='outline-secondary'
                   @click='loadRoles(rolesCurrentPage + 1)'>
-                  <i class='fas fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                  <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
                 </b-button>
               </template>
             </multiselect>
@@ -83,14 +83,14 @@
                 v-if="!rolesLoadingError && filter.role"
                 @click="filter.role = null"
                 variant="outline-secondary"
-              ><b-icon icon='x'></b-icon></b-button>
+              ><i class="fa-solid fa-xmark"></i></b-button>
 
               <b-button
                 ref="reloadRolesButton"
                 v-if="rolesLoadingError"
                 @click="loadRoles(rolesCurrentPage)"
                 variant="outline-secondary"
-              ><i class="fas fa-sync"></i></b-button>
+              ><i class="fa-solid fa-sync"></i></b-button>
             </b-input-group-append>
           </b-input-group>
             </b-col>
@@ -153,7 +153,7 @@
               class='mb-1'
               :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fas fa-eye'></i>
+              <i class='fa-solid fa-eye'></i>
             </b-button>
           </can>
           <can method='update' :policy='data.item'>
@@ -165,7 +165,7 @@
               class='mb-1'
               :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
             >
-              <i class='fas fa-edit'></i>
+              <i class='fa-solid fa-edit'></i>
             </b-button>
           </can>
           <can method='resetPassword' :policy='data.item'>
@@ -178,7 +178,7 @@
               class='mb-1'
               @click='showResetPasswordModal(data.item)'
             >
-              <i class='fas fa-key'></i>
+              <i class='fa-solid fa-key'></i>
             </b-button>
           </can>
           <can method='delete' :policy='data.item'>
@@ -189,7 +189,7 @@
               variant='danger'
               class='mb-1'
               @click='showDeleteModal(data.item)'>
-              <i class='fas fa-trash'></i>
+              <i class='fa-solid fa-trash'></i>
             </b-button>
           </can>
         </b-button-group>

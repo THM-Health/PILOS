@@ -4,7 +4,7 @@ import PermissionService from '../../../../../resources/js/services/PermissionSe
 import Multiselect from 'vue-multiselect';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BFormInput,
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal
@@ -18,7 +18,6 @@ import _ from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -670,7 +669,7 @@ describe('ServerPoolView', function () {
           restoreServerPoolResponse();
 
           const reloadButton = view.findAllComponents(BButton).at(2);
-          expect(reloadButton.html()).toContain('fas fa-sync');
+          expect(reloadButton.html()).toContain('fa-solid fa-sync');
 
           await reloadButton.trigger('click');
 

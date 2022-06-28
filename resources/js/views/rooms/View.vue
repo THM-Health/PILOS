@@ -22,7 +22,7 @@
         v-on:click="reload"
         :disabled="loading"
       >
-        <i v-bind:class="{ 'fa-spin': loading  }" class="fas fa-sync"></i>
+        <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
       </b-button>
 
       <!-- Show membership options for users that are logged into the room (via access code, membership, ownership) -->
@@ -36,7 +36,7 @@
             :disabled="loading"
             variant="dark"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
           </can>
           <!-- If user is member, allow user to end the membership -->
@@ -48,7 +48,7 @@
             :disabled="loading"
             variant="danger"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
           </b-button>
 
           <b-modal
@@ -107,7 +107,7 @@
                 :title="$t('rooms.copyAccessForParticipants')"
                 variant="light"
               >
-                <i class="fas fa-copy"></i>
+                <i class="fa-solid fa-copy"></i>
               </b-button>
               <span style="white-space: pre;">{{ invitationText }}</span>
             </div>
@@ -127,7 +127,7 @@
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
 
                 <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
-                  <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
                   <b-form-checkbox
                     v-model="recordAttendanceAgreement"
                     :value="true"
@@ -147,7 +147,7 @@
                     :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     variant="success"
                   >
-                    <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.join') }}
+                    <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.join') }}
                   </b-button>
                 </template>
                 <!-- If room is not running -->
@@ -160,7 +160,7 @@
                     v-on:click="start"
                     variant="success"
                   >
-                      <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.start') }}
+                      <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.start') }}
                   </b-button>
                   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
                   <div v-else class="text-center p-3">
@@ -219,7 +219,7 @@
               :disabled="loading"
               variant="success"
             >
-              <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-lock"></i> {{ $t('rooms.login') }}
+              <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-lock"></i> {{ $t('rooms.login') }}
             </b-button>
           </b-input-group-append>
         </b-input-group>
@@ -232,14 +232,14 @@
       <template v-if="token !== null">
         <!-- Show message that room can only be used by logged in users -->
         <b-alert show variant="danger">
-          <i class="fas fa-unlink"></i> {{ $t('rooms.invalidPersonalLink') }}
+          <i class="fa-solid fa-unlink"></i> {{ $t('rooms.invalidPersonalLink') }}
         </b-alert>
       </template>
       <!-- room is only for logged in users -->
       <template v-else>
         <!-- Show message that room can only be used by logged in users -->
         <b-alert show>
-          <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
+          <i class="fa-solid fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
         </b-alert>
         <b-button-group>
           <!-- Reload page, in case the room settings changed -->
@@ -247,14 +247,14 @@
             v-on:click="reload"
             :disabled="loading"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
+            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-sync"></i> {{$t('rooms.tryAgain')}}
           </b-button>
           <!-- Redirect the login the access room -->
           <b-button
             @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
             variant="success"
           >
-            <i class="fas fa-lock"></i> {{$t('rooms.login')}}
+            <i class="fa-solid fa-lock"></i> {{$t('rooms.login')}}
           </b-button>
         </b-button-group>
       </template>

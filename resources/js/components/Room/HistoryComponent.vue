@@ -9,7 +9,7 @@
             v-else
             @click="$root.$emit('bv::refresh::table', 'meetings-table')"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -25,7 +25,7 @@
             :title="$t('app.reload')"
             v-b-tooltip.hover
           >
-            <i class="fas fa-sync"></i>
+            <i class="fa-solid fa-sync"></i>
           </b-button>
         </div>
       </div>
@@ -72,7 +72,7 @@
                 variant='primary'
                 @click="loadMeetingStats(data.item)"
               >
-                <i class='fas fa-chart-line'></i>
+                <i class='fa-solid fa-chart-line'></i>
               </b-button>
               <b-button
                 v-b-tooltip.hover
@@ -82,7 +82,7 @@
                 variant='primary'
                 @click="loadMeetingAttendance(data.item)"
               >
-                <i class="fas fa-user-clock"></i>
+                <i class="fa-solid fa-user-clock"></i>
               </b-button>
             </template>
           </b-table>
@@ -112,7 +112,7 @@
           <br><small>{{ $d(new Date(statsMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d(new Date(statsMeeting.end),'datetimeShort') }}</small>
           </h5>
         </template>
-        <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
+        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
 
         <line-chart v-if="statsMeeting" :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
       </b-modal>
@@ -123,10 +123,10 @@
             <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
               <br><small>{{ $d(new Date(attendanceMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(attendanceMeeting.end),'datetimeShort') }}</small>
             </h5>
-            <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fas fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
+            <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fa-solid fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
           </div>
         </template>
-        <b-alert show variant="info"><i class="fas fa-info-circle"></i> {{ $t('meetings.attendance.noBreakoutSupport')}}</b-alert>
+        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.attendance.noBreakoutSupport')}}</b-alert>
 
         <b-table
           id='attendance-table'

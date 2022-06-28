@@ -843,7 +843,7 @@ describe('RoomMembers', function () {
 
           // first member
           const deleteButton = rows.at(0).findAllComponents(BButton).at(1);
-          expect(deleteButton.html()).toContain('fas fa-trash');
+          expect(deleteButton.html()).toContain('fa-solid fa-trash');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {
@@ -936,7 +936,7 @@ describe('RoomMembers', function () {
 
           // first member
           const deleteButton = rows.at(0).findAllComponents(BButton).at(1);
-          expect(deleteButton.html()).toContain('fas fa-trash');
+          expect(deleteButton.html()).toContain('fa-solid fa-trash');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {
@@ -1037,7 +1037,7 @@ describe('RoomMembers', function () {
 
           // first member
           const deleteButton = rows.at(0).findAllComponents(BButton).at(1);
-          expect(deleteButton.html()).toContain('fas fa-trash');
+          expect(deleteButton.html()).toContain('fa-solid fa-trash');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {

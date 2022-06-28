@@ -7,8 +7,7 @@ import BootstrapVue, {
   BFormSelect,
   BFormSelectOption,
   BImg,
-  BModal,
-  IconsPlugin
+  BModal
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
@@ -23,7 +22,6 @@ import Base from '../../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
