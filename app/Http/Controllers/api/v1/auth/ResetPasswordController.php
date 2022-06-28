@@ -40,7 +40,8 @@ class ResetPasswordController extends Controller
         $initial_password_set = $user ? $user->initial_password_set : false;
 
         $response = $this->broker($initial_password_set ? 'new_users' : 'users')
-            ->reset(array_merge(['authenticator' => 'users'], $this->credentials($request)),
+            ->reset(
+                array_merge(['authenticator' => 'users'], $this->credentials($request)),
                 function ($user, $password) use ($initial_password_set) {
                     $this->resetPassword($user, $password);
 

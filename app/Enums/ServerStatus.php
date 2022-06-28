@@ -10,7 +10,7 @@ use BenSampo\Enum\Enum;
  */
 final class ServerStatus extends Enum
 {
-    const DISABLED         =   -1;
-    const OFFLINE          =   0;
-    const ONLINE           =   1;
+    public const DISABLED         =   -1;
+    public const OFFLINE          =   0;
+    public const ONLINE           =   1;
 }

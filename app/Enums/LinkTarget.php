@@ -10,6 +10,6 @@ use BenSampo\Enum\Enum;
  */
 final class LinkTarget extends Enum
 {
-    const BLANK  = 'blank';
-    const SELF   = 'self';
+    public const BLANK  = 'blank';
+    public const SELF   = 'self';
 }
