@@ -65,11 +65,16 @@ changed. For more information about writing tests for the frontend, consider the
 [documentation](https://vue-test-utils.vuejs.org/) and the
 [Vue Testing Handbook](https://lmiller1990.github.io/vue-testing-handbook/#what-is-this-guide).
 
+To run the backend tests execute the command `composer run test`. The frontend tests can be executed with the command `npm run test`.
+
 ### Submit changes
 After implementing the new feature or bugfix you must create a new pull request to the original repository by using the
 corresponding pull request template. If all checks by the ci passed and all tasks in the pull request done, a maintainer
 of the repository will check the PR and may make some comments on your PR. If everything fixed or there were no problems
 at all, then the PR will be merged into the main branch of this repository.
+
+Before creating a commit, make sure the code style is correct (more details in the section "Styleguide") and all tests, 
+frontend and backend, are ok.
 
 ## Styleguide
 The backend uses the php framework Laravel and therefore it follows the

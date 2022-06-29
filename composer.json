@@ -27,7 +27,6 @@
     "require-dev": {
         "ext-simplexml": "*",
         "barryvdh/laravel-ide-helper": "^2.7",
-        "brainmaestro/composer-git-hooks": "^2.8",
         "brianium/paratest": "^6.3",
         "facade/ignition": "^2.5",
         "friendsofphp/php-cs-fixer": "2.*",
@@ -51,16 +50,6 @@
     "extra": {
         "laravel": {
             "dont-discover": []
-        },
-        "hooks": {
-            "pre-commit": [
-                "composer run fix-cs"
-            ],
-            "pre-push": [
-                "composer run test"
-            ],
-            "post-merge": "composer install",
-            "post-checkout": "composer install"
         }
     },
     "autoload": {
@@ -89,9 +78,7 @@
             "@php artisan key:generate --ansi"
         ],
         "test": "php artisan test --parallel",
-        "post-install-cmd": "cghooks add --ignore-lock",
-        "post-update-cmd": "cghooks update",
+        "cover": "paratest --coverage-html=coverage",
         "fix-cs": "php-cs-fixer fix --allow-risky=yes"
-
     }
 }
