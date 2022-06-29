@@ -7,7 +7,7 @@ $finder = \PhpCsFixer\Finder::create()
     ->name('*.php')
     ->in(__DIR__ . '/app')
     ->in(__DIR__ . '/tests')
-    ->in(__DIR__ . '/resources/lang');
+    ->in(__DIR__ . '/lang');
 
 $config = new PhpCsFixer\Config();
 return $config->setUsingCache(false)

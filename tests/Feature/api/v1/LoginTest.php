@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 use Illuminate\Support\Facades\Log;
 
@@ -172,12 +173,14 @@ class LoginTest extends TestCase
             'email'    => $user->email,
             'password' => 'foo'
         ]);
-        Log::assertLogged('info', function ($message, $context) use ($user) {
-            return 'User ['.$user->email.'] has failed authentication.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'users' == $context['authenticator'];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User ['.$user->email.'] has failed authentication.'
+            && $log->context['ip'] == '127.0.0.1'
+            && $log->context['user-agent'] == 'Symfony'
+            && $log->context['authenticator'] == 'users'
+        );
 
         // test failed login with logging disabled
         config(['auth.log.failed' => false]);
@@ -186,12 +189,14 @@ class LoginTest extends TestCase
             'email'    => $user->email,
             'password' => 'foo'
         ]);
-        Log::assertNotLogged('info', function ($message, $context) use ($user) {
-            return 'User ['.$user->email.'] has failed authentication.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'users' == $context['authenticator'];
-        });
+        Log::assertNotLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User ['.$user->email.'] has failed authentication.'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['authenticator'] == 'users'
+        );
 
         // test successful login with logging enabled
         Log::swap(new LogFake);
@@ -200,12 +205,14 @@ class LoginTest extends TestCase
             'email'    => $user->email,
             'password' => 'bar'
         ]);
-        Log::assertLogged('info', function ($message, $context) use ($user) {
-            return 'User ['.$user->email.'] has been successfully authenticated.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'users' == $context['authenticator'];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User ['.$user->email.'] has been successfully authenticated.'
+            && $log->context['ip'] == '127.0.0.1'
+            && $log->context['user-agent'] == 'Symfony'
+            && $log->context['authenticator'] == 'users'
+        );
 
         // logout user to allow new login
         Auth::guard('users')->logout();
@@ -217,11 +224,13 @@ class LoginTest extends TestCase
             'email'    => $user->email,
             'password' => 'bar'
         ]);
-        Log::assertNotLogged('info', function ($message, $context) use ($user) {
-            return 'User ['.$user->email.'] has been successfully authenticated.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'users' == $context['authenticator'];
-        });
+        Log::assertNotLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User ['.$user->email.'] has been successfully authenticated.'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['authenticator'] == 'users'
+        );
     }
 }

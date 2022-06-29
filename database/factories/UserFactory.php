@@ -6,6 +6,9 @@ use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\User>
+ */
 class UserFactory extends Factory
 {
     /**
@@ -18,17 +21,17 @@ class UserFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function definition()
     {
         return [
-            'firstname'         => $this->faker->firstName,
-            'lastname'          => $this->faker->lastName,
-            'username'          => $this->faker->userName,
-            'email'             => $this->faker->unique()->safeEmail,
+            'firstname'         => fake()->firstName,
+            'lastname'          => fake()->lastName,
+            'username'          => fake()->userName,
+            'email'             => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
-            'password'          => $this->faker->password,
+            'password'          => fake()->password,
             'remember_token'    => Str::random(10)
         ];
     }
