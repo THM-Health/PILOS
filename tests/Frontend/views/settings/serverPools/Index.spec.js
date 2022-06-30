@@ -109,7 +109,7 @@ describe('ServerPoolsIndex', () => {
       }).then(() => {
         const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
         expect(html).toContain('Test');
-        expect(html).toContain(2);
+        expect(html).toContain('2');
 
         view.destroy();
         done();

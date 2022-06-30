@@ -1,7 +1,6 @@
 import { beforeEachRoute, routes } from '../../resources/js/router';
 import PermissionService from '../../resources/js/services/PermissionService';
 import moxios from 'moxios';
-import sinon from 'sinon';
 import Base from '../../resources/js/api/base';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
@@ -34,612 +33,458 @@ describe('Router', () => {
   });
 
   describe('beforeEachRoute', () => {
-    it(
-      'beforeEachRoute calls next if there is no permission checks or required authentication',
-      done => {
-        const router = {};
+    it('beforeEachRoute calls next if there is no permission checks or required authentication', async () => {
+      const router = {};
 
-        const store = {
-          getters: {
-            'session/isAuthenticated': true
-          },
-          state: {
-            initialized: true
-          },
-          commit: () => {}
-        };
+      const store = {
+        getters: {
+          'session/isAuthenticated': true
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
 
-        const to = {
-          matched: [{ path: '/', meta: {} }]
-        };
+      const to = {
+        matched: [{ path: '/', meta: {} }]
+      };
 
-        let nextCalled = false;
+      let nextCalled = false;
 
-        new Promise((resolve) => {
-          beforeEachRoute(router, store, to, undefined, () => {
-            nextCalled = true;
-            resolve();
-          });
-        }).then(() => {
-          expect(nextCalled).toBe(true);
-          done();
+      await new Promise((resolve) => {
+        beforeEachRoute(router, store, to, undefined, () => {
+          nextCalled = true;
+          resolve();
         });
-      }
-    );
+      });
 
-    it(
-      'beforeEachRoute calls next with home path if the user is authenticated and the route is only for guests',
-      done => {
-        const router = {
-          app: {
-            $t: (key) => key,
-            $root: {
-              flashMessage: {
-                error: () => {}
-              }
+      expect(nextCalled).toBe(true);
+    });
+
+    it('beforeEachRoute calls next with home path if the user is authenticated and the route is only for guests', async () => {
+      const router = {
+        app: {
+          $t: (key) => key,
+          $root: {
+            flashMessage: {
+              error: () => {}
             }
           }
-        };
+        }
+      };
 
-        const store = {
-          getters: {
-            'session/isAuthenticated': true
-          },
-          state: {
-            initialized: true
-          },
-          commit: () => {}
-        };
+      const store = {
+        getters: {
+          'session/isAuthenticated': true
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
 
-        const to = {
-          matched: [{
-            path: '/foo',
-            meta: {
-              guestsOnly: true
-            }
-          }]
-        };
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            guestsOnly: true
+          }
+        }]
+      };
 
+      await new Promise((resolve) => {
         beforeEachRoute(router, store, to, undefined, (args) => {
           expect(args.name).toBe('home');
-          done();
+          resolve();
         });
-      }
-    );
+      });
+    });
 
-    it(
-      'beforeEachRoute calls next with login path if the user is not authenticated even if permission check accidentally returns true',
-      done => {
-        const router = {};
+    it('beforeEachRoute calls next with login path if the user is not authenticated even if permission check accidentally returns true', async () => {
+      const router = {};
 
-        const store = {
-          getters: {
-            'session/isAuthenticated': false
-          },
-          state: {
-            initialized: true
-          },
-          commit: () => {}
-        };
+      const store = {
+        getters: {
+          'session/isAuthenticated': false
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
 
-        const to = {
-          matched: [{
-            path: '/foo',
-            meta: {
-              requiresAuth: true,
-              accessPermitted: () => true
-            }
-          }]
-        };
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            requiresAuth: true,
+            accessPermitted: () => true
+          }
+        }]
+      };
 
+      await new Promise((resolve) => {
         beforeEachRoute(router, store, to, undefined, (args) => {
           expect(args.name).toBe('login');
-          done();
+          resolve();
         });
-      }
-    );
+      });
+    });
 
-    it(
-      'beforeEachRoute calls next with false or root route if there is no route and access is not permitted',
-      done => {
-        const errors = [];
+    it('beforeEachRoute calls next with false or root route if there is no route and access is not permitted', async () => {
+      const errors = [];
 
-        const router = {
-          app: {
-            $t: (key) => key,
-            $root: {
-              flashMessage: {
-                error: (error) => errors.push(error)
-              }
+      const router = {
+        app: {
+          $t: (key) => key,
+          $root: {
+            flashMessage: {
+              error: (error) => errors.push(error)
             }
           }
-        };
+        }
+      };
 
-        const store = {
-          getters: {
-            'session/isAuthenticated': true
-          },
-          state: {
-            initialized: true
-          },
-          commit: () => {}
-        };
+      const store = {
+        getters: {
+          'session/isAuthenticated': true
+        },
+        state: {
+          initialized: true
+        },
+        commit: () => {}
+      };
 
-        const to = {
-          matched: [{
-            path: '/foo',
-            meta: {
-              requiresAuth: true,
-              accessPermitted: () => false
-            }
-          }]
-        };
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            requiresAuth: true,
+            accessPermitted: () => false
+          }
+        }]
+      };
 
+      await new Promise((resolve) => {
         beforeEachRoute(router, store, to, { matched: [] }, (args) => {
           expect(args).toBe('/');
           expect(errors).toHaveLength(1);
           expect(errors[0]).toBe('app.flash.unauthorized');
-
-          beforeEachRoute(router, store, to, { matched: [{ path: '/foo' }] }, (args) => {
-            expect(args).toBe(false);
-            expect(errors).toHaveLength(2);
-            expect(errors[1]).toBe('app.flash.unauthorized');
-            done();
-          });
+          resolve();
         });
-      }
-    );
+      });
+
+      await new Promise((resolve) => {
+        beforeEachRoute(router, store, to, { matched: [{ path: '/foo' }] }, (args) => {
+          expect(args).toBe(false);
+          expect(errors).toHaveLength(2);
+          expect(errors[1]).toBe('app.flash.unauthorized');
+          resolve();
+        });
+      });
+    });
   });
 
   describe('accessPermitted', () => {
-    it(
-      'for role detail view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+    it('for role detail view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-        accessPermittedRolesView({ id: 1 }, { view: '1' }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedRolesView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roles.view'] });
-          return accessPermittedRolesView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(false);
+      PermissionService.setCurrentUser({ permissions: ['roles.view'] });
+      expect(await accessPermittedRolesView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roles.view', 'settings.manage'] });
-          return accessPermittedRolesView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['roles.view', 'settings.manage'] });
+      expect(await accessPermittedRolesView({ id: 1 }, { view: '1' })).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-    it(
-      'for role new view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+    it('for role new view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-        accessPermittedRolesView({ id: 'new' }, {}).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedRolesView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roles.create'] });
-          return accessPermittedRolesView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+      PermissionService.setCurrentUser({ permissions: ['roles.create'] });
+      expect(await accessPermittedRolesView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roles.create', 'settings.manage'] });
-          return accessPermittedRolesView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['roles.create', 'settings.manage'] });
+      expect(await accessPermittedRolesView({ id: 'new' }, {})).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-    it(
-      'for role update view returns true if user has necessary permissions and role is not a default role',
-      done => {
-        const oldUser = PermissionService.currentUser;
-        const respond = function () {
-          const request = moxios.requests.mostRecent();
-          request.respondWith({
-            status: 200,
-            response: {
-              data: {
-                id: 1,
-                default: true,
-                model_name: 'Role'
-              }
+    it('for role update view returns true if user has necessary permissions and role is not a default role', async () => {
+      const oldUser = PermissionService.currentUser;
+      const respond = function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              id: 1,
+              default: true,
+              model_name: 'Role'
             }
-          });
-        };
-
-        moxios.wait(respond);
-
-        accessPermittedRolesView({ id: 1 }, {}).then(result => {
-          expect(result).toBe(false);
-
-          PermissionService.setCurrentUser({ permissions: ['roles.update'] });
-          moxios.wait(respond);
-
-          return accessPermittedRolesView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(false);
-
-          PermissionService.setCurrentUser({ permissions: ['roles.update', 'settings.manage'] });
-          moxios.wait(respond);
-
-          return accessPermittedRolesView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(false);
-
-          moxios.wait(function () {
-            const request = moxios.requests.mostRecent();
-            return request.respondWith({
-              status: 200,
-              response: {
-                data: {
-                  id: 1,
-                  default: false,
-                  model_name: 'Role'
-                }
-              }
-            });
-          });
-
-          return accessPermittedRolesView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(true);
-
-          PermissionService.setCurrentUser(oldUser);
-          done();
+          }
         });
-      }
-    );
+      };
 
-    it(
-      'for role update view calls error handler returns false on error in request',
-      done => {
-        const spy = sinon.spy();
-        sinon.stub(Base, 'error').callsFake(spy);
+      moxios.wait(respond);
 
-        moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
-          request.respondWith({
-            status: 500,
-            response: {
-              message: 'Test'
+      expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
+
+      PermissionService.setCurrentUser({ permissions: ['roles.update'] });
+      moxios.wait(respond);
+
+      expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
+
+      PermissionService.setCurrentUser({ permissions: ['roles.update', 'settings.manage'] });
+      moxios.wait(respond);
+
+      expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        return request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              id: 1,
+              default: false,
+              model_name: 'Role'
             }
-          });
+          }
         });
+      });
 
-        accessPermittedRolesView({ id: 1 }, {}).then(result => {
-          expect(result).toBe(false);
-          sinon.assert.calledOnce(Base.error);
-          Base.error.restore();
-          done();
+      expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(true);
+
+      PermissionService.setCurrentUser(oldUser);
+    });
+
+    it('for role update view calls error handler returns false on error in request', async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 500,
+          response: {
+            message: 'Test'
+          }
         });
-      }
-    );
+      });
 
-    it(
-      'for users detail view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+      expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
+      expect(spy).toHaveBeenCalled();
+      spy.mockRestore();
+    });
 
-        accessPermittedUsersView({ id: 1 }, { view: '1' }).then(result => {
-          expect(result).toBe(false);
+    it('for users detail view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-          PermissionService.setCurrentUser({ permissions: ['users.view'] });
-          return accessPermittedUsersView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedUsersView({ id: 1 }, { view: '1' })).toBe(false);
+      PermissionService.setCurrentUser({ permissions: ['users.view'] });
 
-          PermissionService.setCurrentUser({ permissions: ['users.view', 'settings.manage'] });
-          return accessPermittedUsersView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(true);
+      expect(await accessPermittedUsersView({ id: 1 }, { view: '1' })).toBe(false);
+      PermissionService.setCurrentUser({ permissions: ['users.view', 'settings.manage'] });
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      expect(await accessPermittedUsersView({ id: 1 }, { view: '1' })).toBe(true);
 
-    it(
-      'for users new view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-        accessPermittedUsersView({ id: 'new' }, {}).then(result => {
-          expect(result).toBe(false);
+    it('for users new view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-          PermissionService.setCurrentUser({ permissions: ['users.create'] });
-          return accessPermittedUsersView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedUsersView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['users.create', 'settings.manage'] });
-          return accessPermittedUsersView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['users.create'] });
+      expect(await accessPermittedUsersView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser({ permissions: ['users.create', 'settings.manage'] });
+      expect(await accessPermittedUsersView({ id: 'new' }, {})).toBe(true);
 
-    it(
-      'for users update view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-        accessPermittedUsersView({ id: 1 }, {}).then(result => {
-          expect(result).toBe(false);
+    it('for users update view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-          PermissionService.setCurrentUser({ permissions: ['users.update'] });
-          return accessPermittedUsersView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedUsersView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['users.update', 'settings.manage'] });
-          return accessPermittedUsersView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['users.update'] });
+      expect(await accessPermittedUsersView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser({ permissions: ['users.update', 'settings.manage'] });
+      expect(await accessPermittedUsersView({ id: 1 }, {})).toBe(true);
 
-    it(
-      'for application settings update view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-        accessPermittedSettingsView().then(result => {
-          expect(result).toBe(false);
+    it('for application settings update view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-          PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny'] });
-          return accessPermittedSettingsView();
-        }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedSettingsView()).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
-          return accessPermittedSettingsView();
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny'] });
+      expect(await accessPermittedSettingsView()).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
-          return accessPermittedSettingsView();
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+      expect(await accessPermittedSettingsView()).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
+      expect(await accessPermittedSettingsView()).toBe(true);
 
-    it(
-      'for room type detail view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-        accessPermittedRoomTypesView({ id: 1 }, { view: '1' }).then(result => {
-          expect(result).toBe(false);
+    it('for room type detail view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-          PermissionService.setCurrentUser({ permissions: ['roomTypes.view'] });
-          return accessPermittedRoomTypesView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedRoomTypesView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roomTypes.view', 'settings.manage'] });
-          return accessPermittedRoomTypesView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['roomTypes.view'] });
+      expect(await accessPermittedRoomTypesView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser({ permissions: ['roomTypes.view', 'settings.manage'] });
+      expect(await accessPermittedRoomTypesView({ id: 1 }, { view: '1' })).toBe(true);
 
-    it(
-      'for room type new view returns true if user has the necessary permissions',
-      done => {
-        const oldUser = PermissionService.currentUser;
+      PermissionService.setCurrentUser(oldUser);
+    });
 
-        accessPermittedRoomTypesView({ id: 'new' }, {}).then(result => {
-          expect(result).toBe(false);
+    it('for room type new view returns true if user has the necessary permissions', async () => {
+      const oldUser = PermissionService.currentUser;
 
-          PermissionService.setCurrentUser({ permissions: ['roomTypes.create'] });
-          return accessPermittedRoomTypesView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+      expect(await accessPermittedRoomTypesView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roomTypes.create', 'settings.manage'] });
-          return accessPermittedRoomTypesView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+      PermissionService.setCurrentUser({ permissions: ['roomTypes.create'] });
+      expect(await accessPermittedRoomTypesView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      }
-    );
+      PermissionService.setCurrentUser({ permissions: ['roomTypes.create', 'settings.manage'] });
+      expect(await accessPermittedRoomTypesView({ id: 'new' }, {})).toBe(true);
+
+      PermissionService.setCurrentUser(oldUser);
+    });
 
     it(
       'for room type update returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedRoomTypesView({ id: 1 }, {}).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedRoomTypesView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roomTypes.update'] });
-          return accessPermittedRoomTypesView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.update'] });
+        expect(await accessPermittedRoomTypesView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['roomTypes.update', 'settings.manage'] });
-          return accessPermittedRoomTypesView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['roomTypes.update', 'settings.manage'] });
+        expect(await accessPermittedRoomTypesView({ id: 1 }, {})).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 
     it(
       'for server detail view returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedServerView({ id: 1 }, { view: '1' }).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedServerView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['servers.view'] });
-          return accessPermittedServerView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['servers.view'] });
+        expect(await accessPermittedServerView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['servers.view', 'settings.manage'] });
-          return accessPermittedServerView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['servers.view', 'settings.manage'] });
+        expect(await accessPermittedServerView({ id: 1 }, { view: '1' })).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 
     it(
       'for server new view returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedServerView({ id: 'new' }, {}).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedServerView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['servers.create'] });
-          return accessPermittedServerView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['servers.create'] });
+        expect(await accessPermittedServerView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['servers.create', 'settings.manage'] });
-          return accessPermittedServerView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['servers.create', 'settings.manage'] });
+        expect(await accessPermittedServerView({ id: 'new' }, {})).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 
     it(
       'for server update returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedServerView({ id: 1 }, {}).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedServerView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['servers.update'] });
-          return accessPermittedServerView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['servers.update'] });
+        expect(await accessPermittedServerView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['servers.update', 'settings.manage'] });
-          return accessPermittedServerView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['servers.update', 'settings.manage'] });
+        expect(await accessPermittedServerView({ id: 1 }, {})).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 
     it(
       'for server pool detail view returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedServerPoolView({ id: 1 }, { view: '1' }).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedServerPoolView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['serverPools.view'] });
-          return accessPermittedServerPoolView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['serverPools.view'] });
+        expect(await accessPermittedServerPoolView({ id: 1 }, { view: '1' })).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['serverPools.view', 'settings.manage'] });
-          return accessPermittedServerPoolView({ id: 1 }, { view: '1' });
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['serverPools.view', 'settings.manage'] });
+        expect(await accessPermittedServerPoolView({ id: 1 }, { view: '1' })).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 
     it(
       'for server pool new view returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedServerPoolView({ id: 'new' }, {}).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedServerPoolView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['serverPools.create'] });
-          return accessPermittedServerPoolView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['serverPools.create'] });
+        expect(await accessPermittedServerPoolView({ id: 'new' }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['serverPools.create', 'settings.manage'] });
-          return accessPermittedServerPoolView({ id: 'new' }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['serverPools.create', 'settings.manage'] });
+        expect(await accessPermittedServerPoolView({ id: 'new' }, {})).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 
     it(
       'for server pool update returns true if user has the necessary permissions',
-      done => {
+      async () => {
         const oldUser = PermissionService.currentUser;
 
-        accessPermittedServerPoolView({ id: 1 }, {}).then(result => {
-          expect(result).toBe(false);
+        expect(await accessPermittedServerPoolView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['serverPools.update'] });
-          return accessPermittedServerPoolView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(false);
+        PermissionService.setCurrentUser({ permissions: ['serverPools.update'] });
+        expect(await accessPermittedServerPoolView({ id: 1 }, {})).toBe(false);
 
-          PermissionService.setCurrentUser({ permissions: ['serverPools.update', 'settings.manage'] });
-          return accessPermittedServerPoolView({ id: 1 }, {});
-        }).then(result => {
-          expect(result).toBe(true);
+        PermissionService.setCurrentUser({ permissions: ['serverPools.update', 'settings.manage'] });
+        expect(await accessPermittedServerPoolView({ id: 1 }, {})).toBe(true);
 
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
+        PermissionService.setCurrentUser(oldUser);
       }
     );
 

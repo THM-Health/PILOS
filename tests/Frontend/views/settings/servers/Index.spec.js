@@ -159,17 +159,17 @@ describe('ServersIndex', () => {
         expect(server01.at(1).html()).toContain('Server 01');
         expect(server01.at(2).html()).toContain('fa-solid fa-play');
         expect(server01.at(3).html()).toContain('2.4.5');
-        expect(server01.at(4).html()).toContain(2);
-        expect(server01.at(5).html()).toContain(10);
-        expect(server01.at(6).html()).toContain(5);
+        expect(server01.at(4).html()).toContain('2');
+        expect(server01.at(5).html()).toContain('10');
+        expect(server01.at(6).html()).toContain('5');
 
         const server02 = view.findComponent(BTbody).findAllComponents(BTr).at(1).findAll('td');
         expect(server02.at(1).html()).toContain('Server 02');
         expect(server02.at(2).html()).toContain('fa-solid fa-play');
         expect(server02.at(3).html()).toContain('---');
-        expect(server02.at(4).html()).toContain(10);
-        expect(server02.at(5).html()).toContain(50);
-        expect(server02.at(6).html()).toContain(5);
+        expect(server02.at(4).html()).toContain('10');
+        expect(server02.at(5).html()).toContain('50');
+        expect(server02.at(6).html()).toContain('5');
 
         const server03 = view.findComponent(BTbody).findAllComponents(BTr).at(2).findAll('td');
         expect(server03.at(1).html()).toContain('Server 03');
@@ -885,9 +885,9 @@ describe('ServersIndex', () => {
 
           const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
           expect(html).toContain('Server 01');
-          expect(html).toContain(14);
-          expect(html).toContain(7);
-          expect(html).toContain(3);
+          expect(html).toContain('14');
+          expect(html).toContain('7');
+          expect(html).toContain('3');
 
           // during future normal requests the force usage should be disabled again
           view.vm.$root.$emit('bv::refresh::table', 'servers-table');

@@ -6,7 +6,7 @@
                     "@babel/preset-env"
                 ]
             ],
-            "plugins": ["rewire", "istanbul", "@babel/plugin-proposal-class-properties"],
+            "plugins": ["rewire"],
             "retainLines": true
         }
     }

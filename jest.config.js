@@ -1,4 +1,4 @@
-const {defaults } = require('jest-config');
+const { defaults } = require('jest-config');
 module.exports = {
   testEnvironment: 'node',
   // Where are your vue tests located?
