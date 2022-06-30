@@ -13,6 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
+use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
 class ServerTest extends TestCase
@@ -229,12 +230,18 @@ class ServerTest extends TestCase
         $this->assertNotNull($attendeeGuestA->join);
 
         // Check if errors are logged
-        Log::assertLogged('notice', function ($message, $context) {
-            return $message == 'Unknown prefix for attendee found.' && $context == ['prefix' => '2','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d'];
-        });
-        Log::assertLogged('notice', function ($message, $context) {
-            return $message == 'Attendee user not found.' && $context == ['user' => '101','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d'];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'notice'
+            && $log->message == 'Unknown prefix for attendee found.'
+            && $log->context == ['prefix' => '2','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
+        );
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'notice'
+            && $log->message == 'Attendee user not found.'
+            && $log->context == ['user' => '101','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
+        );
 
         $server->updateUsage();
         $meeting->refresh();

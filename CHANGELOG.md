@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Upgrade to Laravel 9 ([#226],[#227])
+- Breaking: Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
+
 ## [1.9.4] - 2022-06-30
 ### Changed
 - Update composer dependencies ([#221],[#222])
@@ -280,6 +284,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#222]: https://github.com/THM-Health/PILOS/pull/222
 [#223]: https://github.com/THM-Health/PILOS/issues/223
 [#224]: https://github.com/THM-Health/PILOS/pull/224
+[#226]: https://github.com/THM-Health/PILOS/issues/226
+[#227]: https://github.com/THM-Health/PILOS/pull/227
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

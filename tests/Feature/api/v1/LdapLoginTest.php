@@ -13,6 +13,7 @@ use LdapRecord\Models\Model;
 use LdapRecord\Models\ModelDoesNotExistException;
 use Tests\TestCase;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
+use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
 class LdapLoginTest extends TestCase
@@ -478,13 +479,15 @@ class LdapLoginTest extends TestCase
             'password' => 'secret'
         ]);
 
-        Log::assertLogged('debug', function ($message, $context) {
-            return 'LDAP roles found for user ['.$this->ldapUser->uid[0].'].' == $message &&
-                count($context) == 3 &&
-                'ldapAdmin' == $context[0] &&
-                'ldapUser' == $context[1] &&
-                'ldapSuperAdmin' == $context[2];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'debug'
+            && $log->message == 'LDAP roles found for user ['.$this->ldapUser->uid[0].'].'
+            && count($log->context) == 3
+            && $log->context[0] == 'ldapAdmin'
+            && $log->context[1] == 'ldapUser'
+            && $log->context[2] == 'ldapSuperAdmin'
+        );
 
         Auth::guard('ldap')->logout();
         Log::swap(new LogFake);
@@ -505,13 +508,15 @@ class LdapLoginTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
 
-        Log::assertNotLogged('debug', function ($message, $context) {
-            return 'LDAP roles found for user ['.$this->ldapUser->uid[0].'].' == $message &&
-                count($context) == 3 &&
-                'ldapAdmin' == $context[0] &&
-                'ldapUser' == $context[1] &&
-                'ldapSuperAdmin' == $context[2];
-        });
+        Log::assertNotLogged(
+            fn (LogEntry $log) =>
+                $log->level === 'debug'
+                && $log->message == 'LDAP roles found for user ['.$this->ldapUser->uid[0].'].'
+                    && count($log->context) == 3
+                    && $log->context[0] == 'ldapAdmin'
+                    && $log->context[1] == 'ldapUser'
+                    && $log->context[2] == 'ldapSuperAdmin'
+        );
     }
 
     /**
@@ -528,12 +533,14 @@ class LdapLoginTest extends TestCase
             'username'    => 'testuser',
             'password'    => 'secret'
         ]);
-        Log::assertLogged('info', function ($message, $context) {
-            return 'User [testuser] has failed authentication.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'ldap' == $context['authenticator'];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User [testuser] has failed authentication.'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['authenticator'] == 'ldap'
+        );
 
         // test failed login with logging disabled
         config(['auth.log.failed' => false]);
@@ -542,12 +549,14 @@ class LdapLoginTest extends TestCase
             'username'    => 'testuser',
             'password'    => 'foo'
         ]);
-        Log::assertNotLogged('info', function ($message, $context) {
-            return 'User [testuser] has failed authentication.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'ldap' == $context['authenticator'];
-        });
+        Log::assertNotLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User [testuser] has failed authentication.'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['authenticator'] == 'ldap'
+        );
 
         // test successful login with logging enabled
         Log::swap(new LogFake);
@@ -556,12 +565,14 @@ class LdapLoginTest extends TestCase
             'username'    => $this->ldapUser->uid[0],
             'password'    => 'bar'
         ]);
-        Log::assertLogged('info', function ($message, $context) {
-            return 'User ['.$this->ldapUser->uid[0].'] has been successfully authenticated.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'ldap' == $context['authenticator'];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level == 'info'
+            && $log->message == 'User ['.$this->ldapUser->uid[0].'] has been successfully authenticated.'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['authenticator'] == 'ldap'
+        );
 
         // logout user to allow new login
         Auth::guard('ldap')->logout();
@@ -573,11 +584,13 @@ class LdapLoginTest extends TestCase
             'username'    => $this->ldapUser->uid[0],
             'password'    => 'bar'
         ]);
-        Log::assertNotLogged('info', function ($message, $context) {
-            return 'User ['.$this->ldapUser->uid[0].'] has been successfully authenticated.' == $message &&
-                '127.0.0.1' == $context['ip'] &&
-                'Symfony' == $context['user-agent'] &&
-                'ldap' == $context['authenticator'];
-        });
+        Log::assertNotLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'info'
+            && $log->message == 'User ['.$this->ldapUser->uid[0].'] has been successfully authenticated.'
+                && $log->context['ip'] == '127.0.0.1'
+                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['authenticator'] == 'ldap'
+        );
     }
 }
