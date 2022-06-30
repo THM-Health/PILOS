@@ -97,8 +97,8 @@ at all, then the PR will be merged into the main branch of this repository.
 ## Styleguide
 The backend uses the php framework Laravel and therefore it follows the
 [Laravel coding style guide](https://laravel.com/docs/7.x/contributions#coding-style). To apply the code style to your
-implemented code you can run the command `composer run fix-cs`.
-The frontend style gets checked by eslint. The style can be fixed by running the command `npm run fix-cs`. For best
+implemented code you can run the command `sail composer run fix-cs`.
+The frontend style gets checked by eslint. The style can be fixed by running the command `sail npm run fix-cs`. For best
 practices checkout the [vue style guide](https://vuejs.org/v2/style-guide/).
 
 Additionally, to the style guides the following things should apply to the changes:
