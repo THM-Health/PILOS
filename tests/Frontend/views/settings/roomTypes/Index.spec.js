@@ -17,6 +17,7 @@ import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(Vuex);
 
 const createContainer = (tag = 'div') => {
   const container = document.createElement(tag);

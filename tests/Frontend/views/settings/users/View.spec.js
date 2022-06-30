@@ -10,12 +10,12 @@ import BootstrapVue, {
   BModal
 } from 'bootstrap-vue';
 import moxios from 'moxios';
-import View from '../../../../../resources/js/views/settings/users/View';
-import PermissionService from '../../../../../resources/js/services/PermissionService';
+import View from '../../../../../resources/js/views/settings/users/View.vue';
+import PermissionService from '../../../../../resources/js/services/PermissionService.js';
 import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
-import env from '../../../../../resources/js/env';
+import env from '../../../../../resources/js/env.js';
 import Vuex from 'vuex';
 import Multiselect from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
