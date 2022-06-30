@@ -30,16 +30,16 @@ function overrideStub (url, response) {
   }
 }
 
-describe('UsersIndex', function () {
-  beforeEach(function () {
+describe('UsersIndex', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('list of users with pagination gets displayed', function (done) {
+  it('list of users with pagination gets displayed', done => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
@@ -143,128 +143,131 @@ describe('UsersIndex', function () {
     });
   });
 
-  it('reset password button only shown if the user has the permission and it handles errors as expected', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it(
+    'reset password button only shown if the user has the permission and it handles errors as expected',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const oldUser = PermissionService.currentUser;
+      const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ id: 4, permissions: ['users.viewAny', 'settings.manage'] });
+      PermissionService.setCurrentUser({ id: 4, permissions: ['users.viewAny', 'settings.manage'] });
 
-    const response = {
-      status: 200,
-      response: {
-        data: [{
-          id: 1,
-          authenticator: 'users',
-          email: 'john@doe.com',
-          username: 'jdo',
-          firstname: 'John',
-          lastname: 'Doe',
-          user_locale: 'en',
-          model_name: 'User',
-          room_limit: 0,
-          updated_at: '2020-01-01T01:00:00.000000Z'
-        }, {
-          id: 2,
-          authenticator: 'users',
-          email: 'john1@doe.com',
-          username: 'jdo',
-          firstname: 'John',
-          lastname: 'Doe',
-          user_locale: 'en',
-          model_name: 'User',
-          room_limit: 0,
-          updated_at: '2020-01-01T01:00:00.000000Z',
-          initial_password_set: true
-        }, {
-          id: 3,
-          authenticator: 'ldap',
-          email: 'darth@vader.com',
-          username: 'dvr',
-          firstname: 'Darth',
-          lastname: 'Vader',
-          user_locale: 'de',
-          model_name: 'User',
-          room_limit: 0,
-          updated_at: '2020-01-01T01:00:00.000000Z'
-        }],
-        meta: {
-          per_page: 3,
-          current_page: 1,
-          total: 3
+      const response = {
+        status: 200,
+        response: {
+          data: [{
+            id: 1,
+            authenticator: 'users',
+            email: 'john@doe.com',
+            username: 'jdo',
+            firstname: 'John',
+            lastname: 'Doe',
+            user_locale: 'en',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }, {
+            id: 2,
+            authenticator: 'users',
+            email: 'john1@doe.com',
+            username: 'jdo',
+            firstname: 'John',
+            lastname: 'Doe',
+            user_locale: 'en',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z',
+            initial_password_set: true
+          }, {
+            id: 3,
+            authenticator: 'ldap',
+            email: 'darth@vader.com',
+            username: 'dvr',
+            firstname: 'Darth',
+            lastname: 'Vader',
+            user_locale: 'de',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }],
+          meta: {
+            per_page: 3,
+            current_page: 1,
+            total: 3
+          }
         }
-      }
-    };
+      };
 
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
-      },
-      attachTo: createContainer(),
-      propsData: {
-        modalStatic: true
-      }
-    });
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key,
+          $te: (key) => key === 'app.roles.admin'
+        },
+        attachTo: createContainer(),
+        propsData: {
+          modalStatic: true
+        }
+      });
 
-    moxios.wait(function () {
-      moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-          expect(row.findAllComponents(BButton).length).toEqual(0);
-        });
+      moxios.wait(function () {
+        moxios.requests.mostRecent().respondWith(response).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+            expect(row.findAllComponents(BButton).length).toEqual(0);
+          });
 
-        PermissionService.setCurrentUser({
-          id: 4,
-          permissions: ['users.viewAny', 'settings.manage', 'users.update']
-        });
+          PermissionService.setCurrentUser({
+            id: 4,
+            permissions: ['users.viewAny', 'settings.manage', 'users.update']
+          });
 
-        return view.vm.$nextTick();
-      }).then(() => {
-        const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(1);
-        expect(rows.at(2).findAllComponents(BButton).length).toEqual(1);
+          return view.vm.$nextTick();
+        }).then(() => {
+          const rows = view.findComponent(BTbody).findAllComponents(BTr);
+          expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+          expect(rows.at(1).findAllComponents(BButton).length).toEqual(1);
+          expect(rows.at(2).findAllComponents(BButton).length).toEqual(1);
 
-        rows.at(0).findAllComponents(BButton).filter(button => {
-          return button.attributes('id') === 'resetPassword1';
-        }).at(0).trigger('click');
+          rows.at(0).findAllComponents(BButton).filter(button => {
+            return button.attributes('id') === 'resetPassword1';
+          }).at(0).trigger('click');
 
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
-        view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
+          view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
 
-        moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
+          moxios.wait(function () {
+            const request = moxios.requests.mostRecent();
 
-          expect(request.url).toBe('/api/v1/users/1/resetPassword');
+            expect(request.url).toBe('/api/v1/users/1/resetPassword');
 
-          request.respondWith({
-            status: 500,
-            response: {
-              message: 'Test'
-            }
-          }).then(() => {
-            return view.vm.$nextTick();
-          }).then(() => {
-            expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(false);
-            expect(view.vm.$data.userToResetPassword).toBeUndefined();
-            sinon.assert.calledOnce(Base.error);
-            Base.error.restore();
-            view.destroy();
-            PermissionService.setCurrentUser(oldUser);
-            done();
+            request.respondWith({
+              status: 500,
+              response: {
+                message: 'Test'
+              }
+            }).then(() => {
+              return view.vm.$nextTick();
+            }).then(() => {
+              expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(false);
+              expect(view.vm.$data.userToResetPassword).toBeUndefined();
+              sinon.assert.calledOnce(Base.error);
+              Base.error.restore();
+              view.destroy();
+              PermissionService.setCurrentUser(oldUser);
+              done();
+            });
           });
         });
       });
-    });
-  });
+    }
+  );
 
-  it('reset password works as expected', function (done) {
+  it('reset password works as expected', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       success (param) {
@@ -369,109 +372,115 @@ describe('UsersIndex', function () {
     });
   });
 
-  it('update and delete buttons only shown if user has the permission', function (done) {
-    const oldUser = PermissionService.currentUser;
+  it(
+    'update and delete buttons only shown if user has the permission',
+    done => {
+      const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
+      PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
 
-    const response = {
-      status: 200,
-      response: {
-        data: [{
-          id: 1,
-          authenticator: 'users',
-          email: 'john@doe.com',
-          username: 'jdo',
-          firstname: 'John',
-          lastname: 'Doe',
-          user_locale: 'en',
-          model_name: 'User',
-          room_limit: 0,
-          updated_at: '2020-01-01T01:00:00.000000Z'
-        }, {
-          id: 2,
-          authenticator: 'ldap',
-          email: 'darth@vader.com',
-          username: 'dvr',
-          firstname: 'Darth',
-          lastname: 'Vader',
-          user_locale: 'de',
-          model_name: 'User',
-          room_limit: 0,
-          updated_at: '2020-01-01T01:00:00.000000Z'
-        }],
-        meta: {
-          per_page: 2,
-          current_page: 1,
-          total: 2
-        }
-      }
-    };
-
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
-      },
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-          expect(row.findAllComponents(BButton).length).toEqual(0);
-        });
-
-        PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete'] });
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
-
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-        done();
-      });
-    });
-  });
-
-  it('error handler gets called if an error occurs during loading of data', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
-      },
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 500,
+      const response = {
+        status: 200,
         response: {
-          message: 'Test'
+          data: [{
+            id: 1,
+            authenticator: 'users',
+            email: 'john@doe.com',
+            username: 'jdo',
+            firstname: 'John',
+            lastname: 'Doe',
+            user_locale: 'en',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }, {
+            id: 2,
+            authenticator: 'ldap',
+            email: 'darth@vader.com',
+            username: 'dvr',
+            firstname: 'Darth',
+            lastname: 'Vader',
+            user_locale: 'de',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }],
+          meta: {
+            per_page: 2,
+            current_page: 1,
+            total: 2
+          }
         }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        sinon.assert.calledOnce(Base.error);
-        Base.error.restore();
-        view.destroy();
-        done();
-      });
-    });
-  });
+      };
 
-  it('not own users can be deleted', function (done) {
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key,
+          $te: (key) => key === 'app.roles.admin'
+        },
+        attachTo: createContainer()
+      });
+
+      moxios.wait(function () {
+        moxios.requests.mostRecent().respondWith(response).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+            expect(row.findAllComponents(BButton).length).toEqual(0);
+          });
+
+          PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete'] });
+
+          return view.vm.$nextTick();
+        }).then(() => {
+          const rows = view.findComponent(BTbody).findAllComponents(BTr);
+          expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+          expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
+
+          view.destroy();
+          PermissionService.setCurrentUser(oldUser);
+          done();
+        });
+      });
+    }
+  );
+
+  it(
+    'error handler gets called if an error occurs during loading of data',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
+
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key,
+          $te: (key) => key === 'app.roles.admin'
+        },
+        attachTo: createContainer()
+      });
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 500,
+          response: {
+            message: 'Test'
+          }
+        }).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+          view.destroy();
+          done();
+        });
+      });
+    }
+  );
+
+  it('not own users can be deleted', done => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
@@ -537,111 +546,117 @@ describe('UsersIndex', function () {
     });
   });
 
-  it('property gets cleared correctly if deletion gets aborted', function (done) {
-    const oldUser = PermissionService.currentUser;
+  it(
+    'property gets cleared correctly if deletion gets aborted',
+    done => {
+      const oldUser = PermissionService.currentUser;
 
-    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
+      PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
 
-    const response = {
-      status: 200,
-      response: {
-        data: [{
-          id: 2,
-          authenticator: 'ldap',
-          email: 'darth@vader.com',
-          username: 'dvr',
-          firstname: 'Darth',
-          lastname: 'Vader',
-          user_locale: 'de',
-          model_name: 'User',
-          room_limit: 0,
-          updated_at: '2020-01-01T01:00:00.000000Z'
-        }],
-        meta: {
-          per_page: 2,
-          current_page: 1,
-          total: 1
-        }
-      }
-    };
-
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
-      },
-      attachTo: createContainer(),
-      propsData: {
-        modalStatic: true
-      }
-    });
-
-    moxios.wait(function () {
-      moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.userToDelete).toBeUndefined();
-        view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
-        expect(view.vm.$data.userToDelete.id).toEqual(2);
-        view.findComponent({ ref: 'delete-user-modal' }).findComponent(BButtonClose).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.userToDelete).toBeUndefined();
-
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-        done();
-      });
-    });
-  });
-
-  it('new user button is displayed if the user has the corresponding permissions', function (done) {
-    const oldUser = PermissionService.currentUser;
-
-    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
-
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
-      },
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
+      const response = {
         status: 200,
         response: {
-          data: [],
+          data: [{
+            id: 2,
+            authenticator: 'ldap',
+            email: 'darth@vader.com',
+            username: 'dvr',
+            firstname: 'Darth',
+            lastname: 'Vader',
+            user_locale: 'de',
+            model_name: 'User',
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }],
           meta: {
             per_page: 2,
             current_page: 1,
-            total: 0
+            total: 1
           }
         }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent(BButton).html()).toContain('settings.users.new');
+      };
 
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-        done();
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key,
+          $te: (key) => key === 'app.roles.admin'
+        },
+        attachTo: createContainer(),
+        propsData: {
+          modalStatic: true
+        }
       });
-    });
-  });
 
-  it('role filter', function (done) {
+      moxios.wait(function () {
+        moxios.requests.mostRecent().respondWith(response).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
+          expect(view.vm.$data.userToDelete).toBeUndefined();
+          view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
+          expect(view.vm.$data.userToDelete.id).toEqual(2);
+          view.findComponent({ ref: 'delete-user-modal' }).findComponent(BButtonClose).trigger('click');
+
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
+          expect(view.vm.$data.userToDelete).toBeUndefined();
+
+          view.destroy();
+          PermissionService.setCurrentUser(oldUser);
+          done();
+        });
+      });
+    }
+  );
+
+  it(
+    'new user button is displayed if the user has the corresponding permissions',
+    done => {
+      const oldUser = PermissionService.currentUser;
+
+      PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
+
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key,
+          $te: (key) => key === 'app.roles.admin'
+        },
+        attachTo: createContainer()
+      });
+
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            meta: {
+              per_page: 2,
+              current_page: 1,
+              total: 0
+            }
+          }
+        }).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent(BButton).html()).toContain('settings.users.new');
+
+          view.destroy();
+          PermissionService.setCurrentUser(oldUser);
+          done();
+        });
+      });
+    }
+  );
+
+  it('role filter', done => {
     moxios.stubRequest('/api/v1/roles?page=1', {
       status: 200,
       response: {
@@ -849,7 +864,7 @@ describe('UsersIndex', function () {
     });
   });
 
-  it('role filter error', function (done) {
+  it('role filter error', done => {
     moxios.stubRequest('/api/v1/roles?page=1', {
       status: 500,
       response: {

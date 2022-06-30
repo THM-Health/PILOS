@@ -33,42 +33,45 @@ const store = new Vuex.Store({
   }
 });
 
-describe('App', function () {
-  it('settings menu item gets only shown if the user has permissions to manage settings', async function () {
-    const oldUser = PermissionService.currentUser;
-    PermissionService.setCurrentUser(currentUser);
+describe('App', () => {
+  it(
+    'settings menu item gets only shown if the user has permissions to manage settings',
+    async () => {
+      const oldUser = PermissionService.currentUser;
+      PermissionService.setCurrentUser(currentUser);
 
-    const wrapper = mount(App, {
-      localVue,
-      store,
-      mocks: {
-        $t: (key) => key
-      },
-      stubs: {
-        FlashMessage: true,
-        RouterView: true,
-        LocaleSelector: true
-      },
-      data () {
-        return {
-          availableLocales: []
-        };
-      }
-    });
+      const wrapper = mount(App, {
+        localVue,
+        store,
+        mocks: {
+          $t: (key) => key
+        },
+        stubs: {
+          FlashMessage: true,
+          RouterView: true,
+          LocaleSelector: true
+        },
+        data () {
+          return {
+            availableLocales: []
+          };
+        }
+      });
 
-    await Vue.nextTick();
-    expect(wrapper.findAllComponents(BNavItem).filter((w) => {
-      return w.text() === 'settings.title';
-    }).length).toBe(0);
+      await Vue.nextTick();
+      expect(wrapper.findAllComponents(BNavItem).filter((w) => {
+        return w.text() === 'settings.title';
+      }).length).toBe(0);
 
-    currentUser.permissions = ['settings.manage'];
-    PermissionService.setCurrentUser(currentUser);
-    await Vue.nextTick();
-    expect(wrapper.findAllComponents(BNavItem).filter((w) => {
-      return w.text() === 'settings.title';
-    }).length).toBe(1);
+      currentUser.permissions = ['settings.manage'];
+      PermissionService.setCurrentUser(currentUser);
+      await Vue.nextTick();
+      expect(wrapper.findAllComponents(BNavItem).filter((w) => {
+        return w.text() === 'settings.title';
+      }).length).toBe(1);
 
-    wrapper.destroy();
-    PermissionService.setCurrentUser(oldUser);
-  });
+      wrapper.destroy();
+      PermissionService.setCurrentUser(oldUser);
+    }
+  );
 });

@@ -122,18 +122,18 @@ const store = new Vuex.Store({
 
 let oldUser;
 
-describe('ServersIndex', function () {
-  beforeEach(function () {
+describe('ServersIndex', () => {
+  beforeEach(() => {
     moxios.install();
     oldUser = PermissionService.currentUser;
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('list of servers with pagination gets displayed', function (done) {
+  it('list of servers with pagination gets displayed', done => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
     const view = mount(Index, {
@@ -193,7 +193,7 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('list of servers with search', function (done) {
+  it('list of servers with search', done => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
     const view = mount(Index, {
@@ -276,123 +276,132 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('update and delete buttons only shown if user has the permission', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it(
+    'update and delete buttons only shown if user has the permission',
+    done => {
+      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-    const response = {
-      status: 200,
-      response: defaultResponse
-    };
+      const response = {
+        status: 200,
+        response: defaultResponse
+      };
 
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer(),
-      store
-    });
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key
+        },
+        attachTo: createContainer(),
+        store
+      });
 
-    moxios.wait(function () {
-      moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-          expect(row.findAllComponents(BButton).length).toEqual(0);
+      moxios.wait(function () {
+        moxios.requests.mostRecent().respondWith(response).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+            expect(row.findAllComponents(BButton).length).toEqual(0);
+          });
+
+          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
+
+          return view.vm.$nextTick();
+        }).then(() => {
+          const rows = view.findComponent(BTbody).findAllComponents(BTr);
+          expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+          expect(rows.at(1).findAllComponents(BButton).length).toEqual(2);
+          expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
+
+          view.destroy();
+          done();
         });
-
-        PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
-
-        view.destroy();
-        done();
       });
-    });
-  });
+    }
+  );
 
-  it('error handler gets called if an error occurs during loading of data', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it(
+    'error handler gets called if an error occurs during loading of data',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer(),
-      store
-    });
-
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 500,
-        response: {
-          message: 'Test'
-        }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        sinon.assert.calledOnce(Base.error);
-        Base.error.restore();
-        view.destroy();
-        done();
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key
+        },
+        attachTo: createContainer(),
+        store
       });
-    });
-  });
 
-  it('property gets cleared correctly if deletion gets aborted', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
-
-    const response = {
-      status: 200,
-      response: defaultResponse
-    };
-
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer(),
-      propsData: {
-        modalStatic: true
-      },
-      store
-    });
-
-    moxios.wait(function () {
-      moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverToDelete).toBeUndefined();
-        view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        expect(view.vm.$data.serverToDelete.id).toEqual(3);
-        view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverToDelete).toBeUndefined();
-
-        view.destroy();
-        done();
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 500,
+          response: {
+            message: 'Test'
+          }
+        }).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+          view.destroy();
+          done();
+        });
       });
-    });
-  });
+    }
+  );
 
-  it('server delete', function (done) {
+  it(
+    'property gets cleared correctly if deletion gets aborted',
+    done => {
+      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+
+      const response = {
+        status: 200,
+        response: defaultResponse
+      };
+
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key
+        },
+        attachTo: createContainer(),
+        propsData: {
+          modalStatic: true
+        },
+        store
+      });
+
+      moxios.wait(function () {
+        moxios.requests.mostRecent().respondWith(response).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          expect(view.vm.$data.serverToDelete).toBeUndefined();
+          view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+          expect(view.vm.$data.serverToDelete.id).toEqual(3);
+          view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          expect(view.vm.$data.serverToDelete).toBeUndefined();
+
+          view.destroy();
+          done();
+        });
+      });
+    }
+  );
+
+  it('server delete', done => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
@@ -530,7 +539,7 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('server delete 404 handling', function (done) {
+  it('server delete 404 handling', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -672,7 +681,7 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('server delete error handler called', function (done) {
+  it('server delete error handler called', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
@@ -734,55 +743,58 @@ describe('ServersIndex', function () {
     });
   });
 
-  it('new server button is displayed if the user has the corresponding permissions', function (done) {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it(
+    'new server button is displayed if the user has the corresponding permissions',
+    done => {
+      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer(),
-      store
-    });
-
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        response: {
-          data: [],
-          links: {
-            first: 'http://localhost/api/v1/servers?page=1',
-            last: 'http://localhost/api/v1/servers?page=1',
-            prev: null,
-            next: null
-          },
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            path: 'http://localhost/api/v1/servers',
-            per_page: 15,
-            to: 0,
-            total: 0
-          }
-        }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
-        PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
-        view.destroy();
-        done();
+      const view = mount(Index, {
+        localVue,
+        mocks: {
+          $t: key => key
+        },
+        attachTo: createContainer(),
+        store
       });
-    });
-  });
 
-  it('reload button displayed and triggers reload', function (done) {
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
+        request.respondWith({
+          status: 200,
+          response: {
+            data: [],
+            links: {
+              first: 'http://localhost/api/v1/servers?page=1',
+              last: 'http://localhost/api/v1/servers?page=1',
+              prev: null,
+              next: null
+            },
+            meta: {
+              current_page: 1,
+              from: 1,
+              last_page: 1,
+              path: 'http://localhost/api/v1/servers',
+              per_page: 15,
+              to: 0,
+              total: 0
+            }
+          }
+        }).then(() => {
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
+          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
+          return view.vm.$nextTick();
+        }).then(() => {
+          expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
+          view.destroy();
+          done();
+        });
+      });
+    }
+  );
+
+  it('reload button displayed and triggers reload', done => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
     const view = mount(Index, {

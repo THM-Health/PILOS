@@ -118,8 +118,8 @@ const ownUserResponse = {
   }
 };
 
-describe('UsersView', function () {
-  beforeEach(function () {
+describe('UsersView', () => {
+  beforeEach(() => {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ id: 1, permissions: ['users.view', 'users.create', 'users.update', 'users.updateOwnAttributes', 'settings.manage'] });
     moxios.install();
@@ -208,12 +208,12 @@ describe('UsersView', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(() => {
     PermissionService.setCurrentUser(oldUser);
     moxios.uninstall();
   });
 
-  it('user name in title gets shown for detail view', function (done) {
+  it('user name in title gets shown for detail view', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -236,7 +236,7 @@ describe('UsersView', function () {
     });
   });
 
-  it('user name in title gets shown for update view', function (done) {
+  it('user name in title gets shown for update view', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -259,53 +259,59 @@ describe('UsersView', function () {
     });
   });
 
-  it('throws an error if the config property is not passed or contains wrong data', function () {
-    expect(View.props.config.validator({})).toBe(false);
-    expect(View.props.config.validator({ id: '1' })).toBe(false);
-    expect(View.props.config.validator({ type: '1' })).toBe(false);
-    expect(View.props.config.validator({ type: 'edit' })).toBe(false);
-    expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
-    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(true);
-    expect(View.props.config.validator({ id: 2, type: 'profile' })).toBe(false);
-    PermissionService.setCurrentUser(null);
-    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(false);
-  });
+  it(
+    'throws an error if the config property is not passed or contains wrong data',
+    () => {
+      expect(View.props.config.validator({})).toBe(false);
+      expect(View.props.config.validator({ id: '1' })).toBe(false);
+      expect(View.props.config.validator({ type: '1' })).toBe(false);
+      expect(View.props.config.validator({ type: 'edit' })).toBe(false);
+      expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
+      expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(true);
+      expect(View.props.config.validator({ id: 2, type: 'profile' })).toBe(false);
+      PermissionService.setCurrentUser(null);
+      expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(false);
+    }
+  );
 
-  it('the configured locales should be selectable in the corresponding select', function (done) {
-    View.__set__('LocaleMap', {
-      de: 'German',
-      en: 'English',
-      ru: 'Russian'
-    });
+  it(
+    'the configured locales should be selectable in the corresponding select',
+    done => {
+      View.__set__('LocaleMap', {
+        de: 'German',
+        en: 'English',
+        ru: 'Russian'
+      });
 
-    const view = mount(View, {
-      localVue,
-      store,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'edit'
+      const view = mount(View, {
+        localVue,
+        store,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
         },
-        availableLocales: ['de', 'ru', 'en']
-      }
-    });
+        propsData: {
+          config: {
+            id: 2,
+            type: 'edit'
+          },
+          availableLocales: ['de', 'ru', 'en']
+        }
+      });
 
-    moxios.wait(function () {
-      const select = view.findComponent(BFormSelect);
-      expect(select.vm.value).toEqual('en');
-      expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
+      moxios.wait(function () {
+        const select = view.findComponent(BFormSelect);
+        expect(select.vm.value).toEqual('en');
+        expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
 
-      View.__ResetDependency__('LocaleMap');
-      view.destroy();
-      done();
-    });
-  });
+        View.__ResetDependency__('LocaleMap');
+        view.destroy();
+        done();
+      });
+    }
+  );
 
-  it('roles can not be modified for the own user', function (done) {
+  it('roles can not be modified for the own user', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -328,7 +334,7 @@ describe('UsersView', function () {
     });
   });
 
-  it('automatic assigned roles can not be deselected', function (done) {
+  it('automatic assigned roles can not be deselected', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -354,44 +360,47 @@ describe('UsersView', function () {
     });
   });
 
-  it('input fields gets disabled when viewing the user in view only mode', function (done) {
-    const view = mount(View, {
-      localVue,
-      store,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'view'
+  it(
+    'input fields gets disabled when viewing the user in view only mode',
+    done => {
+      const view = mount(View, {
+        localVue,
+        store,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 2,
+            type: 'view'
+          }
         }
-      }
-    });
+      });
 
-    moxios.wait(function () {
-      const inputs = view.findAllComponents(BFormInput);
-      expect(inputs.length).toBe(3);
-      inputs.wrappers.forEach((input) => {
-        expect(input.vm.disabled).toBe(true);
+      moxios.wait(function () {
+        const inputs = view.findAllComponents(BFormInput);
+        expect(inputs.length).toBe(3);
+        inputs.wrappers.forEach((input) => {
+          expect(input.vm.disabled).toBe(true);
+        });
+        const selects = view.findAllComponents(BFormSelect);
+        expect(selects.length).toBe(2);
+        selects.wrappers.forEach((select) => {
+          expect(select.vm.disabled).toBe(true);
+        });
+        const multiSelects = view.findAllComponents(Multiselect);
+        expect(multiSelects.length).toBe(1);
+        multiSelects.wrappers.forEach((select) => {
+          expect(select.vm.disabled).toBe(true);
+        });
+        view.destroy();
+        done();
       });
-      const selects = view.findAllComponents(BFormSelect);
-      expect(selects.length).toBe(2);
-      selects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(true);
-      });
-      const multiSelects = view.findAllComponents(Multiselect);
-      expect(multiSelects.length).toBe(1);
-      multiSelects.wrappers.forEach((select) => {
-        expect(select.vm.disabled).toBe(true);
-      });
-      view.destroy();
-      done();
-    });
-  });
+    }
+  );
 
-  it('all inputs fields shown and enabled on new page', function (done) {
+  it('all inputs fields shown and enabled on new page', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -430,60 +439,63 @@ describe('UsersView', function () {
     });
   });
 
-  it('if generate_password is true the password fields does not get sent with the create request', function (done) {
-    const spy = sinon.spy();
+  it(
+    'if generate_password is true the password fields does not get sent with the create request',
+    done => {
+      const spy = sinon.spy();
 
-    const router = new VueRouter();
-    router.push = spy;
+      const router = new VueRouter();
+      router.push = spy;
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 'new',
-          type: 'edit'
-        }
-      },
-      store,
-      router
-    });
-
-    moxios.wait(async () => {
-      const inputs = view.findAllComponents(BFormInput);
-      await inputs.at(0).setValue('Max');
-      await inputs.at(1).setValue('Mustermann');
-      await inputs.at(2).setValue('max@mustermann.de');
-      const selects = view.findAllComponents(BFormSelect);
-      await selects.at(0).setValue('de');
-      view.vm.model.roles.push(rolesResponse1.data[2]);
-      await view.vm.$nextTick();
-      const checkboxes = view.findAllComponents(BFormCheckbox);
-      await checkboxes.at(0).get('input').setChecked();
-      await view.vm.$nextTick();
-      await view.findComponent(BForm).trigger('submit');
-
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-
-        expect(request.config.data.get('firstname')).toBe('Max');
-        expect(request.config.data.get('lastname')).toBe('Mustermann');
-        expect(request.config.data.get('email')).toBe('max@mustermann.de');
-        expect(request.config.data.has('password')).toBeFalsy();
-        expect(request.config.data.has('password_confirmation')).toBeFalsy();
-        expect(request.config.data.get('roles[0]')).toBe('3');
-        expect(request.config.data.get('user_locale')).toBe('de');
-        expect(request.config.data.get('generate_password')).toBe('1');
-        view.destroy();
-        done();
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 'new',
+            type: 'edit'
+          }
+        },
+        store,
+        router
       });
-    });
-  });
 
-  it('specific fields gets disabled for not database users', function (done) {
+      moxios.wait(async () => {
+        const inputs = view.findAllComponents(BFormInput);
+        await inputs.at(0).setValue('Max');
+        await inputs.at(1).setValue('Mustermann');
+        await inputs.at(2).setValue('max@mustermann.de');
+        const selects = view.findAllComponents(BFormSelect);
+        await selects.at(0).setValue('de');
+        view.vm.model.roles.push(rolesResponse1.data[2]);
+        await view.vm.$nextTick();
+        const checkboxes = view.findAllComponents(BFormCheckbox);
+        await checkboxes.at(0).get('input').setChecked();
+        await view.vm.$nextTick();
+        await view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+
+          expect(request.config.data.get('firstname')).toBe('Max');
+          expect(request.config.data.get('lastname')).toBe('Mustermann');
+          expect(request.config.data.get('email')).toBe('max@mustermann.de');
+          expect(request.config.data.has('password')).toBeFalsy();
+          expect(request.config.data.has('password_confirmation')).toBeFalsy();
+          expect(request.config.data.get('roles[0]')).toBe('3');
+          expect(request.config.data.get('user_locale')).toBe('de');
+          expect(request.config.data.get('generate_password')).toBe('1');
+          view.destroy();
+          done();
+        });
+      });
+    }
+  );
+
+  it('specific fields gets disabled for not database users', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -520,32 +532,35 @@ describe('UsersView', function () {
     });
   });
 
-  it('back button is not shown on the profile page of an user', function (done) {
-    const view = mount(View, {
-      localVue,
-      store,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 1,
-          type: 'profile'
+  it(
+    'back button is not shown on the profile page of an user',
+    done => {
+      const view = mount(View, {
+        localVue,
+        store,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 1,
+            type: 'profile'
+          }
         }
-      }
-    });
+      });
 
-    moxios.wait(function () {
-      const buttons = view.findAllComponents(BButton);
-      expect(buttons.length).toEqual(5);
-      expect(buttons.at(4).text()).toEqual('app.save');
-      view.destroy();
-      done();
-    });
-  });
+      moxios.wait(function () {
+        const buttons = view.findAllComponents(BButton);
+        expect(buttons.length).toEqual(5);
+        expect(buttons.at(4).text()).toEqual('app.save');
+        view.destroy();
+        done();
+      });
+    }
+  );
 
-  it('persisted data gets loaded and shown', function (done) {
+  it('persisted data gets loaded and shown', done => {
     const view = mount(View, {
       localVue,
       store,
@@ -582,192 +597,140 @@ describe('UsersView', function () {
     });
   });
 
-  it('request with the updates gets send during saving the user', function (done) {
-    const spy = sinon.spy();
+  it(
+    'request with the updates gets send during saving the user',
+    done => {
+      const spy = sinon.spy();
 
-    const router = new VueRouter();
-    router.push = spy;
+      const router = new VueRouter();
+      router.push = spy;
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 1,
-          type: 'edit'
-        }
-      },
-      store,
-      router
-    });
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 1,
+            type: 'edit'
+          }
+        },
+        store,
+        router
+      });
 
-    moxios.wait(function () {
-      const inputs = view.findAllComponents(BFormInput);
-      inputs.at(0).setValue('Max').then(() => {
-        return inputs.at(1).setValue('Mustermann');
-      }).then(() => {
-        return inputs.at(2).setValue('max@mustermann.de');
-      }).then(() => {
-        return inputs.at(3).setValue('Test_123');
-      }).then(() => {
-        return inputs.at(4).setValue('Test_123');
-      }).then(() => {
-        const selects = view.findAllComponents(BFormSelect);
-        return selects.at(0).setValue('de');
-      }).then(() => {
-        view.vm.model.roles.push(rolesResponse1.data[2]);
-        return view.vm.$nextTick();
-      }).then(() => {
-        view.findComponent(BForm).trigger('submit');
-
-        moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
-
-          expect(request.config.data.get('firstname')).toBe('Max');
-          expect(request.config.data.get('lastname')).toBe('Mustermann');
-          expect(request.config.data.get('email')).toBe('max@mustermann.de');
-          expect(request.config.data.get('password')).toBe('Test_123');
-          expect(request.config.data.get('password_confirmation')).toBe('Test_123');
-          expect(request.config.data.get('roles[0]')).toStrictEqual('1');
-          expect(request.config.data.get('roles[1]')).toStrictEqual('2');
-          expect(request.config.data.get('roles[2]')).toStrictEqual('3');
-          expect(request.config.data.get('user_locale')).toBe('de');
-          expect(request.config.data.has('generate_password')).toBeFalsy();
-
-          const restoreUserResponse = overrideStub('/api/v1/users/2', {
-            status: 204
-          });
+      moxios.wait(function () {
+        const inputs = view.findAllComponents(BFormInput);
+        inputs.at(0).setValue('Max').then(() => {
+          return inputs.at(1).setValue('Mustermann');
+        }).then(() => {
+          return inputs.at(2).setValue('max@mustermann.de');
+        }).then(() => {
+          return inputs.at(3).setValue('Test_123');
+        }).then(() => {
+          return inputs.at(4).setValue('Test_123');
+        }).then(() => {
+          const selects = view.findAllComponents(BFormSelect);
+          return selects.at(0).setValue('de');
+        }).then(() => {
+          view.vm.model.roles.push(rolesResponse1.data[2]);
+          return view.vm.$nextTick();
+        }).then(() => {
+          view.findComponent(BForm).trigger('submit');
 
           moxios.wait(function () {
-            store.state.session.runningPromise.then(() => {
-              // check that the application locale gets changed
-              expect(store.state.session.currentLocale).toBe('de');
-              sinon.assert.calledOnce(spy);
-              sinon.assert.calledWith(spy, { name: 'settings.users' });
-              restoreUserResponse();
-              view.destroy();
-              done();
+            const request = moxios.requests.mostRecent();
+
+            expect(request.config.data.get('firstname')).toBe('Max');
+            expect(request.config.data.get('lastname')).toBe('Mustermann');
+            expect(request.config.data.get('email')).toBe('max@mustermann.de');
+            expect(request.config.data.get('password')).toBe('Test_123');
+            expect(request.config.data.get('password_confirmation')).toBe('Test_123');
+            expect(request.config.data.get('roles[0]')).toStrictEqual('1');
+            expect(request.config.data.get('roles[1]')).toStrictEqual('2');
+            expect(request.config.data.get('roles[2]')).toStrictEqual('3');
+            expect(request.config.data.get('user_locale')).toBe('de');
+            expect(request.config.data.has('generate_password')).toBeFalsy();
+
+            const restoreUserResponse = overrideStub('/api/v1/users/2', {
+              status: 204
+            });
+
+            moxios.wait(function () {
+              store.state.session.runningPromise.then(() => {
+                // check that the application locale gets changed
+                expect(store.state.session.currentLocale).toBe('de');
+                sinon.assert.calledOnce(spy);
+                sinon.assert.calledWith(spy, { name: 'settings.users' });
+                restoreUserResponse();
+                view.destroy();
+                done();
+              });
             });
           });
         });
       });
-    });
-  });
+    }
+  );
 
-  it('error handler gets called if an error occurs during load of data', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it(
+    'error handler gets called if an error occurs during load of data',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
-    const restoreUserResponse = overrideStub('/api/v1/users/2', {
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'edit'
+      const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
+        status: 500,
+        response: {
+          message: 'Test'
         }
-      },
-      store
-    });
-
-    moxios.wait(function () {
-      sinon.assert.calledTwice(Base.error);
-      expect(view.html()).toContain('settings.roles.nodata');
-      Base.error.restore();
-      restoreRolesResponse();
-      restoreUserResponse();
-      view.destroy();
-      done();
-    });
-  });
-
-  it('if the user model to load is the current user and is not found the user gets logged and redirected', function (done) {
-    const errorSpy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(errorSpy);
-
-    const spy = sinon.spy();
-    const router = new VueRouter();
-    router.push = spy;
-
-    const restoreUserResponse = overrideStub('/api/v1/users/1', {
-      status: env.HTTP_NOT_FOUND,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 1,
-          type: 'edit'
+      });
+      const restoreUserResponse = overrideStub('/api/v1/users/2', {
+        status: 500,
+        response: {
+          message: 'Test'
         }
-      },
-      store,
-      router
-    });
+      });
 
-    moxios.wait(function () {
-      expect(store.state.session.logoutCount).toBe(1);
-      sinon.assert.calledOnce(errorSpy);
-      Base.error.restore();
-      sinon.assert.calledOnce(spy);
-      sinon.assert.calledWith(spy, { name: 'home' });
-      restoreUserResponse();
-      view.destroy();
-      done();
-    });
-  });
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 2,
+            type: 'edit'
+          }
+        },
+        store
+      });
 
-  it('current user get logged out if the user to update is the current user and not gets found during persistence', function (done) {
-    const errorSpy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(errorSpy);
+      moxios.wait(function () {
+        sinon.assert.calledTwice(Base.error);
+        expect(view.html()).toContain('settings.roles.nodata');
+        Base.error.restore();
+        restoreRolesResponse();
+        restoreUserResponse();
+        view.destroy();
+        done();
+      });
+    }
+  );
 
-    const spy = sinon.spy();
-    const router = new VueRouter();
-    router.push = spy;
+  it(
+    'if the user model to load is the current user and is not found the user gets logged and redirected',
+    done => {
+      const errorSpy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(errorSpy);
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 1,
-          type: 'edit'
-        }
-      },
-      store,
-      router
-    });
+      const spy = sinon.spy();
+      const router = new VueRouter();
+      router.push = spy;
 
-    moxios.wait(function () {
       const restoreUserResponse = overrideStub('/api/v1/users/1', {
         status: env.HTTP_NOT_FOUND,
         response: {
@@ -775,7 +738,21 @@ describe('UsersView', function () {
         }
       });
 
-      view.findComponent(BForm).trigger('submit');
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 1,
+            type: 'edit'
+          }
+        },
+        store,
+        router
+      });
 
       moxios.wait(function () {
         expect(store.state.session.logoutCount).toBe(1);
@@ -787,294 +764,272 @@ describe('UsersView', function () {
         view.destroy();
         done();
       });
-    });
-  });
+    }
+  );
 
-  it('modal gets shown for stale errors and a overwrite can be forced', function (done) {
-    const spy = sinon.spy();
+  it(
+    'current user get logged out if the user to update is the current user and not gets found during persistence',
+    done => {
+      const errorSpy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(errorSpy);
 
-    const router = new VueRouter();
-    router.push = spy;
+      const spy = sinon.spy();
+      const router = new VueRouter();
+      router.push = spy;
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 1,
-          type: 'profile'
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
         },
-        modalStatic: true
-      },
-      store,
-      router
-    });
-
-    moxios.wait(function () {
-      const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
-      newModel.firstname = 'Tester';
-
-      let restoreUserResponse = overrideStub('/api/v1/users/1', {
-        status: env.HTTP_STALE_MODEL,
-        response: {
-          error: env.HTTP_STALE_MODEL,
-          message: 'test',
-          new_model: newModel
-        }
+        propsData: {
+          config: {
+            id: 1,
+            type: 'edit'
+          }
+        },
+        store,
+        router
       });
 
-      view.findComponent(BForm).trigger('submit');
-
       moxios.wait(function () {
-        const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
-        expect(staleModelModal.vm.$data.isVisible).toBe(true);
-        restoreUserResponse();
-        restoreUserResponse = overrideStub('/api/v1/users/1', {
-          status: 204,
+        const restoreUserResponse = overrideStub('/api/v1/users/1', {
+          status: env.HTTP_NOT_FOUND,
           response: {
-            data: newModel
+            message: 'Test'
           }
         });
 
-        staleModelModal.vm.$refs['ok-button'].click();
+        view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
-
-          expect(request.config.data.get('updated_at')).toBe(newModel.updated_at);
-          expect(request.config.data.get('firstname')).toBe('Darth');
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-
+          expect(store.state.session.logoutCount).toBe(1);
+          sinon.assert.calledOnce(errorSpy);
+          Base.error.restore();
+          sinon.assert.calledOnce(spy);
+          sinon.assert.calledWith(spy, { name: 'home' });
           restoreUserResponse();
           view.destroy();
           done();
         });
       });
-    });
-  });
+    }
+  );
 
-  it('modal gets shown for stale errors and the new model can be applied to current form', function (done) {
-    const spy = sinon.spy();
+  it(
+    'modal gets shown for stale errors and a overwrite can be forced',
+    done => {
+      const spy = sinon.spy();
 
-    const router = new VueRouter();
-    router.push = spy;
+      const router = new VueRouter();
+      router.push = spy;
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 1,
-          type: 'profile'
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
         },
-        modalStatic: true
-      },
-      store,
-      router
-    });
+        propsData: {
+          config: {
+            id: 1,
+            type: 'profile'
+          },
+          modalStatic: true
+        },
+        store,
+        router
+      });
 
-    moxios.wait(function () {
-      const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
-      newModel.firstname = 'Test';
+      moxios.wait(function () {
+        const newModel = _.cloneDeep(view.vm.model);
+        newModel.updated_at = '2020-09-08T16:13:26.000000Z';
+        newModel.firstname = 'Tester';
 
-      const restoreUserResponse = overrideStub('/api/v1/users/1', {
-        status: env.HTTP_STALE_MODEL,
+        let restoreUserResponse = overrideStub('/api/v1/users/1', {
+          status: env.HTTP_STALE_MODEL,
+          response: {
+            error: env.HTTP_STALE_MODEL,
+            message: 'test',
+            new_model: newModel
+          }
+        });
+
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
+          expect(staleModelModal.vm.$data.isVisible).toBe(true);
+          restoreUserResponse();
+          restoreUserResponse = overrideStub('/api/v1/users/1', {
+            status: 204,
+            response: {
+              data: newModel
+            }
+          });
+
+          staleModelModal.vm.$refs['ok-button'].click();
+
+          moxios.wait(function () {
+            const request = moxios.requests.mostRecent();
+
+            expect(request.config.data.get('updated_at')).toBe(newModel.updated_at);
+            expect(request.config.data.get('firstname')).toBe('Darth');
+            expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+
+            restoreUserResponse();
+            view.destroy();
+            done();
+          });
+        });
+      });
+    }
+  );
+
+  it(
+    'modal gets shown for stale errors and the new model can be applied to current form',
+    done => {
+      const spy = sinon.spy();
+
+      const router = new VueRouter();
+      router.push = spy;
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 1,
+            type: 'profile'
+          },
+          modalStatic: true
+        },
+        store,
+        router
+      });
+
+      moxios.wait(function () {
+        const newModel = _.cloneDeep(view.vm.model);
+        newModel.updated_at = '2020-09-08T16:13:26.000000Z';
+        newModel.firstname = 'Test';
+
+        const restoreUserResponse = overrideStub('/api/v1/users/1', {
+          status: env.HTTP_STALE_MODEL,
+          response: {
+            error: env.HTTP_STALE_MODEL,
+            message: 'test',
+            new_model: newModel
+          }
+        });
+
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
+          expect(staleModelModal.vm.$data.isVisible).toBe(true);
+          expect(view.findComponent(BFormInput).element.value).toBe('Darth');
+
+          restoreUserResponse();
+
+          staleModelModal.vm.$refs['cancel-button'].click();
+
+          view.vm.$nextTick().then(() => {
+            expect(view.findComponent(BFormInput).element.value).toBe('Test');
+            expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+            view.destroy();
+            done();
+          });
+        });
+      });
+    }
+  );
+
+  it(
+    'reload button exists next to the roles multiselect and on error it can be used to reload the roles',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
+
+      const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
+        status: 500,
         response: {
-          error: env.HTTP_STALE_MODEL,
-          message: 'test',
-          new_model: newModel
+          message: 'Test'
         }
       });
 
-      view.findComponent(BForm).trigger('submit');
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 2,
+            type: 'edit'
+          },
+          modalStatic: true
+        },
+        store
+      });
 
       moxios.wait(function () {
-        const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
-        expect(staleModelModal.vm.$data.isVisible).toBe(true);
-        expect(view.findComponent(BFormInput).element.value).toBe('Darth');
+        const button = view.findComponent({ ref: 'reloadRolesButton' });
+        expect(button.exists()).toBe(true);
+        sinon.assert.calledOnce(Base.error);
+        restoreRolesResponse();
+        spy.resetHistory();
+        button.trigger('click');
 
-        restoreUserResponse();
-
-        staleModelModal.vm.$refs['cancel-button'].click();
-
-        view.vm.$nextTick().then(() => {
-          expect(view.findComponent(BFormInput).element.value).toBe('Test');
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+        moxios.wait(function () {
+          const button = view.findComponent({ ref: 'reloadRolesButton' });
+          expect(button.exists()).toBe(false);
+          expect(spy.notCalled).toBe(true);
+          Base.error.restore();
           view.destroy();
           done();
         });
       });
-    });
-  });
+    }
+  );
 
-  it('reload button exists next to the roles multiselect and on error it can be used to reload the roles', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it(
+    'user gets redirected to index page if the other user is not found',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
+      const routerSpy = sinon.spy();
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'edit'
-        },
-        modalStatic: true
-      },
-      store
-    });
-
-    moxios.wait(function () {
-      const button = view.findComponent({ ref: 'reloadRolesButton' });
-      expect(button.exists()).toBe(true);
-      sinon.assert.calledOnce(Base.error);
-      restoreRolesResponse();
-      spy.resetHistory();
-      button.trigger('click');
-
-      moxios.wait(function () {
-        const button = view.findComponent({ ref: 'reloadRolesButton' });
-        expect(button.exists()).toBe(false);
-        expect(spy.notCalled).toBe(true);
-        Base.error.restore();
-        view.destroy();
-        done();
-      });
-    });
-  });
-
-  it('user gets redirected to index page if the other user is not found', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const routerSpy = sinon.spy();
-
-    const router = new VueRouter();
-    router.push = routerSpy;
-
-    const restoreUserResponse = overrideStub('/api/v1/users/2', {
-      status: env.HTTP_NOT_FOUND,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'view'
-        },
-        modalStatic: true
-      },
-      store,
-      router
-    });
-
-    moxios.wait(function () {
-      sinon.assert.calledOnce(Base.error);
-      sinon.assert.calledOnce(routerSpy);
-      sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
-      Base.error.restore();
-      restoreUserResponse();
-      view.destroy();
-      done();
-    });
-  });
-
-  it('reload overlay gets shown if another error than 404 occurs during load of the user', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const restoreUserResponse = overrideStub('/api/v1/users/2', {
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'view'
-        },
-        modalStatic: true
-      },
-      store
-    });
-
-    moxios.wait(function () {
-      sinon.assert.calledOnce(Base.error);
-      Base.error.restore();
-      restoreUserResponse();
-      view.destroy();
-      done();
-    });
-  });
-
-  it('user gets redirected to index page if the other edited user is not found during save', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const routerSpy = sinon.spy();
-
-    const router = new VueRouter();
-    router.push = routerSpy;
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $te: () => false
-      },
-      propsData: {
-        config: {
-          id: 2,
-          type: 'edit'
-        },
-        modalStatic: true
-      },
-      store,
-      router
-    });
-
-    moxios.wait(function () {
-      view.findComponent(BForm).trigger('submit');
+      const router = new VueRouter();
+      router.push = routerSpy;
 
       const restoreUserResponse = overrideStub('/api/v1/users/2', {
         status: env.HTTP_NOT_FOUND,
         response: {
           message: 'Test'
         }
+      });
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 2,
+            type: 'view'
+          },
+          modalStatic: true
+        },
+        store,
+        router
       });
 
       moxios.wait(function () {
@@ -1086,10 +1041,100 @@ describe('UsersView', function () {
         view.destroy();
         done();
       });
-    });
-  });
+    }
+  );
 
-  it('existing image save and delete', function (done) {
+  it(
+    'reload overlay gets shown if another error than 404 occurs during load of the user',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
+
+      const restoreUserResponse = overrideStub('/api/v1/users/2', {
+        status: 500,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 2,
+            type: 'view'
+          },
+          modalStatic: true
+        },
+        store
+      });
+
+      moxios.wait(function () {
+        sinon.assert.calledOnce(Base.error);
+        Base.error.restore();
+        restoreUserResponse();
+        view.destroy();
+        done();
+      });
+    }
+  );
+
+  it(
+    'user gets redirected to index page if the other edited user is not found during save',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
+
+      const routerSpy = sinon.spy();
+
+      const router = new VueRouter();
+      router.push = routerSpy;
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          $te: () => false
+        },
+        propsData: {
+          config: {
+            id: 2,
+            type: 'edit'
+          },
+          modalStatic: true
+        },
+        store,
+        router
+      });
+
+      moxios.wait(function () {
+        view.findComponent(BForm).trigger('submit');
+
+        const restoreUserResponse = overrideStub('/api/v1/users/2', {
+          status: env.HTTP_NOT_FOUND,
+          response: {
+            message: 'Test'
+          }
+        });
+
+        moxios.wait(function () {
+          sinon.assert.calledOnce(Base.error);
+          sinon.assert.calledOnce(routerSpy);
+          sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
+          Base.error.restore();
+          restoreUserResponse();
+          view.destroy();
+          done();
+        });
+      });
+    }
+  );
+
+  it('existing image save and delete', done => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -1177,7 +1222,7 @@ describe('UsersView', function () {
     });
   });
 
-  it('select image', function (done) {
+  it('select image', done => {
     /**
      * Fake cropper component due to limited canvas support for nodejs
      * @type {{template: string, methods: {getCroppedCanvas(): HTMLCanvasElement, replace(*)}, name: string}}

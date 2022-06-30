@@ -67,16 +67,16 @@ const store = new Vuex.Store({
   }
 });
 
-describe('Room', function () {
-  beforeEach(function () {
+describe('Room', () => {
+  beforeEach(() => {
     store.commit('session/setCurrentUser', { currentUser: exampleUser });
     moxios.install();
   });
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('guest forbidden', function (done) {
+  it('guest forbidden', done => {
     moxios.stubRequest('/api/v1/rooms/abc-def-123', {
       status: 403,
       response: {
@@ -132,7 +132,7 @@ describe('Room', function () {
     });
   });
 
-  it('room token', function (done) {
+  it('room token', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       info (param) {
@@ -209,7 +209,7 @@ describe('Room', function () {
     });
   });
 
-  it('room token invalid', function (done) {
+  it('room token invalid', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       info (param) {
@@ -269,7 +269,7 @@ describe('Room', function () {
     });
   });
 
-  it('room token as authenticated user', function (done) {
+  it('room token as authenticated user', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       info (param) {
@@ -311,7 +311,7 @@ describe('Room', function () {
     });
   });
 
-  it('room not found', function (done) {
+  it('room not found', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -343,7 +343,7 @@ describe('Room', function () {
     });
   });
 
-  it('error beforeRouteEnter', function (done) {
+  it('error beforeRouteEnter', done => {
     moxios.stubRequest('/api/v1/rooms/abc-def-456', {
       status: env.HTTP_SERVICE_UNAVAILABLE
     });
@@ -368,7 +368,7 @@ describe('Room', function () {
     RoomView.beforeRouteEnter.call(view.vm, to, undefined, next);
   });
 
-  it('ask access token', function (done) {
+  it('ask access token', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -392,7 +392,7 @@ describe('Room', function () {
     });
   });
 
-  it('room details auth. guest', function (done) {
+  it('room details auth. guest', done => {
     store.commit('session/setCurrentUser', { currentUser: null });
     const view = mount(RoomView, {
       localVue,
@@ -431,7 +431,7 @@ describe('Room', function () {
     });
   });
 
-  it('room details moderator', function (done) {
+  it('room details moderator', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -464,7 +464,7 @@ describe('Room', function () {
     });
   });
 
-  it('room admin components for owner', function (done) {
+  it('room admin components for owner', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -500,7 +500,7 @@ describe('Room', function () {
     });
   });
 
-  it('room admin components for co-owner', function (done) {
+  it('room admin components for co-owner', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -535,7 +535,7 @@ describe('Room', function () {
     });
   });
 
-  it('room admin components with rooms.viewAll permission', function (done) {
+  it('room admin components with rooms.viewAll permission', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -570,7 +570,7 @@ describe('Room', function () {
     });
   });
 
-  it('reload', function (done) {
+  it('reload', done => {
     const baseError = sinon.stub(Base, 'error');
 
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
@@ -667,7 +667,7 @@ describe('Room', function () {
     });
   });
 
-  it('handle invalid code', function () {
+  it('handle invalid code', () => {
     const reload = sinon.stub(RoomView.methods, 'reload');
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
@@ -700,7 +700,7 @@ describe('Room', function () {
     view.destroy();
   });
 
-  it('handle invalid token', function () {
+  it('handle invalid token', () => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       error (param) {
@@ -734,7 +734,7 @@ describe('Room', function () {
     view.destroy();
   });
 
-  it('handle empty code', function (done) {
+  it('handle empty code', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       error (param) {
@@ -808,7 +808,7 @@ describe('Room', function () {
     });
   });
 
-  it('handle file list errors', function () {
+  it('handle file list errors', () => {
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
     const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
@@ -857,7 +857,7 @@ describe('Room', function () {
     view.destroy();
   });
 
-  it('join running meeting', function (done) {
+  it('join running meeting', done => {
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -918,7 +918,7 @@ describe('Room', function () {
     });
   });
 
-  it('join running meeting, attendance logging', function (done) {
+  it('join running meeting, attendance logging', done => {
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -972,7 +972,7 @@ describe('Room', function () {
     });
   });
 
-  it('join running meeting guests', function (done) {
+  it('join running meeting guests', done => {
     store.commit('session/setCurrentUser', { currentUser: null });
 
     const oldWindow = window.location;
@@ -1065,7 +1065,7 @@ describe('Room', function () {
     });
   });
 
-  it('join running meeting guests with access token', function (done) {
+  it('join running meeting guests with access token', done => {
     store.commit('session/setCurrentUser', { currentUser: null });
 
     const oldWindow = window.location;
@@ -1161,7 +1161,7 @@ describe('Room', function () {
     });
   });
 
-  it('join running meeting token', function (done) {
+  it('join running meeting token', done => {
     store.commit('session/setCurrentUser', { currentUser: null });
 
     const oldWindow = window.location;
@@ -1221,7 +1221,7 @@ describe('Room', function () {
     });
   });
 
-  it('join meeting errors', function (done) {
+  it('join meeting errors', done => {
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
     const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
@@ -1371,7 +1371,7 @@ describe('Room', function () {
     });
   });
 
-  it('start meeting', function (done) {
+  it('start meeting', done => {
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1431,7 +1431,7 @@ describe('Room', function () {
     });
   });
 
-  it('start meeting, attendance logging', function (done) {
+  it('start meeting, attendance logging', done => {
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1485,7 +1485,7 @@ describe('Room', function () {
     });
   });
 
-  it('start meeting guests', function (done) {
+  it('start meeting guests', done => {
     store.commit('session/setCurrentUser', { currentUser: null });
 
     const oldWindow = window.location;
@@ -1578,7 +1578,7 @@ describe('Room', function () {
     });
   });
 
-  it('start meeting errors', function (done) {
+  it('start meeting errors', done => {
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
     const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
@@ -1759,7 +1759,7 @@ describe('Room', function () {
     });
   });
 
-  it('start meeting access token', function (done) {
+  it('start meeting access token', done => {
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1821,7 +1821,7 @@ describe('Room', function () {
     });
   });
 
-  it('start meeting token', function (done) {
+  it('start meeting token', done => {
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1883,7 +1883,7 @@ describe('Room', function () {
     });
   });
 
-  it('end membership', function (done) {
+  it('end membership', done => {
     moxios.stubRequest('/api/v1/rooms/cba-fed-123/files', {
       status: 200,
       response: {
@@ -1977,7 +1977,7 @@ describe('Room', function () {
     });
   });
 
-  it('logged in status change', function (done) {
+  it('logged in status change', done => {
     const view = mount(RoomView, {
       localVue,
       mocks: {

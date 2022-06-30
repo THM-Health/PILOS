@@ -50,15 +50,15 @@ const store = new Vuex.Store({
   }
 });
 
-describe('History', function () {
-  beforeEach(function () {
+describe('History', () => {
+  beforeEach(() => {
     moxios.install();
   });
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('load meetings', function (done) {
+  it('load meetings', done => {
     const store = new Vuex.Store({
       modules: {
         session: {
@@ -177,7 +177,7 @@ describe('History', function () {
     });
   });
 
-  it('meetings table with action buttons', function (done) {
+  it('meetings table with action buttons', done => {
     const view = mount(HistoryComponent, {
       localVue,
       mocks: {
@@ -266,7 +266,7 @@ describe('History', function () {
     });
   });
 
-  it('meetings table loading error', function (done) {
+  it('meetings table loading error', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -340,7 +340,7 @@ describe('History', function () {
     });
   });
 
-  it('loading stats', function (done) {
+  it('loading stats', done => {
     const view = mount(HistoryComponent, {
       localVue,
       mocks: {
@@ -433,7 +433,7 @@ describe('History', function () {
     });
   });
 
-  it('loading attendance', function (done) {
+  it('loading attendance', done => {
     const view = mount(HistoryComponent, {
       localVue,
       mocks: {

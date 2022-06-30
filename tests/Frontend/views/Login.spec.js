@@ -14,16 +14,16 @@ const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(BootstrapVue);
 
-describe('Login', function () {
-  beforeEach(function () {
+describe('Login', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('correct data gets sent on ldap login', function (done) {
+  it('correct data gets sent on ldap login', done => {
     const view = mount(Login, {
       localVue,
       store,
@@ -66,7 +66,7 @@ describe('Login', function () {
     });
   });
 
-  it('correct data gets sent on email login', function (done) {
+  it('correct data gets sent on email login', done => {
     const view = mount(Login, {
       localVue,
       store,
@@ -110,7 +110,7 @@ describe('Login', function () {
     });
   });
 
-  it('redirect if query set', async function () {
+  it('redirect if query set', async () => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       success (param) {
@@ -172,7 +172,7 @@ describe('Login', function () {
     view.destroy();
   });
 
-  it('redirect to room overview if redirect query not set', async function () {
+  it('redirect to room overview if redirect query not set', async () => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       success (param) {
@@ -232,65 +232,68 @@ describe('Login', function () {
     view.destroy();
   });
 
-  it('unprocessable entity errors gets displayed for the corresponding fields', function (done) {
-    const view = mount(Login, {
-      localVue,
-      store,
-      mocks: {
-        $t: (key) => key
-      }
-    });
+  it(
+    'unprocessable entity errors gets displayed for the corresponding fields',
+    done => {
+      const view = mount(Login, {
+        localVue,
+        store,
+        mocks: {
+          $t: (key) => key
+        }
+      });
 
-    const emailLoginComponent = view.findComponent(EmailLoginComponent);
-    emailLoginComponent.find('#defaultEmail').setValue('user').then(() => {
-      return emailLoginComponent.find('#defaultPassword').setValue('password');
-    }).then(() => {
-      return emailLoginComponent.findComponent(BButton).trigger('submit');
-    }).then(() => {
-      expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
-
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-
-        expect(request.config.url).toBe('/sanctum/csrf-cookie');
-
-        document.cookie = 'XSRF-TOKEN=test-csrf';
-        request.respondWith({
-          status: 200
-        });
+      const emailLoginComponent = view.findComponent(EmailLoginComponent);
+      emailLoginComponent.find('#defaultEmail').setValue('user').then(() => {
+        return emailLoginComponent.find('#defaultPassword').setValue('password');
+      }).then(() => {
+        return emailLoginComponent.findComponent(BButton).trigger('submit');
+      }).then(() => {
+        expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
 
-          expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-          expect(request.config.url).toBe('/api/v1/login');
+          expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
-          const data = JSON.parse(request.config.data);
-          expect(data.email).toBe('user');
-          expect(data.password).toBe('password');
-
+          document.cookie = 'XSRF-TOKEN=test-csrf';
           request.respondWith({
-            status: env.HTTP_UNPROCESSABLE_ENTITY,
-            response: {
-              errors: {
-                email: ['Password or Email wrong!']
+            status: 200
+          });
+
+          moxios.wait(function () {
+            const request = moxios.requests.mostRecent();
+
+            expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
+            expect(request.config.url).toBe('/api/v1/login');
+
+            const data = JSON.parse(request.config.data);
+            expect(data.email).toBe('user');
+            expect(data.password).toBe('password');
+
+            request.respondWith({
+              status: env.HTTP_UNPROCESSABLE_ENTITY,
+              response: {
+                errors: {
+                  email: ['Password or Email wrong!']
+                }
               }
-            }
-          }).then(() => {
-            const invalidFeedback = emailLoginComponent.findComponent(BFormInvalidFeedback);
+            }).then(() => {
+              const invalidFeedback = emailLoginComponent.findComponent(BFormInvalidFeedback);
 
-            expect(invalidFeedback.exists()).toBe(true);
-            expect(invalidFeedback.html()).toContain('Password or Email wrong!');
+              expect(invalidFeedback.exists()).toBe(true);
+              expect(invalidFeedback.html()).toContain('Password or Email wrong!');
 
-            view.destroy();
-            done();
+              view.destroy();
+              done();
+            });
           });
         });
       });
-    });
-  });
+    }
+  );
 
-  it('error for too many login requests gets displayed', function (done) {
+  it('error for too many login requests gets displayed', done => {
     const view = mount(Login, {
       localVue,
       store,
@@ -348,40 +351,43 @@ describe('Login', function () {
     });
   });
 
-  it('other api errors gets thrown and handled by the global error handler', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it(
+    'other api errors gets thrown and handled by the global error handler',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const view = mount(Login, {
-      localVue,
-      store,
-      mocks: {
-        $t: (key) => key
-      }
-    });
+      const view = mount(Login, {
+        localVue,
+        store,
+        mocks: {
+          $t: (key) => key
+        }
+      });
 
-    const emailLoginComponent = view.findComponent(EmailLoginComponent);
-    emailLoginComponent.find('#defaultEmail').setValue('user').then(() => {
-      return emailLoginComponent.find('#defaultPassword').setValue('password');
-    }).then(() => {
-      return emailLoginComponent.findComponent(BButton).trigger('submit');
-    }).then(() => {
-      expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
+      const emailLoginComponent = view.findComponent(EmailLoginComponent);
+      emailLoginComponent.find('#defaultEmail').setValue('user').then(() => {
+        return emailLoginComponent.find('#defaultPassword').setValue('password');
+      }).then(() => {
+        return emailLoginComponent.findComponent(BButton).trigger('submit');
+      }).then(() => {
+        expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
 
-        expect(request.config.url).toBe('/sanctum/csrf-cookie');
+          expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
-        request.respondWith({
-          status: 500
-        }).then(() => {
-          sinon.assert.calledOnce(Base.error);
-          Base.error.restore();
-          view.destroy();
-          done();
+          request.respondWith({
+            status: 500
+          }).then(() => {
+            sinon.assert.calledOnce(Base.error);
+            Base.error.restore();
+            view.destroy();
+            done();
+          });
         });
       });
-    });
-  });
+    }
+  );
 });

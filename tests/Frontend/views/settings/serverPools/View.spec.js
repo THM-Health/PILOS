@@ -54,8 +54,8 @@ function overrideStub (url, response) {
 
 let oldUser;
 
-describe('ServerPoolView', function () {
-  beforeEach(function () {
+describe('ServerPoolView', () => {
+  beforeEach(() => {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['server.viewAny', 'serverPools.viewAny', 'serverPools.view', 'serverPools.create', 'serverPools.update', 'settings.manage'] });
     moxios.install();
@@ -164,180 +164,41 @@ describe('ServerPoolView', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(() => {
     PermissionService.setCurrentUser(oldUser);
     moxios.uninstall();
   });
 
-  it('input fields are disabled if the server pool is displayed in view mode', function (done) {
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key, values) => key
-      },
-      propsData: {
-        viewOnly: true,
-        id: '1'
-      },
-      store,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
-      expect(view.findAllComponents(Multiselect).wrappers.every(input => input.vm.disabled)).toBe(true);
-      done();
-    });
-  });
-
-  it('error handler gets called if an error occurs during load of data and reload button reloads data', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1'
-      },
-      store,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      sinon.assert.calledOnce(Base.error);
-      expect(view.vm.isBusy).toBe(false);
-      expect(view.findComponent(BOverlay).props('show')).toBe(true);
-      Base.error.restore();
-      restoreServerPoolResponse();
-
-      const reloadButton = view.findComponent({ ref: 'reloadServerPool' });
-      expect(reloadButton.exists()).toBeTruthy();
-      reloadButton.trigger('click');
+  it(
+    'input fields are disabled if the server pool is displayed in view mode',
+    done => {
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key, values) => key
+        },
+        propsData: {
+          viewOnly: true,
+          id: '1'
+        },
+        store,
+        attachTo: createContainer()
+      });
 
       moxios.wait(function () {
-        expect(view.vm.isBusy).toBe(false);
-        expect(view.findComponent(BOverlay).props('show')).toBe(false);
-
-        expect(view.vm.$data.model.id).toBe(1);
-        expect(view.vm.$data.model.name).toEqual('Test');
-
+        expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
+        expect(view.findAllComponents(Multiselect).wrappers.every(input => input.vm.disabled)).toBe(true);
         done();
       });
-    });
-  });
+    }
+  );
 
-  it('error handler gets called and redirected if a 404 error occurs during load of data', function (done) {
-    const routerSpy = sinon.spy();
-    const router = new VueRouter();
-    router.push = routerSpy;
+  it(
+    'error handler gets called if an error occurs during load of data and reload button reloads data',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-      status: 404,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1'
-      },
-      store,
-      router,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      sinon.assert.calledOnce(Base.error);
-      sinon.assert.calledOnce(routerSpy);
-      sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
-      Base.error.restore();
-      restoreServerPoolResponse();
-
-      done();
-    });
-  });
-
-  it('error handler gets called and redirected if a 404 error occurs during save of data', function (done) {
-    const routerSpy = sinon.spy();
-    const router = new VueRouter();
-    router.push = routerSpy;
-
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1'
-      },
-      store,
-      router,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-        status: 404,
-        response: {
-          message: 'Test'
-        }
-      });
-
-      view.findComponent(BForm).trigger('submit');
-
-      moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
-        Base.error.restore();
-        sinon.assert.calledOnce(routerSpy);
-        sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
-        restoreServerPoolResponse();
-        done();
-      });
-    });
-  });
-
-  it('error handler gets called if an error occurs during update', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1'
-      },
-      store,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
       const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
         status: 500,
         response: {
@@ -345,227 +206,393 @@ describe('ServerPoolView', function () {
         }
       });
 
-      view.findComponent(BForm).trigger('submit');
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1'
+        },
+        store,
+        attachTo: createContainer()
+      });
 
       moxios.wait(function () {
         sinon.assert.calledOnce(Base.error);
+        expect(view.vm.isBusy).toBe(false);
+        expect(view.findComponent(BOverlay).props('show')).toBe(true);
         Base.error.restore();
         restoreServerPoolResponse();
-        done();
+
+        const reloadButton = view.findComponent({ ref: 'reloadServerPool' });
+        expect(reloadButton.exists()).toBeTruthy();
+        reloadButton.trigger('click');
+
+        moxios.wait(function () {
+          expect(view.vm.isBusy).toBe(false);
+          expect(view.findComponent(BOverlay).props('show')).toBe(false);
+
+          expect(view.vm.$data.model.id).toBe(1);
+          expect(view.vm.$data.model.name).toEqual('Test');
+
+          done();
+        });
       });
-    });
-  });
+    }
+  );
 
-  it('back button causes a back navigation without persistence', function (done) {
-    const spy = sinon.spy();
+  it(
+    'error handler gets called and redirected if a 404 error occurs during load of data',
+    done => {
+      const routerSpy = sinon.spy();
+      const router = new VueRouter();
+      router.push = routerSpy;
 
-    const router = new VueRouter();
-    router.push = spy;
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key, values) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1'
-      },
-      store,
-      router,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      const requestCount = moxios.requests.count();
-
-      view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
-        expect(moxios.requests.count()).toBe(requestCount);
-        sinon.assert.calledOnce(spy);
-        done();
-      });
-    });
-  });
-
-  it('request with updates get send during saving the server', function (done) {
-    const spy = sinon.spy();
-
-    const router = new VueRouter();
-    router.push = spy;
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key, values) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1'
-      },
-      store,
-      router,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
-      await view.findAllComponents(BFormInput).at(0).setValue('Demo');
-      await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
-      await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
-
-      view.findComponent(BForm).trigger('submit');
-
-      let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-        status: env.HTTP_UNPROCESSABLE_ENTITY,
+      const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+        status: 404,
         response: {
-          message: 'The given data was invalid.',
-          errors: {
-            name: ['Test name'],
-            description: ['Test description'],
-            servers: ['Test server']
-          }
+          message: 'Test'
         }
       });
 
+      mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1'
+        },
+        store,
+        router,
+        attachTo: createContainer()
+      });
+
       moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        const data = JSON.parse(request.config.data);
-
-        expect(data.name).toBe('Demo');
-        expect(data.description).toBe('Demopool');
-        expect(data.servers).toEqual([1, 2]);
-
-        const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
-        expect(feedback[0].html()).toContain('Test name');
-        expect(feedback[1].html()).toContain('Test description');
-        expect(feedback[2].html()).toContain('Test server');
-
+        sinon.assert.calledOnce(Base.error);
+        sinon.assert.calledOnce(routerSpy);
+        sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
+        Base.error.restore();
         restoreServerPoolResponse();
-        restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-          status: 204
+
+        done();
+      });
+    }
+  );
+
+  it(
+    'error handler gets called and redirected if a 404 error occurs during save of data',
+    done => {
+      const routerSpy = sinon.spy();
+      const router = new VueRouter();
+      router.push = routerSpy;
+
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1'
+        },
+        store,
+        router,
+        attachTo: createContainer()
+      });
+
+      moxios.wait(function () {
+        const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+          status: 404,
+          response: {
+            message: 'Test'
+          }
         });
 
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(spy);
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+          sinon.assert.calledOnce(routerSpy);
+          sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
           restoreServerPoolResponse();
           done();
         });
       });
-    });
-  });
+    }
+  );
 
-  it('modal gets shown for stale errors and a overwrite can be forced', function (done) {
-    const spy = sinon.spy();
+  it(
+    'error handler gets called if an error occurs during update',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
 
-    const router = new VueRouter();
-    router.push = spy;
-
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key, values) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1',
-        modalStatic: true
-      },
-      store,
-      router,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(function () {
-      const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
-
-      let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-        status: env.HTTP_STALE_MODEL,
-        response: {
-          error: env.HTTP_STALE_MODEL,
-          message: 'test',
-          new_model: newModel
-        }
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1'
+        },
+        store,
+        attachTo: createContainer()
       });
 
-      view.findComponent(BForm).trigger('submit');
-
       moxios.wait(function () {
-        const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
-        expect(staleModelModal.vm.$data.isVisible).toBe(true);
-
-        restoreServerPoolResponse();
-        restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-          status: 204
+        const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+          status: 500,
+          response: {
+            message: 'Test'
+          }
         });
 
-        staleModelModal.vm.$refs['ok-button'].click();
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          sinon.assert.calledOnce(Base.error);
+          Base.error.restore();
+          restoreServerPoolResponse();
+          done();
+        });
+      });
+    }
+  );
+
+  it(
+    'back button causes a back navigation without persistence',
+    done => {
+      const spy = sinon.spy();
+
+      const router = new VueRouter();
+      router.push = spy;
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key, values) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1'
+        },
+        store,
+        router,
+        attachTo: createContainer()
+      });
+
+      moxios.wait(function () {
+        const requestCount = moxios.requests.count();
+
+        view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
+          expect(moxios.requests.count()).toBe(requestCount);
+          sinon.assert.calledOnce(spy);
+          done();
+        });
+      });
+    }
+  );
+
+  it(
+    'request with updates get send during saving the server',
+    done => {
+      const spy = sinon.spy();
+
+      const router = new VueRouter();
+      router.push = spy;
+
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key, values) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1'
+        },
+        store,
+        router,
+        attachTo: createContainer()
+      });
+
+      moxios.wait(async () => {
+        await view.vm.$nextTick();
+        await view.findAllComponents(BFormInput).at(0).setValue('Demo');
+        await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
+        await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
+
+        view.findComponent(BForm).trigger('submit');
+
+        let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+          status: env.HTTP_UNPROCESSABLE_ENTITY,
+          response: {
+            message: 'The given data was invalid.',
+            errors: {
+              name: ['Test name'],
+              description: ['Test description'],
+              servers: ['Test server']
+            }
+          }
+        });
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
           const data = JSON.parse(request.config.data);
 
-          expect(data.updated_at).toBe(newModel.updated_at);
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          expect(data.name).toBe('Demo');
+          expect(data.description).toBe('Demopool');
+          expect(data.servers).toEqual([1, 2]);
+
+          const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
+          expect(feedback[0].html()).toContain('Test name');
+          expect(feedback[1].html()).toContain('Test description');
+          expect(feedback[2].html()).toContain('Test server');
+
           restoreServerPoolResponse();
-          done();
+          restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+            status: 204
+          });
+
+          view.findComponent(BForm).trigger('submit');
+
+          moxios.wait(function () {
+            sinon.assert.calledOnce(spy);
+            restoreServerPoolResponse();
+            done();
+          });
         });
       });
-    });
-  });
+    }
+  );
 
-  it('modal gets shown for stale errors and the new model can be applied to current form', function (done) {
-    const view = mount(View, {
-      localVue,
-      mocks: {
-        $t: (key, values) => key
-      },
-      propsData: {
-        viewOnly: false,
-        id: '1',
-        modalStatic: true
-      },
-      store,
-      attachTo: createContainer()
-    });
+  it(
+    'modal gets shown for stale errors and a overwrite can be forced',
+    done => {
+      const spy = sinon.spy();
 
-    moxios.wait(function () {
-      const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
-      newModel.name = 'Demo';
+      const router = new VueRouter();
+      router.push = spy;
 
-      const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-        status: env.HTTP_STALE_MODEL,
-        response: {
-          error: env.HTTP_STALE_MODEL,
-          message: 'test',
-          new_model: newModel
-        }
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key, values) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1',
+          modalStatic: true
+        },
+        store,
+        router,
+        attachTo: createContainer()
       });
-
-      view.findComponent(BForm).trigger('submit');
 
       moxios.wait(function () {
-        const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
-        expect(staleModelModal.vm.$data.isVisible).toBe(true);
-        expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Test');
+        const newModel = _.cloneDeep(view.vm.model);
+        newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
-        restoreServerPoolResponse();
+        let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+          status: env.HTTP_STALE_MODEL,
+          response: {
+            error: env.HTTP_STALE_MODEL,
+            message: 'test',
+            new_model: newModel
+          }
+        });
 
-        staleModelModal.vm.$refs['cancel-button'].click();
+        view.findComponent(BForm).trigger('submit');
 
-        view.vm.$nextTick().then(() => {
-          expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Demo');
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          done();
+        moxios.wait(function () {
+          const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
+          expect(staleModelModal.vm.$data.isVisible).toBe(true);
+
+          restoreServerPoolResponse();
+          restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+            status: 204
+          });
+
+          staleModelModal.vm.$refs['ok-button'].click();
+
+          moxios.wait(function () {
+            const request = moxios.requests.mostRecent();
+            const data = JSON.parse(request.config.data);
+
+            expect(data.updated_at).toBe(newModel.updated_at);
+            expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+            restoreServerPoolResponse();
+            done();
+          });
         });
       });
-    });
-  });
+    }
+  );
 
-  it('server get loaded, pagination and error handling', function (done) {
+  it(
+    'modal gets shown for stale errors and the new model can be applied to current form',
+    done => {
+      const view = mount(View, {
+        localVue,
+        mocks: {
+          $t: (key, values) => key
+        },
+        propsData: {
+          viewOnly: false,
+          id: '1',
+          modalStatic: true
+        },
+        store,
+        attachTo: createContainer()
+      });
+
+      moxios.wait(function () {
+        const newModel = _.cloneDeep(view.vm.model);
+        newModel.updated_at = '2020-09-08T16:13:26.000000Z';
+        newModel.name = 'Demo';
+
+        const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+          status: env.HTTP_STALE_MODEL,
+          response: {
+            error: env.HTTP_STALE_MODEL,
+            message: 'test',
+            new_model: newModel
+          }
+        });
+
+        view.findComponent(BForm).trigger('submit');
+
+        moxios.wait(function () {
+          const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
+          expect(staleModelModal.vm.$data.isVisible).toBe(true);
+          expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Test');
+
+          restoreServerPoolResponse();
+
+          staleModelModal.vm.$refs['cancel-button'].click();
+
+          view.vm.$nextTick().then(() => {
+            expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Demo');
+            expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+            done();
+          });
+        });
+      });
+    }
+  );
+
+  it('server get loaded, pagination and error handling', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 

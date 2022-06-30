@@ -17,30 +17,33 @@ function overrideStub (url, response) {
   }
 }
 
-describe('store/session', function () {
-  beforeEach(function () {
+describe('store/session', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property', async function () {
-    const commit = sinon.spy();
+  it(
+    'getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property',
+    async () => {
+      const commit = sinon.spy();
 
-    moxios.stubRequest('/api/v1/settings', {
-      status: 200,
-      response: { data: { foo: 'bar' } }
-    });
+      moxios.stubRequest('/api/v1/settings', {
+        status: 200,
+        response: { data: { foo: 'bar' } }
+      });
 
-    await Session.actions.getSettings({ commit });
+      await Session.actions.getSettings({ commit });
 
-    sinon.assert.calledOnce(commit);
-    sinon.assert.calledWith(commit, 'setSettings', { foo: 'bar' });
-  });
+      sinon.assert.calledOnce(commit);
+      sinon.assert.calledWith(commit, 'setSettings', { foo: 'bar' });
+    }
+  );
 
-  it('getCurrentUser and set i18n timezone', async function () {
+  it('getCurrentUser and set i18n timezone', async () => {
     const messagesEN = require('../../../resources/js/lang/en/index.js').default;
     importLanguage('en', messagesEN);
 

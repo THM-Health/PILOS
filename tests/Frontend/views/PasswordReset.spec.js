@@ -13,16 +13,16 @@ localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
-describe('PasswordReset', function () {
-  beforeEach(function () {
+describe('PasswordReset', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('submit handles errors correctly', function (done) {
+  it('submit handles errors correctly', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -71,107 +71,110 @@ describe('PasswordReset', function () {
     });
   });
 
-  it('submit loads the current user after login and changes the application language to the corresponding one', function (done) {
-    const routerSpy = sinon.spy();
+  it(
+    'submit loads the current user after login and changes the application language to the corresponding one',
+    done => {
+      const routerSpy = sinon.spy();
 
-    const router = new VueRouter();
-    router.push = routerSpy;
+      const router = new VueRouter();
+      router.push = routerSpy;
 
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      success (param) {
-        flashMessageSpy(param);
-      }
-    };
+      const flashMessageSpy = sinon.spy();
+      const flashMessage = {
+        success (param) {
+          flashMessageSpy(param);
+        }
+      };
 
-    let res;
-    const promise = new Promise((resolve) => {
-      res = resolve;
-    });
+      let res;
+      const promise = new Promise((resolve) => {
+        res = resolve;
+      });
 
-    const store = new Vuex.Store({
-      modules: {
-        session: {
-          namespaced: true,
-          mutations: {
-            setCurrentLocale (state, currentLocale) {
-              state.currentLocale = currentLocale;
-              res();
+      const store = new Vuex.Store({
+        modules: {
+          session: {
+            namespaced: true,
+            mutations: {
+              setCurrentLocale (state, currentLocale) {
+                state.currentLocale = currentLocale;
+                res();
+              },
+              setCurrentUser (state, currentUser) {
+                state.currentUser = currentUser;
+                res();
+              },
+              increaseCallCount (state, name) {
+                state[name] += 1;
+              }
             },
-            setCurrentUser (state, currentUser) {
-              state.currentUser = currentUser;
-              res();
-            },
-            increaseCallCount (state, name) {
-              state[name] += 1;
-            }
-          },
-          state: () => ({
-            currentLocale: 'en',
-            currentUser: { user_locale: 'en' },
-            getCurrentUserCount: 0,
-            runningPromise: promise
-          }),
-          actions: {
-            async getCurrentUser ({ commit }) {
-              await Promise.resolve();
-              commit('increaseCallCount', 'getCurrentUserCount');
-              commit('setCurrentUser', { user_locale: 'de' });
+            state: () => ({
+              currentLocale: 'en',
+              currentUser: { user_locale: 'en' },
+              getCurrentUserCount: 0,
+              runningPromise: promise
+            }),
+            actions: {
+              async getCurrentUser ({ commit }) {
+                await Promise.resolve();
+                commit('increaseCallCount', 'getCurrentUserCount');
+                commit('setCurrentUser', { user_locale: 'de' });
+              }
             }
           }
         }
-      }
-    });
+      });
 
-    const view = mount(PasswordReset, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        flashMessage: flashMessage
-      },
-      router,
-      store,
-      propsData: {
-        email: 'foo@bar.com',
-        token: 'Test123'
-      }
-    });
+      const view = mount(PasswordReset, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          flashMessage: flashMessage
+        },
+        router,
+        store,
+        propsData: {
+          email: 'foo@bar.com',
+          token: 'Test123'
+        }
+      });
 
-    const inputs = view.findAllComponents(BFormInput);
-    inputs.at(0).setValue('Test123').then(() => {
-      return inputs.at(1).setValue('Test123');
-    }).then(() => {
-      view.findComponent(BButton).trigger('submit');
-      moxios.wait(function () {
-        moxios.requests.mostRecent().respondWith({
-          status: 200
-        }).then(() => {
-          moxios.wait(function () {
-            const request = moxios.requests.mostRecent();
-            const data = JSON.parse(request.config.data);
-            expect(data.email).toBe('foo@bar.com');
-            expect(data.token).toBe('Test123');
-            expect(data.password).toBe('Test123');
-            expect(data.password_confirmation).toBe('Test123');
+      const inputs = view.findAllComponents(BFormInput);
+      inputs.at(0).setValue('Test123').then(() => {
+        return inputs.at(1).setValue('Test123');
+      }).then(() => {
+        view.findComponent(BButton).trigger('submit');
+        moxios.wait(function () {
+          moxios.requests.mostRecent().respondWith({
+            status: 200
+          }).then(() => {
+            moxios.wait(function () {
+              const request = moxios.requests.mostRecent();
+              const data = JSON.parse(request.config.data);
+              expect(data.email).toBe('foo@bar.com');
+              expect(data.token).toBe('Test123');
+              expect(data.password).toBe('Test123');
+              expect(data.password_confirmation).toBe('Test123');
 
-            request.respondWith({
-              status: 200,
-              response: {
-                message: 'Success!'
-              }
-            }).then(() => {
-              return store.state.session.runningPromise;
-            }).then(() => {
-              sinon.assert.calledOnce(routerSpy);
-              sinon.assert.calledWith(routerSpy, { name: 'home' });
-              expect(flashMessageSpy.calledOnce).toBeTruthy();
-              expect(flashMessageSpy.getCall(0).args[0]).toEqual({ title: 'Success!' });
-              expect(store.state.session.currentLocale).toEqual('de');
-              done();
+              request.respondWith({
+                status: 200,
+                response: {
+                  message: 'Success!'
+                }
+              }).then(() => {
+                return store.state.session.runningPromise;
+              }).then(() => {
+                sinon.assert.calledOnce(routerSpy);
+                sinon.assert.calledWith(routerSpy, { name: 'home' });
+                expect(flashMessageSpy.calledOnce).toBeTruthy();
+                expect(flashMessageSpy.getCall(0).args[0]).toEqual({ title: 'Success!' });
+                expect(store.state.session.currentLocale).toEqual('de');
+                done();
+              });
             });
           });
         });
       });
-    });
-  });
+    }
+  );
 });

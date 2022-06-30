@@ -64,12 +64,12 @@ function overrideStub (url, response) {
   }
 }
 
-describe('Own Room Index', function () {
-  beforeEach(function () {
+describe('Own Room Index', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
@@ -153,7 +153,7 @@ describe('Own Room Index', function () {
     ]
   };
 
-  it('check list of rooms', function (done) {
+  it('check list of rooms', done => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -191,7 +191,7 @@ describe('Own Room Index', function () {
     });
   });
 
-  it('click on room in list', function (done) {
+  it('click on room in list', done => {
     const spy = sinon.stub().resolves();
 
     const router = new VueRouter();
@@ -239,7 +239,7 @@ describe('Own Room Index', function () {
     });
   });
 
-  it('test reload function and room limit reach event', function (done) {
+  it('test reload function and room limit reach event', done => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -342,7 +342,7 @@ describe('Own Room Index', function () {
     });
   });
 
-  it('test search', function (done) {
+  it('test search', done => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -479,7 +479,7 @@ describe('Own Room Index', function () {
     });
   });
 
-  it('test room limit', function (done) {
+  it('test room limit', done => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse

@@ -70,12 +70,12 @@ function overrideStub (url, response) {
   }
 }
 
-describe('Room Index', function () {
-  beforeEach(function () {
+describe('Room Index', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
@@ -131,7 +131,7 @@ describe('Room Index', function () {
     ]
   };
 
-  it('show different heading depending on permission', async function () {
+  it('show different heading depending on permission', async () => {
     const oldUser = PermissionService.currentUser;
 
     const view = mount(RoomList, {
@@ -158,7 +158,7 @@ describe('Room Index', function () {
     view.destroy();
   });
 
-  it('load rooms, load room types and open room', function (done) {
+  it('load rooms, load room types and open room', done => {
     const oldUser = PermissionService.currentUser;
 
     const spy = sinon.spy();
@@ -241,7 +241,7 @@ describe('Room Index', function () {
     });
   });
 
-  it('error loading rooms', function (done) {
+  it('error loading rooms', done => {
     const oldUser = PermissionService.currentUser;
 
     const spy = sinon.spy();
@@ -311,7 +311,7 @@ describe('Room Index', function () {
     });
   });
 
-  it('error loading room types', function (done) {
+  it('error loading room types', done => {
     const oldUser = PermissionService.currentUser;
 
     const spy = sinon.spy();
@@ -377,7 +377,7 @@ describe('Room Index', function () {
     });
   });
 
-  it('search and filter rooms', function (done) {
+  it('search and filter rooms', done => {
     const oldUser = PermissionService.currentUser;
 
     const view = mount(RoomList, {
@@ -497,68 +497,74 @@ describe('Room Index', function () {
     });
   });
 
-  it('sends request to list all rooms if user has rooms.viewAll permission', function (done) {
-    const oldUser = PermissionService.currentUser;
+  it(
+    'sends request to list all rooms if user has rooms.viewAll permission',
+    done => {
+      const oldUser = PermissionService.currentUser;
 
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.permissions = ['rooms.viewAll'];
-    PermissionService.setCurrentUser(newUser);
+      const newUser = _.cloneDeep(exampleUser);
+      newUser.permissions = ['rooms.viewAll'];
+      PermissionService.setCurrentUser(newUser);
 
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(async () => {
-      // respond with demo content to the rooms and roomTypes requests
-      expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
-      await moxios.requests.at(0).respondWith({
-        status: 200,
-        response: exampleRoomResponse
-      });
-      expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
-      expect(moxios.requests.at(1).config.params).toBeUndefined();
-      await moxios.requests.at(1).respondWith({
-        status: 200,
-        response: exampleRoomTypeResponse
+      const view = mount(RoomList, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        store,
+        attachTo: createContainer()
       });
 
-      PermissionService.setCurrentUser(oldUser);
-      view.destroy();
-      done();
-    });
-  });
+      moxios.wait(async () => {
+        // respond with demo content to the rooms and roomTypes requests
+        expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
+        await moxios.requests.at(0).respondWith({
+          status: 200,
+          response: exampleRoomResponse
+        });
+        expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
+        expect(moxios.requests.at(1).config.params).toBeUndefined();
+        await moxios.requests.at(1).respondWith({
+          status: 200,
+          response: exampleRoomTypeResponse
+        });
 
-  it('sends request to list all rooms if user has not rooms.viewAll permission', function (done) {
-    const view = mount(RoomList, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      store,
-      attachTo: createContainer()
-    });
-
-    moxios.wait(async () => {
-      // respond with demo content to the rooms and roomTypes requests
-      expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
-      await moxios.requests.at(0).respondWith({
-        status: 200,
-        response: exampleRoomResponse
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
       });
-      expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
-      expect(moxios.requests.at(1).config.params).toStrictEqual({ filter: 'searchable' });
-      await moxios.requests.at(1).respondWith({
-        status: 200,
-        response: exampleRoomTypeResponse
+    }
+  );
+
+  it(
+    'sends request to list all rooms if user has not rooms.viewAll permission',
+    done => {
+      const view = mount(RoomList, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        store,
+        attachTo: createContainer()
       });
 
-      view.destroy();
-      done();
-    });
-  });
+      moxios.wait(async () => {
+        // respond with demo content to the rooms and roomTypes requests
+        expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
+        await moxios.requests.at(0).respondWith({
+          status: 200,
+          response: exampleRoomResponse
+        });
+        expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
+        expect(moxios.requests.at(1).config.params).toStrictEqual({ filter: 'searchable' });
+        await moxios.requests.at(1).respondWith({
+          status: 200,
+          response: exampleRoomTypeResponse
+        });
+
+        view.destroy();
+        done();
+      });
+    }
+  );
 });

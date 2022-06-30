@@ -62,12 +62,12 @@ const store = new Vuex.Store({
   }
 });
 
-describe('RoomType Select', function () {
-  beforeEach(function () {
+describe('RoomType Select', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
@@ -80,7 +80,7 @@ describe('RoomType Select', function () {
     ]
   };
 
-  it('value passed', function (done) {
+  it('value passed', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -107,7 +107,7 @@ describe('RoomType Select', function () {
     });
   });
 
-  it('disabled param', function (done) {
+  it('disabled param', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -141,7 +141,7 @@ describe('RoomType Select', function () {
     });
   });
 
-  it('invalid value passed', function (done) {
+  it('invalid value passed', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -168,7 +168,7 @@ describe('RoomType Select', function () {
     });
   });
 
-  it('busy events emitted', function (done) {
+  it('busy events emitted', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -208,7 +208,7 @@ describe('RoomType Select', function () {
     });
   });
 
-  it('error events emitted', function (done) {
+  it('error events emitted', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 500,
       response: {
@@ -257,7 +257,7 @@ describe('RoomType Select', function () {
     });
   });
 
-  it('reload room types', function (done) {
+  it('reload room types', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 

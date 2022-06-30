@@ -47,15 +47,15 @@ const store = new Vuex.Store({
   }
 });
 
-describe('RoomFile', function () {
-  beforeEach(function () {
+describe('RoomFile', () => {
+  beforeEach(() => {
     moxios.install();
   });
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('load files', function (done) {
+  it('load files', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -97,7 +97,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('load files with access code', function (done) {
+  it('load files with access code', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -123,7 +123,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('load files with token', function (done) {
+  it('load files with token', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -149,7 +149,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('hide table fields and upload', function (done) {
+  it('hide table fields and upload', done => {
     PermissionService.setCurrentUser(exampleUser);
 
     const view = mount(FileComponent, {
@@ -181,7 +181,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('show owner upload and all table fields', function (done) {
+  it('show owner upload and all table fields', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(FileComponent, {
       localVue,
@@ -210,7 +210,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('show co-owner upload and all table fields', function (done) {
+  it('show co-owner upload and all table fields', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(FileComponent, {
       localVue,
@@ -240,79 +240,85 @@ describe('RoomFile', function () {
     });
   });
 
-  it('hide upload and manage table fields on room.viewAll permission', function (done) {
-    const oldUser = PermissionService.currentUser;
+  it(
+    'hide upload and manage table fields on room.viewAll permission',
+    done => {
+      const oldUser = PermissionService.currentUser;
 
-    const newUser = _.clone(exampleUser);
-    newUser.permissions = ['rooms.viewAll'];
-    PermissionService.setCurrentUser(newUser);
+      const newUser = _.clone(exampleUser);
+      newUser.permissions = ['rooms.viewAll'];
+      PermissionService.setCurrentUser(newUser);
 
-    const view = mount(FileComponent, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        room: exampleRoom,
-        showTitle: true
-      },
-      store,
-      attachTo: createContainer()
-    });
-    view.vm.$nextTick().then(() => {
-      expect(view.findComponent(BFormFile).exists()).toBeFalsy();
+      const view = mount(FileComponent, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          room: exampleRoom,
+          showTitle: true
+        },
+        store,
+        attachTo: createContainer()
+      });
+      view.vm.$nextTick().then(() => {
+        expect(view.findComponent(BFormFile).exists()).toBeFalsy();
 
-      const fields = view.vm.filefields.map(a => a.key);
-      expect(fields).toContain('filename');
-      expect(fields).toContain('uploaded');
-      expect(fields).toContain('actions');
-      expect(fields).not.toContain('download');
-      expect(fields).not.toContain('useinmeeting');
-      expect(fields).not.toContain('default');
+        const fields = view.vm.filefields.map(a => a.key);
+        expect(fields).toContain('filename');
+        expect(fields).toContain('uploaded');
+        expect(fields).toContain('actions');
+        expect(fields).not.toContain('download');
+        expect(fields).not.toContain('useinmeeting');
+        expect(fields).not.toContain('default');
 
-      PermissionService.setCurrentUser(oldUser);
-      view.destroy();
-      done();
-    });
-  });
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
+    }
+  );
 
-  it('show upload and manage table fields on room.manage permission', function (done) {
-    const oldUser = PermissionService.currentUser;
+  it(
+    'show upload and manage table fields on room.manage permission',
+    done => {
+      const oldUser = PermissionService.currentUser;
 
-    const newUser = _.clone(exampleUser);
-    newUser.permissions = ['rooms.manage'];
-    PermissionService.setCurrentUser(newUser);
+      const newUser = _.clone(exampleUser);
+      newUser.permissions = ['rooms.manage'];
+      PermissionService.setCurrentUser(newUser);
 
-    const view = mount(FileComponent, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        room: exampleRoom,
-        showTitle: true
-      },
-      store,
-      attachTo: createContainer()
-    });
-    view.vm.$nextTick().then(() => {
-      expect(view.findComponent(BFormFile).exists()).toBeTruthy();
+      const view = mount(FileComponent, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          room: exampleRoom,
+          showTitle: true
+        },
+        store,
+        attachTo: createContainer()
+      });
+      view.vm.$nextTick().then(() => {
+        expect(view.findComponent(BFormFile).exists()).toBeTruthy();
 
-      const fields = view.vm.filefields.map(a => a.key);
-      expect(fields).toContain('filename');
-      expect(fields).toContain('uploaded');
-      expect(fields).toContain('actions');
-      expect(fields).toContain('download');
-      expect(fields).toContain('useinmeeting');
-      expect(fields).toContain('default');
+        const fields = view.vm.filefields.map(a => a.key);
+        expect(fields).toContain('filename');
+        expect(fields).toContain('uploaded');
+        expect(fields).toContain('actions');
+        expect(fields).toContain('download');
+        expect(fields).toContain('useinmeeting');
+        expect(fields).toContain('default');
 
-      PermissionService.setCurrentUser(oldUser);
-      view.destroy();
-      done();
-    });
-  });
+        PermissionService.setCurrentUser(oldUser);
+        view.destroy();
+        done();
+      });
+    }
+  );
 
-  it('upload file', function (done) {
+  it('upload file', done => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -386,7 +392,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('upload file payload too large error', function (done) {
+  it('upload file payload too large error', done => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -446,7 +452,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('upload file form validation', function (done) {
+  it('upload file form validation', done => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -512,7 +518,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('upload file other errors', function (done) {
+  it('upload file other errors', done => {
     const oldUser = PermissionService.currentUser;
     const baseError = sinon.stub(Base, 'error');
     const newUser = _.clone(exampleUser);
@@ -576,7 +582,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('error emitted on files load', function (done) {
+  it('error emitted on files load', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -613,7 +619,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('remove file', function (done) {
+  it('remove file', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -675,7 +681,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('delete file', function (done) {
+  it('delete file', done => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = sinon.stub(Base, 'error');
     const flashMessageSpy = sinon.spy();
@@ -899,7 +905,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('download file', function (done) {
+  it('download file', done => {
     const openStub = sinon.stub(window, 'open');
     const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
     const baseError = sinon.stub(Base, 'error');
@@ -1064,7 +1070,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('download file test request with access code', function (done) {
+  it('download file test request with access code', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -1104,7 +1110,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('download file test request with token', function (done) {
+  it('download file test request with token', done => {
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -1144,7 +1150,7 @@ describe('RoomFile', function () {
     });
   });
 
-  it('change file setting', function (done) {
+  it('change file setting', done => {
     const baseError = sinon.stub(Base, 'error');
     const removeFile = sinon.stub(FileComponent.methods, 'removeFile');
     const flashMessageSpy = sinon.spy();

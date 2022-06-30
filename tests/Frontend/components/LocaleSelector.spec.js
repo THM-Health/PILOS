@@ -9,8 +9,8 @@ import Base from '../../../resources/js/api/base';
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
-describe('LocaleSelector', function () {
-  beforeEach(function () {
+describe('LocaleSelector', () => {
+  beforeEach(() => {
     LocaleSelector.__Rewire__('LocaleMap', {
       de: 'German',
       en: 'English',
@@ -19,12 +19,12 @@ describe('LocaleSelector', function () {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     LocaleSelector.__ResetDependency__('LocaleMap');
     moxios.uninstall();
   });
 
-  it('validates `availableLocales` correctly', function () {
+  it('validates `availableLocales` correctly', () => {
     const availableLocales = LocaleSelector.props.availableLocales;
 
     expect(availableLocales.type).toEqual(Array);
@@ -37,26 +37,29 @@ describe('LocaleSelector', function () {
     expect(availableLocales.validator([{ foo: 'bar' }])).toBeFalsy();
   });
 
-  it('only locales specified in `availableLocales` property gets rendered', function () {
-    const wrapper = mount(LocaleSelector, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
-      store
-    });
+  it(
+    'only locales specified in `availableLocales` property gets rendered',
+    () => {
+      const wrapper = mount(LocaleSelector, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          availableLocales: ['de', 'ru']
+        },
+        store
+      });
 
-    const dropdownItems = wrapper.findAllComponents(BDropdownItem);
-    expect(dropdownItems.length).toBe(2);
-    expect(dropdownItems.filter(w => w.text() === 'English').length).toBe(0);
-    expect(dropdownItems.filter(w => w.text() === 'Russian').length).toBe(1);
-    expect(dropdownItems.filter(w => w.text() === 'German').length).toBe(1);
-  });
+      const dropdownItems = wrapper.findAllComponents(BDropdownItem);
+      expect(dropdownItems.length).toBe(2);
+      expect(dropdownItems.filter(w => w.text() === 'English').length).toBe(0);
+      expect(dropdownItems.filter(w => w.text() === 'Russian').length).toBe(1);
+      expect(dropdownItems.filter(w => w.text() === 'German').length).toBe(1);
+    }
+  );
 
-  it('the `currentLocale` should be active in the dropdown', function () {
+  it('the `currentLocale` should be active in the dropdown', () => {
     store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {
       localVue,
@@ -74,101 +77,107 @@ describe('LocaleSelector', function () {
     expect(activeItems.at(0).text()).toBe('Russian');
   });
 
-  it('shows an corresponding error message and doesn\'t change the language on 422', function (done) {
-    store.commit('session/setCurrentLocale', 'ru');
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
-
-    const wrapper = mount(LocaleSelector, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        flashMessage: flashMessage
-      },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
-      store
-    });
-    moxios.stubRequest('/api/v1/setLocale', {
-      status: 422,
-      response: {
-        errors: {
-          locale: ['Test']
+  it(
+    'shows an corresponding error message and doesn\'t change the language on 422',
+    done => {
+      store.commit('session/setCurrentLocale', 'ru');
+      const flashMessageSpy = sinon.spy();
+      const flashMessage = {
+        error (param) {
+          flashMessageSpy(param);
         }
-      }
-    });
+      };
 
-    const items = wrapper.findAllComponents(BDropdownItem);
-    let activeItems = items.filter(item => item.props().active);
-    expect(activeItems.length).toBe(1);
-    expect(activeItems.at(0).text()).toBe('Russian');
-    expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
+      const wrapper = mount(LocaleSelector, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          flashMessage: flashMessage
+        },
+        propsData: {
+          availableLocales: ['de', 'ru']
+        },
+        store
+      });
+      moxios.stubRequest('/api/v1/setLocale', {
+        status: 422,
+        response: {
+          errors: {
+            locale: ['Test']
+          }
+        }
+      });
 
-    items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
-
-    moxios.wait(() => {
-      activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
-      expect(activeItems.length).toBe(1);
-      expect(activeItems.at(0).text()).toBe('Russian');
-
-      sinon.assert.calledOnce(flashMessageSpy);
-      sinon.assert.calledWith(flashMessageSpy, { message: 'Test' });
-      done();
-    });
-  });
-
-  it('calls global error handler on other errors than 422 and finishes loading', function (done) {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
-
-    store.commit('session/setCurrentLocale', 'ru');
-    const wrapper = mount(LocaleSelector, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
-      store
-    });
-    moxios.stubRequest('/api/v1/setLocale', {
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
-
-    const items = wrapper.findAllComponents(BDropdownItem);
-    let activeItems = items.filter(item => item.props().active);
-    expect(activeItems.length).toBe(1);
-    expect(activeItems.at(0).text()).toBe('Russian');
-    expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
-
-    items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
-
-    expect(store.state.loadingCounter).toEqual(1);
-
-    moxios.wait(() => {
-      activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
+      const items = wrapper.findAllComponents(BDropdownItem);
+      let activeItems = items.filter(item => item.props().active);
       expect(activeItems.length).toBe(1);
       expect(activeItems.at(0).text()).toBe('Russian');
       expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
-      expect(store.state.loadingCounter).toEqual(0);
 
-      sinon.assert.calledOnce(Base.error);
-      Base.error.restore();
+      items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-      done();
-    });
-  });
+      moxios.wait(() => {
+        activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
+        expect(activeItems.length).toBe(1);
+        expect(activeItems.at(0).text()).toBe('Russian');
 
-  it('changes to the selected language successfully', function (done) {
+        sinon.assert.calledOnce(flashMessageSpy);
+        sinon.assert.calledWith(flashMessageSpy, { message: 'Test' });
+        done();
+      });
+    }
+  );
+
+  it(
+    'calls global error handler on other errors than 422 and finishes loading',
+    done => {
+      const spy = sinon.spy();
+      sinon.stub(Base, 'error').callsFake(spy);
+
+      store.commit('session/setCurrentLocale', 'ru');
+      const wrapper = mount(LocaleSelector, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          availableLocales: ['de', 'ru']
+        },
+        store
+      });
+      moxios.stubRequest('/api/v1/setLocale', {
+        status: 500,
+        response: {
+          message: 'Test'
+        }
+      });
+
+      const items = wrapper.findAllComponents(BDropdownItem);
+      let activeItems = items.filter(item => item.props().active);
+      expect(activeItems.length).toBe(1);
+      expect(activeItems.at(0).text()).toBe('Russian');
+      expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
+
+      items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
+
+      expect(store.state.loadingCounter).toEqual(1);
+
+      moxios.wait(() => {
+        activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
+        expect(activeItems.length).toBe(1);
+        expect(activeItems.at(0).text()).toBe('Russian');
+        expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
+        expect(store.state.loadingCounter).toEqual(0);
+
+        sinon.assert.calledOnce(Base.error);
+        Base.error.restore();
+
+        done();
+      });
+    }
+  );
+
+  it('changes to the selected language successfully', done => {
     store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {
       localVue,

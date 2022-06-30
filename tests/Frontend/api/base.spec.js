@@ -5,68 +5,77 @@ import VueRouter from 'vue-router';
 
 let consoleErrorStub;
 
-describe('base', function () {
-  beforeEach(function () {
+describe('base', () => {
+  beforeEach(() => {
     moxios.install();
     consoleErrorStub = sinon.stub(console, 'error');
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
     consoleErrorStub.restore();
   });
 
-  describe('call', function () {
-    it('calls `getCsrfCookie` if `loadCsrfCookie` is set to true', function (done) {
-      moxios.stubRequest('/api/v1/test', {
-        status: 200,
-        responseText: 'Test'
-      });
+  describe('call', () => {
+    it(
+      'calls `getCsrfCookie` if `loadCsrfCookie` is set to true',
+      done => {
+        moxios.stubRequest('/api/v1/test', {
+          status: 200,
+          responseText: 'Test'
+        });
 
-      const spy = sinon.spy(() => Promise.resolve());
-      sinon.stub(Base, 'getCsrfCookie').callsFake(spy);
+        const spy = sinon.spy(() => Promise.resolve());
+        sinon.stub(Base, 'getCsrfCookie').callsFake(spy);
 
-      Base.call('test', {}, true).then(() => {
-        sinon.assert.calledOnce(spy);
-        Base.getCsrfCookie.restore();
-        done();
-      });
-    });
+        Base.call('test', {}, true).then(() => {
+          sinon.assert.calledOnce(spy);
+          Base.getCsrfCookie.restore();
+          done();
+        });
+      }
+    );
 
-    it('makes an call to the passed route with the passed parameters', function (done) {
-      Base.call('test', { method: 'put', data: { a: 'test' } });
+    it(
+      'makes an call to the passed route with the passed parameters',
+      done => {
+        Base.call('test', { method: 'put', data: { a: 'test' } });
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
 
-        expect(request.config.url).toBe('/api/v1/test');
-        expect(request.config.method).toBe('put');
-        expect(request.config.data).toBe('{"a":"test"}');
+          expect(request.config.url).toBe('/api/v1/test');
+          expect(request.config.method).toBe('put');
+          expect(request.config.data).toBe('{"a":"test"}');
 
-        request.respondWith({
-          status: 200
-        })
-          .then(function () {
-            done();
-          });
-      });
-    });
+          request.respondWith({
+            status: 200
+          })
+            .then(function () {
+              done();
+            });
+        });
+      }
+    );
 
-    it('returns a promise that rejects on response codes above 400', function (done) {
-      moxios.stubRequest('/api/v1/test', {
-        status: 400,
-        responseText: 'Test'
-      });
+    it(
+      'returns a promise that rejects on response codes above 400',
+      done => {
+        moxios.stubRequest('/api/v1/test', {
+          status: 400,
+          responseText: 'Test'
+        });
 
-      Base.call('test').catch((error) => {
-        expect(error.response.status).toBe(400);
-        expect(error.response.data).toBe('Test');
-        done();
-      });
-    });
+        Base.call('test').catch((error) => {
+          expect(error.response.status).toBe(400);
+          expect(error.response.data).toBe('Test');
+          done();
+        });
+      }
+    );
   });
 
-  it('base error handling', function () {
+  it('base error handling', () => {
     const flashMessageErrorSpy = sinon.spy();
     const flashMessageInfoSpy = sinon.spy();
     const flashMessage = {
@@ -170,21 +179,24 @@ describe('base', function () {
     flashMessageErrorSpy.resetHistory();
   });
 
-  it('`getCsrfCookie` calls the route for getting a csrf cookie', function (done) {
-    moxios.stubRequest('/sanctum/csrf-cookie', {
-      status: 200,
-      responseText: 'Test'
-    });
+  it(
+    '`getCsrfCookie` calls the route for getting a csrf cookie',
+    done => {
+      moxios.stubRequest('/sanctum/csrf-cookie', {
+        status: 200,
+        responseText: 'Test'
+      });
 
-    Base.getCsrfCookie().then((response) => {
-      expect(response.status).toBe(200);
-      expect(response.data).toBe('Test');
+      Base.getCsrfCookie().then((response) => {
+        expect(response.status).toBe(200);
+        expect(response.data).toBe('Test');
 
-      done();
-    });
-  });
+        done();
+      });
+    }
+  );
 
-  it('`setLocale` calls `call` with the corresponding locale', function () {
+  it('`setLocale` calls `call` with the corresponding locale', () => {
     const spy = sinon.spy();
     sinon.stub(Base, 'call').callsFake(spy);
 

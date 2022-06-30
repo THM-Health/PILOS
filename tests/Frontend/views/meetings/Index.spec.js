@@ -116,18 +116,18 @@ const store = new Vuex.Store({
 
 let oldUser;
 
-describe('MeetingsIndex', function () {
-  beforeEach(function () {
+describe('MeetingsIndex', () => {
+  beforeEach(() => {
     moxios.install();
     oldUser = PermissionService.currentUser;
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('list of meetings with pagination gets displayed', function (done) {
+  it('list of meetings with pagination gets displayed', done => {
     const view = mount(Index, {
       localVue,
       store,
@@ -276,7 +276,7 @@ describe('MeetingsIndex', function () {
     });
   });
 
-  it('errors during load', function (done) {
+  it('errors during load', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -337,7 +337,7 @@ describe('MeetingsIndex', function () {
     });
   });
 
-  it('search', function (done) {
+  it('search', done => {
     const view = mount(Index, {
       localVue,
       store,
@@ -408,7 +408,7 @@ describe('MeetingsIndex', function () {
     });
   });
 
-  it('sort', function (done) {
+  it('sort', done => {
     const view = mount(Index, {
       localVue,
       store,

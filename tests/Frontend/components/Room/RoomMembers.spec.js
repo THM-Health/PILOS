@@ -47,15 +47,15 @@ const store = new Vuex.Store({
   }
 });
 
-describe('RoomMembers', function () {
-  beforeEach(function () {
+describe('RoomMembers', () => {
+  beforeEach(() => {
     moxios.install();
   });
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('load members', function (done) {
+  it('load members', done => {
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -120,7 +120,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('show owner add and edit buttons', function (done) {
+  it('show owner add and edit buttons', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -147,7 +147,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('show co-owner add and edit buttons', function (done) {
+  it('show co-owner add and edit buttons', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -175,7 +175,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('hide add and edit buttons on room.viewAll permission', function (done) {
+  it('hide add and edit buttons on room.viewAll permission', done => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -211,7 +211,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('add and edit buttons on room.manage permission', function (done) {
+  it('add and edit buttons on room.manage permission', done => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -245,7 +245,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('error emitted on members load', function (done) {
+  it('error emitted on members load', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -282,7 +282,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('add new member', function (done) {
+  it('add new member', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -450,7 +450,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('add new member errors', function (done) {
+  it('add new member errors', done => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = sinon.stub(Base, 'error');
     const view = mount(MembersComponent, {
@@ -561,7 +561,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('edit member', function (done) {
+  it('edit member', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -684,7 +684,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('edit member error gone', function (done) {
+  it('edit member error gone', done => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = sinon.stub(Base, 'error');
     const view = mount(MembersComponent, {
@@ -794,7 +794,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('delete members', function (done) {
+  it('delete members', done => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -886,7 +886,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('delete members, already gone', function (done) {
+  it('delete members, already gone', done => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = sinon.stub(Base, 'error');
     const view = mount(MembersComponent, {
@@ -987,7 +987,7 @@ describe('RoomMembers', function () {
     });
   });
 
-  it('delete members error', function (done) {
+  it('delete members error', done => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = sinon.stub(Base, 'error');
     const view = mount(MembersComponent, {

@@ -12,8 +12,8 @@ const createContainer = (tag = 'div') => {
 };
 localVue.use(BootstrapVue);
 
-describe('TextTruncate', function () {
-  it('show hide tooltip', async function () {
+describe('TextTruncate', () => {
+  it('show hide tooltip', async () => {
     const content = 'Lorem ipsum dolor sit amet';
 
     const view = mount(TextTruncate, {

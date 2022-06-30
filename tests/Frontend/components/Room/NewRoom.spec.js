@@ -64,12 +64,12 @@ const createContainer = (tag = 'div') => {
   return container;
 };
 
-describe('Create new rooms', function () {
-  beforeEach(function () {
+describe('Create new rooms', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
@@ -153,7 +153,7 @@ describe('Create new rooms', function () {
     ]
   };
 
-  it('frontend permission test', function (done) {
+  it('frontend permission test', done => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -194,7 +194,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('frontend room limit test', function (done) {
+  it('frontend room limit test', done => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -283,7 +283,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('submit valid', function (done) {
+  it('submit valid', done => {
     const spy = sinon.spy();
 
     const router = new VueRouter();
@@ -336,7 +336,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('submit forbidden', function (done) {
+  it('submit forbidden', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       error (param) {
@@ -390,7 +390,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('submit reached room limit', function (done) {
+  it('submit reached room limit', done => {
     const flashMessageSpy = sinon.spy();
 
     sinon.stub(Base, 'error').callsFake(flashMessageSpy);
@@ -444,7 +444,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('submit without name', function (done) {
+  it('submit without name', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -488,7 +488,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('submit invalid room type', function (done) {
+  it('submit invalid room type', done => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -545,7 +545,7 @@ describe('Create new rooms', function () {
     });
   });
 
-  it('cancel or close', function (done) {
+  it('cancel or close', done => {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {

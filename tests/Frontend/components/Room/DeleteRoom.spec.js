@@ -21,15 +21,15 @@ localVue.use(Vuex);
 
 const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isGuest: false, isModerator: false, canStart: true, running: false, accessCode: 123456789, files: [] };
 
-describe('Delete room', function () {
-  beforeEach(function () {
+describe('Delete room', () => {
+  beforeEach(() => {
     moxios.install();
   });
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('default render', function () {
+  it('default render', () => {
     const component = mount(DeleteRoomComponent, {
       localVue,
       mocks: {
@@ -48,7 +48,7 @@ describe('Delete room', function () {
     expect(deleteButton.classes()).toContain('demoClass');
   });
 
-  it('disable button', function () {
+  it('disable button', () => {
     const component = mount(DeleteRoomComponent, {
       localVue,
       mocks: {
@@ -66,7 +66,7 @@ describe('Delete room', function () {
     expect(deleteButton.attributes('disabled')).toBe('disabled');
   });
 
-  it('successfull delete', function (done) {
+  it('successfull delete', done => {
     const component = mount(DeleteRoomComponent, {
       localVue,
       mocks: {
@@ -101,7 +101,7 @@ describe('Delete room', function () {
     });
   });
 
-  it('failed delete room not found', function (done) {
+  it('failed delete room not found', done => {
     const flashMessageSpy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(flashMessageSpy);
 

@@ -32,16 +32,16 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-describe('Browser Notification', function () {
-  beforeEach(function () {
+describe('Browser Notification', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('show enable button if permission is granted', function (done) {
+  it('show enable button if permission is granted', done => {
     const NotificationFake = class {
       static permission = 'granted';
     };
@@ -68,7 +68,7 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('show enable button if permission is denied', function (done) {
+  it('show enable button if permission is denied', done => {
     const NotificationFake = class {
       static permission = 'denied';
     };
@@ -95,7 +95,7 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('show enable button if permission is missing', function (done) {
+  it('show enable button if permission is missing', done => {
     const constructorSpy = sinon.spy();
     const closeSpy = sinon.spy();
 
@@ -135,7 +135,7 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('hide enable button if not supported by browser', function (done) {
+  it('hide enable button if not supported by browser', done => {
     const view = mount(BrowserNotification, {
       localVue,
       mocks: {
@@ -154,7 +154,7 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('show enable button if not fully supported', function (done) {
+  it('show enable button if not fully supported', done => {
     const NotificationFake = class {
       constructor () {
         throw new TypeError('test');
@@ -186,7 +186,7 @@ describe('Browser Notification', function () {
     });
   });
 
-  it('enable notifications wih granted permission', function (done) {
+  it('enable notifications wih granted permission', done => {
     const NotificationFake = class {
       static permission = 'granted';
     };
@@ -218,7 +218,7 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('enable notifications wih denied permission', function (done) {
+  it('enable notifications wih denied permission', done => {
     const NotificationFake = class {
       static permission = 'denied';
     };
@@ -260,112 +260,118 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('enable notifications wih default permission, but granted on request', function (done) {
-    const constructorSpy = sinon.spy();
+  it(
+    'enable notifications wih default permission, but granted on request',
+    done => {
+      const constructorSpy = sinon.spy();
 
-    const NotificationFake = class {
-      constructor () {
-        constructorSpy();
-      }
+      const NotificationFake = class {
+        constructor () {
+          constructorSpy();
+        }
 
-      close () {
-      }
+        close () {
+        }
 
-      static permission = 'default';
-      static requestPermission () {
-        return new Promise(function (resolve, reject) {
-          resolve('granted');
-        });
-      }
-    };
+        static permission = 'default';
+        static requestPermission () {
+          return new Promise(function (resolve, reject) {
+            resolve('granted');
+          });
+        }
+      };
 
-    window.Notification = global.Notification = NotificationFake;
+      window.Notification = global.Notification = NotificationFake;
 
-    const view = mount(BrowserNotification, {
-      localVue,
-      mocks: {
-        $t: (key) => key
-      },
-      propsData: {
-        running: false,
-        name: 'test'
-      },
-      attachTo: createContainer()
-    });
+      const view = mount(BrowserNotification, {
+        localVue,
+        mocks: {
+          $t: (key) => key
+        },
+        propsData: {
+          running: false,
+          name: 'test'
+        },
+        attachTo: createContainer()
+      });
 
-    view.vm.$nextTick().then(async () => {
-      sinon.assert.calledOnce(constructorSpy);
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      await view.findComponent(BButton).trigger('click');
-      expect(view.findComponent(BButton).exists()).toBeFalsy();
-      expect(view.findComponent(BAlert).exists()).toBeTruthy();
+      view.vm.$nextTick().then(async () => {
+        sinon.assert.calledOnce(constructorSpy);
+        expect(view.findComponent(BButton).exists()).toBeTruthy();
+        expect(view.findComponent(BAlert).exists()).toBeFalsy();
+        await view.findComponent(BButton).trigger('click');
+        expect(view.findComponent(BButton).exists()).toBeFalsy();
+        expect(view.findComponent(BAlert).exists()).toBeTruthy();
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
-  });
-  it('enable notifications wih default permission, but denied on request', function (done) {
-    const constructorSpy = sinon.spy();
-    const NotificationFake = class {
-      constructor () {
-        constructorSpy();
-      }
+        view.destroy();
+        delete window.Notification;
+        delete global.Notification;
+        done();
+      });
+    }
+  );
+  it(
+    'enable notifications wih default permission, but denied on request',
+    done => {
+      const constructorSpy = sinon.spy();
+      const NotificationFake = class {
+        constructor () {
+          constructorSpy();
+        }
 
-      close () {
-      }
+        close () {
+        }
 
-      static permission = 'default';
-      static requestPermission () {
-        return new Promise(function (resolve, reject) {
-          resolve('denied');
-        });
-      }
-    };
+        static permission = 'default';
+        static requestPermission () {
+          return new Promise(function (resolve, reject) {
+            resolve('denied');
+          });
+        }
+      };
 
-    window.Notification = global.Notification = NotificationFake;
+      window.Notification = global.Notification = NotificationFake;
 
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+      const flashMessageSpy = sinon.spy();
+      const flashMessage = {
+        error (param) {
+          flashMessageSpy(param);
+        }
+      };
 
-    const view = mount(BrowserNotification, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        flashMessage: flashMessage
-      },
-      propsData: {
-        running: false,
-        name: 'test'
-      },
-      attachTo: createContainer()
-    });
+      const view = mount(BrowserNotification, {
+        localVue,
+        mocks: {
+          $t: (key) => key,
+          flashMessage: flashMessage
+        },
+        propsData: {
+          running: false,
+          name: 'test'
+        },
+        attachTo: createContainer()
+      });
 
-    view.vm.$nextTick().then(async () => {
-      sinon.assert.calledOnce(constructorSpy);
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      await view.findComponent(BButton).trigger('click');
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
+      view.vm.$nextTick().then(async () => {
+        sinon.assert.calledOnce(constructorSpy);
+        expect(view.findComponent(BButton).exists()).toBeTruthy();
+        expect(view.findComponent(BAlert).exists()).toBeFalsy();
+        await view.findComponent(BButton).trigger('click');
+        expect(view.findComponent(BButton).exists()).toBeTruthy();
+        expect(view.findComponent(BAlert).exists()).toBeFalsy();
 
-      expect(flashMessageSpy.calledOnce).toBeTruthy();
-      expect(flashMessageSpy.getCall(0).args[0]).toEqual('rooms.notification.denied');
+        expect(flashMessageSpy.calledOnce).toBeTruthy();
+        expect(flashMessageSpy.getCall(0).args[0]).toEqual('rooms.notification.denied');
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
-  });
+        view.destroy();
+        delete window.Notification;
+        delete global.Notification;
+        done();
+      });
+    }
+  );
 
-  it('change status from not running to running', function (done) {
+  it('change status from not running to running', done => {
     const constructorSpy = sinon.spy();
     const closeSpy = sinon.spy();
     const focusSpy = sinon.spy();
@@ -434,7 +440,7 @@ describe('Browser Notification', function () {
       done();
     });
   });
-  it('change status from not running to running with error', function (done) {
+  it('change status from not running to running with error', done => {
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       error (param) {

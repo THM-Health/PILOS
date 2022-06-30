@@ -5,37 +5,40 @@ import BootstrapVue, { BAlert } from 'bootstrap-vue';
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
-describe('Banner', function () {
-  it('alert gets shown only if the enabled flag was provided and is not falsy', function () {
-    let view = mount(Banner, {
-      localVue
-    });
+describe('Banner', () => {
+  it(
+    'alert gets shown only if the enabled flag was provided and is not falsy',
+    () => {
+      let view = mount(Banner, {
+        localVue
+      });
 
-    expect(view.findComponent(BAlert).exists()).toBe(false);
+      expect(view.findComponent(BAlert).exists()).toBe(false);
 
-    view.destroy();
-    view = mount(Banner, {
-      localVue,
-      propsData: {
-        enabled: false
-      }
-    });
+      view.destroy();
+      view = mount(Banner, {
+        localVue,
+        propsData: {
+          enabled: false
+        }
+      });
 
-    expect(view.findComponent(BAlert).exists()).toBe(false);
+      expect(view.findComponent(BAlert).exists()).toBe(false);
 
-    view.destroy();
-    view = mount(Banner, {
-      localVue,
-      propsData: {
-        enabled: true
-      }
-    });
+      view.destroy();
+      view = mount(Banner, {
+        localVue,
+        propsData: {
+          enabled: true
+        }
+      });
 
-    expect(view.findComponent(BAlert).exists()).toBe(true);
-    view.destroy();
-  });
+      expect(view.findComponent(BAlert).exists()).toBe(true);
+      view.destroy();
+    }
+  );
 
-  it('alert contains the configured props data', async function () {
+  it('alert contains the configured props data', async () => {
     const view = mount(Banner, {
       localVue,
       propsData: {

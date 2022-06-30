@@ -70,16 +70,16 @@ const store = new Vuex.Store({
   }
 });
 
-describe('Room Token', function () {
-  beforeEach(function () {
+describe('Room Token', () => {
+  beforeEach(() => {
     moxios.install();
     store.commit('session/setCurrentUser', { currentUser: exampleUser });
   });
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('load tokens', function (done) {
+  it('load tokens', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -209,7 +209,7 @@ describe('Room Token', function () {
     });
   });
 
-  it('copy to clipboard', function (done) {
+  it('copy to clipboard', done => {
     const clipboardSpy = sinon.spy();
 
     const flashMessageSpy = sinon.spy();
@@ -266,7 +266,7 @@ describe('Room Token', function () {
     });
   });
 
-  it('delete token', function (done) {
+  it('delete token', done => {
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -367,7 +367,7 @@ describe('Room Token', function () {
     });
   });
 
-  it('delete token error', function (done) {
+  it('delete token error', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
@@ -478,7 +478,7 @@ describe('Room Token', function () {
     });
   });
 
-  it('edit token', function (done) {
+  it('edit token', done => {
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -629,7 +629,7 @@ describe('Room Token', function () {
     });
   });
 
-  it('add token', function (done) {
+  it('add token', done => {
     const spy = sinon.spy();
     sinon.stub(Base, 'error').callsFake(spy);
 
