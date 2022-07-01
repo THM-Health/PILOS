@@ -4,7 +4,6 @@ import moxios from 'moxios';
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent';
-import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
@@ -66,7 +65,7 @@ describe('Delete room', () => {
     expect(deleteButton.attributes('disabled')).toBe('disabled');
   });
 
-  it('successfull delete', done => {
+  it('successfull delete', async () => {
     const component = mount(DeleteRoomComponent, {
       localVue,
       mocks: {
@@ -80,30 +79,28 @@ describe('Delete room', () => {
     });
 
     const bvModalEvt = {
-      preventDefault () {
-        return sinon.spy();
-      }
+      preventDefault: jest.fn()
     };
 
     component.vm.deleteRoom(bvModalEvt);
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      expect(request.config.method).toMatch('delete');
-      expect(request.config.url).toContain(exampleRoom.id);
-      request.respondWith({
-        status: 204
-      })
-        .then(function () {
-          component.vm.$nextTick();
-          expect(component.emitted().roomDeleted).toBeTruthy();
-          done();
-        });
+
+    await new Promise((resolve) => {
+      moxios.wait(resolve);
     });
+
+    const request = moxios.requests.mostRecent();
+    expect(request.config.method).toMatch('delete');
+    expect(request.config.url).toContain(exampleRoom.id);
+    await request.respondWith({
+      status: 204
+    });
+
+    component.vm.$nextTick();
+    expect(component.emitted().roomDeleted).toBeTruthy();
   });
 
-  it('failed delete room not found', done => {
-    const flashMessageSpy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(flashMessageSpy);
+  it('failed delete room not found', async () => {
+    const flashMessageSpy = jest.spyOn(Base, 'error').mockImplementation();
 
     const component = mount(DeleteRoomComponent, {
       localVue,
@@ -119,26 +116,22 @@ describe('Delete room', () => {
     });
 
     const bvModalEvt = {
-      preventDefault () {
-        return sinon.spy();
-      }
+      preventDefault: jest.fn()
     };
 
     component.vm.deleteRoom(bvModalEvt);
-    moxios.wait(function () {
-      const request = moxios.requests.mostRecent();
-      expect(request.config.method).toMatch('delete');
-      expect(request.config.url).toContain(exampleRoom.id);
-      request.respondWith({
-        status: 404
-      })
-        .then(function () {
-          component.vm.$nextTick();
-          expect(flashMessageSpy.calledOnce).toBeTruthy();
-          expect(flashMessageSpy.getCall(0).args[0].response.status).toBe(404);
-          Base.error.restore();
-          done();
-        });
+    await new Promise((resolve) => {
+      moxios.wait(resolve);
     });
+    const request = moxios.requests.mostRecent();
+    expect(request.config.method).toMatch('delete');
+    expect(request.config.url).toContain(exampleRoom.id);
+    await request.respondWith({
+      status: 404
+    });
+
+    component.vm.$nextTick();
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy.mock.calls[0][0].response.status).toBe(404);
   });
 });

@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 
 describe('FieldErrors', () => {
   describe('fieldState', () => {
-    it('returns null if the errors object is not defined', () => {
+    it('returns null if the errors object is not defined', async () => {
       const Test = {
         mixins: [FieldErrors],
         render () {}
@@ -15,9 +15,8 @@ describe('FieldErrors', () => {
       expect(view.vm.fieldState('test', true)).toBe(null);
     });
 
-    it(
-      'returns null if the error object does not contain errors for the passed field and false for existing errors',
-      () => {
+    it('returns null if the error object does not contain errors for the passed field and false for existing errors',
+      async () => {
         const Test = {
           mixins: [FieldErrors],
           data () {
@@ -42,7 +41,7 @@ describe('FieldErrors', () => {
     );
   });
 
-  describe('fieldError', () => {
+  describe('fieldError', async () => {
     it('returns empty string if the errors object is not defined', () => {
       const Test = {
         mixins: [FieldErrors],
@@ -54,9 +53,8 @@ describe('FieldErrors', () => {
       expect(view.vm.fieldError('test')).toBe('');
     });
 
-    it(
-      'returns empty string if the error object does not contain errors for the passed field, html list for multiple existing errors and just text if only one',
-      () => {
+    it('returns empty string if the error object does not contain errors for the passed field, html list for multiple existing errors and just text if only one',
+      async () => {
         const Test = {
           mixins: [FieldErrors],
           data () {

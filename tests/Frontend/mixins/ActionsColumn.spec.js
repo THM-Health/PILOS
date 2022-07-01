@@ -4,63 +4,61 @@ import PermissionService from '../../../resources/js/services/PermissionService'
 import Vue from 'vue';
 
 describe('ActionsColumn', () => {
-  it(
-    'show and hides the actions column depending on the users `actionsPermissions`',
-    async () => {
-      const oldUser = PermissionService.currentUser;
+  it('show and hides the actions column depending on the users `actionsPermissions`', async () => {
+    const oldUser = PermissionService.currentUser;
 
-      const Test = {
-        mixins: [ActionsColumn],
-        render () {},
-        computed: {
-          tableFields () {
-            if (this.actionColumnVisible) {
-              return [this.actionColumnDefinition];
-            }
-
-            return [];
+    const Test = {
+      mixins: [ActionsColumn],
+      render () {},
+      computed: {
+        tableFields () {
+          if (this.actionColumnVisible) {
+            return [this.actionColumnDefinition];
           }
-        },
-        data () {
-          return {
-            actionPermissions: ['users.delete', 'users.update']
-          };
+
+          return [];
         }
-      };
+      },
+      data () {
+        return {
+          actionPermissions: ['users.delete', 'users.update']
+        };
+      }
+    };
 
-      const view = mount(Test, {
-        mocks: {
-          $t: key => key
-        }
-      });
+    const view = mount(Test, {
+      mocks: {
+        $t: key => key
+      }
+    });
 
-      expect(view.vm.tableFields).toEqual([]);
+    expect(view.vm.tableFields).toEqual([]);
 
-      PermissionService.setCurrentUser({ permissions: ['users.delete'] });
-      await Vue.nextTick();
+    PermissionService.setCurrentUser({ permissions: ['users.delete'] });
+    await Vue.nextTick();
 
-      expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
-      PermissionService.setCurrentUser({ permissions: ['users.delete'] });
-      await Vue.nextTick();
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
+    PermissionService.setCurrentUser({ permissions: ['users.delete'] });
+    await Vue.nextTick();
 
-      expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
-      PermissionService.setCurrentUser({ permissions: [] });
-      await Vue.nextTick();
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
+    PermissionService.setCurrentUser({ permissions: [] });
+    await Vue.nextTick();
 
-      expect(view.vm.tableFields).toEqual([]);
-      PermissionService.setCurrentUser({ permissions: [] });
-      await Vue.nextTick();
+    expect(view.vm.tableFields).toEqual([]);
+    PermissionService.setCurrentUser({ permissions: [] });
+    await Vue.nextTick();
 
-      expect(view.vm.tableFields).toEqual([]);
-      view.destroy();
-      await Vue.nextTick();
+    expect(view.vm.tableFields).toEqual([]);
+    view.destroy();
+    await Vue.nextTick();
 
-      PermissionService.setCurrentUser({ permissions: ['users.delete'] });
-      await Vue.nextTick();
+    PermissionService.setCurrentUser({ permissions: ['users.delete'] });
+    await Vue.nextTick();
 
-      expect(view.vm.tableFields).toEqual([]);
-      PermissionService.setCurrentUser(oldUser);
-    }
+    expect(view.vm.tableFields).toEqual([]);
+    PermissionService.setCurrentUser(oldUser);
+  }
   );
 
   it('changes class and style based on data', async () => {

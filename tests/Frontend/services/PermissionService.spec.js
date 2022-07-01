@@ -3,33 +3,31 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
 import EventBus from '../../../resources/js/services/EventBus';
-import sinon from 'sinon';
 import Vue from 'vue';
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {
-    it(
-      'fires an event if the current user gets set and passes the newly set user as parameter',
+    it('fires an event if the current user gets set and passes the newly set user as parameter',
       async () => {
         const oldUser = PermissionService.currentUser;
         const newUser = { permissions: ['foo', 'bar'] };
-        const handleUserChanged = sinon.spy();
+        const handleUserChanged = jest.fn();
 
         EventBus.$on('currentUserChangedEvent', handleUserChanged);
         PermissionService.setCurrentUser(newUser);
         await Vue.nextTick();
 
-        sinon.assert.calledOnce(handleUserChanged);
-        sinon.assert.calledWith(handleUserChanged, newUser);
+        expect(handleUserChanged).toBeCalledTimes(1);
+        expect(handleUserChanged).toBeCalledWith(newUser);
 
         EventBus.$off('currentUserChangedEvent', handleUserChanged);
 
-        const spy = sinon.spy();
+        const spy = jest.fn();
         EventBus.$on('currentUserChangedEvent', spy);
         PermissionService.setCurrentUser(newUser, false);
         await Vue.nextTick();
 
-        sinon.assert.notCalled(spy);
+        expect(spy).toBeCalledTimes(0);
 
         EventBus.$off('currentUserChangedEvent', spy);
         PermissionService.setCurrentUser(oldUser);
@@ -39,15 +37,13 @@ describe('PermissionService', () => {
 
   describe('can', () => {
     describe('policy and method parameter', () => {
-      it(
-        'throws an error if the passed parameters hasn\'t the correct type',
+      it('throws an error if the passed parameters hasn\'t the correct type',
         () => {
           expect(() => PermissionService.can({}, 'test')).toThrow(WrongTypeError);
         }
       );
 
-      it(
-        'throws an error if the policy or its method doesn\'t exists',
+      it('throws an error if the policy or its method doesn\'t exists',
         () => {
           PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
           expect(() => PermissionService.can('test', 'test')).toThrow(new PolicyDoesNotExistsError('test', 'test'));
@@ -64,23 +60,20 @@ describe('PermissionService', () => {
     });
 
     describe('object and method parameter', () => {
-      it(
-        'throws an error if the passed parameters hasn\'t the correct type',
+      it('throws an error if the passed parameters hasn\'t the correct type',
         () => {
           expect(() => PermissionService.can({}, {})).toThrow(WrongTypeError);
         }
       );
 
-      it(
-        'throws an error if the passed object hasn\'t set the `model_name` property',
+      it('throws an error if the passed object hasn\'t set the `model_name` property',
         () => {
           expect(() => PermissionService.can('test', {})).toThrow(ParameterMissingError);
           expect(() => PermissionService.can('test', { model_name: {} })).toThrow(ParameterMissingError);
         }
       );
 
-      it(
-        'throws an error if the policy for the object or its method doesn\'t exists',
+      it('throws an error if the policy for the object or its method doesn\'t exists',
         () => {
           PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
           expect(() => PermissionService.can('test', { model_name: 'test' })).toThrow(new PolicyDoesNotExistsError('testPolicy', 'test'));
@@ -98,8 +91,7 @@ describe('PermissionService', () => {
   });
 
   describe('cannot', () => {
-    it(
-      'returns the inverted boolean value of the can method and passes all arguments to it',
+    it('returns the inverted boolean value of the can method and passes all arguments to it',
       () => {
         PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
         expect(PermissionService.cannot('test', 'TestPolicy')).toEqual(false);

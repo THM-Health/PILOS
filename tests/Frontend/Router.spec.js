@@ -369,8 +369,7 @@ describe('Router', () => {
       PermissionService.setCurrentUser(oldUser);
     });
 
-    it(
-      'for room type update returns true if user has the necessary permissions',
+    it('for room type update returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -386,8 +385,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'for server detail view returns true if user has the necessary permissions',
+    it('for server detail view returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -403,8 +401,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'for server new view returns true if user has the necessary permissions',
+    it('for server new view returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -420,8 +417,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'for server update returns true if user has the necessary permissions',
+    it('for server update returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -437,8 +433,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'for server pool detail view returns true if user has the necessary permissions',
+    it('for server pool detail view returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -454,8 +449,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'for server pool new view returns true if user has the necessary permissions',
+    it('for server pool new view returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -471,8 +465,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'for server pool update returns true if user has the necessary permissions',
+    it('for server pool update returns true if user has the necessary permissions',
       async () => {
         const oldUser = PermissionService.currentUser;
 
@@ -488,8 +481,7 @@ describe('Router', () => {
       }
     );
 
-    it(
-      'props for reset_password should return the passed parameters correctly',
+    it('props for reset_password should return the passed parameters correctly',
       () => {
         expect(propsPasswordReset({ query: {} })).toEqual({ token: undefined, email: undefined, welcome: false });
         expect(propsPasswordReset({ query: { token: 'foo' } })).toEqual({ token: 'foo', email: undefined, welcome: false });

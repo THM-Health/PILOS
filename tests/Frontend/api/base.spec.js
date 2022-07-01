@@ -1,6 +1,5 @@
 import Base from '../../../resources/js/api/base';
 import moxios from 'moxios';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 
 let consoleErrorStub;
@@ -8,12 +7,12 @@ let consoleErrorStub;
 describe('base', () => {
   beforeEach(() => {
     moxios.install();
-    consoleErrorStub = sinon.stub(console, 'error');
+    consoleErrorStub = jest.spyOn(console, 'error').mockImplementation();
   });
 
   afterEach(() => {
     moxios.uninstall();
-    consoleErrorStub.restore();
+    consoleErrorStub.mockRestore();
   });
 
   describe('call', () => {
@@ -35,7 +34,7 @@ describe('base', () => {
       Base.call('test', { method: 'put', data: { a: 'test' } });
 
       await new Promise((resolve) => {
-        moxios.wait(resolve());
+        moxios.wait(resolve);
       });
 
       const request = moxios.requests.mostRecent();
@@ -64,8 +63,8 @@ describe('base', () => {
     });
 
     it('base error handling', async () => {
-      const flashMessageErrorSpy = sinon.spy();
-      const flashMessageInfoSpy = sinon.spy();
+      const flashMessageErrorSpy = jest.fn();
+      const flashMessageInfoSpy = jest.fn();
       const flashMessage = {
         info (param) {
           flashMessageInfoSpy(param);
@@ -75,15 +74,11 @@ describe('base', () => {
         }
       };
 
-      const routerSpy = sinon.spy();
       const router = new VueRouter();
-      router.replace = routerSpy;
-      const sandbox = sinon.createSandbox();
-      sandbox.replaceGetter(router, 'currentRoute', function () {
-        return { path: '/test' };
-      });
+      const routerSpy = jest.spyOn(router, 'replace').mockImplementation();
+      const routerMock = jest.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
 
-      const storeCommitSpy = sinon.spy();
+      const storeCommitSpy = jest.fn();
       const store = {
         getters: {
           'session/isAuthenticated': true
@@ -102,73 +97,85 @@ describe('base', () => {
       // 401 errors
       let error = { response: { data: { message: 'Unauthenticated.' }, status: 401, statusText: 'Unauthorized' }, message: 'Request failed with status code 401' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnceWithExactly(routerSpy, { name: 'login', query: { redirect: '/test' } });
-      sinon.assert.calledOnceWithExactly(flashMessageInfoSpy, 'app.flash.unauthenticated');
-      sinon.assert.calledOnceWithExactly(storeCommitSpy, 'session/setCurrentUser', { currentUser: null, emit: false });
-      routerSpy.resetHistory();
-      flashMessageInfoSpy.resetHistory();
-      storeCommitSpy.resetHistory();
+
+      expect(routerSpy).toBeCalledTimes(1);
+      expect(routerSpy).toBeCalledWith({ name: 'login', query: { redirect: '/test' } });
+
+      expect(flashMessageInfoSpy).toBeCalledTimes(1);
+      expect(flashMessageInfoSpy).toBeCalledWith('app.flash.unauthenticated');
+
+      expect(storeCommitSpy).toBeCalledTimes(1);
+      expect(storeCommitSpy).toBeCalledWith('session/setCurrentUser', { currentUser: null, emit: false });
+
+      jest.clearAllMocks();
 
       // 403 errors
       error = { response: { data: { message: 'This action is unauthorized.' }, status: 403, statusText: 'Forbidden' }, message: 'Request failed with status code 403' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.unauthorized');
-      flashMessageErrorSpy.resetHistory();
+      expect(flashMessageErrorSpy).toBeCalledTimes(1);
+      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.unauthorized');
+      jest.clearAllMocks();
 
       // 420 errors
       error = { response: { data: { message: 'Guests only.' }, status: 420, statusText: 'Guests only' }, message: 'Request failed with status code 420' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnceWithExactly(flashMessageInfoSpy, 'app.flash.guestsOnly');
-      sinon.assert.calledOnceWithExactly(routerSpy, { name: 'home' });
-      flashMessageInfoSpy.resetHistory();
-      routerSpy.resetHistory();
+      expect(flashMessageInfoSpy).toBeCalledTimes(1);
+      expect(flashMessageInfoSpy).toBeCalledWith('app.flash.guestsOnly');
+      expect(routerSpy).toBeCalledTimes(1);
+      expect(routerSpy).toBeCalledWith({ name: 'home' });
+      jest.clearAllMocks();
 
       // 413 errors
       error = { response: { data: { message: '' }, status: 413, statusText: 'Payload Too Large' }, message: 'Request failed with status code 413' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.tooLarge');
-      flashMessageErrorSpy.resetHistory();
+      expect(flashMessageErrorSpy).toBeCalledTimes(1);
+      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.tooLarge');
+      jest.clearAllMocks();
 
       // 503 errors
       const oldWindow = window.location;
-      const reloadStub = sinon.stub();
+      const reloadStub = jest.fn();
       delete window.location;
       window.location = { reload: reloadStub };
       error = { response: { data: { message: '' }, status: 503, statusText: 'Service Unavailable' }, message: 'Request failed with status code 503' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnce(reloadStub);
       window.location = oldWindow;
+      expect(reloadStub).toBeCalledTimes(1);
 
       // other server errors with message
       error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, {
+      expect(flashMessageErrorSpy).toBeCalledTimes(1);
+      expect(flashMessageErrorSpy).toBeCalledWith({
         contentClass: 'flash_small_title flex-column-reverse d-flex',
         message: 'app.flash.serverError.message:{"message":"syntax error"}',
         title: 'app.flash.serverError.title:{"statusCode":500}'
       });
-      flashMessageErrorSpy.resetHistory();
+      jest.clearAllMocks();
 
       // other server errors without message
       error = { response: { data: { message: '' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
-      sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, {
+      expect(flashMessageErrorSpy).toBeCalledTimes(1);
+      expect(flashMessageErrorSpy).toBeCalledWith({
         contentClass: 'flash_small_title flex-column-reverse d-flex',
         message: 'app.flash.serverError.emptyMessage',
         title: 'app.flash.serverError.title:{"statusCode":500}'
       });
-      flashMessageErrorSpy.resetHistory();
+      jest.clearAllMocks();
 
       // other non server error
       Base.error(new Error(JSON.stringify({ testProp1: 'testValue1', testProp2: 'testValue2' })), vm, 'infoText');
-      sinon.assert.calledOnceWithExactly(flashMessageErrorSpy, 'app.flash.clientError');
-      sinon.assert.calledOnceWithExactly(consoleErrorStub, 'Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
-      consoleErrorStub.resetHistory();
-      flashMessageErrorSpy.resetHistory();
+      expect(flashMessageErrorSpy).toBeCalledTimes(1);
+      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.clientError');
+      expect(consoleErrorStub).toBeCalledTimes(1);
+      expect(consoleErrorStub).toBeCalledWith('Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
+      jest.clearAllMocks();
+
+      routerMock.mockRestore();
     });
 
-    it(
-      '`getCsrfCookie` calls the route for getting a csrf cookie',
+    it('`getCsrfCookie` calls the route for getting a csrf cookie',
       async () => {
         moxios.stubRequest('/sanctum/csrf-cookie', {
           status: 200,
