@@ -5,6 +5,7 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent';
 import Base from '../../../../resources/js/api/base';
+import { waitMoxios } from '../../helper';
 
 const localVue = createLocalVue();
 
@@ -84,9 +85,7 @@ describe('Delete room', () => {
 
     component.vm.deleteRoom(bvModalEvt);
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
 
     const request = moxios.requests.mostRecent();
     expect(request.config.method).toMatch('delete');
@@ -120,9 +119,7 @@ describe('Delete room', () => {
     };
 
     component.vm.deleteRoom(bvModalEvt);
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     const request = moxios.requests.mostRecent();
     expect(request.config.method).toMatch('delete');
     expect(request.config.url).toContain(exampleRoom.id);

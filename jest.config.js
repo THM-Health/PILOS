@@ -1,5 +1,8 @@
 const { defaults } = require('jest-config');
 module.exports = {
+  restoreMocks: true,
+  clearMocks: true,
+  resetMocks: true,
   testEnvironment: 'node',
   // Where are your vue tests located?
   roots: [

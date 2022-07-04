@@ -1,6 +1,7 @@
 import Base from '../../../resources/js/api/base';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
+import { waitMoxios } from '../helper';
 
 let consoleErrorStub;
 
@@ -33,9 +34,7 @@ describe('base', () => {
     it('makes an call to the passed route with the passed parameters', async () => {
       Base.call('test', { method: 'put', data: { a: 'test' } });
 
-      await new Promise((resolve) => {
-        moxios.wait(resolve);
-      });
+      await waitMoxios();
 
       const request = moxios.requests.mostRecent();
 

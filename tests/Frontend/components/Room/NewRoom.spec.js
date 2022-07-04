@@ -5,10 +5,10 @@ import moxios from 'moxios';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
+import { waitMoxios } from '../../helper';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 
@@ -153,7 +153,7 @@ describe('Create new rooms', () => {
     ]
   };
 
-  it('frontend permission test', done => {
+  it('frontend permission test', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -173,28 +173,26 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-      expect(missingNewRoomComponent.exists()).toBeFalsy();
+    const missingNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-      const newUser = _.cloneDeep(exampleUser);
-      newUser.permissions.push('rooms.create');
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.permissions.push('rooms.create');
 
-      PermissionService.setCurrentUser(newUser);
+    PermissionService.setCurrentUser(newUser);
 
-      await view.vm.$nextTick();
+    await view.vm.$nextTick();
 
-      const newRoomComponent = view.findComponent(NewRoomComponent);
-      expect(newRoomComponent.exists()).toBeTruthy();
+    const newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeTruthy();
 
-      view.destroy();
-      done();
-    });
+    view.destroy();
   });
 
-  it('frontend room limit test', done => {
+  it('frontend room limit test', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -222,72 +220,67 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-      expect(missingNewRoomComponent.exists()).toBeFalsy();
+    let missingNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(missingNewRoomComponent.exists()).toBeFalsy();
 
-      const searchField = view.findComponent({ ref: 'search' });
-      expect(searchField.exists()).toBeTruthy();
+    const searchField = view.findComponent({ ref: 'search' });
+    expect(searchField.exists()).toBeTruthy();
 
-      // Enter search query
-      await searchField.setValue('test');
-      searchField.trigger('change');
+    // Enter search query
+    await searchField.setValue('test');
+    searchField.trigger('change');
 
-      moxios.requests.reset();
-      moxios.wait(async () => {
-        // Check if requests use the search string
-        const ownRequest = moxios.requests.at(0);
-        const sharedRequest = moxios.requests.at(1);
-        expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
-        expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
+    moxios.requests.reset();
+    await waitMoxios();
+    // Check if requests use the search string
+    const ownRequest = moxios.requests.at(0);
+    const sharedRequest = moxios.requests.at(1);
+    expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
+    expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
 
-        await ownRequest.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            meta: {
-              current_page: 1,
-              from: null,
-              last_page: 1,
-              per_page: 10,
-              to: null,
-              total: 0,
-              total_no_filter: 1
-            }
-          }
-        });
-        await sharedRequest.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            meta: {
-              current_page: 1,
-              from: null,
-              last_page: 1,
-              per_page: 10,
-              to: null,
-              total: 0,
-              total_no_filter: 1
-            }
-          }
-        });
-
-        const missingNewRoomComponent = view.findComponent(NewRoomComponent);
-        expect(missingNewRoomComponent.exists()).toBeFalsy();
-
-        view.destroy();
-        done();
-      });
+    await ownRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1
+        }
+      }
     });
+    await sharedRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1
+        }
+      }
+    });
+
+    missingNewRoomComponent = view.findComponent(NewRoomComponent);
+    expect(missingNewRoomComponent.exists()).toBeFalsy();
+
+    view.destroy();
   });
 
-  it('submit valid', done => {
-    const spy = sinon.spy();
-
+  it('submit valid', async () => {
     const router = new VueRouter();
-    router.push = spy;
+    const spy = jest.spyOn(router, 'push').mockImplementation();
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -307,40 +300,37 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
-      const nameInput = view.findComponent(BFormInput);
-      await nameInput.setValue('Test');
-      view.vm.handleSubmit();
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
-        request.respondWith({
-          status: 201,
-          response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
-        })
-          .then(async () => {
-            await view.vm.$nextTick();
-            sinon.assert.calledOnce(spy);
-            sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: 'zej-p5h-2wf' } });
-            view.destroy();
-            done();
-          });
-      });
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
+    const nameInput = view.findComponent(BFormInput);
+    await nameInput.setValue('Test');
+    view.vm.handleSubmit();
+    await waitMoxios();
+
+    const request = moxios.requests.mostRecent();
+    expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+    await request.respondWith({
+      status: 201,
+      response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
     });
+
+    await view.vm.$nextTick();
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toBeCalledWith({ name: 'rooms.view', params: { id: 'zej-p5h-2wf' } });
+    view.destroy();
   });
 
-  it('submit forbidden', done => {
-    const flashMessageSpy = sinon.spy();
+  it('submit forbidden', async () => {
+    const flashMessageErrorSpy = jest.fn();
     const flashMessage = {
       error (param) {
-        flashMessageSpy(param);
+        flashMessageErrorSpy(param);
       }
     };
 
@@ -362,38 +352,34 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
-      const nameInput = view.findComponent(BFormInput);
-      await nameInput.setValue('Test');
-      view.vm.handleSubmit();
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
+    const nameInput = view.findComponent(BFormInput);
+    await nameInput.setValue('Test');
+    view.vm.handleSubmit();
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
-        request.respondWith({
-          status: 403
-        })
-          .then(function () {
-            sinon.assert.calledOnce(flashMessageSpy);
-            sinon.assert.calledWith(flashMessageSpy, 'rooms.flash.noNewRoom');
-            view.destroy();
-            done();
-          });
-      });
+    await waitMoxios();
+
+    const request = moxios.requests.mostRecent();
+    expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+    await request.respondWith({
+      status: 403
     });
+
+    expect(flashMessageErrorSpy).toBeCalledTimes(1);
+    expect(flashMessageErrorSpy).toBeCalledWith('rooms.flash.noNewRoom');
+
+    view.destroy();
   });
 
-  it('submit reached room limit', done => {
-    const flashMessageSpy = sinon.spy();
-
-    sinon.stub(Base, 'error').callsFake(flashMessageSpy);
+  it('submit reached room limit', async () => {
+    const flashMessageSpy = jest.spyOn(Base, 'error').mockImplementation();
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -413,38 +399,35 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
-      const nameInput = view.findComponent(BFormInput);
-      await nameInput.setValue('Test');
-      view.vm.handleSubmit();
+    await view.vm.$nextTick();
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
-        request.respondWith({
-          status: 463,
-          response: { message: 'test' }
-        })
-          .then(function () {
-            expect(flashMessageSpy.calledOnce).toBeTruthy();
-            expect(flashMessageSpy.getCall(0).args[0].response.data.message).toEqual('test');
-            expect(view.emitted().limitReached).toBeTruthy();
-            view.destroy();
-            Base.error.restore();
-            done();
-          });
-      });
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
+    const nameInput = view.findComponent(BFormInput);
+    await nameInput.setValue('Test');
+    view.vm.handleSubmit();
+
+    await waitMoxios();
+
+    const request = moxios.requests.mostRecent();
+    expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+    await request.respondWith({
+      status: 463,
+      response: { message: 'test' }
     });
+
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy.mock.calls[0][0].response.data.message).toBe('test');
+    expect(view.emitted().limitReached).toBeTruthy();
+    view.destroy();
   });
 
-  it('submit without name', done => {
+  it('submit without name', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -462,33 +445,30 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
-      const nameInput = view.findComponent(BFormInput);
-      view.vm.handleSubmit();
+    await waitMoxios();
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 422,
-          response: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
-        })
-          .then(async () => {
-            await view.vm.$nextTick();
-            expect(nameInput.classes()).toContain('is-invalid');
-            view.destroy();
-            done();
-          });
-      });
+    await view.vm.$nextTick();
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
+    const nameInput = view.findComponent(BFormInput);
+    view.vm.handleSubmit();
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 422,
+      response: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
     });
+
+    await view.vm.$nextTick();
+    expect(nameInput.classes()).toContain('is-invalid');
+    view.destroy();
   });
 
-  it('submit invalid room type', done => {
+  it('submit invalid room type', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -506,46 +486,43 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
 
-      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
-        status: 200,
-        response: {
-          data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
-        }
-      });
+    await view.vm.$nextTick();
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
-
-      view.vm.handleSubmit();
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 422,
-          response: { message: 'The given data was invalid.', errors: { roomType: ['error'] } }
-        }).then(async () => {
-          await view.vm.$nextTick();
-          expect(typeInput.classes()).toContain('is-invalid');
-
-          const request = moxios.requests.mostRecent();
-          expect(request.url).toEqual('/api/v1/roomTypes?filter=own');
-
-          expect(view.vm.$data.room.roomType).toBeNull();
-
-          restoreRoomTypeResponse();
-          view.destroy();
-          done();
-        });
-      });
+    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+      status: 200,
+      response: {
+        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+      }
     });
+
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
+
+    view.vm.handleSubmit();
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 422,
+      response: { message: 'The given data was invalid.', errors: { roomType: ['error'] } }
+    });
+    await view.vm.$nextTick();
+    expect(typeInput.classes()).toContain('is-invalid');
+
+    request = moxios.requests.mostRecent();
+    expect(request.url).toEqual('/api/v1/roomTypes?filter=own');
+
+    expect(view.vm.$data.room.roomType).toBeNull();
+
+    restoreRoomTypeResponse();
+    view.destroy();
   });
 
-  it('cancel or close', done => {
+  it('cancel or close', async () => {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
@@ -566,22 +543,19 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
 
-      await view.findComponent(BFormInput).setValue('Test');
-      expect(view.vm.$data.room).toMatchObject({ roomType: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
-      view.vm.handleCancel();
-      view.destroy();
-      expect(view.vm.$data.room).toMatchObject({});
-
-      done();
-    });
+    await view.findComponent(BFormInput).setValue('Test');
+    expect(view.vm.$data.room).toMatchObject({ roomType: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
+    view.vm.handleCancel();
+    view.destroy();
+    expect(view.vm.$data.room).toMatchObject({});
   });
 });

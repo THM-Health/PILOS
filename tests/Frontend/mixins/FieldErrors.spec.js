@@ -41,7 +41,7 @@ describe('FieldErrors', () => {
     );
   });
 
-  describe('fieldError', async () => {
+  describe('fieldError', () => {
     it('returns empty string if the errors object is not defined', () => {
       const Test = {
         mixins: [FieldErrors],

@@ -4,6 +4,7 @@ import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue
 import store from '../../../resources/js/store';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
+import { waitMoxios } from '../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -107,9 +108,7 @@ describe('LocaleSelector', () => {
 
     items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
@@ -150,9 +149,7 @@ describe('LocaleSelector', () => {
 
     expect(store.state.loadingCounter).toEqual(1);
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
@@ -195,9 +192,7 @@ describe('LocaleSelector', () => {
 
     await items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);

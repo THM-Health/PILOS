@@ -8,6 +8,7 @@ import HistoryComponent from '../../../../resources/js/components/Room/HistoryCo
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
+import { waitModalShown, waitMoxios } from '../../helper';
 
 const localVue = createLocalVue();
 
@@ -92,9 +93,7 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     let request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -144,9 +143,7 @@ describe('History', () => {
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
     await reloadButton.trigger('click');
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -189,9 +186,7 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     const request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -280,9 +275,7 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     let request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -303,9 +296,7 @@ describe('History', () => {
     expect(reloadButton.text()).toBe('app.reload');
     await reloadButton.trigger('click');
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -354,9 +345,7 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     let request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -393,26 +382,36 @@ describe('History', () => {
 
     await buttonsRow.at(0).trigger('click');
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
 
     request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
 
-    const modalShown = new Promise((resolve) => {
-      view.vm.$root.$once('bv::modal::shown', resolve);
+    await waitModalShown(view, async () => {
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [
+            {
+              id: 8,
+              participant_count: 5,
+              listener_count: 3,
+              voice_participant_count: 4,
+              video_count: 1,
+              created_at: '2021-06-18T07:13:49.000000Z'
+            },
+            {
+              id: 9,
+              participant_count: 6,
+              listener_count: 4,
+              voice_participant_count: 5,
+              video_count: 2,
+              created_at: '2021-06-18T07:14:51.000000Z'
+            }
+          ]
+        }
+      });
     });
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 8, participant_count: 5, listener_count: 3, voice_participant_count: 4, video_count: 1, created_at: '2021-06-18T07:13:49.000000Z' },
-          { id: 9, participant_count: 6, listener_count: 4, voice_participant_count: 5, video_count: 2, created_at: '2021-06-18T07:14:51.000000Z' }
-        ]
-      }
-    });
-    await modalShown;
     await view.vm.$nextTick();
 
     expect(view.vm.$data.chartDataRows).toMatchObject({
@@ -450,9 +449,7 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
     await view.vm.$nextTick();
     let request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
@@ -487,39 +484,34 @@ describe('History', () => {
 
     await buttonsRow.at(1).trigger('click');
 
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+    await waitMoxios();
 
     request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
 
-    const modalShown = new Promise((resolve) => {
-      view.vm.$root.$once('bv::modal::shown', resolve);
+    await waitModalShown(view, async () => {
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [
+            {
+              name: 'John Doe',
+              email: null,
+              duration: 4,
+              sessions: [
+                { id: 7, join: '2021-06-18T07:41:03.000000Z', leave: '2021-06-18T07:45:32.000000Z', duration: 4 }]
+            },
+            {
+              name: 'Claus Doe',
+              email: 'claus.doe@demo.tld',
+              duration: 33,
+              sessions: [
+                { id: 4, join: '2021-06-18T07:13:49.000000Z', leave: '2021-06-18T07:42:08.000000Z', duration: 28 },
+                { id: 5, join: '2021-06-18T07:44:12.000000Z', leave: '2021-06-18T07:49:54.000000Z', duration: 5 }]
+            }]
+        }
+      });
     });
-
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          {
-            name: 'John Doe',
-            email: null,
-            duration: 4,
-            sessions: [
-              { id: 7, join: '2021-06-18T07:41:03.000000Z', leave: '2021-06-18T07:45:32.000000Z', duration: 4 }]
-          },
-          {
-            name: 'Claus Doe',
-            email: 'claus.doe@demo.tld',
-            duration: 33,
-            sessions: [
-              { id: 4, join: '2021-06-18T07:13:49.000000Z', leave: '2021-06-18T07:42:08.000000Z', duration: 28 },
-              { id: 5, join: '2021-06-18T07:44:12.000000Z', leave: '2021-06-18T07:49:54.000000Z', duration: 5 }]
-          }]
-      }
-    });
-    await modalShown;
     await view.vm.$nextTick();
 
     table = view.find('#attendance-table');
