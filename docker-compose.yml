@@ -7,7 +7,7 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP:-1000}'
-        image: sail-8.1/app
+        image: PILOS-PHP-8.1/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
