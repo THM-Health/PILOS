@@ -102,8 +102,7 @@ describe('RolesIndex', () => {
     });
   });
 
-  it(
-    'update and delete buttons only shown if user has the permission and the role is not system default',
+  it('update and delete buttons only shown if user has the permission and the role is not system default',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -165,8 +164,7 @@ describe('RolesIndex', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during loading of data',
+  it('error handler gets called if an error occurs during loading of data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -190,7 +188,7 @@ describe('RolesIndex', () => {
         }).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
           done();
@@ -259,8 +257,7 @@ describe('RolesIndex', () => {
     });
   });
 
-  it(
-    'property gets cleared correctly if deletion gets aborted',
+  it('property gets cleared correctly if deletion gets aborted',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -322,8 +319,7 @@ describe('RolesIndex', () => {
     }
   );
 
-  it(
-    'new role button is displayed if the user has the corresponding permissions',
+  it('new role button is displayed if the user has the corresponding permissions',
     done => {
       const oldUser = PermissionService.currentUser;
 

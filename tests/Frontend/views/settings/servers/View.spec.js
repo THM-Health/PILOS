@@ -90,8 +90,7 @@ describe('ServerView', () => {
     moxios.uninstall();
   });
 
-  it(
-    'input fields are disabled if the server is displayed in view mode',
+  it('input fields are disabled if the server is displayed in view mode',
     done => {
       const view = mount(View, {
         localVue,
@@ -115,8 +114,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during load of data and reload button reloads data',
+  it('error handler gets called if an error occurs during load of data and reload button reloads data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -142,7 +140,7 @@ describe('ServerView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         Base.error.restore();
@@ -165,8 +163,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'error handler gets called and redirected if a 404 error occurs during load of data',
+  it('error handler gets called and redirected if a 404 error occurs during load of data',
     done => {
       const routerSpy = sinon.spy();
       const router = new VueRouter();
@@ -197,7 +194,7 @@ describe('ServerView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         sinon.assert.calledOnce(routerSpy);
         sinon.assert.calledWith(routerSpy, { name: 'settings.servers' });
         Base.error.restore();
@@ -208,8 +205,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'error handler gets called and redirected if a 404 error occurs during save of data',
+  it('error handler gets called and redirected if a 404 error occurs during save of data',
     done => {
       const routerSpy = sinon.spy();
       const router = new VueRouter();
@@ -243,7 +239,7 @@ describe('ServerView', () => {
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           sinon.assert.calledOnce(routerSpy);
           sinon.assert.calledWith(routerSpy, { name: 'settings.servers' });
@@ -254,8 +250,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during update',
+  it('error handler gets called if an error occurs during update',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -284,7 +279,7 @@ describe('ServerView', () => {
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreServerResponse();
           done();
@@ -293,8 +288,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'back button causes a back navigation without persistence',
+  it('back button causes a back navigation without persistence',
     done => {
       const spy = sinon.spy();
 
@@ -327,8 +321,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'request with updates get send during saving the server',
+  it('request with updates get send during saving the server',
     done => {
       const spy = sinon.spy();
 
@@ -411,8 +404,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and a overwrite can be forced',
+  it('modal gets shown for stale errors and a overwrite can be forced',
     done => {
       const spy = sinon.spy();
 
@@ -474,8 +466,7 @@ describe('ServerView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and the new model can be applied to current form',
+  it('modal gets shown for stale errors and the new model can be applied to current form',
     done => {
       const view = mount(View, {
         localVue,
@@ -621,8 +612,7 @@ describe('ServerView', () => {
   });
 
   it('update connection status', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(View, {
       localVue,
@@ -710,7 +700,7 @@ describe('ServerView', () => {
               expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
               expect(view.findAllComponents(BFormText).length).toBe(2);
 
-              sinon.assert.calledOnce(Base.error);
+              expect(spy).toBeCalledTimes(1);
               Base.error.restore();
               view.destroy();
               done();
@@ -802,8 +792,7 @@ describe('ServerView', () => {
     });
   });
 
-  it(
-    'panic button calls api and gets disabled while running',
+  it('panic button calls api and gets disabled while running',
     done => {
       const flashMessageSpy = sinon.spy();
       const flashMessage = {
@@ -879,7 +868,7 @@ describe('ServerView', () => {
 
               await view.vm.$nextTick();
               expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
-              sinon.assert.calledOnce(Base.error);
+              expect(spy).toBeCalledTimes(1);
               Base.error.restore();
               done();
             });

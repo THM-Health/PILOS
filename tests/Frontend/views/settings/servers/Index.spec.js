@@ -276,8 +276,7 @@ describe('ServersIndex', () => {
     });
   });
 
-  it(
-    'update and delete buttons only shown if user has the permission',
+  it('update and delete buttons only shown if user has the permission',
     done => {
       PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
@@ -319,8 +318,7 @@ describe('ServersIndex', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during loading of data',
+  it('error handler gets called if an error occurs during loading of data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -344,7 +342,7 @@ describe('ServersIndex', () => {
         }).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
           done();
@@ -353,8 +351,7 @@ describe('ServersIndex', () => {
     }
   );
 
-  it(
-    'property gets cleared correctly if deletion gets aborted',
+  it('property gets cleared correctly if deletion gets aborted',
     done => {
       PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
@@ -540,8 +537,7 @@ describe('ServersIndex', () => {
   });
 
   it('server delete 404 handling', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
@@ -671,7 +667,7 @@ describe('ServersIndex', () => {
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
 
           view.destroy();
@@ -682,8 +678,7 @@ describe('ServersIndex', () => {
   });
 
   it('server delete error handler called', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
@@ -732,7 +727,7 @@ describe('ServersIndex', () => {
 
         await view.vm.$nextTick();
 
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         Base.error.restore();
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
         expect(view.vm.$data.serverToDelete).toBeUndefined();
@@ -743,8 +738,7 @@ describe('ServersIndex', () => {
     });
   });
 
-  it(
-    'new server button is displayed if the user has the corresponding permissions',
+  it('new server button is displayed if the user has the corresponding permissions',
     done => {
       PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 

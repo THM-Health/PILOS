@@ -232,8 +232,7 @@ describe('Login', () => {
     view.destroy();
   });
 
-  it(
-    'unprocessable entity errors gets displayed for the corresponding fields',
+  it('unprocessable entity errors gets displayed for the corresponding fields',
     done => {
       const view = mount(Login, {
         localVue,
@@ -351,8 +350,7 @@ describe('Login', () => {
     });
   });
 
-  it(
-    'other api errors gets thrown and handled by the global error handler',
+  it('other api errors gets thrown and handled by the global error handler',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -381,7 +379,7 @@ describe('Login', () => {
           request.respondWith({
             status: 500
           }).then(() => {
-            sinon.assert.calledOnce(Base.error);
+            expect(spy).toBeCalledTimes(1);
             Base.error.restore();
             view.destroy();
             done();

@@ -120,8 +120,7 @@ describe('RoomTypeView', () => {
     moxios.uninstall();
   });
 
-  it(
-    'room type description in title gets shown for detail view',
+  it('room type description in title gets shown for detail view',
     done => {
       const view = mount(View, {
         localVue,
@@ -141,8 +140,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'room type description in title gets translated for update view',
+  it('room type description in title gets translated for update view',
     done => {
       const view = mount(View, {
         localVue,
@@ -163,8 +161,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'server pools get loaded, pagination and error handling',
+  it('server pools get loaded, pagination and error handling',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -249,7 +246,7 @@ describe('RoomTypeView', () => {
             expect(multiSelect.props('disabled')).toBeTruthy();
             expect(saveButton.attributes('disabled')).toBe('disabled');
 
-            sinon.assert.calledOnce(Base.error);
+            expect(spy).toBeCalledTimes(1);
             Base.error.restore();
             restoreServerPoolResponse();
 
@@ -295,8 +292,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'input fields are disabled if the room type is displayed in view mode',
+  it('input fields are disabled if the room type is displayed in view mode',
     done => {
       const view = mount(View, {
         localVue,
@@ -319,8 +315,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during load of data and reload button reloads data',
+  it('error handler gets called if an error occurs during load of data and reload button reloads data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -345,7 +340,7 @@ describe('RoomTypeView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         Base.error.restore();
@@ -368,8 +363,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'error handler gets called and redirected if a 404 error occurs during load of data',
+  it('error handler gets called and redirected if a 404 error occurs during load of data',
     done => {
       const routerSpy = sinon.spy();
       const router = new VueRouter();
@@ -399,7 +393,7 @@ describe('RoomTypeView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         sinon.assert.calledOnce(routerSpy);
         sinon.assert.calledWith(routerSpy, { name: 'settings.room_types' });
         Base.error.restore();
@@ -410,8 +404,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'error handler gets called and redirected if a 404 error occurs during save of data',
+  it('error handler gets called and redirected if a 404 error occurs during save of data',
     done => {
       const routerSpy = sinon.spy();
       const router = new VueRouter();
@@ -444,7 +437,7 @@ describe('RoomTypeView', () => {
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           sinon.assert.calledOnce(routerSpy);
           sinon.assert.calledWith(routerSpy, { name: 'settings.room_types' });
@@ -455,8 +448,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during update',
+  it('error handler gets called if an error occurs during update',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -484,7 +476,7 @@ describe('RoomTypeView', () => {
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreRoomTypeResponse();
           done();
@@ -493,8 +485,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'back button causes a back navigation without persistence',
+  it('back button causes a back navigation without persistence',
     done => {
       const spy = sinon.spy();
 
@@ -526,8 +517,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'request with updates get send during saving the room type',
+  it('request with updates get send during saving the room type',
     done => {
       const spy = sinon.spy();
 
@@ -602,8 +592,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and a overwrite can be forced',
+  it('modal gets shown for stale errors and a overwrite can be forced',
     done => {
       const spy = sinon.spy();
 
@@ -664,8 +653,7 @@ describe('RoomTypeView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and the new model can be applied to current form',
+  it('modal gets shown for stale errors and the new model can be applied to current form',
     done => {
       const spy = sinon.spy();
 

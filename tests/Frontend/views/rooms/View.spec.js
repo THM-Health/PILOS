@@ -15,6 +15,7 @@ import env from '../../../../resources/js/env';
 
 import storeOrg from '../../../../resources/js/store';
 import i18n from '../../../../resources/js/i18n';
+import {waitModalHidden, waitModalShown} from '../../helper';
 
 const localVue = createLocalVue();
 
@@ -368,7 +369,7 @@ describe('Room', () => {
     RoomView.beforeRouteEnter.call(view.vm, to, undefined, next);
   });
 
-  it('ask access token', done => {
+  it('ask access token', async () => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -385,11 +386,9 @@ describe('Room', () => {
       }
     });
 
-    view.vm.$nextTick().then(() => {
-      expect(view.html()).toContain('rooms.requireAccessCode');
-      view.destroy();
-      done();
-    });
+    await view.vm.$nextTick();
+    expect(view.html()).toContain('rooms.requireAccessCode');
+    view.destroy();
   });
 
   it('room details auth. guest', done => {
@@ -571,7 +570,7 @@ describe('Room', () => {
   });
 
   it('reload', done => {
-    const baseError = sinon.stub(Base, 'error');
+    const baseError = jest.spyOn(Base, 'error').mockImplementation();
 
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
@@ -812,7 +811,7 @@ describe('Room', () => {
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
     const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
-    const baseError = sinon.stub(Base, 'error');
+    const baseError = jest.spyOn(Base, 'error').mockImplementation();
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
       error (param) {
@@ -1225,7 +1224,7 @@ describe('Room', () => {
     const handleInvalidCode = sinon.stub(RoomView.methods, 'handleInvalidCode');
     const handleGuestsNotAllowed = sinon.stub(RoomView.methods, 'handleGuestsNotAllowed');
     const handleInvalidToken = sinon.stub(RoomView.methods, 'handleInvalidToken');
-    const baseError = sinon.stub(Base, 'error');
+    const baseError = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(RoomView, {
       localVue,
@@ -1593,7 +1592,7 @@ describe('Room', () => {
       }
     };
 
-    const baseError = sinon.stub(Base, 'error');
+    const baseError = jest.spyOn(Base, 'error').mockImplementation();
 
     const flashMessageSpy = sinon.spy();
     const flashMessage = {
@@ -1920,10 +1919,12 @@ describe('Room', () => {
       const leaveMembershipModal = view.findComponent({ ref: 'leave-membership-modal' });
       expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
       // Click button to leave membership
-      await view.find('#leave-membership-button').trigger('click');
+
+      await waitModalShown(view, () => {
+        view.find('#leave-membership-button').trigger('click');
+      });
 
       // Wait until modal is open
-      view.vm.$root.$once('bv::modal::shown', async () => {
         await view.vm.$nextTick();
 
         // Confirm modal is shown
@@ -1932,10 +1933,11 @@ describe('Room', () => {
         // Find the confirm button and click it
         const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
         expect(leaveConfirmButton.text()).toBe('rooms.endMembership.yes');
-        await leaveConfirmButton.trigger('click');
 
+      await waitModalHidden(view, () => {
+        leaveConfirmButton.trigger('click');
+      });
         // Check if modal is closed
-        view.vm.$root.$once('bv::modal::hidden', async () => {
           await view.vm.$nextTick();
 
           // Check if the modal is hidden

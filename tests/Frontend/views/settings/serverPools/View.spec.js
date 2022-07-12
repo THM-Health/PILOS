@@ -169,8 +169,7 @@ describe('ServerPoolView', () => {
     moxios.uninstall();
   });
 
-  it(
-    'input fields are disabled if the server pool is displayed in view mode',
+  it('input fields are disabled if the server pool is displayed in view mode',
     done => {
       const view = mount(View, {
         localVue,
@@ -193,8 +192,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during load of data and reload button reloads data',
+  it('error handler gets called if an error occurs during load of data and reload button reloads data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -220,7 +218,7 @@ describe('ServerPoolView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         Base.error.restore();
@@ -243,8 +241,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'error handler gets called and redirected if a 404 error occurs during load of data',
+  it('error handler gets called and redirected if a 404 error occurs during load of data',
     done => {
       const routerSpy = sinon.spy();
       const router = new VueRouter();
@@ -275,7 +272,7 @@ describe('ServerPoolView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         sinon.assert.calledOnce(routerSpy);
         sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
         Base.error.restore();
@@ -286,8 +283,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'error handler gets called and redirected if a 404 error occurs during save of data',
+  it('error handler gets called and redirected if a 404 error occurs during save of data',
     done => {
       const routerSpy = sinon.spy();
       const router = new VueRouter();
@@ -321,7 +317,7 @@ describe('ServerPoolView', () => {
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           sinon.assert.calledOnce(routerSpy);
           sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
@@ -332,8 +328,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during update',
+  it('error handler gets called if an error occurs during update',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -362,7 +357,7 @@ describe('ServerPoolView', () => {
         view.findComponent(BForm).trigger('submit');
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreServerPoolResponse();
           done();
@@ -371,8 +366,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'back button causes a back navigation without persistence',
+  it('back button causes a back navigation without persistence',
     done => {
       const spy = sinon.spy();
 
@@ -405,8 +399,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'request with updates get send during saving the server',
+  it('request with updates get send during saving the server',
     done => {
       const spy = sinon.spy();
 
@@ -477,8 +470,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and a overwrite can be forced',
+  it('modal gets shown for stale errors and a overwrite can be forced',
     done => {
       const spy = sinon.spy();
 
@@ -540,8 +532,7 @@ describe('ServerPoolView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and the new model can be applied to current form',
+  it('modal gets shown for stale errors and the new model can be applied to current form',
     done => {
       const view = mount(View, {
         localVue,
@@ -593,8 +584,7 @@ describe('ServerPoolView', () => {
   );
 
   it('server get loaded, pagination and error handling', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(View, {
       localVue,
@@ -691,7 +681,7 @@ describe('ServerPoolView', () => {
           expect(multiSelect.props('disabled')).toBeTruthy();
           expect(saveButton.attributes('disabled')).toBe('disabled');
 
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreServerPoolResponse();
 

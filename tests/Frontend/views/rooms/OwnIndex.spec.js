@@ -9,6 +9,7 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
+import {waitMoxios} from "../../helper";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -153,7 +154,7 @@ describe('Own Room Index', () => {
     ]
   };
 
-  it('check list of rooms', done => {
+  it('check list of rooms', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -176,7 +177,7 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       expect(view.vm.ownRooms).toEqual(exampleOwnRoomResponse);
@@ -187,11 +188,10 @@ describe('Own Room Index', () => {
       expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
 
       view.destroy();
-      done();
     });
   });
 
-  it('click on room in list', done => {
+  it('click on room in list', async () => {
     const spy = sinon.stub().resolves();
 
     const router = new VueRouter();
@@ -230,16 +230,15 @@ describe('Own Room Index', () => {
 
     view.findComponent(BCard).trigger('click');
 
-    moxios.wait(() => {
+    await waitMoxios(() => {
       sinon.assert.calledOnce(spy);
       sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
       view.destroy();
-      done();
     });
   });
 
-  it('test reload function and room limit reach event', done => {
+  it('test reload function and room limit reach event', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -266,7 +265,7 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
       // find current amount of rooms
       const rooms = view.findAllComponents(RoomComponent);
@@ -325,7 +324,7 @@ describe('Own Room Index', () => {
       expect(newRoomComponent.exists()).toBeTruthy();
       newRoomComponent.vm.$emit('limitReached');
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         view.vm.$nextTick();
         // check if now two rooms are displayed
         const rooms = view.findAllComponents(RoomComponent);
@@ -337,12 +336,11 @@ describe('Own Room Index', () => {
 
         store.commit('session/setCurrentUser', exampleUser);
         view.destroy();
-        done();
       });
     });
   });
 
-  it('test search', done => {
+  it('test search', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -365,7 +363,7 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       const searchField = view.findComponent({ ref: 'search' });
@@ -381,7 +379,7 @@ describe('Own Room Index', () => {
 
       moxios.requests.reset();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // Check if requests use the search string
         const ownRequest = moxios.requests.at(0);
         const sharedRequest = moxios.requests.at(1);
@@ -431,7 +429,7 @@ describe('Own Room Index', () => {
         await searchField.setValue('test2');
         searchField.trigger('change');
         moxios.requests.reset();
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           const ownRequest = moxios.requests.at(0);
           const sharedRequest = moxios.requests.at(1);
           expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test2');
@@ -473,13 +471,12 @@ describe('Own Room Index', () => {
           expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
 
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('test room limit', done => {
+  it('test room limit', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -502,7 +499,7 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       // Hide room count for users without limit
@@ -522,7 +519,7 @@ describe('Own Room Index', () => {
       await searchField.setValue('test');
       searchField.trigger('change');
       moxios.requests.reset();
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         const ownRequest = moxios.requests.at(0);
         const sharedRequest = moxios.requests.at(1);
         await ownRequest.respondWith({
@@ -563,7 +560,6 @@ describe('Own Room Index', () => {
 
         store.commit('session/setCurrentUser', exampleUser);
         view.destroy();
-        done();
       });
     });
   });

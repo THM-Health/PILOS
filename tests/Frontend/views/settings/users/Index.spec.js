@@ -143,8 +143,7 @@ describe('UsersIndex', () => {
     });
   });
 
-  it(
-    'reset password button only shown if the user has the permission and it handles errors as expected',
+  it('reset password button only shown if the user has the permission and it handles errors as expected',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -255,7 +254,7 @@ describe('UsersIndex', () => {
             }).then(() => {
               expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(false);
               expect(view.vm.$data.userToResetPassword).toBeUndefined();
-              sinon.assert.calledOnce(Base.error);
+              expect(spy).toBeCalledTimes(1);
               Base.error.restore();
               view.destroy();
               PermissionService.setCurrentUser(oldUser);
@@ -372,8 +371,7 @@ describe('UsersIndex', () => {
     });
   });
 
-  it(
-    'update and delete buttons only shown if user has the permission',
+  it('update and delete buttons only shown if user has the permission',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -446,8 +444,7 @@ describe('UsersIndex', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during loading of data',
+  it('error handler gets called if an error occurs during loading of data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -471,7 +468,7 @@ describe('UsersIndex', () => {
         }).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
           done();
@@ -546,8 +543,7 @@ describe('UsersIndex', () => {
     });
   });
 
-  it(
-    'property gets cleared correctly if deletion gets aborted',
+  it('property gets cleared correctly if deletion gets aborted',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -615,8 +611,7 @@ describe('UsersIndex', () => {
     }
   );
 
-  it(
-    'new user button is displayed if the user has the corresponding permissions',
+  it('new user button is displayed if the user has the corresponding permissions',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -676,8 +671,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {
@@ -872,8 +866,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {
@@ -917,7 +910,7 @@ describe('UsersIndex', () => {
       await view.vm.$nextTick();
 
       // check error for role loading failed
-      sinon.assert.calledOnce(Base.error);
+      expect(spy).toBeCalledTimes(1);
 
       // check if role selector disabled
       const roleSelector = view.findComponent(Multiselect);

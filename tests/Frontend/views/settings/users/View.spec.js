@@ -259,8 +259,7 @@ describe('UsersView', () => {
     });
   });
 
-  it(
-    'throws an error if the config property is not passed or contains wrong data',
+  it('throws an error if the config property is not passed or contains wrong data',
     () => {
       expect(View.props.config.validator({})).toBe(false);
       expect(View.props.config.validator({ id: '1' })).toBe(false);
@@ -274,8 +273,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'the configured locales should be selectable in the corresponding select',
+  it('the configured locales should be selectable in the corresponding select',
     done => {
       View.__set__('LocaleMap', {
         de: 'German',
@@ -360,8 +358,7 @@ describe('UsersView', () => {
     });
   });
 
-  it(
-    'input fields gets disabled when viewing the user in view only mode',
+  it('input fields gets disabled when viewing the user in view only mode',
     done => {
       const view = mount(View, {
         localVue,
@@ -439,8 +436,7 @@ describe('UsersView', () => {
     });
   });
 
-  it(
-    'if generate_password is true the password fields does not get sent with the create request',
+  it('if generate_password is true the password fields does not get sent with the create request',
     done => {
       const spy = sinon.spy();
 
@@ -532,8 +528,7 @@ describe('UsersView', () => {
     });
   });
 
-  it(
-    'back button is not shown on the profile page of an user',
+  it('back button is not shown on the profile page of an user',
     done => {
       const view = mount(View, {
         localVue,
@@ -597,8 +592,7 @@ describe('UsersView', () => {
     });
   });
 
-  it(
-    'request with the updates gets send during saving the user',
+  it('request with the updates gets send during saving the user',
     done => {
       const spy = sinon.spy();
 
@@ -675,8 +669,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during load of data',
+  it('error handler gets called if an error occurs during load of data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -721,8 +714,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'if the user model to load is the current user and is not found the user gets logged and redirected',
+  it('if the user model to load is the current user and is not found the user gets logged and redirected',
     done => {
       const errorSpy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(errorSpy);
@@ -767,8 +759,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'current user get logged out if the user to update is the current user and not gets found during persistence',
+  it('current user get logged out if the user to update is the current user and not gets found during persistence',
     done => {
       const errorSpy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(errorSpy);
@@ -817,8 +808,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and a overwrite can be forced',
+  it('modal gets shown for stale errors and a overwrite can be forced',
     done => {
       const spy = sinon.spy();
 
@@ -887,8 +877,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and the new model can be applied to current form',
+  it('modal gets shown for stale errors and the new model can be applied to current form',
     done => {
       const spy = sinon.spy();
 
@@ -948,8 +937,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'reload button exists next to the roles multiselect and on error it can be used to reload the roles',
+  it('reload button exists next to the roles multiselect and on error it can be used to reload the roles',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -980,7 +968,7 @@ describe('UsersView', () => {
       moxios.wait(function () {
         const button = view.findComponent({ ref: 'reloadRolesButton' });
         expect(button.exists()).toBe(true);
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         restoreRolesResponse();
         spy.resetHistory();
         button.trigger('click');
@@ -997,8 +985,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'user gets redirected to index page if the other user is not found',
+  it('user gets redirected to index page if the other user is not found',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -1033,7 +1020,7 @@ describe('UsersView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         sinon.assert.calledOnce(routerSpy);
         sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
         Base.error.restore();
@@ -1044,8 +1031,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'reload overlay gets shown if another error than 404 occurs during load of the user',
+  it('reload overlay gets shown if another error than 404 occurs during load of the user',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -1074,7 +1060,7 @@ describe('UsersView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         Base.error.restore();
         restoreUserResponse();
         view.destroy();
@@ -1083,8 +1069,7 @@ describe('UsersView', () => {
     }
   );
 
-  it(
-    'user gets redirected to index page if the other edited user is not found during save',
+  it('user gets redirected to index page if the other edited user is not found during save',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -1122,7 +1107,7 @@ describe('UsersView', () => {
         });
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           sinon.assert.calledOnce(routerSpy);
           sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
           Base.error.restore();

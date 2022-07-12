@@ -88,8 +88,7 @@ describe('RoomTypesIndex', () => {
     });
   });
 
-  it(
-    'update and delete buttons only shown if user has the permission',
+  it('update and delete buttons only shown if user has the permission',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -140,8 +139,7 @@ describe('RoomTypesIndex', () => {
     }
   );
 
-  it(
-    'error handler gets called if an error occurs during loading of data',
+  it('error handler gets called if an error occurs during loading of data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -165,7 +163,7 @@ describe('RoomTypesIndex', () => {
         }).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
           done();
@@ -174,8 +172,7 @@ describe('RoomTypesIndex', () => {
     }
   );
 
-  it(
-    'property gets cleared correctly if deletion gets aborted',
+  it('property gets cleared correctly if deletion gets aborted',
     done => {
       const oldUser = PermissionService.currentUser;
 
@@ -364,8 +361,7 @@ describe('RoomTypesIndex', () => {
   });
 
   it('room types delete 404 handling', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const oldUser = PermissionService.currentUser;
 
@@ -459,7 +455,7 @@ describe('RoomTypesIndex', () => {
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
           expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
 
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           Base.error.restore();
 
           view.destroy();
@@ -472,8 +468,7 @@ describe('RoomTypesIndex', () => {
 
   it('room types delete error handler called', done => {
     const oldUser = PermissionService.currentUser;
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
 
     const response = {
@@ -533,7 +528,7 @@ describe('RoomTypesIndex', () => {
 
         await view.vm.$nextTick();
 
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         Base.error.restore();
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
         expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
@@ -545,8 +540,7 @@ describe('RoomTypesIndex', () => {
     });
   });
 
-  it(
-    'new room type button is displayed if the user has the corresponding permissions',
+  it('new room type button is displayed if the user has the corresponding permissions',
     done => {
       const oldUser = PermissionService.currentUser;
 

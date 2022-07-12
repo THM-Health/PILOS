@@ -23,8 +23,7 @@ describe('PasswordReset', () => {
   });
 
   it('submit handles errors correctly', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(PasswordReset, {
       localVue,
@@ -60,8 +59,8 @@ describe('PasswordReset', () => {
               message: 'Internal server error'
             }
           }).then(() => {
-            sinon.assert.calledOnce(Base.error);
-            expect(spy.getCall(0).args[0].response.status).toEqual(500);
+            expect(spy).toBeCalledTimes(1);
+            expect(spy.mock.calls[0][0].response.status).toEqual(500);
 
             Base.error.restore();
             done();
@@ -71,8 +70,7 @@ describe('PasswordReset', () => {
     });
   });
 
-  it(
-    'submit loads the current user after login and changes the application language to the corresponding one',
+  it('submit loads the current user after login and changes the application language to the corresponding one',
     done => {
       const routerSpy = sinon.spy();
 

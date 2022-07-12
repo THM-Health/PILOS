@@ -22,8 +22,7 @@ describe('ForgotPassword', () => {
     moxios.uninstall();
   });
 
-  it(
-    'before route enter redirects to the 404 page if the self reset is disabled',
+  it('before route enter redirects to the 404 page if the self reset is disabled',
     done => {
       const oldState = store.state['session/settings'];
       store.commit('session/setSettings', { password_self_reset_enabled: false });
@@ -36,8 +35,7 @@ describe('ForgotPassword', () => {
     }
   );
 
-  it(
-    'before route enter continues to the view if the self reset is enabled',
+  it('before route enter continues to the view if the self reset is enabled',
     done => {
       const oldState = store.state['session/settings'];
       store.commit('session/setSettings', { password_self_reset_enabled: true });
@@ -51,8 +49,7 @@ describe('ForgotPassword', () => {
   );
 
   it('submit handles errors correctly', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(ForgotPassword, {
       localVue,
@@ -70,8 +67,8 @@ describe('ForgotPassword', () => {
             message: 'Internal server error'
           }
         }).then(() => {
-          sinon.assert.calledOnce(Base.error);
-          expect(spy.getCall(0).args[0].response.status).toEqual(500);
+          expect(spy).toBeCalledTimes(1);
+          expect(spy.mock.calls[0][0].response.status).toEqual(500);
 
           Base.error.restore();
           done();
@@ -80,8 +77,7 @@ describe('ForgotPassword', () => {
     });
   });
 
-  it(
-    'submit redirects to home page withe a success message on success',
+  it('submit redirects to home page withe a success message on success',
     done => {
       const routerSpy = sinon.spy();
 

@@ -15,6 +15,7 @@ import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
+import {waitMoxios} from "../../helper";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -67,9 +68,7 @@ describe('Application', () => {
     expect(spy.calledOnce).toBeTruthy();
   });
 
-  it(
-    'getSettings method works properly with response data room_limit is -1',
-    done => {
+  it('getSettings method works properly with response data room_limit is -1',async() => {
       const view = mount(Application, {
         localVue,
         mocks: {
@@ -78,72 +77,67 @@ describe('Application', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 200,
-          response: {
-            data: {
-              logo: 'test.svg',
-              room_limit: -1,
-              room_token_expiration: 525600,
-              pagination_page_size: 10,
-              own_rooms_pagination_page_size: 5,
-              banner: {
-                enabled: false
-              },
-              bbb: bbbSettings,
-              statistics: {
-                servers: {
-                  enabled: true,
-                  retention_period: 7
-                },
-                meetings: {
-                  enabled: false,
-                  retention_period: 30
-                }
-              },
-              attendance: {
+      await waitMoxios();
+      const request = moxios.requests.mostRecent();
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            room_token_expiration: 525600,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: bbbSettings,
+            statistics: {
+              servers: {
                 enabled: true,
-                retention_period: 14
+                retention_period: 7
               },
-              room_auto_delete: {
-                enabled: true,
-                inactive_period: 30,
-                never_used_period: 14,
-                deadline_period: 7
+              meetings: {
+                enabled: false,
+                retention_period: 30
               }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.vm.$data.settings.logo).toBe('test.svg');
-          expect(view.vm.$data.settings.room_limit).toBe(-1);
-          expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-          expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
-          expect(view.vm.$data.roomLimitMode).toBe('unlimited');
-
-          expect(view.vm.$data.settings.statistics.servers.enabled).toBeTruthy();
-          expect(view.vm.$data.settings.statistics.meetings.enabled).toBeFalsy();
-          expect(view.vm.$data.settings.attendance.enabled).toBeTruthy();
-          expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
-          expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
-          expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
-          expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
-
-          expect(view.vm.$data.settings.room_auto_delete.enabled).toBeTruthy();
-          expect(view.vm.$data.settings.room_auto_delete.inactive_period).toBe(30);
-          expect(view.vm.$data.settings.room_auto_delete.never_used_period).toBe(14);
-          expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
-          done();
-        });
+        }
       });
-    }
-  );
+      await view.vm.$nextTick();
 
-  it(
-    'getSettings method works properly with response data room_limit is not -1',
+      expect(view.vm.$data.settings.logo).toBe('test.svg');
+      expect(view.vm.$data.settings.room_limit).toBe(-1);
+      expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+      expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
+      expect(view.vm.$data.roomLimitMode).toBe('unlimited');
+
+      expect(view.vm.$data.settings.statistics.servers.enabled).toBeTruthy();
+      expect(view.vm.$data.settings.statistics.meetings.enabled).toBeFalsy();
+      expect(view.vm.$data.settings.attendance.enabled).toBeTruthy();
+      expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
+      expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
+      expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
+      expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
+
+      expect(view.vm.$data.settings.room_auto_delete.enabled).toBeTruthy();
+      expect(view.vm.$data.settings.room_auto_delete.inactive_period).toBe(30);
+      expect(view.vm.$data.settings.room_auto_delete.never_used_period).toBe(14);
+      expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
+  });
+
+  it('getSettings method works properly with response data room_limit is not -1',
     done => {
       const view = mount(Application, {
         localVue,
@@ -342,8 +336,7 @@ describe('Application', () => {
     });
   });
 
-  it(
-    'updateSettings method works properly with response data room_limit is -1',
+  it('updateSettings method works properly with response data room_limit is -1',
     done => {
       const actions = {
         getSettings () {
@@ -488,8 +481,7 @@ describe('Application', () => {
   });
 
   it('getSettings error handler', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(Application, {
       localVue,
@@ -509,15 +501,14 @@ describe('Application', () => {
       }).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         Base.error.restore();
         done();
       });
     });
   });
 
-  it(
-    'updateSettings sends null values and booleans correctly to the backend',
+  it('updateSettings sends null values and booleans correctly to the backend',
     done => {
       const store = new Vuex.Store({
         modules: {
@@ -646,8 +637,7 @@ describe('Application', () => {
   );
 
   it('updateSettings error handler', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(Application, {
       localVue,
@@ -709,7 +699,7 @@ describe('Application', () => {
             }
           }).then(() => {
             view.vm.$nextTick();
-            sinon.assert.calledOnce(Base.error);
+            expect(spy).toBeCalledTimes(1);
             Base.error.restore();
             done();
           });
@@ -719,8 +709,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler code 413', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(Application, {
       localVue,
@@ -786,7 +775,7 @@ describe('Application', () => {
           }).then(() => {
             return view.vm.$nextTick();
           }).then(() => {
-            sinon.assert.calledOnce(Base.error);
+            expect(spy).toBeCalledTimes(1);
             Base.error.restore();
             done();
           });
@@ -796,8 +785,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler code 422', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(Application, {
       localVue,
@@ -884,45 +872,43 @@ describe('Application', () => {
     });
   });
 
-  it(
-    'uploadLogoFile watcher called base64Encode method when value of data props uploadLogoFile changed',
-    async () => {
-      const view = mount(Application, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
+  it('uploadLogoFile watcher called base64Encode method when value of data props uploadLogoFile changed', async () => {
+    const view = mount(Application, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
 
-      // base64Encode method spy
-      const spy = sinon.spy(view.vm, 'base64Encode');
+    // base64Encode method spy
+    const spy = sinon.spy(view.vm, 'base64Encode');
 
-      expect(spy.calledOnce).toBeFalsy();
+    expect(spy.calledOnce).toBeFalsy();
 
-      expect(view.vm.$data.uploadLogoFile).toBe(null);
-      expect(view.vm.$data.uploadLogoFileSrc).toBe(null);
+    expect(view.vm.$data.uploadLogoFile).toBe(null);
+    expect(view.vm.$data.uploadLogoFileSrc).toBe(null);
 
-      // Trigger watcher by setting to data props uploadLogoFile, empty array to avoid test warn
-      await view.setData({ uploadLogoFile: [] });
+    // Trigger watcher by setting to data props uploadLogoFile, empty array to avoid test warn
+    await view.setData({ uploadLogoFile: [] });
 
-      // baseEncode64 method should be called after value change of uploadLogoFileSrc
-      expect(spy.calledOnce).toBeTruthy();
+    // baseEncode64 method should be called after value change of uploadLogoFileSrc
+    expect(spy.calledOnce).toBeTruthy();
 
-      expect(view.vm.$data.uploadFaviconFile).toBe(null);
-      expect(view.vm.$data.uploadFaviconFileSrc).toBe(null);
+    expect(view.vm.$data.uploadFaviconFile).toBe(null);
+    expect(view.vm.$data.uploadFaviconFileSrc).toBe(null);
 
-      await view.setData({ uploadFaviconFile: [] });
+    await view.setData({ uploadFaviconFile: [] });
 
-      expect(spy.calledTwice).toBeTruthy();
+    expect(spy.calledTwice).toBeTruthy();
 
-      expect(view.vm.$data.uploadBBBLogoFile).toBe(null);
-      expect(view.vm.$data.uploadBBBLogoFileSrc).toBe(null);
+    expect(view.vm.$data.uploadBBBLogoFile).toBe(null);
+    expect(view.vm.$data.uploadBBBLogoFileSrc).toBe(null);
 
-      await view.setData({ uploadBBBLogoFile: [] });
+    await view.setData({ uploadBBBLogoFile: [] });
 
-      expect(spy.calledThrice).toBeTruthy();
-    }
+    expect(spy.calledThrice).toBeTruthy();
+  }
   );
 
   it('disable edit button if user does not have permission', done => {
@@ -955,8 +941,7 @@ describe('Application', () => {
     done();
   });
 
-  it(
-    'delete default presentation button is not visible if the view is in view only mode',
+  it('delete default presentation button is not visible if the view is in view only mode',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
@@ -1028,8 +1013,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'delete default presentation button is visible if the view is not in view only mode',
+  it('delete default presentation button is visible if the view is not in view only mode',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
@@ -1101,8 +1085,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded',
+  it('delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
@@ -1183,8 +1166,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'revert default presentation button is not visible if the view is in view only mode',
+  it('revert default presentation button is not visible if the view is in view only mode',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
@@ -1256,8 +1238,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'revert default presentation button is not visible if there is no new default presentation',
+  it('revert default presentation button is not visible if there is no new default presentation',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
@@ -1339,8 +1320,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted',
+  it('view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
@@ -1421,8 +1401,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'if no new default presentation was uploaded the attribute does not get send with the request',
+  it('if no new default presentation was uploaded the attribute does not get send with the request',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
@@ -1503,8 +1482,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'if the default presentation was deleted the attribute gets send as null value the request',
+  it('if the default presentation was deleted the attribute gets send as null value the request',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
@@ -1587,8 +1565,7 @@ describe('Application', () => {
     }
   );
 
-  it(
-    'if a new default presentation was uploaded the file gets send',
+  it('if a new default presentation was uploaded the file gets send',
     done => {
       PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 

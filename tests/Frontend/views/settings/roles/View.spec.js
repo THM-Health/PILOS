@@ -143,8 +143,7 @@ describe('RolesView', () => {
     });
   });
 
-  it(
-    'input fields are disabled if the role is displayed in view mode',
+  it('input fields are disabled if the role is displayed in view mode',
     done => {
       const view = mount(View, {
         localVue,
@@ -243,8 +242,7 @@ describe('RolesView', () => {
     });
   });
 
-  it(
-    'error handler gets called if an error occurs during load of data',
+  it('error handler gets called if an error occurs during load of data',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -292,8 +290,7 @@ describe('RolesView', () => {
     }
   );
 
-  it(
-    'back button causes a back navigation without persistence',
+  it('back button causes a back navigation without persistence',
     done => {
       const spy = sinon.spy();
 
@@ -420,8 +417,7 @@ describe('RolesView', () => {
     });
   });
 
-  it(
-    'modal gets shown for stale errors and a overwrite can be forced',
+  it('modal gets shown for stale errors and a overwrite can be forced',
     done => {
       const spy = sinon.spy();
 
@@ -488,8 +484,7 @@ describe('RolesView', () => {
     }
   );
 
-  it(
-    'modal gets shown for stale errors and the new model can be applied to current form',
+  it('modal gets shown for stale errors and the new model can be applied to current form',
     done => {
       const spy = sinon.spy();
 
@@ -551,8 +546,7 @@ describe('RolesView', () => {
     }
   );
 
-  it(
-    'reload overlay gets shown if an error occurs during load of permissions',
+  it('reload overlay gets shown if an error occurs during load of permissions',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -579,7 +573,7 @@ describe('RolesView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         expect(view.html()).toContain('app.reload');
         expect(view.html()).toContain('settings.roles.noOptions');
@@ -592,8 +586,7 @@ describe('RolesView', () => {
     }
   );
 
-  it(
-    'user gets redirected to index page if the role is not found',
+  it('user gets redirected to index page if the role is not found',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -626,7 +619,7 @@ describe('RolesView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         sinon.assert.calledOnce(routerSpy);
         sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
         Base.error.restore();
@@ -636,8 +629,7 @@ describe('RolesView', () => {
     }
   );
 
-  it(
-    'reload overlay gets shown if another error than 404 occurs during load of the role',
+  it('reload overlay gets shown if another error than 404 occurs during load of the role',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -664,7 +656,7 @@ describe('RolesView', () => {
       });
 
       moxios.wait(function () {
-        sinon.assert.calledOnce(Base.error);
+        expect(spy).toBeCalledTimes(1);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         expect(view.html()).toContain('app.reload');
         const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
@@ -676,8 +668,7 @@ describe('RolesView', () => {
     }
   );
 
-  it(
-    'user gets redirected to index page if the role is not found during save',
+  it('user gets redirected to index page if the role is not found during save',
     done => {
       const spy = sinon.spy();
       sinon.stub(Base, 'error').callsFake(spy);
@@ -713,7 +704,7 @@ describe('RolesView', () => {
         });
 
         moxios.wait(function () {
-          sinon.assert.calledOnce(Base.error);
+          expect(spy).toBeCalledTimes(1);
           sinon.assert.calledOnce(routerSpy);
           sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
           Base.error.restore();
