@@ -3,7 +3,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BFormInput,
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal
@@ -19,7 +19,6 @@ import Multiselect from 'vue-multiselect';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -247,7 +246,7 @@ describe('RoomTypeView', function () {
           restoreServerPoolResponse();
 
           const reloadButton = view.findAllComponents(BButton).at(2);
-          expect(reloadButton.html()).toContain('fas fa-sync');
+          expect(reloadButton.html()).toContain('fa-solid fa-sync');
 
           await reloadButton.trigger('click');
 

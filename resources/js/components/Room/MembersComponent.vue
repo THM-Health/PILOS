@@ -13,7 +13,7 @@
             ref="add-member"
             @click="showAddMemberModal"
           >
-            <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
+            <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
           </can>
 
@@ -25,7 +25,7 @@
             :title="$t('app.reload')"
             v-b-tooltip.hover
           >
-            <i class="fas fa-sync"></i>
+            <i class="fa-solid fa-sync"></i>
           </b-button>
         </b-button-group>
       </div>
@@ -71,7 +71,7 @@
                 v-b-tooltip.hover
                 :title="$t('rooms.members.editUser')"
               >
-                <i class="fas fa-user-edit"></i>
+                <i class="fa-solid fa-user-edit"></i>
               </b-button>
               <!-- remove member -->
               <b-button
@@ -81,7 +81,7 @@
                 v-b-tooltip.hover
                 :title="$t('rooms.members.deleteUser')"
               >
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
               </b-button>
             </b-button-group>
           </template>

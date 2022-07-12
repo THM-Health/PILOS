@@ -10,7 +10,7 @@ use BenSampo\Enum\Enum;
  */
 final class RoomLobby extends Enum
 {
-    const DISABLED      =   0;
-    const ENABLED       =   1;
-    const ONLY_GUEST    =   2;
+    public const DISABLED      =   0;
+    public const ENABLED       =   1;
+    public const ONLY_GUEST    =   2;
 }

@@ -9,7 +9,7 @@
           variant='success'
           :title="$t('settings.roomTypes.new')"
           :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
-        ><b-icon-plus></b-icon-plus></b-button>
+        ><i class="fa-solid fa-plus"></i></b-button>
       </can>
     </h3>
     <hr>
@@ -57,7 +57,7 @@
             variant='primary'
             :to="{ name: 'settings.room_types.view', params: { id: data.item.id }, query: { view: '1' } }"
           >
-            <i class='fas fa-eye'></i>
+            <i class='fa-solid fa-eye'></i>
           </b-button>
         </can>
         <can method='update' :policy='data.item'>
@@ -68,7 +68,7 @@
             variant='dark'
             :to="{ name: 'settings.room_types.view', params: { id: data.item.id } }"
           >
-            <i class='fas fa-edit'></i>
+            <i class='fa-solid fa-edit'></i>
           </b-button>
         </can>
         <can method='delete' :policy='data.item'>
@@ -78,7 +78,7 @@
             :disabled='isBusy'
             variant='danger'
             @click='showDeleteModal(data.item)'>
-            <i class='fas fa-trash'></i>
+            <i class='fa-solid fa-trash'></i>
           </b-button>
         </can>
         </b-button-group>

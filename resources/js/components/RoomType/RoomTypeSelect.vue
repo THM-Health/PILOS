@@ -16,7 +16,7 @@
         variant="outline-secondary"
         :title="$t('rooms.roomTypes.reload')"
         v-b-tooltip.hover
-      ><i class="fas fa-sync"  v-bind:class="{ 'fa-spin': isLoadingAction  }"></i
+      ><i class="fa-solid fa-sync"  v-bind:class="{ 'fa-spin': isLoadingAction  }"></i
       ></b-button>
     </b-input-group-append>
   </b-input-group>

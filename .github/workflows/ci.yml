@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['7.4', '8.0']
+        php-versions: ['8.1']
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -85,7 +85,6 @@ jobs:
         npm ci
         npm run ci
     - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
-      if: matrix.php-versions == '7.4'
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -93,12 +92,6 @@ jobs:
       run: |
         vendor/bin/paratest --coverage-clover=coverage.xml
         bash <(curl -s https://codecov.io/bash)
-    - name: Execute tests (Unit and Feature tests) via PHPUnit
-      if: matrix.php-versions != '7.4'
-      env:
-        DB_PORT: ${{ job.services.mariadb.ports[3306] }}
-        TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: vendor/bin/paratest
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()

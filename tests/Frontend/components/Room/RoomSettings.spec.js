@@ -3,8 +3,7 @@ import BootstrapVue, {
   BButton,
   BFormInput,
   BFormTextarea,
-  BOverlay,
-  IconsPlugin
+  BOverlay
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import SettingsComponent from '../../../../resources/js/components/Room/SettingsComponent.vue';
@@ -23,7 +22,6 @@ const createContainer = (tag = 'div') => {
 };
 
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 

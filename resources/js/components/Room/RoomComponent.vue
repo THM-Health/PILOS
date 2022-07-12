@@ -9,7 +9,7 @@
         </b-row>
       </b-card-body>
       <template v-slot:footer v-if="shared">
-        <small><i class="fas fa-share"></i> {{ $t('rooms.sharedBy', { name: sharedBy.name }) }}</small>
+        <small><i class="fa-solid fa-share"></i> {{ $t('rooms.sharedBy', { name: sharedBy.name }) }}</small>
       </template>
     </b-card>
     </b-overlay>

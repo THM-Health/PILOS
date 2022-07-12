@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BButtonClose, BTbody, BTr, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import Index from '../../../../../resources/js/views/settings/users/Index';
@@ -9,7 +9,6 @@ import Multiselect from 'vue-multiselect';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 const createContainer = (tag = 'div') => {
   const container = document.createElement(tag);

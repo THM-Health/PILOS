@@ -231,7 +231,7 @@ export default {
       link_target: 'Link target',
       link_style: 'Link style',
       icon: 'Icon',
-      iconDescription: 'The CSS class of the Fontawesome-Icon (e. g. `fas fa-door-open`). The icon will only be visible, if a title is supplied.',
+      iconDescription: 'The CSS class of the Fontawesome-Icon (e. g. `fa-solid fa-door-open`). The icon will only be visible, if a title is supplied.',
       color: 'Text color of the banner',
       background: 'Background color of the banner',
       selectLinkTarget: 'Select link target',

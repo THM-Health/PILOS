@@ -11,7 +11,7 @@
                 ref="add-member"
                 @click="$refs['add-edit-token-modal'].show()"
               >
-                <i class="fas fa-link"></i> {{ $t('rooms.tokens.add') }}
+                <i class="fa-solid fa-link"></i> {{ $t('rooms.tokens.add') }}
               </b-button>
             </can>
 
@@ -22,7 +22,7 @@
               :title="$t('app.reload')"
               v-b-tooltip.hover
             >
-              <i class="fas fa-sync"></i>
+              <i class="fa-solid fa-sync"></i>
             </b-button>
           </b-button-group>
         </div>
@@ -70,7 +70,7 @@
                   :title="$t('rooms.tokens.copy')"
                   v-b-tooltip.hover
                 >
-                  <i class="fas fa-link"></i>
+                  <i class="fa-solid fa-link"></i>
                 </b-button>
                 <can method="manageSettings" :policy="room">
                   <b-button
@@ -80,7 +80,7 @@
                     :title="$t('rooms.tokens.edit')"
                     v-b-tooltip.hover
                   >
-                    <i class="fas fa-pen-square"></i>
+                    <i class="fa-solid fa-pen-square"></i>
                   </b-button>
                   <b-button
                     :disabled="isBusy"
@@ -89,7 +89,7 @@
                     :title="$t('rooms.tokens.delete')"
                     v-b-tooltip.hover
                   >
-                    <i class="fas fa-trash"></i>
+                    <i class="fa-solid fa-trash"></i>
                   </b-button>
                 </can>
               </b-button-group>

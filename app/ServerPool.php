@@ -16,9 +16,9 @@ class ServerPool extends Model
 
     protected $fillable = ['name','description'];
 
-    const VIDEO_WEIGHT       = 3;
-    const AUDIO_WEIGHT       = 2;
-    const PARTICIPANT_WEIGHT = 1;
+    public const VIDEO_WEIGHT       = 3;
+    public const AUDIO_WEIGHT       = 2;
+    public const PARTICIPANT_WEIGHT = 1;
 
     /**
      * The "booted" method of the model.

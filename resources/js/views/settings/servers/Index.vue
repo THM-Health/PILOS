@@ -13,7 +13,7 @@
               ref="newServer"
               :title="$t('settings.servers.new')"
               :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
-            ><b-icon-plus></b-icon-plus></b-button>
+            ><i class="fa-solid fa-plus"></i></b-button>
           </can>
         </h3>
       </b-col>
@@ -25,7 +25,7 @@
             :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
+            <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -66,9 +66,9 @@
       </template>
 
       <template v-slot:cell(status)="data">
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2 text-white"><i class='fas fa-pause'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2 text-white"><i class='fas fa-stop'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2 text-white"><i class='fas fa-play'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2 text-white"><i class='fa-solid fa-pause'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2 text-white"><i class='fa-solid fa-stop'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2 text-white"><i class='fa-solid fa-play'></i></b-badge>
       </template>
 
       <template v-slot:cell(participant_count)="data">
@@ -101,7 +101,7 @@
               variant='primary'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fas fa-eye'></i>
+              <i class='fa-solid fa-eye'></i>
             </b-button>
           </can>
           <can method='update' :policy='data.item'>
@@ -112,7 +112,7 @@
               variant='dark'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id } }"
             >
-              <i class='fas fa-edit'></i>
+              <i class='fa-solid fa-edit'></i>
             </b-button>
           </can>
           <can method='delete' :policy='data.item'>
@@ -123,7 +123,7 @@
               :disabled='isBusy'
               variant='danger'
               @click='showServerModal(data.item)'>
-              <i class='fas fa-trash'></i>
+              <i class='fa-solid fa-trash'></i>
             </b-button>
           </can>
         </b-button-group>
@@ -141,7 +141,7 @@
     ></b-pagination>
 
     <b-alert show>
-      <i class="fas fa-info-circle"></i>
+      <i class="fa-solid fa-info-circle"></i>
       {{ $t('settings.servers.usageInfo') }}
       <br><br>
       <b-button
@@ -150,7 +150,7 @@
         variant='primary'
         :disabled="isBusy"
         @click="updateUsage=true;$root.$emit('bv::refresh::table', 'servers-table')"
-      ><b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('settings.servers.reload') }}</b-button>
+      ><i class="fa-solid fa-sync"></i> {{ $t('settings.servers.reload') }}</b-button>
     </b-alert>
 
     <b-modal

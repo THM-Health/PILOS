@@ -5,18 +5,16 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^7.3",
+        "php": "^8.1",
         "ext-json": "*",
         "anlutro/l4-settings": "^1.0.0",
-        "bensampo/laravel-enum": "^3.0.0",
+        "bensampo/laravel-enum": "^5.3.1",
         "directorytree/ldaprecord-laravel": "^v2.3.2",
         "doctrine/dbal": "^2.10",
-        "fideloper/proxy": "^4.2",
-        "fruitcake/laravel-cors": "^2.0",
-        "goldspecdigital/laravel-eloquent-uuid": "^8.0",
+        "goldspecdigital/laravel-eloquent-uuid": "^9.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel-lang/lang": "~6.1",
-        "laravel/framework": "^8.40",
+        "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
@@ -27,40 +25,29 @@
     "require-dev": {
         "ext-simplexml": "*",
         "barryvdh/laravel-ide-helper": "^2.7",
-        "brainmaestro/composer-git-hooks": "^2.8",
         "brianium/paratest": "^6.3",
-        "facade/ignition": "^2.5",
-        "friendsofphp/php-cs-fixer": "2.*",
-        "fzaninotto/faker": "^1.9.1",
-        "laravel/homestead": "^10.8",
+        "spatie/laravel-ignition": "^1.0",
+        "friendsofphp/php-cs-fixer": "3.*",
+        "fakerphp/faker": "^1.9.1",
+        "laravel/sail": "^1.14",
         "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^5.0",
+        "nunomaduro/collision": "^6.1",
         "php-coveralls/php-coveralls": "^2.3.0",
         "phpunit/phpunit": "^9.3.3",
         "squizlabs/php_codesniffer": "3.*",
-        "timacdonald/log-fake": "^1.9"
+        "timacdonald/log-fake": "^2.0.1"
     },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
         "platform": {
-          "php": "7.3"
+          "php": "8.1"
         }
     },
     "extra": {
         "laravel": {
             "dont-discover": []
-        },
-        "hooks": {
-            "pre-commit": [
-                "composer run fix-cs"
-            ],
-            "pre-push": [
-                "composer run test"
-            ],
-            "post-merge": "composer install",
-            "post-checkout": "composer install"
         }
     },
     "autoload": {
@@ -89,8 +76,6 @@
             "@php artisan key:generate --ansi"
         ],
         "test": "php artisan test --parallel",
-        "post-install-cmd": "cghooks add --ignore-lock",
-        "post-update-cmd": "cghooks update",
         "fix-cs": "php-cs-fixer fix --allow-risky=yes"
 
     }

@@ -3,14 +3,13 @@ import store from '../../../resources/js/store';
 import ForgotPassword from '../../../resources/js/views/ForgotPassword';
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
-import BootstrapVue, { BButton, BFormInput, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import sinon from 'sinon';
 import Base from '../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 

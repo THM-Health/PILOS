@@ -565,7 +565,9 @@ class RoomStatisticTest extends TestCase
                         __('meetings.attendance.export.durationMinute', ['duration' => 13]),
                         '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.export.durationMinute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.export.durationMinute', ['duration' => 11]).')']
                 ]
-            ], $array);
+            ],
+            $array
+        );
 
         // Remove temp. file
         \File::delete($file->getPathname());

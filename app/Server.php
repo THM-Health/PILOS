@@ -43,12 +43,12 @@ class Server extends Model
              */
             if ($model->status != $model->getOriginal('status')) {
                 if ($model->status != ServerStatus::ONLINE) {
-                    $model->version = null;
-                    $model->participant_count = null;
-                    $model->listener_count = null;
+                    $model->version                 = null;
+                    $model->participant_count       = null;
+                    $model->listener_count          = null;
                     $model->voice_participant_count = null;
-                    $model->video_count = null;
-                    $model->meeting_count = null;
+                    $model->video_count             = null;
+                    $model->meeting_count           = null;
                 }
                 if ($model->status == ServerStatus::OFFLINE) {
                     $model->endMeetings();

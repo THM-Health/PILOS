@@ -21,14 +21,37 @@ Everyone how want to contribute to this project including the owners must hold o
 ## Setting up a development environment
 
 Before implementing a feature or fixing a bug or security issue you need to set up a development environment.
-The easiest way is to install [vagrant](https://www.vagrantup.com/) on your machine and create a `Homestead.yml` in the
-project folder for the fully set up laravel development environment. Afterwards run the homestead virtual machine by
-executing `vagrant up` in the project folder. This will provide a fully set up virtual machine where the application
-can be executed. Also, you need to set up a ldap server. A corresponding tutorial can be found on
+The easiest way is to install [Docker Desktop](https://docs.docker.com/get-docker/) on your machine.
+If you are using windows, you need to set up WSL2 first and configure docker to use WSL.
+
+Next clone the repository to your preferred directory (for Windows inside of WSL) execute the following command. This will create a temp. docker container with php and composer installed.
+It will download the required packages and the scripts you need to run laravel sail.
+```bash
+docker run --rm \
+-u "$(id -u):$(id -g)" \
+-v $(pwd):/var/www/html \
+-w /var/www/html \
+laravelsail/php81-composer:latest \
+composer install --ignore-platform-reqs
+```
+
+Next you should set an alias for sail.
+```bash
+alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+```
+
+You can start the application with: `sail up -d` 
+To adjust the port of the webserver, change APP_PORT in the .env file.
+To adjust the port of phpmyadmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
+
+To run the artisan commands for migration, seeding, user creation, etc. (see README.md) you need to call them via sail.
+**Example** `php artisan migrate` -> `sail artisan migrate`
+
+Also, you need to set up a ldap server. A corresponding tutorial can be found on
 [this](https://github.com/THM-Health/PILOS/wiki/Installing-OpenLDAP) wiki page. For testing functionality of the
 application which requires a running BigBlueButton server you may need to install a server on your development machine.
 Checkout the installation guide in the [readme](README.md) for additional steps needed to finish the setup. Instead of
-running `npm run production` you must run in the dev environment `npm run dev`. For the development you can use any
+running `sail npm run production` you must run in the dev environment `sail npm run dev`. For the development you can use any
 editor of your choice but please do not check in any configuration files for your editor. In this case you may want to
 extend the `.gitignore` with yours editor config files.
 
@@ -74,8 +97,8 @@ at all, then the PR will be merged into the main branch of this repository.
 ## Styleguide
 The backend uses the php framework Laravel and therefore it follows the
 [Laravel coding style guide](https://laravel.com/docs/7.x/contributions#coding-style). To apply the code style to your
-implemented code you can run the command `composer run fix-cs`.
-The frontend style gets checked by eslint. The style can be fixed by running the command `npm run fix-cs`. For best
+implemented code you can run the command `sail composer run fix-cs`.
+The frontend style gets checked by eslint. The style can be fixed by running the command `sail npm run fix-cs`. For best
 practices checkout the [vue style guide](https://vuejs.org/v2/style-guide/).
 
 Additionally, to the style guides the following things should apply to the changes:

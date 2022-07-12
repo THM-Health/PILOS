@@ -13,9 +13,6 @@
         "cover": "cross-env NODE_ENV=testing nyc --reporter=lcov --reporter=text npm run test",
         "ci": "npm run lint && npm run cover"
     },
-    "pre-commit": [
-        "ci"
-    ],
     "devDependencies": {
         "@babel/core": "^7.16.10",
         "@babel/eslint-parser": "^7.16.5",

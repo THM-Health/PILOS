@@ -1,8 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
-  BTbody,
-  IconsPlugin
+  BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
@@ -24,7 +23,6 @@ const createContainer = (tag = 'div') => {
 };
 
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -144,7 +142,7 @@ describe('History', function () {
       expect(view.find('#retentionPeriodInfo').exists()).toBeFalsy();
 
       const reloadButton = view.findComponent(BButton);
-      expect(reloadButton.html()).toContain('fas fa-sync');
+      expect(reloadButton.html()).toContain('fa-solid fa-sync');
       await reloadButton.trigger('click');
 
       moxios.wait(async () => {
@@ -240,22 +238,22 @@ describe('History', function () {
       expect(rows[2].at(1).text()).toBe('06/22/2021, 11:46');
       const buttonsRow2 = rows[2].at(2).findAll('button');
       expect(buttonsRow2.length).toBe(1);
-      expect(buttonsRow2.at(0).html()).toContain('fas fa-user-clock');
+      expect(buttonsRow2.at(0).html()).toContain('fa-solid fa-user-clock');
       expect(rows[2].length).toBe(3);
 
       expect(rows[3].at(0).text()).toBe('06/22/2021, 10:51');
       expect(rows[3].at(1).text()).toBe('06/22/2021, 10:51');
       const buttonsRow3 = rows[3].at(2).findAll('button');
       expect(buttonsRow3.length).toBe(1);
-      expect(buttonsRow3.at(0).html()).toContain('fas fa-chart-line');
+      expect(buttonsRow3.at(0).html()).toContain('fa-solid fa-chart-line');
       expect(rows[3].length).toBe(3);
 
       expect(rows[4].at(0).text()).toBe('06/22/2021, 10:49');
       expect(rows[4].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow4 = rows[4].at(2).findAll('button');
       expect(buttonsRow4.length).toBe(2);
-      expect(buttonsRow4.at(0).html()).toContain('fas fa-chart-line');
-      expect(buttonsRow4.at(1).html()).toContain('fas fa-user-clock');
+      expect(buttonsRow4.at(0).html()).toContain('fa-solid fa-chart-line');
+      expect(buttonsRow4.at(1).html()).toContain('fa-solid fa-user-clock');
       expect(rows[4].length).toBe(3);
 
       const retentionPeriodInfo = view.find('#retentionPeriodInfo');
@@ -391,7 +389,7 @@ describe('History', function () {
       expect(rows[0].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow = rows[0].at(2).findAll('button');
       expect(buttonsRow.length).toBe(2);
-      expect(buttonsRow.at(0).html()).toContain('fas fa-chart-line');
+      expect(buttonsRow.at(0).html()).toContain('fa-solid fa-chart-line');
 
       expect(view.find('#statsModal').find('.modal').element.style.display).toEqual('none');
 
@@ -484,7 +482,7 @@ describe('History', function () {
       expect(rows[0].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow = rows[0].at(2).findAll('button');
       expect(buttonsRow.length).toBe(2);
-      expect(buttonsRow.at(1).html()).toContain('fas fa-user-clock');
+      expect(buttonsRow.at(1).html()).toContain('fa-solid fa-user-clock');
 
       expect(view.find('#attendanceModal').find('.modal').element.style.display).toEqual('none');
 

@@ -236,7 +236,7 @@ export default {
       link_target: 'Linkziel',
       link_style: 'Linkart',
       icon: 'Icon',
-      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fas fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
+      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fa-solid fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
       color: 'Textfarbe des Banners',
       background: 'Hintergrundfarbe des Banners',
       selectLinkTarget: 'Linkziel auswählen',

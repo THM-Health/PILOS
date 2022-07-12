@@ -9,7 +9,7 @@
             v-else
             @click="load()"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -78,7 +78,7 @@
                     variant="outline-secondary"
                     :title="$t('rooms.settings.general.resetDuration')"
                     v-b-tooltip.hover
-                  ><i class="fas fa-trash"></i
+                  ><i class="fa-solid fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
               </b-input-group>
@@ -100,7 +100,7 @@
                     variant="outline-secondary"
                     :title="$t('rooms.settings.security.generateAccessCode')"
                     v-b-tooltip.hover
-                  ><i class="fas fa-dice"></i
+                  ><i class="fa-solid fa-dice"></i
                   ></b-button>
                 </b-input-group-prepend>
                 <b-form-input
@@ -120,7 +120,7 @@
                     variant="outline-secondary"
                     :title="$t('rooms.settings.security.deleteAccessCode')"
                     v-b-tooltip.hover
-                  ><i class="fas fa-trash"></i
+                  ><i class="fa-solid fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
               </b-input-group>
@@ -192,7 +192,7 @@
                       variant="outline-secondary"
                       :title="$t('rooms.settings.participants.clearMaxParticipants')"
                       v-b-tooltip.hover
-                    ><i class="fas fa-trash"></i
+                    ><i class="fa-solid fa-trash"></i
                     ></b-button>
                   </b-input-group-append>
                 </b-input-group>
@@ -389,7 +389,7 @@
               variant='success'
               type='submit'
               >
-              <i class='fas fa-save'></i> {{ $t('app.save') }}
+              <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
             </b-button>
           </b-col>
         </b-row>
