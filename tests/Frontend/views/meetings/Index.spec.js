@@ -6,11 +6,11 @@ import BootstrapVue, {
   BTr,
   BTbody, BButton, BPagination, BFormInput, BOverlay, BThead, BTh
 } from 'bootstrap-vue';
-import sinon from 'sinon';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
+import {waitMoxios} from "../../helper";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -127,7 +127,7 @@ describe('MeetingsIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('list of meetings with pagination gets displayed', done => {
+  it('list of meetings with pagination gets displayed', async () => {
     const view = mount(Index, {
       localVue,
       store,
@@ -138,7 +138,7 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       // test if table is busy, pagination disabled and search disabled during loading
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
       expect(view.vm.$data.isBusy).toBeTruthy();
@@ -168,7 +168,7 @@ describe('MeetingsIndex', () => {
       expect(firstRowColumns.at(7).text()).toContain('3');
       expect(firstRowColumns.at(8).find('a').exists()).toBeTruthy();
       expect(rows.at(0).findComponent(BButton).exists()).toBeTruthy();
-      expect(rows.at(0).findComponent(BButton).props('to')).toEqual({ name: 'rooms.view', params: { id: 'abc-def-123' } });
+      expect(rows.at(0).findComponent(BButton).props('to')).toEqual({name: 'rooms.view', params: {id: 'abc-def-123'}});
 
       // check search active
       expect(view.findComponent(BButton).attributes('disabled')).toBeUndefined();
@@ -187,7 +187,7 @@ describe('MeetingsIndex', () => {
       // test pagination navigation
       await paginationButtons.at(3).find('button').trigger('click');
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         expect(pagination.props('disabled')).toBeTruthy();
 
         const request = moxios.requests.mostRecent();
@@ -268,17 +268,18 @@ describe('MeetingsIndex', () => {
         expect(firstRowColumns.at(7).text()).toContain('5');
         expect(firstRowColumns.at(8).find('a').exists()).toBeTruthy();
         expect(rows.at(0).findComponent(BButton).exists()).toBeTruthy();
-        expect(rows.at(0).findComponent(BButton).props('to')).toEqual({ name: 'rooms.view', params: { id: 'abc-def-456' } });
+        expect(rows.at(0).findComponent(BButton).props('to')).toEqual({
+          name: 'rooms.view',
+          params: {id: 'abc-def-456'}
+        });
 
         view.destroy();
-        done();
       });
     });
   });
 
-  it('errors during load', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it('errors during load', async () => {
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     // respond with server error for meetings load
     moxios.stubRequest('/api/v1/meetings?page=1', {
@@ -298,7 +299,7 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       // check buttons and input fields are disabled after an error occurred
@@ -307,7 +308,7 @@ describe('MeetingsIndex', () => {
       expect(view.findComponent(BButton).attributes('disabled')).toBe('disabled');
 
       // check if error message is shown
-      sinon.assert.calledOnce(Base.error);
+      expect(spy).toBeCalledTimes(1);
       Base.error.restore();
 
       // restore valid response
@@ -321,7 +322,7 @@ describe('MeetingsIndex', () => {
       expect(reloadButton.text()).toEqual('app.reload');
       await reloadButton.trigger('click');
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
 
         // check if buttons/input fields are active
@@ -332,12 +333,11 @@ describe('MeetingsIndex', () => {
         restoreMeetingsResponse();
         PermissionService.setCurrentUser(oldUser);
         view.destroy();
-        done();
       });
     });
   });
 
-  it('search', done => {
+  it('search', async () => {
     const view = mount(Index, {
       localVue,
       store,
@@ -348,7 +348,7 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       const request = moxios.requests.mostRecent();
       await request.respondWith({
         status: 200,
@@ -362,9 +362,9 @@ describe('MeetingsIndex', () => {
       await view.findComponent(BFormInput).trigger('change');
 
       // check if new request with the search query is send
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
-        expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting One' });
+        expect(moxios.requests.mostRecent().config.params).toEqual({page: 1, search: 'Meeting One'});
         await moxios.requests.mostRecent().respondWith({
           status: 200,
           response: {
@@ -403,12 +403,11 @@ describe('MeetingsIndex', () => {
         expect(rows.length).toBe(1);
 
         view.destroy();
-        done();
       });
     });
   });
 
-  it('sort', done => {
+  it('sort', async () => {
     const view = mount(Index, {
       localVue,
       store,
@@ -419,7 +418,7 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       const request = moxios.requests.mostRecent();
       await request.respondWith({
         status: 200,
@@ -432,7 +431,7 @@ describe('MeetingsIndex', () => {
       const heading = view.findComponent(BThead).findAllComponents(BTh);
       await heading.at(0).trigger('click');
       await view.vm.$nextTick();
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // check if request includes sort column and direction
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
         expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, sort_by: 'start', sort_direction: 'asc' });
@@ -506,7 +505,6 @@ describe('MeetingsIndex', () => {
         expect(rows.at(0).findComponent(BButton).props('to')).toEqual({ name: 'rooms.view', params: { id: 'abc-def-345' } });
 
         view.destroy();
-        done();
       });
     });
   });

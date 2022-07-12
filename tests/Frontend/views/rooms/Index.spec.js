@@ -15,6 +15,7 @@ import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
+import {waitMoxios} from "../../helper";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -158,7 +159,7 @@ describe('Room Index', () => {
     view.destroy();
   });
 
-  it('load rooms, load room types and open room', done => {
+  it('load rooms, load room types and open room', async () => {
     const oldUser = PermissionService.currentUser;
 
     const spy = sinon.spy();
@@ -175,7 +176,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       // check if spinners are active and buttons disabled during loading
       expect(view.vm.$data.isBusy).toBeTruthy();
       expect(view.vm.$data.roomTypesBusy).toBeTruthy();
@@ -229,7 +230,7 @@ describe('Room Index', () => {
       // open a room
       await rooms.at(1).trigger('click');
       sinon.assert.calledOnce(spy);
-      sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: 'abc-def-345' } });
+      sinon.assert.calledWith(spy, {name: 'rooms.view', params: {id: 'abc-def-345'}});
 
       // check if opening another is prohibited while the other room is opening
       await rooms.at(0).trigger('click');
@@ -237,15 +238,13 @@ describe('Room Index', () => {
 
       PermissionService.setCurrentUser(oldUser);
       view.destroy();
-      done();
     });
   });
 
-  it('error loading rooms', done => {
+  it('error loading rooms', async () => {
     const oldUser = PermissionService.currentUser;
 
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     // respond with server error for room load
     moxios.stubRequest('/api/v1/rooms?page=1', {
@@ -268,7 +267,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       // check buttons and input fields are disabled after an error occurred
@@ -279,7 +278,7 @@ describe('Room Index', () => {
       expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
 
       // check if error message is shown
-      sinon.assert.calledOnce(Base.error);
+      expect(spy).toBeCalledTimes(1);
       Base.error.restore();
 
       // restore valid response
@@ -293,7 +292,7 @@ describe('Room Index', () => {
       expect(reloadButton.text()).toEqual('app.reload');
       await reloadButton.trigger('click');
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
 
         // check if all rooms are shown and the buttons/input fields are active
@@ -306,16 +305,14 @@ describe('Room Index', () => {
         restoreRoomResponse();
         PermissionService.setCurrentUser(oldUser);
         view.destroy();
-        done();
       });
     });
   });
 
-  it('error loading room types', done => {
+  it('error loading room types', async () => {
     const oldUser = PermissionService.currentUser;
 
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     // respond with server error for room type load
     moxios.stubRequest('/api/v1/rooms?page=1', {
@@ -338,7 +335,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       // check apply filter button disabled after an error occurred
@@ -346,7 +343,7 @@ describe('Room Index', () => {
       expect(view.findAllComponents(BButton).at(2).attributes('disabled')).toBeTruthy();
 
       // check if error message is shown
-      sinon.assert.calledOnce(Base.error);
+      expect(spy).toBeCalledTimes(1);
       Base.error.restore();
 
       // restore valid response
@@ -360,7 +357,7 @@ describe('Room Index', () => {
       expect(reloadButton.text()).toEqual('app.reload');
       await reloadButton.trigger('click');
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/roomTypes');
 
         // check if all room types are shown and the apply filter button is active
@@ -372,12 +369,11 @@ describe('Room Index', () => {
         restoreRoomResponse();
         PermissionService.setCurrentUser(oldUser);
         view.destroy();
-        done();
       });
     });
   });
 
-  it('search and filter rooms', done => {
+  it('search and filter rooms', async () => {
     const oldUser = PermissionService.currentUser;
 
     const view = mount(RoomList, {
@@ -389,7 +385,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       // respond with demo content to the rooms and roomTypes requests
       expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
       await moxios.requests.at(0).respondWith({
@@ -409,7 +405,7 @@ describe('Room Index', () => {
       await view.findAllComponents(BButton).trigger('click');
 
       // check if new request with the search query is send
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
         expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [] });
         await moxios.requests.mostRecent().respondWith({
@@ -465,7 +461,7 @@ describe('Room Index', () => {
         expect(applyFilter.text()).toEqual('rooms.filter.apply');
         await applyFilter.trigger('click');
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // check if the search query and the room filter are send, respond with no rooms found
           expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
           expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [1, 3] });
@@ -491,15 +487,13 @@ describe('Room Index', () => {
 
           PermissionService.setCurrentUser(oldUser);
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it(
-    'sends request to list all rooms if user has rooms.viewAll permission',
-    done => {
+  it('sends request to list all rooms if user has rooms.viewAll permission',
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       const newUser = _.cloneDeep(exampleUser);
@@ -515,7 +509,7 @@ describe('Room Index', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // respond with demo content to the rooms and roomTypes requests
         expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
         await moxios.requests.at(0).respondWith({
@@ -531,14 +525,12 @@ describe('Room Index', () => {
 
         PermissionService.setCurrentUser(oldUser);
         view.destroy();
-        done();
       });
     }
   );
 
-  it(
-    'sends request to list all rooms if user has not rooms.viewAll permission',
-    done => {
+  it('sends request to list all rooms if user has not rooms.viewAll permission',
+    async () => {
       const view = mount(RoomList, {
         localVue,
         mocks: {
@@ -548,7 +540,7 @@ describe('Room Index', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // respond with demo content to the rooms and roomTypes requests
         expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
         await moxios.requests.at(0).respondWith({
@@ -563,7 +555,6 @@ describe('Room Index', () => {
         });
 
         view.destroy();
-        done();
       });
     }
   );

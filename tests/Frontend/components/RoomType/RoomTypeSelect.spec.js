@@ -2,11 +2,11 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect';
+import {waitMoxios} from "../../helper";
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 
@@ -80,7 +80,7 @@ describe('RoomType Select', () => {
     ]
   };
 
-  it('value passed', done => {
+  it('value passed', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -98,16 +98,15 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
       expect(view.vm.$data.roomType).toEqual({ id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' });
 
       view.destroy();
-      done();
     });
   });
 
-  it('disabled param', done => {
+  it('disabled param', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -125,7 +124,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       expect(view.findComponent(BButton).attributes('disabled')).toBeFalsy();
@@ -137,11 +136,10 @@ describe('RoomType Select', () => {
       expect(view.findComponent(BFormSelect).attributes('disabled')).toBeTruthy();
 
       view.destroy();
-      done();
     });
   });
 
-  it('invalid value passed', done => {
+  it('invalid value passed', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -159,16 +157,15 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
       expect(view.vm.$data.roomType).toBeNull();
 
       view.destroy();
-      done();
     });
   });
 
-  it('busy events emitted', done => {
+  it('busy events emitted', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
       response: exampleRoomTypeResponse
@@ -186,7 +183,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       expect(view.emitted().busy[0]).toEqual([true]);
@@ -204,11 +201,10 @@ describe('RoomType Select', () => {
       expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
 
       view.destroy();
-      done();
     });
   });
 
-  it('error events emitted', done => {
+  it('error events emitted', async () => {
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 500,
       response: {
@@ -216,8 +212,7 @@ describe('RoomType Select', () => {
       }
     });
 
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(RoomTypeSelect, {
       localVue,
@@ -231,11 +226,11 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       expect(view.emitted().loadingError[0]).toEqual([true]);
-      sinon.assert.calledOnce(Base.error);
+      expect(spy).toBeCalledTimes(1);
       Base.error.restore();
 
       const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
@@ -246,20 +241,18 @@ describe('RoomType Select', () => {
       });
 
       view.vm.reloadRoomTypes();
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         await view.vm.$nextTick();
         expect(view.emitted().loadingError[1]).toEqual([false]);
 
         restoreRoomTypeResponse();
         view.destroy();
-        done();
       });
     });
   });
 
-  it('reload room types', done => {
-    const spy = sinon.spy();
-    sinon.stub(Base, 'error').callsFake(spy);
+  it('reload room types', async () => {
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -275,7 +268,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       const typeInput = view.findComponent(BFormSelect);
@@ -286,7 +279,7 @@ describe('RoomType Select', () => {
       expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
       view.vm.reloadRoomTypes();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         await view.vm.$nextTick();
         expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
@@ -299,7 +292,7 @@ describe('RoomType Select', () => {
 
         view.vm.reloadRoomTypes();
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           await view.vm.$nextTick();
 
           expect(view.vm.$data.roomType).toBeNull();
@@ -312,12 +305,11 @@ describe('RoomType Select', () => {
           });
 
           view.vm.reloadRoomTypes();
-          moxios.wait(function () {
-            sinon.assert.calledOnce(Base.error);
+          await waitMoxios(function () {
+            expect(spy).toBeCalledTimes(1);
             Base.error.restore();
             restoreRoomTypeResponse();
             view.destroy();
-            done();
           });
         });
       });
