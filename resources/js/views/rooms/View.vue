@@ -382,10 +382,18 @@ export default {
   methods: {
 
     /**
+     * Get a random refresh interval for polling to prevent
+     * simultaneous request from multiple clients
+     */
+    getRandomRefreshInterval: function () {
+      return Math.abs(env.REFRESH_RATE) + Math.floor(Math.random() * 10);
+    },
+
+    /**
      * Reload room details in a set interval, change in the .env
      */
     startAutoRefresh: function () {
-      this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
+      this.reloadInterval = setInterval(this.reload, this.getRandomRefreshInterval() * 1000);
     },
 
     /**

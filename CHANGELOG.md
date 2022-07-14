@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Breaking: Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
 - Breaking: Replace laravel homestead with laravel sail ([#225],[#228])
 - Remove git hooks ([#217],[#228])
+- Random room polling interval ([#229],[#230])
 
 ## [1.9.4] - 2022-06-30
 ### Changed
@@ -291,6 +292,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#226]: https://github.com/THM-Health/PILOS/issues/226
 [#227]: https://github.com/THM-Health/PILOS/pull/227
 [#228]: https://github.com/THM-Health/PILOS/pull/228
+[#229]: https://github.com/THM-Health/PILOS/issues/229
+[#230]: https://github.com/THM-Health/PILOS/pull/230
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
