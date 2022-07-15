@@ -2064,19 +2064,19 @@ describe('Room', function () {
 
     // check for pos. integer
     const refresh = sinon.stub(env, 'REFRESH_RATE').value(10);
-    expect(view.vm.getRandomRefreshInterval()).toBe(14);
+    expect(view.vm.getRandomRefreshInterval()).toBe(9.7);
 
     // check for zero
     sinon.stub(env, 'REFRESH_RATE').value(0);
-    expect(view.vm.getRandomRefreshInterval()).toBe(4);
+    expect(view.vm.getRandomRefreshInterval()).toBe(0);
 
     // check for neg. integer
     sinon.stub(env, 'REFRESH_RATE').value(-20);
-    expect(view.vm.getRandomRefreshInterval()).toBe(24);
+    expect(view.vm.getRandomRefreshInterval()).toBe(19.4);
 
     // check for float
     sinon.stub(env, 'REFRESH_RATE').value(4.2);
-    expect(view.vm.getRandomRefreshInterval()).toBe(8.2);
+    expect(view.vm.getRandomRefreshInterval()).toBe(4.074);
 
     // restore stubbed functions and properties
     random.restore();

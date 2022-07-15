@@ -384,9 +384,15 @@ export default {
     /**
      * Get a random refresh interval for polling to prevent
      * simultaneous request from multiple clients
+     * @returns {number} random refresh internal in seconds
      */
     getRandomRefreshInterval: function () {
-      return Math.abs(env.REFRESH_RATE) + Math.floor(Math.random() * 10);
+      const base = Math.abs(env.REFRESH_RATE);
+      // 15% range to scatter the values around the base refresh rate
+      const percentageRange = 0.15;
+      const absoluteRange = base * percentageRange;
+      // Calculate a random refresh internal between (base-range and base+range)
+      return (base - absoluteRange) + (Math.random() * absoluteRange * 2);
     },
 
     /**
