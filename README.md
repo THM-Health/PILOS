@@ -28,9 +28,9 @@ we decided to build a new system with another architecture.
 
 ## Screenshots
 ### Welcome, Home and Login
-<img src="https://user-images.githubusercontent.com/4281791/179394236-adebbbe2-f623-4ab5-ad13-e95c3649ec33.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394928-85062946-0204-4463-98a4-970de9af9711.png" width="30%"></img>
 <img src="https://user-images.githubusercontent.com/4281791/179394213-41450e6e-0fe0-4a17-b097-eab3de6a8bb4.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394214-559da349-4a3e-497f-bceb-15f284e3e625.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394929-217fc9c9-1447-4822-94c7-7c2826cc9dff.png" width="30%"></img>
 
 ### User profile
 <img src="https://user-images.githubusercontent.com/4281791/179394216-f47a0030-9f49-4607-a2ed-5b2a110a6e9c.png" width="30%"></img>
