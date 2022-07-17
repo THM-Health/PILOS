@@ -26,6 +26,42 @@ The team behind Greenlight did an amazing job, and we want to thank for their ha
 However, due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
 we decided to build a new system with another architecture.
 
+## Screenshots
+### Welcome, Home and Login
+<img src="https://user-images.githubusercontent.com/4281791/179394236-adebbbe2-f623-4ab5-ad13-e95c3649ec33.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394213-41450e6e-0fe0-4a17-b097-eab3de6a8bb4.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394214-559da349-4a3e-497f-bceb-15f284e3e625.png" width="30%"></img>
+
+### User profile
+<img src="https://user-images.githubusercontent.com/4281791/179394216-f47a0030-9f49-4607-a2ed-5b2a110a6e9c.png" width="30%"></img>
+
+### Room settings
+<img src="https://user-images.githubusercontent.com/4281791/179394223-b792d6f1-1033-425b-b027-6903c8e0fc0d.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394222-f43b3adb-1602-41bd-aad8-7802b99787b7.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394219-6822cfc1-7d2a-4076-bc93-5974737e1e1f.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394221-ffa5f399-7256-4c30-9f6d-9b24746ceba9.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394235-0ce8c63a-98d9-4d79-8516-75d24684fe2c.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394224-26da44de-6aca-454f-b884-f60a17e3d066.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394218-edbc616d-8cf3-4657-9fca-92df8cea411f.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394225-4b5e7407-d8ae-4fb4-a7f1-82c7d28f9d67.png" width="30%"></img>
+
+
+### Settings
+<img src="https://user-images.githubusercontent.com/4281791/179394234-a789014b-e80d-4cad-9f1f-7708a59061d3.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394211-5e9a99f0-e11a-4b16-8b59-55d67b005f6d.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394235-0ce8c63a-98d9-4d79-8516-75d24684fe2c.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394217-46785049-0f83-4ebe-83c4-160f88e8e57e.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394229-60f46ce9-b848-434c-93c4-7ddd92c34951.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394227-d4240121-b8cf-4790-ade0-c34456337fe4.png" width="30%"></img>
+
+### Servers, Server-Pools, Meetings
+<img src="https://user-images.githubusercontent.com/4281791/179394233-eccf88e3-4fd7-4bf1-b074-19a682c9adfc.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394232-7e1ad5bf-7d0c-42f2-8e4f-e11860c2417c.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394215-0413ca7d-8fa8-4eca-b764-45ab5a3355cc.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394231-729f22c1-ab2a-4c7d-8d79-93b0812fd15f.png" width="30%"></img>
+<img src="https://user-images.githubusercontent.com/4281791/179394226-4db4d5b0-0849-4bdb-bdd4-7a6902187ea0.png" width="30%"></img>
+
+
 ## Architecture
 
 PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework, [Laravel](https://laravel.com/) as a PHP based JSON API and littleredbutton's [bigbluebutton-api-php](https://github.com/littleredbutton/bigbluebutton-api-php) as the api for controlling BBB.
