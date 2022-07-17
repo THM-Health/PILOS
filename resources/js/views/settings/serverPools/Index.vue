@@ -25,7 +25,7 @@
             :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -66,7 +66,7 @@
               v-b-tooltip.hover
               :title="$t('settings.serverPools.view', { name: data.item.name })"
               :disabled='isBusy'
-              variant='primary'
+              variant='info'
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
               <i class='fa-solid fa-eye'></i>
@@ -77,7 +77,7 @@
               v-b-tooltip.hover
               :title="$t('settings.serverPools.edit', { name: data.item.name })"
               :disabled='isBusy'
-              variant='dark'
+              variant='secondary'
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id } }"
             >
               <i class='fa-solid fa-edit'></i>

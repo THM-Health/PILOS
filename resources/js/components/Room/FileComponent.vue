@@ -43,7 +43,7 @@
         <b-button
           v-if="!hideReload"
           class="float-right"
-          variant="dark"
+          variant="secondary"
           :disabled="isBusy"
           @click="reload"
           :title="$t('app.reload')"
@@ -95,7 +95,7 @@
             </can>
             <!-- View file -->
             <b-button
-              variant="dark"
+              variant="secondary"
               @click="downloadFile(data.item)"
               :disabled="disableDownload"
               target="_blank"
@@ -165,7 +165,7 @@
       :busy="isLoadingAction"
       :static='modalStatic'
       ok-variant="danger"
-      cancel-variant="dark"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
       @ok="confirmDeleteFile"
       ref="delete-file-modal"

@@ -168,7 +168,7 @@
                 <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
                 <template slot='tag' slot-scope='{ option, remove }'>
                   <h5 class='d-inline mr-1 mb-1'>
-                    <b-badge variant='primary'>
+                    <b-badge variant='secondary'>
                       {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
                       <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
                     </b-badge>
@@ -227,7 +227,7 @@
       :static='modalStatic'
       :busy='isBusy'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       @ok='forceOverwrite'
       @cancel='refreshRoomType'
       :hide-header-close='true'

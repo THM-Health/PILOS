@@ -54,7 +54,7 @@
             v-b-tooltip.hover
             :title="$t('settings.roomTypes.view', { name: data.item.description })"
             :disabled='isBusy'
-            variant='primary'
+            variant='info'
             :to="{ name: 'settings.room_types.view', params: { id: data.item.id }, query: { view: '1' } }"
           >
             <i class='fa-solid fa-eye'></i>
@@ -65,7 +65,7 @@
             v-b-tooltip.hover
             :title="$t('settings.roomTypes.edit', { name: data.item.description })"
             :disabled='isBusy'
-            variant='dark'
+            variant='secondary'
             :to="{ name: 'settings.room_types.view', params: { id: data.item.id } }"
           >
             <i class='fa-solid fa-edit'></i>
@@ -97,7 +97,7 @@
     <b-modal
       :busy='isBusy'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       :cancel-title="$t('app.no')"
       @ok='deleteRoomType'
       @cancel='clearRoomTypeToDelete'

@@ -19,7 +19,7 @@
 
           <!-- Reload members list -->
           <b-button
-            variant="dark"
+            variant="secondary"
             @click="reload"
             :disabled="isBusy"
             :title="$t('app.reload')"
@@ -60,7 +60,7 @@
               <!-- edit membership role -->
               <b-button
                 :disabled="isBusy"
-                variant="dark"
+                variant="secondary"
                 @click="showEditMemberModal(data.item)"
                 v-b-tooltip.hover
                 :title="$t('rooms.members.editUser')"
@@ -87,7 +87,7 @@
 
           <!-- render user role -->
           <template v-slot:cell(role)="data">
-            <b-badge v-if="data.value === 0" variant="primary">{{ $t('rooms.members.roles.guest') }}</b-badge>
+            <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.members.roles.guest') }}</b-badge>
             <b-badge
               class="text-white"
               v-if="data.value === 1"
@@ -160,7 +160,7 @@
       :busy="isLoadingAction"
       :static='modalStatic'
       ok-variant="danger"
-      cancel-variant="dark"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
       @ok="confirmRemoveMember"
       ref="remove-member-modal"

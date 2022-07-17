@@ -40,7 +40,7 @@
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-button type="submit" variant="success" :disabled="loading" block>
+      <b-button type="submit" variant="primary" :disabled="loading" block>
         <b-spinner v-if="loading" small></b-spinner>
         {{submitLabel}}
       </b-button>

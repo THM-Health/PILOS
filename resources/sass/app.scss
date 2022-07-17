@@ -3,6 +3,8 @@
 // Variables
 @import 'variables';
 
+@import '../custom/style';
+
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap-vue/src/index.scss';
@@ -17,6 +19,7 @@
 }
 
 // Font Awesome
+$fa-font-path:  "../webfonts";
 @import "../fontawesome/scss/fontawesome.scss";
 @import "../fontawesome/scss/solid.scss";
 @import "../fontawesome/scss/brands.scss";
@@ -30,12 +33,13 @@
     height: 40px;
     min-height: 40px;
     max-height: 40px;
-    background: $green;
+    background: $primary;
     display: grid;
     place-items: center center;
     color: $white;
     font-size: 15px;
     font-weight: bold;
+    @include border-radius($thumbnail-border-radius);
 }
 
 .roomcard{
@@ -48,20 +52,20 @@
 
 .setting-nav-link {
     &:hover {
-        color: $green;
-        background-color: rgba($green, 0.5);
+        color: $primary;
+        background-color: rgba($primary, 0.5);
     }
 }
 
 .setting-nav-link-active {
     @extend .setting-nav-link, :hover;
-    background-color: lighten(rgba($green, 0.5), 25%);
+    background-color: lighten(rgba($primary, 0.5), 25%);
     font-weight: 600;
 }
 
 .page-item.active .page-link{
-    background-color: $green;
-    border-color: $green;
+    background-color: $primary;
+    border-color: $primary;
 }
 
 ._vue-flash-msg-body {
@@ -83,46 +87,46 @@
     }
 
     & ._vue-flash-msg-body_success {
-        border: 1px solid $green !important;
-        background-color: rgba($green, 0.68) !important;
+        border: 1px solid $success !important;
+        background-color: rgba($success, 0.68) !important;
         &:hover {
-            background-color: rgba($green, 1) !important;
+            background-color: rgba($success, 1) !important;
         }
         & ._vue-flash-msg-body__content {
-            border-left: 5px solid $green !important;
+            border-left: 5px solid $success !important;
         }
     }
 
     &._vue-flash-msg-body_info {
-        border: 1px solid var($blue) !important;
-        background-color: rgba($blue, 0.68) !important;
+        border: 1px solid var($info) !important;
+        background-color: rgba($info, 0.68) !important;
         &:hover {
-            background-color: rgba($blue, 1) !important;
+            background-color: rgba($info, 1) !important;
         }
         & ._vue-flash-msg-body__content {
-            border-left: 5px solid $blue !important;
+            border-left: 5px solid $info !important;
         }
     }
 
     &._vue-flash-msg-body_error {
-        border: 1px solid $red !important;
-        background-color: rgba($red, 0.68) !important;
+        border: 1px solid $danger !important;
+        background-color: rgba($danger, 0.68) !important;
         &:hover {
-            background-color: rgba($red, 1) !important;
+            background-color: rgba($danger, 1) !important;
         }
         & ._vue-flash-msg-body__content {
-            border-left: 5px solid $red !important;
+            border-left: 5px solid $danger !important;
         }
     }
 
     &._vue-flash-msg-body_warning {
-        border: 1px solid $orange !important;
-        background-color: rgba($orange, 0.68) !important;
+        border: 1px solid $warning !important;
+        background-color: rgba($warning, 0.68) !important;
         &:hover {
-            background-color: rgba($orange, 1) !important;
+            background-color: rgba($warning, 1) !important;
         }
         & ._vue-flash-msg-body__content {
-            border-left: 5px solid $orange !important;
+            border-left: 5px solid $warning !important;
         }
     }
 }
@@ -230,3 +234,4 @@ body {
     vertical-align: -35%;
     display: inline;
 }
+

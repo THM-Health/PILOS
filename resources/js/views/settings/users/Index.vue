@@ -28,7 +28,7 @@
                 :debounce='200'
               ></b-form-input>
               <b-input-group-append>
-                <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+                <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
               </b-input-group-append>
             </b-input-group>
           </b-col>
@@ -149,7 +149,7 @@
               v-b-tooltip.hover
               :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
-              variant='primary'
+              variant='info'
               class='mb-1'
               :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
@@ -161,7 +161,7 @@
               v-b-tooltip.hover
               :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
-              variant='dark'
+              variant='secondary'
               class='mb-1'
               :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
             >
@@ -209,7 +209,7 @@
     <b-modal
       :busy='resetting'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       :cancel-title="$t('app.no')"
       @ok='resetPassword($event)'
       @cancel='clearUserToResetPassword'
@@ -234,7 +234,7 @@
     <b-modal
       :busy='deleting'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       :cancel-title="$t('app.no')"
       @ok='deleteUser($event)'
       @cancel='clearUserToDelete'

@@ -53,7 +53,7 @@
               v-b-tooltip.hover
               :title="$t('settings.roles.view', { name: data.item.id })"
               :disabled='isBusy'
-              variant='primary'
+              variant='info'
               :to="{ name: 'settings.roles.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
               <i class='fa-solid fa-eye'></i>
@@ -64,7 +64,7 @@
               v-b-tooltip.hover
               :title="$t('settings.roles.edit', { name: data.item.id })"
               :disabled='isBusy'
-              variant='dark'
+              variant='secondary'
               :to="{ name: 'settings.roles.view', params: { id: data.item.id } }"
             >
               <i class='fa-solid fa-edit'></i>
@@ -97,7 +97,7 @@
     <b-modal
       :busy='deleting'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       :cancel-title="$t('app.no')"
       @ok='deleteRole($event)'
       @cancel='clearRoleToDelete'

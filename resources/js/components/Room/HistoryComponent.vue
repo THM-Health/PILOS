@@ -19,7 +19,7 @@
           <!-- Reload meetings list -->
           <b-button
             class="float-right"
-            variant="dark"
+            variant="secondary"
             :disabled="meetingsLoading"
             @click="$root.$emit('bv::refresh::table', 'meetings-table')"
             :title="$t('app.reload')"
@@ -69,7 +69,7 @@
                 :title="$t('meetings.viewMeetingStats')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.statistical"
-                variant='primary'
+                variant='info'
                 @click="loadMeetingStats(data.item)"
               >
                 <i class='fa-solid fa-chart-line'></i>
@@ -79,7 +79,7 @@
                 :title="$t('meetings.viewMeetingAttendance')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.attendance && data.item.end != null"
-                variant='primary'
+                variant='info'
                 @click="loadMeetingAttendance(data.item)"
               >
                 <i class="fa-solid fa-user-clock"></i>

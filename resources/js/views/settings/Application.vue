@@ -998,7 +998,7 @@
               <!-- View file -->
               <b-button
                 v-if='settings.bbb.style'
-                variant='dark'
+                variant='secondary'
                 :href='settings.bbb.style'
                 target='_blank'
                 ref='view-bbb-style'
@@ -1057,7 +1057,7 @@
                 <!-- View file -->
                 <b-button
                   v-if='settings.default_presentation'
-                  variant='dark'
+                  variant='secondary'
                   :href='settings.default_presentation'
                   target='_blank'
                   ref='view-default-presentation'

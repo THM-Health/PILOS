@@ -23,7 +23,7 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
               </b-form-group>
 
-              <b-button type='submit' variant='success' :disabled="loading" block>
+              <b-button type='submit' variant='primary' :disabled="loading" block>
                 <b-spinner v-if="loading" small></b-spinner>
                 {{ $t('auth.sendPasswordResetLink') }}
               </b-button>
