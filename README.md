@@ -23,6 +23,8 @@ The interface is similar to another open-source project [Greenlight](https://git
 During the online semester 2020 many features araised that could not be solved or were hard to implement into Greenlight.
 The team behind Greenlight did an amazing job, and we want to thank for their hard work!
 
+✅/❌ [Comparison Greenlight and PILOS](https://github.com/THM-Health/PILOS/wiki/Comparison-Greenlight-and-PILOS)
+
 However, due to the underlying ruby-on-rails software architecture and the small amount of rails software-packages
 we decided to build a new system with another architecture.
 
