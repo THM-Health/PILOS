@@ -13,18 +13,10 @@
             ref="add-member"
             @click="showAddMemberModal"
           >
-            <i class="fas fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
+            <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
           </b-button>
-          <!-- Add new guest user TODO
-
-          <b-button
-            variant="dark"
-          >
-            <i class="fas fa-paper-plane"></i> {{ $t('rooms.members.inviteGuest') }}
-          </b-button>
-          -->
-
           </can>
+
           <!-- Reload members list -->
           <b-button
             variant="dark"
@@ -33,7 +25,7 @@
             :title="$t('app.reload')"
             v-b-tooltip.hover
           >
-            <i class="fas fa-sync"></i>
+            <i class="fa-solid fa-sync"></i>
           </b-button>
         </b-button-group>
       </div>
@@ -47,7 +39,7 @@
           :fields="tableFields"
           :items="members"
           hover
-          stacked="md"
+          stacked="lg"
           show-empty
         >
           <!-- message on no members -->
@@ -70,18 +62,27 @@
                 :disabled="isBusy"
                 variant="dark"
                 @click="showEditMemberModal(data.item)"
+                v-b-tooltip.hover
+                :title="$t('rooms.members.editUser')"
               >
-                <i class="fas fa-user-edit"></i>
+                <i class="fa-solid fa-user-edit"></i>
               </b-button>
               <!-- remove member -->
               <b-button
                 :disabled="isBusy"
                 variant="danger"
                 @click="showRemoveMemberModal(data.item)"
+                v-b-tooltip.hover
+                :title="$t('rooms.members.deleteUser')"
               >
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
               </b-button>
             </b-button-group>
+          </template>
+
+          <!-- render user profile image -->
+          <template v-slot:cell(image)="data">
+            <img :src="data.value ? data.value : '/images/default_profile.png'" class="profileImage" />
           </template>
 
           <!-- render user role -->
@@ -100,6 +101,7 @@
             >{{ $t('rooms.members.roles.co_owner') }}
             </b-badge>
           </template>
+
         </b-table>
         <b-row>
           <b-col cols="12" class="my-1">
@@ -220,7 +222,7 @@
                      @search-change="asyncFind">
           <template slot="noResult">{{ $t('rooms.members.modals.add.noResult') }}</template>
           <template slot="noOptions">{{ $t('rooms.members.modals.add.noOptions') }}</template>
-          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
+          <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
           <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
         </multiselect>
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
@@ -476,6 +478,12 @@ export default {
     tableFields () {
       const fields = [
         {
+          key: 'image',
+          label: this.$t('rooms.members.image'),
+          sortable: false,
+          thClass: 'profileImageColumn'
+        },
+        {
           key: 'firstname',
           label: this.$t('rooms.members.firstname'),
           sortable: true
@@ -499,7 +507,9 @@ export default {
       if (PermissionService.can('manageSettings', this.room)) {
         fields.push({
           key: 'actions',
-          label: this.$t('rooms.members.actions')
+          label: this.$t('rooms.members.actions'),
+          thClass: 'actionColumn',
+          tdClass: 'actionButton'
         });
       }
 

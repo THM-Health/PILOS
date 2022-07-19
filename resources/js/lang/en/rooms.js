@@ -17,9 +17,17 @@ export default {
   recordingAttendanceAccept: 'I agree with the logging.',
   firstAndLastname: 'First- und last name',
   accessForParticipants: 'Access for participants',
+  copyAccessForParticipants: 'Copy access for participants to clipboard',
   onlyUsedByAuthenticatedUsers: 'This room can only be used by authenticated users.',
+  invalidPersonalLink: 'This personalised room link is invalid.',
   becomeMember: 'Become member',
-  endMembership: 'End membership',
+  endMembership: {
+    button: 'End membership',
+    title: 'Are you sure you want to end the membership?',
+    message: 'You will lose the role associated with your membership. To become a member again, you may need to ask the room owner. If the room has an access code, you will need to know it to continue to have access to the room.',
+    yes: 'Yes, end membership',
+    no: 'No, keep membership'
+  },
   requireAccessCode: 'An access code is required to join this room',
   login: 'Login',
   placeholderName: 'John Doe',
@@ -38,9 +46,17 @@ export default {
       message: 'The access code is invalid.',
       title: 'Login to room failed'
     },
+    tokenInvalid: {
+      message: 'The personalised room link is no longer valid.',
+      title: 'Room link invalid'
+    },
     fileForbidden: {
       message: 'The access to the requested file was forbidden.',
       title: 'Access forbidden'
+    },
+    fileGone: {
+      message: 'The file has been deleted in the meantime.',
+      title: 'File not found'
     }
   },
   modals: {
@@ -64,6 +80,8 @@ export default {
     uploadedAt: 'Uploaded at',
     useInNextMeeting: 'Use in the next meeting',
     selectordrag: 'Select a file or drag and drop it here...',
+    view: 'View file',
+    delete: 'Delete file',
     modals: {
       delete: {
         title: 'Delete file',
@@ -88,6 +106,7 @@ export default {
     nodata: 'No members available',
     addUser: 'Add user',
     inviteGuest: 'Invite guest',
+    image: 'Picture',
     firstname: 'Firstname',
     lastname: 'Lastname',
     email: 'Email',
@@ -99,6 +118,8 @@ export default {
       moderator: 'Moderator',
       co_owner: 'Co-owner'
     },
+    editUser: 'Edit member',
+    deleteUser: 'Delete member',
     modals: {
       edit: {
         title: 'Edit {firstname} {lastname}',
@@ -134,10 +155,10 @@ export default {
     general: {
       title: 'General',
       type: 'Type',
-      selectType: '-- Select room type --',
       roomName: 'Room name',
       welcomeMessage: 'Welcome message',
       maxDuration: 'Max. duration',
+      resetDuration: 'Reset duration',
       minutes: 'min.',
       chars: 'Characters: {chars}'
     },
@@ -145,6 +166,8 @@ export default {
       title: 'Security',
       unprotectedPlaceholder: '-- unprotected --',
       accessCode: 'Access code',
+      generateAccessCode: 'Create new access code',
+      deleteAccessCode: 'Remove access code',
       accessCodeNote: 'Access restriction for joining the room and room membership (if enabled).',
       allowGuests: 'Allow guests',
       allowNewMembers: 'Allow new members',
@@ -153,6 +176,7 @@ export default {
     participants: {
       title: 'Participants',
       maxParticipants: 'Max. participants',
+      clearMaxParticipants: 'Reset max. participants',
       defaultRole: {
         title: 'Default role',
         onlyLoggedIn: '(only for authenticated users)',
@@ -184,10 +208,59 @@ export default {
       hideParticipantsList: 'Hide list of participants'
     }
   },
+
   filter: {
     title: 'Filter',
     roomTypes: 'Room types',
     apply: 'Apply'
+  },
+
+  tokens: {
+    nodata: 'No personalized room links available!',
+    title: 'Personalized room links',
+    firstname: 'Firstname',
+    lastname: 'Lastname',
+    role: 'Role',
+    expires: 'Expiry date',
+    lastUsage: 'Last used',
+    add: 'Add personalized room link',
+    edit: 'Edit personalized room link',
+    delete: 'Delete personalized room link',
+    copy: 'Copy personalized room link to clipboard',
+    roomLinkCopied: 'The personalized room link for {firstname} {lastname} was copied to your clipboard.',
+
+    modals: {
+      delete: {
+        title: 'Delete personalized room link',
+        confirm: 'Do you really want to delete the personalized room link for {firstname} {lastname}?'
+      }
+    },
+
+    roles: {
+      participant: 'Participant',
+      moderator: 'Moderator'
+    }
+  },
+  roomTypes: {
+    loadingError: 'An error occurred during loading of the room types.',
+    selectType: '-- Select room type --',
+    reload: 'Reload room types'
+  },
+
+  notification: {
+    enable: 'Notify on room start',
+    enabled: 'You will be notified by your browser when the room starts. Do not close this window/tab.',
+    body: 'The room was started at {time}',
+
+    denied: {
+      message: 'The browser denied notifications.',
+      title: 'No permission'
+    },
+
+    browserSupport: {
+      message: 'Your browser does not support notification.',
+      title: 'Missing support'
+    }
   }
 
 };

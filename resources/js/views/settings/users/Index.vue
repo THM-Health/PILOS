@@ -4,6 +4,9 @@
       <b-col>
         <h3>
           {{ $t('settings.users.title') }}
+        </h3>
+      </b-col>
+        <b-col>
           <can method='create' policy='UserPolicy'>
             <b-button
               class='float-right'
@@ -11,23 +14,88 @@
               variant='success'
               :title="$t('settings.users.new')"
               :to="{ name: 'settings.users.view', params: { id: 'new' } }"
-            ><b-icon-plus></b-icon-plus></b-button>
+            ><i class="fa-solid fa-plus"></i></b-button>
           </can>
-        </h3>
-      </b-col>
-      <b-col sm='12' md='3'>
-        <b-input-group>
-          <b-form-input
-            v-model='filter'
-            :placeholder="$t('app.search')"
-            :debounce='200'
-          ></b-form-input>
-          <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
-          </b-input-group-append>
-        </b-input-group>
-      </b-col>
+        </b-col>
     </b-row>
+
+        <b-row>
+          <b-col sm='12' md='4'>
+            <b-input-group>
+              <b-form-input
+                v-model='filter.name'
+                :placeholder="$t('app.search')"
+                :debounce='200'
+              ></b-form-input>
+              <b-input-group-append>
+                <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+              </b-input-group-append>
+            </b-input-group>
+          </b-col>
+
+          <b-col sm='12' md='4' offset-md="4">
+
+          <b-input-group>
+            <multiselect
+              :placeholder="$t('settings.users.role_filter')"
+              ref="roles-multiselect"
+              v-model='filter.role'
+              track-by='id'
+              open-direction='bottom'
+              :multiple='false'
+              :searchable='false'
+              :internal-search='false'
+              :clear-on-select='false'
+              :close-on-select='false'
+              :show-no-results='false'
+              :showLabels='false'
+              :options='roles'
+              :disabled="rolesLoadingError"
+              id='roles'
+              :loading='rolesLoading'
+              :allowEmpty='true'
+              class="multiselect-form-control"
+             >
+              <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
+              <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
+              <template slot='singleLabel' slot-scope='{ option }'>
+                    {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
+
+              </template>
+              <template slot='afterList'>
+                <b-button
+                  :disabled='rolesLoading || rolesCurrentPage === 1'
+                  variant='outline-secondary'
+                  @click='loadRoles(Math.max(1, rolesCurrentPage - 1))'>
+                  <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                </b-button>
+                <b-button
+                  :disabled='rolesLoading || !rolesHasNextPage'
+                  variant='outline-secondary'
+                  @click='loadRoles(rolesCurrentPage + 1)'>
+                  <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                </b-button>
+              </template>
+            </multiselect>
+            <b-input-group-append>
+              <b-button
+                ref="clearRolesButton"
+                v-if="!rolesLoadingError && filter.role"
+                @click="filter.role = null"
+                variant="outline-secondary"
+              ><i class="fa-solid fa-xmark"></i></b-button>
+
+              <b-button
+                ref="reloadRolesButton"
+                v-if="rolesLoadingError"
+                @click="loadRoles(rolesCurrentPage)"
+                variant="outline-secondary"
+              ><i class="fa-solid fa-sync"></i></b-button>
+            </b-input-group-append>
+          </b-input-group>
+            </b-col>
+
+          </b-row>
     <hr>
 
     <b-table
@@ -62,6 +130,12 @@
         {{ $t(`settings.users.authenticator.${data.item.authenticator}`) }}
       </template>
 
+      <template v-slot:cell(roles)="data">
+        <text-truncate  v-for="role in data.item.roles" :key="role.id">
+          {{ $te(`app.roles.${role.name}`) ? $t(`app.roles.${role.name}`) : role.name }}
+        </text-truncate>
+      </template>
+
       <template #cell()="data">
         <text-truncate>
           {{ data.value }}
@@ -79,7 +153,7 @@
               class='mb-1'
               :to="{ name: 'settings.users.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fas fa-eye'></i>
+              <i class='fa-solid fa-eye'></i>
             </b-button>
           </can>
           <can method='update' :policy='data.item'>
@@ -91,7 +165,7 @@
               class='mb-1'
               :to="{ name: 'settings.users.view', params: { id: data.item.id } }"
             >
-              <i class='fas fa-edit'></i>
+              <i class='fa-solid fa-edit'></i>
             </b-button>
           </can>
           <can method='resetPassword' :policy='data.item'>
@@ -104,7 +178,7 @@
               class='mb-1'
               @click='showResetPasswordModal(data.item)'
             >
-              <i class='fas fa-key'></i>
+              <i class='fa-solid fa-key'></i>
             </b-button>
           </can>
           <can method='delete' :policy='data.item'>
@@ -115,7 +189,7 @@
               variant='danger'
               class='mb-1'
               @click='showDeleteModal(data.item)'>
-              <i class='fas fa-trash'></i>
+              <i class='fa-solid fa-trash'></i>
             </b-button>
           </can>
         </b-button-group>
@@ -189,9 +263,10 @@ import ActionsColumn from '../../../mixins/ActionsColumn';
 import Can from '../../../components/Permissions/Can';
 import Base from '../../../api/base';
 import TextTruncate from '../../../components/TextTruncate';
+import Multiselect from 'vue-multiselect';
 
 export default {
-  components: { TextTruncate, Can },
+  components: { TextTruncate, Can, Multiselect },
   mixins: [ActionsColumn],
 
   props: {
@@ -208,7 +283,8 @@ export default {
         { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true }
+        { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true },
+        { key: 'roles', label: this.$t('settings.users.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
       ];
 
       if (this.actionColumnVisible) {
@@ -229,11 +305,58 @@ export default {
       userToResetPassword: undefined,
       actionPermissions: ['users.view', 'users.update', 'users.delete'],
       actionColumnThStyle: 'width: 200px',
-      filter: undefined
+      filter: {
+        name: undefined,
+        role: undefined
+      },
+      roles: [],
+      rolesLoading: false,
+      rolesLoadingError: false,
+      rolesCurrentPage: 1,
+      rolesHasNextPage: false
+
     };
   },
 
+  /**
+   * Loads the user, part of roles that can be selected and enables an event listener
+   * to enable or disable the edition of roles and attributes when the permissions
+   * of the current user gets changed.
+   */
+  mounted () {
+    this.loadRoles();
+  },
+
   methods: {
+
+    /**
+     * Loads the roles for the passed page, that can be selected through the multiselect.
+     *
+     * @param [page=1] The page to load the roles for.
+     */
+    loadRoles (page = 1) {
+      this.rolesLoading = true;
+
+      const config = {
+        params: {
+          page
+        }
+      };
+
+      Base.call('roles', config).then(response => {
+        this.rolesLoadingError = false;
+        this.roles = response.data.data;
+        this.rolesCurrentPage = page;
+        this.rolesHasNextPage = page < response.data.meta.last_page;
+      }).catch(error => {
+        this.$refs['roles-multiselect'].deactivate();
+        this.rolesLoadingError = true;
+        Base.error(error, this.$root, error.message);
+      }).finally(() => {
+        this.rolesLoading = false;
+      });
+    },
+
     /**
      * Loads the users from the backend and calls on finish the callback function.
      *
@@ -255,8 +378,11 @@ export default {
         config.params.sort_direction = ctx.sortDesc ? 'desc' : 'asc';
       }
 
-      if (ctx.filter) {
-        config.params.name = ctx.filter;
+      if (ctx.filter.name) {
+        config.params.name = ctx.filter.name;
+      }
+      if (ctx.filter.role) {
+        config.params.role = ctx.filter.role.id;
       }
 
       Base.call('users', config).then(response => {

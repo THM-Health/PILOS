@@ -1,13 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, {
-  IconsPlugin,
-  BFormSelect,
-  BFormSelectOption,
   BButton,
   BForm,
-  BModal,
+  BFormCheckbox,
   BFormInput,
-  BFormCheckbox
+  BFormSelect,
+  BFormSelectOption,
+  BImg,
+  BModal
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View';
@@ -22,7 +22,6 @@ import Base from '../../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -44,6 +43,81 @@ let store;
 let oldUser;
 let rolesResponse1;
 
+const userResponse = {
+  data: {
+    id: 2,
+    authenticator: 'users',
+    email: 'john@doe.com',
+    username: 'jdo',
+    firstname: 'John',
+    lastname: 'Doe',
+    user_locale: 'en',
+    model_name: 'User',
+    room_limit: -1,
+    image: 'http://domain.tld/storage/profile_images/123.jpg',
+    updated_at: '2020-01-01T01:00:00.000000Z',
+    roles: [{
+      id: 1,
+      name: 'Test 1',
+      automatic: true
+    }, {
+      id: 2,
+      name: 'Test 2',
+      automatic: false
+    }]
+  }
+};
+
+const ldapUserResponse = {
+  data: {
+    id: 3,
+    authenticator: 'ldap',
+    email: 'max@mustermann.de',
+    username: 'mx',
+    firstname: 'Max',
+    lastname: 'Mustermann',
+    user_locale: 'en',
+    model_name: 'User',
+    room_limit: -1,
+    image: null,
+    updated_at: '2020-01-01T01:00:00.000000Z',
+    roles: [{
+      id: 1,
+      name: 'Test 1',
+      automatic: true
+    }, {
+      id: 2,
+      name: 'Test 2',
+      automatic: false
+    }]
+  }
+};
+
+const ownUserResponse = {
+  data: {
+    id: 1,
+    authenticator: 'users',
+    email: 'darth@vader.com',
+    username: 'dva',
+    firstname: 'Darth',
+    lastname: 'Vader',
+    user_locale: 'en',
+    model_name: 'User',
+    room_limit: -1,
+    image: 'http://domain.tld/storage/profile_images/abc.jpg',
+    updated_at: '2020-01-01T01:00:00.000000Z',
+    roles: [{
+      id: 1,
+      name: 'Test 1',
+      automatic: true
+    }, {
+      id: 2,
+      name: 'Test 2',
+      automatic: false
+    }]
+  }
+};
+
 describe('UsersView', function () {
   beforeEach(function () {
     oldUser = PermissionService.currentUser;
@@ -56,7 +130,7 @@ describe('UsersView', function () {
           id: item + 1,
           name: 'Test ' + (item + 1),
           default: true,
-          updated_at: '2020-01-01 01:00:00',
+          updated_at: '2020-01-01T01:00:00.000000Z',
           model_name: 'Role',
           room_limit: null
         };
@@ -66,78 +140,6 @@ describe('UsersView', function () {
         current_page: 1,
         total: 10,
         last_page: 2
-      }
-    };
-
-    const userResponse = {
-      data: {
-        id: 2,
-        authenticator: 'users',
-        email: 'john@doe.com',
-        username: 'jdo',
-        firstname: 'John',
-        lastname: 'Doe',
-        user_locale: 'en',
-        model_name: 'User',
-        room_limit: -1,
-        updated_at: '2020-01-01 01:00:00',
-        roles: [{
-          id: 1,
-          name: 'Test 1',
-          automatic: true
-        }, {
-          id: 2,
-          name: 'Test 2',
-          automatic: false
-        }]
-      }
-    };
-
-    const ldapUserResponse = {
-      data: {
-        id: 3,
-        authenticator: 'ldap',
-        email: 'max@mustermann.de',
-        username: 'mx',
-        firstname: 'Max',
-        lastname: 'Mustermann',
-        user_locale: 'en',
-        model_name: 'User',
-        room_limit: -1,
-        updated_at: '2020-01-01 01:00:00',
-        roles: [{
-          id: 1,
-          name: 'Test 1',
-          automatic: true
-        }, {
-          id: 2,
-          name: 'Test 2',
-          automatic: false
-        }]
-      }
-    };
-
-    const ownUserResponse = {
-      data: {
-        id: 1,
-        authenticator: 'users',
-        email: 'darth@vader.com',
-        username: 'dva',
-        firstname: 'Darth',
-        lastname: 'Vader',
-        user_locale: 'en',
-        model_name: 'User',
-        room_limit: -1,
-        updated_at: '2020-01-01 01:00:00',
-        roles: [{
-          id: 1,
-          name: 'Test 1',
-          automatic: true
-        }, {
-          id: 2,
-          name: 'Test 2',
-          automatic: false
-        }]
       }
     };
 
@@ -153,15 +155,15 @@ describe('UsersView', function () {
     });
     moxios.stubRequest('/api/v1/users/1', {
       status: 200,
-      response: ownUserResponse
+      response: _.cloneDeep(ownUserResponse)
     });
     moxios.stubRequest('/api/v1/users/2', {
       status: 200,
-      response: userResponse
+      response: _.cloneDeep(userResponse)
     });
     moxios.stubRequest('/api/v1/users/3', {
       status: 200,
-      response: ldapUserResponse
+      response: _.cloneDeep(ldapUserResponse)
     });
 
     let res;
@@ -229,6 +231,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(view.html()).toContain('settings.users.view John Doe');
+      view.destroy();
       done();
     });
   });
@@ -251,6 +254,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(view.html()).toContain('settings.users.edit John Doe');
+      view.destroy();
       done();
     });
   });
@@ -296,6 +300,7 @@ describe('UsersView', function () {
       expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
 
       View.__ResetDependency__('LocaleMap');
+      view.destroy();
       done();
     });
   });
@@ -318,6 +323,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       expect(view.findComponent(Multiselect).vm.disabled).toBe(true);
+      view.destroy();
       done();
     });
   });
@@ -343,6 +349,7 @@ describe('UsersView', function () {
 
       expect(multiselect.vm.value[0].$isDisabled).toBe(true);
       expect(multiselect.vm.value[1].$isDisabled).toBe(false);
+      view.destroy();
       done();
     });
   });
@@ -379,6 +386,7 @@ describe('UsersView', function () {
       multiSelects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(true);
       });
+      view.destroy();
       done();
     });
   });
@@ -416,6 +424,7 @@ describe('UsersView', function () {
         multiSelects.wrappers.forEach((select) => {
           expect(select.vm.disabled).toBe(false);
         });
+        view.destroy();
         done();
       });
     });
@@ -443,39 +452,33 @@ describe('UsersView', function () {
       router
     });
 
-    moxios.wait(function () {
+    moxios.wait(async () => {
       const inputs = view.findAllComponents(BFormInput);
-      inputs.at(0).setValue('Max').then(() => {
-        return inputs.at(1).setValue('Mustermann');
-      }).then(() => {
-        return inputs.at(2).setValue('max@mustermann.de');
-      }).then(() => {
-        const selects = view.findAllComponents(BFormSelect);
-        return selects.at(0).setValue('de');
-      }).then(() => {
-        view.vm.model.roles.push(rolesResponse1.data[2]);
-        return view.vm.$nextTick();
-      }).then(() => {
-        const checkboxes = view.findAllComponents(BFormCheckbox);
-        return checkboxes.at(0).get('input').trigger('click');
-      }).then(() => {
-        view.findComponent(BForm).trigger('submit');
+      await inputs.at(0).setValue('Max');
+      await inputs.at(1).setValue('Mustermann');
+      await inputs.at(2).setValue('max@mustermann.de');
+      const selects = view.findAllComponents(BFormSelect);
+      await selects.at(0).setValue('de');
+      view.vm.model.roles.push(rolesResponse1.data[2]);
+      await view.vm.$nextTick();
+      const checkboxes = view.findAllComponents(BFormCheckbox);
+      await checkboxes.at(0).get('input').setChecked();
+      await view.vm.$nextTick();
+      await view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
+      moxios.wait(function () {
+        const request = moxios.requests.mostRecent();
 
-          expect(data.firstname).toBe('Max');
-          expect(data.lastname).toBe('Mustermann');
-          expect(data.email).toBe('max@mustermann.de');
-          expect(data.password).toBe(undefined);
-          expect(data.password_confirmation).toBe(undefined);
-          expect(data.roles).toStrictEqual([3]);
-          expect(data.user_locale).toBe('de');
-          expect(data.generate_password).toBe(true);
-
-          done();
-        });
+        expect(request.config.data.get('firstname')).toBe('Max');
+        expect(request.config.data.get('lastname')).toBe('Mustermann');
+        expect(request.config.data.get('email')).toBe('max@mustermann.de');
+        expect(request.config.data.has('password')).toBeFalsy();
+        expect(request.config.data.has('password_confirmation')).toBeFalsy();
+        expect(request.config.data.get('roles[0]')).toBe('3');
+        expect(request.config.data.get('user_locale')).toBe('de');
+        expect(request.config.data.get('generate_password')).toBe('1');
+        view.destroy();
+        done();
       });
     });
   });
@@ -512,6 +515,7 @@ describe('UsersView', function () {
       multiSelects.wrappers.forEach((select) => {
         expect(select.vm.disabled).toBe(false);
       });
+      view.destroy();
       done();
     });
   });
@@ -534,9 +538,9 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const buttons = view.findAllComponents(BButton);
-      expect(buttons.length).toEqual(3);
-      expect(buttons.at(2).text()).toEqual('app.save');
-
+      expect(buttons.length).toEqual(5);
+      expect(buttons.at(4).text()).toEqual('app.save');
+      view.destroy();
       done();
     });
   });
@@ -573,6 +577,7 @@ describe('UsersView', function () {
       const multiSelects = view.findAllComponents(Multiselect);
       expect(multiSelects.length).toBe(1);
       expect(multiSelects.at(0).vm.value.map(val => val.id)).toStrictEqual([1, 2]);
+      view.destroy();
       done();
     });
   });
@@ -620,16 +625,17 @@ describe('UsersView', function () {
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
 
-          expect(data.firstname).toBe('Max');
-          expect(data.lastname).toBe('Mustermann');
-          expect(data.email).toBe('max@mustermann.de');
-          expect(data.password).toBe('Test_123');
-          expect(data.password_confirmation).toBe('Test_123');
-          expect(data.roles).toStrictEqual([1, 2, 3]);
-          expect(data.user_locale).toBe('de');
-          expect(data.generate_password).toBe(undefined);
+          expect(request.config.data.get('firstname')).toBe('Max');
+          expect(request.config.data.get('lastname')).toBe('Mustermann');
+          expect(request.config.data.get('email')).toBe('max@mustermann.de');
+          expect(request.config.data.get('password')).toBe('Test_123');
+          expect(request.config.data.get('password_confirmation')).toBe('Test_123');
+          expect(request.config.data.get('roles[0]')).toStrictEqual('1');
+          expect(request.config.data.get('roles[1]')).toStrictEqual('2');
+          expect(request.config.data.get('roles[2]')).toStrictEqual('3');
+          expect(request.config.data.get('user_locale')).toBe('de');
+          expect(request.config.data.has('generate_password')).toBeFalsy();
 
           const restoreUserResponse = overrideStub('/api/v1/users/2', {
             status: 204
@@ -642,6 +648,7 @@ describe('UsersView', function () {
               sinon.assert.calledOnce(spy);
               sinon.assert.calledWith(spy, { name: 'settings.users' });
               restoreUserResponse();
+              view.destroy();
               done();
             });
           });
@@ -688,6 +695,7 @@ describe('UsersView', function () {
       Base.error.restore();
       restoreRolesResponse();
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -707,7 +715,7 @@ describe('UsersView', function () {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -730,6 +738,7 @@ describe('UsersView', function () {
       sinon.assert.calledOnce(spy);
       sinon.assert.calledWith(spy, { name: 'home' });
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -775,6 +784,7 @@ describe('UsersView', function () {
         sinon.assert.calledOnce(spy);
         sinon.assert.calledWith(spy, { name: 'home' });
         restoreUserResponse();
+        view.destroy();
         done();
       });
     });
@@ -805,7 +815,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.firstname = 'Tester';
 
       let restoreUserResponse = overrideStub('/api/v1/users/1', {
@@ -822,7 +832,6 @@ describe('UsersView', function () {
       moxios.wait(function () {
         const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
         expect(staleModelModal.vm.$data.isVisible).toBe(true);
-
         restoreUserResponse();
         restoreUserResponse = overrideStub('/api/v1/users/1', {
           status: 204,
@@ -835,13 +844,13 @@ describe('UsersView', function () {
 
         moxios.wait(function () {
           const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
 
-          expect(data.updated_at).toBe(newModel.updated_at);
-          expect(data.firstname).toBe('Darth');
+          expect(request.config.data.get('updated_at')).toBe(newModel.updated_at);
+          expect(request.config.data.get('firstname')).toBe('Darth');
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
 
           restoreUserResponse();
+          view.destroy();
           done();
         });
       });
@@ -873,7 +882,7 @@ describe('UsersView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.firstname = 'Test';
 
       const restoreUserResponse = overrideStub('/api/v1/users/1', {
@@ -899,6 +908,7 @@ describe('UsersView', function () {
         view.vm.$nextTick().then(() => {
           expect(view.findComponent(BFormInput).element.value).toBe('Test');
           expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+          view.destroy();
           done();
         });
       });
@@ -945,6 +955,7 @@ describe('UsersView', function () {
         expect(button.exists()).toBe(false);
         expect(spy.notCalled).toBe(true);
         Base.error.restore();
+        view.destroy();
         done();
       });
     });
@@ -966,7 +977,7 @@ describe('UsersView', function () {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -989,6 +1000,7 @@ describe('UsersView', function () {
       sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
       Base.error.restore();
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -1004,7 +1016,7 @@ describe('UsersView', function () {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -1024,6 +1036,7 @@ describe('UsersView', function () {
       sinon.assert.calledOnce(Base.error);
       Base.error.restore();
       restoreUserResponse();
+      view.destroy();
       done();
     });
   });
@@ -1070,8 +1083,251 @@ describe('UsersView', function () {
         sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
         Base.error.restore();
         restoreUserResponse();
+        view.destroy();
         done();
       });
+    });
+  });
+
+  it('existing image save and delete', function (done) {
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'profile'
+        }
+      },
+      store
+    });
+
+    moxios.wait(async () => {
+      const image = view.findComponent(BImg);
+      expect(image.exists()).toBeTruthy();
+      expect(image.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
+
+      let buttons = view.findAllComponents(BButton);
+      expect(buttons.length).toBe(5);
+      expect(buttons.at(0).text()).toContain('settings.users.image.upload');
+
+      const imageDeleteButton = buttons.at(1);
+      expect(imageDeleteButton.text()).toContain('settings.users.image.delete');
+      await imageDeleteButton.trigger('click');
+      expect(image.attributes('src')).toBe('/images/default_profile.png');
+
+      buttons = view.findAllComponents(BButton);
+      expect(buttons.length).toBe(4);
+      const undoButton = buttons.at(0);
+      expect(undoButton.text()).toContain('settings.users.image.undo_delete');
+      await undoButton.trigger('click');
+      expect(image.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
+
+      view.findComponent(BForm).trigger('submit');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.has('image')).toBeFalsy();
+
+        await request.respondWith({
+          status: 200,
+          response: ownUserResponse
+        });
+        await view.vm.$nextTick();
+
+        let buttons = view.findAllComponents(BButton);
+        expect(buttons.length).toBe(5);
+
+        expect(buttons.at(0).text()).toContain('settings.users.image.upload');
+
+        const imageDeleteButton = buttons.at(1);
+        expect(imageDeleteButton.text()).toContain('settings.users.image.delete');
+        await imageDeleteButton.trigger('click');
+        expect(image.attributes('src')).toBe('/images/default_profile.png');
+
+        buttons = view.findAllComponents(BButton);
+        expect(buttons.length).toBe(4);
+
+        view.findComponent(BForm).trigger('submit');
+
+        const response = _.cloneDeep(ownUserResponse);
+        response.data.image = null;
+        const restoreUserResponse = overrideStub('/api/v1/users/1', {
+          status: 200,
+          response: response
+        });
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('image')).toBe('');
+          await view.vm.$nextTick();
+
+          const buttons = view.findAllComponents(BButton);
+          expect(buttons.length).toBe(4);
+          expect(buttons.at(0).text()).toContain('settings.users.image.upload');
+
+          restoreUserResponse();
+          view.destroy();
+          done();
+        });
+      });
+    });
+  });
+
+  it('select image', function (done) {
+    /**
+     * Fake cropper component due to limited canvas support for nodejs
+     * @type {{template: string, methods: {getCroppedCanvas(): HTMLCanvasElement, replace(*)}, name: string}}
+     */
+    const cropperSpy = sinon.spy();
+    const cropperComponent = {
+      name: 'test-cropper',
+      /* eslint-disable @intlify/vue-i18n/no-raw-text */
+      template: '<p>test</p>',
+      methods: {
+        replace (imageData) {
+          cropperSpy(imageData);
+        },
+        getCroppedCanvas () {
+          const oc = document.createElement('canvas');
+          oc.width = 400;
+          oc.height = 400;
+          const ctx = oc.getContext('2d');
+          ctx.lineWidth = 20;
+          ctx.strokeStyle = 'black';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(400, 400);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(400, 0);
+          ctx.lineTo(0, 400);
+          ctx.stroke();
+
+          return oc;
+        }
+      }
+    };
+
+    const flashMessageSpy = sinon.spy();
+    const flashMessage = {
+      error (param) {
+        flashMessageSpy(param);
+      }
+    };
+
+    const view = mount(View, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false,
+        flashMessage: flashMessage
+      },
+      propsData: {
+        config: {
+          id: 1,
+          type: 'profile'
+        },
+        modalStatic: true
+      },
+      store,
+      stubs: {
+        VueCropper: cropperComponent
+      }
+    });
+
+    moxios.wait(async () => {
+      // Try to find profile image with image of the user
+      const image = view.findComponent(BImg);
+      expect(image.exists()).toBeTruthy();
+      expect(image.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
+
+      // check crop modal is closed
+      const modal = view.findComponent({ ref: 'modal-image-upload' });
+      expect(modal.vm.$data.isVisible).toBeFalsy();
+
+      const eventError = {
+        target: {
+          files: [
+            { type: 'image/gif' }
+          ]
+        }
+      };
+      // check if error is shown on invalid image type and modal is not shown
+      view.vm.onFileSelect(eventError);
+      await view.vm.$nextTick();
+      expect(flashMessageSpy.calledOnce).toBeTruthy();
+      expect(flashMessageSpy.getCall(0).args[0]).toEqual('settings.users.image.invalidMime');
+      expect(modal.vm.$data.isVisible).toBeFalsy();
+
+      const event = {
+        target: {
+          files: [
+            { type: 'image/png' }
+          ]
+        }
+      };
+
+      const imageUpload = 'data:image/png;base64,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';
+      global.FileReader = class {
+        readAsDataURL () {
+          this.onload({
+            target: {
+              result: imageUpload
+            }
+          });
+        }
+      };
+      // check for valid image type, check modal for copper is open and cropper gets the image data
+      view.vm.onFileSelect(event);
+      await view.vm.$nextTick();
+      expect(modal.vm.$data.isVisible).toBeTruthy();
+      expect(modal.vm.$props.busy).toBeFalsy();
+      expect(view.vm.$data.selectedFile).toBe(imageUpload);
+      expect(cropperSpy.calledOnce).toBeTruthy();
+      expect(cropperSpy.getCall(0).args[0]).toBe(imageUpload);
+
+      // find modal button to confirm and click
+      const modalButtons = modal.findAllComponents(BButton);
+      expect(modalButtons.at(1).text()).toContain('settings.users.image.save');
+      await modalButtons.at(1).trigger('click');
+
+      // modal is open and busy while images are processed
+      expect(modal.vm.$data.isVisible).toBeTruthy();
+      expect(modal.vm.$props.busy).toBeTruthy();
+      // wait for image to be processed
+      setTimeout(() => {
+        // check image as data url and blob
+        const croppedImage = view.vm.$data.croppedImage;
+        const croppedImageBlob = view.vm.$data.croppedImageBlob;
+        const croppedExpectedImage = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABkAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDjv+Kn+BXjfvcWE59xFeRA/wDjrjP1BPcHn6X8L+KNL8X6HDqulT+ZC/DoeHifurDsR/8AXHFHijwvpfi7Q5tK1WDzIX5Rxw8T9mU9iP8A6x4r5o/4qf4FeN+9xYTn3EV5ED/464z9QT3B5APrCisbwv4o0vxfocOq6VP5kL8Oh4eJ+6sOxH/1xxWzQAUUUUAFFFFABRRRQAV4d8X/AIv/ANnef4a8NXGb45ju7yM/6n1RD/f9T26deh8X/i//AGd5/hrw1cZvjmO7vIz/AKn1RD/f9T26deh8IPhB/Z3keJfEtvm+OJLSzkH+p9Hcf3/QduvXoAcx4Z/Z81XWtDh1DVdT/sy4n+dbZoN7qh6FuRgnnjtxnngFfTFFABWN4o8L6X4u0ObStVg8yF+UccPE/ZlPYj/6x4rZooA+T/8Aip/gV4373FhOfcRXkQP/AI64z9QT3B5+l/C/ijS/F+hw6rpU/mQvw6Hh4n7qw7Ef/XHFHijwvpfi7Q5tK1WDzIX5Rxw8T9mU9iP/AKx4r5o/4qf4FeN+9xYTn3EV5ED/AOOuM/UE9weQD6worG8L+KNL8X6HDqulT+ZC/DoeHifurDsR/wDXHFbNABRRRQAV4d8X/i//AGd5/hrw1cZvjmO7vIz/AKn1RD/f9T26deh8X/i//Z3n+GvDVxm+OY7u8jP+p9UQ/wB/1Pbp16Hwg+EH9neR4l8S2+b44ktLOQf6n0dx/f8AQduvXoAHwg+EH9neR4l8S2+b44ktLOQf6n0dx/f9B269enuNFFABRRRQAUUUUAFY3ijwvpfi7Q5tK1WDzIX5Rxw8T9mU9iP/AKx4rZooA+T/APip/gV4373FhOfcRXkQP/jrjP1BPcHn6X8L+KNL8X6HDqulT+ZC/DoeHifurDsR/wDXHFHijwvpfi7Q5tK1WDzIX5Rxw8T9mU9iP/rHivmj/ip/gV4373FhOfcRXkQP/jrjP1BPcHkA+sK8O+L/AMX/AOzvP8NeGrjN8cx3d5Gf9T6oh/v+p7dOvSh8RPjtBe6HDp/hF5kuLyIG4uWUq9uD1jX/AG/VhwO2TyL/AMIPhB/Z3keJfEtvm+OJLSzkH+p9Hcf3/QduvXoAHwg+EH9neR4l8S2+b44ktLOQf6n0dx/f9B269enuNFFABRRRQAUUUUAFFFFABRRRQAV8/wDx2+Iml3ts/hHT4IL24SQNcXJG4QOD91D/AH+xPYEjqTi/8X/i/wD2d5/hrw1cZvjmO7vIz/qfVEP9/wBT26deh8IPhB/Z3keJfEtvm+OJLSzkH+p9Hcf3/QduvXoAeQWdnrXw18S6LrOs6ECCBcww3S/LIv8A7K4znnlTgkV9b+F/FGl+L9Dh1XSp/Mhfh0PDxP3Vh2I/+uOKPFHhfS/F2hzaVqsHmQvyjjh4n7Mp7Ef/AFjxXzR/xU/wK8b97iwnPuIryIH/AMdcZ+oJ7g8gH1hRWN4X8UaX4v0OHVdKn8yF+HQ8PE/dWHYj/wCuOK2aACiiigAooooAKKKKACvDvi/8X/7O8/w14auM3xzHd3kZ/wBT6oh/v+p7dOvQ+L/xf/s7z/DXhq4zfHMd3eRn/U+qIf7/AKnt069D4QfCD+zvI8S+JbfN8cSWlnIP9T6O4/v+g7devQAPhB8IP7O8jxL4lt83xxJaWcg/1Po7j+/6Dt169PcaKKACsbxR4X0vxdoc2larB5kL8o44eJ+zKexH/wBY8Vs0UAfJ/wDxU/wK8b97iwnPuIryIH/x1xn6gnuDz9L+F/FGl+L9Dh1XSp/Mhfh0PDxP3Vh2I/8ArjijxR4X0vxdoc2larB5kL8o44eJ+zKexH/1jxXzR/xU/wACvG/e4sJz7iK8iB/8dcZ+oJ7g8gH1hRWN4X8UaX4v0OHVdKn8yF+HQ8PE/dWHYj/644rZoAKKKKACvDvi/wDF/wDs7z/DXhq4zfHMd3eRn/U+qIf7/qe3Tr0Pi/8AF/8As7z/AA14auM3xzHd3kZ/1PqiH+/6nt069D4QfCD+zvI8S+JbfN8cSWlnIP8AU+juP7/oO3Xr0AD4QfCD+zvI8S+JbfN8cSWlnIP9T6O4/v8AoO3Xr09xoooAKKKKACiiigArG8UeF9L8XaHNpWqweZC/KOOHifsynsR/9Y8Vs0UAfJ//ABU/wK8b97iwnPuIryIH/wAdcZ+oJ7g8/S/hfxRpfi/Q4dV0qfzIX4dDw8T91YdiP/rjijxR4X0vxdoc2larB5kL8o44eJ+zKexH/wBY8V80f8VP8CvG/e4sJz7iK8iB/wDHXGfqCe4PIB9YUVieGvFmkeK9Dg1XTbpWhk4ZHIDxuOqsOxH/ANccGigDwL9nzwzpeta7qGq6hB59xp3ltbq5yiu275iO5G3j069cY+mKKKACiiigAooooAKKKKACiiigArE8WeGtL8V+H7jTdVg82FlLIw4eNwOGU9iP/rHIoooA+H2Z4pHRHYAMRwaKKKAP/9k='; expect(croppedImage).toBe(croppedExpectedImage);
+        expect(croppedImageBlob.type).toBe('image/jpeg');
+
+        // check if image was replaced by cropped image
+        const image = view.findComponent(BImg);
+        expect(image.exists()).toBeTruthy();
+        expect(image.attributes('src')).toBe(croppedExpectedImage);
+
+        // check if modal is not busy anymore and closed
+        expect(modal.vm.$props.busy).toBeFalsy();
+        expect(modal.vm.$data.isVisible).toBeFalsy();
+
+        // submit form to send cropped image to server
+        view.findComponent(BForm).trigger('submit');
+        moxios.wait(function () {
+          const request = moxios.requests.mostRecent();
+          // check if blob is sent to server
+          expect(request.config.data.get('image') instanceof Blob).toBeTruthy();
+          expect(request.config.data.get('image').type).toBe('image/jpeg');
+
+          view.destroy();
+          done();
+        });
+      }, 200);
     });
   });
 });

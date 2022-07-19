@@ -49,7 +49,7 @@
           :title="$t('app.reload')"
           v-b-tooltip.hover
         >
-          <i class="fas fa-sync"></i>
+          <i class="fa-solid fa-sync"></i>
         </b-button>
       </div>
     </div>
@@ -63,7 +63,7 @@
         v-if="files.files"
         :items="files.files"
         hover
-        stacked="md"
+        stacked="lg"
         show-empty
       >
         <!-- Show message on empty file list -->
@@ -87,8 +87,10 @@
                 variant="danger"
                 :disabled="loadingDownload===data.item.id"
                 @click="showDeleteFileModal(data.item)"
+                :title="$t('rooms.files.delete')"
+                v-b-tooltip.hover
               >
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
               </b-button>
             </can>
             <!-- View file -->
@@ -97,8 +99,10 @@
               @click="downloadFile(data.item)"
               :disabled="disableDownload"
               target="_blank"
+              :title="$t('rooms.files.view')"
+              v-b-tooltip.hover
             >
-              <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fas fa-eye"></i>
+              <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fa-solid fa-eye"></i>
             </b-button>
           </b-button-group>
         </template>
@@ -203,6 +207,10 @@ export default {
       type: String,
       required: false
     },
+    token: {
+      type: String,
+      required: false
+    },
     showTitle: {
       type: Boolean,
       default: false,
@@ -261,8 +269,14 @@ export default {
     downloadFile: function (file) {
       this.loadingDownload = file.id;
       // Update value for the setting and the effected file
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
+
       const url = 'rooms/' + this.room.id + '/files/' + file.id;
 
       // Load data
@@ -275,6 +289,11 @@ export default {
           if (error.response) {
             // Access code invalid
             if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.$emit('error', error);
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
               return this.$emit('error', error);
             }
 
@@ -391,8 +410,13 @@ export default {
       // Change table to busy state
       this.isBusy = true;
       // Fetch file list
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
 
       Base.call('rooms/' + this.room.id + '/files', config)
         .then(response => {

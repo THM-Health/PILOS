@@ -15,7 +15,7 @@
         <b-input-group>
           <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="success"><b-icon icon="search"></b-icon></b-button>
+            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="success" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -35,7 +35,7 @@
                   v-else
                   @click="loadRoomTypes"
                 >
-                  <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+                  <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
                 </b-button>
               </div>
             </template>
@@ -51,7 +51,7 @@
             ></b-form-checkbox-group>
           </b-overlay>
         </div>
-        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="success" @click="loadRooms"><i class="fas fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
+        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="success" @click="loadRooms"><i class="fa-solid fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
       </b-col>
       <b-col lg="9" order="1" order-lg="2">
 
@@ -64,7 +64,7 @@
                 v-else
                 @click="loadRooms"
               >
-                <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+                <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
               </b-button>
             </div>
           </template>

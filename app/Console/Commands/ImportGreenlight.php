@@ -50,7 +50,7 @@ class ImportGreenlight extends Command
             'What room type should the rooms be assigned to?',
             RoomType::all()->pluck('short')->toArray(),
             0,
-            $maxAttempts = null,
+            $maxAttempts             = null,
             $allowMultipleSelections = false
         );
 
@@ -65,7 +65,7 @@ class ImportGreenlight extends Command
             'Please select the default role for new imported non-ldap users',
             Role::all()->pluck('name')->toArray(),
             null,
-            $maxAttempts = null,
+            $maxAttempts             = null,
             $allowMultipleSelections = false
         );
         // find id of the selected role

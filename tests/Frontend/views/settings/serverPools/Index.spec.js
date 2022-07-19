@@ -3,7 +3,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BTr,
   BTbody,
   BButton,
@@ -17,7 +17,6 @@ import Vuex from 'vuex';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 const defaultResponse = {
   data: [
@@ -125,6 +124,9 @@ describe('ServerPoolsIndex', function () {
       mocks: {
         $t: key => key
       },
+      propsData: {
+        searchDebounce: 0
+      },
       store,
       attachTo: createContainer()
     });
@@ -143,7 +145,6 @@ describe('ServerPoolsIndex', function () {
         const search = view.findComponent(BFormInput);
         expect(search.exists()).toBeTruthy();
         expect(search.html()).toContain('app.search');
-        await search.setProps({ debounce: 0 });
         await search.setValue('Prod');
 
         moxios.wait(function () {

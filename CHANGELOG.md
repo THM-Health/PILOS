@@ -5,12 +5,96 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Changed
+- Upgrade to Laravel 9 ([#226],[#227])
+- Breaking: Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
+- Breaking: Replace laravel homestead with laravel sail ([#225],[#228])
+- Remove git hooks ([#217],[#228])
+- Random room polling interval ([#229],[#230])
+
+## [1.9.4] - 2022-06-30
+### Changed
+- Update composer dependencies ([#221],[#222])
+- Update php-cs-fixer ([#221],[#222])
+- Add php 8.1 support ([#221],[#222])
+- Unify used icons ([#223],[#224])
+- Update node dependencies and fontawesome ([#223],[#224])
+
+## [1.9.3] - 2022-04-14
+### Fixed
+- Server error 500 on login, if entryUUID in ldap changed ([#212], [#213])
+
+## [1.9.2] - 2022-03-18
+### Fixed
+- Room fails to start if its name has a length of 1 ([#204], [#205])
+- Server error 500 if room type is invalid ([#205])
+
+### Changed
+- Update node dependencies ([#195])
+
+## [1.9.1] - 2022-03-17
+### Fixed
+- Broken sorting of BBB version in server list ([#202], [#203])
+
+## [1.9.0] - 2022-03-17
+### Added 
+- Support for BBB2.4 API, disable learning dashboard and change default layout ([#190], [#191])
+- Show BBB version in server list and view ([#199], [#200])
+
+### Changed
+- Update php und node dependencies ([#191])
+
+## [1.8.0] - 2022-01-20
+### Added
+- Browser notifications on room start ([#124], [#178])
+- Automatically delete old or unused rooms with prior email notification  ([#186], [#187])
+
+### Changed
+- More structured layout for application settings ([#187])
+- Update php dependencies ([#187])
+
+## [1.7.0] - 2021-11-16
+### Added
+- Logo and custom css for BBB room ([#68], [#152])
+- Role filter in user list ([#161], [#174])
+
+### Fixed
+- Missing tooltips on some buttons ([#175], [#176])
+
+## [1.6.1] - 2021-11-04
+### Fixed
+- Rooms can be started simultaneously which leads to users being in different bbb rooms ([#172])
+- Rooms can be closed directly after being created by a failed join request or cronjob, if the bbb api response is slow ([#170], [#172])
+- Unnecessary ldap requests ([#171], [#173])
+
+## [1.6.0] - 2021-11-01
+### Added
+- Personalized room tokens ([#72], [#145])
+
+## [1.5.0] - 2021-09-07
+### Added
+- Support for parallel testing ([#157], [#158])
+- Modal to confirm end of room membership ([#159], [#165])
+- Profile image for room member list and user avatar in BBB ([#166], [#167])
+
+### Changed
+- Update BBB api to v4.0.0 ([#155], [#156])
+- Update Laravel to v8 and bump other dependencies ([#157], [#158])
+- Allow more special chars in guest name and show invalid chars ([#162], [#163])
+
+## [1.4.1] - 2021-07-28
+### Fixed
+- Missing a slash after hostname in email template and room join url in bbb room ([#153], [#154])
+
+## [1.4.0] - 2021-07-09
 ### Added
 - Room type restriction for specific roles ([#98], [#127])
 - Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
 - Migration from greenlight guide (MIGRATE_GREENLIGHT.md) ([#141], [#142])
 - Greenlight compatibility mode to support most common greenlight urls ([#141], [#142])
 - Attendance logging for each meeting; UI to see attendance and meeting statistics ([#133], [#134])
+- Email in user search dialog in room membership ([#147], [#150])
 
 ### Fixed
 - Not listable room types in room filter ([#138], [#140])
@@ -113,6 +197,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#65]: https://github.com/THM-Health/PILOS/pull/65
 [#66]: https://github.com/THM-Health/PILOS/pull/66
 [#67]: https://github.com/THM-Health/PILOS/issues/67
+[#68]: https://github.com/THM-Health/PILOS/issues/68
+[#72]: https://github.com/THM-Health/PILOS/issues/72
 [#73]: https://github.com/THM-Health/PILOS/pull/73
 [#81]: https://github.com/THM-Health/PILOS/pull/81
 [#87]: https://github.com/THM-Health/PILOS/pull/87
@@ -142,6 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#121]: https://github.com/THM-Health/PILOS/issues/121
 [#122]: https://github.com/THM-Health/PILOS/pull/122
 [#123]: https://github.com/THM-Health/PILOS/issues/123
+[#124]: https://github.com/THM-Health/PILOS/issues/124
 [#125]: https://github.com/THM-Health/PILOS/pull/125
 [#127]: https://github.com/THM-Health/PILOS/pull/127
 [#129]: https://github.com/THM-Health/PILOS/issues/129
@@ -156,11 +243,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#140]: https://github.com/THM-Health/PILOS/pull/140
 [#141]: https://github.com/THM-Health/PILOS/issues/141
 [#142]: https://github.com/THM-Health/PILOS/pull/142
-[#141]: https://github.com/THM-Health/PILOS/issues/143
-[#142]: https://github.com/THM-Health/PILOS/pull/144
+[#143]: https://github.com/THM-Health/PILOS/issues/143
+[#144]: https://github.com/THM-Health/PILOS/pull/144
+[#145]: https://github.com/THM-Health/PILOS/pull/145
+[#147]: https://github.com/THM-Health/PILOS/issues/147
+[#150]: https://github.com/THM-Health/PILOS/pull/150
+[#152]: https://github.com/THM-Health/PILOS/pull/152
+[#153]: https://github.com/THM-Health/PILOS/issues/153
+[#154]: https://github.com/THM-Health/PILOS/pull/154
+[#155]: https://github.com/THM-Health/PILOS/issues/155
+[#156]: https://github.com/THM-Health/PILOS/pull/156
+[#157]: https://github.com/THM-Health/PILOS/issues/157
+[#158]: https://github.com/THM-Health/PILOS/pull/158
+[#159]: https://github.com/THM-Health/PILOS/issues/159
+[#161]: https://github.com/THM-Health/PILOS/issues/161
+[#162]: https://github.com/THM-Health/PILOS/issues/162
+[#163]: https://github.com/THM-Health/PILOS/pull/163
+[#165]: https://github.com/THM-Health/PILOS/pull/165
+[#166]: https://github.com/THM-Health/PILOS/issues/166
+[#167]: https://github.com/THM-Health/PILOS/pull/167
+[#170]: https://github.com/THM-Health/PILOS/issues/170
+[#171]: https://github.com/THM-Health/PILOS/issues/171
+[#172]: https://github.com/THM-Health/PILOS/pull/172
+[#173]: https://github.com/THM-Health/PILOS/pull/173
+[#174]: https://github.com/THM-Health/PILOS/pull/174
+[#175]: https://github.com/THM-Health/PILOS/issues/175
+[#176]: https://github.com/THM-Health/PILOS/pull/176
+[#178]: https://github.com/THM-Health/PILOS/pull/178
+[#186]: https://github.com/THM-Health/PILOS/issues/186
+[#187]: https://github.com/THM-Health/PILOS/pull/187
+[#190]: https://github.com/THM-Health/PILOS/issues/190
+[#191]: https://github.com/THM-Health/PILOS/pull/191
+[#195]: https://github.com/THM-Health/PILOS/pull/195
+[#199]: https://github.com/THM-Health/PILOS/issues/199
+[#200]: https://github.com/THM-Health/PILOS/pull/200
+[#202]: https://github.com/THM-Health/PILOS/issues/202
+[#203]: https://github.com/THM-Health/PILOS/pull/203
+[#204]: https://github.com/THM-Health/PILOS/issues/204
+[#205]: https://github.com/THM-Health/PILOS/pull/205
+[#212]: https://github.com/THM-Health/PILOS/issues/212
+[#213]: https://github.com/THM-Health/PILOS/pull/213
+[#217]: https://github.com/THM-Health/PILOS/issues/217
+[#221]: https://github.com/THM-Health/PILOS/issues/221
+[#222]: https://github.com/THM-Health/PILOS/pull/222
+[#223]: https://github.com/THM-Health/PILOS/issues/223
+[#224]: https://github.com/THM-Health/PILOS/pull/224
+[#225]: https://github.com/THM-Health/PILOS/issues/225
+[#226]: https://github.com/THM-Health/PILOS/issues/226
+[#227]: https://github.com/THM-Health/PILOS/pull/227
+[#228]: https://github.com/THM-Health/PILOS/pull/228
+[#229]: https://github.com/THM-Health/PILOS/issues/229
+[#230]: https://github.com/THM-Health/PILOS/pull/230
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.3.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
 [1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
+[1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
+[1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
+[1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
+[1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
+[1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
+[1.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.0
+[1.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.8.0
+[1.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.0
+[1.9.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.1
+[1.9.2]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.2
+[1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
+[1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4

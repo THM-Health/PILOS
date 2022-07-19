@@ -7,8 +7,10 @@ export default {
   yes: 'Ja',
   no: 'Nein',
   search: 'Suche',
+  toSearch: 'Suchen',
   actions: 'Aktionen',
   profile: 'Profil',
+  cancel: 'Abbrechen',
   flash: {
     clientError: {
       message: 'Es ist ein unbekannter Fehler in der Anwendung aufgetreten!',

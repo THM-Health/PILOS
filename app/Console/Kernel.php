@@ -3,9 +3,11 @@
 namespace App\Console;
 
 use App\Console\Commands\CleanupAttendance;
+use App\Console\Commands\CleanupRooms;
 use App\Console\Commands\CleanupStatistics;
 use App\Console\Commands\CreateAdminUser;
 use App\Console\Commands\BuildHistory;
+use App\Console\Commands\DeleteObsoleteTokens;
 use App\Console\Commands\DeleteUnverifiedNewUsers;
 use App\Console\Commands\ImportGreenlight;
 use Illuminate\Console\Scheduling\Schedule;
@@ -24,6 +26,8 @@ class Kernel extends ConsoleKernel
         ImportGreenlight::class,
         CleanupAttendance::class,
         CleanupStatistics::class,
+        DeleteObsoleteTokens::class,
+        CleanupRooms::class
     ];
 
     /**
@@ -38,6 +42,8 @@ class Kernel extends ConsoleKernel
         $schedule->command(DeleteUnverifiedNewUsers::class)->everyMinute();
         $schedule->command(CleanupStatistics::class)->daily();
         $schedule->command(CleanupAttendance::class)->daily();
+        $schedule->command(CleanupRooms::class)->daily();
+        $schedule->command(DeleteObsoleteTokens::class)->daily();
     }
 
     /**

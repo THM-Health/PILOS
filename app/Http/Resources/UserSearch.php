@@ -28,7 +28,8 @@ class UserSearch extends JsonResource
         return [
             'id'            => $this->id,
             'firstname'     => $this->firstname,
-            'lastname'      => $this->lastname
+            'lastname'      => $this->lastname,
+            'email'         => $this->email
         ];
     }
 }

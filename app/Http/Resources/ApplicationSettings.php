@@ -49,7 +49,11 @@ class ApplicationSettings extends JsonResource
                 'file_mimes'            => config('bigbluebutton.allowed_file_mimes'),
                 'max_filesize'          => intval(config('bigbluebutton.max_filesize')),
                 'room_name_limit'       => intval(config('bigbluebutton.room_name_limit')),
-                'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit'))
+                'welcome_message_limit' => intval(config('bigbluebutton.welcome_message_limit')),
+                $this->mergeWhen($this->allSettings, [
+                    'style' => setting('bbb_style'),
+                    'logo'  => setting('bbb_logo'),
+                ])
             ],
             'banner' => [
                 'enabled'    => boolval(setting('banner.enabled')),
@@ -66,8 +70,14 @@ class ApplicationSettings extends JsonResource
                 ])
             ],
             $this->mergeWhen($this->allSettings, [
-                'link_btn_styles' => LinkButtonStyle::getValues(),
-                'link_targets'    => LinkTarget::getValues()
+                'link_btn_styles'            => LinkButtonStyle::getValues(),
+                'link_targets'               => LinkTarget::getValues(),
+                'room_auto_delete'           => [
+                    'enabled'              => setting('room_auto_delete.enabled'),
+                    'inactive_period'      => setting('room_auto_delete.inactive_period'),
+                    'never_used_period'    => setting('room_auto_delete.never_used_period'),
+                    'deadline_period'      => setting('room_auto_delete.deadline_period')
+                ]
             ]),
             'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
             'help_url'             => setting('help_url'),
@@ -87,6 +97,7 @@ class ApplicationSettings extends JsonResource
                 'enabled'           => boolval(setting('attendance.enabled')),
                 'retention_period'  => intval(setting('attendance.retention_period')),
             ],
+            'room_token_expiration' => intval(setting('room_token_expiration')),
             'shibboleth'           => config('shibboleth.enabled'),
             'ldap'                 => config('ldap.enabled'),
         ];

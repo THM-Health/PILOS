@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormSelect, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import sinon from 'sinon';
@@ -12,9 +12,14 @@ const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', p
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(VueRouter);
 localVue.use(Vuex);
+
+const createContainer = (tag = 'div') => {
+  const container = document.createElement(tag);
+  document.body.appendChild(container);
+  return container;
+};
 
 function overrideStub (url, response) {
   const l = moxios.stubs.count();
@@ -89,7 +94,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -115,7 +121,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -148,7 +155,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 10, short: 'VL', description: 'Test', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -174,7 +182,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -218,7 +227,8 @@ describe('RoomType Select', function () {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {
@@ -261,7 +271,8 @@ describe('RoomType Select', function () {
       mocks: {
         $t: (key) => key
       },
-      store
+      store,
+      attachTo: createContainer()
     });
 
     moxios.wait(async () => {

@@ -5,19 +5,20 @@ namespace App;
 use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ServerPool extends Model
 {
-    use AddsModelNameTrait;
+    use AddsModelNameTrait, HasFactory;
 
     protected $fillable = ['name','description'];
 
-    const VIDEO_WEIGHT       = 3;
-    const AUDIO_WEIGHT       = 2;
-    const PARTICIPANT_WEIGHT = 1;
+    public const VIDEO_WEIGHT       = 3;
+    public const AUDIO_WEIGHT       = 2;
+    public const PARTICIPANT_WEIGHT = 1;
 
     /**
      * The "booted" method of the model.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\User as UserResource;
 use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +15,7 @@ class Room extends JsonResource
      */
     private $authenticated;
     private $details;
+    private $token;
 
     /**
      * Create a new resource instance.
@@ -21,11 +23,12 @@ class Room extends JsonResource
      * @param mixed $resource
      * @param $authenticated boolean is user authenticated (has valid access code, member or owner)
      */
-    public function __construct($resource, $authenticated, $details = false)
+    public function __construct($resource, $authenticated, $details = false, $token = null)
     {
         parent::__construct($resource);
         $this->authenticated = $authenticated;
         $this->details       = $details;
+        $this->token         = $token;
     }
 
     /**
@@ -48,16 +51,18 @@ class Room extends JsonResource
             'type'              => new RoomType($this->roomType),
             'model_name'        => $this->model_name,
             $this->mergeWhen($this->details, [
+                'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
                 'authenticated'     => $this->authenticated,
                 'allowMembership'   => $this->allowMembership,
                 'isMember'          => $this->resource->isMember(Auth::user()),
-                'isModerator'       => $this->resource->isModerator(Auth::user()),
+                'isModerator'       => $this->resource->isModerator(Auth::user(), $this->token),
                 'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
-                'canStart'          => Gate::inspect('start', $this->resource)->allowed(),
-                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', $this->resource)->allowed(), $this->accessCode),
+                'canStart'          => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
+                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->accessCode),
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'running'           => $runningMeeting != null,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
+                'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles()
             ])
         ];
     }

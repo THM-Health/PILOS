@@ -9,13 +9,14 @@ use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use GoldSpecDigital\LaravelEloquentUUID\Database\Eloquent\Uuid;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
 
 class Meeting extends Model
 {
-    use Uuid;
+    use Uuid, HasFactory;
 
     /**
      * The "type" of the auto-incrementing ID.
@@ -85,12 +86,12 @@ class Meeting extends Model
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
-        $meetingParams->setModeratorPassword($this->moderatorPW)
-            ->setAttendeePassword($this->attendeePW)
-            ->setLogoutUrl(url('rooms/'.$this->room->id))
+        $meetingParams->setModeratorPW($this->moderatorPW)
+            ->setAttendeePW($this->attendeePW)
+            ->setLogoutURL(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
-            ->setWelcomeMessage($this->room->welcome)
+            ->setWelcome($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
             ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
             ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
@@ -100,7 +101,9 @@ class Meeting extends Model
             ->setLockSettingsDisableNote($this->room->lockSettingsDisableNote)
             ->setLockSettingsHideUserList($this->room->lockSettingsHideUserList)
             ->setLockSettingsLockOnJoin($this->room->lockSettingsLockOnJoin)
-            ->setMuteOnStart($this->room->muteOnStart);
+            ->setMuteOnStart($this->room->muteOnStart)
+            ->setMeetingLayout(CreateMeetingParameters::CUSTOM_LAYOUT)
+            ->setLearningDashboardEnabled(false);
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->room->files()->where('useinmeeting', true)->orderBy('default', 'desc')->get();
@@ -120,6 +123,11 @@ class Meeting extends Model
             $meetingParams->setGuestPolicyAlwaysAcceptAuth();
         }
 
+        // if a logo is defined, set logo
+        if (setting()->has('bbb_logo')) {
+            $meetingParams->setLogo(setting('bbb_logo'));
+        }
+
         return $this->server->bbb()->createMeeting($meetingParams);
     }
 
@@ -129,8 +137,7 @@ class Meeting extends Model
      */
     public function isRunning()
     {
-        // TODO Remove blank password, after PHP BBB library is updated
-        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id, null);
+        $isMeetingRunningParams = new GetMeetingInfoParameters($this->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
         $response               = $this->server->bbb()->getMeetingInfo($isMeetingRunningParams);
 
@@ -171,18 +178,26 @@ class Meeting extends Model
      * @param $role RoomUserRole Role of the user inside the meeting
      * @param $userid integer unique identifier for this user/guest
      * @param $skipAudioCheck boolean Flag, whether to skip the audio check or not
+     * @param $avatar string URL to user avatar
      * @return mixed
      */
-    public function getJoinUrl($name, $role, $userid, $skipAudioCheck)
+    public function getJoinUrl($name, $role, $userid, $skipAudioCheck, $avatar)
     {
         $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderatorPW : $this->attendeePW;
 
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $password);
-        $joinMeetingParams->setJoinViaHtml5(true);
         $joinMeetingParams->setRedirect(true);
-        $joinMeetingParams->setUserId($userid);
-        $joinMeetingParams->setGuest($role == RoomUserRole::GUEST);
+        $joinMeetingParams->setUserID($userid);
+        $joinMeetingParams->setAvatarURL($avatar);
+        if ($role == RoomUserRole::GUEST) {
+            $joinMeetingParams->setGuest(true);
+        }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', $skipAudioCheck);
+
+        // If a custom style file is set, pass url to bbb html5 client
+        if (setting()->has('bbb_style')) {
+            $joinMeetingParams->addUserData('bbb_custom_style_url', setting('bbb_style'));
+        }
 
         return $this->server->bbb()->getJoinMeetingURL($joinMeetingParams);
     }

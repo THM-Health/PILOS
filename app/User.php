@@ -4,16 +4,30 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Builder;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use Storage;
 
 class User extends Authenticatable
 {
-    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait;
+    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($model) {
+            $model->myRooms->each->delete();
+        });
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -50,6 +64,15 @@ class User extends Authenticatable
     public function getFullnameAttribute()
     {
         return $this->firstname.' '.$this->lastname;
+    }
+
+    /**
+     * Get public url of the users profile picture
+     * @return string|null
+     */
+    public function getImageUrlAttribute()
+    {
+        return $this->image != null ? Storage::disk('public')->url($this->image) : null;
     }
 
     /**
@@ -104,6 +127,18 @@ class User extends Authenticatable
     public function scopeWithFirstName(Builder $query, $firstname)
     {
         return $query->where('firstname', 'like', '%' . $firstname . '%');
+    }
+
+    /**
+     * Scope a query to only get users that are members of a given role.
+     *
+     * @param  Builder $query Query that should be scoped
+     * @param  int     $role  Role the user has
+     * @return Builder The scoped query
+     */
+    public function scopeWithRole(Builder $query, $role)
+    {
+        return $query->join('role_user', 'role_user.user_id', '=', 'users.id')->where('role_user.role_id', $role);
     }
 
     /**

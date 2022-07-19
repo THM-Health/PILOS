@@ -9,7 +9,7 @@
             v-else
             @click="load()"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -76,7 +76,9 @@
                     :disabled="disabled"
                     @click="settings.duration = null"
                     variant="outline-secondary"
-                  ><i class="fas fa-trash"></i
+                    :title="$t('rooms.settings.general.resetDuration')"
+                    v-b-tooltip.hover
+                  ><i class="fa-solid fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
               </b-input-group>
@@ -96,7 +98,9 @@
                     :disabled="disabled"
                     v-on:click="settings.accessCode = (Math.floor(Math.random() * (999999999 - 111111112)) + 111111111)"
                     variant="outline-secondary"
-                  ><i class="fas fa-dice"></i
+                    :title="$t('rooms.settings.security.generateAccessCode')"
+                    v-b-tooltip.hover
+                  ><i class="fa-solid fa-dice"></i
                   ></b-button>
                 </b-input-group-prepend>
                 <b-form-input
@@ -114,7 +118,9 @@
                     :disabled="disabled"
                     @click="settings.accessCode = null"
                     variant="outline-secondary"
-                  ><i class="fas fa-trash"></i
+                    :title="$t('rooms.settings.security.deleteAccessCode')"
+                    v-b-tooltip.hover
+                  ><i class="fa-solid fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
               </b-input-group>
@@ -164,7 +170,7 @@
             </b-form-group>
           </b-col>
 
-          <!-- Paticipants settings tab -->
+          <!-- Participants settings tab -->
           <b-col lg="3" md="6" cols="12">
             <h5>{{ $t('rooms.settings.participants.title') }}</h5>
               <!-- Max amount of participants -->
@@ -184,7 +190,9 @@
                       :disabled="disabled"
                       @click="settings.maxParticipants = null"
                       variant="outline-secondary"
-                    ><i class="fas fa-trash"></i
+                      :title="$t('rooms.settings.participants.clearMaxParticipants')"
+                      v-b-tooltip.hover
+                    ><i class="fa-solid fa-trash"></i
                     ></b-button>
                   </b-input-group-append>
                 </b-input-group>
@@ -381,7 +389,7 @@
               variant='success'
               type='submit'
               >
-              <i class='fas fa-save'></i> {{ $t('app.save') }}
+              <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
             </b-button>
           </b-col>
         </b-row>

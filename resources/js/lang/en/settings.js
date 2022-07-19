@@ -58,6 +58,20 @@ export default {
     nodata: 'No users found!',
     nodataFiltered: 'For the filter query no users were found!',
 
+    image: {
+      title: 'Profile picture',
+      upload: 'Upload new picture',
+      crop: 'Crop profile picture',
+      save: 'Confirm',
+      cancel: 'Cancel',
+      delete: 'Delete picture',
+      undo_delete: 'Undo deletion',
+      invalidMime: {
+        message: 'The file format is not supported. Please select a jpg or png file.',
+        title: 'Invalid file format'
+      }
+    },
+
     base_data: 'Base data',
     room_settings: 'Custom room settings',
     skip_check_audio: 'Disable echo audio test',
@@ -73,6 +87,7 @@ export default {
     password_confirmation: 'Password confirmation',
     user_locale: 'Language',
     roles: 'Roles',
+    role_filter: 'Select role for filtering',
     select_roles: 'Please select at least one role',
     select_locale: 'Please select a language',
     removeRole: 'Remove role',
@@ -126,7 +141,6 @@ export default {
       noReplacement: '-- No replacement --',
       replacementInfo: 'If there are rooms associated with this room type, you need to select a replacement room type.'
     },
-    loadingError: 'An error occurred during loading of the room types.',
     restrict: 'Restrict usage',
     restrictDescription: 'The usage of this room type and the corresponding servers will be restricted to the selected roles.',
     roles: 'Roles',
@@ -185,6 +199,10 @@ export default {
       description: 'Limits the number of page size for own rooms pagination'
     },
 
+    attendanceAndStatisticsTitle: 'Attendance and statistics',
+    roomsTitle: 'Rooms',
+    usersTitle: 'Users',
+
     statistics: {
       servers: {
         enabledTitle: 'Record server utilisation',
@@ -214,7 +232,7 @@ export default {
       link_target: 'Link target',
       link_style: 'Link style',
       icon: 'Icon',
-      iconDescription: 'The CSS class of the Fontawesome-Icon (e. g. `fas fa-door-open`). The icon will only be visible, if a title is supplied.',
+      iconDescription: 'The CSS class of the Fontawesome-Icon (e. g. `fa-solid fa-door-open`). The icon will only be visible, if a title is supplied.',
       color: 'Text color of the banner',
       background: 'Background color of the banner',
       selectLinkTarget: 'Select link target',
@@ -223,7 +241,63 @@ export default {
 
     userSettings: 'User settings',
     passwordSelfResetEnabled: 'Give registered users the possibility to reset their password',
-    defaultTimezone: 'Default timezone'
+    defaultTimezone: 'Default timezone',
+
+    roomTokenExpiration: {
+      title: 'Expiration time for personalized room links',
+      description: 'Time period since last usage, after which personalized room links gets automatically removed.'
+    },
+
+    room_auto_delete: {
+      enabled: {
+        title: 'Automatically delete unused rooms',
+        enabled: 'Enable'
+      },
+      deadlinePeriod: {
+        title: 'Deadline for deletion',
+        description: 'Period between delivery of the information email and the deletion'
+      },
+      inactivePeriod: {
+        title: 'Period until inactive rooms are deleted',
+        description: 'Rooms where the last meeting was longer ago than the period'
+      },
+      neverUsedPeriod: {
+        title: 'Period until never used rooms are deleted',
+        description: 'Rooms that were created before the period but have not been used yet'
+      }
+    },
+
+    oneDay: '1 Day (24 Hours)',
+    oneWeek: '1 Week (7 Day)',
+    twoWeeks: '2 Weeks (14 Days)',
+    oneMonth: '1 Month (30 Days)',
+    threeMonth: '3 Months (90 Days)',
+    sixMonth: '6 Months (180 Days)',
+    oneYear: '1 Year (365 Days)',
+    twoYears: '2 Year (730 Days)',
+    never: 'Never',
+    unlimited: 'Unlimited',
+
+    bbb: {
+      title: 'BigBlueButton Customization',
+      logo: {
+        title: 'Logo',
+        uploadTitle: 'Upload a logo (max. 500 KB)',
+        urlTitle: 'URL to logo file',
+        description: 'Changes the application logo. Enter the image URL',
+        hint: 'https://domain.tld/path/logo.svg',
+        selectFile: 'Select logo file',
+        alt: 'Logo preview',
+        delete: 'Delete',
+        reset: 'Reset'
+      },
+      style: {
+        title: 'CSS style file',
+        view: 'View',
+        delete: 'Delete',
+        reset: 'Reset'
+      }
+    }
   },
 
   servers: {
@@ -233,6 +307,7 @@ export default {
     name: 'Name',
     description: 'Description',
     status: 'Status',
+    version: 'Version',
     participantCount: 'Participants',
     videoCount: 'Videos',
     ownMeetingCount: 'Own meetings',

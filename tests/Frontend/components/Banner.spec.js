@@ -1,10 +1,9 @@
 import Banner from '../../../resources/js/components/Banner';
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BAlert } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 describe('Banner', function () {
   it('alert gets shown only if the enabled flag was provided and is not falsy', function () {

@@ -36,6 +36,7 @@ class ApplicationController extends Controller
      */
     public function updateSettings(UpdateSetting $request)
     {
+        // Logo for frontend
         if ($request->has('logo_file')) {
             $path = $request->file('logo_file')->store('images', 'public');
             $url  = Storage::url($path);
@@ -44,6 +45,7 @@ class ApplicationController extends Controller
             $logo = $request->logo;
         }
 
+        // Favicon for frontend
         if ($request->has('favicon_file')) {
             $path    = $request->file('favicon_file')->store('images', 'public');
             $url     = Storage::url($path);
@@ -52,6 +54,7 @@ class ApplicationController extends Controller
             $favicon = $request->favicon;
         }
 
+        // Default presentation for BBB
         if ($request->has('default_presentation')) {
             if (!empty(setting('default_presentation'))) {
                 Storage::deleteDirectory('public/default_presentation');
@@ -65,6 +68,29 @@ class ApplicationController extends Controller
             }
         }
 
+        // Logo for BBB
+        if ($request->has('bbb.logo_file')) {
+            $path = $request->file('bbb.logo_file')->store('images', 'public');
+            $url  = Storage::url($path);
+            setting()->set('bbb_logo', url($url));
+        } elseif ($request->has('bbb.logo') && trim($request->bbb['logo']) != '') {
+            setting()->set('bbb_logo', $request->bbb['logo']);
+        } else {
+            setting()->forget('bbb_logo');
+        }
+
+        // Custom style file for BBB
+        if ($request->has('bbb.style')) {
+            if (!empty($request->file('bbb.style'))) {
+                $path = $request->file('bbb.style')->storeAs('styles', 'bbb.css', 'public');
+                $url  = Storage::url($path);
+                setting()->set('bbb_style', url($url));
+            } else {
+                Storage::disk('public')->delete('styles/bbb.css');
+                setting()->forget('bbb_style');
+            }
+        }
+
         setting()->set('logo', $logo);
         setting()->set('favicon', $favicon);
         setting()->set('name', $request->name);
@@ -73,6 +99,7 @@ class ApplicationController extends Controller
         setting()->set('pagination_page_size', $request->pagination_page_size);
         setting()->set('password_self_reset_enabled', $request->password_self_reset_enabled);
         setting()->set('default_timezone', $request->default_timezone);
+        setting()->set('room_token_expiration', $request->room_token_expiration);
         setting()->set('banner', array_filter($request->banner, function ($setting) {
             return $setting !== null;
         }));
@@ -96,6 +123,11 @@ class ApplicationController extends Controller
         setting()->set('attendance.enabled', $request->attendance['enabled']);
         setting()->set('attendance.retention_period', $request->attendance['retention_period']);
 
+        setting()->set('room_auto_delete.enabled', $request->room_auto_delete['enabled'] && !($request->room_auto_delete['inactive_period'] == -1 && $request->room_auto_delete['never_used_period'] == -1));
+        setting()->set('room_auto_delete.inactive_period', $request->room_auto_delete['inactive_period']);
+        setting()->set('room_auto_delete.never_used_period', $request->room_auto_delete['never_used_period']);
+        setting()->set('room_auto_delete.deadline_period', $request->room_auto_delete['deadline_period']);
+
         if (!empty($request->help_url)) {
             setting()->set('help_url', $request->help_url);
         } else {
@@ -113,6 +145,6 @@ class ApplicationController extends Controller
      */
     public function currentUser()
     {
-        return (new UserResource(Auth::user()))->withPermissions();
+        return (new UserResource(Auth::user()))->withPermissions()->withoutRoles();
     }
 }

@@ -20,13 +20,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
+use Storage;
 
 class UserController extends Controller
 {
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
-        $this->middleware('check.stale:user,\App\Http\Resources\User,withRoles', ['only' => 'update']);
+        $this->middleware('check.stale:user,\App\Http\Resources\User', ['only' => 'update']);
     }
 
     /**
@@ -56,6 +58,13 @@ class UserController extends Controller
             if (in_array($by, ['id', 'firstname', 'lastname', 'email', 'authenticator']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
+        }
+
+        if ($request->has('role')) {
+            Validator::make($request->all(), [
+                'role' => 'required|exists:roles,id',
+            ])->validate();
+            $resource = $resource->withRole($request->query('role'));
         }
 
         if ($request->has('name')) {
@@ -109,7 +118,7 @@ class UserController extends Controller
             $user->notify(new UserWelcome($token, Carbon::parse($reset->created_at)));
         }
 
-        return (new UserResource($user))->withRoles();
+        return new UserResource($user);
     }
 
     /**
@@ -120,7 +129,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return (new UserResource($user))->withRoles();
+        return new UserResource($user);
     }
 
     /**
@@ -150,6 +159,24 @@ class UserController extends Controller
             }
         }
 
+        // User requested to change image
+        if ($request->has('image')) {
+            // If user already has a profile image, delete current one to save disk space
+            if ($user->image != null) {
+                Storage::disk('public')->delete($user->image);
+            }
+            // User has provided a new profile image
+            if (!empty($request->file('image'))) {
+                // Save new image
+                $path        = $request->file('image')->storePublicly('profile_images', 'public');
+                $user->image = $path;
+            }
+            // Image should be removed
+            else {
+                $user->image = null;
+            }
+        }
+
         $user->locale               = $request->user_locale;
         $user->timezone             = $request->timezone;
         $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
@@ -164,7 +191,7 @@ class UserController extends Controller
 
         $user->refresh();
 
-        return (new UserResource($user))->withRoles();
+        return new UserResource($user);
     }
 
     /**

@@ -20,16 +20,16 @@ class MembershipTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user                 = factory(User::class)->create();
-        $this->role                 = factory(Role::class)->create();
+        $this->user                 = User::factory()->create();
+        $this->role                 = Role::factory()->create();
 
-        $this->managePermission     = factory(Permission::class)->create(['name'=>'rooms.manage']);
-        $this->viewAllPermission    = factory(Permission::class)->create(['name'=>'rooms.viewAll']);
+        $this->managePermission     = Permission::factory()->create(['name'=>'rooms.manage']);
+        $this->viewAllPermission    = Permission::factory()->create(['name'=>'rooms.viewAll']);
     }
 
     public function testAccessCodeMembership()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests'     => true,
             'allowMembership' => true,
             'accessCode'      => $this->faker->numberBetween(111111111, 999999999)
@@ -52,7 +52,7 @@ class MembershipTest extends TestCase
 
     public function testJoinMembership()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
@@ -78,7 +78,7 @@ class MembershipTest extends TestCase
 
     public function testLeaveMembership()
     {
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests'     => true,
             'allowMembership' => true,
             'accessCode'      => $this->faker->numberBetween(111111111, 999999999)
@@ -104,12 +104,12 @@ class MembershipTest extends TestCase
      */
     public function testMemberList()
     {
-        $memberUser      = factory(User::class)->create();
-        $memberModerator = factory(User::class)->create();
-        $memberCoOwner   = factory(User::class)->create();
-        $owner           = factory(User::class)->create();
+        $memberUser      = User::factory()->create(['image' => 'test.jpg']);
+        $memberModerator = User::factory()->create();
+        $memberCoOwner   = User::factory()->create();
+        $owner           = User::factory()->create();
 
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
@@ -143,9 +143,9 @@ class MembershipTest extends TestCase
         // Check member list as owner and response
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['id'=>$memberUser->id,'firstname'=>$memberUser->firstname,'lastname'=>$memberUser->lastname,'email'=>$memberUser->email,'role'=>RoomUserRole::USER])
-            ->assertJsonFragment(['id'=>$memberModerator->id,'firstname'=>$memberModerator->firstname,'lastname'=>$memberModerator->lastname,'email'=>$memberModerator->email,'role'=>RoomUserRole::MODERATOR])
-            ->assertJsonFragment(['id'=>$memberCoOwner->id,'firstname'=>$memberCoOwner->firstname,'lastname'=>$memberCoOwner->lastname,'email'=>$memberCoOwner->email,'role'=>RoomUserRole::CO_OWNER]);
+            ->assertJsonFragment(['id'=>$memberUser->id,'firstname'=>$memberUser->firstname,'lastname'=>$memberUser->lastname,'email'=>$memberUser->email,'role'=>RoomUserRole::USER, 'image' => $memberUser->imageUrl])
+            ->assertJsonFragment(['id'=>$memberModerator->id,'firstname'=>$memberModerator->firstname,'lastname'=>$memberModerator->lastname,'email'=>$memberModerator->email,'role'=>RoomUserRole::MODERATOR, 'image' => $memberUser->imageUrl])
+            ->assertJsonFragment(['id'=>$memberCoOwner->id,'firstname'=>$memberCoOwner->firstname,'lastname'=>$memberCoOwner->lastname,'email'=>$memberCoOwner->email,'role'=>RoomUserRole::CO_OWNER, 'image' => $memberUser->imageUrl]);
 
         // Check member list with view all rooms permission
         $this->user->roles()->attach($this->role);
@@ -166,13 +166,13 @@ class MembershipTest extends TestCase
      */
     public function testAddMember()
     {
-        $newUser         = factory(User::class)->create();
-        $memberUser      = factory(User::class)->create();
-        $memberModerator = factory(User::class)->create();
-        $memberCoOwner   = factory(User::class)->create();
-        $owner           = factory(User::class)->create();
+        $newUser         = User::factory()->create();
+        $memberUser      = User::factory()->create();
+        $memberModerator = User::factory()->create();
+        $memberCoOwner   = User::factory()->create();
+        $owner           = User::factory()->create();
 
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
@@ -260,13 +260,13 @@ class MembershipTest extends TestCase
      */
     public function testRemoveMember()
     {
-        $newUser         = factory(User::class)->create();
-        $memberUser      = factory(User::class)->create();
-        $memberModerator = factory(User::class)->create();
-        $memberCoOwner   = factory(User::class)->create();
-        $owner           = factory(User::class)->create();
+        $newUser         = User::factory()->create();
+        $memberUser      = User::factory()->create();
+        $memberModerator = User::factory()->create();
+        $memberCoOwner   = User::factory()->create();
+        $owner           = User::factory()->create();
 
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
@@ -341,14 +341,14 @@ class MembershipTest extends TestCase
      */
     public function testChangeMemberRole()
     {
-        $newUser         = factory(User::class)->create();
-        $memberUser      = factory(User::class)->create();
-        $memberModerator = factory(User::class)->create();
-        $memberCoOwner   = factory(User::class)->create();
-        $owner           = factory(User::class)->create();
-        $otherUser       = factory(User::class)->create();
+        $newUser         = User::factory()->create();
+        $memberUser      = User::factory()->create();
+        $memberModerator = User::factory()->create();
+        $memberCoOwner   = User::factory()->create();
+        $owner           = User::factory()->create();
+        $otherUser       = User::factory()->create();
 
-        $room = factory(Room::class)->create([
+        $room = Room::factory()->create([
             'allowGuests' => true,
             'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
         ]);

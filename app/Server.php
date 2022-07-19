@@ -5,7 +5,9 @@ namespace App;
 use App\Enums\ServerStatus;
 use App\Traits\AddsModelNameTrait;
 use BigBlueButton\BigBlueButton;
+use BigBlueButton\Http\Transport\CurlTransport;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class Server extends Model
 {
-    use AddsModelNameTrait;
+    use AddsModelNameTrait, HasFactory;
 
     protected $bbb;
 
@@ -41,11 +43,12 @@ class Server extends Model
              */
             if ($model->status != $model->getOriginal('status')) {
                 if ($model->status != ServerStatus::ONLINE) {
-                    $model->participant_count = null;
-                    $model->listener_count = null;
+                    $model->version                 = null;
+                    $model->participant_count       = null;
+                    $model->listener_count          = null;
                     $model->voice_participant_count = null;
-                    $model->video_count = null;
-                    $model->meeting_count = null;
+                    $model->video_count             = null;
+                    $model->meeting_count           = null;
                 }
                 if ($model->status == ServerStatus::OFFLINE) {
                     $model->endMeetings();
@@ -69,7 +72,8 @@ class Server extends Model
     public function bbb()
     {
         if ($this->bbb == null) {
-            $this->setBBB(new BigBlueButton($this->base_url, $this->salt));
+            $transport  = CurlTransport::createWithDefaultOptions([CURLOPT_TIMEOUT => config('bigbluebutton.server_timeout')]);
+            $this->setBBB(new BigBlueButton($this->base_url, $this->salt, $transport));
         }
 
         return $this->bbb;
@@ -103,6 +107,30 @@ class Server extends Model
             return $response->getMeetings();
         } catch (\Exception $exception) {
             // TODO add better error handling when provided by api
+            return null;
+        }
+    }
+
+    /**
+     * Get list of currently running meeting from the api
+     * @return string|null
+     */
+    public function getBBBVersion()
+    {
+        if ($this->status == ServerStatus::DISABLED) {
+            return null;
+        }
+
+        try {
+            $response = $this->bbb()->getApiVersion();
+            if ($response->failed()) {
+                return null;
+            }
+
+            $version = $response->getBbbVersion();
+
+            return $version != '' ? $version : null;
+        } catch (\Exception $exception) {
             return null;
         }
     }
@@ -212,7 +240,7 @@ class Server extends Model
     {
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->pluck('id');
+        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
         $allRunningMeetingsOnServers = new Collection();
 
         if ($this->status != ServerStatus::DISABLED) {
@@ -354,6 +382,7 @@ class Server extends Model
                 $this->meeting_count           = $serverStat->meeting_count;
                 $this->status                  = ServerStatus::ONLINE;
                 $this->timestamps              = false;
+                $this->version                 = $this->getBBBVersion();
                 $this->save();
 
                 // Save server statistics if enabled

@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Room;
 use App\RoomFile;
+use App\RoomToken;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -47,7 +48,7 @@ class RoomPolicy
      */
     public function view(?User $user, Room $room)
     {
-        return $user != null || $room->allowGuests;
+        return true;
     }
 
     /**
@@ -65,8 +66,9 @@ class RoomPolicy
     /**
      * Determine whether the user can view the room access code.
      *
-     * @param  User $user
-     * @param  Room $room
+     * @param  User|null  $user
+     * @param  Room       $room
+     * @param  ?RoomToken $token
      * @return bool
      */
     public function viewAccessCode(User $user, Room $room)
@@ -100,10 +102,12 @@ class RoomPolicy
     /**
      * Determine whether the user can start a new meeting in a room.
      *
-     * @param  User $user
+     * @param  ?User      $user
+     * @param  Room       $room
+     * @param  ?RoomToken $token
      * @return bool
      */
-    public function start(?User $user, Room $room)
+    public function start(?User $user, Room $room, ?RoomToken $token)
     {
         if ($room->everyoneCanStart) {
             return true;
@@ -113,7 +117,7 @@ class RoomPolicy
             return true;
         }
 
-        if ($room->isModerator($user)) {
+        if ($room->isModerator($user, $token)) {
             return true;
         }
 
@@ -172,6 +176,30 @@ class RoomPolicy
      * @return bool
      */
     public function manageMembers(User $user, Room $room)
+    {
+        return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
+    }
+
+    /**
+     * Determine whether the user can view all personalized tokens of the room
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function viewTokens(User $user, Room $room)
+    {
+        return $user->can('manageTokens', $room) || $user->can('rooms.viewAll');
+    }
+
+    /**
+     * Determine whether the user create, update, delete personalized tokens
+     *
+     * @param  User $user
+     * @param  Room $room
+     * @return bool
+     */
+    public function manageTokens(User $user, Room $room)
     {
         return $room->owner->is($user) || $room->isCoOwner($user) || $user->can('rooms.manage');
     }

@@ -205,6 +205,14 @@ body {
     white-space: nowrap;
 }
 
+.profileImageColumn {
+    width: $profile-image-width;
+}
+
+.profileImage {
+    width: $profile-image-width;
+}
+
 .actionColumn{
     // width of the default three action buttons (view, edit, delete) + cell padding
     width: calc(3 * #{$action-column-button-width} + 2 * #{$table-cell-padding});

@@ -1,20 +1,14 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
-  BTbody,
-  IconsPlugin
+  BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import dayjs from 'dayjs';
 import sinon from 'sinon';
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const localVue = createLocalVue();
 
@@ -29,7 +23,6 @@ const createContainer = (tag = 'div') => {
 };
 
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -48,8 +41,7 @@ const store = new Vuex.Store({
       },
       getters: {
         isAuthenticated: () => true,
-        settings: () => (setting) => setting === 'attendance.enabled' ? true : setting === 'statistics.meetings.enabled' ? true : null,
-        userTimezone: () => 'Europe/Berlin'
+        settings: () => (setting) => setting === 'attendance.enabled' ? true : setting === 'statistics.meetings.enabled' ? true : null
       }
     }
   },
@@ -79,8 +71,7 @@ describe('History', function () {
           },
           getters: {
             isAuthenticated: () => true,
-            settings: () => (setting) => setting === 'attendance.enabled' ? false : setting === 'statistics.meetings.enabled' ? false : null,
-            userTimezone: () => 'Europe/Berlin'
+            settings: () => (setting) => setting === 'attendance.enabled' ? false : setting === 'statistics.meetings.enabled' ? false : null
           }
         }
       },
@@ -93,8 +84,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom
@@ -152,7 +142,7 @@ describe('History', function () {
       expect(view.find('#retentionPeriodInfo').exists()).toBeFalsy();
 
       const reloadButton = view.findComponent(BButton);
-      expect(reloadButton.html()).toContain('fas fa-sync');
+      expect(reloadButton.html()).toContain('fa-solid fa-sync');
       await reloadButton.trigger('click');
 
       moxios.wait(async () => {
@@ -179,7 +169,7 @@ describe('History', function () {
         const table = view.findComponent(BTbody);
         const rows = table.findAll('tr');
         expect(rows.length).toBe(1);
-        expect(rows.at(0).text()).toContain('meetings.nodata');
+        expect(rows.at(0).text()).toContain('meetings.noHistoricalData');
 
         view.destroy();
         done();
@@ -192,8 +182,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom
@@ -249,22 +238,22 @@ describe('History', function () {
       expect(rows[2].at(1).text()).toBe('06/22/2021, 11:46');
       const buttonsRow2 = rows[2].at(2).findAll('button');
       expect(buttonsRow2.length).toBe(1);
-      expect(buttonsRow2.at(0).html()).toContain('fas fa-user-clock');
+      expect(buttonsRow2.at(0).html()).toContain('fa-solid fa-user-clock');
       expect(rows[2].length).toBe(3);
 
       expect(rows[3].at(0).text()).toBe('06/22/2021, 10:51');
       expect(rows[3].at(1).text()).toBe('06/22/2021, 10:51');
       const buttonsRow3 = rows[3].at(2).findAll('button');
       expect(buttonsRow3.length).toBe(1);
-      expect(buttonsRow3.at(0).html()).toContain('fas fa-chart-line');
+      expect(buttonsRow3.at(0).html()).toContain('fa-solid fa-chart-line');
       expect(rows[3].length).toBe(3);
 
       expect(rows[4].at(0).text()).toBe('06/22/2021, 10:49');
       expect(rows[4].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow4 = rows[4].at(2).findAll('button');
       expect(buttonsRow4.length).toBe(2);
-      expect(buttonsRow4.at(0).html()).toContain('fas fa-chart-line');
-      expect(buttonsRow4.at(1).html()).toContain('fas fa-user-clock');
+      expect(buttonsRow4.at(0).html()).toContain('fa-solid fa-chart-line');
+      expect(buttonsRow4.at(1).html()).toContain('fa-solid fa-user-clock');
       expect(rows[4].length).toBe(3);
 
       const retentionPeriodInfo = view.find('#retentionPeriodInfo');
@@ -285,8 +274,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom
@@ -357,15 +345,13 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key) => key,
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom,
         modalStatic: true
       },
       stubs: {
-        'line-chart': true,
         transition: false
       },
       store,
@@ -403,7 +389,7 @@ describe('History', function () {
       expect(rows[0].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow = rows[0].at(2).findAll('button');
       expect(buttonsRow.length).toBe(2);
-      expect(buttonsRow.at(0).html()).toContain('fas fa-chart-line');
+      expect(buttonsRow.at(0).html()).toContain('fa-solid fa-chart-line');
 
       expect(view.find('#statsModal').find('.modal').element.style.display).toEqual('none');
 
@@ -428,10 +414,18 @@ describe('History', function () {
         await view.vm.$nextTick();
 
         expect(view.vm.$data.chartDataRows).toMatchObject({
-          participants: [{ x: '2021-06-18 09:13', y: 5 }, { x: '2021-06-18 09:14', y: 6 }],
-          voices: [{ x: '2021-06-18 09:13', y: 4 }, { x: '2021-06-18 09:14', y: 5 }],
-          videos: [{ x: '2021-06-18 09:13', y: 1 }, { x: '2021-06-18 09:14', y: 2 }]
+          participants: [{ x: '2021-06-18T07:13:49.000000Z', y: 5 }, { x: '2021-06-18T07:14:51.000000Z', y: 6 }],
+          voices: [{ x: '2021-06-18T07:13:49.000000Z', y: 4 }, { x: '2021-06-18T07:14:51.000000Z', y: 5 }],
+          videos: [{ x: '2021-06-18T07:13:49.000000Z', y: 1 }, { x: '2021-06-18T07:14:51.000000Z', y: 2 }]
         });
+
+        const chartOptions = view.vm.chartOptions;
+
+        const ticksCallback = chartOptions.scales.xAxes[0].ticks.callback('10:35 am', 0, [{ value: 1623746102000, major: false }]);
+        const tooltipTitleCallback = chartOptions.tooltips.callbacks.title([{ xLabel: '2021-06-15T08:35:02.000000Z', yLabel: 0, label: '2021-06-15T08:35:02.000000Z', value: '0', index: 1, datasetIndex: 1, x: 1103, y: 638.44 }, { xLabel: '2021-06-15T08:35:02.000000Z', yLabel: 0, label: '2021-06-15T08:35:02.000000Z', value: '0', index: 1, datasetIndex: 2, x: 1103, y: 638.44 }]);
+
+        expect(ticksCallback).toBe('06/15/2021, 10:35');
+        expect(tooltipTitleCallback).toBe('06/15/2021, 10:35');
 
         view.destroy();
         done();
@@ -444,8 +438,7 @@ describe('History', function () {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
-        $d: i18nDateMock,
-        $date: dayjs
+        $d: i18nDateMock
       },
       propsData: {
         room: exampleRoom,
@@ -489,7 +482,7 @@ describe('History', function () {
       expect(rows[0].at(1).text()).toBe('06/22/2021, 10:50');
       const buttonsRow = rows[0].at(2).findAll('button');
       expect(buttonsRow.length).toBe(2);
-      expect(buttonsRow.at(1).html()).toContain('fas fa-user-clock');
+      expect(buttonsRow.at(1).html()).toContain('fa-solid fa-user-clock');
 
       expect(view.find('#attendanceModal').find('.modal').element.style.display).toEqual('none');
 

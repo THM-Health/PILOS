@@ -1,6 +1,6 @@
 import moxios from 'moxios';
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import PasswordReset from '../../../resources/js/views/PasswordReset';
@@ -10,7 +10,6 @@ import env from '../../../resources/js/env';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 

@@ -3,7 +3,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-  IconsPlugin,
+
   BFormInput,
   BFormCheckbox,
   BOverlay,
@@ -19,7 +19,6 @@ import _ from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -73,7 +72,7 @@ describe('RolesView', function () {
         default: false,
         model_name: 'Role',
         room_limit: null,
-        updated_at: '2020-09-08 15:13:26',
+        updated_at: '2020-09-08T15:13:26.000000Z',
         permissions: [
           {
             id: 1,
@@ -312,12 +311,14 @@ describe('RolesView', function () {
       attachTo: createContainer()
     });
 
-    const requestCount = moxios.requests.count();
+    moxios.wait(function () {
+      const requestCount = moxios.requests.count();
 
-    view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
-      expect(moxios.requests.count()).toBe(requestCount);
-      sinon.assert.calledOnce(spy);
-      done();
+      view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
+        expect(moxios.requests.count()).toBe(requestCount);
+        sinon.assert.calledOnce(spy);
+        done();
+      });
     });
   });
 
@@ -438,7 +439,7 @@ describe('RolesView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
       let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
         status: env.HTTP_STALE_MODEL,
@@ -503,7 +504,7 @@ describe('RolesView', function () {
 
     moxios.wait(function () {
       const newModel = _.cloneDeep(view.vm.model);
-      newModel.updated_at = '2020-09-08 16:13:26';
+      newModel.updated_at = '2020-09-08T16:13:26.000000Z';
       newModel.name = 'Test';
 
       const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
@@ -739,11 +740,11 @@ describe('RolesView', function () {
       let perm10 = permissionsCxs[4];
 
       // test if permission include works on load
-      expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-      expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
-      expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
-      expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-      expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
+      expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+      expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
+      expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
+      expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+      expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
 
       perm3.get('input').trigger('click');
       await view.vm.$nextTick();
@@ -751,11 +752,11 @@ describe('RolesView', function () {
       await view.vm.$nextTick();
 
       // test if permission include works after changes
-      expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-      expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-      expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-      expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
-      expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+      expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+      expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+      expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+      expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
+      expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
 
       restorePermissionsResponse();
 
@@ -783,11 +784,11 @@ describe('RolesView', function () {
         perm4 = permissionsCxs[3];
         perm10 = permissionsCxs[4];
 
-        expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-        expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
-        expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-check-circle text-success');
-        expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
-        expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fas fa-minus-circle text-danger');
+        expect(perm1.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+        expect(perm2.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
+        expect(perm3.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-check-circle text-success');
+        expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
+        expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
 
         restorePermissionsResponse();
 

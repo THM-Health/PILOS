@@ -12,7 +12,7 @@ class CreateRoom extends FormRequest
     {
         return [
             'roomType' => ['required', 'exists:App\RoomType,id', new ValidRoomType(Auth::user())],
-            'name'     => 'required|string|max:'.config('bigbluebutton.room_name_limit'),
+            'name'     => 'required|string|min:2|max:'.config('bigbluebutton.room_name_limit'),
         ];
     }
 }

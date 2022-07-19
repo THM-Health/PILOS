@@ -61,6 +61,20 @@ export default {
     nodata: 'Es sind keine Benutzer vorhanden!',
     nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
 
+    image: {
+      title: 'Profilbild',
+      upload: 'Neues Bild hochladen',
+      crop: 'Profilbild zuschneiden',
+      save: 'Übernehmen',
+      cancel: 'Abbrechen',
+      delete: 'Bild löschen',
+      undo_delete: 'Löschen rückgänig machen',
+      invalidMime: {
+        message: 'Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.',
+        title: 'Ungültiges Dateiformat'
+      }
+    },
+
     id: 'ID',
     firstname: 'Vorname',
     lastname: 'Nachname',
@@ -69,6 +83,7 @@ export default {
     password_confirmation: 'Passwort bestätigen',
     user_locale: 'Sprache',
     roles: 'Rollen',
+    role_filter: 'Rolle zum Filtern auswählen',
     select_roles: 'Bitte wählen Sie mindestens eine Rolle aus',
     select_locale: 'Bitte wählen Sie eine Sprache aus',
     removeRole: 'Rolle entfernen',
@@ -131,7 +146,6 @@ export default {
       noReplacement: '-- Kein Ersatz --',
       replacementInfo: 'Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.'
     },
-    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
     restrict: 'Verwendung einschränken',
     restrictDescription: 'Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.',
     roles: 'Rollen',
@@ -152,7 +166,7 @@ export default {
       description: 'URL zum Logo',
       hint: 'https://domain.tld/path/logo.svg',
       selectFile: 'Logo-Datei auswählen',
-      alt: 'Favicon Vorschau'
+      alt: 'Logo Vorschau'
     },
 
     favicon: {
@@ -190,6 +204,10 @@ export default {
       description: 'Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite'
     },
 
+    attendanceAndStatisticsTitle: 'Aufzeichnung und Statistik',
+    roomsTitle: 'Räume',
+    usersTitle: 'Benutzer',
+
     statistics: {
       servers: {
         enabledTitle: 'Auslastung der Server aufzeichnen',
@@ -219,7 +237,7 @@ export default {
       link_target: 'Linkziel',
       link_style: 'Linkart',
       icon: 'Icon',
-      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fas fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
+      iconDescription: 'Die CSS-Klasse des Fontawesome-Icons (z. B. `fa-solid fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.',
       color: 'Textfarbe des Banners',
       background: 'Hintergrundfarbe des Banners',
       selectLinkTarget: 'Linkziel auswählen',
@@ -228,7 +246,63 @@ export default {
 
     userSettings: 'Benutzereinstellungen',
     passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
-    defaultTimezone: 'Standardzeitzone'
+    defaultTimezone: 'Standardzeitzone',
+
+    roomTokenExpiration: {
+      title: 'Ablaufzeit für personalisierte Raumlinks',
+      description: 'Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.'
+    },
+
+    room_auto_delete: {
+      enabled: {
+        title: 'Ungenutzte Räume automatisch löschen',
+        enabled: 'Aktivieren'
+      },
+      deadlinePeriod: {
+        title: 'Löschfirst',
+        description: 'Zeitraum zwischen Zustellung der Informations-Email und der Löschung'
+      },
+      inactivePeriod: {
+        title: 'Zeitraum bis inaktive Räume gelöscht werden',
+        description: 'Räume deren letztes Meeting länger als der Zeitraum zurückliegt'
+      },
+      neverUsedPeriod: {
+        title: 'Zeitraum bis nie genutzte Räume gelöscht werden',
+        description: 'Räume die vor dem Zeitraum erstellt, aber bisher noch nicht verwendet wurden'
+      }
+    },
+
+    oneDay: '1 Tag (24 Stunden)',
+    oneWeek: '1 Woche (7 Tage)',
+    twoWeeks: '2 Wochen (14 Tage)',
+    oneMonth: '1 Monat (30 Tage)',
+    threeMonth: '3 Monate (90 Tage)',
+    sixMonth: '6 Monate (180 Tage)',
+    oneYear: '1 Jahr (365 Tage)',
+    twoYears: '2 Jahre (730 Tage)',
+    never: 'Nie',
+    unlimited: 'Unbegrenzt',
+
+    bbb: {
+      title: 'BigBlueButton Anpassungen',
+      logo: {
+        title: 'Logo',
+        uploadTitle: 'Logo hochladen (max. 500 KB)',
+        urlTitle: 'URL zu Logo-Datei',
+        description: 'URL zum Logo',
+        hint: 'https://domain.tld/path/logo.svg',
+        selectFile: 'Logo-Datei auswählen',
+        alt: 'Logo Vorschau',
+        delete: 'Löschen',
+        reset: 'Zurücksetzen'
+      },
+      style: {
+        title: 'CSS Style Datei',
+        view: 'Anzeigen',
+        delete: 'Löschen',
+        reset: 'Zurücksetzen'
+      }
+    }
   },
 
   servers: {
@@ -238,6 +312,7 @@ export default {
     name: 'Name',
     description: 'Beschreibung',
     status: 'Status',
+    version: 'Version',
     participantCount: 'Teilnehmer',
     videoCount: 'Videos',
     ownMeetingCount: 'Eigene Meetings',

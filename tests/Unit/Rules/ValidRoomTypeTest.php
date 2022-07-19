@@ -16,19 +16,19 @@ class ValidRoomTypeTest extends TestCase
 
     public function testPasses()
     {
-        $roleA = factory(Role::class)->create();
-        $roleB = factory(Role::class)->create();
-        $user  = factory(User::class)->create();
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
+        $user  = User::factory()->create();
         $user->roles()->sync([$roleB->id]);
-        $roomTypeA = factory(RoomType::class)->create([
+        $roomTypeA = RoomType::factory()->create([
             'restrict' => true
         ]);
         $roomTypeA->roles()->sync([$roleA->id]);
-        $roomTypeB = factory(RoomType::class)->create([
+        $roomTypeB = RoomType::factory()->create([
             'restrict' => true
         ]);
         $roomTypeB->roles()->sync([$roleB->id]);
-        $roomTypeC = factory(RoomType::class)->create();
+        $roomTypeC = RoomType::factory()->create();
         $roomTypeC->roles()->sync([$roleA->id]);
 
         $validRoomType = new ValidRoomType(null);

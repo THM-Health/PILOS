@@ -3,12 +3,13 @@
 namespace App;
 
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class RoomType extends Model
 {
-    use AddsModelNameTrait;
+    use AddsModelNameTrait, HasFactory;
 
     protected $casts = [
         'allow_listing' => 'boolean',

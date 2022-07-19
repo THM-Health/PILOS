@@ -13,7 +13,7 @@
               ref="newServer"
               :title="$t('settings.servers.new')"
               :to="{ name: 'settings.servers.view', params: { id: 'new' } }"
-            ><b-icon-plus></b-icon-plus></b-button>
+            ><i class="fa-solid fa-plus"></i></b-button>
           </can>
         </h3>
       </b-col>
@@ -22,10 +22,10 @@
           <b-form-input
             v-model='filter'
             :placeholder="$t('app.search')"
-            :debounce='200'
+            :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
+            <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -66,9 +66,9 @@
       </template>
 
       <template v-slot:cell(status)="data">
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2 text-white"><i class='fas fa-pause'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2 text-white"><i class='fas fa-stop'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2 text-white"><i class='fas fa-play'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2 text-white"><i class='fa-solid fa-pause'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2 text-white"><i class='fa-solid fa-stop'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2 text-white"><i class='fa-solid fa-play'></i></b-badge>
       </template>
 
       <template v-slot:cell(participant_count)="data">
@@ -78,6 +78,11 @@
 
       <template v-slot:cell(video_count)="data">
         <span v-if="data.item.video_count !== null">{{ data.item.video_count }}</span>
+        <raw-text v-else>---</raw-text>
+      </template>
+
+      <template v-slot:cell(version)="data">
+        <span v-if="data.item.version != null">{{ data.item.version }}</span>
         <raw-text v-else>---</raw-text>
       </template>
 
@@ -96,7 +101,7 @@
               variant='primary'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fas fa-eye'></i>
+              <i class='fa-solid fa-eye'></i>
             </b-button>
           </can>
           <can method='update' :policy='data.item'>
@@ -107,7 +112,7 @@
               variant='dark'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id } }"
             >
-              <i class='fas fa-edit'></i>
+              <i class='fa-solid fa-edit'></i>
             </b-button>
           </can>
           <can method='delete' :policy='data.item'>
@@ -118,7 +123,7 @@
               :disabled='isBusy'
               variant='danger'
               @click='showServerModal(data.item)'>
-              <i class='fas fa-trash'></i>
+              <i class='fa-solid fa-trash'></i>
             </b-button>
           </can>
         </b-button-group>
@@ -136,7 +141,7 @@
     ></b-pagination>
 
     <b-alert show>
-      <i class="fas fa-info-circle"></i>
+      <i class="fa-solid fa-info-circle"></i>
       {{ $t('settings.servers.usageInfo') }}
       <br><br>
       <b-button
@@ -145,7 +150,7 @@
         variant='primary'
         :disabled="isBusy"
         @click="updateUsage=true;$root.$emit('bv::refresh::table', 'servers-table')"
-      ><b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('settings.servers.reload') }}</b-button>
+      ><i class="fa-solid fa-sync"></i> {{ $t('settings.servers.reload') }}</b-button>
     </b-alert>
 
     <b-modal
@@ -188,6 +193,11 @@ export default {
   mixins: [ActionsColumn],
 
   props: {
+    searchDebounce: {
+      type: Number,
+      default: 200,
+      required: false
+    },
     modalStatic: {
       type: Boolean,
       default: false
@@ -200,6 +210,7 @@ export default {
         { key: 'id', label: this.$t('settings.servers.id'), sortable: true, thStyle: { width: '8%' } },
         { key: 'name', label: this.$t('settings.servers.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
+        { key: 'version', label: this.$t('settings.servers.version'), sortable: true, thStyle: { width: '10%' } },
         { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },
         { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, thStyle: { width: '15%' } },
         { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true, thStyle: { width: '15%' } }

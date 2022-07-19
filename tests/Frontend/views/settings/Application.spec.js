@@ -1,6 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
-import BootstrapVue, { BFormCheckbox, BFormInput, BFormTextarea, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, {
+  BButton,
+  BFormCheckbox,
+  BFormFile,
+  BFormInput,
+  BFormTextarea,
+  BImg
+} from 'bootstrap-vue';
 import sinon from 'sinon';
 import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application';
@@ -11,7 +18,6 @@ import VSwatches from 'vue-swatches';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 localVue.use(Vuex);
 
 const createContainer = (tag = 'div') => {
@@ -22,7 +28,11 @@ const createContainer = (tag = 'div') => {
 
 const bbbSettings = {
   file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
-  max_filesize: 30
+  max_filesize: 30,
+  room_name_limit: 50,
+  welcome_message_limit: 500,
+  style: null,
+  logo: null
 };
 
 describe('Application', function () {
@@ -74,6 +84,7 @@ describe('Application', function () {
           data: {
             logo: 'test.svg',
             room_limit: -1,
+            room_token_expiration: 525600,
             pagination_page_size: 10,
             own_rooms_pagination_page_size: 5,
             banner: {
@@ -93,6 +104,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -111,6 +128,12 @@ describe('Application', function () {
         expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
         expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
         expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
+        expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
+
+        expect(view.vm.$data.settings.room_auto_delete.enabled).toBeTruthy();
+        expect(view.vm.$data.settings.room_auto_delete.inactive_period).toBe(30);
+        expect(view.vm.$data.settings.room_auto_delete.never_used_period).toBe(14);
+        expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
         done();
       });
     });
@@ -133,6 +156,7 @@ describe('Application', function () {
           data: {
             logo: 'test.svg',
             room_limit: 32,
+            room_token_expiration: 525600,
             pagination_page_size: 10,
             own_rooms_pagination_page_size: 5,
             banner: {
@@ -152,6 +176,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -163,12 +193,13 @@ describe('Application', function () {
         expect(view.vm.$data.settings.pagination_page_size).toBe(10);
         expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
         expect(view.vm.$data.roomLimitMode).toBe('custom');
+        expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
         done();
       });
     });
   });
 
-  it('updateSettings method works properly with response data room_limit is not -1', function (done) {
+  it('update room_token_expiration', function (done) {
     const actions = {
       getSettings () {
       }
@@ -190,9 +221,9 @@ describe('Application', function () {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    moxios.wait(async () => {
       const request = moxios.requests.mostRecent();
-      request.respondWith({
+      await request.respondWith({
         status: 200,
         response: {
           data: {
@@ -217,65 +248,90 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
-            }
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
+            },
+            room_token_expiration: -1
           }
         }
-      }).then(() => {
-        // Save button, which triggers updateSettings method when clicked
-        const saveSettingsButton = view.find('#application-save-button');
-        expect(saveSettingsButton.exists()).toBeTruthy();
-        saveSettingsButton.trigger('click');
-        return view.vm.$nextTick();
-      }).then(() => {
-        moxios.wait(function () {
-          const request = moxios.requests.mostRecent();
-          request.respondWith({
-            status: 200,
-            response: {
-              data: {
-                logo: 'test1.svg',
-                room_limit: 33,
-                pagination_page_size: 11,
-                own_rooms_pagination_page_size: 6,
-                banner: {
-                  enabled: false
-                },
-                bbb: bbbSettings,
-                statistics: {
-                  servers: {
-                    enabled: false,
-                    retention_period: 14
-                  },
-                  meetings: {
-                    enabled: true,
-                    retention_period: 90
-                  }
-                },
-                attendance: {
-                  enabled: false,
-                  retention_period: 7
-                }
-              }
-            }
-          }).then(() => {
-            return view.vm.$nextTick();
-          }).then(() => {
-            expect(view.vm.$data.settings.logo).toBe('test1.svg');
-            expect(view.vm.$data.settings.room_limit).toBe(33);
-            expect(view.vm.$data.settings.pagination_page_size).toBe(11);
-            expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
-            expect(view.vm.$data.roomLimitMode).toBe('custom');
-            expect(view.vm.$data.isBusy).toBeFalsy();
+      });
 
-            expect(view.vm.$data.settings.statistics.servers.enabled).toBeFalsy();
-            expect(view.vm.$data.settings.statistics.meetings.enabled).toBeTruthy();
-            expect(view.vm.$data.settings.attendance.enabled).toBeFalsy();
-            expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(14);
-            expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(90);
-            expect(view.vm.$data.settings.attendance.retention_period).toBe(7);
-            done();
-          });
+      // Check if option is selected
+      const roomTokenExpiration = view.find('#application-room-token-expiration');
+      expect(roomTokenExpiration.exists()).toBeTruthy();
+      expect(roomTokenExpiration.element.value).toBe('-1');
+      expect(view.vm.$data.settings.room_token_expiration).toBe(-1);
+
+      // Check change to other option
+      await roomTokenExpiration.setValue('1440');
+      expect(view.vm.$data.settings.room_token_expiration).toBe(1440);
+
+      // Save button, which triggers updateSettings method when clicked
+      const saveSettingsButton = view.find('#application-save-button');
+      expect(saveSettingsButton.exists()).toBeTruthy();
+      saveSettingsButton.trigger('click');
+      await view.vm.$nextTick();
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('room_token_expiration')).toStrictEqual('1440');
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test1.svg',
+              room_limit: 33,
+              pagination_page_size: 11,
+              own_rooms_pagination_page_size: 6,
+              banner: {
+                enabled: false
+              },
+              bbb: bbbSettings,
+              statistics: {
+                servers: {
+                  enabled: false,
+                  retention_period: 14
+                },
+                meetings: {
+                  enabled: true,
+                  retention_period: 90
+                }
+              },
+              attendance: {
+                enabled: false,
+                retention_period: 7
+              },
+              room_auto_delete: {
+                enabled: true,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
+              },
+              room_token_expiration: 1440
+            }
+          }
         });
+        await view.vm.$nextTick();
+
+        expect(view.vm.$data.settings.logo).toBe('test1.svg');
+        expect(view.vm.$data.settings.room_limit).toBe(33);
+        expect(view.vm.$data.settings.pagination_page_size).toBe(11);
+        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
+        expect(view.vm.$data.settings.room_token_expiration).toBe(1440);
+        expect(view.vm.$data.roomLimitMode).toBe('custom');
+        expect(view.vm.$data.isBusy).toBeFalsy();
+
+        expect(view.vm.$data.settings.statistics.servers.enabled).toBeFalsy();
+        expect(view.vm.$data.settings.statistics.meetings.enabled).toBeTruthy();
+        expect(view.vm.$data.settings.attendance.enabled).toBeFalsy();
+        expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(14);
+        expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(90);
+        expect(view.vm.$data.settings.attendance.retention_period).toBe(7);
+        done();
       });
     });
   });
@@ -329,6 +385,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: true,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -366,6 +428,12 @@ describe('Application', function () {
                 attendance: {
                   enabled: true,
                   retention_period: 14
+                },
+                room_auto_delete: {
+                  enabled: true,
+                  inactive_period: 30,
+                  never_used_period: 14,
+                  deadline_period: 7
                 }
               }
             }
@@ -489,6 +557,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -528,6 +602,10 @@ describe('Application', function () {
         expect(attendanceEnabledCheckbox.props('checked')).toBe(true);
         await attendanceEnabledCheckbox.get('input').trigger('click');
 
+        const roomAutoDeleteEnabledCheckbox = view.findComponent({ ref: 'application-room-auto-delete-enabled-form-group' }).findComponent(BFormCheckbox);
+        expect(roomAutoDeleteEnabledCheckbox.props('checked')).toBe(false);
+        await roomAutoDeleteEnabledCheckbox.get('input').trigger('click');
+
         const saveSettingsButton = view.find('#application-save-button');
         expect(saveSettingsButton.exists()).toBeTruthy();
         saveSettingsButton.trigger('click');
@@ -546,6 +624,7 @@ describe('Application', function () {
           expect(request.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
           expect(request.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
           expect(request.config.data.get('attendance[enabled]')).toStrictEqual('0');
+          expect(request.config.data.get('room_auto_delete[enabled]')).toStrictEqual('1');
 
           view.destroy();
           done();
@@ -593,6 +672,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -660,6 +745,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -732,6 +823,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -804,6 +901,13 @@ describe('Application', function () {
     await view.setData({ uploadFaviconFile: [] });
 
     expect(spy.calledTwice).toBeTruthy();
+
+    expect(view.vm.$data.uploadBBBLogoFile).toBe(null);
+    expect(view.vm.$data.uploadBBBLogoFileSrc).toBe(null);
+
+    await view.setData({ uploadBBBLogoFile: [] });
+
+    expect(spy.calledThrice).toBeTruthy();
   });
 
   it('disable edit button if user does not have permission', function (done) {
@@ -889,6 +993,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -953,6 +1063,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1016,6 +1132,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1090,6 +1212,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1154,6 +1282,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1227,6 +1361,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1301,6 +1441,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1374,6 +1520,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1454,6 +1606,12 @@ describe('Application', function () {
             attendance: {
               enabled: true,
               retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
             }
           }
         }
@@ -1474,6 +1632,704 @@ describe('Application', function () {
           view.destroy();
           done();
         });
+      });
+    });
+  });
+
+  it('bbb style', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    const file = new window.File(['foo'], 'foo.css', {
+      type: 'text/css',
+      lastModified: Date.now()
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: bbbSettings,
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
+            }
+          }
+        }
+      });
+
+      // check no buttons if no style uploaded
+      const formGroup = view.findComponent({ ref: 'bbb-style-form-group' });
+      expect(formGroup.findAllComponents(BButton).length).toBe(0);
+
+      // set file and save
+      view.setData({
+        bbb_style: file
+      });
+      const saveSettingsButton = view.find('#application-save-button');
+      expect(saveSettingsButton.exists()).toBeTruthy();
+      saveSettingsButton.trigger('click');
+      await view.vm.$nextTick();
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('bbb[style]')).toBe(file);
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test.svg',
+              room_limit: -1,
+              pagination_page_size: 10,
+              own_rooms_pagination_page_size: 5,
+              banner: {
+                enabled: false
+              },
+              bbb: {
+                file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                max_filesize: 30,
+                room_name_limit: 50,
+                welcome_message_limit: 500,
+                style: 'http://localhost/storage/styles/bbb.css'
+              },
+              default_presentation: 'foo.pdf',
+              statistics: {
+                servers: {
+                  enabled: true,
+                  retention_period: 7
+                },
+                meetings: {
+                  enabled: false,
+                  retention_period: 30
+                }
+              },
+              attendance: {
+                enabled: true,
+                retention_period: 14
+              },
+              room_auto_delete: {
+                enabled: false,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
+              }
+            }
+          }
+        });
+
+        // check if buttons are visible after upload
+        expect(formGroup.findAllComponents(BButton).length).toBe(2);
+        // check view button
+        let viewBtn = formGroup.findAllComponents(BButton).at(0);
+        expect(viewBtn.html()).toContain('fa-solid fa-eye');
+        expect(viewBtn.attributes('href')).toBe('http://localhost/storage/styles/bbb.css');
+
+        // save without changing anything
+        saveSettingsButton.trigger('click');
+        await view.vm.$nextTick();
+
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('bbb[style]')).toBeNull();
+
+          await request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                logo: 'test.svg',
+                room_limit: -1,
+                pagination_page_size: 10,
+                own_rooms_pagination_page_size: 5,
+                banner: {
+                  enabled: false
+                },
+                bbb: {
+                  file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                  max_filesize: 30,
+                  room_name_limit: 50,
+                  welcome_message_limit: 500,
+                  style: 'http://localhost/storage/styles/bbb.css'
+                },
+                default_presentation: 'foo.pdf',
+                statistics: {
+                  servers: {
+                    enabled: true,
+                    retention_period: 7
+                  },
+                  meetings: {
+                    enabled: false,
+                    retention_period: 30
+                  }
+                },
+                attendance: {
+                  enabled: true,
+                  retention_period: 14
+                },
+                room_auto_delete: {
+                  enabled: false,
+                  inactive_period: 30,
+                  never_used_period: 14,
+                  deadline_period: 7
+                }
+              }
+            }
+          });
+
+          // delete file
+          let deleteBtn = formGroup.findAllComponents(BButton).at(1);
+          expect(deleteBtn.html()).toContain('fa-solid fa-trash');
+          await deleteBtn.trigger('click');
+
+          // check if delete button disappears and revert button is shown
+          expect(formGroup.findAllComponents(BButton).length).toBe(2);
+          viewBtn = formGroup.findAllComponents(BButton).at(0);
+          const revertBtn = formGroup.findAllComponents(BButton).at(1);
+          expect(revertBtn.html()).toContain('fa-solid fa-undo');
+
+          // check if revert button disapears on click and delete button is shown
+          await revertBtn.trigger('click');
+          expect(formGroup.findAllComponents(BButton).length).toBe(2);
+          viewBtn = formGroup.findAllComponents(BButton).at(0);
+          deleteBtn = formGroup.findAllComponents(BButton).at(1);
+          expect(deleteBtn.html()).toContain('fa-solid fa-trash');
+
+          // delete file and save
+          await deleteBtn.trigger('click');
+          await saveSettingsButton.trigger('click');
+          await view.vm.$nextTick();
+
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.data.get('bbb[style]')).toBe('');
+
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: {
+                  logo: 'test.svg',
+                  room_limit: -1,
+                  pagination_page_size: 10,
+                  own_rooms_pagination_page_size: 5,
+                  banner: {
+                    enabled: false
+                  },
+                  bbb: {
+                    file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                    max_filesize: 30,
+                    room_name_limit: 50,
+                    welcome_message_limit: 500,
+                    style: null
+                  },
+                  default_presentation: 'foo.pdf',
+                  statistics: {
+                    servers: {
+                      enabled: true,
+                      retention_period: 7
+                    },
+                    meetings: {
+                      enabled: false,
+                      retention_period: 30
+                    }
+                  },
+                  attendance: {
+                    enabled: true,
+                    retention_period: 14
+                  },
+                  room_auto_delete: {
+                    enabled: false,
+                    inactive_period: 30,
+                    never_used_period: 14,
+                    deadline_period: 7
+                  }
+                }
+              }
+            });
+
+            view.destroy();
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('bbb logo', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    const img = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAwIDUwMCIgd2lkdGg9IjUwMCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHRleHQgc3R5bGU9IndoaXRlLXNwYWNlOiBwcmU7IGZpbGw6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE2LjNweDsiIHg9IjIwNi4wNTQiIHk9IjIzNy40ODUiPlRlc3QgTG9nbzwvdGV4dD4KPC9zdmc+';
+
+    sinon.replace(view.vm, 'base64Encode', sinon.fake.resolves(img));
+
+    const file = new window.File(['foo'], 'foo.png', {
+      type: 'image/png',
+      lastModified: Date.now()
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: bbbSettings,
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
+            }
+          }
+        }
+      });
+
+      // check no buttons if no style uploaded
+      const formGroup = view.findComponent({ ref: 'bbb-logo-form-group' });
+      expect(formGroup.findComponent(BFormInput).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BFormInput).element.value).toBe('');
+      expect(formGroup.findAllComponents(BButton).length).toBe(0);
+      expect(formGroup.findComponent(BImg).exists()).toBeFalsy();
+
+      // set file and save
+      await view.setData({
+        uploadBBBLogoFile: file
+      });
+      await view.vm.$nextTick();
+
+      expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
+      expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BImg).attributes('src')).toBe(img);
+
+      const saveSettingsButton = view.find('#application-save-button');
+      expect(saveSettingsButton.exists()).toBeTruthy();
+      await saveSettingsButton.trigger('click');
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('bbb[logo]')).toBeNull();
+        expect(request.config.data.get('bbb[logo_file]')).toBe(file);
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test.svg',
+              room_limit: -1,
+              pagination_page_size: 10,
+              own_rooms_pagination_page_size: 5,
+              banner: {
+                enabled: false
+              },
+              bbb: {
+                file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                max_filesize: 30,
+                room_name_limit: 50,
+                welcome_message_limit: 500,
+                style: null,
+                logo: 'http://localhost/storage/logo.png'
+              },
+              default_presentation: 'foo.pdf',
+              statistics: {
+                servers: {
+                  enabled: true,
+                  retention_period: 7
+                },
+                meetings: {
+                  enabled: false,
+                  retention_period: 30
+                }
+              },
+              attendance: {
+                enabled: true,
+                retention_period: 14
+              },
+              room_auto_delete: {
+                enabled: false,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
+              }
+            }
+          }
+        });
+
+        // check if image and image url are shown after upload
+        expect(formGroup.findComponent(BFormInput).exists()).toBeTruthy();
+        expect(formGroup.findComponent(BFormInput).element.value).toBe('http://localhost/storage/logo.png');
+        expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+        expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo.png');
+
+        // change url
+        await formGroup.findComponent(BFormInput).setValue('http://localhost/storage/logo2.png');
+        expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo2.png');
+
+        // save
+        await saveSettingsButton.trigger('click');
+        moxios.wait(async () => {
+          const request = moxios.requests.mostRecent();
+          expect(request.config.data.get('bbb[logo]')).toBe('http://localhost/storage/logo2.png');
+          expect(request.config.data.get('bbb[logo_file]')).toBeNull();
+
+          await request.respondWith({
+            status: 200,
+            response: {
+              data: {
+                logo: 'test.svg',
+                room_limit: -1,
+                pagination_page_size: 10,
+                own_rooms_pagination_page_size: 5,
+                banner: {
+                  enabled: false
+                },
+                bbb: {
+                  file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                  max_filesize: 30,
+                  room_name_limit: 50,
+                  welcome_message_limit: 500,
+                  style: null,
+                  logo: 'http://localhost/storage/logo2.png'
+                },
+                default_presentation: 'foo.pdf',
+                statistics: {
+                  servers: {
+                    enabled: true,
+                    retention_period: 7
+                  },
+                  meetings: {
+                    enabled: false,
+                    retention_period: 30
+                  }
+                },
+                attendance: {
+                  enabled: true,
+                  retention_period: 14
+                },
+                room_auto_delete: {
+                  enabled: false,
+                  inactive_period: 30,
+                  never_used_period: 14,
+                  deadline_period: 7
+                }
+              }
+            }
+          });
+
+          // check if image and image url are shown after upload
+          expect(formGroup.findComponent(BFormInput).element.value).toBe('http://localhost/storage/logo2.png');
+          expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo2.png');
+          expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
+
+          // set file and save
+          await view.setData({
+            uploadBBBLogoFile: file
+          });
+          await view.vm.$nextTick();
+
+          expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
+          expect(formGroup.findComponent(BImg).attributes('src')).toBe(img);
+
+          // save
+          await saveSettingsButton.trigger('click');
+          moxios.wait(async () => {
+            const request = moxios.requests.mostRecent();
+            expect(request.config.data.get('bbb[logo]')).toBeNull();
+            expect(request.config.data.get('bbb[logo_file]')).toBe(file);
+
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: {
+                  logo: 'test.svg',
+                  room_limit: -1,
+                  pagination_page_size: 10,
+                  own_rooms_pagination_page_size: 5,
+                  banner: {
+                    enabled: false
+                  },
+                  bbb: {
+                    file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                    max_filesize: 30,
+                    room_name_limit: 50,
+                    welcome_message_limit: 500,
+                    style: null,
+                    logo: 'http://localhost/storage/logo3.png'
+                  },
+                  default_presentation: 'foo.pdf',
+                  statistics: {
+                    servers: {
+                      enabled: true,
+                      retention_period: 7
+                    },
+                    meetings: {
+                      enabled: false,
+                      retention_period: 30
+                    }
+                  },
+                  attendance: {
+                    enabled: true,
+                    retention_period: 14
+                  },
+                  room_auto_delete: {
+                    enabled: false,
+                    inactive_period: 30,
+                    never_used_period: 14,
+                    deadline_period: 7
+                  }
+                }
+              }
+            });
+
+            sinon.restore();
+            view.destroy();
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('bbb logo delete', function (done) {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      const request = moxios.requests.mostRecent();
+
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            logo: 'test.svg',
+            room_limit: -1,
+            pagination_page_size: 10,
+            own_rooms_pagination_page_size: 5,
+            banner: {
+              enabled: false
+            },
+            bbb: {
+              file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+              max_filesize: 30,
+              room_name_limit: 50,
+              welcome_message_limit: 500,
+              style: null,
+              logo: 'http://localhost/storage/logo.png'
+            },
+            default_presentation: 'foo.pdf',
+            statistics: {
+              servers: {
+                enabled: true,
+                retention_period: 7
+              },
+              meetings: {
+                enabled: false,
+                retention_period: 30
+              }
+            },
+            attendance: {
+              enabled: true,
+              retention_period: 14
+            },
+            room_auto_delete: {
+              enabled: false,
+              inactive_period: 30,
+              never_used_period: 14,
+              deadline_period: 7
+            }
+          }
+        }
+      });
+
+      const formGroup = view.findComponent({ ref: 'bbb-logo-form-group' });
+      const saveSettingsButton = view.find('#application-save-button');
+
+      // check if file upload and image exists
+      expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+
+      // delete file
+      let deleteBtn = formGroup.findAllComponents(BButton).at(0);
+      expect(deleteBtn.html()).toContain('fa-solid fa-trash');
+      await deleteBtn.trigger('click');
+
+      // check if delete button and image disappears and revert button is shown
+      expect(formGroup.findComponent(BFormFile).exists()).toBeFalsy();
+      expect(formGroup.findComponent(BImg).exists()).toBeFalsy();
+      const revertBtn = formGroup.findAllComponents(BButton).at(0);
+      expect(revertBtn.html()).toContain('fa-solid fa-undo');
+
+      // check if revert button disappears on click and delete button and image is shown
+      await revertBtn.trigger('click');
+      deleteBtn = formGroup.findAllComponents(BButton).at(0);
+      expect(deleteBtn.html()).toContain('fa-solid fa-trash');
+      expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
+      expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
+
+      // delete file and save
+      await deleteBtn.trigger('click');
+      await saveSettingsButton.trigger('click');
+
+      moxios.wait(async () => {
+        const request = moxios.requests.mostRecent();
+        expect(request.config.data.get('bbb[logo]')).toBeNull();
+        expect(request.config.data.get('bbb[logo_file]')).toBeNull();
+
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: {
+              logo: 'test.svg',
+              room_limit: -1,
+              pagination_page_size: 10,
+              own_rooms_pagination_page_size: 5,
+              banner: {
+                enabled: false
+              },
+              bbb: {
+                file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
+                max_filesize: 30,
+                room_name_limit: 50,
+                welcome_message_limit: 500,
+                style: null,
+                logo: null
+              },
+              default_presentation: 'foo.pdf',
+              statistics: {
+                servers: {
+                  enabled: true,
+                  retention_period: 7
+                },
+                meetings: {
+                  enabled: false,
+                  retention_period: 30
+                }
+              },
+              attendance: {
+                enabled: true,
+                retention_period: 14
+              },
+              room_auto_delete: {
+                enabled: false,
+                inactive_period: 30,
+                never_used_period: 14,
+                deadline_period: 7
+              }
+            }
+          }
+        });
+
+        sinon.restore();
+        view.destroy();
+        done();
       });
     });
   });

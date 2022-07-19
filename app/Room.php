@@ -5,13 +5,14 @@ namespace App;
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Room extends Model
 {
-    use AddsModelNameTrait;
+    use AddsModelNameTrait, HasFactory;
 
     public $incrementing = false;
     protected $keyType   = 'string';
@@ -29,7 +30,7 @@ class Room extends Model
 
             if (!$model->id) {
                 $count_tries = 0;
-                $newId = null;
+                $newId       = null;
                 while (true) {
                     $count_tries++;
                     if ($count_tries >= config('bigbluebutton.room_id_max_tries')) {
@@ -43,6 +44,11 @@ class Room extends Model
                 }
                 $model->id = $newId;
             }
+        });
+
+        static::deleting(function ($model) {
+            $model->files->each->delete();
+            \Storage::deleteDirectory($model->id);
         });
     }
 
@@ -66,6 +72,7 @@ class Room extends Model
         'accessCode'                     => 'integer',
         'listed'                         => 'boolean',
         'record_attendance'              => 'boolean',
+        'delete_inactive'                => 'datetime',
     ];
 
     /**
@@ -138,28 +145,51 @@ class Room extends Model
     }
 
     /**
+     * Personalized tokens.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tokens()
+    {
+        return $this->hasMany(RoomToken::class);
+    }
+
+    /**
      * Get the newest running meeting
      * @return Meeting|null
      */
     public function runningMeeting()
     {
-        return $this->meetings()->whereNull('end')->orderByDesc('start')->first();
+        return $this->meetings()->whereNull('end')->orderByDesc('created_at')->first();
+    }
+
+    /**
+     * Get the latest meeting
+     * @return Meeting|null
+     */
+    public function latestMeeting()
+    {
+        return $this->meetings()->orderByDesc('created_at')->first();
     }
 
     /** Check if user is moderator of this room
-     * @param $user User|null
+     * @param  User|null      $user
+     * @param  RoomToken|null $token
      * @return bool
      */
-    public function isModerator($user)
+    public function isModerator(?User $user, RoomToken $token = null)
     {
+        if ($user == null && $token != null) {
+            return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
+        }
+
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::MODERATOR)->get()->contains($user);
     }
 
     /** Check if user is co owner of this room
-     * @param $user User|null
+     * @param  User|null $user
      * @return bool
      */
-    public function isCoOwner($user)
+    public function isCoOwner(?User $user)
     {
         return $user == null ? false : $this->members()->wherePivot('role', RoomUserRole::CO_OWNER)->get()->contains($user);
     }
@@ -179,9 +209,13 @@ class Room extends Model
      * @param $user|null
      * @return int|mixed
      */
-    public function getRole($user)
+    public function getRole($user, $token)
     {
         if ($user == null) {
+            if ($token) {
+                return $token->role;
+            }
+
             return RoomUserRole::GUEST;
         }
 
@@ -204,7 +238,7 @@ class Room extends Model
     public function getModeratorOnlyMessage()
     {
         $message =  __('rooms.invitation.room', ['roomname'=>$this->name]).'<br>';
-        $message .= __('rooms.invitation.link', ['link'=>config('app.url').'rooms/'.$this->id]);
+        $message .= __('rooms.invitation.link', ['link'=>config('app.url').'/rooms/'.$this->id]);
         if ($this->accessCode != null) {
             $message .= '<br>'.__('rooms.invitation.code', ['code'=>implode('-', str_split($this->accessCode, 3))]);
         }

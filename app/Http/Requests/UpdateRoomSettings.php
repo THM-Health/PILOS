@@ -32,7 +32,7 @@ class UpdateRoomSettings extends FormRequest
             'roomType'                       => ['required', 'exists:App\RoomType,id', new ValidRoomType($this->room->owner)],
             'duration'                       => 'nullable|numeric|min:1',
             'maxParticipants'                => 'nullable|numeric|min:1',
-            'name'                           => 'required|string|max:'.config('bigbluebutton.room_name_limit'),
+            'name'                           => 'required|string|min:2|max:'.config('bigbluebutton.room_name_limit'),
             'welcome'                        => 'nullable|string|max:'.config('bigbluebutton.welcome_message_limit'),
             'listed'                         => 'required|boolean',
             'record_attendance'              => 'required|boolean'

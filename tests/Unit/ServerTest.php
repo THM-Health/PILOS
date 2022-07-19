@@ -7,11 +7,13 @@ use App\Meeting;
 use App\Server;
 use App\User;
 use BigBlueButton\BigBlueButton;
+use BigBlueButton\Responses\ApiVersionResponse;
 use BigBlueButton\Responses\GetMeetingsResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
+use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
 
 class ServerTest extends TestCase
@@ -23,7 +25,7 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithStatusAndOffline()
     {
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
 
         // Server marked as inactive
         $server->status = ServerStatus::DISABLED;
@@ -111,7 +113,7 @@ class ServerTest extends TestCase
     public function testUsageClearedOnOffline()
     {
         // Create new fake server
-        $server                          = factory(Server::class)->create();
+        $server                          = Server::factory()->create();
 
         // Set the live usage data of server
         $server->participant_count       = 1;
@@ -119,6 +121,7 @@ class ServerTest extends TestCase
         $server->voice_participant_count = 3;
         $server->video_count             = 4;
         $server->meeting_count           = 5;
+        $server->version                 = '2.4.5';
         $server->status                  = ServerStatus::ONLINE;
         $server->save();
 
@@ -129,6 +132,7 @@ class ServerTest extends TestCase
         $this->assertEquals(3, $server->voice_participant_count);
         $this->assertEquals(4, $server->video_count);
         $this->assertEquals(5, $server->meeting_count);
+        $this->assertEquals('2.4.5', $server->version);
 
         $server->status                  = ServerStatus::OFFLINE;
         $server->save();
@@ -141,6 +145,7 @@ class ServerTest extends TestCase
         $this->assertNull($server->voice_participant_count);
         $this->assertNull($server->video_count);
         $this->assertNull($server->meeting_count);
+        $this->assertNull($server->version);
     }
 
     /**
@@ -149,7 +154,7 @@ class ServerTest extends TestCase
     public function testUsageClearedOnDisabled()
     {
         // Create new fake server
-        $server                          = factory(Server::class)->create();
+        $server                          = Server::factory()->create();
 
         // Set the live usage data of server
         $server->participant_count       = 1;
@@ -157,6 +162,7 @@ class ServerTest extends TestCase
         $server->voice_participant_count = 3;
         $server->video_count             = 4;
         $server->meeting_count           = 5;
+        $server->version                 = '2.4.5';
         $server->status                  = ServerStatus::ONLINE;
         $server->save();
 
@@ -172,6 +178,7 @@ class ServerTest extends TestCase
         $this->assertNull($server->voice_participant_count);
         $this->assertNull($server->video_count);
         $this->assertNull($server->meeting_count);
+        $this->assertNull($server->version);
     }
 
     /**
@@ -189,15 +196,15 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
         });
 
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
         $server->setBBB($bbbMock);
 
-        $meeting = factory(Meeting::class)->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 
-        $userA = factory(User::class)->create(['id'=>99,'firstname'=> 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
-        $userB = factory(User::class)->create(['id'=>100,'firstname'=> 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
+        $userA = User::factory()->create(['id'=>99,'firstname'=> 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
+        $userB = User::factory()->create(['id'=>100,'firstname'=> 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
 
         $server->updateUsage();
         $meeting->refresh();
@@ -223,12 +230,18 @@ class ServerTest extends TestCase
         $this->assertNotNull($attendeeGuestA->join);
 
         // Check if errors are logged
-        Log::assertLogged('notice', function ($message, $context) {
-            return $message == 'Unknown prefix for attendee found.' && $context == ['prefix' => '2','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d'];
-        });
-        Log::assertLogged('notice', function ($message, $context) {
-            return $message == 'Attendee user not found.' && $context == ['user' => '101','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d'];
-        });
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'notice'
+            && $log->message == 'Unknown prefix for attendee found.'
+            && $log->context == ['prefix' => '2','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
+        );
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+            $log->level === 'notice'
+            && $log->message == 'Attendee user not found.'
+            && $log->context == ['user' => '101','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
+        );
 
         $server->updateUsage();
         $meeting->refresh();
@@ -288,10 +301,10 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getMeetings')->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')));
         });
 
-        $server = factory(Server::class)->create();
+        $server = Server::factory()->create();
         $server->setBBB($bbbMock);
 
-        $meeting = factory(Meeting::class)->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 
@@ -307,5 +320,30 @@ class ServerTest extends TestCase
         $server->updateUsage();
         $meeting->refresh();
         $this->assertCount(0, $meeting->attendees);
+    }
+
+    /**
+     * Check if the version is getting updated
+     */
+    public function testVersionUpdate()
+    {
+        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) {
+            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
+            $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion.xml')));
+
+            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
+            $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml')));
+        });
+
+        $server = Server::factory()->create(['version' => '2.3.0']);
+        $server->setBBB($bbbMock);
+
+        $server->updateUsage();
+        $server->refresh();
+        $this->assertEquals('2.4-rc-7', $server->version);
+
+        $server->updateUsage();
+        $server->refresh();
+        $this->assertNull($server->version);
     }
 }

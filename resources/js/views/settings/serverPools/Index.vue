@@ -13,7 +13,7 @@
               ref="newServerPool"
               :title="$t('settings.serverPools.new')"
               :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
-            ><b-icon-plus></b-icon-plus></b-button>
+            ><i class="fa-solid fa-plus"></i></b-button>
           </can>
         </h3>
       </b-col>
@@ -22,10 +22,10 @@
           <b-form-input
             v-model='filter'
             :placeholder="$t('app.search')"
-            :debounce='200'
+            :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><b-icon icon='search'></b-icon></b-input-group-text>
+            <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -69,7 +69,7 @@
               variant='primary'
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
-              <i class='fas fa-eye'></i>
+              <i class='fa-solid fa-eye'></i>
             </b-button>
           </can>
           <can method='update' :policy='data.item'>
@@ -80,7 +80,7 @@
               variant='dark'
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id } }"
             >
-              <i class='fas fa-edit'></i>
+              <i class='fa-solid fa-edit'></i>
             </b-button>
           </can>
           <can method='delete' :policy='data.item'>
@@ -90,7 +90,7 @@
               :disabled='isBusy'
               variant='danger'
               @click='showServerPoolModal(data.item)'>
-              <i class='fas fa-trash'></i>
+              <i class='fa-solid fa-trash'></i>
             </b-button>
           </can>
         </b-button-group>
@@ -157,6 +157,11 @@ export default {
   mixins: [ActionsColumn],
 
   props: {
+    searchDebounce: {
+      type: Number,
+      default: 200,
+      required: false
+    },
     modalStatic: {
       type: Boolean,
       default: false

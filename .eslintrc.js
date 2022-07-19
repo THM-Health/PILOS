@@ -15,7 +15,9 @@ module.exports = {
     SharedArrayBuffer: 'readonly',
     expect: 'readonly'
   },
+  parser: 'vue-eslint-parser',
   parserOptions: {
+    parser: '@babel/eslint-parser',
     ecmaVersion: 11,
     sourceType: 'module'
   },
@@ -30,6 +32,9 @@ module.exports = {
       ignoreNodes: ['raw-text']
     }],
     '@intlify/vue-i18n/no-v-html': 'warn',
-    semi: ['error', 'always']
+    semi: ['error', 'always'],
+    'vue/valid-v-slot': ['error', {
+      allowModifiers: true
+    }]
   }
 };

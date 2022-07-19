@@ -10,7 +10,7 @@
         <b-input-group>
           <b-form-input :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter" lazy></b-form-input>
           <b-input-group-append>
-            <b-button @click="$root.$emit('bv::refresh::table', 'meetings-table')" :disabled="isBusy || loadingError" variant="success"><b-icon icon="search"></b-icon></b-button>
+            <b-button @click="$root.$emit('bv::refresh::table', 'meetings-table')" :disabled="isBusy || loadingError" variant="success"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -26,7 +26,7 @@
             v-else
             @click="$root.$emit('bv::refresh::table', 'meetings-table')"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -62,26 +62,26 @@
       <template #head(room.listener_count)>
         <i v-b-tooltip.hover
            :title="$t('meetings.listenerCount')"
-           class="fas fa-headphones"></i>
+           class="fa-solid fa-headphones"></i>
       </template>
       <template #head(room.voice_participant_count)>
         <i v-b-tooltip.hover
            :title="$t('meetings.voiceParticipantCount')"
-           class="fas fa-microphone"></i>
+           class="fa-solid fa-microphone"></i>
       </template>
       <template #head(room.video_count)>
         <i v-b-tooltip.hover
            :title="$t('meetings.videoCount')"
-           class="fas fa-video"></i>
+           class="fa-solid fa-video"></i>
       </template>
       <template #head(room.participant_count)>
         <i v-b-tooltip.hover
            :title="$t('meetings.participantCount')"
-           class="fas fa-users"></i>
+           class="fa-solid fa-users"></i>
       </template>
 
       <template v-slot:cell(start)="data">
-       {{  $d($date.utc(data.item.start).tz(userTimezone),'datetimeShort') }}
+        {{  $d(new Date(data.item.start),'datetimeShort') }}
       </template>
 
       <template v-slot:cell(room.name)="data">
@@ -127,7 +127,7 @@
           variant='primary'
           :to="{ name: 'rooms.view', params: { id: data.item.room.id } }"
         >
-          <i class='fas fa-eye'></i>
+          <i class='fa-solid fa-eye'></i>
         </b-button>
       </template>
     </b-table>
@@ -149,16 +149,11 @@
 import Base from '../../api/base';
 import RawText from '../../components/RawText';
 import TextTruncate from '../../components/TextTruncate';
-import { mapGetters } from 'vuex';
 
 export default {
   components: { TextTruncate, RawText },
 
   computed: {
-
-    ...mapGetters({
-      userTimezone: 'session/userTimezone'
-    }),
 
     tableFields () {
       return [

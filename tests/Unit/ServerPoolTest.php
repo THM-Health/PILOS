@@ -17,12 +17,12 @@ class ServerPoolTest extends TestCase
      */
     public function testLoadBalancing()
     {
-        $offline     = factory(Server::class)->create(['status'=>ServerStatus::OFFLINE]);
-        $disabled    = factory(Server::class)->create(['status'=>ServerStatus::DISABLED]);
-        $lightUsage  = factory(Server::class)->create(['video_count'=>5,'participant_count'=>20,'voice_participant_count'=>10,'strength'=>1]);
-        $heavyUsage  = factory(Server::class)->create(['video_count'=>20,'participant_count'=>100,'voice_participant_count'=>50,'strength'=>1]);
+        $offline     = Server::factory()->create(['status'=>ServerStatus::OFFLINE]);
+        $disabled    = Server::factory()->create(['status'=>ServerStatus::DISABLED]);
+        $lightUsage  = Server::factory()->create(['video_count'=>5,'participant_count'=>20,'voice_participant_count'=>10,'strength'=>1]);
+        $heavyUsage  = Server::factory()->create(['video_count'=>20,'participant_count'=>100,'voice_participant_count'=>50,'strength'=>1]);
 
-        $serverPool = factory(ServerPool::class)->create();
+        $serverPool = ServerPool::factory()->create();
         $serverPool->servers()->sync([$disabled->id,$offline->id,$lightUsage->id,$heavyUsage->id]);
 
         // Check basic load balancing

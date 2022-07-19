@@ -17,7 +17,7 @@
             ref="reloadServer"
             @click="load()"
           >
-            <b-icon-arrow-clockwise></b-icon-arrow-clockwise> {{ $t('app.reload') }}
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
           </b-button>
         </div>
       </template>
@@ -44,6 +44,13 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
+            :label="$t('settings.servers.version')"
+            label-for='version'
+          >
+            <b-form-input id='version' type='text' :value='model.version || "---"' :disabled='true'></b-form-input>
+          </b-form-group>
+          <b-form-group
+            label-cols-sm='4'
             :label="$t('settings.servers.baseUrl')"
             label-for='base_url'
             :state='fieldState("base_url")'
@@ -60,7 +67,7 @@
             <b-input-group>
               <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("salt")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
-                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="success"><b-icon-eye-fill v-if="hideSalt"></b-icon-eye-fill><b-icon-eye-slash-fill v-else></b-icon-eye-slash-fill></b-button>
+                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="success"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>
@@ -99,7 +106,7 @@
               <b-input-group-append>
                 <b-button :disabled='isBusy || modelLoadingError || checking'
                           variant='primary'
-                          @click="testConnection()"><i class="fas fa-link"></i> {{ $t('settings.servers.testConnection') }}</b-button>
+                          @click="testConnection()"><i class="fa-solid fa-link"></i> {{ $t('settings.servers.testConnection') }}</b-button>
               </b-input-group-append>
             </b-input-group>
             <b-form-text v-if="offlineReason"> {{ $t('settings.servers.offlineReason.'+offlineReason) }}</b-form-text>
@@ -113,14 +120,14 @@
                 type='submit'
                 class='ml-1 float-right'
                 v-if='!viewOnly'>
-                <i class='fas fa-save'></i> {{ $t('app.save') }}
+                <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
               </b-button>
               <b-button
                 class="float-right"
                 :disabled='isBusy'
                 variant='secondary'
                 @click="$router.push({ name: 'settings.servers' })">
-                <i class='fas fa-arrow-left'></i> {{ $t('app.back') }}
+                <i class='fa-solid fa-arrow-left'></i> {{ $t('app.back') }}
               </b-button>
 
             </b-col>
@@ -179,7 +186,7 @@
           <b-button :disabled='isBusy || modelLoadingError || checking || panicking'
                     id="panic"
                     variant='danger'
-                    @click="panic()"><i class="fas fa-exclamation-triangle"></i> {{ $t('settings.servers.panicServer') }}</b-button>
+                    @click="panic()"><i class="fa-solid fa-exclamation-triangle"></i> {{ $t('settings.servers.panicServer') }}</b-button>
         </b-form-group>
         </can>
 

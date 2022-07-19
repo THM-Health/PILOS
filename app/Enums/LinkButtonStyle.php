@@ -10,13 +10,13 @@ use BenSampo\Enum\Enum;
  */
 final class LinkButtonStyle extends Enum
 {
-    const PRIMARY   = 'primary';
-    const SECONDARY = 'secondary';
-    const SUCCESS   = 'success';
-    const DANGER    = 'danger';
-    const WARNING   = 'warning';
-    const INFO      = 'info';
-    const LIGHT     = 'light';
-    const DARK      = 'dark';
-    const LINK      = 'link';
+    public const PRIMARY   = 'primary';
+    public const SECONDARY = 'secondary';
+    public const SUCCESS   = 'success';
+    public const DANGER    = 'danger';
+    public const WARNING   = 'warning';
+    public const INFO      = 'info';
+    public const LIGHT     = 'light';
+    public const DARK      = 'dark';
+    public const LINK      = 'link';
 }

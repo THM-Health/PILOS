@@ -22,7 +22,7 @@
         v-on:click="reload"
         :disabled="loading"
       >
-        <i v-bind:class="{ 'fa-spin': loading  }" class="fas fa-sync"></i>
+        <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
       </b-button>
 
       <!-- Show membership options for users that are logged into the room (via access code, membership, ownership) -->
@@ -36,19 +36,34 @@
             :disabled="loading"
             variant="dark"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
           </b-button>
           </can>
           <!-- If user is member, allow user to end the membership -->
           <b-button
+            id="leave-membership-button"
             class="float-right"
             v-if="room.isMember"
-            v-on:click="leaveMembership"
+            v-b-modal.leave-membership-modal
             :disabled="loading"
             variant="danger"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fas fa-user-minus"></i> {{ $t('rooms.endMembership') }}
+            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
           </b-button>
+
+          <b-modal
+            :static='modalStatic'
+            :title="$t('rooms.endMembership.title')"
+            ok-variant="danger"
+            cancel-variant="dark"
+            :ok-title="$t('rooms.endMembership.yes')"
+            :cancel-title="$t('rooms.endMembership.no')"
+            @ok="leaveMembership"
+            id="leave-membership-modal"
+            ref="leave-membership-modal"
+          >
+            {{ $t('rooms.endMembership.message') }}
+          </b-modal>
         </div>
       </div>
 
@@ -88,9 +103,11 @@
               <b-button
                 class="float-right"
                 v-clipboard="() => invitationText"
+                v-b-tooltip.hover
+                :title="$t('rooms.copyAccessForParticipants')"
                 variant="light"
               >
-                <i class="fas fa-copy"></i>
+                <i class="fa-solid fa-copy"></i>
               </b-button>
               <span style="white-space: pre;">{{ invitationText }}</span>
             </div>
@@ -99,17 +116,18 @@
             <b-row>
               <!-- Ask guests for their first and lastname -->
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
-                <b-form-group :label="$t('rooms.firstAndLastname')">
+                <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
+                  <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
               </b-col>
               <!-- Show room start or join button -->
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
 
                 <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
-                  <i class="fas fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
                   <b-form-checkbox
                     v-model="recordAttendanceAgreement"
                     :value="true"
@@ -129,7 +147,7 @@
                     :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     variant="success"
                   >
-                    <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.join') }}
+                    <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.join') }}
                   </b-button>
                 </template>
                 <!-- If room is not running -->
@@ -142,7 +160,7 @@
                     v-on:click="start"
                     variant="success"
                   >
-                      <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fas fa-door-open"></i> {{ $t('rooms.start') }}
+                      <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.start') }}
                   </b-button>
                   <!-- If user isn't allowed to start a new meeting, show message that meeting isn't running yet -->
                   <div v-else class="text-center p-3">
@@ -152,6 +170,8 @@
                     {{ $t('rooms.notRunning') }}
                   </div>
                 </template>
+
+                <browser-notification :running="room.running" :name="room.name"></browser-notification>
               </b-col>
             </b-row>
           </b-col>
@@ -167,6 +187,7 @@
                 :emit-errors="true"
                 v-on:error="onFileListError"
                 :access-code="accessCode"
+                :token="token"
                 :room="room"
                 :show-title="true"
                 :require-agreement="true"
@@ -198,34 +219,46 @@
               :disabled="loading"
               variant="success"
             >
-              <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-lock"></i> {{ $t('rooms.login') }}
+              <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-lock"></i> {{ $t('rooms.login') }}
             </b-button>
           </b-input-group-append>
         </b-input-group>
       </div>
     </template>
-    <!-- Room object is empty, access forbidden, room is only for logged in users -->
+    <!-- Room object is empty, access forbidden -->
     <template v-else>
-      <!-- Show message that room can only be used by logged in users -->
-      <b-alert show>
-        <i class="fas fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
-      </b-alert>
-      <b-button-group>
-        <!-- Reload page, in case the room settings changed -->
-        <b-button
-          v-on:click="reload"
-          :disabled="loading"
-        >
-          <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fas fa-sync"></i> {{$t('rooms.tryAgain')}}
-        </b-button>
-        <!-- Redirect the login the access room -->
-        <b-button
-          @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
-          variant="success"
-        >
-          <i class="fas fa-lock"></i> {{$t('rooms.login')}}
-        </b-button>
-      </b-button-group>
+
+      <!-- room token is invalid -->
+      <template v-if="token !== null">
+        <!-- Show message that room can only be used by logged in users -->
+        <b-alert show variant="danger">
+          <i class="fa-solid fa-unlink"></i> {{ $t('rooms.invalidPersonalLink') }}
+        </b-alert>
+      </template>
+      <!-- room is only for logged in users -->
+      <template v-else>
+        <!-- Show message that room can only be used by logged in users -->
+        <b-alert show>
+          <i class="fa-solid fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
+        </b-alert>
+        <b-button-group>
+          <!-- Reload page, in case the room settings changed -->
+          <b-button
+            v-on:click="reload"
+            :disabled="loading"
+          >
+            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-sync"></i> {{$t('rooms.tryAgain')}}
+          </b-button>
+          <!-- Redirect the login the access room -->
+          <b-button
+            @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
+            variant="success"
+          >
+            <i class="fa-solid fa-lock"></i> {{$t('rooms.login')}}
+          </b-button>
+        </b-button-group>
+      </template>
+
     </template>
   </div>
 </template>
@@ -240,18 +273,34 @@ import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
+import FieldErrors from '../../mixins/FieldErrors';
+import store from '../../store';
+import Vue from 'vue';
+import i18n from '../../i18n';
+import BrowserNotification from '../../components/Room/BrowserNotification';
 
 export default {
   directives: {
     mask: AwesomeMask
   },
+
+  props: {
+    modalStatic: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   components: {
+    BrowserNotification,
     FileComponent,
     DeleteRoomComponent,
     RoomAdmin,
     Can,
     Cannot
   },
+
+  mixins: [FieldErrors],
 
   data () {
     return {
@@ -265,16 +314,40 @@ export default {
       accessCode: null, // Access code to use for requests
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
-      recordAttendanceAgreement: false
+      recordAttendanceAgreement: false,
+      token: null,
+      errors: []
     };
   },
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
+    if (to.params.token && store.getters['session/isAuthenticated']) {
+      Vue.prototype.flashMessage.info(i18n.t('app.flash.guestsOnly'));
+      return next('/');
+    }
+
+    let config;
+
+    if (to.params.token) {
+      config = {
+        headers: {
+          Token: to.params.token
+        }
+      };
+    }
+
     // Load room details
-    Base.call('rooms/' + to.params.id).then(response => {
+    Base.call('rooms/' + to.params.id, config).then(response => {
       next(vm => {
+        vm.token = to.params.token ? to.params.token : null;
         vm.room = response.data.data;
         vm.room_id = to.params.id;
+
+        if (vm.room.username) {
+          vm.name = vm.room.username;
+        }
+
+        vm.startAutoRefresh();
       });
     }).catch((error) => {
       if (error.response) {
@@ -282,24 +355,53 @@ export default {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           return next('/404');
         }
+
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return next(vm => {
+            vm.token = to.params.token ? to.params.token : null;
+            vm.room_id = to.params.id;
+          });
+        }
+
         // Room is not open for guests
         if (error.response.status === env.HTTP_FORBIDDEN) {
           return next(vm => {
             vm.room_id = to.params.id;
+
+            vm.startAutoRefresh();
           });
         }
         next(error);
       }
     });
   },
-  mounted () {
-    // Reload room details in a set interval, change in the .env
-    this.reloadInterval = setInterval(this.reload, env.REFRESH_RATE * 1000);
-  },
   destroyed () {
     clearInterval(this.reloadInterval);
   },
   methods: {
+
+    /**
+     * Get a random refresh interval for polling to prevent
+     * simultaneous request from multiple clients
+     * @returns {number} random refresh internal in seconds
+     */
+    getRandomRefreshInterval: function () {
+      const base = Math.abs(env.REFRESH_RATE);
+      // 15% range to scatter the values around the base refresh rate
+      const percentageRange = 0.15;
+      const absoluteRange = base * percentageRange;
+      // Calculate a random refresh internal between (base-range and base+range)
+      return (base - absoluteRange) + (Math.random() * absoluteRange * 2);
+    },
+
+    /**
+     * Reload room details in a set interval, change in the .env
+     */
+    startAutoRefresh: function () {
+      this.reloadInterval = setInterval(this.reload, this.getRandomRefreshInterval() * 1000);
+    },
+
     /**
      *  Handle errors of the file list
      */
@@ -315,8 +417,13 @@ export default {
           return this.handleInvalidCode();
         }
 
+        // Room token is invalid
+        if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+          return this.handleInvalidToken();
+        }
+
         // Forbidden, guests not allowed
-        if (error.response.status === env.HTTP_FORBIDDEN) {
+        if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
           return this.handleGuestsNotAllowed();
         }
       }
@@ -330,6 +437,9 @@ export default {
       this.room = null;
       // Remove a potential access code
       this.accessCode = null;
+      // Set current user to null, as the user is not logged in
+
+      this.$store.commit('session/setCurrentUser', { currentUser: null });
     },
 
     /**
@@ -346,14 +456,31 @@ export default {
     },
 
     /**
+     * Reset room due to token error
+     */
+    handleInvalidToken: function () {
+      // Show error message
+      this.room = null;
+      this.flashMessage.error(this.$t('rooms.flash.tokenInvalid'));
+      // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
+      clearInterval(this.reloadInterval);
+    },
+
+    /**
      * Reload the room details/settings
      */
     reload: function () {
       // Enable loading indicator
       this.loading = true;
       // Build room api url, include access code if set
+      const config = {};
 
-      const config = this.accessCode == null ? {} : { headers: { 'Access-Code': this.accessCode } };
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
+
       const url = 'rooms/' + this.room_id;
 
       // Load data
@@ -368,6 +495,14 @@ export default {
           if (this.$refs.publicFileList) {
             this.$refs.publicFileList.reload();
           }
+
+          if (this.room.username) {
+            this.name = this.room.username;
+          }
+
+          // Update current user, if logged in/out in another tab or session expired
+          // to have the can/cannot component use the correct state
+          this.$store.commit('session/setCurrentUser', { currentUser: this.room.current_user });
         })
         .catch((error) => {
           if (error.response) {
@@ -376,8 +511,13 @@ export default {
               return this.handleInvalidCode();
             }
 
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
             // Forbidden, guests not allowed
-            if (error.response.status === env.HTTP_FORBIDDEN) {
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
               return this.handleGuestsNotAllowed();
             }
           }
@@ -394,15 +534,21 @@ export default {
     start: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
-      // Build url, add accessCode if needed
+      // Reset errors
+      this.errors = [];
+      // Build url, add accessCode and token if needed
       const config = {
         params: {
-          name: this.name,
+          name: this.token ? null : this.name,
           record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
 
-      if (this.accessCode != null) { config.headers = { 'Access-Code': this.accessCode }; }
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
 
       const url = 'rooms/' + this.room_id + '/start';
 
@@ -415,6 +561,26 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Access code invalid
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
+            // Forbidden, guests not allowed
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+              return this.handleGuestsNotAllowed();
+            }
+
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
@@ -423,6 +589,12 @@ export default {
               // a different understanding of the users permission in this room
               this.room.canStart = false;
               this.reload();
+              return;
+            }
+
+            // Form validation error
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
               return;
             }
 
@@ -443,16 +615,22 @@ export default {
     join: function () {
       // Enable start/join meeting indicator/spinner
       this.loadingJoinStart = true;
+      // Reset errors
+      this.errors = [];
 
-      // Build url, add accessCode if needed
+      // Build url, add accessCode and token if needed
       const config = {
         params: {
-          name: this.name,
+          name: this.token ? null : this.name,
           record_attendance: this.recordAttendanceAgreement ? 1 : 0
         }
       };
 
-      if (this.accessCode != null) { config.headers = { 'Access-Code': this.accessCode }; }
+      if (this.token) {
+        config.headers = { Token: this.token };
+      } else if (this.accessCode != null) {
+        config.headers = { 'Access-Code': this.accessCode };
+      }
 
       const url = 'rooms/' + this.room_id + '/join';
 
@@ -466,9 +644,35 @@ export default {
         })
         .catch((error) => {
           if (error.response) {
+            // Access code invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Access code invalid
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'require_code') {
+              return this.handleInvalidCode();
+            }
+
+            // Room token is invalid
+            if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_token') {
+              return this.handleInvalidToken();
+            }
+
+            // Forbidden, guests not allowed
+            if (error.response.status === env.HTTP_FORBIDDEN && error.response.data.message === 'guests_not_allowed') {
+              return this.handleGuestsNotAllowed();
+            }
+
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
               this.room.running = false;
+            }
+
+            // Form validation error
+            if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+              this.errors = error.response.data.errors;
+              return;
             }
 
             // Attendance logging agreement required but not accepted
@@ -528,7 +732,6 @@ export default {
     leaveMembership: function (event) {
       // Enable loading indicator
       this.loading = true;
-
       Base.call('rooms/' + this.room.id + '/membership', {
         method: 'delete'
       }).catch((error) => {
@@ -555,29 +758,13 @@ export default {
     ...mapGetters({
       isAuthenticated: 'session/isAuthenticated'
     }),
-    /**
-     * Filestable heading
-     */
-    filefields () {
-      return [
-        {
-          key: 'filename',
-          label: this.$t('rooms.files.filename'),
-          sortable: true
-        },
-        {
-          key: 'actions',
-          label: this.$t('rooms.files.actions')
-        }
-      ];
-    },
 
     /**
      * Build invitation message
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: location.protocol + '//' + location.host + location.pathname });
+      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
         message += '\n' + this.$t('rooms.invitation.code', {

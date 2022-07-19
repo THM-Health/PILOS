@@ -23,7 +23,7 @@ localVue.use(Vuex);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
-const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: true, isModerator: false, canStart: false, running: false };
+const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: false, running: false };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
 
 const store = new Vuex.Store({
@@ -77,9 +77,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
           ]
         }
       })
@@ -91,22 +91,28 @@ describe('RoomMembers', function () {
           expect(rows.length).toBe(3);
 
           // first member
-          expect(rows.at(0).findAll('td').at(0).text()).toBe('Laura');
-          expect(rows.at(0).findAll('td').at(1).text()).toBe('Rivera');
-          expect(rows.at(0).findAll('td').at(2).text()).toBe('LauraWRivera@domain.tld');
-          expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.participant');
+          let img = rows.at(0).findAll('td').at(0).find('img');
+          expect(img.exists()).toBeTruthy();
+          expect(img.attributes('src')).toBe('/images/default_profile.png');
+          expect(rows.at(0).findAll('td').at(1).text()).toBe('Laura');
+          expect(rows.at(0).findAll('td').at(2).text()).toBe('Rivera');
+          expect(rows.at(0).findAll('td').at(3).text()).toBe('LauraWRivera@domain.tld');
+          expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
 
           // second member
-          expect(rows.at(1).findAll('td').at(0).text()).toBe('Juan');
-          expect(rows.at(1).findAll('td').at(1).text()).toBe('Walter');
-          expect(rows.at(1).findAll('td').at(2).text()).toBe('JuanMWalter@domain.tld');
-          expect(rows.at(1).findAll('td').at(3).text()).toBe('rooms.members.roles.moderator');
+          expect(rows.at(1).findAll('td').at(1).text()).toBe('Juan');
+          expect(rows.at(1).findAll('td').at(2).text()).toBe('Walter');
+          expect(rows.at(1).findAll('td').at(3).text()).toBe('JuanMWalter@domain.tld');
+          expect(rows.at(1).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
 
           // third member
-          expect(rows.at(2).findAll('td').at(0).text()).toBe('Tammy');
-          expect(rows.at(2).findAll('td').at(1).text()).toBe('Law');
-          expect(rows.at(2).findAll('td').at(2).text()).toBe('TammyGLaw@domain.tld');
-          expect(rows.at(2).findAll('td').at(3).text()).toBe('rooms.members.roles.co_owner');
+          img = rows.at(2).findAll('td').at(0).find('img');
+          expect(img.exists()).toBeTruthy();
+          expect(img.attributes('src')).toBe('http://domain.tld/storage/profile_images/1234abc.jpg');
+          expect(rows.at(2).findAll('td').at(1).text()).toBe('Tammy');
+          expect(rows.at(2).findAll('td').at(2).text()).toBe('Law');
+          expect(rows.at(2).findAll('td').at(3).text()).toBe('TammyGLaw@domain.tld');
+          expect(rows.at(2).findAll('td').at(4).text()).toBe('rooms.members.roles.co_owner');
 
           view.destroy();
           done();
@@ -304,9 +310,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
           ]
         }
       });
@@ -341,8 +347,8 @@ describe('RoomMembers', function () {
                 status: 200,
                 response: {
                   data: [
-                    { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld' },
-                    { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld' }
+                    { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
+                    { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null }
                   ]
                 }
               });
@@ -351,8 +357,8 @@ describe('RoomMembers', function () {
               const userOptions = modal.findAll('li');
               // amount of users + no result and no options items
               expect(userOptions.length).toBe(4);
-              expect(userOptions.at(0).text()).toBe('Laura Rivera');
-              expect(userOptions.at(1).text()).toBe('Laura Walter');
+              expect(userOptions.at(0).text()).toBe('Laura RiveraLauraWRivera@domain.tld');
+              expect(userOptions.at(1).text()).toBe('Laura WalterLauraMWalter@domain.tld');
               expect(userOptions.at(2).text()).toBe('rooms.members.modals.add.noResult');
               expect(userOptions.at(3).text()).toBe('rooms.members.modals.add.noOptions');
 
@@ -413,10 +419,10 @@ describe('RoomMembers', function () {
                     status: 200,
                     response: {
                       data: [
-                        { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-                        { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2 },
-                        { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 },
-                        { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2 }
+                        { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+                        { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+                        { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null },
+                        { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', role: 2, image: null }
                       ]
                     }
                   });
@@ -429,10 +435,10 @@ describe('RoomMembers', function () {
                   expect(rows.length).toBe(4);
 
                   // new member
-                  expect(rows.at(3).findAll('td').at(0).text()).toBe('Laura');
-                  expect(rows.at(3).findAll('td').at(1).text()).toBe('Walter');
-                  expect(rows.at(3).findAll('td').at(2).text()).toBe('LauraMWalter@domain.tld');
-                  expect(rows.at(3).findAll('td').at(3).text()).toBe('rooms.members.roles.moderator');
+                  expect(rows.at(3).findAll('td').at(1).text()).toBe('Laura');
+                  expect(rows.at(3).findAll('td').at(2).text()).toBe('Walter');
+                  expect(rows.at(3).findAll('td').at(3).text()).toBe('LauraMWalter@domain.tld');
+                  expect(rows.at(3).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
 
                   view.destroy();
                   done();
@@ -583,9 +589,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
           ]
         }
       });
@@ -602,7 +608,7 @@ describe('RoomMembers', function () {
           const rows = members.findAllComponents(BTr);
           expect(rows.length).toBe(3);
 
-          expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.participant');
+          expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
 
           // first member
           const editButton = rows.at(0).findAllComponents(BButton).at(0);
@@ -669,7 +675,7 @@ describe('RoomMembers', function () {
             const rows = members.findAllComponents(BTr);
             expect(rows.length).toBe(3);
 
-            expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.moderator');
+            expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
 
             view.destroy();
             done();
@@ -707,9 +713,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
           ]
         }
       });
@@ -726,7 +732,7 @@ describe('RoomMembers', function () {
           const rows = members.findAllComponents(BTr);
           expect(rows.length).toBe(3);
 
-          expect(rows.at(0).findAll('td').at(3).text()).toBe('rooms.members.roles.participant');
+          expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
 
           // first member
           const editButton = rows.at(0).findAllComponents(BButton).at(0);
@@ -816,9 +822,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
           ]
         }
       });
@@ -837,7 +843,7 @@ describe('RoomMembers', function () {
 
           // first member
           const deleteButton = rows.at(0).findAllComponents(BButton).at(1);
-          expect(deleteButton.html()).toContain('fas fa-trash');
+          expect(deleteButton.html()).toContain('fa-solid fa-trash');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {
@@ -909,9 +915,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
           ]
         }
       });
@@ -930,7 +936,7 @@ describe('RoomMembers', function () {
 
           // first member
           const deleteButton = rows.at(0).findAllComponents(BButton).at(1);
-          expect(deleteButton.html()).toContain('fas fa-trash');
+          expect(deleteButton.html()).toContain('fa-solid fa-trash');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {
@@ -1010,9 +1016,9 @@ describe('RoomMembers', function () {
         status: 200,
         response: {
           data: [
-            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 },
-            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2 },
-            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 }
+            { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+            { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+            { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
           ]
         }
       });
@@ -1031,7 +1037,7 @@ describe('RoomMembers', function () {
 
           // first member
           const deleteButton = rows.at(0).findAllComponents(BButton).at(1);
-          expect(deleteButton.html()).toContain('fas fa-trash');
+          expect(deleteButton.html()).toContain('fa-solid fa-trash');
           deleteButton.trigger('click');
 
           return new Promise((resolve, reject) => {

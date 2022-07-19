@@ -7,7 +7,7 @@
       v-b-tooltip
       :title="$t('settings.homeButton')"
       :to="{ name: 'settings'}"
-    ><i class='fas fa-arrow-left'></i></b-button> {{ $t('settings.title') }}</h2>
+    ><i class='fa-solid fa-arrow-left'></i></b-button> {{ $t('settings.title') }}</h2>
     <hr>
     <b-card class='p-3 border bg-white'>
       <router-view></router-view>

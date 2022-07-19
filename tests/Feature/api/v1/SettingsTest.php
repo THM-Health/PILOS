@@ -26,7 +26,7 @@ class SettingsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = factory(User::class)->create();
+        $this->user = User::factory()->create();
     }
 
     /**
@@ -50,6 +50,7 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
         setting(['help_url' => 'http://localhost']);
+        setting(['room_token_expiration' => -1]);
 
         setting(['statistics' => [
             'meetings' => [
@@ -89,7 +90,8 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => false,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_token_expiration' => -1
                 ]
             ])
             ->assertSuccessful();
@@ -117,6 +119,8 @@ class SettingsTest extends TestCase
             'retention_period'  => 14
         ]]);
 
+        setting(['room_token_expiration' => 100]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -137,7 +141,8 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => true,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_token_expiration' => 100
                 ]
             ])
             ->assertSuccessful();
@@ -165,6 +170,13 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
 
+        setting(['bbb_style' => url('style.css')]);
+        setting(['bbb_logo' => url('logo.png')]);
+        config(['bigbluebutton.allowed_file_mimes' => 'pdf,doc,docx,xls']);
+        config(['bigbluebutton.max_filesize' => 10]);
+        config(['bigbluebutton.room_name_limit' => 20]);
+        config(['bigbluebutton.welcome_message_limit' => 100]);
+
         setting(['statistics' => [
             'servers' => [
                 'enabled'           => true,
@@ -181,11 +193,18 @@ class SettingsTest extends TestCase
             'retention_period'  => 14
         ]]);
 
+        setting(['room_auto_delete' => [
+            'enabled'            => false,
+            'inactive_period'    => 7,
+            'never_used_period'  => 14,
+            'deadline_period'    => 30
+        ]]);
+
         $this->getJson(route('api.v1.application.complete'))->assertUnauthorized();
         $this->actingAs($this->user)->getJson(route('api.v1.application.complete'))->assertForbidden();
 
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.viewAny']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.viewAny']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -205,6 +224,14 @@ class SettingsTest extends TestCase
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
                     ],
+                    'bbb' => [
+                        'file_mimes'            => 'pdf,doc,docx,xls',
+                        'max_filesize'          => 10,
+                        'room_name_limit'       => 20,
+                        'welcome_message_limit' => 100,
+                        'style'                 => url('style.css'),
+                        'logo'                  => url('logo.png'),
+                    ],
                     'statistics' => [
                         'servers' => [
                             'enabled'           => true,
@@ -218,7 +245,13 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => true,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_auto_delete' => [
+                        'enabled'            => false,
+                        'inactive_period'    => 7,
+                        'never_used_period'  => 14,
+                        'deadline_period'    => 30
+                    ],
                 ]
             ])
             ->assertSuccessful();
@@ -249,6 +282,13 @@ class SettingsTest extends TestCase
             'retention_period'  => 14
         ]]);
 
+        setting(['room_auto_delete' => [
+            'enabled'            => true,
+            'inactive_period'    => 14,
+            'never_used_period'  => 7,
+            'deadline_period'    => 2
+        ]]);
+
         $this->getJson(route('api.v1.application.complete'))
             ->assertJson([
                 'data' => [
@@ -278,7 +318,13 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => false,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_auto_delete' => [
+                        'enabled'            => true,
+                        'inactive_period'    => 14,
+                        'never_used_period'  => 7,
+                        'deadline_period'    => 2
+                    ],
                 ]
             ])
             ->assertSuccessful();
@@ -290,6 +336,9 @@ class SettingsTest extends TestCase
             'name'                           => 'test',
             'logo'                           => 'testlogo.svg',
             'favicon'                        => 'favicon.ico',
+            'bbb'                            => [
+                'logo' => 'bbblogo.png',
+            ],
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
@@ -307,6 +356,7 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled' => '1',
             'default_timezone'            => 'Europe/Berlin',
             'help_url'                    => 'http://localhost',
+            'room_token_expiration'       => -1,
             'statistics'                  => [
                 'servers' => [
                     'enabled'           => false,
@@ -320,11 +370,17 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete'           => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -338,6 +394,9 @@ class SettingsTest extends TestCase
                     'pagination_page_size'           => 10,
                     'own_rooms_pagination_page_size' => 15,
                     'room_limit'                     => -1,
+                    'bbb'                            => [
+                      'logo' => 'bbblogo.png'
+                    ],
                     'banner'                         => [
                         'enabled'    => false,
                         'message'    => 'Welcome to Test!',
@@ -350,6 +409,7 @@ class SettingsTest extends TestCase
                     'password_self_reset_enabled' => true,
                     'default_timezone'            => 'Europe/Berlin',
                     'help_url'                    => 'http://localhost',
+                    'room_token_expiration'       => -1,
                     'statistics'                  => [
                         'servers' => [
                             'enabled'           => false,
@@ -363,7 +423,13 @@ class SettingsTest extends TestCase
                     'attendance' => [
                         'enabled'           => false,
                         'retention_period'  => 14
-                    ]
+                    ],
+                    'room_auto_delete' => [
+                        'enabled'           => true,
+                        'inactive_period'   => 14,
+                        'never_used_period' => 30,
+                        'deadline_period'   => 7
+                    ],
                 ]
             ]);
         $this->assertTrue(setting()->has('help_url'));
@@ -388,12 +454,16 @@ class SettingsTest extends TestCase
             'name'                           => 'test',
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
             'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'bbb'                            => [
+                'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
+            ],
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => false,
             'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => false,
@@ -407,6 +477,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -419,8 +495,8 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -437,14 +513,18 @@ class SettingsTest extends TestCase
     {
         $payload = [
             'name'                           => 'test',
-            'favicon'                        => '/storage/image/favicon.ico',
-            'logo'                           => '/storage/image/testfile.svg',
+            'favicon'                        => '/storage/image/testfavicon.ico',
+            'logo'                           => '/storage/image/testlogo.svg',
+            'bbb'                            => [
+                'logo'                           => '/storage/image/testbbblogo.png',
+             ],
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => false,
@@ -458,6 +538,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -470,13 +556,17 @@ class SettingsTest extends TestCase
             ->assertForbidden();
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
-        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+        $response = $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
             ->assertSuccessful();
+
+        $this->assertEquals($response->json('data.logo'), '/storage/image/testlogo.svg');
+        $this->assertEquals($response->json('data.favicon'), '/storage/image/testfavicon.ico');
+        $this->assertEquals($response->json('data.bbb.logo'), '/storage/image/testbbblogo.png');
     }
 
     /**
@@ -493,12 +583,17 @@ class SettingsTest extends TestCase
             'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
             'favicon'                        => '/storage/image/favicon.ico',
             'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'bbb'                            => [
+                'logo'      => '/storage/image/bbbtestlogo.png',
+                'logo_file' => UploadedFile::fake()->image('bbblogo.png'),
+            ],
             'pagination_page_size'           => '10',
             'own_rooms_pagination_page_size' => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => false,
@@ -512,19 +607,27 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         $response = $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload);
         $response->assertSuccessful();
 
-        $this->assertFalse($response->json('data.logo') == '/storage/image/testfile.svg');
+        $this->assertNotEquals($response->json('data.logo'), '/storage/image/testfile.svg');
+        $this->assertNotEquals($response->json('data.favicon'), '/storage/image/favicon.ico');
+        $this->assertNotEquals($response->json('data.bbb.logo'), '/storage/image/bbbtestlogo.png');
     }
 
     /**
@@ -535,8 +638,8 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsWithInvalidInputs()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -546,12 +649,17 @@ class SettingsTest extends TestCase
             'favicon_file'                   => 'notimagefile',
             'logo'                           => '',
             'logo_file'                      => 'notimagefile',
+            'bbb'                            => [
+                'logo'                           => '',
+                'logo_file'                      => 'notimagefile',
+             ],
             'pagination_page_size'           => 'notnumber',
             'own_rooms_pagination_page_size' => 'notnumber',
             'room_limit'                     => 'notnumber',
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
             'help_url'                       => 33,
+            'room_token_expiration'          => 123,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => 'test',
@@ -565,6 +673,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => 90,
                 'retention_period'  => 'test'
+            ],
+            'room_auto_delete' => [
+                'enabled'              => 'test',
+                'inactive_period'      => false,
+                'never_used_period'    => false,
+                'deadline_period'      => false,
             ]
         ];
 
@@ -589,7 +703,15 @@ class SettingsTest extends TestCase
                 'statistics.meetings.enabled',
                 'statistics.meetings.retention_period',
                 'attendance.enabled',
-                'attendance.retention_period'
+                'attendance.retention_period',
+                'room_token_expiration',
+                'bbb.logo',
+                'bbb.logo_file',
+                'room_auto_delete.enabled',
+                'room_auto_delete.inactive_period',
+                'room_auto_delete.never_used_period',
+                'room_auto_delete.deadline_period',
+
             ]);
 
         $payload = [
@@ -603,6 +725,7 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
             'help_url'                       => 'http://localhost',
+            'room_token_expiration'          => -2,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => true,
@@ -616,6 +739,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => true,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 30,
+                'never_used_period'    => 7,
+                'deadline_period'      => 14,
             ]
         ];
 
@@ -623,7 +752,8 @@ class SettingsTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors([
                 'banner',
-                'banner.enabled'
+                'banner.enabled',
+                'room_token_expiration'
             ])
             ->assertJsonMissingValidationErrors([
                 'help_url'
@@ -632,7 +762,8 @@ class SettingsTest extends TestCase
         $payload['banner'] = [
             'enabled' => 'foo'
         ];
-        $payload['help_url'] = '';
+        $payload['room_token_expiration'] = 1440;
+        $payload['help_url']              = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
             ->assertStatus(422)
@@ -640,7 +771,8 @@ class SettingsTest extends TestCase
                 'banner.enabled'
             ])
             ->assertJsonMissingValidationErrors([
-                'help_url'
+                'help_url',
+                'room_token_expiration'
             ]);
 
         $payload['banner'] = [
@@ -688,13 +820,14 @@ class SettingsTest extends TestCase
     public function testUpdateApplicationSettingsMinMax()
     {
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
         // inputs lower than allowed minimum
-        $this->actingAs($this->user)->putJson(route('api.v1.application.update'),
+        $this->actingAs($this->user)->putJson(
+            route('api.v1.application.update'),
             [
                 'name'                           => 'test',
                 'favicon'                        => '/storage/image/favicon.ico',
@@ -716,6 +849,12 @@ class SettingsTest extends TestCase
                 'attendance' => [
                     'enabled'           => true,
                     'retention_period'  => 0
+                ],
+                'room_auto_delete' => [
+                    'enabled'              => true,
+                    'inactive_period'      => 1,
+                    'never_used_period'    => 1,
+                    'deadline_period'      => 1,
                 ]
             ]
         )
@@ -726,11 +865,15 @@ class SettingsTest extends TestCase
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
-                'attendance.retention_period'
+                'attendance.retention_period',
+                'room_auto_delete.inactive_period',
+                'room_auto_delete.never_used_period',
+                'room_auto_delete.deadline_period',
             ]);
 
         // inputs higher than allowed minimum
-        $this->putJson(route('api.v1.application.update'),
+        $this->putJson(
+            route('api.v1.application.update'),
             [
                 'name'                           => 'test',
                 'favicon'                        => '/storage/image/favicon.ico',
@@ -752,6 +895,12 @@ class SettingsTest extends TestCase
                 'attendance' => [
                     'enabled'           => true,
                     'retention_period'  => 366
+                ],
+                'room_auto_delete' => [
+                    'enabled'              => true,
+                    'inactive_period'      => 1000,
+                    'never_used_period'    => 1000,
+                    'deadline_period'      => 365,
                 ]
             ]
         )
@@ -762,14 +911,17 @@ class SettingsTest extends TestCase
                 'room_limit',
                 'statistics.servers.retention_period',
                 'statistics.meetings.retention_period',
-                'attendance.retention_period'
+                'attendance.retention_period',
+                'room_auto_delete.inactive_period',
+                'room_auto_delete.never_used_period',
+                'room_auto_delete.deadline_period',
             ]);
     }
 
     public function testApplicationSettingsDefaultPresentation()
     {
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -787,6 +939,7 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
             'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'room_token_expiration'          => -1,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => true,
@@ -800,6 +953,12 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => true,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
@@ -856,6 +1015,160 @@ class SettingsTest extends TestCase
     }
 
     /**
+     * Test to update the custom bbb style sheet
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function testApplicationSettingsBBBStyle()
+    {
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        $style =  UploadedFile::fake()->create('style.css');
+        file_put_contents($style->getRealPath(), 'body { background-color: #273035; }');
+
+        $request = [
+            'bbb' => [
+                'style' => $style,
+            ],
+            'name'                           => 'test',
+            'favicon'                        => '/storage/image/favicon.ico',
+            'logo'                           => '/storage/image/testfile.svg',
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => '1',
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => true,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => true,
+                'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
+            ]
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb.style', Storage::disk('public')->url('styles/bbb.css'));
+        Storage::disk('public')->assertExists('styles/bbb.css');
+
+        $this->assertEquals('body { background-color: #273035; }', Storage::disk('public')->get('styles/bbb.css'));
+
+        // Update old file gets deleted
+        $style2 =  UploadedFile::fake()->create('style.css');
+        file_put_contents($style2->getRealPath(), 'body { background-color: #000; }');
+
+        $request['bbb']['style'] = $style2;
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb.style', Storage::disk('public')->url('styles/bbb.css'));
+        Storage::disk('public')->assertExists('styles/bbb.css');
+        $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get('styles/bbb.css'));
+
+        // Send request without changes, should keep the style unchanged
+        unset($request['bbb']['style']);
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb.style', Storage::disk('public')->url('styles/bbb.css'));
+        Storage::disk('public')->assertExists('styles/bbb.css');
+        $this->assertEquals('body { background-color: #000; }', Storage::disk('public')->get('styles/bbb.css'));
+
+        // Clear default presentation (file deleted and setting removed)
+        $request['bbb']['style'] = null;
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertSuccessful();
+        $this->assertEmpty(setting('bbb_style'));
+        Storage::disk('public')->assertMissing('styles/bbb.css');
+    }
+
+    /**
+     * Test to update the bbb logo
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function testApplicationSettingsBBBLogo()
+    {
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        $logo =  UploadedFile::fake()->create('logo.png');
+
+        $request = [
+            'bbb' => [
+                'logo_file' => $logo,
+            ],
+            'name'                           => 'test',
+            'favicon'                        => '/storage/image/favicon.ico',
+            'logo'                           => '/storage/image/testfile.svg',
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => '1',
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => true,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => true,
+                'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
+            ]
+        ];
+
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb.logo', setting('bbb_logo'));
+
+        $path = setting('bbb_logo');
+
+        // Update logo
+        $logo2                       =  UploadedFile::fake()->create('logo.png');
+        $request['bbb']['logo_file'] = $logo2;
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertStatus(200)
+            ->assertJsonPath('data.bbb.logo', setting('bbb_logo'));
+        $this->assertNotEquals($path, setting('bbb_logo'));
+
+        // Clear logo
+        unset($request['bbb']['logo_file']);
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $request)
+            ->assertSuccessful();
+        $this->assertEmpty(setting('bbb_logo'));
+    }
+
+    /**
      * Test if the attendance recording is getting disabled for a running meeting and attendance data removed, if the global setting is changed
      * After the global setting is disabled new attendees would not see a warning, but are recorded if this global setting is re-enabled during the meeting
      * To prevent this, the attendance recording is disabled until the end of the meeting
@@ -866,8 +1179,8 @@ class SettingsTest extends TestCase
         setting(['attendance.enabled'=>true]);
 
         // Create two fake meetings
-        $meetingRunning = factory(Meeting::class)->create(['end'=>null,'record_attendance'=>true]);
-        $meetingEnded   = factory(Meeting::class)->create(['record_attendance'=>true]);
+        $meetingRunning = Meeting::factory()->create(['end'=>null,'record_attendance'=>true]);
+        $meetingEnded   = Meeting::factory()->create(['record_attendance'=>true]);
 
         $meetingRunning->attendees()->save(new MeetingAttendee(['name'=>'Marie Walker','session_id'=>'PogeR6XH8I2SAeCqc8Cp5y5bD9Qq70dRxe4DzBcb','join'=>'2020-01-01 08:13:11','leave'=>'2020-01-01 08:15:51']));
 
@@ -882,6 +1195,7 @@ class SettingsTest extends TestCase
             'banner'                         => ['enabled' => false],
             'password_self_reset_enabled'    => false,
             'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
             'statistics'                     => [
                 'servers' => [
                     'enabled'           => false,
@@ -895,12 +1209,18 @@ class SettingsTest extends TestCase
             'attendance' => [
                 'enabled'           => false,
                 'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 14,
+                'never_used_period'    => 30,
+                'deadline_period'      => 7
             ]
         ];
 
         // Add necessary role and permission to user to update application settings
-        $role       = factory(Role::class)->create();
-        $permission = factory(Permission::class)->create(['name' => 'applicationSettings.update']);
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
         $role->permissions()->attach($permission);
         $this->user->roles()->attach($role);
 
@@ -916,5 +1236,94 @@ class SettingsTest extends TestCase
 
         // Check if all attendance data is removed
         $this->assertCount(0, $meetingRunning->attendees);
+    }
+
+    /**
+     * Test if auto room deletion is disabled if booth time periods are disabled
+     */
+    public function testRoomDeletionDisabled()
+    {
+        $role       = Role::factory()->create();
+        $permission = Permission::factory()->create(['name' => 'applicationSettings.update']);
+        $role->permissions()->attach($permission);
+        $this->user->roles()->attach($role);
+
+        // Payload with booth time periods disabled
+        $payload = [
+            'name'                           => 'test',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false,
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => -1,
+                'never_used_period'    => -1,
+                'deadline_period'      => 7
+            ]
+        ];
+
+        // Update global settings and check result
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful()
+            ->assertJsonPath('data.room_auto_delete.enabled', false);
+
+        // Payload with only one time period disabled
+        $payload = [
+            'name'                           => 'test',
+            'logo_file'                      => UploadedFile::fake()->image('logo.svg'),
+            'favicon_file'                   => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
+            'pagination_page_size'           => '10',
+            'own_rooms_pagination_page_size' => '15',
+            'room_limit'                     => '-1',
+            'banner'                         => ['enabled' => false],
+            'password_self_reset_enabled'    => false,
+            'default_timezone'               => 'Europe/Berlin',
+            'room_token_expiration'          => -1,
+            'statistics'                     => [
+                'servers' => [
+                    'enabled'           => false,
+                    'retention_period'  => 7
+                ],
+                'meetings' => [
+                    'enabled'           => true,
+                    'retention_period'  => 90
+                ]
+            ],
+            'attendance' => [
+                'enabled'           => false,
+                'retention_period'  => 14
+            ],
+            'room_auto_delete' => [
+                'enabled'              => true,
+                'inactive_period'      => 7,
+                'never_used_period'    => -1,
+                'deadline_period'      => 7
+            ]
+        ];
+
+        // Update global settings and check result
+        $this->actingAs($this->user)->putJson(route('api.v1.application.update'), $payload)
+            ->assertSuccessful()
+            ->assertJsonPath('data.room_auto_delete.enabled', true);
     }
 }

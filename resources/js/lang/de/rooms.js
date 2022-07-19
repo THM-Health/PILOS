@@ -17,9 +17,17 @@ export default {
   recordingAttendanceAccept: 'Ich bin mit der Protokollierung einverstanden.',
   firstAndLastname: 'Vor- und Nachname',
   accessForParticipants: 'Zugang für Teilnehmer',
+  copyAccessForParticipants: 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
   onlyUsedByAuthenticatedUsers: 'Dieser Raum kann nur von angemeldeten Nutzern verwendet werden.',
+  invalidPersonalLink: 'Dieser personalisierte Raumlink ist ungültig.',
   becomeMember: 'Mitglied werden',
-  endMembership: 'Mitgliedschaft beenden',
+  endMembership: {
+    button: 'Mitgliedschaft beenden',
+    title: 'Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?',
+    message: 'Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumbesitzer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.',
+    yes: 'Ja, Mitgliedschaft beenden',
+    no: 'Nein, Mitgliedschaft beibehalten'
+  },
   requireAccessCode: 'Für diesen Raum ist ein Zugangscode erforderlich',
   login: 'Anmelden',
   placeholderName: 'Max Mustermann',
@@ -38,9 +46,17 @@ export default {
       message: 'Der Zugangscode ist ungültig.',
       title: 'Anmeldung am Raum fehlgeschlagen'
     },
+    tokenInvalid: {
+      message: 'Der personalisierte Raumlink ist nicht mehr gültig.',
+      title: 'Raumlink ungültig'
+    },
     fileForbidden: {
       message: 'Die Zugriff auf die Datei wurde verweigert.',
       title: 'Zugriff verweigert'
+    },
+    fileGone: {
+      message: 'Die Datei wurde in der Zwischenzeit gelöscht.',
+      title: 'Datei nicht gefunden'
     }
   },
   modals: {
@@ -64,6 +80,8 @@ export default {
     uploadedAt: 'Hochgeladen am',
     useInNextMeeting: 'Im nächsten Meeting nutzen',
     selectordrag: 'Wählen Sie eine Datei aus, oder ziehen Sie eine Datei per Drag & Drop in dieses Feld ...',
+    view: 'Datei anzeigen',
+    delete: 'Datei löschen',
     modals: {
       delete: {
         title: 'Datei löschen',
@@ -88,6 +106,7 @@ export default {
     nodata: 'Keine Mitglieder vorhanden',
     addUser: 'Nutzer hinzufügen',
     inviteGuest: 'Gast einladen',
+    image: 'Bild',
     firstname: 'Vorname',
     lastname: 'Nachname',
     email: 'Email',
@@ -99,6 +118,8 @@ export default {
       moderator: 'Moderator',
       co_owner: 'Mitbesitzer'
     },
+    editUser: 'Mitglied bearbeiten',
+    deleteUser: 'Mitglied löschen',
     modals: {
       edit: {
         title: '{firstname} {lastname} bearbeiten',
@@ -134,10 +155,10 @@ export default {
     general: {
       title: 'Allgemein',
       type: 'Art',
-      selectType: '-- Raumart auswählen --',
       roomName: 'Raumname',
       welcomeMessage: 'Begrüßungsnachricht',
       maxDuration: 'Max. Dauer',
+      resetDuration: 'Dauer zurücksetzen',
       minutes: 'min.',
       chars: 'Zeichen: {chars}'
     },
@@ -145,6 +166,8 @@ export default {
       title: 'Sicherheit',
       unprotectedPlaceholder: '-- ungeschützt --',
       accessCode: 'Zugangscode',
+      generateAccessCode: 'Neuen Zugangscode erstellen',
+      deleteAccessCode: 'Zugangscode entfernen',
       accessCodeNote: 'Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).',
       allowGuests: 'Gäste zulassen',
       allowNewMembers: 'Neue Mitglieder zulassen',
@@ -153,6 +176,7 @@ export default {
     participants: {
       title: 'Teilnehmer',
       maxParticipants: 'Max. Teilnehmeranzahl',
+      clearMaxParticipants: 'Max. Teilnehmeranzahl zurücksetzen',
       defaultRole: {
         title: 'Standardrolle',
         onlyLoggedIn: '(nur für angemeldete Nutzer)',
@@ -184,9 +208,59 @@ export default {
       hideParticipantsList: 'Teilnehmerliste verbergen'
     }
   },
+
   filter: {
     title: 'Filter',
     roomTypes: 'Raumarten',
     apply: 'Anwenden'
+  },
+
+  tokens: {
+    nodata: 'Keine personalisierten Raumlinks vorhanden!',
+    title: 'Personalisierte Raumlinks',
+    firstname: 'Vorname',
+    lastname: 'Nachname',
+    role: 'Rolle',
+    expires: 'Verfallsdatum',
+    lastUsage: 'Zuletzt verwendet',
+    add: 'Personalisierten Raumlink hinzufügen',
+    edit: 'Personalisierten Raumlink bearbeiten',
+    delete: 'Personalisierten Raumlink löschen',
+    copy: 'Personalisierten Raumlink in Zwischenablage kopieren',
+    roomLinkCopied: 'Der persionalisierte Raumlink für {firstname} {lastname} wurde in Ihre Zwischenablage kopiert.',
+
+    modals: {
+      delete: {
+        title: 'Personalisierten Raumlink löschen',
+        confirm: 'Wollen Sie den personalisierten Raumlink für {firstname} {lastname} wirklich löschen?'
+      }
+    },
+
+    roles: {
+      participant: 'Teilnehmer',
+      moderator: 'Moderator'
+    }
+  },
+
+  roomTypes: {
+    loadingError: 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
+    selectType: '-- Raumart auswählen --',
+    reload: 'Raumarten neuladen'
+  },
+
+  notification: {
+    enable: 'Beim Start des Raumes benachrichtigen',
+    enabled: 'Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht.',
+    body: 'Der Raum wurde um {time} gestartet',
+
+    denied: {
+      message: 'Der Browser verweigert Benachrichtigungen.',
+      title: 'Keine Berechtigung'
+    },
+
+    browserSupport: {
+      message: 'Ihr Browser unterstützt keine Benachrichtigung.',
+      title: 'Fehlende Unterstützung'
+    }
   }
 };

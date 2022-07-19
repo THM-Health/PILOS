@@ -8,7 +8,7 @@
        <b-col class="p-2">
          <b-card class="h-100">
             <router-link class="stretched-link" :to="{ name: 'settings.application' }">
-            <h2 class="text-center text-success"><i class='fas fa-cogs'></i></h2>
+            <h2 class="text-center text-success"><i class='fa-solid fa-cogs'></i></h2>
             </router-link>
             <b-card-title class="text-center text-success">{{ $t('settings.application.title') }}</b-card-title>
             <b-card-text>
@@ -21,7 +21,7 @@
        <b-col class="p-2">
          <b-card class="h-100">
             <router-link class="stretched-link" :to="{ name: 'settings.users' }">
-              <h2 class="text-center text-success"><i class='fas fa-users'></i></h2>
+              <h2 class="text-center text-success"><i class='fa-solid fa-users'></i></h2>
             </router-link>
             <b-card-title class="text-center text-success">{{ $t('settings.users.title') }}</b-card-title>
             <b-card-text>
@@ -34,7 +34,7 @@
        <b-col class="p-2">
           <b-card class="h-100">
             <router-link class="stretched-link" :to="{ name: 'settings.roles' }">
-              <h2 class="text-center text-success"><i class='fas fa-user-tag'></i></h2>
+              <h2 class="text-center text-success"><i class='fa-solid fa-user-tag'></i></h2>
             </router-link>
             <b-card-title class="text-center text-success">{{ $t('settings.roles.title') }}</b-card-title>
             <b-card-text>
@@ -47,7 +47,7 @@
        <b-col class="p-2">
           <b-card class="h-100">
             <router-link class="stretched-link" :to="{ name: 'settings.room_types' }">
-              <h2 class="text-center text-success"><i class='fas fa-tags'></i></h2>
+              <h2 class="text-center text-success"><i class='fa-solid fa-tags'></i></h2>
             </router-link>
             <b-card-title class="text-center text-success">{{ $t('settings.roomTypes.title') }}</b-card-title>
             <b-card-text>
@@ -60,7 +60,7 @@
         <b-col class="p-2">
           <b-card class="h-100">
             <router-link class="stretched-link" :to="{ name: 'settings.servers' }">
-              <h2 class="text-center text-success"><i class='fas fa-server'></i></h2>
+              <h2 class="text-center text-success"><i class='fa-solid fa-server'></i></h2>
             </router-link>
             <b-card-title class="text-center text-success">{{ $t('settings.servers.title') }}</b-card-title>
             <b-card-text>
@@ -73,7 +73,7 @@
         <b-col class="p-2">
           <b-card class="h-100">
             <router-link class="stretched-link" :to="{ name: 'settings.server_pools' }">
-              <h2 class="text-center text-success"><i class='fas fa-th-large'></i></h2>
+              <h2 class="text-center text-success"><i class='fa-solid fa-th-large'></i></h2>
             </router-link>
             <b-card-title class="text-center text-success">{{ $t('settings.serverPools.title') }}</b-card-title>
             <b-card-text>

@@ -1,20 +1,34 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BButtonClose, BTbody, BTr, IconsPlugin } from 'bootstrap-vue';
+import BootstrapVue, { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import Index from '../../../../../resources/js/views/settings/users/Index';
 import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
+import Multiselect from 'vue-multiselect';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(IconsPlugin);
 
 const createContainer = (tag = 'div') => {
   const container = document.createElement(tag);
   document.body.appendChild(container);
   return container;
 };
+
+function overrideStub (url, response) {
+  const l = moxios.stubs.count();
+  for (let i = 0; i < l; i++) {
+    const stub = moxios.stubs.at(i);
+    if (stub.url === url) {
+      const oldResponse = stub.response;
+      const restoreFunc = () => { stub.response = oldResponse; };
+
+      stub.response = response;
+      return restoreFunc;
+    }
+  }
+}
 
 describe('UsersIndex', function () {
   beforeEach(function () {
@@ -33,7 +47,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -54,8 +69,12 @@ describe('UsersIndex', function () {
             lastname: 'Doe',
             user_locale: 'en',
             model_name: 'User',
+            roles: [
+              { id: 3, name: 'Students', automatic: true },
+              { id: 1, name: 'admin', automatic: false }
+            ],
             room_limit: 0,
-            updated_at: '2020-01-01 01:00:00'
+            updated_at: '2020-01-01T01:00:00.000000Z'
           }],
           meta: {
             per_page: 1,
@@ -67,10 +86,13 @@ describe('UsersIndex', function () {
         return view.vm.$nextTick();
       }).then(() => {
         let html = view.findComponent(BTbody).findComponent(BTr).html();
+
         expect(html).toContain('1');
         expect(html).toContain('John');
         expect(html).toContain('Doe');
         expect(html).toContain('john@doe.com');
+        expect(html).toContain('Students');
+        expect(html).toContain('app.roles.admin');
         expect(html).toContain('settings.users.authenticator.users');
 
         view.vm.$root.$emit('bv::refresh::table', 'users-table');
@@ -91,8 +113,11 @@ describe('UsersIndex', function () {
                 lastname: 'Vader',
                 user_locale: 'de',
                 model_name: 'User',
+                roles: [
+                  { id: 3, name: 'Students', automatic: true }
+                ],
                 room_limit: 0,
-                updated_at: '2020-01-01 01:00:00'
+                updated_at: '2020-01-01T01:00:00.000000Z'
               }],
               meta: {
                 per_page: 1,
@@ -105,6 +130,7 @@ describe('UsersIndex', function () {
             expect(html).toContain('2');
             expect(html).toContain('Darth');
             expect(html).toContain('Vader');
+            expect(html).toContain('Students');
             expect(html).toContain('darth@vader.com');
             expect(html).toContain('settings.users.authenticator.ldap');
 
@@ -138,7 +164,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
           authenticator: 'users',
@@ -149,7 +175,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00',
+          updated_at: '2020-01-01T01:00:00.000000Z',
           initial_password_set: true
         }, {
           id: 3,
@@ -161,7 +187,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 3,
@@ -174,7 +200,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -264,7 +291,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
           authenticator: 'users',
@@ -275,7 +302,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00',
+          updated_at: '2020-01-01T01:00:00.000000Z',
           initial_password_set: true
         }, {
           id: 3,
@@ -287,7 +314,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 3,
@@ -301,6 +328,7 @@ describe('UsersIndex', function () {
       localVue,
       mocks: {
         $t: key => key,
+        $te: (key) => key === 'app.roles.admin',
         flashMessage
       },
       attachTo: createContainer(),
@@ -359,7 +387,7 @@ describe('UsersIndex', function () {
           user_locale: 'en',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
           authenticator: 'ldap',
@@ -370,7 +398,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 2,
@@ -383,7 +411,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -418,7 +447,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -459,7 +489,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 2,
@@ -472,7 +502,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -524,7 +555,7 @@ describe('UsersIndex', function () {
           user_locale: 'de',
           model_name: 'User',
           room_limit: 0,
-          updated_at: '2020-01-01 01:00:00'
+          updated_at: '2020-01-01T01:00:00.000000Z'
         }],
         meta: {
           per_page: 2,
@@ -537,7 +568,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -579,7 +611,8 @@ describe('UsersIndex', function () {
     const view = mount(Index, {
       localVue,
       mocks: {
-        $t: key => key
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
       },
       attachTo: createContainer()
     });
@@ -603,6 +636,344 @@ describe('UsersIndex', function () {
 
         view.destroy();
         PermissionService.setCurrentUser(oldUser);
+        done();
+      });
+    });
+  });
+
+  it('role filter', function (done) {
+    moxios.stubRequest('/api/v1/roles?page=1', {
+      status: 200,
+      response: {
+        data: [
+          { id: 1, name: 'admin', default: true, updated_at: '2021-01-08T15:51:08.000000Z', model_name: 'Role', room_limit: -1 },
+          { id: 2, name: 'Staff', default: false, updated_at: '2021-03-19T09:12:44.000000Z', model_name: 'Role', room_limit: 20 },
+          { id: 3, name: 'Students', default: false, updated_at: '2021-05-22T11:55:21.000000Z', model_name: 'Role', room_limit: 1 }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 3,
+          to: 3,
+          total: 6
+        }
+      }
+    });
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
+      },
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async () => {
+      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+      const request = moxios.requests.mostRecent();
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [{
+            id: 1,
+            authenticator: 'users',
+            email: 'john@doe.com',
+            username: 'jdo',
+            firstname: 'John',
+            lastname: 'Doe',
+            user_locale: 'en',
+            model_name: 'User',
+            roles: [
+              { id: 3, name: 'Students', automatic: true },
+              { id: 1, name: 'admin', automatic: false }
+            ],
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }],
+          meta: {
+            per_page: 1,
+            current_page: 1,
+            total: 1
+          }
+        }
+      });
+
+      const roleSelector = view.findComponent(Multiselect);
+      const roleOptions = roleSelector.findAll('li');
+
+      // check drop down values
+      expect(roleOptions.at(0).html()).toContain('app.roles.admin');
+      expect(roleOptions.at(1).html()).toContain('Staff');
+      expect(roleOptions.at(2).html()).toContain('Students');
+
+      // check pagination
+      const paginationButtons = roleSelector.findAllComponents(BButton);
+      expect(paginationButtons.at(0).attributes('disabled')).toBe('disabled');
+      expect(paginationButtons.at(1).attributes('disabled')).toBeUndefined();
+
+      // test navigate to next page
+      await paginationButtons.at(1).trigger('click');
+      // dropdown show loading spinner during load
+      expect(roleSelector.props('loading')).toBeTruthy();
+      moxios.wait(async function () {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toBe('/api/v1/roles?page=2');
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: [
+              {
+                id: 4,
+                name: 'Dean',
+                default: false,
+                updated_at: '2021-01-08T15:51:08.000000Z',
+                model_name: 'Role',
+                room_limit: 20
+              },
+              {
+                id: 5,
+                name: 'Faculty',
+                default: false,
+                updated_at: '2021-03-19T09:12:44.000000Z',
+                model_name: 'Role',
+                room_limit: 20
+              },
+              {
+                id: 6,
+                name: 'Manager',
+                default: false,
+                updated_at: '2021-05-22T11:55:21.000000Z',
+                model_name: 'Role',
+                room_limit: -1
+              }
+            ],
+            meta: {
+              current_page: 2,
+              from: 4,
+              last_page: 2,
+              per_page: 3,
+              to: 6,
+              total: 6
+            }
+          }
+        });
+
+        // check drop down values
+        expect(roleOptions.at(0).html()).toContain('Dean');
+        expect(roleOptions.at(1).html()).toContain('Faculty');
+        expect(roleOptions.at(2).html()).toContain('Manager');
+
+        // check pagination
+        const paginationButtons = roleSelector.findAllComponents(BButton);
+        expect(paginationButtons.at(0).attributes('disabled')).toBeUndefined();
+        expect(paginationButtons.at(1).attributes('disabled')).toBe('disabled');
+
+        // check clear roles button and select option
+        expect(view.findComponent({ ref: 'clearRolesButton' }).exists()).toBeFalsy();
+        await roleOptions.at(0).find('span').trigger('click');
+        expect(view.findComponent({ ref: 'clearRolesButton' }).exists()).toBeTruthy();
+
+        moxios.wait(async function () {
+          expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+          const request = moxios.requests.mostRecent();
+          expect(request.config.params.role).toBe(4);
+
+          await request.respondWith({
+            status: 200,
+            response: {
+              data: [{
+                id: 1,
+                authenticator: 'users',
+                email: 'john@doe.com',
+                username: 'jdo',
+                firstname: 'John',
+                lastname: 'Doe',
+                user_locale: 'en',
+                model_name: 'User',
+                roles: [
+                  { id: 4, name: 'Dean', automatic: false }
+                ],
+                room_limit: 0,
+                updated_at: '2020-01-01T01:00:00.000000Z'
+              }],
+              meta: {
+                per_page: 1,
+                current_page: 1,
+                total: 1
+              }
+            }
+          });
+
+          // select other role
+          await roleOptions.at(1).find('span').trigger('click');
+          moxios.wait(async () => {
+            expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+            const request = moxios.requests.mostRecent();
+            expect(request.config.params.role).toBe(5);
+
+            await request.respondWith({
+              status: 200,
+              response: {
+                data: [],
+                meta: {
+                  per_page: 1,
+                  current_page: 1,
+                  total: 0
+                }
+              }
+            });
+
+            // clea role
+            await view.findComponent({ ref: 'clearRolesButton' }).trigger('click');
+            moxios.wait(async () => {
+              expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+              const request = moxios.requests.mostRecent();
+              expect(request.config.params.role).toBeUndefined();
+
+              Base.error.restore();
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it('role filter error', function (done) {
+    moxios.stubRequest('/api/v1/roles?page=1', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    const spy = sinon.spy();
+    sinon.stub(Base, 'error').callsFake(spy);
+
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
+      },
+      attachTo: createContainer()
+    });
+
+    moxios.wait(async function () {
+      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+      const request = moxios.requests.mostRecent();
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [{
+            id: 1,
+            authenticator: 'users',
+            email: 'john@doe.com',
+            username: 'jdo',
+            firstname: 'John',
+            lastname: 'Doe',
+            user_locale: 'en',
+            model_name: 'User',
+            roles: [
+              { id: 3, name: 'Students', automatic: true },
+              { id: 1, name: 'admin', automatic: false }
+            ],
+            room_limit: 0,
+            updated_at: '2020-01-01T01:00:00.000000Z'
+          }],
+          meta: {
+            per_page: 1,
+            current_page: 1,
+            total: 1
+          }
+        }
+      });
+      await view.vm.$nextTick();
+
+      // check error for role loading failed
+      sinon.assert.calledOnce(Base.error);
+
+      // check if role selector disabled
+      const roleSelector = view.findComponent(Multiselect);
+      expect(roleSelector.vm.disabled).toBe(true);
+
+      // check reload button visible
+      expect(view.findComponent({ ref: 'reloadRolesButton' }).exists()).toBeTruthy();
+
+      // change response to a valid response
+      const restoreRoles = overrideStub('/api/v1/roles?page=1', {
+        status: 200,
+        response: {
+          data: [
+            {
+              id: 1,
+              name: 'admin',
+              default: true,
+              updated_at: '2021-01-08T15:51:08.000000Z',
+              model_name: 'Role',
+              room_limit: -1
+            },
+            {
+              id: 2,
+              name: 'Staff',
+              default: false,
+              updated_at: '2021-03-19T09:12:44.000000Z',
+              model_name: 'Role',
+              room_limit: 20
+            },
+            {
+              id: 3,
+              name: 'Students',
+              default: false,
+              updated_at: '2021-05-22T11:55:21.000000Z',
+              model_name: 'Role',
+              room_limit: 1
+            }
+          ],
+          meta: {
+            current_page: 1,
+            from: 1,
+            last_page: 2,
+            per_page: 3,
+            to: 3,
+            total: 6
+          }
+        }
+      });
+
+      // reload roles list
+      await view.findComponent({ ref: 'reloadRolesButton' }).trigger('click');
+      expect(roleSelector.props('loading')).toBeTruthy();
+
+      moxios.wait(async function () {
+        const request = moxios.requests.mostRecent();
+        expect(request.url).toBe('/api/v1/roles?page=1');
+        await view.vm.$nextTick();
+
+        expect(roleSelector.props('loading')).toBeFalsy();
+
+        // check if reload button hidden after a successfull request
+        expect(view.findComponent({ ref: 'reloadRolesButton' }).exists()).toBeFalsy();
+
+        // check drop down values
+        const roleOptions = roleSelector.findAll('li');
+        expect(roleOptions.at(0).html()).toContain('app.roles.admin');
+        expect(roleOptions.at(1).html()).toContain('Staff');
+        expect(roleOptions.at(2).html()).toContain('Students');
+
+        restoreRoles();
+        Base.error.restore();
         done();
       });
     });

@@ -15,7 +15,7 @@ class User extends JsonResource
     /**
      * @var bool Indicates whether user roles should be included or not.
      */
-    private $withRoles = false;
+    private $withoutRoles = false;
 
     /**
      * User resource constructor.
@@ -40,13 +40,13 @@ class User extends JsonResource
     }
 
     /**
-     * Sets the flag to also load the roles of the user model.
+     * Sets the flag to not load the roles of the user model.
      *
      * @return $this The user resource instance.
      */
-    public function withRoles()
+    public function withoutRoles()
     {
-        $this->withRoles = true;
+        $this->withoutRoles = true;
 
         return $this;
     }
@@ -66,6 +66,7 @@ class User extends JsonResource
         return [
             'id'            => $this->id,
             'authenticator' => $this->authenticator,
+            'image'         => $this->imageUrl,
             'email'         => $this->email,
             'username'      => $this->username,
             'firstname'     => $this->firstname,
@@ -77,7 +78,7 @@ class User extends JsonResource
             'model_name'    => $this->model_name,
             'room_limit'    => $this->room_limit,
             'updated_at'    => $this->updated_at,
-            'roles'         => $this->when($this->withRoles, function () {
+            'roles'         => $this->when(!$this->withoutRoles, function () {
                 return new RoleCollection($this->roles);
             }),
             'bbb_skip_check_audio' => $this->bbb_skip_check_audio,
