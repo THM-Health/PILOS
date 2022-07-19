@@ -110,7 +110,7 @@ class LoginController extends Controller
             Log::info('User [' . ($user->authenticator == 'ldap' ? $user->username : $user->email) . '] has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'authenticator' => $user->authenticator]);
         }
 
-        if ($user->authenticator === 'ldap') {
+        if ($user->authenticator === 'ldap' && config('ldap.ldapRoleAttribute')) {
             $this->mapLdapRoles($user);
         }
     }
