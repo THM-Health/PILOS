@@ -49,7 +49,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     })->name('setLocale');
 
     Route::post('login', [LoginController::class,'usersLogin'])->name('login');
-    Route::post('login/ldap', [LoginController::class,'ldapLogin'])->name('ldapLogin');
+    if (config('ldap.enabled')) {
+        Route::post('login/ldap', [LoginController::class,'ldapLogin'])->name('ldapLogin');
+    }
     Route::post('logout', [LoginController::class,'logout'])->name('logout');
     Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['guest', 'throttle:password_reset']);
 

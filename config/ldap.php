@@ -2,6 +2,8 @@
 
 return [
 
+    'enabled'   => env('LDAP_ENABLED', false),
+
     /*
     |--------------------------------------------------------------------------
     | Default LDAP Connection Name
