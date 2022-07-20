@@ -6,7 +6,7 @@ on:
   pull_request:
 jobs:
   pilos-backend:
-    name: Backend (PHP ${{ matrix.php-versions }}
+    name: Backend (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
 
     services:
