@@ -228,8 +228,8 @@ describe('Room Index', () => {
 
       // open a room
       await rooms.at(1).trigger('click');
-      sinon.assert.calledOnce(spy);
-      sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: 'abc-def-345' } });
+      expect(spy).toBeCalledTimes(1);
+      expect(spy).toBeCalledWith({ name: 'rooms.view', params: { id: 'abc-def-345' } });
 
       // check if opening another is prohibited while the other room is opening
       await rooms.at(0).trigger('click');

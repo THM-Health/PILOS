@@ -331,63 +331,63 @@ describe('ServerView', () => {
       });
 
       await waitMoxios();
-        await view.vm.$nextTick();
-        await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
-        await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
-        await view.findAllComponents(BFormInput).at(3).setValue('http://localhost/bbb');
-        await view.findAllComponents(BFormInput).at(4).setValue('987654321');
-        await view.findComponent(BFormRating).findAll('.b-rating-star').at(4).trigger('click');
-        await view.findComponent(BFormCheckbox).find('input').setChecked();
+      await view.vm.$nextTick();
+      await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
+      await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
+      await view.findAllComponents(BFormInput).at(3).setValue('http://localhost/bbb');
+      await view.findAllComponents(BFormInput).at(4).setValue('987654321');
+      await view.findComponent(BFormRating).findAll('.b-rating-star').at(4).trigger('click');
+      await view.findComponent(BFormCheckbox).find('input').setChecked();
+
+      view.findComponent(BForm).trigger('submit');
+
+      let restoreServerResponse = overrideStub('/api/v1/servers/1', {
+        status: env.HTTP_UNPROCESSABLE_ENTITY,
+        response: {
+          message: 'The given data was invalid.',
+          errors: {
+            name: ['Test name'],
+            description: ['Test description'],
+            base_url: ['Test base url'],
+            salt: ['Test salt'],
+            strength: ['Test strength'],
+            disabled: ['Test disabled']
+          }
+        }
+      });
+
+      await waitMoxios(async function () {
+        const request = moxios.requests.mostRecent();
+        const data = JSON.parse(request.config.data);
+
+        expect(data.name).toBe('Server 01');
+        expect(data.description).toBe('Testserver 01');
+        expect(data.base_url).toBe('http://localhost/bbb');
+        expect(data.salt).toBe('987654321');
+        expect(data.strength).toBe(5);
+        expect(data.disabled).toBe(true);
+
+        const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
+        expect(feedback[0].html()).toContain('Test name');
+        expect(feedback[1].html()).toContain('Test description');
+        expect(feedback[2].html()).toContain('Test base url');
+        expect(feedback[3].html()).toContain('Test salt');
+        expect(feedback[4].html()).toContain('Test strength');
+        expect(feedback[5].html()).toContain('Test disabled');
+
+        restoreServerResponse();
+        restoreServerResponse = overrideStub('/api/v1/servers/1', {
+          status: 204
+        });
 
         view.findComponent(BForm).trigger('submit');
 
-        let restoreServerResponse = overrideStub('/api/v1/servers/1', {
-          status: env.HTTP_UNPROCESSABLE_ENTITY,
-          response: {
-            message: 'The given data was invalid.',
-            errors: {
-              name: ['Test name'],
-              description: ['Test description'],
-              base_url: ['Test base url'],
-              salt: ['Test salt'],
-              strength: ['Test strength'],
-              disabled: ['Test disabled']
-            }
-          }
-        });
-
-        await waitMoxios(async function () {
-          const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
-
-          expect(data.name).toBe('Server 01');
-          expect(data.description).toBe('Testserver 01');
-          expect(data.base_url).toBe('http://localhost/bbb');
-          expect(data.salt).toBe('987654321');
-          expect(data.strength).toBe(5);
-          expect(data.disabled).toBe(true);
-
-          const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
-          expect(feedback[0].html()).toContain('Test name');
-          expect(feedback[1].html()).toContain('Test description');
-          expect(feedback[2].html()).toContain('Test base url');
-          expect(feedback[3].html()).toContain('Test salt');
-          expect(feedback[4].html()).toContain('Test strength');
-          expect(feedback[5].html()).toContain('Test disabled');
-
+        await waitMoxios(function () {
+          expect(spy).toBeCalledTimes(1);
           restoreServerResponse();
-          restoreServerResponse = overrideStub('/api/v1/servers/1', {
-            status: 204
-          });
-
-          view.findComponent(BForm).trigger('submit');
-
-          await waitMoxios(function () {
-            expect(spy).toBeCalledTimes(1);
-            restoreServerResponse();
-          });
         });
       });
+    });
 
   it('modal gets shown for stale errors and a overwrite can be forced',
     async () => {
@@ -515,80 +515,80 @@ describe('ServerView', () => {
     });
 
     await waitMoxios();
-      // response server online
-      await view.vm.$nextTick();
+    // response server online
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
-      expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
+    expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
 
-      let restoreServerResponse = overrideStub('/api/v1/servers/1', {
-        status: 200,
-        response: {
-          data: {
-            id: 1,
-            name: 'Server 01',
-            description: 'Testserver 01',
-            base_url: 'https://localhost/bigbluebutton',
-            salt: '123456789',
-            strength: 1,
-            status: 0,
-            participant_count: 14,
-            listener_count: 7,
-            voice_participant_count: 7,
-            video_count: 7,
-            meeting_count: 3,
-            version: '2.4.5',
-            model_name: 'Server',
-            updated_at: '2020-12-21T13:43:21.000000Z'
-          }
+    let restoreServerResponse = overrideStub('/api/v1/servers/1', {
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          name: 'Server 01',
+          description: 'Testserver 01',
+          base_url: 'https://localhost/bigbluebutton',
+          salt: '123456789',
+          strength: 1,
+          status: 0,
+          participant_count: 14,
+          listener_count: 7,
+          voice_participant_count: 7,
+          video_count: 7,
+          meeting_count: 3,
+          version: '2.4.5',
+          model_name: 'Server',
+          updated_at: '2020-12-21T13:43:21.000000Z'
         }
-      });
+      }
+    });
 
-      view.vm.load();
+    view.vm.load();
 
-      await waitMoxios();
-        // response server offline
-        await view.vm.$nextTick();
+    await waitMoxios();
+    // response server offline
+    await view.vm.$nextTick();
 
-        expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
-        expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
+    expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
 
-        restoreServerResponse();
-        restoreServerResponse = overrideStub('/api/v1/servers/1', {
-          status: 200,
-          response: {
-            data: {
-              id: 1,
-              name: 'Server 01',
-              description: 'Testserver 01',
-              base_url: 'https://localhost/bigbluebutton',
-              salt: '123456789',
-              strength: 1,
-              status: -1,
-              participant_count: 14,
-              listener_count: 7,
-              voice_participant_count: 7,
-              video_count: 7,
-              meeting_count: 3,
-              version: '2.4.5',
-              model_name: 'Server',
-              updated_at: '2020-12-21T13:43:21.000000Z'
-            }
-          }
-        });
+    restoreServerResponse();
+    restoreServerResponse = overrideStub('/api/v1/servers/1', {
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          name: 'Server 01',
+          description: 'Testserver 01',
+          base_url: 'https://localhost/bigbluebutton',
+          salt: '123456789',
+          strength: 1,
+          status: -1,
+          participant_count: 14,
+          listener_count: 7,
+          voice_participant_count: 7,
+          video_count: 7,
+          meeting_count: 3,
+          version: '2.4.5',
+          model_name: 'Server',
+          updated_at: '2020-12-21T13:43:21.000000Z'
+        }
+      }
+    });
 
-        view.vm.load();
+    view.vm.load();
 
-        await waitMoxios();
-          // response server disabled
-          await view.vm.$nextTick();
+    await waitMoxios();
+    // response server disabled
+    await view.vm.$nextTick();
 
-          expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeTruthy();
-          expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
+    expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeTruthy();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
 
-          restoreServerResponse();
-          view.destroy();
-        });
+    restoreServerResponse();
+    view.destroy();
+  });
 
   it('update connection status', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -607,82 +607,82 @@ describe('ServerView', () => {
     });
 
     await waitMoxios();
-      await view.vm.$nextTick();
+    await view.vm.$nextTick();
 
-      // Check for invalid connection
-      await view.findAllComponents(BButton).at(1).trigger('click');
-      await waitMoxios();
-        let request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/check');
-        expect(request.config.method).toBe('post');
-        const data = JSON.parse(request.config.data);
-        expect(data.base_url).toBe('https://localhost/bigbluebutton');
-        expect(data.salt).toBe('123456789');
-        await request.respondWith({
-          status: 200,
-          response: {
-            connection_ok: false,
-            salt_ok: false
-          }
-        });
+    // Check for invalid connection
+    await view.findAllComponents(BButton).at(1).trigger('click');
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/servers/check');
+    expect(request.config.method).toBe('post');
+    const data = JSON.parse(request.config.data);
+    expect(data.base_url).toBe('https://localhost/bigbluebutton');
+    expect(data.salt).toBe('123456789');
+    await request.respondWith({
+      status: 200,
+      response: {
+        connection_ok: false,
+        salt_ok: false
+      }
+    });
 
-        await view.vm.$nextTick();
-        expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
-        expect(view.findAllComponents(BFormText).length).toBe(3);
-        expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
+    await view.vm.$nextTick();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
+    expect(view.findAllComponents(BFormText).length).toBe(3);
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
 
-        // check for invalid salt
-        await view.findAllComponents(BButton).at(1).trigger('click');
-        await waitMoxios();
-          request = moxios.requests.mostRecent();
-          await request.respondWith({
-            status: 200,
-            response: {
-              connection_ok: true,
-              salt_ok: false
-            }
-          });
+    // check for invalid salt
+    await view.findAllComponents(BButton).at(1).trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        connection_ok: true,
+        salt_ok: false
+      }
+    });
 
-          await view.vm.$nextTick();
-          expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
-          expect(view.findAllComponents(BFormText).length).toBe(3);
-          expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
+    await view.vm.$nextTick();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
+    expect(view.findAllComponents(BFormText).length).toBe(3);
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
 
-          // check for valid connection
-          await view.findAllComponents(BButton).at(1).trigger('click');
-          await waitMoxios();
-            request = moxios.requests.mostRecent();
-            await request.respondWith({
-              status: 200,
-              response: {
-                connection_ok: true,
-                salt_ok: true
-              }
-            });
+    // check for valid connection
+    await view.findAllComponents(BButton).at(1).trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        connection_ok: true,
+        salt_ok: true
+      }
+    });
 
-            await view.vm.$nextTick();
-            expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
-            expect(view.findAllComponents(BFormText).length).toBe(2);
+    await view.vm.$nextTick();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
+    expect(view.findAllComponents(BFormText).length).toBe(2);
 
-            // check for response errors
-            await view.findAllComponents(BButton).at(1).trigger('click');
-            await waitMoxios();
-              request = moxios.requests.mostRecent();
-              await request.respondWith({
-                status: 500,
-                response: {
-                  message: 'Test'
-                }
-              });
+    // check for response errors
+    await view.findAllComponents(BButton).at(1).trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
 
-              await view.vm.$nextTick();
-              expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
-              expect(view.findAllComponents(BFormText).length).toBe(2);
+    await view.vm.$nextTick();
+    expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
+    expect(view.findAllComponents(BFormText).length).toBe(2);
 
-              expect(spy).toBeCalledTimes(1);
-              Base.error.mockRestore();
-              view.destroy();
-            });
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+    view.destroy();
+  });
 
   it('show usage data only if viewOnly and server enabled', async () => {
     const view = mount(View, {
@@ -699,43 +699,43 @@ describe('ServerView', () => {
     });
 
     await waitMoxios();
-      await view.vm.$nextTick();
-      expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
-      await view.setProps({ viewOnly: true });
-      expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(true);
-      await view.setProps({ viewOnly: false });
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
+    await view.setProps({ viewOnly: true });
+    expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(true);
+    await view.setProps({ viewOnly: false });
 
-      const restoreServerResponse = overrideStub('/api/v1/servers/1', {
-        status: 200,
-        response: {
-          data: {
-            id: 1,
-            name: 'Server 01',
-            description: 'Testserver 01',
-            base_url: 'https://localhost/bigbluebutton',
-            salt: '123456789',
-            strength: 1,
-            status: -1,
-            participant_count: 14,
-            listener_count: 7,
-            voice_participant_count: 7,
-            video_count: 7,
-            meeting_count: 3,
-            version: '2.4.5',
-            model_name: 'Server',
-            updated_at: '2020-12-21T13:43:21.000000Z'
-          }
+    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          name: 'Server 01',
+          description: 'Testserver 01',
+          base_url: 'https://localhost/bigbluebutton',
+          salt: '123456789',
+          strength: 1,
+          status: -1,
+          participant_count: 14,
+          listener_count: 7,
+          voice_participant_count: 7,
+          video_count: 7,
+          meeting_count: 3,
+          version: '2.4.5',
+          model_name: 'Server',
+          updated_at: '2020-12-21T13:43:21.000000Z'
         }
-      });
-      view.vm.load();
+      }
+    });
+    view.vm.load();
 
-      await waitMoxios();
-        await view.vm.$nextTick();
-        expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
-        await view.setProps({ viewOnly: true });
-        expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
+    await waitMoxios();
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
+    await view.setProps({ viewOnly: true });
+    expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
 
-        restoreServerResponse();
+    restoreServerResponse();
   });
 
   it('show panic button only if user has permission', async () => {
@@ -753,12 +753,12 @@ describe('ServerView', () => {
     });
 
     await waitMoxios();
-      await view.vm.$nextTick();
-      expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(true);
-      PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
-      await view.vm.$nextTick();
-      expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(false);
-    });
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(true);
+    PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(false);
+  });
 
   it('panic button calls api and gets disabled while running',
     async () => {
@@ -786,56 +786,56 @@ describe('ServerView', () => {
       });
 
       await waitMoxios();
-        await view.vm.$nextTick();
-        const button = view.findComponent({ ref: 'currentUsage' }).find('button');
-        await button.trigger('click');
+      await view.vm.$nextTick();
+      const button = view.findComponent({ ref: 'currentUsage' }).find('button');
+      await button.trigger('click');
 
-        expect(button.attributes('disabled')).toBe('disabled');
+      expect(button.attributes('disabled')).toBe('disabled');
 
-        // check success
-        await waitMoxios();
-          let request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers/1/panic');
-          expect(request.config.method).toBe('get');
-          await request.respondWith({
-            status: 200,
-            response: {
-              total: 5,
-              success: 3
-            }
-          });
-          await view.vm.$nextTick();
-          expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
+      // check success
+      await waitMoxios();
+      let request = moxios.requests.mostRecent();
+      expect(request.config.url).toBe('/api/v1/servers/1/panic');
+      expect(request.config.method).toBe('get');
+      await request.respondWith({
+        status: 200,
+        response: {
+          total: 5,
+          success: 3
+        }
+      });
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
 
-          expect(flashMessageSpy).toBeCalledTimes(1);
-          expect(flashMessageSpy).toBeCalledWith({
-            title: 'settings.servers.panicFlash.title',
-            message: 'settings.servers.panicFlash.message:{"total":5,"success":3}'
-          });
+      expect(flashMessageSpy).toBeCalledTimes(1);
+      expect(flashMessageSpy).toBeCalledWith({
+        title: 'settings.servers.panicFlash.title',
+        message: 'settings.servers.panicFlash.message:{"total":5,"success":3}'
+      });
 
-          // check reload of server data
-          await waitMoxios();
-            request = moxios.requests.mostRecent();
-            expect(request.config.url).toBe('/api/v1/servers/1');
-            expect(request.config.method).toBe('get');
-            await view.vm.$nextTick();
-            await button.trigger('click');
+      // check reload of server data
+      await waitMoxios();
+      request = moxios.requests.mostRecent();
+      expect(request.config.url).toBe('/api/v1/servers/1');
+      expect(request.config.method).toBe('get');
+      await view.vm.$nextTick();
+      await button.trigger('click');
 
-            // check error handling
-            await waitMoxios();
-              request = moxios.requests.mostRecent();
-              expect(request.config.url).toBe('/api/v1/servers/1/panic');
-              expect(request.config.method).toBe('get');
-              await request.respondWith({
-                status: 500,
-                response: {
-                  message: 'Test'
-                }
-              });
+      // check error handling
+      await waitMoxios();
+      request = moxios.requests.mostRecent();
+      expect(request.config.url).toBe('/api/v1/servers/1/panic');
+      expect(request.config.method).toBe('get');
+      await request.respondWith({
+        status: 500,
+        response: {
+          message: 'Test'
+        }
+      });
 
-              await view.vm.$nextTick();
-              expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
-              expect(spy).toBeCalledTimes(1);
-              Base.error.mockRestore();
-            });
+      await view.vm.$nextTick();
+      expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
+      expect(spy).toBeCalledTimes(1);
+      Base.error.mockRestore();
+    });
 });

@@ -5,7 +5,7 @@ import PermissionService from '../../../../../resources/js/services/PermissionSe
 import Index from '../../../../../resources/js/views/settings/users/Index';
 import Base from '../../../../../resources/js/api/base';
 import Multiselect from 'vue-multiselect';
-import {waitMoxios} from "../../../helper";
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

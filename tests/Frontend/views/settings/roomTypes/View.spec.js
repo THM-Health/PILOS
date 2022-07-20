@@ -360,7 +360,7 @@ describe('RoomTypeView', () => {
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = jest.spyOn(Base, 'error').mockImplementation()
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
         status: 404,

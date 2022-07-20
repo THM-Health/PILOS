@@ -329,79 +329,79 @@ describe('ServerPoolsIndex', () => {
     });
 
     await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-      // check if two server pools  visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+    // check if two server pools  visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for second server pool
-      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for second server pool
+    view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios();
-        // delete without room types attached
-        request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/serverPools/2');
-        expect(request.config.method).toBe('delete');
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    await waitMoxios();
+    // delete without room types attached
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/serverPools/2');
+    expect(request.config.method).toBe('delete');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
 
-        await request.respondWith({
-          status: 204
-        });
+    await request.respondWith({
+      status: 204
+    });
 
-        await waitMoxios();
-          // reload data for server pools
-          let request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/serverPools');
-          expect(request.config.method).toBe('get');
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 1,
-                  name: 'Test',
-                  description: 'Pool for testing',
-                  server_count: 2,
-                  model_name: 'ServerPool',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/serverPools?page=1',
-                last: 'http://localhost/api/v1/serverPools?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/serverPools',
-                per_page: 15,
-                to: 1,
-                total: 1
-              }
-            }
-          });
+    await waitMoxios();
+    // reload data for server pools
+    let request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/serverPools');
+    expect(request.config.method).toBe('get');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 1,
+            name: 'Test',
+            description: 'Pool for testing',
+            server_count: 2,
+            model_name: 'ServerPool',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/serverPools?page=1',
+          last: 'http://localhost/api/v1/serverPools?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/serverPools',
+          per_page: 15,
+          to: 1,
+          total: 1
+        }
+      }
+    });
 
-          await view.vm.$nextTick();
-          // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    await view.vm.$nextTick();
+    // entry removed, modal closes and data reset
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-          view.destroy();
-        });
+    view.destroy();
+  });
 
   it('server pool delete 404 handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -426,81 +426,80 @@ describe('ServerPoolsIndex', () => {
     });
 
     await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-      // check if two server pools visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+    // check if two server pools visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for second server pool
-      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for second server pool
+    view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios();
-        // delete non existing server pool
-        let request = moxios.requests.mostRecent();
-        await request.respondWith({
-          status: 404,
-          response: {
-            message: 'Test'
+    await waitMoxios();
+    // delete non existing server pool
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 404,
+      response: {
+        message: 'Test'
+      }
+    });
+    await waitMoxios();
+    // reload data for roomTypes
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/serverPools');
+    expect(request.config.method).toBe('get');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 1,
+            name: 'Test',
+            description: 'Pool for testing',
+            server_count: 2,
+            model_name: 'ServerPool',
+            updated_at: '2020-12-21T13:43:21.000000Z'
           }
-        });
-        await waitMoxios();
-          // reload data for roomTypes
-          request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/serverPools');
-          expect(request.config.method).toBe('get');
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 1,
-                  name: 'Test',
-                  description: 'Pool for testing',
-                  server_count: 2,
-                  model_name: 'ServerPool',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/serverPools?page=1',
-                last: 'http://localhost/api/v1/serverPools?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/serverPools',
-                per_page: 15,
-                to: 1,
-                total: 1
-              }
-            }
-          });
+        ],
+        links: {
+          first: 'http://localhost/api/v1/serverPools?page=1',
+          last: 'http://localhost/api/v1/serverPools?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/serverPools',
+          per_page: 15,
+          to: 1,
+          total: 1
+        }
+      }
+    });
 
-          await view.vm.$nextTick();
-          // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    await view.vm.$nextTick();
+    // entry removed, modal closes and data reset
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-          expect(spy).toBeCalledTimes(1);
-          Base.error.mockRestore();
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
 
-          view.destroy();
-        });
-
+    view.destroy();
+  });
 
   it('server pool delete error room types attached', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
@@ -523,66 +522,66 @@ describe('ServerPoolsIndex', () => {
     });
 
     await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-      // check if two server pools visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+    // check if two server pools visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for second server pool
-      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for second server pool
+    view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios();
-        // delete with still attached room types
-        const request = moxios.requests.mostRecent();
-        await request.respondWith({
-          status: 428,
-          response: {
-            error: 428,
-            message: 'app.errors.server_pool_delete_failed',
-            roomTypes: [
-              {
-                id: 1,
-                short: 'TA',
-                description: 'Test A',
-                color: '#ffffff',
-                model_name: 'RoomType',
-                updated_at: '2021-01-12T14:35:11.000000Z'
-              },
-              {
-                id: 2,
-                short: 'TB',
-                description: 'Test B',
-                color: '#000000',
-                model_name: 'RoomType',
-                updated_at: '2021-01-12T14:35:11.000000Z'
-              }
-            ]
+    await waitMoxios();
+    // delete with still attached room types
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 428,
+      response: {
+        error: 428,
+        message: 'app.errors.server_pool_delete_failed',
+        roomTypes: [
+          {
+            id: 1,
+            short: 'TA',
+            description: 'Test A',
+            color: '#ffffff',
+            model_name: 'RoomType',
+            updated_at: '2021-01-12T14:35:11.000000Z'
+          },
+          {
+            id: 2,
+            short: 'TB',
+            description: 'Test B',
+            color: '#000000',
+            model_name: 'RoomType',
+            updated_at: '2021-01-12T14:35:11.000000Z'
           }
-        });
+        ]
+      }
+    });
 
-        await view.vm.$nextTick();
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        const roomTypeErrorMessage = view.findComponent(BAlert);
-        expect(roomTypeErrorMessage.exists()).toBeTruthy();
-        expect(roomTypeErrorMessage.text()).toContain('settings.serverPools.delete.failed');
-        const roomTypeList = view.findComponent(BModal).find('ul');
-        expect(roomTypeList.exists()).toBeTruthy();
-        const roomTypes = roomTypeList.findAll('li');
-        expect(roomTypes.length).toEqual(2);
-        expect(roomTypes.at(0).text()).toContain('Test A');
-        expect(roomTypes.at(1).text()).toContain('Test B');
-        view.destroy();
-      });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    const roomTypeErrorMessage = view.findComponent(BAlert);
+    expect(roomTypeErrorMessage.exists()).toBeTruthy();
+    expect(roomTypeErrorMessage.text()).toContain('settings.serverPools.delete.failed');
+    const roomTypeList = view.findComponent(BModal).find('ul');
+    expect(roomTypeList.exists()).toBeTruthy();
+    const roomTypes = roomTypeList.findAll('li');
+    expect(roomTypes.length).toEqual(2);
+    expect(roomTypes.at(0).text()).toContain('Test A');
+    expect(roomTypes.at(1).text()).toContain('Test B');
+    view.destroy();
+  });
 
   it('server pool delete error handler called', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -606,41 +605,41 @@ describe('ServerPoolsIndex', () => {
     });
 
     await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // open delete modal for second server pool
-      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for second server pool
+    view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios();
-        // delete
-        const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/serverPools/2');
-        expect(request.config.method).toBe('delete');
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        // error replacement required
-        await request.respondWith({
-          status: 500
-        });
+    await waitMoxios();
+    // delete
+    const request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/serverPools/2');
+    expect(request.config.method).toBe('delete');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    // error replacement required
+    await request.respondWith({
+      status: 500
+    });
 
-        await view.vm.$nextTick();
+    await view.vm.$nextTick();
 
-        expect(spy).toBeCalledTimes(1);
-        Base.error.mockRestore();
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
-        view.destroy();
-      });
+    view.destroy();
+  });
 
   it('new server pool button is displayed if the user has the corresponding permissions',
     async () => {
