@@ -11,9 +11,9 @@ import BootstrapVue, {
   BButtonClose,
   BFormInput, BAlert
 } from 'bootstrap-vue';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -85,7 +85,7 @@ describe('ServerPoolsIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('list of server pools with pagination gets displayed', done => {
+  it('list of server pools with pagination gets displayed', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.viewAny'] });
 
     const view = mount(Index, {
@@ -97,7 +97,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -112,12 +112,11 @@ describe('ServerPoolsIndex', () => {
         expect(html).toContain('2');
 
         view.destroy();
-        done();
       });
     });
   });
 
-  it('list of server pools with search', done => {
+  it('list of server pools with search', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.viewAny'] });
 
     const view = mount(Index, {
@@ -132,7 +131,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -148,7 +147,7 @@ describe('ServerPoolsIndex', () => {
         expect(search.html()).toContain('app.search');
         await search.setValue('Prod');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
@@ -186,7 +185,6 @@ describe('ServerPoolsIndex', () => {
             await view.vm.$nextTick();
             expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
             view.destroy();
-            done();
           });
         });
       });
@@ -194,7 +192,7 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('update and delete buttons only shown if user has the permission',
-    done => {
+    async () => {
       PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
       const response = {
@@ -211,7 +209,7 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -228,16 +226,14 @@ describe('ServerPoolsIndex', () => {
           expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
 
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during loading of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(Index, {
         localVue,
@@ -248,7 +244,7 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 500,
@@ -261,14 +257,13 @@ describe('ServerPoolsIndex', () => {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('property gets cleared correctly if deletion gets aborted',
-    done => {
+    async () => {
       PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
       const response = {
@@ -288,7 +283,7 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -308,13 +303,12 @@ describe('ServerPoolsIndex', () => {
           expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('server pool delete', done => {
+  it('server pool delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
@@ -334,7 +328,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -353,7 +347,7 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete without room types attached
         const request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/serverPools/2');
@@ -364,7 +358,7 @@ describe('ServerPoolsIndex', () => {
           status: 204
         });
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // reload data for server pools
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/serverPools');
@@ -407,13 +401,12 @@ describe('ServerPoolsIndex', () => {
           expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('server pool delete 404 handling', done => {
+  it('server pool delete 404 handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
@@ -435,7 +428,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -454,7 +447,7 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete non existing server pool
         const request = moxios.requests.mostRecent();
         await request.respondWith({
@@ -463,7 +456,7 @@ describe('ServerPoolsIndex', () => {
             message: 'Test'
           }
         });
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // reload data for roomTypes
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/serverPools');
@@ -509,13 +502,12 @@ describe('ServerPoolsIndex', () => {
           Base.error.restore();
 
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('server pool delete error room types attached', done => {
+  it('server pool delete error room types attached', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
@@ -535,7 +527,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -554,7 +546,7 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete with still attached room types
         const request = moxios.requests.mostRecent();
         await request.respondWith({
@@ -563,8 +555,22 @@ describe('ServerPoolsIndex', () => {
             error: 428,
             message: 'app.errors.server_pool_delete_failed',
             roomTypes: [
-              { id: 1, short: 'TA', description: 'Test A', color: '#ffffff', model_name: 'RoomType', updated_at: '2021-01-12T14:35:11.000000Z' },
-              { id: 2, short: 'TB', description: 'Test B', color: '#000000', model_name: 'RoomType', updated_at: '2021-01-12T14:35:11.000000Z' }
+              {
+                id: 1,
+                short: 'TA',
+                description: 'Test A',
+                color: '#ffffff',
+                model_name: 'RoomType',
+                updated_at: '2021-01-12T14:35:11.000000Z'
+              },
+              {
+                id: 2,
+                short: 'TB',
+                description: 'Test B',
+                color: '#000000',
+                model_name: 'RoomType',
+                updated_at: '2021-01-12T14:35:11.000000Z'
+              }
             ]
           }
         });
@@ -581,12 +587,11 @@ describe('ServerPoolsIndex', () => {
         expect(roomTypes.at(0).text()).toContain('Test A');
         expect(roomTypes.at(1).text()).toContain('Test B');
         view.destroy();
-        done();
       });
     });
   });
 
-  it('server pool delete error handler called', done => {
+  it('server pool delete error handler called', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
@@ -607,7 +612,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -623,7 +628,7 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete
         const request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/serverPools/2');
@@ -642,13 +647,12 @@ describe('ServerPoolsIndex', () => {
         expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
         view.destroy();
-        done();
       });
     });
   });
 
   it('new server pool button is displayed if the user has the corresponding permissions',
-    done => {
+    async () => {
       PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
       const view = mount(Index, {
@@ -660,7 +664,7 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 200,
@@ -691,7 +695,6 @@ describe('ServerPoolsIndex', () => {
         }).then(() => {
           expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
           view.destroy();
-          done();
         });
       });
     }

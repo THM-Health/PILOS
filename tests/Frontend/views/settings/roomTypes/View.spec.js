@@ -10,12 +10,12 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import VSwatches from 'vue-swatches';
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
 import Multiselect from 'vue-multiselect';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -121,7 +121,7 @@ describe('RoomTypeView', () => {
   });
 
   it('room type description in title gets shown for detail view',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -133,15 +133,14 @@ describe('RoomTypeView', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.html()).toContain('settings.roomTypes.view Meeting');
-        done();
       });
     }
   );
 
   it('room type description in title gets translated for update view',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -154,17 +153,15 @@ describe('RoomTypeView', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.html()).toContain('settings.roomTypes.edit Meeting');
-        done();
       });
     }
   );
 
   it('server pools get loaded, pagination and error handling',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -183,7 +180,7 @@ describe('RoomTypeView', () => {
       expect(saveButton.html()).toContain('app.save');
 
       // load server pools
-      moxios.wait(async function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
         expect(request.url).toBe('/api/v1/serverPools?page=1');
         await view.vm.$nextTick();
@@ -201,7 +198,7 @@ describe('RoomTypeView', () => {
         await paginationButtons.at(1).trigger('click');
         // dropdown show loading spinner during load and save disabled
         expect(multiSelect.props('loading')).toBeTruthy();
-        moxios.wait(async function () {
+        await waitMoxios(async function () {
           const request = moxios.requests.mostRecent();
           expect(request.url).toBe('/api/v1/serverPools?page=2');
           await request.respondWith({
@@ -238,7 +235,7 @@ describe('RoomTypeView', () => {
             }
           });
           await paginationButtons.at(0).trigger('click');
-          moxios.wait(async function () {
+          await waitMoxios(async function () {
             await view.vm.$nextTick();
 
             // hide loading spinner, disable dropdown and prevent saving
@@ -256,7 +253,7 @@ describe('RoomTypeView', () => {
             await reloadButton.trigger('click');
 
             // load server pools
-            moxios.wait(async function () {
+            await waitMoxios(async function () {
               expect(saveButton.attributes('disabled')).toBe('disabled');
               const request = moxios.requests.mostRecent();
               expect(request.url).toBe('/api/v1/serverPools?page=2');
@@ -283,8 +280,6 @@ describe('RoomTypeView', () => {
               expect(multiSelect.props('loading')).toBeFalsy();
               expect(multiSelect.props('disabled')).toBeFalsy();
               expect(saveButton.attributes('disabled')).toBeUndefined();
-
-              done();
             });
           });
         });
@@ -293,7 +288,7 @@ describe('RoomTypeView', () => {
   );
 
   it('input fields are disabled if the room type is displayed in view mode',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -306,19 +301,17 @@ describe('RoomTypeView', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
         expect(view.findAllComponents(VSwatches).wrappers.every(input => input.vm.disabled)).toBe(true);
         expect(view.findComponent(Multiselect).props('disabled')).toBeTruthy();
-        done();
       });
     }
   );
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
         status: 500,
@@ -339,7 +332,7 @@ describe('RoomTypeView', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
@@ -350,27 +343,24 @@ describe('RoomTypeView', () => {
         expect(reloadButton.exists()).toBeTruthy();
         reloadButton.trigger('click');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.vm.isBusy).toBe(false);
           expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
           expect(view.vm.$data.model.id).toBe(1);
           expect(view.vm.$data.model.description).toEqual('Meeting');
-
-          done();
         });
       });
     }
   );
 
   it('error handler gets called and redirected if a 404 error occurs during load of data',
-    done => {
-      const routerSpy = sinon.spy();
+    async () => {
+      const routerSpy = jest.fn();
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(Base, 'error').mockImplementation()
 
       const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
         status: 404,
@@ -392,26 +382,23 @@ describe('RoomTypeView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
-        sinon.assert.calledOnce(routerSpy);
-        sinon.assert.calledWith(routerSpy, { name: 'settings.room_types' });
+        expect(routerSpy).toBeCalledTimes(1);
+        expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
         Base.error.restore();
         restoreRoomTypeResponse();
-
-        done();
       });
     }
   );
 
   it('error handler gets called and redirected if a 404 error occurs during save of data',
-    done => {
-      const routerSpy = sinon.spy();
+    async () => {
+      const routerSpy = jest.fn();
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(console, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -426,7 +413,7 @@ describe('RoomTypeView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
           status: 404,
           response: {
@@ -436,22 +423,20 @@ describe('RoomTypeView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
-          sinon.assert.calledOnce(routerSpy);
-          sinon.assert.calledWith(routerSpy, { name: 'settings.room_types' });
+          expect(routerSpy).toBeCalledTimes(1);
+          expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
           restoreRoomTypeResponse();
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during update',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -465,7 +450,7 @@ describe('RoomTypeView', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
           status: 500,
           response: {
@@ -475,19 +460,18 @@ describe('RoomTypeView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreRoomTypeResponse();
-          done();
         });
       });
     }
   );
 
   it('back button causes a back navigation without persistence',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -505,21 +489,20 @@ describe('RoomTypeView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const requestCount = moxios.requests.count();
 
         view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
           expect(moxios.requests.count()).toBe(requestCount);
-          sinon.assert.calledOnce(spy);
-          done();
+          expect(spy).toBeCalledTimes(1);
         });
       });
     }
   );
 
   it('request with updates get send during saving the room type',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -537,7 +520,7 @@ describe('RoomTypeView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         view.vm.$nextTick().then(async function () {
           const inputs = view.findAllComponents(BFormInput).wrappers;
 
@@ -560,7 +543,7 @@ describe('RoomTypeView', () => {
             }
           });
 
-          moxios.wait(function () {
+          await waitMoxios(async function () {
             const request = moxios.requests.mostRecent();
             const data = JSON.parse(request.config.data);
 
@@ -581,10 +564,9 @@ describe('RoomTypeView', () => {
 
             view.findComponent(BForm).trigger('submit');
 
-            moxios.wait(function () {
-              sinon.assert.calledOnce(spy);
+            await waitMoxios(function () {
+              expect(spy).toBeCalledTimes(1);
               restoreRoomTypeResponse();
-              done();
             });
           });
         });
@@ -593,8 +575,8 @@ describe('RoomTypeView', () => {
   );
 
   it('modal gets shown for stale errors and a overwrite can be forced',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -613,7 +595,7 @@ describe('RoomTypeView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
@@ -628,7 +610,7 @@ describe('RoomTypeView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const staleModelModal = view.findComponent({ ref: 'stale-roomType-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
@@ -639,14 +621,12 @@ describe('RoomTypeView', () => {
 
           staleModelModal.vm.$refs['ok-button'].click();
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
             const data = JSON.parse(request.config.data);
 
             expect(data.updated_at).toBe(newModel.updated_at);
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-
-            done();
           });
         });
       });
@@ -654,8 +634,8 @@ describe('RoomTypeView', () => {
   );
 
   it('modal gets shown for stale errors and the new model can be applied to current form',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -674,7 +654,7 @@ describe('RoomTypeView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
         newModel.description = 'Test';
@@ -690,7 +670,7 @@ describe('RoomTypeView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const staleModelModal = view.findComponent({ ref: 'stale-roomType-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
           expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Meeting');
@@ -702,7 +682,6 @@ describe('RoomTypeView', () => {
           view.vm.$nextTick().then(() => {
             expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Test');
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-            done();
           });
         });
       });

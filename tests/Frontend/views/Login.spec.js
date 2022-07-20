@@ -7,8 +7,8 @@ import EmailLoginComponent from '../../../resources/js/components/Login/EmailLog
 import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
+import { waitMoxios } from '../helper';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -23,7 +23,7 @@ describe('Login', () => {
     moxios.uninstall();
   });
 
-  it('correct data gets sent on ldap login', done => {
+  it('correct data gets sent on ldap login', () => {
     const view = mount(Login, {
       localVue,
       store,
@@ -37,10 +37,10 @@ describe('Login', () => {
       return ldapLoginComponent.find('#ldapPassword').setValue('password');
     }).then(() => {
       return ldapLoginComponent.findComponent(BButton).trigger('submit');
-    }).then(() => {
+    }).then(async () => {
       expect(ldapLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
 
         expect(request.config.url).toBe('/sanctum/csrf-cookie');
@@ -50,7 +50,7 @@ describe('Login', () => {
           status: 200
         });
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
@@ -60,13 +60,12 @@ describe('Login', () => {
           expect(data.username).toBe('user');
           expect(data.password).toBe('password');
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('correct data gets sent on email login', done => {
+  it('correct data gets sent on email login', () => {
     const view = mount(Login, {
       localVue,
       store,
@@ -80,10 +79,10 @@ describe('Login', () => {
       return emailLoginComponent.find('#defaultPassword').setValue('password');
     }).then(() => {
       return emailLoginComponent.findComponent(BButton).trigger('submit');
-    }).then(() => {
+    }).then(async () => {
       expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
 
         expect(request.config.url).toBe('/sanctum/csrf-cookie');
@@ -93,7 +92,7 @@ describe('Login', () => {
           status: 200
         });
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
@@ -104,21 +103,20 @@ describe('Login', () => {
           expect(data.password).toBe('password');
 
           view.destroy();
-          done();
         });
       });
     });
   });
 
   it('redirect if query set', async () => {
-    const flashMessageSpy = sinon.spy();
+    const flashMessageSpy = jest.fn();
     const flashMessage = {
       success (param) {
         flashMessageSpy(param);
       }
     };
 
-    const routerSpy = sinon.spy();
+    const routerSpy = jest.fn();
     const router = new VueRouter({ mode: 'abstract' });
 
     await router.push('/foo?redirect=%2Fredirect_path');
@@ -166,21 +164,23 @@ describe('Login', () => {
       }
     });
 
-    sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
-    sinon.assert.calledOnceWithExactly(routerSpy, '/redirect_path');
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(routerSpy).toBeCalledTimes(1);
+    expect(routerSpy).toBeCalledWith('/redirect_path');
 
     view.destroy();
   });
 
   it('redirect to room overview if redirect query not set', async () => {
-    const flashMessageSpy = sinon.spy();
+    const flashMessageSpy = jest.fn();
     const flashMessage = {
       success (param) {
         flashMessageSpy(param);
       }
     };
 
-    const routerSpy = sinon.spy();
+    const routerSpy = jest.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
@@ -226,14 +226,16 @@ describe('Login', () => {
       }
     });
 
-    sinon.assert.calledOnceWithExactly(flashMessageSpy, 'auth.flash.login');
-    sinon.assert.calledOnceWithExactly(routerSpy, { name: 'rooms.own_index' });
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(routerSpy).toBeCalledTimes(1);
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
 
     view.destroy();
   });
 
   it('unprocessable entity errors gets displayed for the corresponding fields',
-    done => {
+    () => {
       const view = mount(Login, {
         localVue,
         store,
@@ -247,10 +249,10 @@ describe('Login', () => {
         return emailLoginComponent.find('#defaultPassword').setValue('password');
       }).then(() => {
         return emailLoginComponent.findComponent(BButton).trigger('submit');
-      }).then(() => {
+      }).then(async () => {
         expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.config.url).toBe('/sanctum/csrf-cookie');
@@ -260,7 +262,7 @@ describe('Login', () => {
             status: 200
           });
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
 
             expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
@@ -284,7 +286,6 @@ describe('Login', () => {
               expect(invalidFeedback.html()).toContain('Password or Email wrong!');
 
               view.destroy();
-              done();
             });
           });
         });
@@ -292,7 +293,7 @@ describe('Login', () => {
     }
   );
 
-  it('error for too many login requests gets displayed', done => {
+  it('error for too many login requests gets displayed', () => {
     const view = mount(Login, {
       localVue,
       store,
@@ -306,10 +307,10 @@ describe('Login', () => {
       return emailLoginComponent.find('#defaultPassword').setValue('password');
     }).then(() => {
       return emailLoginComponent.findComponent(BButton).trigger('submit');
-    }).then(() => {
+    }).then(async () => {
       expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
 
         expect(request.config.url).toBe('/sanctum/csrf-cookie');
@@ -319,7 +320,7 @@ describe('Login', () => {
           status: 200
         });
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
@@ -343,7 +344,6 @@ describe('Login', () => {
             expect(invalidFeedback.html()).toContain('Too many logins. Please try again later!');
 
             view.destroy();
-            done();
           });
         });
       });
@@ -351,9 +351,8 @@ describe('Login', () => {
   });
 
   it('other api errors gets thrown and handled by the global error handler',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(Login, {
         localVue,
@@ -368,10 +367,10 @@ describe('Login', () => {
         return emailLoginComponent.find('#defaultPassword').setValue('password');
       }).then(() => {
         return emailLoginComponent.findComponent(BButton).trigger('submit');
-      }).then(() => {
+      }).then(async () => {
         expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.config.url).toBe('/sanctum/csrf-cookie');
@@ -382,7 +381,6 @@ describe('Login', () => {
             expect(spy).toBeCalledTimes(1);
             Base.error.restore();
             view.destroy();
-            done();
           });
         });
       });

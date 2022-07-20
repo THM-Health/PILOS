@@ -9,7 +9,6 @@ import BootstrapVue, {
   BSpinner
 } from 'bootstrap-vue';
 import moxios from 'moxios';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import Vuex from 'vuex';
@@ -162,7 +161,7 @@ describe('Room Index', () => {
   it('load rooms, load room types and open room', async () => {
     const oldUser = PermissionService.currentUser;
 
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const router = new VueRouter();
     router.push = spy;
 
@@ -229,12 +228,12 @@ describe('Room Index', () => {
 
       // open a room
       await rooms.at(1).trigger('click');
-      sinon.assert.calledOnce(spy);
-      sinon.assert.calledWith(spy, {name: 'rooms.view', params: {id: 'abc-def-345'}});
+      expect(spy).toBeCalledTimes(1);
+      expect(spy).toBeCalledWith( {name: 'rooms.view', params: {id: 'abc-def-345'}});
 
       // check if opening another is prohibited while the other room is opening
       await rooms.at(0).trigger('click');
-      sinon.assert.calledOnce(spy);
+      expect(spy).toBeCalledTimes(1);
 
       PermissionService.setCurrentUser(oldUser);
       view.destroy();

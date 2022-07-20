@@ -4,9 +4,9 @@ import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstr
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import PasswordReset from '../../../resources/js/views/PasswordReset';
-import sinon from 'sinon';
 import Base from '../../../resources/js/api/base';
 import env from '../../../resources/js/env';
+import { waitMoxios } from '../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -22,7 +22,7 @@ describe('PasswordReset', () => {
     moxios.uninstall();
   });
 
-  it('submit handles errors correctly', done => {
+  it('submit handles errors correctly', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(PasswordReset, {
@@ -33,7 +33,7 @@ describe('PasswordReset', () => {
     });
 
     view.findComponent(BButton).trigger('submit');
-    moxios.wait(function () {
+    await waitMoxios(function () {
       moxios.requests.mostRecent().respondWith({
         status: env.HTTP_UNPROCESSABLE_ENTITY,
         response: {
@@ -44,7 +44,7 @@ describe('PasswordReset', () => {
             token: ['Error Token']
           }
         }
-      }).then(() => {
+      }).then(async () => {
         const feedBacks = view.findAllComponents(BFormInvalidFeedback);
         expect(feedBacks.at(0).html()).toContain('Error Password');
         expect(feedBacks.at(1).html()).toContain('Error Password Confirmation');
@@ -52,7 +52,7 @@ describe('PasswordReset', () => {
         expect(feedBacks.at(3).html()).toContain('Error Token');
 
         view.findComponent(BButton).trigger('submit');
-        moxios.wait(function () {
+        await waitMoxios(function () {
           moxios.requests.mostRecent().respondWith({
             status: 500,
             response: {
@@ -63,7 +63,6 @@ describe('PasswordReset', () => {
             expect(spy.mock.calls[0][0].response.status).toEqual(500);
 
             Base.error.restore();
-            done();
           });
         });
       });
@@ -71,13 +70,13 @@ describe('PasswordReset', () => {
   });
 
   it('submit loads the current user after login and changes the application language to the corresponding one',
-    done => {
-      const routerSpy = sinon.spy();
+    () => {
+      const routerSpy = jest.fn();
 
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const flashMessageSpy = sinon.spy();
+      const flashMessageSpy = jest.fn();
       const flashMessage = {
         success (param) {
           flashMessageSpy(param);
@@ -140,13 +139,13 @@ describe('PasswordReset', () => {
       const inputs = view.findAllComponents(BFormInput);
       inputs.at(0).setValue('Test123').then(() => {
         return inputs.at(1).setValue('Test123');
-      }).then(() => {
+      }).then(async () => {
         view.findComponent(BButton).trigger('submit');
-        moxios.wait(function () {
+        await waitMoxios(function () {
           moxios.requests.mostRecent().respondWith({
             status: 200
-          }).then(() => {
-            moxios.wait(function () {
+          }).then(async () => {
+            await waitMoxios(function () {
               const request = moxios.requests.mostRecent();
               const data = JSON.parse(request.config.data);
               expect(data.email).toBe('foo@bar.com');
@@ -162,12 +161,11 @@ describe('PasswordReset', () => {
               }).then(() => {
                 return store.state.session.runningPromise;
               }).then(() => {
-                sinon.assert.calledOnce(routerSpy);
-                sinon.assert.calledWith(routerSpy, { name: 'home' });
+                expect(routerSpy).toBeCalledTimes(1);
+                expect(routerSpy).toBeCalledWith({ name: 'home' });
                 expect(flashMessageSpy.calledOnce).toBeTruthy();
                 expect(flashMessageSpy.getCall(0).args[0]).toEqual({ title: 'Success!' });
                 expect(store.state.session.currentLocale).toEqual('de');
-                done();
               });
             });
           });

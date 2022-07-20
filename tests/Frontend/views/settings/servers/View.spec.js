@@ -9,11 +9,11 @@ import BootstrapVue, {
   BButton, BForm, BFormInvalidFeedback, BModal, BFormRating, BFormCheckbox, BFormText
 } from 'bootstrap-vue';
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -91,7 +91,7 @@ describe('ServerView', () => {
   });
 
   it('input fields are disabled if the server is displayed in view mode',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -105,19 +105,17 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
         expect(view.findAllComponents(BFormRating).wrappers.every(input => input.vm.disabled)).toBe(true);
         expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.disabled)).toBe(true);
-        done();
       });
     }
   );
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: 500,
@@ -139,7 +137,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
@@ -150,27 +148,24 @@ describe('ServerView', () => {
         expect(reloadButton.exists()).toBeTruthy();
         reloadButton.trigger('click');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.vm.isBusy).toBe(false);
           expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
           expect(view.vm.$data.model.id).toBe(1);
           expect(view.vm.$data.model.name).toEqual('Server 01');
-
-          done();
         });
       });
     }
   );
 
   it('error handler gets called and redirected if a 404 error occurs during load of data',
-    done => {
-      const routerSpy = sinon.spy();
+    async () => {
+      const routerSpy = jest.fn();
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreServerResponse = overrideStub('/api/v1/servers/1', {
         status: 404,
@@ -193,26 +188,23 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
-        sinon.assert.calledOnce(routerSpy);
-        sinon.assert.calledWith(routerSpy, { name: 'settings.servers' });
+        expect(routerSpy).toBeCalledTimes(1);
+        expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
         Base.error.restore();
         restoreServerResponse();
-
-        done();
       });
     }
   );
 
   it('error handler gets called and redirected if a 404 error occurs during save of data',
-    done => {
-      const routerSpy = sinon.spy();
+    async () => {
+      const routerSpy = jest.fn();
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -228,7 +220,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreServerResponse = overrideStub('/api/v1/servers/1', {
           status: 404,
           response: {
@@ -238,22 +230,20 @@ describe('ServerView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
-          sinon.assert.calledOnce(routerSpy);
-          sinon.assert.calledWith(routerSpy, { name: 'settings.servers' });
+          expect(routerSpy).toBeCalledTimes(1);
+          expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
           restoreServerResponse();
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during update',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -268,7 +258,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreServerResponse = overrideStub('/api/v1/servers/1', {
           status: 500,
           response: {
@@ -278,19 +268,18 @@ describe('ServerView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreServerResponse();
-          done();
         });
       });
     }
   );
 
   it('back button causes a back navigation without persistence',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -309,21 +298,20 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const requestCount = moxios.requests.count();
 
         view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
           expect(moxios.requests.count()).toBe(requestCount);
-          sinon.assert.calledOnce(spy);
-          done();
+          expect(spy).toBeCalledTimes(1);
         });
       });
     }
   );
 
   it('request with updates get send during saving the server',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -342,7 +330,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         await view.vm.$nextTick();
         await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
         await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
@@ -368,7 +356,7 @@ describe('ServerView', () => {
           }
         });
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const request = moxios.requests.mostRecent();
           const data = JSON.parse(request.config.data);
 
@@ -394,10 +382,9 @@ describe('ServerView', () => {
 
           view.findComponent(BForm).trigger('submit');
 
-          moxios.wait(function () {
-            sinon.assert.calledOnce(spy);
+          await waitMoxios(function () {
+            expect(spy).toBeCalledTimes(1);
             restoreServerResponse();
-            done();
           });
         });
       });
@@ -405,8 +392,8 @@ describe('ServerView', () => {
   );
 
   it('modal gets shown for stale errors and a overwrite can be forced',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -426,7 +413,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
@@ -441,7 +428,7 @@ describe('ServerView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const staleModelModal = view.findComponent({ ref: 'stale-server-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
@@ -452,14 +439,13 @@ describe('ServerView', () => {
 
           staleModelModal.vm.$refs['ok-button'].click();
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
             const data = JSON.parse(request.config.data);
 
             expect(data.updated_at).toBe(newModel.updated_at);
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
             restoreServerResponse();
-            done();
           });
         });
       });
@@ -467,7 +453,7 @@ describe('ServerView', () => {
   );
 
   it('modal gets shown for stale errors and the new model can be applied to current form',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -482,7 +468,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
         newModel.name = 'Server 02';
@@ -498,7 +484,7 @@ describe('ServerView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const staleModelModal = view.findComponent({ ref: 'stale-server-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
           expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Server 01');
@@ -510,14 +496,13 @@ describe('ServerView', () => {
           view.vm.$nextTick().then(() => {
             expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Server 02');
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-            done();
           });
         });
       });
     }
   );
 
-  it('show correct status on page load', done => {
+  it('show correct status on page load', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -531,7 +516,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       // response server online
       await view.vm.$nextTick();
 
@@ -563,7 +548,7 @@ describe('ServerView', () => {
 
       view.vm.load();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // response server offline
         await view.vm.$nextTick();
 
@@ -596,7 +581,7 @@ describe('ServerView', () => {
 
         view.vm.load();
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // response server disabled
           await view.vm.$nextTick();
 
@@ -605,13 +590,12 @@ describe('ServerView', () => {
 
           restoreServerResponse();
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('update connection status', done => {
+  it('update connection status', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(View, {
@@ -627,12 +611,12 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
 
       // Check for invalid connection
       await view.findAllComponents(BButton).at(1).trigger('click');
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/servers/check');
         expect(request.config.method).toBe('post');
@@ -654,7 +638,7 @@ describe('ServerView', () => {
 
         // check for invalid salt
         await view.findAllComponents(BButton).at(1).trigger('click');
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           const request = moxios.requests.mostRecent();
           await request.respondWith({
             status: 200,
@@ -671,7 +655,7 @@ describe('ServerView', () => {
 
           // check for valid connection
           await view.findAllComponents(BButton).at(1).trigger('click');
-          moxios.wait(async () => {
+          await waitMoxios(async () => {
             const request = moxios.requests.mostRecent();
             await request.respondWith({
               status: 200,
@@ -687,7 +671,7 @@ describe('ServerView', () => {
 
             // check for response errors
             await view.findAllComponents(BButton).at(1).trigger('click');
-            moxios.wait(async () => {
+            await waitMoxios(async () => {
               const request = moxios.requests.mostRecent();
               await request.respondWith({
                 status: 500,
@@ -703,7 +687,6 @@ describe('ServerView', () => {
               expect(spy).toBeCalledTimes(1);
               Base.error.restore();
               view.destroy();
-              done();
             });
           });
         });
@@ -711,7 +694,7 @@ describe('ServerView', () => {
     });
   });
 
-  it('show usage data only if viewOnly and server enabled', done => {
+  it('show usage data only if viewOnly and server enabled', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -725,7 +708,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
       await view.setProps({ viewOnly: true });
@@ -756,19 +739,18 @@ describe('ServerView', () => {
       });
       view.vm.load();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         await view.vm.$nextTick();
         expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
         await view.setProps({ viewOnly: true });
         expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
 
         restoreServerResponse();
-        done();
       });
     });
   });
 
-  it('show panic button only if user has permission', done => {
+  it('show panic button only if user has permission', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -782,27 +764,25 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(true);
       PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(false);
-      done();
     });
   });
 
   it('panic button calls api and gets disabled while running',
-    done => {
-      const flashMessageSpy = sinon.spy();
+    async () => {
+      const flashMessageSpy = jest.fn();
       const flashMessage = {
         success (param) {
           flashMessageSpy(param);
         }
       };
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -818,7 +798,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         await view.vm.$nextTick();
         const button = view.findComponent({ ref: 'currentUsage' }).find('button');
         await button.trigger('click');
@@ -826,7 +806,7 @@ describe('ServerView', () => {
         expect(button.attributes('disabled')).toBe('disabled');
 
         // check success
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers/1/panic');
           expect(request.config.method).toBe('get');
@@ -840,14 +820,14 @@ describe('ServerView', () => {
           await view.vm.$nextTick();
           expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
 
-          sinon.assert.calledOnce(flashMessageSpy);
-          sinon.assert.calledWith(flashMessageSpy, {
+          expect(flashMessageSpy).toBeCalledTimes(1);
+          expect(flashMessageSpy).toBeCalledWith({
             title: 'settings.servers.panicFlash.title',
             message: 'settings.servers.panicFlash.message:{"total":5,"success":3}'
           });
 
           // check reload of server data
-          moxios.wait(async () => {
+          await waitMoxios(async () => {
             const request = moxios.requests.mostRecent();
             expect(request.config.url).toBe('/api/v1/servers/1');
             expect(request.config.method).toBe('get');
@@ -855,7 +835,7 @@ describe('ServerView', () => {
             await button.trigger('click');
 
             // check error handling
-            moxios.wait(async () => {
+            await waitMoxios(async () => {
               const request = moxios.requests.mostRecent();
               expect(request.config.url).toBe('/api/v1/servers/1/panic');
               expect(request.config.method).toBe('get');
@@ -870,7 +850,6 @@ describe('ServerView', () => {
               expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
               expect(spy).toBeCalledTimes(1);
               Base.error.restore();
-              done();
             });
           });
         });

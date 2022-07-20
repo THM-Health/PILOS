@@ -11,9 +11,9 @@ import BootstrapVue, {
   BButtonClose,
   BFormInput
 } from 'bootstrap-vue';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
+import {waitMoxios} from "../../../helper";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -133,8 +133,8 @@ describe('ServersIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('list of servers with pagination gets displayed', done => {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
+  it('list of servers with pagination gets displayed', async () => {
+    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.viewAny']});
 
     const view = mount(Index, {
       localVue,
@@ -145,7 +145,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -188,13 +188,12 @@ describe('ServersIndex', () => {
         expect(server04.at(6).html()).toContain('---');
 
         view.destroy();
-        done();
       });
     });
   });
 
-  it('list of servers with search', done => {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
+  it('list of servers with search', async () => {
+    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.viewAny']});
 
     const view = mount(Index, {
       localVue,
@@ -208,7 +207,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -224,7 +223,7 @@ describe('ServersIndex', () => {
         expect(search.html()).toContain('app.search');
         await search.setValue('Server 02');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
@@ -269,7 +268,6 @@ describe('ServersIndex', () => {
             await view.vm.$nextTick();
             expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
             view.destroy();
-            done();
           });
         });
       });
@@ -277,8 +275,8 @@ describe('ServersIndex', () => {
   });
 
   it('update and delete buttons only shown if user has the permission',
-    done => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+    async () => {
+      PermissionService.setCurrentUser({permissions: ['settings.manage']});
 
       const response = {
         status: 200,
@@ -294,7 +292,7 @@ describe('ServersIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -302,7 +300,7 @@ describe('ServersIndex', () => {
             expect(row.findAllComponents(BButton).length).toEqual(0);
           });
 
-          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
+          PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete']});
 
           return view.vm.$nextTick();
         }).then(() => {
@@ -312,16 +310,14 @@ describe('ServersIndex', () => {
           expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
 
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during loading of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation();
 
       const view = mount(Index, {
         localVue,
@@ -332,7 +328,7 @@ describe('ServersIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 500,
@@ -345,15 +341,14 @@ describe('ServersIndex', () => {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('property gets cleared correctly if deletion gets aborted',
-    done => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    async () => {
+      PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
 
       const response = {
         status: 200,
@@ -372,7 +367,7 @@ describe('ServersIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -392,14 +387,13 @@ describe('ServersIndex', () => {
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('server delete', done => {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+  it('server delete', async () => {
+    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
 
     const response = {
       status: 200,
@@ -418,7 +412,7 @@ describe('ServersIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -437,7 +431,7 @@ describe('ServersIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete without replacement
         const request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/servers/3');
@@ -448,7 +442,7 @@ describe('ServersIndex', () => {
           status: 204
         });
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // reload data for servers
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers');
@@ -530,16 +524,15 @@ describe('ServersIndex', () => {
           expect(view.vm.$data.serverToDelete).toBeUndefined();
 
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('server delete 404 handling', done => {
+  it('server delete 404 handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
 
     const response = {
       status: 200,
@@ -558,7 +551,7 @@ describe('ServersIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -577,7 +570,7 @@ describe('ServersIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete without replacement
         const request = moxios.requests.mostRecent();
         await request.respondWith({
@@ -586,7 +579,7 @@ describe('ServersIndex', () => {
             message: 'Test'
           }
         });
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // reload data for roomTypes
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers');
@@ -671,15 +664,14 @@ describe('ServersIndex', () => {
           Base.error.restore();
 
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('server delete error handler called', done => {
+  it('server delete error handler called', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
-    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
 
     const response = {
       status: 200,
@@ -698,7 +690,7 @@ describe('ServersIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -714,7 +706,7 @@ describe('ServersIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         // delete
         const request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/servers/3');
@@ -733,14 +725,13 @@ describe('ServersIndex', () => {
         expect(view.vm.$data.serverToDelete).toBeUndefined();
 
         view.destroy();
-        done();
       });
     });
   });
 
   it('new server button is displayed if the user has the corresponding permissions',
-    done => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+    async () => {
+      PermissionService.setCurrentUser({permissions: ['settings.manage']});
 
       const view = mount(Index, {
         localVue,
@@ -751,7 +742,7 @@ describe('ServersIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 200,
@@ -776,20 +767,19 @@ describe('ServersIndex', () => {
         }).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
-          expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
-          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
+          expect(view.findComponent({ref: 'newServer'}).exists()).toBeFalsy();
+          PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.create']});
           return view.vm.$nextTick();
         }).then(() => {
-          expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
+          expect(view.findComponent({ref: 'newServer'}).html()).toContain('settings.servers.new');
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('reload button displayed and triggers reload', done => {
-    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it('reload button displayed and triggers reload', async () => {
+    PermissionService.setCurrentUser({permissions: ['settings.manage']});
 
     const view = mount(Index, {
       localVue,
@@ -801,7 +791,7 @@ describe('ServersIndex', () => {
     });
 
     // During normal load the usage should not be updated
-    moxios.wait(function () {
+    await waitMoxios(function () {
       const request = moxios.requests.mostRecent();
       expect(request.config.params.update_usage).toBeFalsy();
       request.respondWith({
@@ -809,13 +799,13 @@ describe('ServersIndex', () => {
         response: defaultResponse
       }).then(() => {
         return view.vm.$nextTick();
-      }).then(() => {
+      }).then(async () => {
         expect(view.findComponent(BButton).exists()).toBeTruthy();
         expect(view.findComponent(BButton).html()).toContain('settings.servers.reload');
 
         view.findComponent(BButton).trigger('click');
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           // reload data for roomTypes and force update of usage data
           const request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers');
@@ -885,12 +875,11 @@ describe('ServersIndex', () => {
 
           // during future normal requests the force usage should be disabled again
           view.vm.$root.$emit('bv::refresh::table', 'servers-table');
-          moxios.wait(async () => {
+          await waitMoxios(async () => {
             const request = moxios.requests.mostRecent();
             expect(request.config.params.update_usage).toBeFalsy();
 
             view.destroy();
-            done();
           });
         });
       });

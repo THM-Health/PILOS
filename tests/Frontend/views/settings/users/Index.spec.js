@@ -3,9 +3,9 @@ import BootstrapVue, { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue'
 import moxios from 'moxios';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import Index from '../../../../../resources/js/views/settings/users/Index';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import Multiselect from 'vue-multiselect';
+import {waitMoxios} from "../../../helper";
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -39,7 +39,7 @@ describe('UsersIndex', () => {
     moxios.uninstall();
   });
 
-  it('list of users with pagination gets displayed', done => {
+  it('list of users with pagination gets displayed', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
@@ -53,7 +53,7 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -84,7 +84,7 @@ describe('UsersIndex', () => {
         }
       }).then(() => {
         return view.vm.$nextTick();
-      }).then(() => {
+      }).then(async () => {
         let html = view.findComponent(BTbody).findComponent(BTr).html();
 
         expect(html).toContain('1');
@@ -97,7 +97,7 @@ describe('UsersIndex', () => {
 
         view.vm.$root.$emit('bv::refresh::table', 'users-table');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
@@ -136,7 +136,6 @@ describe('UsersIndex', () => {
 
             view.destroy();
             PermissionService.setCurrentUser(oldUser);
-            done();
           });
         });
       });
@@ -144,9 +143,8 @@ describe('UsersIndex', () => {
   });
 
   it('reset password button only shown if the user has the permission and it handles errors as expected',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const oldUser = PermissionService.currentUser;
 
@@ -210,7 +208,7 @@ describe('UsersIndex', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -235,11 +233,11 @@ describe('UsersIndex', () => {
           }).at(0).trigger('click');
 
           return view.vm.$nextTick();
-        }).then(() => {
+        }).then(async () => {
           expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
           view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
 
             expect(request.url).toBe('/api/v1/users/1/resetPassword');
@@ -258,7 +256,6 @@ describe('UsersIndex', () => {
               Base.error.restore();
               view.destroy();
               PermissionService.setCurrentUser(oldUser);
-              done();
             });
           });
         });
@@ -266,8 +263,8 @@ describe('UsersIndex', () => {
     }
   );
 
-  it('reset password works as expected', done => {
-    const flashMessageSpy = sinon.spy();
+  it('reset password works as expected', async () => {
+    const flashMessageSpy = jest.fn();
     const flashMessage = {
       success (param) {
         flashMessageSpy(param);
@@ -339,7 +336,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       moxios.requests.mostRecent().respondWith(response).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
@@ -348,11 +345,11 @@ describe('UsersIndex', () => {
         }).at(0).trigger('click');
       }).then(() => {
         return view.vm.$nextTick();
-      }).then(() => {
+      }).then(async () => {
         expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
         view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.url).toBe('/api/v1/users/1/resetPassword');
@@ -364,7 +361,6 @@ describe('UsersIndex', () => {
             expect(flashMessageSpy.getCall(0).args[0].title).toBe('settings.users.passwordResetSuccess');
             view.destroy();
             PermissionService.setCurrentUser(oldUser);
-            done();
           });
         });
       });
@@ -372,7 +368,7 @@ describe('UsersIndex', () => {
   });
 
   it('update and delete buttons only shown if user has the permission',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
@@ -420,7 +416,7 @@ describe('UsersIndex', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -428,7 +424,10 @@ describe('UsersIndex', () => {
             expect(row.findAllComponents(BButton).length).toEqual(0);
           });
 
-          PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete'] });
+          PermissionService.setCurrentUser({
+            id: 1,
+            permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete']
+          });
 
           return view.vm.$nextTick();
         }).then(() => {
@@ -438,16 +437,14 @@ describe('UsersIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during loading of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(Index, {
         localVue,
@@ -458,7 +455,7 @@ describe('UsersIndex', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 500,
@@ -471,13 +468,12 @@ describe('UsersIndex', () => {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('not own users can be deleted', done => {
+  it('not own users can be deleted', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
@@ -517,7 +513,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       moxios.requests.mostRecent().respondWith(response).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
@@ -525,18 +521,17 @@ describe('UsersIndex', () => {
         view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
 
         return view.vm.$nextTick();
-      }).then(() => {
+      }).then(async () => {
         expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
         view.findComponent({ ref: 'delete-user-modal' }).vm.$refs['ok-button'].click();
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           moxios.requests.mostRecent().respondWith({ status: 204 }).then(() => {
             expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
             expect(view.vm.$data.userToDelete).toBeUndefined();
 
             view.destroy();
             PermissionService.setCurrentUser(oldUser);
-            done();
           });
         });
       });
@@ -544,7 +539,7 @@ describe('UsersIndex', () => {
   });
 
   it('property gets cleared correctly if deletion gets aborted',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
@@ -584,7 +579,7 @@ describe('UsersIndex', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -605,14 +600,13 @@ describe('UsersIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
   it('new user button is displayed if the user has the corresponding permissions',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
@@ -626,7 +620,7 @@ describe('UsersIndex', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 200,
@@ -645,20 +639,40 @@ describe('UsersIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
-  it('role filter', done => {
+  it('role filter', async () => {
     moxios.stubRequest('/api/v1/roles?page=1', {
       status: 200,
       response: {
         data: [
-          { id: 1, name: 'admin', default: true, updated_at: '2021-01-08T15:51:08.000000Z', model_name: 'Role', room_limit: -1 },
-          { id: 2, name: 'Staff', default: false, updated_at: '2021-03-19T09:12:44.000000Z', model_name: 'Role', room_limit: 20 },
-          { id: 3, name: 'Students', default: false, updated_at: '2021-05-22T11:55:21.000000Z', model_name: 'Role', room_limit: 1 }
+          {
+            id: 1,
+            name: 'admin',
+            default: true,
+            updated_at: '2021-01-08T15:51:08.000000Z',
+            model_name: 'Role',
+            room_limit: -1
+          },
+          {
+            id: 2,
+            name: 'Staff',
+            default: false,
+            updated_at: '2021-03-19T09:12:44.000000Z',
+            model_name: 'Role',
+            room_limit: 20
+          },
+          {
+            id: 3,
+            name: 'Students',
+            default: false,
+            updated_at: '2021-05-22T11:55:21.000000Z',
+            model_name: 'Role',
+            room_limit: 1
+          }
         ],
         meta: {
           current_page: 1,
@@ -683,7 +697,7 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -731,7 +745,7 @@ describe('UsersIndex', () => {
       await paginationButtons.at(1).trigger('click');
       // dropdown show loading spinner during load
       expect(roleSelector.props('loading')).toBeTruthy();
-      moxios.wait(async function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
         expect(request.url).toBe('/api/v1/roles?page=2');
         await request.respondWith({
@@ -789,7 +803,7 @@ describe('UsersIndex', () => {
         await roleOptions.at(0).find('span').trigger('click');
         expect(view.findComponent({ ref: 'clearRolesButton' }).exists()).toBeTruthy();
 
-        moxios.wait(async function () {
+        await waitMoxios(async function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
@@ -823,7 +837,7 @@ describe('UsersIndex', () => {
 
           // select other role
           await roleOptions.at(1).find('span').trigger('click');
-          moxios.wait(async () => {
+          await waitMoxios(async () => {
             expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
             const request = moxios.requests.mostRecent();
@@ -843,14 +857,13 @@ describe('UsersIndex', () => {
 
             // clea role
             await view.findComponent({ ref: 'clearRolesButton' }).trigger('click');
-            moxios.wait(async () => {
+            await waitMoxios(async () => {
               expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
               const request = moxios.requests.mostRecent();
               expect(request.config.params.role).toBeUndefined();
 
               Base.error.restore();
-              done();
             });
           });
         });
@@ -858,7 +871,7 @@ describe('UsersIndex', () => {
     });
   });
 
-  it('role filter error', done => {
+  it('role filter error', async () => {
     moxios.stubRequest('/api/v1/roles?page=1', {
       status: 500,
       response: {
@@ -878,7 +891,7 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async function () {
+    await waitMoxios(async function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
       const request = moxios.requests.mostRecent();
       await request.respondWith({
@@ -964,7 +977,7 @@ describe('UsersIndex', () => {
       await view.findComponent({ ref: 'reloadRolesButton' }).trigger('click');
       expect(roleSelector.props('loading')).toBeTruthy();
 
-      moxios.wait(async function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
         expect(request.url).toBe('/api/v1/roles?page=1');
         await view.vm.$nextTick();
@@ -982,7 +995,6 @@ describe('UsersIndex', () => {
 
         restoreRoles();
         Base.error.restore();
-        done();
       });
     });
   });

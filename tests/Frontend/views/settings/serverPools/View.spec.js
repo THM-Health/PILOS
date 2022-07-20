@@ -10,11 +10,11 @@ import BootstrapVue, {
   BButton, BForm, BFormInvalidFeedback, BModal
 } from 'bootstrap-vue';
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -170,7 +170,7 @@ describe('ServerPoolView', () => {
   });
 
   it('input fields are disabled if the server pool is displayed in view mode',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -184,18 +184,16 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
         expect(view.findAllComponents(Multiselect).wrappers.every(input => input.vm.disabled)).toBe(true);
-        done();
       });
     }
   );
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
         status: 500,
@@ -217,7 +215,7 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
@@ -228,27 +226,24 @@ describe('ServerPoolView', () => {
         expect(reloadButton.exists()).toBeTruthy();
         reloadButton.trigger('click');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.vm.isBusy).toBe(false);
           expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
           expect(view.vm.$data.model.id).toBe(1);
           expect(view.vm.$data.model.name).toEqual('Test');
-
-          done();
         });
       });
     }
   );
 
   it('error handler gets called and redirected if a 404 error occurs during load of data',
-    done => {
-      const routerSpy = sinon.spy();
+    async () => {
+      const routerSpy = jest.fn();
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
         status: 404,
@@ -271,26 +266,23 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
-        sinon.assert.calledOnce(routerSpy);
-        sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
+        expect(routerSpy).toBeCalledTimes(1);
+        expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
         Base.error.restore();
         restoreServerPoolResponse();
-
-        done();
       });
     }
   );
 
   it('error handler gets called and redirected if a 404 error occurs during save of data',
-    done => {
-      const routerSpy = sinon.spy();
+    async () => {
+      const routerSpy = jest.fn();
       const router = new VueRouter();
       router.push = routerSpy;
 
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -306,7 +298,7 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
           status: 404,
           response: {
@@ -316,22 +308,20 @@ describe('ServerPoolView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
-          sinon.assert.calledOnce(routerSpy);
-          sinon.assert.calledWith(routerSpy, { name: 'settings.server_pools' });
+          expect(routerSpy).toBeCalledTimes(1);
+          expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
           restoreServerPoolResponse();
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during update',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(View, {
         localVue,
@@ -346,7 +336,7 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
           status: 500,
           response: {
@@ -356,19 +346,18 @@ describe('ServerPoolView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           restoreServerPoolResponse();
-          done();
         });
       });
     }
   );
 
   it('back button causes a back navigation without persistence',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -387,21 +376,20 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const requestCount = moxios.requests.count();
 
         view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
           expect(moxios.requests.count()).toBe(requestCount);
-          sinon.assert.calledOnce(spy);
-          done();
+          expect(spy).toBeCalledTimes(1);
         });
       });
     }
   );
 
   it('request with updates get send during saving the server',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -420,7 +408,7 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         await view.vm.$nextTick();
         await view.findAllComponents(BFormInput).at(0).setValue('Demo');
         await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
@@ -440,7 +428,7 @@ describe('ServerPoolView', () => {
           }
         });
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const request = moxios.requests.mostRecent();
           const data = JSON.parse(request.config.data);
 
@@ -460,10 +448,9 @@ describe('ServerPoolView', () => {
 
           view.findComponent(BForm).trigger('submit');
 
-          moxios.wait(function () {
-            sinon.assert.calledOnce(spy);
+          await waitMoxios(function () {
+            expect(spy).toBeCalledTimes(1);
             restoreServerPoolResponse();
-            done();
           });
         });
       });
@@ -471,8 +458,8 @@ describe('ServerPoolView', () => {
   );
 
   it('modal gets shown for stale errors and a overwrite can be forced',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -492,7 +479,7 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
@@ -507,7 +494,7 @@ describe('ServerPoolView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
@@ -518,14 +505,13 @@ describe('ServerPoolView', () => {
 
           staleModelModal.vm.$refs['ok-button'].click();
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
             const data = JSON.parse(request.config.data);
 
             expect(data.updated_at).toBe(newModel.updated_at);
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
             restoreServerPoolResponse();
-            done();
           });
         });
       });
@@ -533,7 +519,7 @@ describe('ServerPoolView', () => {
   );
 
   it('modal gets shown for stale errors and the new model can be applied to current form',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -548,7 +534,7 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
         newModel.name = 'Demo';
@@ -564,7 +550,7 @@ describe('ServerPoolView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
           expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Test');
@@ -576,14 +562,13 @@ describe('ServerPoolView', () => {
           view.vm.$nextTick().then(() => {
             expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Demo');
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-            done();
           });
         });
       });
     }
   );
 
-  it('server get loaded, pagination and error handling', done => {
+  it('server get loaded, pagination and error handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(View, {
@@ -604,7 +589,7 @@ describe('ServerPoolView', () => {
     expect(saveButton.html()).toContain('app.save');
 
     // load servers
-    moxios.wait(async function () {
+    await waitMoxios(async function () {
       const request = moxios.requests.mostRecent();
       expect(request.url).toBe('/api/v1/servers?page=1');
       await view.vm.$nextTick();
@@ -623,7 +608,7 @@ describe('ServerPoolView', () => {
       await paginationButtons.at(1).trigger('click');
       // dropdown show loading spinner during load and save disabled
       expect(multiSelect.props('loading')).toBeTruthy();
-      moxios.wait(async function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
         expect(request.url).toBe('/api/v1/servers?page=2');
         await request.respondWith({
@@ -673,7 +658,7 @@ describe('ServerPoolView', () => {
           }
         });
         await paginationButtons.at(0).trigger('click');
-        moxios.wait(async function () {
+        await waitMoxios(async function () {
           await view.vm.$nextTick();
 
           // hide loading spinner, disable dropdown and prevent saving
@@ -691,7 +676,7 @@ describe('ServerPoolView', () => {
           await reloadButton.trigger('click');
 
           // load servers
-          moxios.wait(async function () {
+          await waitMoxios(async function () {
             expect(saveButton.attributes('disabled')).toBe('disabled');
             const request = moxios.requests.mostRecent();
             expect(request.url).toBe('/api/v1/servers?page=2');
@@ -731,8 +716,6 @@ describe('ServerPoolView', () => {
             expect(multiSelect.props('loading')).toBeFalsy();
             expect(multiSelect.props('disabled')).toBeFalsy();
             expect(saveButton.attributes('disabled')).toBeUndefined();
-
-            done();
           });
         });
       });

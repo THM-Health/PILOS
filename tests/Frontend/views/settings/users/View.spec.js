@@ -12,13 +12,13 @@ import BootstrapVue, {
 import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View.vue';
 import PermissionService from '../../../../../resources/js/services/PermissionService.js';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import env from '../../../../../resources/js/env.js';
 import Vuex from 'vuex';
 import Multiselect from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -213,7 +213,7 @@ describe('UsersView', () => {
     moxios.uninstall();
   });
 
-  it('user name in title gets shown for detail view', done => {
+  it('user name in title gets shown for detail view', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -229,14 +229,13 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.html()).toContain('settings.users.view John Doe');
       view.destroy();
-      done();
     });
   });
 
-  it('user name in title gets shown for update view', done => {
+  it('user name in title gets shown for update view', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -252,10 +251,9 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.html()).toContain('settings.users.edit John Doe');
       view.destroy();
-      done();
     });
   });
 
@@ -274,7 +272,7 @@ describe('UsersView', () => {
   );
 
   it('the configured locales should be selectable in the corresponding select',
-    done => {
+    async () => {
       View.__set__('LocaleMap', {
         de: 'German',
         en: 'English',
@@ -297,19 +295,18 @@ describe('UsersView', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const select = view.findComponent(BFormSelect);
         expect(select.vm.value).toEqual('en');
         expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
 
         View.__ResetDependency__('LocaleMap');
         view.destroy();
-        done();
       });
     }
   );
 
-  it('roles can not be modified for the own user', done => {
+  it('roles can not be modified for the own user', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -325,14 +322,13 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(Multiselect).vm.disabled).toBe(true);
       view.destroy();
-      done();
     });
   });
 
-  it('automatic assigned roles can not be deselected', done => {
+  it('automatic assigned roles can not be deselected', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -348,18 +344,17 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       const multiselect = view.findComponent(Multiselect);
 
       expect(multiselect.vm.value[0].$isDisabled).toBe(true);
       expect(multiselect.vm.value[1].$isDisabled).toBe(false);
       view.destroy();
-      done();
     });
   });
 
   it('input fields gets disabled when viewing the user in view only mode',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         store,
@@ -375,7 +370,7 @@ describe('UsersView', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const inputs = view.findAllComponents(BFormInput);
         expect(inputs.length).toBe(3);
         inputs.wrappers.forEach((input) => {
@@ -392,12 +387,11 @@ describe('UsersView', () => {
           expect(select.vm.disabled).toBe(true);
         });
         view.destroy();
-        done();
       });
     }
   );
 
-  it('all inputs fields shown and enabled on new page', done => {
+  it('all inputs fields shown and enabled on new page', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -413,7 +407,7 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       view.vm.$nextTick().then(() => {
         const inputs = view.findAllComponents(BFormInput);
         expect(inputs.length).toBe(5);
@@ -431,14 +425,13 @@ describe('UsersView', () => {
           expect(select.vm.disabled).toBe(false);
         });
         view.destroy();
-        done();
       });
     });
   });
 
   it('if generate_password is true the password fields does not get sent with the create request',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -459,7 +452,7 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         const inputs = view.findAllComponents(BFormInput);
         await inputs.at(0).setValue('Max');
         await inputs.at(1).setValue('Mustermann');
@@ -473,7 +466,7 @@ describe('UsersView', () => {
         await view.vm.$nextTick();
         await view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
 
           expect(request.config.data.get('firstname')).toBe('Max');
@@ -485,13 +478,12 @@ describe('UsersView', () => {
           expect(request.config.data.get('user_locale')).toBe('de');
           expect(request.config.data.get('generate_password')).toBe('1');
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('specific fields gets disabled for not database users', done => {
+  it('specific fields gets disabled for not database users', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -507,7 +499,7 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       const inputs = view.findAllComponents(BFormInput);
       expect(inputs.length).toBe(4);
       inputs.wrappers.forEach((input) => {
@@ -524,12 +516,11 @@ describe('UsersView', () => {
         expect(select.vm.disabled).toBe(false);
       });
       view.destroy();
-      done();
     });
   });
 
   it('back button is not shown on the profile page of an user',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         store,
@@ -545,17 +536,16 @@ describe('UsersView', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const buttons = view.findAllComponents(BButton);
         expect(buttons.length).toEqual(5);
         expect(buttons.at(4).text()).toEqual('app.save');
         view.destroy();
-        done();
       });
     }
   );
 
-  it('persisted data gets loaded and shown', done => {
+  it('persisted data gets loaded and shown', async () => {
     const view = mount(View, {
       localVue,
       store,
@@ -571,7 +561,7 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       const inputs = view.findAllComponents(BFormInput);
       expect(inputs.length).toBe(5);
       expect(inputs.at(0).element.value).toBe('John');
@@ -588,13 +578,12 @@ describe('UsersView', () => {
       expect(multiSelects.length).toBe(1);
       expect(multiSelects.at(0).vm.value.map(val => val.id)).toStrictEqual([1, 2]);
       view.destroy();
-      done();
     });
   });
 
   it('request with the updates gets send during saving the user',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -615,7 +604,7 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const inputs = view.findAllComponents(BFormInput);
         inputs.at(0).setValue('Max').then(() => {
           return inputs.at(1).setValue('Mustermann');
@@ -631,10 +620,10 @@ describe('UsersView', () => {
         }).then(() => {
           view.vm.model.roles.push(rolesResponse1.data[2]);
           return view.vm.$nextTick();
-        }).then(() => {
+        }).then(async () => {
           view.findComponent(BForm).trigger('submit');
 
-          moxios.wait(function () {
+          await waitMoxios(async function () {
             const request = moxios.requests.mostRecent();
 
             expect(request.config.data.get('firstname')).toBe('Max');
@@ -652,15 +641,14 @@ describe('UsersView', () => {
               status: 204
             });
 
-            moxios.wait(function () {
+            await waitMoxios(function () {
               store.state.session.runningPromise.then(() => {
                 // check that the application locale gets changed
                 expect(store.state.session.currentLocale).toBe('de');
-                sinon.assert.calledOnce(spy);
-                sinon.assert.calledWith(spy, { name: 'settings.users' });
+                expect(spy).toBeCalledTimes(1);
+                expect(spy).toBeCalledWith({ name: 'settings.users' });
                 restoreUserResponse();
                 view.destroy();
-                done();
               });
             });
           });
@@ -670,9 +658,8 @@ describe('UsersView', () => {
   );
 
   it('error handler gets called if an error occurs during load of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
         status: 500,
@@ -702,24 +689,22 @@ describe('UsersView', () => {
         store
       });
 
-      moxios.wait(function () {
-        sinon.assert.calledTwice(Base.error);
+      await waitMoxios(function () {
+        expect(spy).toBeCalledTimes(2);
         expect(view.html()).toContain('settings.roles.nodata');
         Base.error.restore();
         restoreRolesResponse();
         restoreUserResponse();
         view.destroy();
-        done();
       });
     }
   );
 
   it('if the user model to load is the current user and is not found the user gets logged and redirected',
-    done => {
-      const errorSpy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(errorSpy);
+    async () => {
+      const errorSpy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const spy = sinon.spy();
+      const spy = jest.fn();
       const router = new VueRouter();
       router.push = spy;
 
@@ -746,25 +731,23 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(store.state.session.logoutCount).toBe(1);
-        sinon.assert.calledOnce(errorSpy);
+        expect(errorSpy).toBeCalledTimes(1);
         Base.error.restore();
-        sinon.assert.calledOnce(spy);
-        sinon.assert.calledWith(spy, { name: 'home' });
+        expect(spy).toBeCalledTimes(1);
+        expect(spy).toBeCalledWith({ name: 'home' });
         restoreUserResponse();
         view.destroy();
-        done();
       });
     }
   );
 
   it('current user get logged out if the user to update is the current user and not gets found during persistence',
-    done => {
-      const errorSpy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(errorSpy);
+    async () => {
+      const errorSpy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const spy = sinon.spy();
+      const spy = jest.fn();
       const router = new VueRouter();
       router.push = spy;
 
@@ -784,7 +767,7 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const restoreUserResponse = overrideStub('/api/v1/users/1', {
           status: env.HTTP_NOT_FOUND,
           response: {
@@ -794,23 +777,22 @@ describe('UsersView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(store.state.session.logoutCount).toBe(1);
-          sinon.assert.calledOnce(errorSpy);
+          expect(errorSpy).toBeCalledTimes(1);
           Base.error.restore();
-          sinon.assert.calledOnce(spy);
-          sinon.assert.calledWith(spy, { name: 'home' });
+          expect(spy).toBeCalledTimes(1);
+          expect(spy).toBeCalledWith({ name: 'home' });
           restoreUserResponse();
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('modal gets shown for stale errors and a overwrite can be forced',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -832,7 +814,7 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
         newModel.firstname = 'Tester';
@@ -848,7 +830,7 @@ describe('UsersView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
           restoreUserResponse();
@@ -861,7 +843,7 @@ describe('UsersView', () => {
 
           staleModelModal.vm.$refs['ok-button'].click();
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
 
             expect(request.config.data.get('updated_at')).toBe(newModel.updated_at);
@@ -870,7 +852,6 @@ describe('UsersView', () => {
 
             restoreUserResponse();
             view.destroy();
-            done();
           });
         });
       });
@@ -878,8 +859,8 @@ describe('UsersView', () => {
   );
 
   it('modal gets shown for stale errors and the new model can be applied to current form',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -901,7 +882,7 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
         newModel.firstname = 'Test';
@@ -917,7 +898,7 @@ describe('UsersView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const staleModelModal = view.findComponent({ ref: 'stale-user-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
           expect(view.findComponent(BFormInput).element.value).toBe('Darth');
@@ -930,7 +911,6 @@ describe('UsersView', () => {
             expect(view.findComponent(BFormInput).element.value).toBe('Test');
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
             view.destroy();
-            done();
           });
         });
       });
@@ -938,9 +918,8 @@ describe('UsersView', () => {
   );
 
   it('reload button exists next to the roles multiselect and on error it can be used to reload the roles',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
         status: 500,
@@ -965,7 +944,7 @@ describe('UsersView', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const button = view.findComponent({ ref: 'reloadRolesButton' });
         expect(button.exists()).toBe(true);
         expect(spy).toBeCalledTimes(1);
@@ -973,24 +952,22 @@ describe('UsersView', () => {
         spy.resetHistory();
         button.trigger('click');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const button = view.findComponent({ ref: 'reloadRolesButton' });
           expect(button.exists()).toBe(false);
           expect(spy.notCalled).toBe(true);
           Base.error.restore();
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('user gets redirected to index page if the other user is not found',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const routerSpy = sinon.spy();
+      const routerSpy = jest.fn();
 
       const router = new VueRouter();
       router.push = routerSpy;
@@ -1019,22 +996,20 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
-        sinon.assert.calledOnce(routerSpy);
-        sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
+        expect(routerSpy).toBeCalledTimes(1);
+        expect(routerSpy).toBeCalledWith({ name: 'settings.users' });
         Base.error.restore();
         restoreUserResponse();
         view.destroy();
-        done();
       });
     }
   );
 
   it('reload overlay gets shown if another error than 404 occurs during load of the user',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreUserResponse = overrideStub('/api/v1/users/2', {
         status: 500,
@@ -1059,22 +1034,20 @@ describe('UsersView', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
         Base.error.restore();
         restoreUserResponse();
         view.destroy();
-        done();
       });
     }
   );
 
   it('user gets redirected to index page if the other edited user is not found during save',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const routerSpy = sinon.spy();
+      const routerSpy = jest.fn();
 
       const router = new VueRouter();
       router.push = routerSpy;
@@ -1096,7 +1069,7 @@ describe('UsersView', () => {
         router
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         view.findComponent(BForm).trigger('submit');
 
         const restoreUserResponse = overrideStub('/api/v1/users/2', {
@@ -1106,20 +1079,19 @@ describe('UsersView', () => {
           }
         });
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          sinon.assert.calledOnce(routerSpy);
-          sinon.assert.calledWith(routerSpy, { name: 'settings.users' });
+          expect(routerSpy).toBeCalledTimes(1);
+          expect(routerSpy).toBeCalledWith({ name: 'settings.users' });
           Base.error.restore();
           restoreUserResponse();
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('existing image save and delete', done => {
+  it('existing image save and delete', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -1135,7 +1107,7 @@ describe('UsersView', () => {
       store
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       const image = view.findComponent(BImg);
       expect(image.exists()).toBeTruthy();
       expect(image.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
@@ -1158,7 +1130,7 @@ describe('UsersView', () => {
 
       view.findComponent(BForm).trigger('submit');
 
-      moxios.wait(async () => {
+      await waitMoxios(async () => {
         const request = moxios.requests.mostRecent();
         expect(request.config.data.has('image')).toBeFalsy();
 
@@ -1190,7 +1162,7 @@ describe('UsersView', () => {
           response: response
         });
 
-        moxios.wait(async () => {
+        await waitMoxios(async () => {
           const request = moxios.requests.mostRecent();
           expect(request.config.data.get('image')).toBe('');
           await view.vm.$nextTick();
@@ -1201,18 +1173,17 @@ describe('UsersView', () => {
 
           restoreUserResponse();
           view.destroy();
-          done();
         });
       });
     });
   });
 
-  it('select image', done => {
+  it('select image', async () => {
     /**
      * Fake cropper component due to limited canvas support for nodejs
      * @type {{template: string, methods: {getCroppedCanvas(): HTMLCanvasElement, replace(*)}, name: string}}
      */
-    const cropperSpy = sinon.spy();
+    const cropperSpy = jest.fn();
     const cropperComponent = {
       name: 'test-cropper',
       /* eslint-disable @intlify/vue-i18n/no-raw-text */
@@ -1243,7 +1214,7 @@ describe('UsersView', () => {
       }
     };
 
-    const flashMessageSpy = sinon.spy();
+    const flashMessageSpy = jest.fn();
     const flashMessage = {
       error (param) {
         flashMessageSpy(param);
@@ -1270,7 +1241,7 @@ describe('UsersView', () => {
       }
     });
 
-    moxios.wait(async () => {
+    await waitMoxios(async () => {
       // Try to find profile image with image of the user
       const image = view.findComponent(BImg);
       expect(image.exists()).toBeTruthy();
@@ -1330,11 +1301,12 @@ describe('UsersView', () => {
       expect(modal.vm.$data.isVisible).toBeTruthy();
       expect(modal.vm.$props.busy).toBeTruthy();
       // wait for image to be processed
-      setTimeout(() => {
+      setTimeout(async () => {
         // check image as data url and blob
         const croppedImage = view.vm.$data.croppedImage;
         const croppedImageBlob = view.vm.$data.croppedImageBlob;
-        const croppedExpectedImage = 'data:image/jpeg;base64,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'; expect(croppedImage).toBe(croppedExpectedImage);
+        const croppedExpectedImage = 'data:image/jpeg;base64,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';
+        expect(croppedImage).toBe(croppedExpectedImage);
         expect(croppedImageBlob.type).toBe('image/jpeg');
 
         // check if image was replaced by cropped image
@@ -1348,14 +1320,13 @@ describe('UsersView', () => {
 
         // submit form to send cropped image to server
         view.findComponent(BForm).trigger('submit');
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const request = moxios.requests.mostRecent();
           // check if blob is sent to server
           expect(request.config.data.get('image') instanceof Blob).toBeTruthy();
           expect(request.config.data.get('image').type).toBe('image/jpeg');
 
           view.destroy();
-          done();
         });
       }, 200);
     });

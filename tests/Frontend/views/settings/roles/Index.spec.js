@@ -3,8 +3,8 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -24,7 +24,7 @@ describe('RolesIndex', () => {
     moxios.uninstall();
   });
 
-  it('list of roles with pagination gets displayed', done => {
+  it('list of roles with pagination gets displayed', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
@@ -38,7 +38,7 @@ describe('RolesIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -59,7 +59,7 @@ describe('RolesIndex', () => {
         }
       }).then(() => {
         return view.vm.$nextTick();
-      }).then(() => {
+      }).then(async () => {
         let html = view.findComponent(BTbody).findComponent(BTr).html();
         expect(html).toContain('Test');
         expect(html).toContain('app.no');
@@ -67,7 +67,7 @@ describe('RolesIndex', () => {
 
         view.vm.$root.$emit('bv::refresh::table', 'roles-table');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
           const request = moxios.requests.mostRecent();
@@ -95,7 +95,6 @@ describe('RolesIndex', () => {
 
             view.destroy();
             PermissionService.setCurrentUser(oldUser);
-            done();
           });
         });
       });
@@ -103,7 +102,7 @@ describe('RolesIndex', () => {
   });
 
   it('update and delete buttons only shown if user has the permission and the role is not system default',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
@@ -139,7 +138,7 @@ describe('RolesIndex', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -158,16 +157,14 @@ describe('RolesIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during loading of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation();
 
       const view = mount(Index, {
         localVue,
@@ -178,7 +175,7 @@ describe('RolesIndex', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 500,
@@ -191,13 +188,12 @@ describe('RolesIndex', () => {
           expect(spy).toBeCalledTimes(1);
           Base.error.restore();
           view.destroy();
-          done();
         });
       });
     }
   );
 
-  it('not system roles can be deleted', done => {
+  it('not system roles can be deleted', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
@@ -231,7 +227,7 @@ describe('RolesIndex', () => {
       }
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       moxios.requests.mostRecent().respondWith(response).then(() => {
         return view.vm.$nextTick();
       }).then(() => {
@@ -239,18 +235,17 @@ describe('RolesIndex', () => {
         view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
 
         return view.vm.$nextTick();
-      }).then(() => {
+      }).then(async () => {
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
         view.findComponent(BModal).vm.$refs['ok-button'].click();
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           moxios.requests.mostRecent().respondWith({ status: 204 }).then(() => {
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
             expect(view.vm.$data.roleToDelete).toBeUndefined();
 
             view.destroy();
             PermissionService.setCurrentUser(oldUser);
-            done();
           });
         });
       });
@@ -258,7 +253,7 @@ describe('RolesIndex', () => {
   });
 
   it('property gets cleared correctly if deletion gets aborted',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
@@ -292,7 +287,7 @@ describe('RolesIndex', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -313,14 +308,13 @@ describe('RolesIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
   it('new role button is displayed if the user has the corresponding permissions',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.create'] });
@@ -334,7 +328,7 @@ describe('RolesIndex', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 200,
@@ -353,7 +347,6 @@ describe('RolesIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }

@@ -11,11 +11,11 @@ import BootstrapVue, {
   BFormInvalidFeedback, BButton, BModal, BFormRadio
 } from 'bootstrap-vue';
 import Vuex from 'vuex';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -101,7 +101,7 @@ describe('RolesView', () => {
     moxios.uninstall();
   });
 
-  it('role name in title gets translated for detail view', done => {
+  it('role name in title gets translated for detail view', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -116,13 +116,12 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.html()).toContain('settings.roles.view app.roles.admin');
-      done();
     });
   });
 
-  it('role name in title gets translated for update view', done => {
+  it('role name in title gets translated for update view', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
@@ -137,14 +136,13 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.html()).toContain('settings.roles.edit app.roles.admin');
-      done();
     });
   });
 
   it('input fields are disabled if the role is displayed in view mode',
-    done => {
+    async () => {
       const view = mount(View, {
         localVue,
         mocks: {
@@ -159,22 +157,25 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
         expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.isDisabled)).toBe(true);
         expect(view.findAllComponents(BFormRadio).wrappers.every(input => input.vm.isDisabled)).toBe(true);
-        done();
       });
     }
   );
 
-  it('data gets loaded for update view of a role', done => {
+  it('data gets loaded for update view of a role', async () => {
     const view = mount(View, {
       localVue,
       mocks: {
         $t: (key, values) => {
-          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
-          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          if (key === 'settings.roles.edit') {
+            return `${key} ${values.name}`;
+          }
+          if (key === 'settings.roles.roomLimit.default') {
+            return `${key} ${values.value}`;
+          }
           return key;
         },
         $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
@@ -187,11 +188,11 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(() => {
+    await view.vm.$nextTick().then(async () => {
       expect(view.vm.isBusy).toBe(true);
       expect(view.findComponent(BOverlay).props('show')).toBe(true);
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
@@ -235,7 +236,6 @@ describe('RolesView', () => {
             expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
             expect(roomLimitCustomRadio.vm.isChecked).toBe(true);
             expect(view.vm.model.room_limit).toBe(0);
-            done();
           });
         });
       });
@@ -243,9 +243,8 @@ describe('RolesView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
         status: 500,
@@ -274,8 +273,8 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
-        sinon.assert.calledTwice(Base.error);
+      await waitMoxios(function () {
+        expect(spy).toBeCalledTimes(2);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         expect(view.html()).toContain('app.reload');
@@ -285,14 +284,13 @@ describe('RolesView', () => {
         Base.error.restore();
         restoreRoleResponse();
         restorePermissionsResponse();
-        done();
       });
     }
   );
 
   it('back button causes a back navigation without persistence',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -301,8 +299,12 @@ describe('RolesView', () => {
         localVue,
         mocks: {
           $t: (key, values) => {
-            if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
-            if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+            if (key === 'settings.roles.edit') {
+              return `${key} ${values.name}`;
+            }
+            if (key === 'settings.roles.roomLimit.default') {
+              return `${key} ${values.value}`;
+            }
             return key;
           },
           $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
@@ -316,20 +318,19 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const requestCount = moxios.requests.count();
 
         view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click').then(() => {
           expect(moxios.requests.count()).toBe(requestCount);
-          sinon.assert.calledOnce(spy);
-          done();
+          expect(spy).toBeCalledTimes(1);
         });
       });
     }
   );
 
-  it('request with updates get send during saving the role', done => {
-    const spy = sinon.spy();
+  it('request with updates get send during saving the role', async () => {
+    const spy = jest.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -338,8 +339,12 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key, values) => {
-          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
-          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          if (key === 'settings.roles.edit') {
+            return `${key} ${values.name}`;
+          }
+          if (key === 'settings.roles.roomLimit.default') {
+            return `${key} ${values.value}`;
+          }
           return key;
         },
         $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
@@ -353,7 +358,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async function () {
+    await waitMoxios(async function () {
       const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
       let roomLimitCustomRadio;
 
@@ -387,7 +392,7 @@ describe('RolesView', () => {
         }
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const request = moxios.requests.mostRecent();
         const data = JSON.parse(request.config.data);
 
@@ -408,18 +413,17 @@ describe('RolesView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
-          sinon.assert.calledOnce(spy);
+        await waitMoxios(function () {
+          expect(spy).toBeCalledTimes(1);
           restoreRoleResponse();
-          done();
         });
       });
     });
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -428,8 +432,12 @@ describe('RolesView', () => {
         localVue,
         mocks: {
           $t: (key, values) => {
-            if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
-            if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+            if (key === 'settings.roles.edit') {
+              return `${key} ${values.name}`;
+            }
+            if (key === 'settings.roles.roomLimit.default') {
+              return `${key} ${values.value}`;
+            }
             return key;
           },
           $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
@@ -444,7 +452,7 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
@@ -459,7 +467,7 @@ describe('RolesView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(async function () {
           const staleModelModal = view.findComponent({ ref: 'stale-role-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
@@ -470,14 +478,12 @@ describe('RolesView', () => {
 
           staleModelModal.vm.$refs['ok-button'].click();
 
-          moxios.wait(function () {
+          await waitMoxios(function () {
             const request = moxios.requests.mostRecent();
             const data = JSON.parse(request.config.data);
 
             expect(data.updated_at).toBe(newModel.updated_at);
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-
-            done();
           });
         });
       });
@@ -485,8 +491,8 @@ describe('RolesView', () => {
   );
 
   it('modal gets shown for stale errors and the new model can be applied to current form',
-    done => {
-      const spy = sinon.spy();
+    async () => {
+      const spy = jest.fn();
 
       const router = new VueRouter();
       router.push = spy;
@@ -495,8 +501,12 @@ describe('RolesView', () => {
         localVue,
         mocks: {
           $t: (key, values) => {
-            if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
-            if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+            if (key === 'settings.roles.edit') {
+              return `${key} ${values.name}`;
+            }
+            if (key === 'settings.roles.roomLimit.default') {
+              return `${key} ${values.value}`;
+            }
             return key;
           },
           $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
@@ -511,7 +521,7 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         const newModel = _.cloneDeep(view.vm.model);
         newModel.updated_at = '2020-09-08T16:13:26.000000Z';
         newModel.name = 'Test';
@@ -527,7 +537,7 @@ describe('RolesView', () => {
 
         view.findComponent(BForm).trigger('submit');
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           const staleModelModal = view.findComponent({ ref: 'stale-role-modal' });
           expect(staleModelModal.vm.$data.isVisible).toBe(true);
           expect(view.findComponent(BFormInput).element.value).toBe('admin');
@@ -539,7 +549,6 @@ describe('RolesView', () => {
           view.vm.$nextTick().then(() => {
             expect(view.findComponent(BFormInput).element.value).toBe('Test');
             expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-            done();
           });
         });
       });
@@ -547,9 +556,8 @@ describe('RolesView', () => {
   );
 
   it('reload overlay gets shown if an error occurs during load of permissions',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
         status: 500,
@@ -572,7 +580,7 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         expect(view.html()).toContain('app.reload');
@@ -581,17 +589,15 @@ describe('RolesView', () => {
         expect(saveButton.wrappers.length).toBe(1);
         Base.error.restore();
         restorePermissionsResponse();
-        done();
       });
     }
   );
 
   it('user gets redirected to index page if the role is not found',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const routerSpy = sinon.spy();
+      const routerSpy = jest.fn();
 
       const router = new VueRouter();
       router.push = routerSpy;
@@ -618,21 +624,19 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
-        sinon.assert.calledOnce(routerSpy);
-        sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
+        expect(routerSpy).toBeCalledTimes(1);
+        expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
         Base.error.restore();
         restoreRoleResponse();
-        done();
       });
     }
   );
 
   it('reload overlay gets shown if another error than 404 occurs during load of the role',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
         status: 500,
@@ -655,7 +659,7 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         expect(spy).toBeCalledTimes(1);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
         expect(view.html()).toContain('app.reload');
@@ -663,17 +667,15 @@ describe('RolesView', () => {
         expect(saveButton.wrappers.length).toBe(1);
         Base.error.restore();
         restoreRoleResponse();
-        done();
       });
     }
   );
 
   it('user gets redirected to index page if the role is not found during save',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const routerSpy = sinon.spy();
+      const routerSpy = jest.fn();
 
       const router = new VueRouter();
       router.push = routerSpy;
@@ -693,7 +695,7 @@ describe('RolesView', () => {
         attachTo: createContainer()
       });
 
-      moxios.wait(function () {
+      await waitMoxios(async function () {
         view.findComponent(BForm).trigger('submit');
 
         const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
@@ -703,19 +705,18 @@ describe('RolesView', () => {
           }
         });
 
-        moxios.wait(function () {
+        await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          sinon.assert.calledOnce(routerSpy);
-          sinon.assert.calledWith(routerSpy, { name: 'settings.roles' });
+          expect(routerSpy).toBeCalledTimes(1);
+          expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
           Base.error.restore();
           restoreRoleResponse();
-          done();
         });
       });
     }
   );
 
-  it('included permissions get shown and updated', done => {
+  it('included permissions get shown and updated', async () => {
     let restorePermissionsResponse = overrideStub('/api/v1/permissions', {
       status: 200,
       response: {
@@ -733,8 +734,12 @@ describe('RolesView', () => {
       localVue,
       mocks: {
         $t: (key, values) => {
-          if (key === 'settings.roles.edit') { return `${key} ${values.name}`; }
-          if (key === 'settings.roles.roomLimit.default') { return `${key} ${values.value}`; }
+          if (key === 'settings.roles.edit') {
+            return `${key} ${values.name}`;
+          }
+          if (key === 'settings.roles.roomLimit.default') {
+            return `${key} ${values.value}`;
+          }
           return key;
         },
         $te: key => key === 'app.roles.admin' || key.startsWith('app.permissions.tests.test')
@@ -747,7 +752,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(async function () {
+    await waitMoxios(async function () {
       await view.vm.$nextTick();
       let permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
 
@@ -792,7 +797,7 @@ describe('RolesView', () => {
         }
       });
       view.vm.loadPermissions();
-      moxios.wait(async function () {
+      await waitMoxios(async function () {
         await view.vm.$nextTick();
 
         permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
@@ -809,8 +814,6 @@ describe('RolesView', () => {
         expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
 
         restorePermissionsResponse();
-
-        done();
       });
     });
   });
