@@ -429,122 +429,114 @@ class MembershipTest extends TestCase
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => 10]
-        )
-            ->assertJsonValidationErrors(['role'])
-        ;
+        )->assertJsonValidationErrors(['role']);
 
         // Update role
+        $this->assertEquals(RoomUserRole::USER, $room->members->find($memberUser)->pivot->role);
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertNoContent()
-        ;
+        )->assertNoContent();
+        $room->refresh();
+        $this->assertEquals(RoomUserRole::MODERATOR, $room->members->find($memberUser)->pivot->role);
+        // Reset membership role
+        $room->members()->updateExistingPivot($memberUser, ['role' => RoomUserRole::USER]);
+        $room->refresh();
 
         // Update role for wrong user
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$otherUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertUnprocessable()
-        ;
+        )->assertUnprocessable();
 
         // Update role of person who is not a member of the room
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$newUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertJsonValidationErrors(['users.0'])
-        ;
+        )->assertJsonValidationErrors(['users.0']);
 
         //Update himself as owner
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$owner->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertJsonValidationErrors(['users.0'])
-        ;
+        )->assertJsonValidationErrors(['users.0']);
 
         // Try without data
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             []
-        )
-            ->assertJsonValidationErrors(['users'])
-        ;
+        )->assertJsonValidationErrors(['users']);
 
         // Try with invalid array
         $this->actingAs($owner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id, $owner->id]]
-        )
-            ->assertJsonValidationErrors(['users.1'])
-        ;
+        )->assertJsonValidationErrors(['users.1']);
 
         // Update several members at the same time
-        $this->assertTrue($room->members->contains($memberUser));
-        $this->assertTrue($room->members->contains($memberCoOwner));
-        $this->actingAs($owner)->deleteJson(
-            route('api.v1.rooms.member.bulkDestroy', ['room'=>$room]),
-            ['users' => [$memberUser->id, $memberCoOwner->id]]
-        )
-            ->assertSuccessful();
+        $this->assertEquals(RoomUserRole::USER, $room->members->find($memberUser)->pivot->role);
+        $this->assertEquals(RoomUserRole::CO_OWNER, $room->members->find($memberCoOwner)->pivot->role);
+        $this->actingAs($owner)->putJson(
+            route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
+            ['users' => [$memberUser->id, $memberCoOwner->id], 'role' => RoomUserRole::MODERATOR]
+        )->assertNoContent();
         $room->refresh();
-        $this->assertFalse($room->members->contains($memberUser));
-        $this->assertFalse($room->members->contains($memberCoOwner));
-        $room->members()->attach($memberUser, ['role'=>RoomUserRole::USER]);
-        $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
+        $this->assertEquals(RoomUserRole::MODERATOR, $room->members->find($memberUser)->pivot->role);
+        $this->assertEquals(RoomUserRole::MODERATOR, $room->members->find($memberCoOwner)->pivot->role);
+        // Reset membership role
+        $room->members()->updateExistingPivot($memberUser, ['role' => RoomUserRole::USER]);
+        $room->members()->updateExistingPivot($memberCoOwner, ['role' => RoomUserRole::CO_OWNER]);
         $room->refresh();
 
         // Update role as member user
         $this->actingAs($memberUser)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertForbidden()
-        ;
+        )->assertForbidden();
 
         //Update self as user
         $this->actingAs($memberUser)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertForbidden()
-        ;
+        )->assertForbidden();
 
         // Update role as member moderator
         $this->actingAs($memberModerator)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertForbidden()
-        ;
+        )->assertForbidden();
 
         //Update self as moderator
         $this->actingAs($memberModerator)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberModerator->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertForbidden()
-        ;
+        )->assertForbidden();
 
         //Update self as co-owner
         $this->actingAs($memberCoOwner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberCoOwner->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertJsonValidationErrors(['users.0'])
-        ;
+        )->assertJsonValidationErrors(['users.0']);
 
         // Update member as a room co-owner
         $this->assertTrue($room->members->contains($memberUser));
-        $this->role->permissions()->attach($this->viewAllPermission);
         $this->actingAs($memberCoOwner)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertNoContent()
-        ;
+        )->assertNoContent();
+        $room->refresh();
+        $this->assertEquals(RoomUserRole::MODERATOR, $room->members->find($memberUser)->pivot->role);
+        // Reset membership role
+        $room->members()->updateExistingPivot($memberUser, ['role' => RoomUserRole::USER]);
+        $room->refresh();
+
+        // Update role with view rooms permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->putJson(
+            route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
+            ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
+        )->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Update role with manage rooms permission
@@ -552,18 +544,14 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertForbidden()
-        ;
+        )->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
 
         // Update role as normal user
         $this->actingAs($newUser)->putJson(
             route('api.v1.rooms.member.bulkUpdate', ['room'=>$room]),
             ['users' => [$memberUser->id], 'role' => RoomUserRole::MODERATOR]
-        )
-            ->assertForbidden()
-        ;
+        )->assertForbidden();
     }
 
     public function testBulkDestroyMembers()
