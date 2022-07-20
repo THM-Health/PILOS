@@ -4,7 +4,7 @@
       <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
         <b-card no-body bg-variant="light">
           <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-primary text-white">
-            <b-tab :title="$t('auth.ldap.tabTitle')" active>
+            <b-tab :title="$t('auth.ldap.tabTitle')" v-if="settings('ldap')" >
               <ldap-login-component
                 id="ldap"
                 :title="$t('auth.ldap.title')"
@@ -40,6 +40,7 @@ import EmailLoginComponent from '../components/Login/EmailLoginComponent';
 import LdapLoginComponent from '../components/Login/LdapLoginComponent';
 import env from '../env';
 import Base from '../api/base';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -54,6 +55,11 @@ export default {
         ldap: null
       }
     };
+  },
+  computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    })
   },
   methods: {
     /**

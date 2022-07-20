@@ -6,10 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Breaking:** Config option to disable ldap (disabled by default) ([#236],[#237])
+
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
-- Breaking: Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
-- Breaking: Replace laravel homestead with laravel sail ([#225],[#228])
+- **Breaking:** Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
+- **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228])
 - Remove git hooks ([#217],[#228])
 - Random room polling interval ([#229],[#230])
 
@@ -294,6 +297,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#228]: https://github.com/THM-Health/PILOS/pull/228
 [#229]: https://github.com/THM-Health/PILOS/issues/229
 [#230]: https://github.com/THM-Health/PILOS/pull/230
+[#236]: https://github.com/THM-Health/PILOS/issues/236
+[#237]: https://github.com/THM-Health/PILOS/pull/237
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
