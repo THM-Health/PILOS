@@ -51,6 +51,10 @@ class LoginController extends Controller
 
     public function ldapLogin(Request $request)
     {
+        if (!config('ldap.enabled')) {
+            abort(404);
+        }
+
         $this->guard = 'ldap';
 
         return $this->login($request);
