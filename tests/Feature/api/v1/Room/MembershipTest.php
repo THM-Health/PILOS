@@ -341,11 +341,11 @@ class MembershipTest extends TestCase
      */
     public function testBulkRemoveMember()
     {
-        $newUser = User::factory()->create();
-        $memberUser = User::factory()->create();
+        $newUser         = User::factory()->create();
+        $memberUser      = User::factory()->create();
         $memberModerator = User::factory()->create();
-        $memberCoOwner = User::factory()->create();
-        $owner = User::factory()->create();
+        $memberCoOwner   = User::factory()->create();
+        $owner           = User::factory()->create();
 
         $room = Room::factory()->create([
             'allowGuests' => true,
@@ -429,7 +429,6 @@ class MembershipTest extends TestCase
             ->assertFalse();
 
         // Try with wrong route
-
     }
 
     /**
