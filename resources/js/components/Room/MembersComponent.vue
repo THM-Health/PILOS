@@ -499,7 +499,7 @@ export default {
         if (error.response) {
           // failed due to form validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            this.errors = error.response.data.errors
+            this.errors = error.response.data.errors;
             return;
           }
         }
@@ -606,7 +606,7 @@ export default {
         if (error.response) {
           // failed due to form validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            this.errors = error.response.data.errors
+            this.errors = error.response.data.errors;
             return;
           }
         }

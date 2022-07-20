@@ -4,6 +4,7 @@ namespace Tests\Feature\api\v1;
 
 use App\Role;
 use App\User;
+use Config;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +54,7 @@ class LdapLoginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Config::set('ldap.enabled', true);
 
         $fake = DirectoryEmulator::setup('default');
 
@@ -81,6 +83,22 @@ class LdapLoginTest extends TestCase
     private function getAuthenticatedUser()
     {
         return Auth::guard($this->guard)->user();
+    }
+
+    /**
+     * Test that the ldap login route is disabled if disabled in env
+     *
+     * @return void
+     */
+    public function testLoginRoute()
+    {
+        Config::set('ldap.enabled', false);
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $response->assertNotFound();
     }
 
     /**

@@ -2040,4 +2040,48 @@ describe('Room', function () {
       });
     });
   });
+
+  it('random polling interval', async function () {
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      data () {
+        return {
+          room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, accessCode: 123456789, current_user: exampleUser },
+          room_id: 'cba-fed-234'
+        };
+      },
+      store,
+      router: routerMock,
+      attachTo: createContainer()
+    });
+
+    await view.vm.$nextTick();
+    // use fixed random value for testing only
+    const random = sinon.stub(Math, 'random').returns(0.4);
+
+    // check for pos. integer
+    const refresh = sinon.stub(env, 'REFRESH_RATE').value(10);
+    expect(view.vm.getRandomRefreshInterval()).toBe(9.7);
+
+    // check for zero
+    sinon.stub(env, 'REFRESH_RATE').value(0);
+    expect(view.vm.getRandomRefreshInterval()).toBe(0);
+
+    // check for neg. integer
+    sinon.stub(env, 'REFRESH_RATE').value(-20);
+    expect(view.vm.getRandomRefreshInterval()).toBe(19.4);
+
+    // check for float
+    sinon.stub(env, 'REFRESH_RATE').value(4.2);
+    expect(view.vm.getRandomRefreshInterval()).toBe(4.074);
+
+    // restore stubbed functions and properties
+    random.restore();
+    refresh.restore();
+
+    view.destroy();
+  });
 });

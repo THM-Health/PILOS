@@ -71,7 +71,6 @@ class RoomMemberController extends Controller
     public function bulkUpdate(Room $room, MassUpdateRequest $request)
     {
         foreach ($request->users as $user) {
-
             $room->members()->updateExistingPivot($user, ['role' => $request->role]); //
         }
 
@@ -91,7 +90,6 @@ class RoomMemberController extends Controller
             abort(410, __('app.errors.not_member_of_room'));
         }
         $room->members()->detach($user);
-
 
         return response()->noContent();
     }

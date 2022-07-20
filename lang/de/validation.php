@@ -145,9 +145,9 @@ return [
         ],
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.',
-            'not_member' => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
-            'self_delete' => 'Sie dürfen sich nicht selbst löschen.',
-            'self_edit' => 'Sie dürfen sich nicht selbst bearbeiten.',
+            'not_member'     => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
+            'self_delete'    => 'Sie dürfen sich nicht selbst löschen.',
+            'self_edit'      => 'Sie dürfen sich nicht selbst bearbeiten.',
         ],
         'password'              => 'Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).',
         'replacement_room_type' => [
