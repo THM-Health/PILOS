@@ -4,8 +4,6 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    types: [ opened, reopened ]
-
 jobs:
   pilos-backend:
     name: Backend (PHP ${{ matrix.php-versions }}
