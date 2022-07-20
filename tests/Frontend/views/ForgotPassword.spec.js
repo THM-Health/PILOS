@@ -22,29 +22,35 @@ describe('ForgotPassword', () => {
     moxios.uninstall();
   });
 
-  it('before route enter redirects to the 404 page if the self reset is disabled', () => {
+  it('before route enter redirects to the 404 page if the self reset is disabled', async () => {
     const oldState = store.state['session/settings'];
     store.commit('session/setSettings', { password_self_reset_enabled: false });
 
-    ForgotPassword.beforeRouteEnter({}, {}, (to) => {
-      expect(to).toBe('/404');
-      store.commit('session/setSettings', oldState);
+    const to = await new Promise((resolve) => {
+      ForgotPassword.beforeRouteEnter({}, {}, (to) => {
+        resolve(to);
+      });
     });
-  }
-  );
 
-  it('before route enter continues to the view if the self reset is enabled', () => {
+    expect(to).toBe('/404');
+    store.commit('session/setSettings', oldState);
+  });
+
+  it('before route enter continues to the view if the self reset is enabled', async () => {
     const oldState = store.state['session/settings'];
     store.commit('session/setSettings', { password_self_reset_enabled: true });
 
-    ForgotPassword.beforeRouteEnter({}, {}, (to) => {
-      expect(to).toBe(undefined);
-      store.commit('session/setSettings', oldState);
+    const to = await new Promise((resolve) => {
+      ForgotPassword.beforeRouteEnter({}, {}, (to) => {
+        resolve(to);
+      });
     });
-  }
-  );
 
-  it('submit handles errors correctly', () => {
+    expect(to).toBe(undefined);
+    store.commit('session/setSettings', oldState);
+  });
+
+  it('submit handles errors correctly', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(ForgotPassword, {
@@ -54,36 +60,25 @@ describe('ForgotPassword', () => {
       }
     });
 
-    view.findComponent(BFormInput).setValue('foo@bar.com').then(async () => {
-      view.findComponent(BButton).trigger('submit');
-      await waitMoxios(function () {
-        moxios.requests.mostRecent().respondWith({
-          status: 500,
-          response: {
-            message: 'Internal server error'
-          }
-        }).then(() => {
-          expect(spy).toBeCalledTimes(1);
-          expect(spy.mock.calls[0][0].response.status).toEqual(500);
-
-          Base.error.restore();
-        });
-      });
+    await view.findComponent(BFormInput).setValue('foo@bar.com');
+    await view.findComponent(BButton).trigger('submit');
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({
+      status: 500,
+      response: {
+        message: 'Internal server error'
+      }
     });
+    expect(spy).toBeCalledTimes(1);
+    expect(spy.mock.calls[0][0].response.status).toEqual(500);
   });
 
-  it('submit redirects to home page withe a success message on success', () => {
-    const routerSpy = jest.fn();
-
+  it('submit redirects to home page withe a success message on success', async () => {
     const router = new VueRouter();
-    router.push = routerSpy;
+    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
 
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      success (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { success: flashMessageSpy };
 
     const view = mount(ForgotPassword, {
       localVue,
@@ -94,28 +89,24 @@ describe('ForgotPassword', () => {
       router
     });
 
-    view.findComponent(BFormInput).setValue('foo@bar.com').then(async () => {
-      view.findComponent(BButton).trigger('submit');
-      await waitMoxios(function () {
-        moxios.requests.mostRecent().respondWith({
-          status: 200
-        }).then(async () => {
-          await waitMoxios(function () {
-            moxios.requests.mostRecent().respondWith({
-              status: 200,
-              response: {
-                message: 'Success!'
-              }
-            }).then(() => {
-              jest.assert.calledOnce(routerSpy);
-              jest.assert.calledWith(routerSpy, { name: 'home' });
-              expect(flashMessageSpy.calledOnce).toBeTruthy();
-              expect(flashMessageSpy.getCall(0).args[0]).toEqual({ title: 'Success!' });
-            });
-          });
-        });
-      });
-    }
-    );
+    await view.findComponent(BFormInput).setValue('foo@bar.com');
+    await view.findComponent(BButton).trigger('submit');
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({
+      status: 200
+    });
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({
+      status: 200,
+      response: {
+        message: 'Success!'
+      }
+    });
+
+    expect(routerSpy).toBeCalledTimes(1);
+    expect(routerSpy).toBeCalledWith({ name: 'home' });
+
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy).toBeCalledWith({ title: 'Success!' });
   });
 });

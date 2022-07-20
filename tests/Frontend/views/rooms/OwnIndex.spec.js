@@ -9,7 +9,7 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import {waitMoxios} from "../../helper";
+import { waitMoxios } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

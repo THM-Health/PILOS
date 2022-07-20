@@ -6,7 +6,7 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect';
-import {waitMoxios} from "../../helper";
+import { waitMoxios } from '../../helper';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 
