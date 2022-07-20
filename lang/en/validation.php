@@ -146,9 +146,9 @@ return [
         ],
         'room' => [
             'already_member' => 'The user is already member of the room.',
-            'not_member' => 'The user \':firstname :lastname\' isn\'t a member.',
-            'self_delete' => 'The user is not allowed to delete himself.',
-            'self_edit' => 'The user is not allowed to edit himself.',
+            'not_member'     => 'The user \':firstname :lastname\' isn\'t a member.',
+            'self_delete'    => 'The user is not allowed to delete himself.',
+            'self_edit'      => 'The user is not allowed to edit himself.',
         ],
         'password'              => 'The password must contain at least one character from each of the following four categories: Uppercase letter (A - Z), lowercase letter (a - z), number (0 - 9), non-alphanumeric character (for example: !, $, #, or %).',
         'replacement_room_type' => [
