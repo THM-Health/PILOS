@@ -42,7 +42,7 @@ jobs:
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
         coverage: pcov
     - name: Copy .env
-      run: php -r "copy('.env.ci', '.env');"
+      run: php -r "copy('.env.example', '.env');"
     - name: Get Composer Cache Directory
       id: composer-cache
       run: |
@@ -76,7 +76,12 @@ jobs:
       run: chmod -R 777 storage bootstrap/cache
     - name: Migrate Database
       env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: user
+        DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
@@ -87,7 +92,12 @@ jobs:
     - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: user
+        DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: |
         vendor/bin/paratest --coverage-clover=coverage.xml
