@@ -219,7 +219,7 @@ describe('ServerPoolView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreServerPoolResponse();
 
         const reloadButton = view.findComponent({ ref: 'reloadServerPool' });
@@ -270,7 +270,7 @@ describe('ServerPoolView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreServerPoolResponse();
       });
     }
@@ -310,7 +310,7 @@ describe('ServerPoolView', () => {
 
         await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           expect(routerSpy).toBeCalledTimes(1);
           expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
           restoreServerPoolResponse();
@@ -348,7 +348,7 @@ describe('ServerPoolView', () => {
 
         await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           restoreServerPoolResponse();
         });
       });
@@ -408,54 +408,52 @@ describe('ServerPoolView', () => {
         attachTo: createContainer()
       });
 
-      await waitMoxios(async () => {
-        await view.vm.$nextTick();
-        await view.findAllComponents(BFormInput).at(0).setValue('Demo');
-        await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
-        await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
+      await waitMoxios();
+      await view.vm.$nextTick();
+      await view.findAllComponents(BFormInput).at(0).setValue('Demo');
+      await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
+      await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
+
+      view.findComponent(BForm).trigger('submit');
+
+      let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+        status: env.HTTP_UNPROCESSABLE_ENTITY,
+        response: {
+          message: 'The given data was invalid.',
+          errors: {
+            name: ['Test name'],
+            description: ['Test description'],
+            servers: ['Test server']
+          }
+        }
+      });
+
+      await waitMoxios(async function () {
+        const request = moxios.requests.mostRecent();
+        const data = JSON.parse(request.config.data);
+
+        expect(data.name).toBe('Demo');
+        expect(data.description).toBe('Demopool');
+        expect(data.servers).toEqual([1, 2]);
+
+        const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
+        expect(feedback[0].html()).toContain('Test name');
+        expect(feedback[1].html()).toContain('Test description');
+        expect(feedback[2].html()).toContain('Test server');
+
+        restoreServerPoolResponse();
+        restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+          status: 204
+        });
 
         view.findComponent(BForm).trigger('submit');
 
-        let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-          status: env.HTTP_UNPROCESSABLE_ENTITY,
-          response: {
-            message: 'The given data was invalid.',
-            errors: {
-              name: ['Test name'],
-              description: ['Test description'],
-              servers: ['Test server']
-            }
-          }
-        });
-
-        await waitMoxios(async function () {
-          const request = moxios.requests.mostRecent();
-          const data = JSON.parse(request.config.data);
-
-          expect(data.name).toBe('Demo');
-          expect(data.description).toBe('Demopool');
-          expect(data.servers).toEqual([1, 2]);
-
-          const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
-          expect(feedback[0].html()).toContain('Test name');
-          expect(feedback[1].html()).toContain('Test description');
-          expect(feedback[2].html()).toContain('Test server');
-
+        await waitMoxios(function () {
+          expect(spy).toBeCalledTimes(1);
           restoreServerPoolResponse();
-          restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-            status: 204
-          });
-
-          view.findComponent(BForm).trigger('submit');
-
-          await waitMoxios(function () {
-            expect(spy).toBeCalledTimes(1);
-            restoreServerPoolResponse();
-          });
         });
       });
-    }
-  );
+    });
 
   it('modal gets shown for stale errors and a overwrite can be forced',
     async () => {
@@ -667,7 +665,7 @@ describe('ServerPoolView', () => {
           expect(saveButton.attributes('disabled')).toBe('disabled');
 
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           restoreServerPoolResponse();
 
           const reloadButton = view.findAllComponents(BButton).at(2);

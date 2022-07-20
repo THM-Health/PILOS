@@ -255,7 +255,7 @@ describe('ServerPoolsIndex', () => {
           return view.vm.$nextTick();
         }).then(() => {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           view.destroy();
         });
       });
@@ -328,7 +328,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -347,9 +347,9 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         // delete without room types attached
-        const request = moxios.requests.mostRecent();
+        request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/serverPools/2');
         expect(request.config.method).toBe('delete');
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
@@ -358,9 +358,9 @@ describe('ServerPoolsIndex', () => {
           status: 204
         });
 
-        await waitMoxios(async () => {
+        await waitMoxios();
           // reload data for server pools
-          const request = moxios.requests.mostRecent();
+          let request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/serverPools');
           expect(request.config.method).toBe('get');
           await request.respondWith({
@@ -402,9 +402,6 @@ describe('ServerPoolsIndex', () => {
 
           view.destroy();
         });
-      });
-    });
-  });
 
   it('server pool delete 404 handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -428,7 +425,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -447,18 +444,18 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         // delete non existing server pool
-        const request = moxios.requests.mostRecent();
+        let request = moxios.requests.mostRecent();
         await request.respondWith({
           status: 404,
           response: {
             message: 'Test'
           }
         });
-        await waitMoxios(async () => {
+        await waitMoxios();
           // reload data for roomTypes
-          const request = moxios.requests.mostRecent();
+          request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/serverPools');
           expect(request.config.method).toBe('get');
           await request.respondWith({
@@ -499,13 +496,11 @@ describe('ServerPoolsIndex', () => {
           expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
 
           view.destroy();
         });
-      });
-    });
-  });
+
 
   it('server pool delete error room types attached', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
@@ -527,7 +522,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -546,7 +541,7 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         // delete with still attached room types
         const request = moxios.requests.mostRecent();
         await request.respondWith({
@@ -588,8 +583,6 @@ describe('ServerPoolsIndex', () => {
         expect(roomTypes.at(1).text()).toContain('Test B');
         view.destroy();
       });
-    });
-  });
 
   it('server pool delete error handler called', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -612,7 +605,7 @@ describe('ServerPoolsIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await moxios.requests.mostRecent().respondWith(response);
       await view.vm.$nextTick();
 
@@ -628,7 +621,7 @@ describe('ServerPoolsIndex', () => {
       view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
       await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         // delete
         const request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/serverPools/2');
@@ -642,14 +635,12 @@ describe('ServerPoolsIndex', () => {
         await view.vm.$nextTick();
 
         expect(spy).toBeCalledTimes(1);
-        Base.error.restore();
+        Base.error.mockRestore();
         expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
         expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
         view.destroy();
       });
-    });
-  });
 
   it('new server pool button is displayed if the user has the corresponding permissions',
     async () => {

@@ -13,7 +13,7 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
-import {waitMoxios} from "../../../helper";
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -134,7 +134,7 @@ describe('ServersIndex', () => {
   });
 
   it('list of servers with pagination gets displayed', async () => {
-    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.viewAny']});
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
     const view = mount(Index, {
       localVue,
@@ -193,7 +193,7 @@ describe('ServersIndex', () => {
   });
 
   it('list of servers with search', async () => {
-    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.viewAny']});
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
     const view = mount(Index, {
       localVue,
@@ -276,7 +276,7 @@ describe('ServersIndex', () => {
 
   it('update and delete buttons only shown if user has the permission',
     async () => {
-      PermissionService.setCurrentUser({permissions: ['settings.manage']});
+      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
       const response = {
         status: 200,
@@ -300,7 +300,7 @@ describe('ServersIndex', () => {
             expect(row.findAllComponents(BButton).length).toEqual(0);
           });
 
-          PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete']});
+          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
 
           return view.vm.$nextTick();
         }).then(() => {
@@ -339,7 +339,7 @@ describe('ServersIndex', () => {
           return view.vm.$nextTick();
         }).then(() => {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           view.destroy();
         });
       });
@@ -348,7 +348,7 @@ describe('ServersIndex', () => {
 
   it('property gets cleared correctly if deletion gets aborted',
     async () => {
-      PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
+      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
       const response = {
         status: 200,
@@ -393,7 +393,7 @@ describe('ServersIndex', () => {
   );
 
   it('server delete', async () => {
-    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
       status: 200,
@@ -412,127 +412,124 @@ describe('ServersIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // check if four servers  visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
+    // check if four servers  visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
 
-      // open delete modal for third server
-      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for third server
+    view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(3);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverToDelete.id).toEqual(3);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
-        // delete without replacement
-        const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/3');
-        expect(request.config.method).toBe('delete');
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    await waitMoxios();
+    // delete without replacement
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/servers/3');
+    expect(request.config.method).toBe('delete');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
 
-        await request.respondWith({
-          status: 204
-        });
-
-        await waitMoxios(async () => {
-          // reload data for servers
-          const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers');
-          expect(request.config.method).toBe('get');
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 1,
-                  name: 'Server 01',
-                  description: 'Testserver 01',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 10,
-                  listener_count: 5,
-                  voice_participant_count: 5,
-                  video_count: 5,
-                  meeting_count: 2,
-                  own_meeting_count: 2,
-                  version: '2.4.5',
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  version: '2.4.4',
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 4,
-                  name: 'Server 04',
-                  description: 'Testserver 04',
-                  strength: 1,
-                  status: 0,
-                  participant_count: null,
-                  listener_count: null,
-                  voice_participant_count: null,
-                  video_count: null,
-                  meeting_count: null,
-                  own_meeting_count: null,
-                  version: null,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/servers',
-                per_page: 15,
-                to: 3,
-                total: 3
-              }
-            }
-          });
-
-          await view.vm.$nextTick();
-          // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverToDelete).toBeUndefined();
-
-          view.destroy();
-        });
-      });
+    await request.respondWith({
+      status: 204
     });
+
+    await waitMoxios();
+    // reload data for servers
+    let request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/servers');
+    expect(request.config.method).toBe('get');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 1,
+            name: 'Server 01',
+            description: 'Testserver 01',
+            strength: 1,
+            status: 1,
+            participant_count: 10,
+            listener_count: 5,
+            voice_participant_count: 5,
+            video_count: 5,
+            meeting_count: 2,
+            own_meeting_count: 2,
+            version: '2.4.5',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            version: '2.4.4',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 4,
+            name: 'Server 04',
+            description: 'Testserver 04',
+            strength: 1,
+            status: 0,
+            participant_count: null,
+            listener_count: null,
+            voice_participant_count: null,
+            video_count: null,
+            meeting_count: null,
+            own_meeting_count: null,
+            version: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 15,
+          to: 3,
+          total: 3
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+    // entry removed, modal closes and data reset
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
+
+    view.destroy();
   });
 
   it('server delete 404 handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
       status: 200,
@@ -551,127 +548,124 @@ describe('ServersIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // check if four servers visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
+    // check if four servers visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
 
-      // open delete modal for first server
-      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for first server
+    view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(3);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverToDelete.id).toEqual(3);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
-        // delete without replacement
-        const request = moxios.requests.mostRecent();
-        await request.respondWith({
-          status: 404,
-          response: {
-            message: 'Test'
-          }
-        });
-        await waitMoxios(async () => {
-          // reload data for roomTypes
-          const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers');
-          expect(request.config.method).toBe('get');
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 1,
-                  name: 'Server 01',
-                  description: 'Testserver 01',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 10,
-                  listener_count: 5,
-                  voice_participant_count: 5,
-                  video_count: 5,
-                  meeting_count: 2,
-                  own_meeting_count: 2,
-                  version: '2.4.5',
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  version: '2.4.4',
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 4,
-                  name: 'Server 04',
-                  description: 'Testserver 04',
-                  strength: 1,
-                  status: 0,
-                  participant_count: null,
-                  listener_count: null,
-                  voice_participant_count: null,
-                  video_count: null,
-                  meeting_count: null,
-                  own_meeting_count: null,
-                  version: null,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/servers',
-                per_page: 15,
-                to: 3,
-                total: 3
-              }
-            }
-          });
-
-          await view.vm.$nextTick();
-          // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverToDelete).toBeUndefined();
-
-          expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
-
-          view.destroy();
-        });
-      });
+    await waitMoxios();
+    // delete without replacement
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 404,
+      response: {
+        message: 'Test'
+      }
     });
+    await waitMoxios();
+    // reload data for roomTypes
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/servers');
+    expect(request.config.method).toBe('get');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 1,
+            name: 'Server 01',
+            description: 'Testserver 01',
+            strength: 1,
+            status: 1,
+            participant_count: 10,
+            listener_count: 5,
+            voice_participant_count: 5,
+            video_count: 5,
+            meeting_count: 2,
+            own_meeting_count: 2,
+            version: '2.4.5',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            version: '2.4.4',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 4,
+            name: 'Server 04',
+            description: 'Testserver 04',
+            strength: 1,
+            status: 0,
+            participant_count: null,
+            listener_count: null,
+            voice_participant_count: null,
+            video_count: null,
+            meeting_count: null,
+            own_meeting_count: null,
+            version: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 15,
+          to: 3,
+          total: 3
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+    // entry removed, modal closes and data reset
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(3);
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
+
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+
+    view.destroy();
   });
 
   it('server delete error handler called', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
-    PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.delete']});
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {
       status: 200,
@@ -690,48 +684,46 @@ describe('ServersIndex', () => {
       store
     });
 
-    await waitMoxios(async () => {
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
 
-      // open delete modal for third server
-      view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for third server
+    view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverToDelete.id).toEqual(3);
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverToDelete.id).toEqual(3);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      await waitMoxios(async () => {
-        // delete
-        const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers/3');
-        expect(request.config.method).toBe('delete');
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        // error replacement required
-        await request.respondWith({
-          status: 500
-        });
-
-        await view.vm.$nextTick();
-
-        expect(spy).toBeCalledTimes(1);
-        Base.error.restore();
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.serverToDelete).toBeUndefined();
-
-        view.destroy();
-      });
+    await waitMoxios();
+    // delete
+    const request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/servers/3');
+    expect(request.config.method).toBe('delete');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    // error replacement required
+    await request.respondWith({
+      status: 500
     });
+
+    await view.vm.$nextTick();
+
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
+
+    view.destroy();
   });
 
   it('new server button is displayed if the user has the corresponding permissions',
     async () => {
-      PermissionService.setCurrentUser({permissions: ['settings.manage']});
+      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
       const view = mount(Index, {
         localVue,
@@ -767,11 +759,11 @@ describe('ServersIndex', () => {
         }).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
-          expect(view.findComponent({ref: 'newServer'}).exists()).toBeFalsy();
-          PermissionService.setCurrentUser({permissions: ['settings.manage', 'servers.create']});
+          expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
+          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
           return view.vm.$nextTick();
         }).then(() => {
-          expect(view.findComponent({ref: 'newServer'}).html()).toContain('settings.servers.new');
+          expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
           view.destroy();
         });
       });
@@ -779,7 +771,7 @@ describe('ServersIndex', () => {
   );
 
   it('reload button displayed and triggers reload', async () => {
-    PermissionService.setCurrentUser({permissions: ['settings.manage']});
+    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
     const view = mount(Index, {
       localVue,
@@ -805,83 +797,81 @@ describe('ServersIndex', () => {
 
         view.findComponent(BButton).trigger('click');
 
-        await waitMoxios(async () => {
-          // reload data for roomTypes and force update of usage data
-          const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/servers');
-          expect(request.config.method).toBe('get');
-          expect(request.config.params.update_usage).toBeTruthy();
+        await waitMoxios();
+        // reload data for roomTypes and force update of usage data
+        let request = moxios.requests.mostRecent();
+        expect(request.config.url).toBe('/api/v1/servers');
+        expect(request.config.method).toBe('get');
+        expect(request.config.params.update_usage).toBeTruthy();
 
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 1,
-                  name: 'Server 01',
-                  description: 'Testserver 01',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 14,
-                  listener_count: 7,
-                  voice_participant_count: 7,
-                  video_count: 7,
-                  meeting_count: 3,
-                  version: '2.4.5',
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                },
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  version: '2.4.4',
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
-                prev: null,
-                next: null
+        await request.respondWith({
+          status: 200,
+          response: {
+            data: [
+              {
+                id: 1,
+                name: 'Server 01',
+                description: 'Testserver 01',
+                strength: 1,
+                status: 1,
+                participant_count: 14,
+                listener_count: 7,
+                voice_participant_count: 7,
+                video_count: 7,
+                meeting_count: 3,
+                version: '2.4.5',
+                model_name: 'Server',
+                updated_at: '2020-12-21T13:43:21.000000Z'
               },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/servers',
-                per_page: 15,
-                to: 2,
-                total: 2
+              {
+                id: 2,
+                name: 'Server 02',
+                description: 'Testserver 02',
+                strength: 1,
+                status: 1,
+                participant_count: 50,
+                listener_count: 25,
+                voice_participant_count: 30,
+                video_count: 5,
+                meeting_count: 10,
+                version: '2.4.4',
+                model_name: 'Server',
+                updated_at: '2020-12-21T13:43:21.000000Z'
               }
+            ],
+            links: {
+              first: 'http://localhost/api/v1/servers?page=1',
+              last: 'http://localhost/api/v1/servers?page=1',
+              prev: null,
+              next: null
+            },
+            meta: {
+              current_page: 1,
+              from: 1,
+              last_page: 1,
+              path: 'http://localhost/api/v1/servers',
+              per_page: 15,
+              to: 2,
+              total: 2
             }
-          });
-
-          await view.vm.$nextTick();
-
-          const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
-          expect(html).toContain('Server 01');
-          expect(html).toContain('14');
-          expect(html).toContain('7');
-          expect(html).toContain('3');
-
-          // during future normal requests the force usage should be disabled again
-          view.vm.$root.$emit('bv::refresh::table', 'servers-table');
-          await waitMoxios(async () => {
-            const request = moxios.requests.mostRecent();
-            expect(request.config.params.update_usage).toBeFalsy();
-
-            view.destroy();
-          });
+          }
         });
+
+        await view.vm.$nextTick();
+
+        const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
+        expect(html).toContain('Server 01');
+        expect(html).toContain('14');
+        expect(html).toContain('7');
+        expect(html).toContain('3');
+
+        // during future normal requests the force usage should be disabled again
+        view.vm.$root.$emit('bv::refresh::table', 'servers-table');
+        await waitMoxios();
+        request = moxios.requests.mostRecent();
+        expect(request.config.params.update_usage).toBeFalsy();
+
+        view.destroy();
       });
     });
   });

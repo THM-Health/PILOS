@@ -244,7 +244,7 @@ describe('RoomTypeView', () => {
             expect(saveButton.attributes('disabled')).toBe('disabled');
 
             expect(spy).toBeCalledTimes(1);
-            Base.error.restore();
+            Base.error.mockRestore();
             restoreServerPoolResponse();
 
             const reloadButton = view.findAllComponents(BButton).at(2);
@@ -336,7 +336,7 @@ describe('RoomTypeView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreRoomTypeResponse();
 
         const reloadButton = view.findComponent({ ref: 'reloadRoomType' });
@@ -386,7 +386,7 @@ describe('RoomTypeView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreRoomTypeResponse();
       });
     }
@@ -425,7 +425,7 @@ describe('RoomTypeView', () => {
 
         await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           expect(routerSpy).toBeCalledTimes(1);
           expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
           restoreRoomTypeResponse();
@@ -462,7 +462,7 @@ describe('RoomTypeView', () => {
 
         await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           restoreRoomTypeResponse();
         });
       });
