@@ -620,7 +620,6 @@ class MembershipTest extends TestCase
         $room->members()->attach([$memberModerator->id], ['role'=>RoomUserRole::MODERATOR]);
         $room->refresh();
 
-
         // Remove with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
