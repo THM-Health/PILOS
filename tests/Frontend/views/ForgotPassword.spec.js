@@ -5,8 +5,8 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
-import sinon from 'sinon';
 import Base from '../../../resources/js/api/base';
+import { waitMoxios } from '../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -22,33 +22,35 @@ describe('ForgotPassword', () => {
     moxios.uninstall();
   });
 
-  it('before route enter redirects to the 404 page if the self reset is disabled',
-    done => {
-      const oldState = store.state['session/settings'];
-      store.commit('session/setSettings', { password_self_reset_enabled: false });
+  it('before route enter redirects to the 404 page if the self reset is disabled', async () => {
+    const oldState = store.state['session/settings'];
+    store.commit('session/setSettings', { password_self_reset_enabled: false });
 
+    const to = await new Promise((resolve) => {
       ForgotPassword.beforeRouteEnter({}, {}, (to) => {
-        expect(to).toBe('/404');
-        store.commit('session/setSettings', oldState);
-        done();
+        resolve(to);
       });
-    }
-  );
+    });
 
-  it('before route enter continues to the view if the self reset is enabled',
-    done => {
-      const oldState = store.state['session/settings'];
-      store.commit('session/setSettings', { password_self_reset_enabled: true });
+    expect(to).toBe('/404');
+    store.commit('session/setSettings', oldState);
+  });
 
+  it('before route enter continues to the view if the self reset is enabled', async () => {
+    const oldState = store.state['session/settings'];
+    store.commit('session/setSettings', { password_self_reset_enabled: true });
+
+    const to = await new Promise((resolve) => {
       ForgotPassword.beforeRouteEnter({}, {}, (to) => {
-        expect(to).toBe(undefined);
-        store.commit('session/setSettings', oldState);
-        done();
+        resolve(to);
       });
-    }
-  );
+    });
 
-  it('submit handles errors correctly', done => {
+    expect(to).toBe(undefined);
+    store.commit('session/setSettings', oldState);
+  });
+
+  it('submit handles errors correctly', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(ForgotPassword, {
@@ -58,71 +60,53 @@ describe('ForgotPassword', () => {
       }
     });
 
-    view.findComponent(BFormInput).setValue('foo@bar.com').then(() => {
-      view.findComponent(BButton).trigger('submit');
-      moxios.wait(function () {
-        moxios.requests.mostRecent().respondWith({
-          status: 500,
-          response: {
-            message: 'Internal server error'
-          }
-        }).then(() => {
-          expect(spy).toBeCalledTimes(1);
-          expect(spy.mock.calls[0][0].response.status).toEqual(500);
-
-          Base.error.restore();
-          done();
-        });
-      });
+    await view.findComponent(BFormInput).setValue('foo@bar.com');
+    await view.findComponent(BButton).trigger('submit');
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({
+      status: 500,
+      response: {
+        message: 'Internal server error'
+      }
     });
+    expect(spy).toBeCalledTimes(1);
+    expect(spy.mock.calls[0][0].response.status).toEqual(500);
   });
 
-  it('submit redirects to home page withe a success message on success',
-    done => {
-      const routerSpy = sinon.spy();
+  it('submit redirects to home page withe a success message on success', async () => {
+    const router = new VueRouter();
+    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
 
-      const router = new VueRouter();
-      router.push = routerSpy;
+    const flashMessageSpy = jest.fn();
+    const flashMessage = { success: flashMessageSpy };
 
-      const flashMessageSpy = sinon.spy();
-      const flashMessage = {
-        success (param) {
-          flashMessageSpy(param);
-        }
-      };
+    const view = mount(ForgotPassword, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        flashMessage: flashMessage
+      },
+      router
+    });
 
-      const view = mount(ForgotPassword, {
-        localVue,
-        mocks: {
-          $t: (key) => key,
-          flashMessage: flashMessage
-        },
-        router
-      });
+    await view.findComponent(BFormInput).setValue('foo@bar.com');
+    await view.findComponent(BButton).trigger('submit');
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({
+      status: 200
+    });
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({
+      status: 200,
+      response: {
+        message: 'Success!'
+      }
+    });
 
-      view.findComponent(BFormInput).setValue('foo@bar.com').then(() => {
-        view.findComponent(BButton).trigger('submit');
-        moxios.wait(function () {
-          moxios.requests.mostRecent().respondWith({
-            status: 200
-          }).then(() => {
-            moxios.wait(function () {
-              moxios.requests.mostRecent().respondWith({
-                status: 200,
-                response: {
-                  message: 'Success!'
-                }
-              }).then(() => {
-                sinon.assert.calledOnce(routerSpy);
-                sinon.assert.calledWith(routerSpy, { name: 'home' });
-                expect(flashMessageSpy.calledOnce).toBeTruthy();
-                expect(flashMessageSpy.getCall(0).args[0]).toEqual({ title: 'Success!' });
-                done();
-              });
-            });
-          });
-        });
-      });
-    }
-  );
+    expect(routerSpy).toBeCalledTimes(1);
+    expect(routerSpy).toBeCalledWith({ name: 'home' });
+
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy).toBeCalledWith({ title: 'Success!' });
+  });
 });
