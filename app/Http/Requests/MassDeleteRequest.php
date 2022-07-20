@@ -13,7 +13,7 @@ class MassDeleteRequest extends FormRequest
     {
         return [
             'users'   => ['required','array'],
-            'users.*' => ['required','integer','exists:App\User,id',
+            'users.*' => ['bail','required','integer','exists:App\User,id',
             function ($attribute, $value, $fail) {
                 $user = User::find($value);
                 if (!$this->room->members()->find($value) or $this->room->owner->is($user)) {
