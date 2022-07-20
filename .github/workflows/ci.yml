@@ -5,8 +5,8 @@ on:
   pull_request:
 
 jobs:
-  laravel-tests:
-    name: Laravel (PHP ${{ matrix.php-versions }}
+  pilos-backend:
+    name: Backend (PHP ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
 
     services:
@@ -54,18 +54,6 @@ jobs:
         key: ${{ runner.os }}-${{ matrix.php-versions }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-${{ matrix.php-versions }}-composer-
-    - name: Get NPM Cache Directory
-      id: npm-cache
-      run: |
-        echo "::set-output name=dir::$(npm config get cache)"
-    - name: Get NPM Cache Keys
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.npm-cache.outputs.dir }}
-        key: ${{ runner.os }}-${{ matrix.php-versions }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.php-versions }}-node-
-
     - name: Install php dependencies
       run: |
         composer self-update
@@ -85,10 +73,6 @@ jobs:
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
-    - name: Execute frontend code style check via eslint and frontend tests
-      run: |
-        npm ci
-        npm run ci
     - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -108,9 +92,32 @@ jobs:
       with:
         name: ${{ runner.os }}-${{ matrix.php-versions }}-laravel.log
         path: storage/logs/laravel.log
-    - name: Upload npm logs
-      uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: npm-debug.log
-        path: /home/runner/.npm/_logs/*-debug.log
+  pilos-frontend:
+          name: Frontend
+          runs-on: ubuntu-latest
+          steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            - name: Copy .env
+              run: php -r "copy('.env.example', '.env');"
+            - name: Get NPM Cache Directory
+              id: npm-cache
+              run: |
+                echo "::set-output name=dir::$(npm config get cache)"
+            - name: Get NPM Cache Keys
+              uses: actions/cache@v2
+              with:
+                path: ${{ steps.npm-cache.outputs.dir }}
+                key: ${{ runner.os }}-${{ matrix.php-versions }}-node-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                  ${{ runner.os }}-${{ matrix.php-versions }}-node-
+            - name: Execute frontend code style check via eslint and frontend tests
+              run: |
+                npm ci
+                npm run ci
+            - name: Upload npm logs
+              uses: actions/upload-artifact@v2
+              if: failure()
+              with:
+                name: npm-debug.log
+                path: /home/runner/.npm/_logs/*-debug.log
