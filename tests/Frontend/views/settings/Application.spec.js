@@ -15,7 +15,7 @@ import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
-import {waitMoxios} from "../../helper";
+import { waitMoxios } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -68,73 +68,73 @@ describe('Application', () => {
     expect(spy.calledOnce).toBeTruthy();
   });
 
-  it('getSettings method works properly with response data room_limit is -1',async() => {
-      const view = mount(Application, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
+  it('getSettings method works properly with response data room_limit is -1', async () => {
+    const view = mount(Application, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            room_token_expiration: 525600,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          room_token_expiration: 525600,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
               enabled: true,
-              retention_period: 14
+              retention_period: 7
             },
-            room_auto_delete: {
-              enabled: true,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
+            meetings: {
+              enabled: false,
+              retention_period: 30
             }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
           }
         }
-      });
-      await view.vm.$nextTick();
+      }
+    });
+    await view.vm.$nextTick();
 
-      expect(view.vm.$data.settings.logo).toBe('test.svg');
-      expect(view.vm.$data.settings.room_limit).toBe(-1);
-      expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-      expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
-      expect(view.vm.$data.roomLimitMode).toBe('unlimited');
+    expect(view.vm.$data.settings.logo).toBe('test.svg');
+    expect(view.vm.$data.settings.room_limit).toBe(-1);
+    expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
+    expect(view.vm.$data.roomLimitMode).toBe('unlimited');
 
-      expect(view.vm.$data.settings.statistics.servers.enabled).toBeTruthy();
-      expect(view.vm.$data.settings.statistics.meetings.enabled).toBeFalsy();
-      expect(view.vm.$data.settings.attendance.enabled).toBeTruthy();
-      expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
-      expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
-      expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
-      expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
+    expect(view.vm.$data.settings.statistics.servers.enabled).toBeTruthy();
+    expect(view.vm.$data.settings.statistics.meetings.enabled).toBeFalsy();
+    expect(view.vm.$data.settings.attendance.enabled).toBeTruthy();
+    expect(view.vm.$data.settings.statistics.servers.retention_period).toBe(7);
+    expect(view.vm.$data.settings.statistics.meetings.retention_period).toBe(30);
+    expect(view.vm.$data.settings.attendance.retention_period).toBe(14);
+    expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
 
-      expect(view.vm.$data.settings.room_auto_delete.enabled).toBeTruthy();
-      expect(view.vm.$data.settings.room_auto_delete.inactive_period).toBe(30);
-      expect(view.vm.$data.settings.room_auto_delete.never_used_period).toBe(14);
-      expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
+    expect(view.vm.$data.settings.room_auto_delete.enabled).toBeTruthy();
+    expect(view.vm.$data.settings.room_auto_delete.inactive_period).toBe(30);
+    expect(view.vm.$data.settings.room_auto_delete.never_used_period).toBe(14);
+    expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
   });
 
   it('getSettings method works properly with response data room_limit is not -1',

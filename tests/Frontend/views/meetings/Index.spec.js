@@ -10,7 +10,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import {waitMoxios} from "../../helper";
+import { waitMoxios } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -168,7 +168,7 @@ describe('MeetingsIndex', () => {
       expect(firstRowColumns.at(7).text()).toContain('3');
       expect(firstRowColumns.at(8).find('a').exists()).toBeTruthy();
       expect(rows.at(0).findComponent(BButton).exists()).toBeTruthy();
-      expect(rows.at(0).findComponent(BButton).props('to')).toEqual({name: 'rooms.view', params: {id: 'abc-def-123'}});
+      expect(rows.at(0).findComponent(BButton).props('to')).toEqual({ name: 'rooms.view', params: { id: 'abc-def-123' } });
 
       // check search active
       expect(view.findComponent(BButton).attributes('disabled')).toBeUndefined();
@@ -270,7 +270,7 @@ describe('MeetingsIndex', () => {
         expect(rows.at(0).findComponent(BButton).exists()).toBeTruthy();
         expect(rows.at(0).findComponent(BButton).props('to')).toEqual({
           name: 'rooms.view',
-          params: {id: 'abc-def-456'}
+          params: { id: 'abc-def-456' }
         });
 
         view.destroy();
@@ -364,7 +364,7 @@ describe('MeetingsIndex', () => {
       // check if new request with the search query is send
       await waitMoxios(async () => {
         expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
-        expect(moxios.requests.mostRecent().config.params).toEqual({page: 1, search: 'Meeting One'});
+        expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting One' });
         await moxios.requests.mostRecent().respondWith({
           status: 200,
           response: {

@@ -8,7 +8,7 @@ import LdapLoginComponent from '../../../resources/js/components/Login/LdapLogin
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import {waitMoxios} from "../helper";
+import { waitMoxios } from '../helper';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -278,7 +278,7 @@ describe('Login', (object, method) => {
           email: ['Password or Email wrong!']
         }
       }
-    })
+    });
 
     const invalidFeedback = emailLoginComponent.findComponent(BFormInvalidFeedback);
 
@@ -340,34 +340,34 @@ describe('Login', (object, method) => {
     view.destroy();
   });
 
-  it('other api errors gets thrown and handled by the global error handler',async () => {
+  it('other api errors gets thrown and handled by the global error handler', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const view = mount(Login, {
-        localVue,
-        store,
-        mocks: {
-          $t: (key) => key
-        }
-      });
+    const view = mount(Login, {
+      localVue,
+      store,
+      mocks: {
+        $t: (key) => key
+      }
+    });
 
-      const emailLoginComponent = view.findComponent(EmailLoginComponent);
-      await emailLoginComponent.find('#defaultEmail').setValue('user');
-      await emailLoginComponent.find('#defaultPassword').setValue('password');
-      await emailLoginComponent.findComponent(BButton).trigger('submit');
+    const emailLoginComponent = view.findComponent(EmailLoginComponent);
+    await emailLoginComponent.find('#defaultEmail').setValue('user');
+    await emailLoginComponent.find('#defaultPassword').setValue('password');
+    await emailLoginComponent.findComponent(BButton).trigger('submit');
 
-      expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
+    expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
 
-      expect(request.config.url).toBe('/sanctum/csrf-cookie');
+    expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
-      await request.respondWith({
-        status: 500
-      });
-      expect(spy).toBeCalledTimes(1);
+    await request.respondWith({
+      status: 500
+    });
+    expect(spy).toBeCalledTimes(1);
 
-      view.destroy();
+    view.destroy();
   });
 });

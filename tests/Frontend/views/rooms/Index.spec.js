@@ -15,7 +15,7 @@ import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import {waitMoxios} from "../../helper";
+import { waitMoxios } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -230,7 +230,7 @@ describe('Room Index', () => {
       // open a room
       await rooms.at(1).trigger('click');
       sinon.assert.calledOnce(spy);
-      sinon.assert.calledWith(spy, {name: 'rooms.view', params: {id: 'abc-def-345'}});
+      sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: 'abc-def-345' } });
 
       // check if opening another is prohibited while the other room is opening
       await rooms.at(0).trigger('click');
