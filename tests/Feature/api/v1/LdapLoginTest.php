@@ -109,7 +109,6 @@ class LdapLoginTest extends TestCase
     public function testLoginSuccess()
     {
         $this->assertGuest($this->guard);
-
         $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
