@@ -141,7 +141,7 @@ describe('ServerView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(view.vm.isBusy).toBe(false);
         expect(view.findComponent(BOverlay).props('show')).toBe(true);
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreServerResponse();
 
         const reloadButton = view.findComponent({ ref: 'reloadServer' });
@@ -192,7 +192,7 @@ describe('ServerView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreServerResponse();
       });
     }
@@ -232,7 +232,7 @@ describe('ServerView', () => {
 
         await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           expect(routerSpy).toBeCalledTimes(1);
           expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
           restoreServerResponse();
@@ -270,7 +270,7 @@ describe('ServerView', () => {
 
         await waitMoxios(function () {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           restoreServerResponse();
         });
       });
@@ -330,7 +330,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         await view.vm.$nextTick();
         await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
         await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
@@ -388,8 +388,6 @@ describe('ServerView', () => {
           });
         });
       });
-    }
-  );
 
   it('modal gets shown for stale errors and a overwrite can be forced',
     async () => {
@@ -516,7 +514,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       // response server online
       await view.vm.$nextTick();
 
@@ -548,7 +546,7 @@ describe('ServerView', () => {
 
       view.vm.load();
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         // response server offline
         await view.vm.$nextTick();
 
@@ -581,7 +579,7 @@ describe('ServerView', () => {
 
         view.vm.load();
 
-        await waitMoxios(async () => {
+        await waitMoxios();
           // response server disabled
           await view.vm.$nextTick();
 
@@ -591,9 +589,6 @@ describe('ServerView', () => {
           restoreServerResponse();
           view.destroy();
         });
-      });
-    });
-  });
 
   it('update connection status', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -611,13 +606,13 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await view.vm.$nextTick();
 
       // Check for invalid connection
       await view.findAllComponents(BButton).at(1).trigger('click');
-      await waitMoxios(async () => {
-        const request = moxios.requests.mostRecent();
+      await waitMoxios();
+        let request = moxios.requests.mostRecent();
         expect(request.config.url).toBe('/api/v1/servers/check');
         expect(request.config.method).toBe('post');
         const data = JSON.parse(request.config.data);
@@ -638,8 +633,8 @@ describe('ServerView', () => {
 
         // check for invalid salt
         await view.findAllComponents(BButton).at(1).trigger('click');
-        await waitMoxios(async () => {
-          const request = moxios.requests.mostRecent();
+        await waitMoxios();
+          request = moxios.requests.mostRecent();
           await request.respondWith({
             status: 200,
             response: {
@@ -655,8 +650,8 @@ describe('ServerView', () => {
 
           // check for valid connection
           await view.findAllComponents(BButton).at(1).trigger('click');
-          await waitMoxios(async () => {
-            const request = moxios.requests.mostRecent();
+          await waitMoxios();
+            request = moxios.requests.mostRecent();
             await request.respondWith({
               status: 200,
               response: {
@@ -671,8 +666,8 @@ describe('ServerView', () => {
 
             // check for response errors
             await view.findAllComponents(BButton).at(1).trigger('click');
-            await waitMoxios(async () => {
-              const request = moxios.requests.mostRecent();
+            await waitMoxios();
+              request = moxios.requests.mostRecent();
               await request.respondWith({
                 status: 500,
                 response: {
@@ -685,14 +680,9 @@ describe('ServerView', () => {
               expect(view.findAllComponents(BFormText).length).toBe(2);
 
               expect(spy).toBeCalledTimes(1);
-              Base.error.restore();
+              Base.error.mockRestore();
               view.destroy();
             });
-          });
-        });
-      });
-    });
-  });
 
   it('show usage data only if viewOnly and server enabled', async () => {
     const view = mount(View, {
@@ -708,7 +698,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
       await view.setProps({ viewOnly: true });
@@ -739,15 +729,13 @@ describe('ServerView', () => {
       });
       view.vm.load();
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         await view.vm.$nextTick();
         expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
         await view.setProps({ viewOnly: true });
         expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
 
         restoreServerResponse();
-      });
-    });
   });
 
   it('show panic button only if user has permission', async () => {
@@ -764,14 +752,13 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
+    await waitMoxios();
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(true);
       PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
       await view.vm.$nextTick();
       expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(false);
     });
-  });
 
   it('panic button calls api and gets disabled while running',
     async () => {
@@ -798,7 +785,7 @@ describe('ServerView', () => {
         attachTo: createContainer()
       });
 
-      await waitMoxios(async () => {
+      await waitMoxios();
         await view.vm.$nextTick();
         const button = view.findComponent({ ref: 'currentUsage' }).find('button');
         await button.trigger('click');
@@ -806,8 +793,8 @@ describe('ServerView', () => {
         expect(button.attributes('disabled')).toBe('disabled');
 
         // check success
-        await waitMoxios(async () => {
-          const request = moxios.requests.mostRecent();
+        await waitMoxios();
+          let request = moxios.requests.mostRecent();
           expect(request.config.url).toBe('/api/v1/servers/1/panic');
           expect(request.config.method).toBe('get');
           await request.respondWith({
@@ -827,16 +814,16 @@ describe('ServerView', () => {
           });
 
           // check reload of server data
-          await waitMoxios(async () => {
-            const request = moxios.requests.mostRecent();
+          await waitMoxios();
+            request = moxios.requests.mostRecent();
             expect(request.config.url).toBe('/api/v1/servers/1');
             expect(request.config.method).toBe('get');
             await view.vm.$nextTick();
             await button.trigger('click');
 
             // check error handling
-            await waitMoxios(async () => {
-              const request = moxios.requests.mostRecent();
+            await waitMoxios();
+              request = moxios.requests.mostRecent();
               expect(request.config.url).toBe('/api/v1/servers/1/panic');
               expect(request.config.method).toBe('get');
               await request.respondWith({
@@ -849,11 +836,6 @@ describe('ServerView', () => {
               await view.vm.$nextTick();
               expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
               expect(spy).toBeCalledTimes(1);
-              Base.error.restore();
+              Base.error.mockRestore();
             });
-          });
-        });
-      });
-    }
-  );
 });

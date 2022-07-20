@@ -11,9 +11,9 @@ import BootstrapVue, {
   BButtonClose,
   BFormSelect
 } from 'bootstrap-vue';
-import sinon from 'sinon';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
+import { waitMoxios } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -45,7 +45,7 @@ describe('RoomTypesIndex', () => {
     moxios.uninstall();
   });
 
-  it('list of room types with pagination gets displayed', done => {
+  it('list of room types with pagination gets displayed', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
@@ -59,7 +59,7 @@ describe('RoomTypesIndex', () => {
       attachTo: createContainer()
     });
 
-    moxios.wait(function () {
+    await waitMoxios(function () {
       expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
       const request = moxios.requests.mostRecent();
@@ -83,13 +83,12 @@ describe('RoomTypesIndex', () => {
 
         view.destroy();
         PermissionService.setCurrentUser(oldUser);
-        done();
       });
     });
   });
 
   it('update and delete buttons only shown if user has the permission',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
@@ -116,7 +115,7 @@ describe('RoomTypesIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -133,16 +132,14 @@ describe('RoomTypesIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
   it('error handler gets called if an error occurs during loading of data',
-    done => {
-      const spy = sinon.spy();
-      sinon.stub(Base, 'error').callsFake(spy);
+    async () => {
+      const spy = jest.spyOn(Base, 'error').mockImplementation();
 
       const view = mount(Index, {
         localVue,
@@ -153,7 +150,7 @@ describe('RoomTypesIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 500,
@@ -164,16 +161,15 @@ describe('RoomTypesIndex', () => {
           return view.vm.$nextTick();
         }).then(() => {
           expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
+          Base.error.mockRestore();
           view.destroy();
-          done();
         });
       });
     }
   );
 
   it('property gets cleared correctly if deletion gets aborted',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
@@ -203,7 +199,7 @@ describe('RoomTypesIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         moxios.requests.mostRecent().respondWith(response).then(() => {
           return view.vm.$nextTick();
         }).then(() => {
@@ -224,13 +220,12 @@ describe('RoomTypesIndex', () => {
 
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }
   );
 
-  it('room types delete', done => {
+  it('room types delete', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
@@ -269,98 +264,93 @@ describe('RoomTypesIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
 
-      // check if two room types visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+    // check if two room types visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for first room type
-      view.findComponent(BTbody).findAllComponents(BTr).at(0).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for first room type
+    view.findComponent(BTbody).findAllComponents(BTr).at(0).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      moxios.wait(async () => {
-        // delete without replacement
-        const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/roomTypes/1');
-        expect(request.config.method).toBe('delete');
-        expect(request.config.data).toBe('{"replacement_room_type":null}');
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        // error replacement required
-        await request.respondWith({
-          status: 422,
-          response: {
-            message: 'The given data was invalid.',
-            errors: {
-              replacement_room_type: ['test']
-            }
-          }
-        });
-
-        await view.vm.$nextTick();
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-
-        // select replacement and delete again
-        await view.findComponent(BModal).findComponent(BFormSelect).setValue(2);
-        view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-        await view.vm.$nextTick();
-
-        moxios.wait(async () => {
-          // delete data with replacement
-          const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/roomTypes/1');
-          expect(request.config.method).toBe('delete');
-          expect(request.config.data).toBe('{"replacement_room_type":2}');
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-          await request.respondWith({
-            status: 204
-          });
-
-          moxios.wait(async () => {
-            // reload data for roomTypes
-            const request = moxios.requests.mostRecent();
-            expect(request.config.url).toBe('/api/v1/roomTypes');
-            expect(request.config.method).toBe('get');
-            await request.respondWith({
-              status: 200,
-              response: {
-                data: [
-                  {
-                    id: '2',
-                    short: 'TE',
-                    color: '#333333',
-                    description: 'Test',
-                    model_name: 'RoomType'
-                  }
-                ]
-              }
-            });
-
-            await view.vm.$nextTick();
-            // entry removed, modal closes and data reset
-            expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
-            expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-            expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
-
-            view.destroy();
-            PermissionService.setCurrentUser(oldUser);
-            done();
-          });
-        });
-      });
+    await waitMoxios();
+    // delete without replacement
+    let request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/roomTypes/1');
+    expect(request.config.method).toBe('delete');
+    expect(request.config.data).toBe('{"replacement_room_type":null}');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    // error replacement required
+    await request.respondWith({
+      status: 422,
+      response: {
+        message: 'The given data was invalid.',
+        errors: {
+          replacement_room_type: ['test']
+        }
+      }
     });
+
+    await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+
+    // select replacement and delete again
+    await view.findComponent(BModal).findComponent(BFormSelect).setValue(2);
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    // delete data with replacement
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/roomTypes/1');
+    expect(request.config.method).toBe('delete');
+    expect(request.config.data).toBe('{"replacement_room_type":2}');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    await request.respondWith({
+      status: 204
+    });
+
+    await waitMoxios();
+    // reload data for roomTypes
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/roomTypes');
+    expect(request.config.method).toBe('get');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: '2',
+            short: 'TE',
+            color: '#333333',
+            description: 'Test',
+            model_name: 'RoomType'
+          }
+        ]
+      }
+    });
+
+    await view.vm.$nextTick();
+    // entry removed, modal closes and data reset
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
   });
 
-  it('room types delete 404 handling', done => {
+  it('room types delete 404 handling', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     const oldUser = PermissionService.currentUser;
@@ -401,72 +391,68 @@ describe('RoomTypesIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
 
-      // check if two room types visible
-      expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+    // check if two room types visible
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
 
-      // open delete modal for first room type
-      view.findComponent(BTbody).findAllComponents(BTr).at(0).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for first room type
+    view.findComponent(BTbody).findAllComponents(BTr).at(0).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      moxios.wait(async () => {
-        // delete without replacement
-        const request = moxios.requests.mostRecent();
-        await request.respondWith({
-          status: 404,
-          response: {
-            message: 'Test'
-          }
-        });
-        moxios.wait(async () => {
-          // reload data for roomTypes
-          const request = moxios.requests.mostRecent();
-          expect(request.config.url).toBe('/api/v1/roomTypes');
-          expect(request.config.method).toBe('get');
-          await request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: '2',
-                  short: 'TE',
-                  color: '#333333',
-                  description: 'Test',
-                  model_name: 'RoomType'
-                }
-              ]
-            }
-          });
-
-          await view.vm.$nextTick();
-          // entry removed, modal closes and data reset
-          expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
-
-          expect(spy).toBeCalledTimes(1);
-          Base.error.restore();
-
-          view.destroy();
-          PermissionService.setCurrentUser(oldUser);
-          done();
-        });
-      });
+    await waitMoxios();
+    // delete without replacement
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 404,
+      response: {
+        message: 'Test'
+      }
     });
+    await waitMoxios();
+    // reload data for roomTypes
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/roomTypes');
+    expect(request.config.method).toBe('get');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: '2',
+            short: 'TE',
+            color: '#333333',
+            description: 'Test',
+            model_name: 'RoomType'
+          }
+        ]
+      }
+    });
+
+    await view.vm.$nextTick();
+    // entry removed, modal closes and data reset
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
+
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
   });
 
-  it('room types delete error handler called', done => {
+  it('room types delete error handler called', async () => {
     const oldUser = PermissionService.currentUser;
     const spy = jest.spyOn(Base, 'error').mockImplementation();
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
@@ -498,50 +484,47 @@ describe('RoomTypesIndex', () => {
       store
     });
 
-    moxios.wait(async () => {
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
 
-      // open delete modal for first room type
-      view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
-      await view.vm.$nextTick();
+    // open delete modal for first room type
+    view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
-      view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-      await view.vm.$nextTick();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
+    view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
+    await view.vm.$nextTick();
 
-      moxios.wait(async () => {
-        // delete
-        const request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/roomTypes/1');
-        expect(request.config.method).toBe('delete');
-        expect(request.config.data).toBe('{"replacement_room_type":null}');
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-        // error replacement required
-        await request.respondWith({
-          status: 500
-        });
-
-        await view.vm.$nextTick();
-
-        expect(spy).toBeCalledTimes(1);
-        Base.error.restore();
-        expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
-
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-        done();
-      });
+    await waitMoxios();
+    // delete
+    const request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/roomTypes/1');
+    expect(request.config.method).toBe('delete');
+    expect(request.config.data).toBe('{"replacement_room_type":null}');
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    // error replacement required
+    await request.respondWith({
+      status: 500
     });
+
+    await view.vm.$nextTick();
+
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.roomTypeToDelete).toBeUndefined();
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
   });
 
   it('new room type button is displayed if the user has the corresponding permissions',
-    done => {
+    async () => {
       const oldUser = PermissionService.currentUser;
 
       PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
@@ -555,7 +538,7 @@ describe('RoomTypesIndex', () => {
         store
       });
 
-      moxios.wait(function () {
+      await waitMoxios(function () {
         const request = moxios.requests.mostRecent();
         request.respondWith({
           status: 200,
@@ -572,7 +555,6 @@ describe('RoomTypesIndex', () => {
           expect(view.findComponent(BButton).html()).toContain('settings.roomTypes.new');
           view.destroy();
           PermissionService.setCurrentUser(oldUser);
-          done();
         });
       });
     }

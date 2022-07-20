@@ -281,7 +281,7 @@ describe('RolesView', () => {
         expect(view.html()).toContain('settings.roles.noOptions');
         const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
         expect(saveButton.wrappers.length).toBe(1);
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreRoleResponse();
         restorePermissionsResponse();
       });
@@ -587,7 +587,7 @@ describe('RolesView', () => {
         expect(view.html()).toContain('settings.roles.noOptions');
         const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
         expect(saveButton.wrappers.length).toBe(1);
-        Base.error.restore();
+        Base.error.mockRestore();
         restorePermissionsResponse();
       });
     }
@@ -628,7 +628,7 @@ describe('RolesView', () => {
         expect(spy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledTimes(1);
         expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreRoleResponse();
       });
     }
@@ -665,7 +665,7 @@ describe('RolesView', () => {
         expect(view.html()).toContain('app.reload');
         const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
         expect(saveButton.wrappers.length).toBe(1);
-        Base.error.restore();
+        Base.error.mockRestore();
         restoreRoleResponse();
       });
     }
@@ -709,7 +709,7 @@ describe('RolesView', () => {
           expect(spy).toBeCalledTimes(1);
           expect(routerSpy).toBeCalledTimes(1);
           expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
-          Base.error.restore();
+          Base.error.mockRestore();
           restoreRoleResponse();
         });
       });
