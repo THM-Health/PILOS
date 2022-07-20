@@ -14,7 +14,7 @@ const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(BootstrapVue);
 
-describe('Login', (object, method) => {
+describe('Login', () => {
   beforeEach(() => {
     moxios.install();
   });
@@ -24,7 +24,7 @@ describe('Login', (object, method) => {
   });
 
   it('correct data gets sent on ldap login', async () => {
-	  const oldState = store.state['session/settings'];
+    const oldState = store.state['session/settings'];
     store.commit('session/setSettings', { ldap: true });
     const view = mount(Login, {
       localVue,
