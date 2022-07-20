@@ -78,7 +78,7 @@ PILOS allows users to login with LDAP and manual user accounts.
 For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.org/) is necessary.
 An alternative Shibboleth authenticator is in progress (#139).
 
-For the deployment of the frontend javascript nodejs is necessary. Currently, all versions above `12.0.0` are supported.
+For bundling the javascript frontend nodejs is necessary. Currently, all versions above `12.0.0` are supported.
 
 After installing the necessary packages either download a zip or clone the application into the desired path by using the following git command:
 ```bash
@@ -91,21 +91,11 @@ composer install
 ```
 
 Afterwards copy the `.env.example` to `.env` and make your necessary adjustments.
-
-At least the database, mail and LDAP must be configured, and the two following must be adjusted to the domain where the frontend code is served.
-```dotenv
-SANCTUM_STATEFUL_DOMAINS=FRONTEND_DOMAIN
-SESSION_DOMAIN=FRONTEND_DOMAIN
-```
+At least the database and email must be configured.
 
 Also, it is necessary to generate a new application key with the following command:
 ```bash
 php artisan key:generate
-```
-
-You can check if the LDAP configured correctly, by using the following artisan command:
-```bash
-php artisan ldap:test
 ```
 
 Next it is necessary to initialize the database with the following commands:
@@ -122,8 +112,6 @@ Finally, build the frontend using the following npm command:
 npm run production
 ```
 
-You may also want to map LDAP groups to user roles in this application by adjusting the `LDAP_ROLE_ATTRIBUTE` and the `LDAP_ROLE_MAP` environment variables.
-
 The first admin user can be created by running the following command:
 ```bash
 php artisan users:create:admin
@@ -136,6 +124,14 @@ To log the status of all meetings and servers and to keep the database up to dat
 ```
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
+
+### LDAP
+You can configure the LDAP login in the .env file and check if the LDAP configuration is correct, by using the following artisan command:
+```bash
+php artisan ldap:test
+```
+
+You may also want to map LDAP groups to user roles in this application by adjusting the `LDAP_ROLE_ATTRIBUTE` and the `LDAP_ROLE_MAP` environment variables.
 
 ## Stacks
 

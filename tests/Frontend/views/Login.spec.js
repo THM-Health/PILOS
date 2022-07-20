@@ -24,6 +24,9 @@ describe('Login', function () {
   });
 
   it('correct data gets sent on ldap login', function (done) {
+    const oldState = store.state['session/settings'];
+    store.commit('session/setSettings', { ldap: true });
+
     const view = mount(Login, {
       localVue,
       store,
@@ -59,11 +62,31 @@ describe('Login', function () {
           const data = JSON.parse(request.config.data);
           expect(data.username).toBe('user');
           expect(data.password).toBe('password');
+          store.commit('session/setSettings', oldState);
           view.destroy();
           done();
         });
       });
     });
+  });
+
+  it('hide ldap login if disabled', function (done) {
+    const oldState = store.state['session/settings'];
+    store.commit('session/setSettings', { ldap: false });
+
+    const view = mount(Login, {
+      localVue,
+      store,
+      mocks: {
+        $t: (key) => key
+      }
+    });
+
+    const ldapLoginComponent = view.findComponent(LdapLoginComponent);
+    expect(ldapLoginComponent.exists()).toBeFalsy();
+    store.commit('session/setSettings', oldState);
+    view.destroy();
+    done();
   });
 
   it('correct data gets sent on email login', function (done) {

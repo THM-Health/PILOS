@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\User;
+use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,7 @@ class LocalesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Config::set('ldap.enabled', true);
         $this->withoutMix();
 
         config([
