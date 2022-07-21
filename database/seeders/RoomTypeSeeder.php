@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\RoomType;
+use App\ServerPool;
 use Illuminate\Database\Seeder;
 
 class RoomTypeSeeder extends Seeder
@@ -16,10 +17,13 @@ class RoomTypeSeeder extends Seeder
     {
         // Only create room types if none exits
         if(RoomType::all()->count()==0) {
-            RoomType::create(['short' => 'VL', 'description' => 'Vorlesung', 'color' => '#80BA27']);
-            RoomType::create(['short' => 'ME', 'description' => 'Meeting', 'color' => '#4a5c66']);
-            RoomType::create(['short' => 'PR', 'description' => 'Prüfung', 'color' => '#9C132E']);
-            RoomType::create(['short' => 'ÜB', 'description' => 'Übung', 'color' => '#00B8E4']);
+            $pool = ServerPool::all()->first();
+            $pool->roomTypes()->createMany([
+                ['short' => 'VL', 'description' => 'Vorlesung', 'color' => '#80BA27'],
+                ['short' => 'ME', 'description' => 'Meeting', 'color' => '#4a5c66'],
+                ['short' => 'PR', 'description' => 'Prüfung', 'color' => '#9C132E'],
+                ['short' => 'ÜB', 'description' => 'Übung', 'color' => '#00B8E4']
+            ]);
         }
     }
 }
