@@ -53,26 +53,26 @@ class Room extends Model
     }
 
     protected $casts = [
-        'muteOnStart'                    => 'boolean',
-        'lockSettingsDisableCam'         => 'boolean',
-        'webcamsOnlyForModerator'        => 'boolean',
-        'lockSettingsDisableMic'         => 'boolean',
-        'lockSettingsDisablePrivateChat' => 'boolean',
-        'lockSettingsDisablePublicChat'  => 'boolean',
-        'lockSettingsDisableNote'        => 'boolean',
-        'everyoneCanStart'               => 'boolean',
-        'allowMembership'                => 'boolean',
-        'allowGuests'                    => 'boolean',
-        'lockSettingsLockOnJoin'         => 'boolean',
-        'lockSettingsHideUserList'       => 'boolean',
-        'maxParticipants'                => 'integer',
-        'duration'                       => 'integer',
-        'defaultRole'                    => 'integer',
-        'lobby'                          => 'integer',
-        'accessCode'                     => 'integer',
-        'listed'                         => 'boolean',
-        'record_attendance'              => 'boolean',
-        'delete_inactive'                => 'datetime',
+        'mute_on_start'                      => 'boolean',
+        'lock_settings_disable_cam'          => 'boolean',
+        'webcams_only_for_moderator'         => 'boolean',
+        'lock_settings_disable_mic'          => 'boolean',
+        'lock_settings_disable_private_chat' => 'boolean',
+        'lock_settings_disable_public_chat'  => 'boolean',
+        'lock_settings_disable_note'         => 'boolean',
+        'everyone_can_start'                 => 'boolean',
+        'allow_membership'                   => 'boolean',
+        'allow_guests'                       => 'boolean',
+        'lock_settings_lock_on_join'         => 'boolean',
+        'lock_settings_hide_user_list'       => 'boolean',
+        'max_participants'                   => 'integer',
+        'duration'                           => 'integer',
+        'default_role'                       => 'integer',
+        'lobby'                              => 'integer',
+        'access_code'                        => 'integer',
+        'listed'                             => 'boolean',
+        'record_attendance'                  => 'boolean',
+        'delete_inactive'                    => 'datetime',
     ];
 
     /**
@@ -228,7 +228,7 @@ class Room extends Model
             return $member->pivot->role;
         }
 
-        return $this->defaultRole;
+        return $this->default_role;
     }
 
     /**
@@ -239,8 +239,8 @@ class Room extends Model
     {
         $message =  __('rooms.invitation.room', ['roomname'=>$this->name]).'<br>';
         $message .= __('rooms.invitation.link', ['link'=>config('app.url').'/rooms/'.$this->id]);
-        if ($this->accessCode != null) {
-            $message .= '<br>'.__('rooms.invitation.code', ['code'=>implode('-', str_split($this->accessCode, 3))]);
+        if ($this->access_code != null) {
+            $message .= '<br>'.__('rooms.invitation.code', ['code'=>implode('-', str_split($this->access_code, 3))]);
         }
 
         return $message;

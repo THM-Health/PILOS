@@ -27,10 +27,10 @@ class MeetingTest extends TestCase
         parent::setUp();
 
         // Create room and meeting
-        $room                             = Room::factory()->create();
-        $this->meeting                    = new Meeting();
-        $this->meeting->attendeePW        = bin2hex(random_bytes(5));
-        $this->meeting->moderatorPW       = bin2hex(random_bytes(5));
+        $room                              = Room::factory()->create();
+        $this->meeting                     = new Meeting();
+        $this->meeting->attendee_pw        = bin2hex(random_bytes(5));
+        $this->meeting->moderator_pw       = bin2hex(random_bytes(5));
         $this->meeting->room()->associate($room);
         $this->meeting->save();
     }
@@ -45,8 +45,8 @@ class MeetingTest extends TestCase
             $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
                 $this->assertEquals($meeting->id, $arg->getMeetingID());
                 $this->assertEquals($meeting->room->name, $arg->getName());
-                $this->assertEquals($meeting->moderatorPW, $arg->getModeratorPW());
-                $this->assertEquals($meeting->attendeePW, $arg->getAttendeePW());
+                $this->assertEquals($meeting->moderator_pw, $arg->getModeratorPW());
+                $this->assertEquals($meeting->attendee_pw, $arg->getAttendeePW());
                 $this->assertEquals(url('rooms/'.$meeting->room->id), $arg->getLogoutUrl());
 
                 $salt = urldecode(explode('?salt=', $arg->getMeta('endCallbackUrl'))[1]);

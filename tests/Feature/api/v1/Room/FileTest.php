@@ -122,7 +122,7 @@ class FileTest extends TestCase
         $this->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertForbidden();
 
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
 
         // Testing guests with guest access
@@ -134,7 +134,7 @@ class FileTest extends TestCase
             ->assertForbidden();
         \Auth::logout();
 
-        $this->room->accessCode = $this->faker->numberBetween(111111111, 999999999);
+        $this->room->access_code = $this->faker->numberBetween(111111111, 999999999);
         $this->room->save();
 
         // Testing guests without access code
@@ -147,13 +147,13 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Testing guests with access code
-        $this->withHeaders(['Access-Code' => $this->room->accessCode])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertSuccessful()
             ->assertJsonCount(0, 'data.files');
         $this->flushHeaders();
 
         // Testing users with access code
-        $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->accessCode])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+        $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertSuccessful()
             ->assertJsonCount(0, 'data.files');
         $this->flushHeaders();
@@ -230,7 +230,7 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Allow guest access
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
         $response = $this->get($download_link);
         $response->assertSuccessful();
@@ -248,7 +248,7 @@ class FileTest extends TestCase
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
-        $this->room->accessCode  = $this->faker->numberBetween(111111111, 999999999);
+        $this->room->access_code  = $this->faker->numberBetween(111111111, 999999999);
         $this->room->save();
         $room_file           = $this->room->files()->where('filename', $this->file_valid->name)->first();
         $room_file->download = true;
@@ -262,7 +262,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Access as guest, without guest access and with access code
-        $this->withHeaders(['Access-Code' => $this->room->accessCode])->get($download_link)
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
             ->assertForbidden();
         $this->flushHeaders();
 
@@ -271,7 +271,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing user with access code
-        $this->actingAs($this->user)->get(route('api.v1.rooms.show', ['room'=>$this->room->id, 'roomFile' => $room_file,'code'=>$this->room->accessCode]))
+        $this->actingAs($this->user)->get(route('api.v1.rooms.show', ['room'=>$this->room->id, 'roomFile' => $room_file,'code'=>$this->room->access_code]))
             ->assertSuccessful();
 
         // Testing member
@@ -298,7 +298,7 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Allow guest access
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
 
         // Access as guest, with guest access and without access code
@@ -306,7 +306,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Access as guest, with guest access and access code
-        $this->withHeaders(['Access-Code' => $this->room->accessCode])->get($download_link)
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
             ->assertSuccessful();
         $this->flushHeaders();
     }
@@ -318,7 +318,7 @@ class FileTest extends TestCase
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();

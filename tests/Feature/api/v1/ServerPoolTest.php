@@ -39,6 +39,7 @@ class ServerPoolTest extends TestCase
     {
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
+        RoomType::truncate();
         ServerPool::truncate();
         $serverPools  = ServerPool::factory()->count(9)->create();
         $serverPool1  = ServerPool::factory()->create(['name'=>'testPool']);

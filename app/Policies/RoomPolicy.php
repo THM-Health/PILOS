@@ -109,7 +109,7 @@ class RoomPolicy
      */
     public function start(?User $user, Room $room, ?RoomToken $token)
     {
-        if ($room->everyoneCanStart) {
+        if ($room->everyone_can_start) {
             return true;
         }
 

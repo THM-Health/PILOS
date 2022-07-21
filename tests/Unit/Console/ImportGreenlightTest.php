@@ -251,28 +251,28 @@ class ImportGreenlightTest extends TestCase
 
         // check if allow guest setting is correct
         foreach (Room::where('id', '!=', $existingRoom->id)->get() as $room) {
-            $this->assertEquals(!$roomAuth, $room->allowGuests);
+            $this->assertEquals(!$roomAuth, $room->allow_guests);
         }
 
         // check access code
-        $this->assertNull(Room::find('abc-def-xyz-123')->accessCode);
-        $this->assertNull(Room::find('abc-def-xyz-234')->accessCode);
-        $this->assertNull(Room::find('abc-def-xyz-345')->accessCode);
-        $this->assertNull(Room::find('abc-def-xyz-567')->accessCode);
-        $this->assertNull(Room::find('abc-def-xyz-678')->accessCode);
-        $this->assertEquals(123456, Room::find('hij-klm-xyz-123')->accessCode);
-        $this->assertNull(Room::find('hij-klm-xyz-234')->accessCode);
+        $this->assertNull(Room::find('abc-def-xyz-123')->access_code);
+        $this->assertNull(Room::find('abc-def-xyz-234')->access_code);
+        $this->assertNull(Room::find('abc-def-xyz-345')->access_code);
+        $this->assertNull(Room::find('abc-def-xyz-567')->access_code);
+        $this->assertNull(Room::find('abc-def-xyz-678')->access_code);
+        $this->assertEquals(123456, Room::find('hij-klm-xyz-123')->access_code);
+        $this->assertNull(Room::find('hij-klm-xyz-234')->access_code);
 
         // check room settings
-        $this->assertFalse(Room::find('hij-klm-xyz-123')->muteOnStart);
-        $this->assertFalse(Room::find('hij-klm-xyz-123')->everyoneCanStart);
+        $this->assertFalse(Room::find('hij-klm-xyz-123')->mute_on_start);
+        $this->assertFalse(Room::find('hij-klm-xyz-123')->everyone_can_start);
         $this->assertEquals(RoomLobby::ENABLED, Room::find('hij-klm-xyz-123')->lobby);
-        $this->assertEquals(RoomUserRole::MODERATOR, Room::find('hij-klm-xyz-123')->defaultRole);
+        $this->assertEquals(RoomUserRole::MODERATOR, Room::find('hij-klm-xyz-123')->default_role);
 
-        $this->assertTrue(Room::find('hij-klm-xyz-234')->muteOnStart);
-        $this->assertTrue(Room::find('hij-klm-xyz-234')->everyoneCanStart);
+        $this->assertTrue(Room::find('hij-klm-xyz-234')->mute_on_start);
+        $this->assertTrue(Room::find('hij-klm-xyz-234')->everyone_can_start);
         $this->assertEquals(RoomLobby::DISABLED, Room::find('hij-klm-xyz-234')->lobby);
-        $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-xyz-234')->defaultRole);
+        $this->assertEquals(RoomUserRole::USER, Room::find('hij-klm-xyz-234')->default_role);
 
         // Test room name prefix
         if ($prefix != null) {
