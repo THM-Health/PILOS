@@ -27,8 +27,8 @@ return new class extends Migration {
             $table->renameColumn('defaultRole', 'default_role');
             $table->renameColumn('allowMembership', 'allow_membership');
             $table->renameColumn('everyoneCanStart', 'everyone_can_start');
-            $table->renameColumn('everyoneModerator', 'everyone_moderator');
             $table->renameColumn('accessCode', 'access_code');
+            $table->dropColumn('everyoneModerator');
         });
     }
 
