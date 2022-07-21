@@ -39,7 +39,6 @@
               {{ $t('rooms.endMembership.message') }}
             </b-modal>
 
-
         <!-- Reload general room settings/details -->
         <b-button
           variant="secondary"
