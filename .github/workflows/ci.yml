@@ -65,6 +65,10 @@ jobs:
     - name: Migrate Database
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_CONNECTION: mysql
+        DB_DATABASE: test
+        DB_USERNAME: user
+        DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
@@ -72,6 +76,10 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_CONNECTION: mysql
+        DB_DATABASE: test
+        DB_USERNAME: user
+        DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: |
         vendor/bin/paratest --coverage-clover=coverage.xml
