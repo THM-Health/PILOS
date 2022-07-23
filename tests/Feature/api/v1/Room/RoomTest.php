@@ -171,17 +171,17 @@ class RoomTest extends TestCase
             ->assertForbidden();
 
         // Test as member user
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::USER]]);
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertForbidden();
 
         // Test as member moderator
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertForbidden();
 
         // Test as member co-owner
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.destroy', ['room'=> $room]))
             ->assertForbidden();
 
@@ -304,21 +304,21 @@ class RoomTest extends TestCase
         $this->flushHeaders();
 
         // Try with member user
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::USER]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try with member moderator
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
             ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try with member co-owner
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
@@ -338,7 +338,7 @@ class RoomTest extends TestCase
         // Try as owner
         $room->owner()->associate($this->user);
         $room->save();
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
             ->assertJsonFragment(['authenticated' => true])
@@ -634,12 +634,12 @@ class RoomTest extends TestCase
             ->assertForbidden();
 
         // Testing member as moderator
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertForbidden();
 
         // Testing member as co-owner
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertSuccessful();
 
@@ -682,13 +682,13 @@ class RoomTest extends TestCase
             ->assertJsonMissing(['accessCode' => $room->access_code]);
 
         // Testing member as moderator
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
             ->assertJsonFragment(['accessCode' => $room->access_code]);
 
         // Testing member as co-owner
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
             ->assertJsonFragment(['accessCode' => $room->access_code]);
@@ -749,17 +749,17 @@ class RoomTest extends TestCase
             ->assertForbidden();
 
         // Testing member as user
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::USER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::USER]]);
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
             ->assertForbidden();
 
         // Testing member as moderator
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
             ->assertForbidden();
 
         // Testing member as co-owner
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
             ->assertSuccessful();
 
@@ -853,12 +853,12 @@ class RoomTest extends TestCase
             ->assertForbidden();
 
         // Testing member as moderator
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
 
         // Testing member as co-owner
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::NO_SERVER_AVAILABLE);
 
@@ -1604,11 +1604,11 @@ class RoomTest extends TestCase
         $this->assertTrue($this->checkGuestWaitPage($room, $this->user));
 
         // Testing moderator member
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Testing co-owner member
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
@@ -1645,11 +1645,11 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Testing moderator member
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Testing co-owner member
-        $room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear

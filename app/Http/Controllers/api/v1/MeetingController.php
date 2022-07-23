@@ -66,6 +66,9 @@ class MeetingController extends Controller
             if (in_array($by, ['start','room.participant_count','room.listener_count','room.voice_participant_count','room.video_count']) && in_array($dir, ['asc', 'desc'])) {
                 $resource = $resource->orderBy($by, $dir);
             }
+        } else {
+            // Default ordering
+            $resource = $resource->orderBy('start');
         }
 
         // Respond with paginated result

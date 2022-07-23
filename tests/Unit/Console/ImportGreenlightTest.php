@@ -244,7 +244,7 @@ class ImportGreenlightTest extends TestCase
         $this->assertCount(2, User::where('authenticator', 'ldap')->get());
 
         // check if all rooms are created
-        $this->assertEquals(
+        $this->assertEqualsCanonicalizing(
             [$existingRoom->id,'abc-def-xyz-123','abc-def-xyz-234','abc-def-xyz-345','abc-def-xyz-567','abc-def-xyz-678' ,'hij-klm-xyz-123','hij-klm-xyz-234'],
             Room::all()->pluck('id')->toArray()
         );

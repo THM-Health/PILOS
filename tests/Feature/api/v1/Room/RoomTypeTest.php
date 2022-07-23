@@ -40,7 +40,7 @@ class RoomTypeTest extends TestCase
      */
     public function testIndex()
     {
-        RoomType::query()->truncate();
+        RoomType::query()->delete();
         $roomType  = RoomType::factory()->create();
         $roomType1 = RoomType::factory()->create([
             'restrict' => true
