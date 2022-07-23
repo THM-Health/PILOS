@@ -82,7 +82,7 @@ jobs:
         DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: |
-        vendor/bin/paratest --coverage-clover=coverage.xml
+        php artisan test --parallel --coverage-clover=coverage.xml
         bash <(curl -s https://codecov.io/bash)
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
