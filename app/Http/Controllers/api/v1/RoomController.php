@@ -216,8 +216,8 @@ class RoomController extends Controller
                             $server->apiCallFailed();
 
                             break;
-                        // for other unknown reasons, just respond, that room creation failed
-                        // the error is probably server independent
+                            // for other unknown reasons, just respond, that room creation failed
+                            // the error is probably server independent
                         default:
                             break;
                     }
