@@ -34,6 +34,7 @@ class CreateRoomsTable extends Migration
             $table->integer('lobby')->default(\App\Enums\RoomLobby::DISABLED);
             $table->boolean('allowSubscription')->default(false);
             $table->boolean('everyoneCanStart')->default(false);
+            $table->boolean('everyoneModerator')->default(false);
             $table->integer('accessCode')->length(11)->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
