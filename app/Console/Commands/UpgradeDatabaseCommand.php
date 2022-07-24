@@ -5,18 +5,45 @@ namespace App\Console\Commands;
 use Artisan;
 use DB;
 use Illuminate\Console\Command;
+use Schema;
 
-class UpgradeDbV2Command extends Command
+class UpgradeDatabaseCommand extends Command
 {
-    protected $signature = 'upgrade:db-v2';
+    protected $signature = 'db:upgrade';
 
-    protected $description = 'Upgrade database from PILOS v1 to v2.';
+    protected $description = 'Upgrade PILOS database from v1 to v2.';
 
     public function handle()
     {
-        Artisan::call('migrate --path=database/migrations/v1');
-        Artisan::call('migrate --path=database/migrations/migrate-to-v2');
+        // Check for clear database by checking migration tables doesn't exist or no migration run yet
+        if (!Schema::hasTable('migrations') || DB::table('migrations')->count() == 0) {
+            $this->error('Database is missing');
+            $this->info('Please run: php artisan migrate');
 
+            return;
+        }
+
+        // Check v2 database exists by checking migration that doesn't exist in v1
+        if (DB::table('migrations')->where(['migration' => '2022_21_07_000019_create_server_stats_table'])->exists()) {
+            $this->info('Database is already upgraded');
+
+            return;
+        }
+
+        // Run migration of old db to have db to latest v1 version before upgrade
+        Artisan::call('migrate --path=database/migrations/v1');
+        $this->info('Upgraded to latest v1 database');
+
+        // Run upgrade migration
+        Artisan::call('migrate --path=database/migrations/migrate-to-v2');
+        $this->info('Upgraded to v2 database');
+
+        // Remove old migrations table and create new to have the same migration
+        // as for a clean install, so artisan migrate works on future v2 upgrades
+        $this->info('Cleared old migrations table');
+        DB::table('migrations')->truncate();
+
+        // List of v2 migrations that equal the result of upgrade from v1
         $migrations = [
             '2014_10_12_000000_create_users_table',
             '2014_10_12_100000_create_password_resets_table',
@@ -42,13 +69,14 @@ class UpgradeDbV2Command extends Command
             '2022_21_07_000018_create_meeting_stats_table',
             '2022_21_07_000019_create_server_stats_table'
         ];
-
-        DB::table('migrations')->truncate();
         foreach ($migrations as $migration) {
             DB::table('migrations')->insert([
                 'migration' => $migration,
                 'batch'     => 1
             ]);
         }
+        $this->info('Created new migrations table');
+
+        $this->alert('Upgrade to v2 completed. Please Upgrade to latest v2 database: php artisan migrate');
     }
 }
