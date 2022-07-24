@@ -11,7 +11,6 @@ use App\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 /**
@@ -44,11 +43,9 @@ class MeetingTest extends TestCase
 
         $oldMeeting       = Meeting::factory()->create();
         $startingMeetings = Meeting::factory()->count(7)->create(['start'=>null, 'end'=>null]);
-        $runningMeetings  = new Collection();
-        for ($i = 0; $i < 7; $i++) {
-            $start = strtotime('2021-01-10 8:40:20');
-            $runningMeetings->push(Meeting::factory()->create(['start' => date('Y-m-d H:i:s', $start + (10 * ($i + 1))),  'end' => null]));
-        }
+        $runningMeetings  = Meeting::factory()->count(7)
+            ->sequence(fn ($sequence) => ['start' => date('Y-m-d H:i:s', strtotime('2021-01-10 8:40:20') + (10 * ($sequence->index + 1)))])
+            ->create(['end' => null]);
         $server           = Server::factory()->create(['name'=>'Testserver']);
         $user1            = User::factory()->create(['firstname'=>'John','lastname'=>'Doe']);
         $user2            = User::factory()->create(['firstname'=>'Max','lastname'=>'Doe']);
