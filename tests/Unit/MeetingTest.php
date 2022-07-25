@@ -2,10 +2,10 @@
 
 namespace Tests\Unit;
 
-use App\Meeting;
-use App\Room;
-use App\RoomFile;
-use App\Server;
+use App\Models\Meeting;
+use App\Models\Room;
+use App\Models\RoomFile;
+use App\Models\Server;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use Illuminate\Foundation\Testing\RefreshDatabase;

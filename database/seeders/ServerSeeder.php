@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\ServerStatus;
-use App\Server;
-use App\ServerPool;
+use App\Models\Server;
+use App\Models\ServerPool;
 use Faker\Factory;
 use Illuminate\Database\Seeder;
 

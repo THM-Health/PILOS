@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Room;
 use App\Notifications\RoomExpires;
-use App\Room;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 

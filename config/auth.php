@@ -66,14 +66,14 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => App\User::class,
+            'model'  => App\Models\User::class,
         ],
 
         'ldap' => [
             'driver'   => 'ldap',
             'model'    => LdapRecord\Models\OpenLDAP\User::class,
             'database' => [
-                'model'           => App\User::class,
+                'model'           => \App\Models\User::class,
                 'sync_passwords'  => false,
                 'sync_attributes' => [
                     'firstname' => 'givenName',

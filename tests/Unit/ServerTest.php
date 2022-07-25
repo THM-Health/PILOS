@@ -3,9 +3,9 @@
 namespace Tests\Unit;
 
 use App\Enums\ServerStatus;
-use App\Meeting;
-use App\Server;
-use App\User;
+use App\Models\Meeting;
+use App\Models\Server;
+use App\Models\User;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Responses\ApiVersionResponse;
 use BigBlueButton\Responses\GetMeetingsResponse;

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Rules;
 
-use App\Role;
-use App\RoomType;
+use App\Models\Role;
+use App\Models\RoomType;
+use App\Models\User;
 use App\Rules\ValidRoomType;
-use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

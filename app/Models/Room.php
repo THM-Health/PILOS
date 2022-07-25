@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;

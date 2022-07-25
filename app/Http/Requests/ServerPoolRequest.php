@@ -13,7 +13,7 @@ class ServerPoolRequest extends FormRequest
             'name'          => ['required', 'string', 'max:255', Rule::unique('server_pools', 'name')],
             'description'   => ['nullable','string', 'max:255'],
             'servers'       => 'array',
-            'servers.*'     => 'distinct|exists:App\Server,id'
+            'servers.*'     => 'distinct|exists:App\Models\Server,id'
         ];
 
         if ($this->serverPool) {

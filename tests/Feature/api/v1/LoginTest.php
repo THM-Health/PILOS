@@ -2,17 +2,17 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\Permission;
-use App\Role;
-use App\User;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
-use Illuminate\Support\Facades\Log;
 
 class LoginTest extends TestCase
 {

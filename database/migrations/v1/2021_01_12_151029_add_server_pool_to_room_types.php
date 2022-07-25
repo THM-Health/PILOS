@@ -12,8 +12,8 @@ class AddServerPoolToRoomTypes extends Migration
             $table->foreignId('server_pool_id')->nullable()->constrained()->onDelete('restrict');
         });
         Schema::table('room_types', function (Blueprint $table) {
-            foreach (\App\RoomType::all() as $roomType) {
-                $roomType->serverPool()->associate(\App\ServerPool::all()->first()->id);
+            foreach (\App\Models\RoomType::all() as $roomType) {
+                $roomType->serverPool()->associate(\App\Models\ServerPool::all()->first()->id);
                 $roomType->save();
             }
             $table->foreignId('server_pool_id')->nullable(false)->change();

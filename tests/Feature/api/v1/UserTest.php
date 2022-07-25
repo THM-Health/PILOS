@@ -3,10 +3,10 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use App\Notifications\UserWelcome;
-use App\Permission;
-use App\Role;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;

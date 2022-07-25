@@ -6,10 +6,10 @@ use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Attendee;
 use App\Http\Resources\MeetingStat;
-use App\Meeting;
+use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
 
 /**
  * Class MeetingController

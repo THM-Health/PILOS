@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Meeting;
+use App\Models\Meeting;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;

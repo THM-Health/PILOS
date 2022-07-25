@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Permission;
-use App\Role;
-use App\RoomType;
-use App\ServerPool;
-use App\User;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\RoomType;
+use App\Models\ServerPool;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class RolesAndPermissionsSeeder extends Seeder

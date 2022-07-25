@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Server;
-use App\User;
+use App\Models\Server;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ServerPolicy

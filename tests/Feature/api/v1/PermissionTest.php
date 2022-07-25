@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\Permission;
-use App\User;
+use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

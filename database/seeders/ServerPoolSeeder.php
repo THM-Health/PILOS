@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Server;
-use App\ServerPool;
+use App\Models\Server;
+use App\Models\ServerPool;
 use Illuminate\Database\Seeder;
 
 class ServerPoolSeeder extends Seeder

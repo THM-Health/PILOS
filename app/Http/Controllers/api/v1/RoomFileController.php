@@ -8,8 +8,8 @@ use App\Http\Requests\UpdateRoomFile;
 use App\Http\Resources\PrivateRoomFile;
 use App\Http\Resources\PrivateRoomFileCollection;
 use App\Http\Resources\RoomFileCollection;
-use App\Room;
-use App\RoomFile;
+use App\Models\Room;
+use App\Models\RoomFile;
 
 class RoomFileController extends Controller
 {

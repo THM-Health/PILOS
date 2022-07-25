@@ -3,9 +3,8 @@
 namespace Tests\Unit\Console;
 
 use App\Enums\ServerStatus;
-use App\Meeting;
-use App\Room;
-use App\Server;
+use App\Models\Meeting;
+use App\Models\Room;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

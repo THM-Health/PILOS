@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use App\Enums\ServerStatus;
-use App\Server;
-use App\ServerPool;
+use App\Models\Server;
+use App\Models\ServerPool;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

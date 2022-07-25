@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\RoomFile;
+use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 

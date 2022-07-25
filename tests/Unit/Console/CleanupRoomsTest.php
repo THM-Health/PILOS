@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Console;
 
-use App\Meeting;
+use App\Models\Meeting;
+use App\Models\Room;
 use App\Notifications\RoomExpires;
-use App\Room;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Notification;

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTokenRequest;
 use App\Http\Resources\RoomToken as RoomTokenResource;
-use App\Room;
-use App\RoomToken;
+use App\Models\Room;
+use App\Models\RoomToken;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 

@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerConnectionCheckRequest;
 use App\Http\Requests\ServerRequest;
 use App\Http\Resources\Server as ServerResource;
-use App\Server;
+use App\Models\Server;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

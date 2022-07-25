@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Room;
-use App\RoomToken;
+use App\Models\Room;
+use App\Models\RoomToken;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 

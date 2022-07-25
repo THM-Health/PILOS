@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Room;
-use App\RoomType;
+use App\Models\Room;
+use App\Models\RoomType;
+use App\Models\User;
 use App\Services\RoomTestHelper;
-use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RoomFactory extends Factory
