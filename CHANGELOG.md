@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove git hooks ([#217],[#228])
 - Random room polling interval ([#229],[#230])
 
+### Fixed
+- Tooltip covering view and edit button in server pool overview ([#245],[#246])
+
 ## [1.9.4] - 2022-06-30
 ### Changed
 - Update composer dependencies ([#221],[#222])
@@ -299,6 +302,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#230]: https://github.com/THM-Health/PILOS/pull/230
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
+[#245]: https://github.com/THM-Health/PILOS/issues/245
+[#246]: https://github.com/THM-Health/PILOS/pull/246
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
