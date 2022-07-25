@@ -8,17 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Breaking:** Config option to disable ldap (disabled by default) ([#236],[#237])
+- Improve change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
 - **Breaking:** Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
 - **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228])
-- Remove git hooks ([#217],[#228])
+- **Breaking:** Renamed .env setting MIX_WELCOME_MESSAGE_LIMIT to WELCOME_MESSAGE_LIMIT ([#243],[#244])
+- **Breaking:** Renamed .env setting MIX_ROOM_NAME_LIMIT to ROOM_NAME_LIMIT ([#243],[#244])
+- **Breaking:** Renamed .env setting MIX_REFRESH_RATE to ROOM_REFRESH_RATE ([#243],[#244])
 - Random room polling interval ([#229],[#230])
 - Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
 
 ### Fixed
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
+
+### Removed
+- **Breaking:** .env setting MIX_FRONTEND_BASE_URL ([#243],[#244])
+- Git hooks ([#217],[#228])
 
 ## [1.9.5] - 2022-07-25
 ### Fixed
@@ -308,6 +315,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
 [#240]: https://github.com/THM-Health/PILOS/pull/240
+[#243]: https://github.com/THM-Health/PILOS/issues/243
+[#244]: https://github.com/THM-Health/PILOS/pull/244
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
 

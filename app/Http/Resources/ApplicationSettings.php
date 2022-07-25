@@ -37,6 +37,7 @@ class ApplicationSettings extends JsonResource
     public function toArray($request)
     {
         return [
+            'base_url'                       => config('app.url'),
             'name'                           => setting('name'),
             'logo'                           => setting('logo'),
             'favicon'                        => setting('favicon'),
@@ -99,6 +100,7 @@ class ApplicationSettings extends JsonResource
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),
             'ldap'                  => config('ldap.enabled'),
+            'room_refresh_rate'     => floatval(setting('room_refresh_rate')),
         ];
     }
 }
