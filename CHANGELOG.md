@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.9.5] - 2022-07-25
 ### Fixed
 - Tooltip covering view and edit button in server pool overview ([#245], Backport from [#246])
 
@@ -285,7 +287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...1.x
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -302,3 +304,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.9.2]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.2
 [1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
 [1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4
+[1.9.5]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.5
