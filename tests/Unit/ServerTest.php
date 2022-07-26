@@ -69,16 +69,13 @@ class ServerTest extends TestCase
                 ->andReturn($bbbResponseMock);
         });
 
-        $serverMock = Mockery::mock(Server::class, function ($mock) use ($bbbMock) {
-            $mock->shouldReceive('bbb')
-                ->once()
-                ->andReturn($bbbMock);
-        })->makePartial();
+        $server        = Server::factory()->create();
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
+        $server->offline = 0;
+        $server->status  = 1;
 
-        $serverMock->offline = 0;
-        $serverMock->status  = 1;
-
-        self::assertEquals('test-response', $serverMock->getMeetings());
+        self::assertEquals('test-response', $serverService->getMeetings());
     }
 
     /**
@@ -98,15 +95,13 @@ class ServerTest extends TestCase
                 ->andReturn($bbbReponseMock);
         });
 
-        $serverMock = Mockery::mock(Server::class, function ($mock) use ($bbbMock) {
-            $mock->shouldReceive('bbb')
-                ->once()
-                ->andReturn($bbbMock);
-        })->makePartial();
+        $server        = Server::factory()->create();
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
 
-        $serverMock->status = ServerStatus::ONLINE;
+        $server->status = ServerStatus::ONLINE;
 
-        self::assertNull($serverMock->getMeetings());
+        self::assertNull($serverService->getMeetings());
     }
 
     /**
