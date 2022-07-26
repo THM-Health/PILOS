@@ -14,6 +14,7 @@ use App\Models\RoomToken;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\User;
+use App\Services\MeetingService;
 use App\Services\RoomTestHelper;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
@@ -663,8 +664,8 @@ class RoomTest extends TestCase
 
         self::assertNull($meeting->end);
 
-        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
-
+        $url = (new MeetingService($meeting))->getCallbackUrl();
+        var_dump($url);
         // check with invalid salt
         $this->getJson($url.'test')
             ->assertUnauthorized();
@@ -678,7 +679,6 @@ class RoomTest extends TestCase
         $end = $meeting->end;
 
         // Check if second call doesn't change timestamp
-        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
         $this->getJson($url)
             ->assertSuccessful();
 
@@ -1070,7 +1070,7 @@ class RoomTest extends TestCase
         $this->assertNull($room->delete_inactive);
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         // Create meeting without agreement to record attendance
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
@@ -1086,7 +1086,7 @@ class RoomTest extends TestCase
         setting(['attendance.enabled' => false]);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
             ->assertSuccessful();
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         // Create meeting with attendance disabled
         setting(['attendance.enabled' => true]);
@@ -1094,7 +1094,7 @@ class RoomTest extends TestCase
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
             ->assertSuccessful();
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         // Room token moderator
         Auth::logout();
@@ -1111,7 +1111,7 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         $this->flushHeaders();
 
@@ -1147,7 +1147,7 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         $this->flushHeaders();
 
@@ -1158,7 +1158,7 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         $this->flushHeaders();
 
@@ -1336,8 +1336,8 @@ class RoomTest extends TestCase
             ]);
 
         // Clear
-        $room1->runningMeeting()->endMeeting();
-        $room2->runningMeeting()->endMeeting();
+        (new MeetingService($room1->runningMeeting()))->end();
+        (new MeetingService($room2->runningMeeting()))->end();
     }
 
     /**
@@ -1522,7 +1522,7 @@ class RoomTest extends TestCase
 
         // Clear
         $this->assertNull($runningMeeting->end);
-        $runningMeeting->endMeeting();
+        (new MeetingService($runningMeeting))->end();
         $runningMeeting->refresh();
         $this->assertNotNull($runningMeeting->end);
     }
@@ -1638,7 +1638,7 @@ class RoomTest extends TestCase
 
         // Clear
         $this->assertNull($runningMeeting->end);
-        $runningMeeting->endMeeting();
+        (new MeetingService($runningMeeting))->end();
         $runningMeeting->refresh();
         $this->assertNotNull($runningMeeting->end);
     }
@@ -1682,7 +1682,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
     }
 
     /**
@@ -1723,7 +1723,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
     }
 
     /**

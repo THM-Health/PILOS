@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Meeting;
+use App\Services\MeetingService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -43,7 +44,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
      */
     public function collection()
     {
-        return $this->meeting->attendance();
+        return (new MeetingService($this->meeting))->attendance();
     }
 
     /**

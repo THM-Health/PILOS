@@ -206,29 +206,30 @@ class Room extends Model
 
     /**
      * Get role of the user
-     * @param $user|null
-     * @return int|mixed
+     * @param $user |null
+     * @param $token
+     * @return RoomUserRole
      */
-    public function getRole($user, $token)
+    public function getRole($user, $token): RoomUserRole
     {
         if ($user == null) {
             if ($token) {
-                return $token->role;
+                return RoomUserRole::fromValue($token->role);
             }
 
-            return RoomUserRole::GUEST;
+            return RoomUserRole::GUEST();
         }
 
         if ($this->owner->is($user) || $user->can('rooms.manage')) {
-            return RoomUserRole::OWNER;
+            return RoomUserRole::OWNER();
         }
 
         $member = $this->members()->find($user);
         if ($member) {
-            return $member->pivot->role;
+            return RoomUserRole::fromValue($member->pivot->role);
         }
 
-        return $this->default_role;
+        return RoomUserRole::fromValue($this->defaultRole);
     }
 
     /**

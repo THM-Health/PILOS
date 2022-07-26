@@ -6,12 +6,14 @@ use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Models\Server;
+use App\Services\MeetingService;
+use App\Services\ServerService;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Parameters\CreateMeetingParameters;
+use BigBlueButton\Responses\CreateMeetingResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Tests\TestCase;
@@ -40,9 +42,10 @@ class MeetingTest extends TestCase
      */
     public function testStartParameters()
     {
-        $meeting = $this->meeting;
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($meeting) {
-            $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
+        $meeting  = $this->meeting;
+        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
+        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
+            $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($response, $meeting) {
                 $this->assertEquals($meeting->id, $arg->getMeetingID());
                 $this->assertEquals($meeting->room->name, $arg->getName());
                 $this->assertEquals($meeting->moderator_pw, $arg->getModeratorPW());
@@ -50,17 +53,21 @@ class MeetingTest extends TestCase
                 $this->assertEquals(url('rooms/'.$meeting->room->id), $arg->getLogoutUrl());
 
                 $salt = urldecode(explode('?salt=', $arg->getMeta('endCallbackUrl'))[1]);
-                $this->assertTrue(Hash::check($meeting->getCallbackSalt(), $salt));
+                $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
                 $this->assertCount(0, $arg->getPresentations());
                 $this->assertNull($arg->getLogo());
 
                 return true;
-            })->once();
+            })->once()->andReturn($response);
         });
         $server = Server::factory()->create();
-        $server->setBBB($bbbMock);
         $meeting->server()->associate($server);
-        $meeting->startMeeting();
+
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
     }
 
     /**
@@ -70,18 +77,23 @@ class MeetingTest extends TestCase
     {
         setting()->set('bbb_logo', url('logo.png'));
 
-        $meeting = $this->meeting;
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($meeting) {
+        $meeting  = $this->meeting;
+        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
+        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
             $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
                 $this->assertEquals( url('logo.png'), $arg->getLogo());
 
                 return true;
-            })->once();
+            })->once()->andReturn($response);
         });
         $server = Server::factory()->create();
-        $server->setBBB($bbbMock);
         $meeting->server()->associate($server);
-        $meeting->startMeeting();
+
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
     }
 
     /**
@@ -119,8 +131,8 @@ class MeetingTest extends TestCase
         $file4->filename       = 'file4';
         $file4->use_in_meeting = false;
         $meeting->room->files()->save($file4);
-
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($meeting) {
+        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
+        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
             $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
                 $this->assertCount(3, $arg->getPresentations());
                 $fileNames = array_values($arg->getPresentations());
@@ -130,12 +142,16 @@ class MeetingTest extends TestCase
                 $this->assertEquals('file3', $fileNames[2]);
 
                 return true;
-            })->once();
+            })->once()->andReturn($response);
         });
         $server = Server::factory()->create();
-        $server->setBBB($bbbMock);
         $meeting->server()->associate($server);
-        $meeting->startMeeting();
+
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
     }
 
     /**
@@ -146,18 +162,22 @@ class MeetingTest extends TestCase
         $meeting = $this->meeting;
 
         setting()->set('default_presentation', url('default.pdf'));
-
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($meeting) {
+        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
+        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
             $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
                 $this->assertCount(1, $arg->getPresentations());
                 $this->assertEquals(url('default.pdf'), array_keys($arg->getPresentations())[0]);
 
                 return true;
-            })->once();
+            })->once()->andReturn($response);
         });
         $server = Server::factory()->create();
-        $server->setBBB($bbbMock);
         $meeting->server()->associate($server);
-        $meeting->startMeeting();
+
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
+
+        $meetingService = new MeetingService($meeting);
+        $meetingService->setServerService($serverService)->start();
     }
 }

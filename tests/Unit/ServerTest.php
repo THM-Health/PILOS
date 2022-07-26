@@ -6,6 +6,7 @@ use App\Enums\ServerStatus;
 use App\Models\Meeting;
 use App\Models\Server;
 use App\Models\User;
+use App\Services\ServerService;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Responses\ApiVersionResponse;
 use BigBlueButton\Responses\GetMeetingsResponse;
@@ -25,26 +26,27 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithStatusAndOffline()
     {
-        $server = Server::factory()->create();
+        $server        = Server::factory()->create();
+        $serverService = new ServerService($server);
 
         // Server marked as inactive
         $server->status = ServerStatus::DISABLED;
         $server->save();
-        $this->assertNull($server->getMeetings());
+        $this->assertNull($serverService->getMeetings());
         $server->status = ServerStatus::ONLINE;
         $server->save();
 
         // Server marked as offline
         $server->status = ServerStatus::OFFLINE;
         $server->save();
-        $this->assertNull($server->getMeetings());
+        $this->assertNull($serverService->getMeetings());
         $server->status = ServerStatus::ONLINE;
         $server->save();
 
         // Test with invalid domain name
         $server->base_url = 'https://fake.notld/bigbluebutton/';
         $server->save();
-        $this->assertNull($server->getMeetings());
+        $this->assertNull($serverService->getMeetings());
     }
 
     /**
@@ -196,8 +198,9 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
         });
 
-        $server = Server::factory()->create();
-        $server->setBBB($bbbMock);
+        $server        = Server::factory()->create();
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
 
         $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendee_pw'=> 'asdfgh32343','moderator_pw'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
@@ -206,7 +209,7 @@ class ServerTest extends TestCase
         $userA = User::factory()->create(['id'=>99,'firstname'=> 'Mable', 'lastname' => 'Torres', 'email' => 'm.torres@example.net']);
         $userB = User::factory()->create(['id'=>100,'firstname'=> 'Gregory', 'lastname' => 'Dumas', 'email' => 'g.dumas@example.net']);
 
-        $server->updateUsage();
+        $serverService->updateUsage();
         $meeting->refresh();
 
         // Check attendance data after first run
@@ -243,7 +246,7 @@ class ServerTest extends TestCase
             && $log->context == ['user' => '101','meeting'=> '409e94ee-e317-4040-8cb2-8000a289b49d']
         );
 
-        $server->updateUsage();
+        $serverService->updateUsage();
         $meeting->refresh();
 
         // Count total attendance datasets
@@ -261,7 +264,7 @@ class ServerTest extends TestCase
         $attendeeGuestA = $meeting->attendees()->where('session_id', 'LQC1Pb5TSBn2EM5njylocogXPgIQIknKQcvcWMRG')->first();
         $this->assertNull($attendeeGuestA->leave);
 
-        $server->updateUsage();
+        $serverService->updateUsage();
         $meeting->refresh();
 
         // Count total attendance datasets, should increase as two new sessions exists
@@ -281,7 +284,7 @@ class ServerTest extends TestCase
         $this->assertNull($attendeeGuestA[1]->leave);
         $this->assertNotNull($attendeeGuestA[1]->join);
 
-        $server->updateUsage();
+        $serverService->updateUsage();
         $meeting->refresh();
 
         // Check if end time is set after meeting ended
@@ -301,15 +304,16 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getMeetings')->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')));
         });
 
-        $server = Server::factory()->create();
-        $server->setBBB($bbbMock);
+        $server        = Server::factory()->create();
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
 
         $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendee_pw'=> 'asdfgh32343','moderator_pw'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 
         // Check if attendance is not logged if enabled for this meeting, but disabled globally
-        $server->updateUsage();
+        $serverService->updateUsage();
         $meeting->refresh();
         $this->assertCount(0, $meeting->attendees);
 
@@ -317,7 +321,7 @@ class ServerTest extends TestCase
         setting(['attendance.enabled'=>true]);
         $meeting->record_attendance = false;
         $meeting->save();
-        $server->updateUsage();
+        $serverService->updateUsage();
         $meeting->refresh();
         $this->assertCount(0, $meeting->attendees);
     }
@@ -335,14 +339,15 @@ class ServerTest extends TestCase
             $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml')));
         });
 
-        $server = Server::factory()->create(['version' => '2.3.0']);
-        $server->setBBB($bbbMock);
+        $server        = Server::factory()->create(['version' => '2.3.0']);
+        $serverService = new ServerService($server);
+        $serverService->setBigBlueButton($bbbMock);
 
-        $server->updateUsage();
+        $serverService->updateUsage();
         $server->refresh();
         $this->assertEquals('2.4-rc-7', $server->version);
 
-        $server->updateUsage();
+        $serverService->updateUsage();
         $server->refresh();
         $this->assertNull($server->version);
     }

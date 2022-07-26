@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Enums\ServerStatus;
 use App\Models\Server;
 use App\Models\ServerPool;
+use App\Services\LoadBalancingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -24,20 +25,27 @@ class ServerPoolTest extends TestCase
 
         $serverPool = ServerPool::factory()->create();
         $serverPool->servers()->sync([$disabled->id,$offline->id,$lightUsage->id,$heavyUsage->id]);
+        $loadBalancingService = new LoadBalancingService();
+        $loadBalancingService->setServerPool($serverPool);
 
         // Check basic load balancing
-        $server = $serverPool->lowestUsage();
+        $serverPool->refresh();
+        $server = $loadBalancingService->getLowestUsage();
         $this->assertEquals($lightUsage->id, $server->id);
 
         // Check with different server strengths
         $heavyUsage->strength=10;
         $heavyUsage->save();
-        $server = $serverPool->lowestUsage();
+        $serverPool->refresh();
+        $loadBalancingService->setServerPool($serverPool);
+        $server = $loadBalancingService->getLowestUsage();
         $this->assertEquals($heavyUsage->id, $server->id);
 
         // Check offline and disabled servers
         $serverPool->servers()->sync([$disabled->id,$offline->id]);
-        $server = $serverPool->lowestUsage();
+        $serverPool->refresh();
+        $loadBalancingService->setServerPool($serverPool);
+        $server = $loadBalancingService->getLowestUsage();
         $this->assertNull($server);
     }
 }

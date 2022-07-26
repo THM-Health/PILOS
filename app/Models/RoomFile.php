@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 
 class RoomFile extends Model
 {
@@ -37,30 +36,5 @@ class RoomFile extends Model
         }
 
         return $response;
-    }
-
-    /**
-     * Create download link
-     * @return string
-     */
-    public function getDownloadLink($timelimit = null)
-    {
-        $params = ['roomFile' => $this->id,'filename'=>$this->filename];
-        $route  = 'download.file';
-
-        // Handle missing file on drive
-        if (!Storage::exists($this->path)) {
-            try {
-                $this->delete();
-            } catch (\Exception $exception) {
-            }
-            abort(404);
-        }
-
-        if ($timelimit == null) {
-            return URL::signedRoute($route, $params);
-        }
-
-        return URL::temporarySignedRoute($route, now()->addMinutes($timelimit), $params);
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RoomFile;
-use Illuminate\Support\Facades\Storage;
+use App\Services\RoomFileService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -21,18 +21,8 @@ class FileController extends Controller
      */
     public function show(RoomFile $roomFile)
     {
-        // Handle missing file on drive
-        if (!Storage::exists($roomFile->path)) {
-            try {
-                $roomFile->delete();
-            } catch (\Exception $exception) {
-            }
-            abort(404);
-        }
+        $roomFileService = new RoomFileService($roomFile);
 
-        // Download file/view in browser
-        return Storage::download($roomFile->path, $roomFile->filename, [
-            'Content-Disposition' => 'inline; filename="'. $roomFile->filename .'"'
-        ]);
+        return $roomFileService->download();
     }
 }

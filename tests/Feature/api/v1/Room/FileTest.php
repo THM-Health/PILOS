@@ -7,6 +7,8 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\User;
+use App\Services\MeetingService;
+use App\Services\RoomFileService;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -387,7 +389,7 @@ class FileTest extends TestCase
 
         \Auth::logout();
 
-        $this->get($room_file->getDownloadLink())
+        $this->get((new RoomFileService($room_file))->url())
             ->assertSuccessful();
     }
 
@@ -698,6 +700,6 @@ class FileTest extends TestCase
         $this->assertArrayHasKey('Location', $response->headers());
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Server;
+use App\Services\ServerService;
 use Illuminate\Console\Command;
 
 class BuildHistory extends Command
@@ -30,7 +31,8 @@ class BuildHistory extends Command
     {
         $servers = Server::all();
         foreach ($servers as $server) {
-            $server->updateUsage();
+            $serverService = new ServerService($server);
+            $serverService->updateUsage();
         }
     }
 }

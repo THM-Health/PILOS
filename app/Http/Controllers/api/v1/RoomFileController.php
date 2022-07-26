@@ -5,11 +5,11 @@ namespace App\Http\Controllers\api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRoomFile;
 use App\Http\Requests\UpdateRoomFile;
-use App\Http\Resources\PrivateRoomFile;
 use App\Http\Resources\PrivateRoomFileCollection;
 use App\Http\Resources\RoomFileCollection;
 use App\Models\Room;
 use App\Models\RoomFile;
+use App\Services\RoomFileService;
 
 class RoomFileController extends Controller
 {
@@ -32,9 +32,9 @@ class RoomFileController extends Controller
     /**
      * Store a new file in the storage
      *
-     * @param  StoreRoomFile   $request
-     * @param  Room            $room
-     * @return PrivateRoomFile
+     * @param  StoreRoomFile                                $request
+     * @param  Room                                         $room
+     * @return PrivateRoomFileCollection|RoomFileCollection
      */
     public function store(Room $room, StoreRoomFile $request)
     {
@@ -64,16 +64,18 @@ class RoomFileController extends Controller
             abort(404, __('app.errors.file_not_found'));
         }
 
-        return response()->json(['url' => $file->getDownloadLink(1)]);
+        $roomFileService = new RoomFileService($file);
+
+        return response()->json(['url' => $roomFileService->setTimeLimit(1)->url()]);
     }
 
     /**
      * Update the specified file attributes
      *
-     * @param  UpdateRoomFile  $request
-     * @param  Room            $room
-     * @param  RoomFile        $file
-     * @return PrivateRoomFile
+     * @param  UpdateRoomFile                               $request
+     * @param  Room                                         $room
+     * @param  RoomFile                                     $file
+     * @return PrivateRoomFileCollection|RoomFileCollection
      */
     public function update(UpdateRoomFile $request, Room $room, RoomFile $file)
     {
@@ -107,9 +109,9 @@ class RoomFileController extends Controller
     /**
      * Remove the specified file from storage and database.
      *
-     * @param  Room                      $room
-     * @param  RoomFile                  $file
-     * @return \Illuminate\Http\Response
+     * @param  Room                                         $room
+     * @param  RoomFile                                     $file
+     * @return PrivateRoomFileCollection|RoomFileCollection
      * @throws \Exception
      */
     public function destroy(Room $room, RoomFile $file)

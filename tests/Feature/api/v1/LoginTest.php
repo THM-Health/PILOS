@@ -116,7 +116,7 @@ class LoginTest extends TestCase
             'permissions' => ['test']
         ]);
 
-        Permission::SetupIncludedPermissions('test', ['test2']);
+        Permission::setIncludedPermissions('test', ['test2']);
         $user->refresh();
 
         $response = $this->actingAs($user)->from(config('app.url'))->getJson(route('api.v1.currentUser'));
