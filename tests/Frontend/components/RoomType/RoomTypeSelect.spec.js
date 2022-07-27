@@ -98,12 +98,11 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
-      await view.vm.$nextTick();
-      expect(view.vm.$data.roomType).toEqual({ id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' });
+    await waitMoxios();
+    await view.vm.$nextTick();
+    expect(view.vm.$data.roomType).toEqual({ id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' });
 
-      view.destroy();
-    });
+    view.destroy();
   });
 
   it('disabled param', async () => {
@@ -124,19 +123,18 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      expect(view.findComponent(BButton).attributes('disabled')).toBeFalsy();
-      expect(view.findComponent(BFormSelect).attributes('disabled')).toBeFalsy();
+    expect(view.findComponent(BButton).attributes('disabled')).toBeFalsy();
+    expect(view.findComponent(BFormSelect).attributes('disabled')).toBeFalsy();
 
-      await view.setProps({ disabled: true });
+    await view.setProps({ disabled: true });
 
-      expect(view.findComponent(BButton).attributes('disabled')).toBeTruthy();
-      expect(view.findComponent(BFormSelect).attributes('disabled')).toBeTruthy();
+    expect(view.findComponent(BButton).attributes('disabled')).toBeTruthy();
+    expect(view.findComponent(BFormSelect).attributes('disabled')).toBeTruthy();
 
-      view.destroy();
-    });
+    view.destroy();
   });
 
   it('invalid value passed', async () => {
@@ -157,12 +155,11 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
-      await view.vm.$nextTick();
-      expect(view.vm.$data.roomType).toBeNull();
+    await waitMoxios();
+    await view.vm.$nextTick();
+    expect(view.vm.$data.roomType).toBeNull();
 
-      view.destroy();
-    });
+    view.destroy();
   });
 
   it('busy events emitted', async () => {
@@ -183,25 +180,24 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      expect(view.emitted().busy[0]).toEqual([true]);
-      expect(view.emitted().busy[1]).toEqual([false]);
+    expect(view.emitted().busy[0]).toEqual([true]);
+    expect(view.emitted().busy[1]).toEqual([false]);
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
 
-      expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+    expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
-      await view.vm.$nextTick();
-      expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
+    await view.vm.$nextTick();
+    expect(view.emitted().input[0]).toEqual([{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }]);
 
-      view.destroy();
-    });
+    view.destroy();
   });
 
   it('error events emitted', async () => {
@@ -226,29 +222,27 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      expect(view.emitted().loadingError[0]).toEqual([true]);
-      expect(spy).toBeCalledTimes(1);
-      Base.error.restore();
+    expect(view.emitted().loadingError[0]).toEqual([true]);
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
 
-      const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
-        status: 200,
-        response: {
-          data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
-        }
-      });
-
-      view.vm.reloadRoomTypes();
-      await waitMoxios(async () => {
-        await view.vm.$nextTick();
-        expect(view.emitted().loadingError[1]).toEqual([false]);
-
-        restoreRoomTypeResponse();
-        view.destroy();
-      });
+    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+      status: 200,
+      response: {
+        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+      }
     });
+
+    view.vm.reloadRoomTypes();
+    await waitMoxios();
+    await view.vm.$nextTick();
+    expect(view.emitted().loadingError[1]).toEqual([false]);
+
+    restoreRoomTypeResponse();
+    view.destroy();
   });
 
   it('reload room types', async () => {
@@ -268,51 +262,47 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const typeInput = view.findComponent(BFormSelect);
-      const meetingOption = typeInput.findAll('option').at(2);
-      expect(meetingOption.text()).toEqual('Meeting');
-      meetingOption.element.selected = true;
-      await typeInput.trigger('change');
-      expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
-      view.vm.reloadRoomTypes();
+    const typeInput = view.findComponent(BFormSelect);
+    const meetingOption = typeInput.findAll('option').at(2);
+    expect(meetingOption.text()).toEqual('Meeting');
+    meetingOption.element.selected = true;
+    await typeInput.trigger('change');
+    expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+    view.vm.reloadRoomTypes();
 
-      await waitMoxios(async () => {
-        await view.vm.$nextTick();
-        expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+    await waitMoxios();
+    await view.vm.$nextTick();
+    expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
-        let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
-          status: 200,
-          response: {
-            data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
-          }
-        });
-
-        view.vm.reloadRoomTypes();
-
-        await waitMoxios(async () => {
-          await view.vm.$nextTick();
-
-          expect(view.vm.$data.roomType).toBeNull();
-          restoreRoomTypeResponse();
-          restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
-            status: 500,
-            response: {
-              message: 'Test'
-            }
-          });
-
-          view.vm.reloadRoomTypes();
-          await waitMoxios(function () {
-            expect(spy).toBeCalledTimes(1);
-            Base.error.restore();
-            restoreRoomTypeResponse();
-            view.destroy();
-          });
-        });
-      });
+    let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+      status: 200,
+      response: {
+        data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
+      }
     });
+
+    view.vm.reloadRoomTypes();
+
+    await waitMoxios();
+    await view.vm.$nextTick();
+
+    expect(view.vm.$data.roomType).toBeNull();
+    restoreRoomTypeResponse();
+    restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    view.vm.reloadRoomTypes();
+    await waitMoxios();
+    expect(spy).toBeCalledTimes(1);
+    Base.error.mockRestore();
+    restoreRoomTypeResponse();
+    view.destroy();
   });
 });

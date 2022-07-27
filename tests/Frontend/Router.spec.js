@@ -2,6 +2,7 @@ import { beforeEachRoute, routes } from '../../resources/js/router';
 import PermissionService from '../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import Base from '../../resources/js/api/base';
+import { waitMoxios } from './helper';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
@@ -245,18 +246,17 @@ describe('Router', () => {
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        return request.respondWith({
-          status: 200,
-          response: {
-            data: {
-              id: 1,
-              default: false,
-              model_name: 'Role'
-            }
+      await waitMoxios();
+      const request = moxios.requests.mostRecent();
+      return request.respondWith({
+        status: 200,
+        response: {
+          data: {
+            id: 1,
+            default: false,
+            model_name: 'Role'
           }
-        });
+        }
       });
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(true);
@@ -267,14 +267,13 @@ describe('Router', () => {
     it('for role update view calls error handler returns false on error in request', async () => {
       const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 500,
-          response: {
-            message: 'Test'
-          }
-        });
+      await waitMoxios();
+      const request = moxios.requests.mostRecent();
+      request.respondWith({
+        status: 500,
+        response: {
+          message: 'Test'
+        }
       });
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
