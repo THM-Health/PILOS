@@ -56,7 +56,7 @@ describe('UsersIndex', () => {
     await waitMoxios();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    const request = moxios.requests.mostRecent();
+    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
       response: {
@@ -82,181 +82,177 @@ describe('UsersIndex', () => {
           total: 1
         }
       }
-    }).then(() => {
-      return view.vm.$nextTick();
-    }).then(async () => {
-      let html = view.findComponent(BTbody).findComponent(BTr).html();
-
-      expect(html).toContain('1');
-      expect(html).toContain('John');
-      expect(html).toContain('Doe');
-      expect(html).toContain('john@doe.com');
-      expect(html).toContain('Students');
-      expect(html).toContain('app.roles.admin');
-      expect(html).toContain('settings.users.authenticator.users');
-
-      view.vm.$root.$emit('bv::refresh::table', 'users-table');
-
-      await waitMoxios();
-      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        response: {
-          data: [{
-            id: 2,
-            authenticator: 'ldap',
-            email: 'darth@vader.com',
-            username: 'dvr',
-            firstname: 'Darth',
-            lastname: 'Vader',
-            user_locale: 'de',
-            model_name: 'User',
-            roles: [
-              { id: 3, name: 'Students', automatic: true }
-            ],
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z'
-          }],
-          meta: {
-            per_page: 1,
-            current_page: 1,
-            total: 1
-          }
-        }
-      }).then(() => {
-        html = view.findComponent(BTbody).findComponent(BTr).html();
-        expect(html).toContain('2');
-        expect(html).toContain('Darth');
-        expect(html).toContain('Vader');
-        expect(html).toContain('Students');
-        expect(html).toContain('darth@vader.com');
-        expect(html).toContain('settings.users.authenticator.ldap');
-
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-      });
     });
+    await view.vm.$nextTick();
+
+    let html = view.findComponent(BTbody).findComponent(BTr).html();
+
+    expect(html).toContain('1');
+    expect(html).toContain('John');
+    expect(html).toContain('Doe');
+    expect(html).toContain('john@doe.com');
+    expect(html).toContain('Students');
+    expect(html).toContain('app.roles.admin');
+    expect(html).toContain('settings.users.authenticator.users');
+
+    view.vm.$root.$emit('bv::refresh::table', 'users-table');
+
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [{
+          id: 2,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          roles: [
+            { id: 3, name: 'Students', automatic: true }
+          ],
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z'
+        }],
+        meta: {
+          per_page: 1,
+          current_page: 1,
+          total: 1
+        }
+      }
+    });
+
+    html = view.findComponent(BTbody).findComponent(BTr).html();
+    expect(html).toContain('2');
+    expect(html).toContain('Darth');
+    expect(html).toContain('Vader');
+    expect(html).toContain('Students');
+    expect(html).toContain('darth@vader.com');
+    expect(html).toContain('settings.users.authenticator.ldap');
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
   });
 
-  it('reset password button only shown if the user has the permission and it handles errors as expected',
-    async () => {
-      const spy = jest.spyOn(Base, 'error').mockImplementation();
+  it('reset password button only shown if the user has the permission and it handles errors as expected', async () => {
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      const oldUser = PermissionService.currentUser;
+    const oldUser = PermissionService.currentUser;
 
-      PermissionService.setCurrentUser({ id: 4, permissions: ['users.viewAny', 'settings.manage'] });
+    PermissionService.setCurrentUser({ id: 4, permissions: ['users.viewAny', 'settings.manage'] });
 
-      const response = {
-        status: 200,
-        response: {
-          data: [{
-            id: 1,
-            authenticator: 'users',
-            email: 'john@doe.com',
-            username: 'jdo',
-            firstname: 'John',
-            lastname: 'Doe',
-            user_locale: 'en',
-            model_name: 'User',
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z'
-          }, {
-            id: 2,
-            authenticator: 'users',
-            email: 'john1@doe.com',
-            username: 'jdo',
-            firstname: 'John',
-            lastname: 'Doe',
-            user_locale: 'en',
-            model_name: 'User',
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z',
-            initial_password_set: true
-          }, {
-            id: 3,
-            authenticator: 'ldap',
-            email: 'darth@vader.com',
-            username: 'dvr',
-            firstname: 'Darth',
-            lastname: 'Vader',
-            user_locale: 'de',
-            model_name: 'User',
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z'
-          }],
-          meta: {
-            per_page: 3,
-            current_page: 1,
-            total: 3
-          }
+    const response = {
+      status: 200,
+      response: {
+        data: [{
+          id: 1,
+          authenticator: 'users',
+          email: 'john@doe.com',
+          username: 'jdo',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'en',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z'
+        }, {
+          id: 2,
+          authenticator: 'users',
+          email: 'john1@doe.com',
+          username: 'jdo',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'en',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z',
+          initial_password_set: true
+        }, {
+          id: 3,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z'
+        }],
+        meta: {
+          per_page: 3,
+          current_page: 1,
+          total: 3
         }
-      };
+      }
+    };
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key,
-          $te: (key) => key === 'app.roles.admin'
-        },
-        attachTo: createContainer(),
-        propsData: {
-          modalStatic: true
-        }
-      });
-
-      await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-          expect(row.findAllComponents(BButton).length).toEqual(0);
-        });
-
-        PermissionService.setCurrentUser({
-          id: 4,
-          permissions: ['users.viewAny', 'settings.manage', 'users.update']
-        });
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(1);
-        expect(rows.at(2).findAllComponents(BButton).length).toEqual(1);
-
-        rows.at(0).findAllComponents(BButton).filter(button => {
-          return button.attributes('id') === 'resetPassword1';
-        }).at(0).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(async () => {
-        expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
-        view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
-
-        await waitMoxios();
-        const request = moxios.requests.mostRecent();
-
-        expect(request.url).toBe('/api/v1/users/1/resetPassword');
-
-        request.respondWith({
-          status: 500,
-          response: {
-            message: 'Test'
-          }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.userToResetPassword).toBeUndefined();
-          expect(spy).toBeCalledTimes(1);
-          Base.error.mockRestore();
-          view.destroy();
-          PermissionService.setCurrentUser(oldUser);
-        });
-      });
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      }
     });
+
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
+
+    view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+      expect(row.findAllComponents(BButton).length).toEqual(0);
+    });
+
+    PermissionService.setCurrentUser({
+      id: 4,
+      permissions: ['users.viewAny', 'settings.manage', 'users.update']
+    });
+
+    await view.vm.$nextTick();
+
+    const rows = view.findComponent(BTbody).findAllComponents(BTr);
+    expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+    expect(rows.at(1).findAllComponents(BButton).length).toEqual(1);
+    expect(rows.at(2).findAllComponents(BButton).length).toEqual(1);
+
+    rows.at(0).findAllComponents(BButton).filter(button => {
+      return button.attributes('id') === 'resetPassword1';
+    }).at(0).trigger('click');
+
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
+    view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+
+    expect(request.url).toBe('/api/v1/users/1/resetPassword');
+
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.userToResetPassword).toBeUndefined();
+    expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
+  });
 
   it('reset password works as expected', async () => {
     const flashMessageSpy = jest.fn();
@@ -332,106 +328,102 @@ describe('UsersIndex', () => {
     });
 
     await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response).then(() => {
-      return view.vm.$nextTick();
-    }).then(() => {
-      return view.findComponent(BTbody).findComponent(BTr).findAllComponents(BButton).filter(button => {
-        return button.attributes('id') === 'resetPassword1';
-      }).at(0).trigger('click');
-    }).then(() => {
-      return view.vm.$nextTick();
-    }).then(async () => {
-      expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
-      view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
+    await view.findComponent(BTbody).findComponent(BTr).findAllComponents(BButton).filter(button => {
+      return button.attributes('id') === 'resetPassword1';
+    }).at(0).trigger('click');
 
-      expect(request.url).toBe('/api/v1/users/1/resetPassword');
+    await view.vm.$nextTick();
 
-      request.respondWith({
-        status: 200
-      }).then(() => {
-        expect(flashMessageSpy.calledOnce).toBeTruthy();
-        expect(flashMessageSpy.getCall(0).args[0].title).toBe('settings.users.passwordResetSuccess');
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-      });
+    expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
+    view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+
+    expect(request.url).toBe('/api/v1/users/1/resetPassword');
+
+    await request.respondWith({
+      status: 200
     });
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy.mock.calls[0][0].title).toEqual('settings.users.passwordResetSuccess');
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
   });
 
-  it('update and delete buttons only shown if user has the permission',
-    async () => {
-      const oldUser = PermissionService.currentUser;
+  it('update and delete buttons only shown if user has the permission', async () => {
+    const oldUser = PermissionService.currentUser;
 
-      PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
+    PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
 
-      const response = {
-        status: 200,
-        response: {
-          data: [{
-            id: 1,
-            authenticator: 'users',
-            email: 'john@doe.com',
-            username: 'jdo',
-            firstname: 'John',
-            lastname: 'Doe',
-            user_locale: 'en',
-            model_name: 'User',
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z'
-          }, {
-            id: 2,
-            authenticator: 'ldap',
-            email: 'darth@vader.com',
-            username: 'dvr',
-            firstname: 'Darth',
-            lastname: 'Vader',
-            user_locale: 'de',
-            model_name: 'User',
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z'
-          }],
-          meta: {
-            per_page: 2,
-            current_page: 1,
-            total: 2
-          }
-        }
-      };
-
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key,
-          $te: (key) => key === 'app.roles.admin'
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-          expect(row.findAllComponents(BButton).length).toEqual(0);
-        });
-
-        PermissionService.setCurrentUser({
+    const response = {
+      status: 200,
+      response: {
+        data: [{
           id: 1,
-          permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete']
-        });
+          authenticator: 'users',
+          email: 'john@doe.com',
+          username: 'jdo',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'en',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z'
+        }, {
+          id: 2,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z'
+        }],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 2
+        }
+      }
+    };
 
-        return view.vm.$nextTick();
-      }).then(() => {
-        const rows = view.findComponent(BTbody).findAllComponents(BTr);
-        expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-        expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
-
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-      });
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
+      },
+      attachTo: createContainer()
     });
+
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
+
+    view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+      expect(row.findAllComponents(BButton).length).toEqual(0);
+    });
+
+    PermissionService.setCurrentUser({
+      id: 1,
+      permissions: ['users.viewAny', 'settings.manage', 'users.update', 'users.view', 'users.delete']
+    });
+
+    await view.vm.$nextTick();
+
+    const rows = view.findComponent(BTbody).findAllComponents(BTr);
+    expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+    expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
+  });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -452,13 +444,13 @@ describe('UsersIndex', () => {
       response: {
         message: 'Test'
       }
-    }).then(() => {
-      return view.vm.$nextTick();
-    }).then(() => {
-      expect(spy).toBeCalledTimes(1);
-      Base.error.mockRestore();
-      view.destroy();
     });
+
+    await view.vm.$nextTick();
+
+    expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
   });
 
   it('not own users can be deleted', async () => {
@@ -502,129 +494,123 @@ describe('UsersIndex', () => {
     });
 
     await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response).then(() => {
-      return view.vm.$nextTick();
-    }).then(() => {
-      expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
-      view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      return view.vm.$nextTick();
-    }).then(async () => {
-      expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
-      view.findComponent({ ref: 'delete-user-modal' }).vm.$refs['ok-button'].click();
+    expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
+    view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
 
-      await waitMoxios();
-      moxios.requests.mostRecent().respondWith({ status: 204 }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.userToDelete).toBeUndefined();
+    await view.vm.$nextTick();
 
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-      });
-    });
+    expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
+    view.findComponent({ ref: 'delete-user-modal' }).vm.$refs['ok-button'].click();
+
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith({ status: 204 });
+    expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.userToDelete).toBeUndefined();
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
   });
 
-  it('property gets cleared correctly if deletion gets aborted',
-    async () => {
-      const oldUser = PermissionService.currentUser;
+  it('property gets cleared correctly if deletion gets aborted', async () => {
+    const oldUser = PermissionService.currentUser;
 
-      PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
 
-      const response = {
-        status: 200,
-        response: {
-          data: [{
-            id: 2,
-            authenticator: 'ldap',
-            email: 'darth@vader.com',
-            username: 'dvr',
-            firstname: 'Darth',
-            lastname: 'Vader',
-            user_locale: 'de',
-            model_name: 'User',
-            room_limit: 0,
-            updated_at: '2020-01-01T01:00:00.000000Z'
-          }],
-          meta: {
-            per_page: 2,
-            current_page: 1,
-            total: 1
-          }
+    const response = {
+      status: 200,
+      response: {
+        data: [{
+          id: 2,
+          authenticator: 'ldap',
+          email: 'darth@vader.com',
+          username: 'dvr',
+          firstname: 'Darth',
+          lastname: 'Vader',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: 0,
+          updated_at: '2020-01-01T01:00:00.000000Z'
+        }],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 1
         }
-      };
+      }
+    };
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key,
-          $te: (key) => key === 'app.roles.admin'
-        },
-        attachTo: createContainer(),
-        propsData: {
-          modalStatic: true
-        }
-      });
-
-      await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.userToDelete).toBeUndefined();
-        view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
-        expect(view.vm.$data.userToDelete.id).toEqual(2);
-        view.findComponent({ ref: 'delete-user-modal' }).findComponent(BButtonClose).trigger('click');
-
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
-        expect(view.vm.$data.userToDelete).toBeUndefined();
-
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-      });
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      }
     });
 
-  it('new user button is displayed if the user has the corresponding permissions',
-    async () => {
-      const oldUser = PermissionService.currentUser;
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
+    expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.userToDelete).toBeUndefined();
+    view.findComponent(BTbody).findComponent(BTr).findComponent(BButton).trigger('click');
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key,
-          $te: (key) => key === 'app.roles.admin'
-        },
-        attachTo: createContainer()
-      });
+    await view.vm.$nextTick();
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: [],
-          meta: {
-            per_page: 2,
-            current_page: 1,
-            total: 0
-          }
-        }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent(BButton).html()).toContain('settings.users.new');
+    expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.userToDelete.id).toEqual(2);
+    view.findComponent({ ref: 'delete-user-modal' }).findComponent(BButtonClose).trigger('click');
 
-        view.destroy();
-        PermissionService.setCurrentUser(oldUser);
-      });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.userToDelete).toBeUndefined();
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
+  });
+
+  it('new user button is displayed if the user has the corresponding permissions', async () => {
+    const oldUser = PermissionService.currentUser;
+
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
+
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $te: (key) => key === 'app.roles.admin'
+      },
+      attachTo: createContainer()
     });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 0
+        }
+      }
+    });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BButton).html()).toContain('settings.users.new');
+
+    view.destroy();
+    PermissionService.setCurrentUser(oldUser);
+  });
 
   it('role filter', async () => {
     moxios.stubRequest('/api/v1/roles?page=1', {
@@ -666,8 +652,6 @@ describe('UsersIndex', () => {
         }
       }
     });
-
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {
@@ -844,8 +828,6 @@ describe('UsersIndex', () => {
 
     request = moxios.requests.mostRecent();
     expect(request.config.params.role).toBeUndefined();
-
-    Base.error.mockRestore();
   });
 
   it('role filter error', async () => {
@@ -971,6 +953,5 @@ describe('UsersIndex', () => {
     expect(roleOptions.at(2).html()).toContain('Students');
 
     restoreRoles();
-    Base.error.mockRestore();
   });
 });

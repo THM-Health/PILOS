@@ -227,7 +227,6 @@ describe('RoomType Select', () => {
 
     expect(view.emitted().loadingError[0]).toEqual([true]);
     expect(spy).toBeCalledTimes(1);
-    Base.error.mockRestore();
 
     const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -301,7 +300,7 @@ describe('RoomType Select', () => {
     view.vm.reloadRoomTypes();
     await waitMoxios();
     expect(spy).toBeCalledTimes(1);
-    Base.error.mockRestore();
+
     restoreRoomTypeResponse();
     view.destroy();
   });

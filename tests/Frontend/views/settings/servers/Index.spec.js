@@ -145,51 +145,49 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(function () {
-      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        response: defaultResponse
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        const server01 = view.findComponent(BTbody).findAllComponents(BTr).at(0).findAll('td');
-        expect(server01.at(1).html()).toContain('Server 01');
-        expect(server01.at(2).html()).toContain('fa-solid fa-play');
-        expect(server01.at(3).html()).toContain('2.4.5');
-        expect(server01.at(4).html()).toContain('2');
-        expect(server01.at(5).html()).toContain('10');
-        expect(server01.at(6).html()).toContain('5');
-
-        const server02 = view.findComponent(BTbody).findAllComponents(BTr).at(1).findAll('td');
-        expect(server02.at(1).html()).toContain('Server 02');
-        expect(server02.at(2).html()).toContain('fa-solid fa-play');
-        expect(server02.at(3).html()).toContain('---');
-        expect(server02.at(4).html()).toContain('10');
-        expect(server02.at(5).html()).toContain('50');
-        expect(server02.at(6).html()).toContain('5');
-
-        const server03 = view.findComponent(BTbody).findAllComponents(BTr).at(2).findAll('td');
-        expect(server03.at(1).html()).toContain('Server 03');
-        expect(server03.at(2).html()).toContain('fa-solid fa-pause');
-        expect(server03.at(3).html()).toContain('---');
-        expect(server03.at(4).html()).toContain('---');
-        expect(server03.at(5).html()).toContain('---');
-        expect(server03.at(6).html()).toContain('---');
-
-        const server04 = view.findComponent(BTbody).findAllComponents(BTr).at(3).findAll('td');
-        expect(server04.at(1).html()).toContain('Server 04');
-        expect(server04.at(2).html()).toContain('fa-solid fa-stop');
-        expect(server04.at(3).html()).toContain('---');
-        expect(server04.at(4).html()).toContain('---');
-        expect(server04.at(5).html()).toContain('---');
-        expect(server04.at(6).html()).toContain('---');
-
-        view.destroy();
-      });
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: defaultResponse
     });
+    await view.vm.$nextTick();
+
+    const server01 = view.findComponent(BTbody).findAllComponents(BTr).at(0).findAll('td');
+    expect(server01.at(1).html()).toContain('Server 01');
+    expect(server01.at(2).html()).toContain('fa-solid fa-play');
+    expect(server01.at(3).html()).toContain('2.4.5');
+    expect(server01.at(4).html()).toContain('2');
+    expect(server01.at(5).html()).toContain('10');
+    expect(server01.at(6).html()).toContain('5');
+
+    const server02 = view.findComponent(BTbody).findAllComponents(BTr).at(1).findAll('td');
+    expect(server02.at(1).html()).toContain('Server 02');
+    expect(server02.at(2).html()).toContain('fa-solid fa-play');
+    expect(server02.at(3).html()).toContain('---');
+    expect(server02.at(4).html()).toContain('10');
+    expect(server02.at(5).html()).toContain('50');
+    expect(server02.at(6).html()).toContain('5');
+
+    const server03 = view.findComponent(BTbody).findAllComponents(BTr).at(2).findAll('td');
+    expect(server03.at(1).html()).toContain('Server 03');
+    expect(server03.at(2).html()).toContain('fa-solid fa-pause');
+    expect(server03.at(3).html()).toContain('---');
+    expect(server03.at(4).html()).toContain('---');
+    expect(server03.at(5).html()).toContain('---');
+    expect(server03.at(6).html()).toContain('---');
+
+    const server04 = view.findComponent(BTbody).findAllComponents(BTr).at(3).findAll('td');
+    expect(server04.at(1).html()).toContain('Server 04');
+    expect(server04.at(2).html()).toContain('fa-solid fa-stop');
+    expect(server04.at(3).html()).toContain('---');
+    expect(server04.at(4).html()).toContain('---');
+    expect(server04.at(5).html()).toContain('---');
+    expect(server04.at(6).html()).toContain('---');
+
+    view.destroy();
   });
 
   it('list of servers with search', async () => {
@@ -207,190 +205,173 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios(function () {
-      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        response: defaultResponse
-      }).then(async () => {
-        await view.vm.$nextTick();
-        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
-
-        const search = view.findComponent(BFormInput);
-        expect(search.exists()).toBeTruthy();
-        expect(search.html()).toContain('app.search');
-        await search.setValue('Server 02');
-
-        await waitMoxios(function () {
-          expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-          const request = moxios.requests.mostRecent();
-          expect(request.config.params.name).toBe('Server 02');
-          request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 2,
-                  name: 'Server 02',
-                  description: 'Testserver 02',
-                  strength: 1,
-                  status: 1,
-                  participant_count: 50,
-                  listener_count: 25,
-                  voice_participant_count: 30,
-                  video_count: 5,
-                  meeting_count: 10,
-                  version: null,
-                  model_name: 'Server',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/servers?page=1',
-                last: 'http://localhost/api/v1/servers?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/servers',
-                per_page: 15,
-                to: 1,
-                total: 1
-              }
-            }
-          }).then(async () => {
-            await view.vm.$nextTick();
-            expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
-            view.destroy();
-          });
-        });
-      });
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: defaultResponse
     });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
+
+    const search = view.findComponent(BFormInput);
+    expect(search.exists()).toBeTruthy();
+    expect(search.html()).toContain('app.search');
+    await search.setValue('Server 02');
+
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+    request = moxios.requests.mostRecent();
+    expect(request.config.params.name).toBe('Server 02');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            version: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 15,
+          to: 1,
+          total: 1
+        }
+      }
+    });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+    view.destroy();
   });
 
-  it('update and delete buttons only shown if user has the permission',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it('update and delete buttons only shown if user has the permission', async () => {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-      const response = {
-        status: 200,
-        response: defaultResponse
-      };
+    const response = {
+      status: 200,
+      response: defaultResponse
+    };
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        store
-      });
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      store
+    });
 
-      await waitMoxios(function () {
-        moxios.requests.mostRecent().respondWith(response).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-            expect(row.findAllComponents(BButton).length).toEqual(0);
-          });
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
+    view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+      expect(row.findAllComponents(BButton).length).toEqual(0);
+    });
 
-          return view.vm.$nextTick();
-        }).then(() => {
-          const rows = view.findComponent(BTbody).findAllComponents(BTr);
-          expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
-          expect(rows.at(1).findAllComponents(BButton).length).toEqual(2);
-          expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.update', 'servers.view', 'servers.delete'] });
 
-          view.destroy();
-        });
-      });
-    }
-  );
+    await view.vm.$nextTick();
+    const rows = view.findComponent(BTbody).findAllComponents(BTr);
+    expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+    expect(rows.at(1).findAllComponents(BButton).length).toEqual(2);
+    expect(rows.at(2).findAllComponents(BButton).length).toEqual(3);
 
-  it('error handler gets called if an error occurs during loading of data',
-    async () => {
-      const spy = jest.spyOn(console, 'error').mockImplementation();
+    view.destroy();
+  });
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        store
-      });
+  it('error handler gets called if an error occurs during loading of data', async () => {
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      await waitMoxios(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 500,
-          response: {
-            message: 'Test'
-          }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(spy).toBeCalledTimes(1);
-          Base.error.mockRestore();
-          view.destroy();
-        });
-      });
-    }
-  );
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      store
+    });
 
-  it('property gets cleared correctly if deletion gets aborted',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+    await view.vm.$nextTick();
 
-      const response = {
-        status: 200,
-        response: defaultResponse
-      };
+    expect(spy).toBeCalledTimes(1);
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        propsData: {
-          modalStatic: true
-        },
-        store
-      });
+    view.destroy();
+  });
 
-      await waitMoxios(function () {
-        moxios.requests.mostRecent().respondWith(response).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverToDelete).toBeUndefined();
-          view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+  it('property gets cleared correctly if deletion gets aborted', async () => {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-          expect(view.vm.$data.serverToDelete.id).toEqual(3);
-          view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+    const response = {
+      status: 200,
+      response: defaultResponse
+    };
 
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverToDelete).toBeUndefined();
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      },
+      store
+    });
 
-          view.destroy();
-        });
-      });
-    }
-  );
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
+    view.findComponent(BTbody).findAllComponents(BTr).at(2).findComponent(BButton).trigger('click');
+
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverToDelete.id).toEqual(3);
+    view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverToDelete).toBeUndefined();
+
+    view.destroy();
+  });
 
   it('server delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
@@ -433,7 +414,7 @@ describe('ServersIndex', () => {
 
     await waitMoxios();
     // delete without replacement
-    request = moxios.requests.mostRecent();
+    let request = moxios.requests.mostRecent();
     expect(request.config.url).toBe('/api/v1/servers/3');
     expect(request.config.method).toBe('delete');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
@@ -444,7 +425,7 @@ describe('ServersIndex', () => {
 
     await waitMoxios();
     // reload data for servers
-    let request = moxios.requests.mostRecent();
+    request = moxios.requests.mostRecent();
     expect(request.config.url).toBe('/api/v1/servers');
     expect(request.config.method).toBe('get');
     await request.respondWith({
@@ -658,7 +639,6 @@ describe('ServersIndex', () => {
     expect(view.vm.$data.serverToDelete).toBeUndefined();
 
     expect(spy).toBeCalledTimes(1);
-    Base.error.mockRestore();
 
     view.destroy();
   });
@@ -714,61 +694,57 @@ describe('ServersIndex', () => {
     await view.vm.$nextTick();
 
     expect(spy).toBeCalledTimes(1);
-    Base.error.mockRestore();
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
     expect(view.vm.$data.serverToDelete).toBeUndefined();
 
     view.destroy();
   });
 
-  it('new server button is displayed if the user has the corresponding permissions',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it('new server button is displayed if the user has the corresponding permissions', async () => {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      store
+    });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=1',
+          prev: null,
+          next: null
         },
-        attachTo: createContainer(),
-        store
-      });
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 15,
+          to: 0,
+          total: 0
+        }
+      }
+    });
+    await view.vm.$nextTick();
 
-      await waitMoxios(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            links: {
-              first: 'http://localhost/api/v1/servers?page=1',
-              last: 'http://localhost/api/v1/servers?page=1',
-              prev: null,
-              next: null
-            },
-            meta: {
-              current_page: 1,
-              from: 1,
-              last_page: 1,
-              path: 'http://localhost/api/v1/servers',
-              per_page: 15,
-              to: 0,
-              total: 0
-            }
-          }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
-          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
-          view.destroy();
-        });
-      });
-    }
-  );
+    expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.create'] });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'newServer' }).html()).toContain('settings.servers.new');
+    view.destroy();
+  });
 
   it('reload button displayed and triggers reload', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
@@ -783,96 +759,94 @@ describe('ServersIndex', () => {
     });
 
     // During normal load the usage should not be updated
-    await waitMoxios(function () {
-      const request = moxios.requests.mostRecent();
-      expect(request.config.params.update_usage).toBeFalsy();
-      request.respondWith({
-        status: 200,
-        response: defaultResponse
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(async () => {
-        expect(view.findComponent(BButton).exists()).toBeTruthy();
-        expect(view.findComponent(BButton).html()).toContain('settings.servers.reload');
-
-        view.findComponent(BButton).trigger('click');
-
-        await waitMoxios();
-        // reload data for roomTypes and force update of usage data
-        let request = moxios.requests.mostRecent();
-        expect(request.config.url).toBe('/api/v1/servers');
-        expect(request.config.method).toBe('get');
-        expect(request.config.params.update_usage).toBeTruthy();
-
-        await request.respondWith({
-          status: 200,
-          response: {
-            data: [
-              {
-                id: 1,
-                name: 'Server 01',
-                description: 'Testserver 01',
-                strength: 1,
-                status: 1,
-                participant_count: 14,
-                listener_count: 7,
-                voice_participant_count: 7,
-                video_count: 7,
-                meeting_count: 3,
-                version: '2.4.5',
-                model_name: 'Server',
-                updated_at: '2020-12-21T13:43:21.000000Z'
-              },
-              {
-                id: 2,
-                name: 'Server 02',
-                description: 'Testserver 02',
-                strength: 1,
-                status: 1,
-                participant_count: 50,
-                listener_count: 25,
-                voice_participant_count: 30,
-                video_count: 5,
-                meeting_count: 10,
-                version: '2.4.4',
-                model_name: 'Server',
-                updated_at: '2020-12-21T13:43:21.000000Z'
-              }
-            ],
-            links: {
-              first: 'http://localhost/api/v1/servers?page=1',
-              last: 'http://localhost/api/v1/servers?page=1',
-              prev: null,
-              next: null
-            },
-            meta: {
-              current_page: 1,
-              from: 1,
-              last_page: 1,
-              path: 'http://localhost/api/v1/servers',
-              per_page: 15,
-              to: 2,
-              total: 2
-            }
-          }
-        });
-
-        await view.vm.$nextTick();
-
-        const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
-        expect(html).toContain('Server 01');
-        expect(html).toContain('14');
-        expect(html).toContain('7');
-        expect(html).toContain('3');
-
-        // during future normal requests the force usage should be disabled again
-        view.vm.$root.$emit('bv::refresh::table', 'servers-table');
-        await waitMoxios();
-        request = moxios.requests.mostRecent();
-        expect(request.config.params.update_usage).toBeFalsy();
-
-        view.destroy();
-      });
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+    expect(request.config.params.update_usage).toBeFalsy();
+    await request.respondWith({
+      status: 200,
+      response: defaultResponse
     });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BButton).html()).toContain('settings.servers.reload');
+
+    view.findComponent(BButton).trigger('click');
+
+    await waitMoxios();
+    // reload data for roomTypes and force update of usage data
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/servers');
+    expect(request.config.method).toBe('get');
+    expect(request.config.params.update_usage).toBeTruthy();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 1,
+            name: 'Server 01',
+            description: 'Testserver 01',
+            strength: 1,
+            status: 1,
+            participant_count: 14,
+            listener_count: 7,
+            voice_participant_count: 7,
+            video_count: 7,
+            meeting_count: 3,
+            version: '2.4.5',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            version: '2.4.4',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 15,
+          to: 2,
+          total: 2
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
+    expect(html).toContain('Server 01');
+    expect(html).toContain('14');
+    expect(html).toContain('7');
+    expect(html).toContain('3');
+
+    // during future normal requests the force usage should be disabled again
+    view.vm.$root.$emit('bv::refresh::table', 'servers-table');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.params.update_usage).toBeFalsy();
+
+    view.destroy();
   });
 });

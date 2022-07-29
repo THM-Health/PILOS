@@ -46,7 +46,7 @@ describe('Login', () => {
     expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    request.respondWith({
+    await request.respondWith({
       status: 200
     });
 
@@ -102,7 +102,7 @@ describe('Login', () => {
     expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    request.respondWith({
+    await request.respondWith({
       status: 200
     });
 
@@ -257,7 +257,7 @@ describe('Login', () => {
     expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    request.respondWith({
+    await request.respondWith({
       status: 200
     });
 
@@ -310,7 +310,7 @@ describe('Login', () => {
     expect(request.config.url).toBe('/sanctum/csrf-cookie');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    request.respondWith({
+    await request.respondWith({
       status: 200
     });
 

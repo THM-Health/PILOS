@@ -136,64 +136,61 @@ describe('Application', () => {
     expect(view.vm.$data.settings.room_auto_delete.deadline_period).toBe(7);
   });
 
-  it('getSettings method works properly with response data room_limit is not -1',
-    async () => {
-      const view = mount(Application, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
+  it('getSettings method works properly with response data room_limit is not -1', async () => {
+    const view = mount(Application, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: 32,
-            room_token_expiration: 525600,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: 32,
+          room_token_expiration: 525600,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
               enabled: true,
-              retention_period: 14
+              retention_period: 7
             },
-            room_auto_delete: {
-              enabled: true,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
+            meetings: {
+              enabled: false,
+              retention_period: 30
             }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
           }
         }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.vm.$data.settings.logo).toBe('test.svg');
-        expect(view.vm.$data.settings.room_limit).toBe(32);
-        expect(view.vm.$data.settings.pagination_page_size).toBe(10);
-        expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
-        expect(view.vm.$data.roomLimitMode).toBe('custom');
-        expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
-      });
+      }
     });
+    await view.vm.$nextTick();
+    expect(view.vm.$data.settings.logo).toBe('test.svg');
+    expect(view.vm.$data.settings.room_limit).toBe(32);
+    expect(view.vm.$data.settings.pagination_page_size).toBe(10);
+    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(5);
+    expect(view.vm.$data.roomLimitMode).toBe('custom');
+    expect(view.vm.$data.settings.room_token_expiration).toBe(525600);
+  });
 
   it('update room_token_expiration', async () => {
     const actions = {
@@ -330,120 +327,118 @@ describe('Application', () => {
     expect(view.vm.$data.settings.attendance.retention_period).toBe(7);
   });
 
-  it('updateSettings method works properly with response data room_limit is -1',
-    async () => {
-      const actions = {
-        getSettings () {
-        }
-      };
+  it('updateSettings method works properly with response data room_limit is -1', async () => {
+    const actions = {
+      getSettings () {
+      }
+    };
 
-      const store = new Vuex.Store({
-        modules:
+    const store = new Vuex.Store({
+      modules:
           {
             session: { actions, namespaced: true }
           }
-      });
+    });
 
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: 32,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: 32,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
               enabled: true,
-              retention_period: 14
+              retention_period: 7
             },
-            room_auto_delete: {
-              enabled: true,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
+            meetings: {
+              enabled: false,
+              retention_period: 30
             }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
           }
         }
-      }).then(() => {
-        // Save button, which triggers updateSettings method when clicked
-        const saveSettingsButton = view.find('#application-save-button');
-        expect(saveSettingsButton.exists()).toBeTruthy();
-        saveSettingsButton.trigger('click');
-        return view.vm.$nextTick();
-      }).then(async () => {
-        await waitMoxios();
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 200,
-          response: {
-            data: {
-              logo: 'test1.svg',
-              room_limit: -1,
-              pagination_page_size: 11,
-              own_rooms_pagination_page_size: 6,
-              banner: {
-                enabled: false
-              },
-              bbb: bbbSettings,
-              statistics: {
-                servers: {
-                  enabled: true,
-                  retention_period: 7
-                },
-                meetings: {
-                  enabled: false,
-                  retention_period: 30
-                }
-              },
-              attendance: {
-                enabled: true,
-                retention_period: 14
-              },
-              room_auto_delete: {
-                enabled: true,
-                inactive_period: 30,
-                never_used_period: 14,
-                deadline_period: 7
-              }
-            }
-          }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.vm.$data.settings.logo).toBe('test1.svg');
-          expect(view.vm.$data.settings.room_limit).toBe(-1);
-          expect(view.vm.$data.settings.pagination_page_size).toBe(11);
-          expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
-          expect(view.vm.$data.roomLimitMode).toBe('unlimited');
-          expect(view.vm.$data.isBusy).toBeFalsy();
-        });
-      });
+      }
     });
+    // Save button, which triggers updateSettings method when clicked
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test1.svg',
+          room_limit: -1,
+          pagination_page_size: 11,
+          own_rooms_pagination_page_size: 6,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    await view.vm.$nextTick();
+
+    expect(view.vm.$data.settings.logo).toBe('test1.svg');
+    expect(view.vm.$data.settings.room_limit).toBe(-1);
+    expect(view.vm.$data.settings.pagination_page_size).toBe(11);
+    expect(view.vm.$data.settings.own_rooms_pagination_page_size).toBe(6);
+    expect(view.vm.$data.roomLimitMode).toBe('unlimited');
+    expect(view.vm.$data.isBusy).toBeFalsy();
+    view.destroy();
+  });
 
   it('roomLimitModeChanged method works properly', async () => {
     const view = mount(Application, {
@@ -468,6 +463,7 @@ describe('Application', () => {
     await view.vm.roomLimitModeChanged('custom');
 
     expect(view.vm.$data.settings.room_limit).toBe(0);
+    view.destroy();
   });
 
   it('getSettings error handler', async () => {
@@ -488,143 +484,141 @@ describe('Application', () => {
       response: {
         message: 'Test'
       }
-    }).then(() => {
-      return view.vm.$nextTick();
-    }).then(() => {
-      expect(spy).toBeCalledTimes(1);
-      Base.error.mockRestore();
     });
+    await view.vm.$nextTick();
+
+    expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
   });
 
-  it('updateSettings sends null values and booleans correctly to the backend',
-    async () => {
-      const store = new Vuex.Store({
-        modules: {
-          session: {
-            actions: {
-              getSettings () {
-              }
-            },
-            namespaced: true
-          }
-        }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: 32,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: true,
-              message: 'Test',
-              color: '#fff',
-              background: '#000',
-              icon: null,
-              title: null,
-              link: null
-            },
-            bbb: bbbSettings,
-            help_url: null,
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
+  it('updateSettings sends null values and booleans correctly to the backend', async () => {
+    const store = new Vuex.Store({
+      modules: {
+        session: {
+          actions: {
+            getSettings () {
             }
+          },
+          namespaced: true
+        }
+      }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: 32,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: true,
+            message: 'Test',
+            color: '#fff',
+            background: '#000',
+            icon: null,
+            title: null,
+            link: null
+          },
+          bbb: bbbSettings,
+          help_url: null,
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
           }
         }
-      }).then(() => {
-        const bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
-        const bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
-        expect(bannerEnableBox.props('checked')).toBe(true);
-        return bannerEnableBox.get('input').trigger('click');
-      }).then(async () => {
-        const bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
-        const bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
-        expect(bannerEnableBox.props('checked')).toBe(false);
-        expect([
-          ...bannerFormGroup.findAllComponents(BFormInput).wrappers,
-          ...bannerFormGroup.findAllComponents(BFormTextarea).wrappers,
-          ...bannerFormGroup.findAllComponents(VSwatches).wrappers
-        ].every(input => input.props('disabled'))).toBe(true);
-        expect(view.vm.settings.banner).toMatchObject({
-          enabled: false,
-          message: 'Test',
-          color: '#fff',
-          background: '#000',
-          icon: null,
-          title: null,
-          link: null
-        });
-
-        const statisticsServersEnabledCheckbox = view.findComponent({ ref: 'statistics-servers-enabled-form-group' }).findComponent(BFormCheckbox);
-        expect(statisticsServersEnabledCheckbox.props('checked')).toBe(true);
-        await statisticsServersEnabledCheckbox.get('input').trigger('click');
-
-        const statisticsMeetingsEnabledCheckbox = view.findComponent({ ref: 'statistics-meetings-enabled-form-group' }).findComponent(BFormCheckbox);
-        expect(statisticsMeetingsEnabledCheckbox.props('checked')).toBe(false);
-        await statisticsMeetingsEnabledCheckbox.get('input').trigger('click');
-
-        const attendanceEnabledCheckbox = view.findComponent({ ref: 'attendance-enabled-form-group' }).findComponent(BFormCheckbox);
-        expect(attendanceEnabledCheckbox.props('checked')).toBe(true);
-        await attendanceEnabledCheckbox.get('input').trigger('click');
-
-        const roomAutoDeleteEnabledCheckbox = view.findComponent({ ref: 'application-room-auto-delete-enabled-form-group' }).findComponent(BFormCheckbox);
-        expect(roomAutoDeleteEnabledCheckbox.props('checked')).toBe(false);
-        await roomAutoDeleteEnabledCheckbox.get('input').trigger('click');
-
-        const saveSettingsButton = view.find('#application-save-button');
-        expect(saveSettingsButton.exists()).toBeTruthy();
-        saveSettingsButton.trigger('click');
-
-        await waitMoxios();
-        const request = moxios.requests.mostRecent();
-        expect(request.config.data.get('banner[enabled]')).toStrictEqual('0');
-        expect(request.config.data.get('banner[message]')).toStrictEqual('Test');
-        expect(request.config.data.get('banner[color]')).toStrictEqual('#fff');
-        expect(request.config.data.get('banner[background]')).toStrictEqual('#000');
-        expect(request.config.data.get('banner[title]')).toStrictEqual('');
-        expect(request.config.data.get('banner[icon]')).toStrictEqual('');
-        expect(request.config.data.get('banner[link]')).toStrictEqual('');
-        expect(request.config.data.get('help_url')).toStrictEqual('');
-
-        expect(request.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
-        expect(request.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
-        expect(request.config.data.get('attendance[enabled]')).toStrictEqual('0');
-        expect(request.config.data.get('room_auto_delete[enabled]')).toStrictEqual('1');
-
-        view.destroy();
-      });
+      }
     });
+    let bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
+    let bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
+    expect(bannerEnableBox.props('checked')).toBe(true);
+    await bannerEnableBox.get('input').trigger('click');
+
+    bannerFormGroup = view.findComponent({ ref: 'banner-form-group' });
+    bannerEnableBox = bannerFormGroup.findComponent(BFormCheckbox);
+    expect(bannerEnableBox.props('checked')).toBe(false);
+    expect([
+      ...bannerFormGroup.findAllComponents(BFormInput).wrappers,
+      ...bannerFormGroup.findAllComponents(BFormTextarea).wrappers,
+      ...bannerFormGroup.findAllComponents(VSwatches).wrappers
+    ].every(input => input.props('disabled'))).toBe(true);
+    expect(view.vm.settings.banner).toMatchObject({
+      enabled: false,
+      message: 'Test',
+      color: '#fff',
+      background: '#000',
+      icon: null,
+      title: null,
+      link: null
+    });
+
+    const statisticsServersEnabledCheckbox = view.findComponent({ ref: 'statistics-servers-enabled-form-group' }).findComponent(BFormCheckbox);
+    expect(statisticsServersEnabledCheckbox.props('checked')).toBe(true);
+    await statisticsServersEnabledCheckbox.get('input').trigger('click');
+
+    const statisticsMeetingsEnabledCheckbox = view.findComponent({ ref: 'statistics-meetings-enabled-form-group' }).findComponent(BFormCheckbox);
+    expect(statisticsMeetingsEnabledCheckbox.props('checked')).toBe(false);
+    await statisticsMeetingsEnabledCheckbox.get('input').trigger('click');
+
+    const attendanceEnabledCheckbox = view.findComponent({ ref: 'attendance-enabled-form-group' }).findComponent(BFormCheckbox);
+    expect(attendanceEnabledCheckbox.props('checked')).toBe(true);
+    await attendanceEnabledCheckbox.get('input').trigger('click');
+
+    const roomAutoDeleteEnabledCheckbox = view.findComponent({ ref: 'application-room-auto-delete-enabled-form-group' }).findComponent(BFormCheckbox);
+    expect(roomAutoDeleteEnabledCheckbox.props('checked')).toBe(false);
+    await roomAutoDeleteEnabledCheckbox.get('input').trigger('click');
+
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.data.get('banner[enabled]')).toStrictEqual('0');
+    expect(request.config.data.get('banner[message]')).toStrictEqual('Test');
+    expect(request.config.data.get('banner[color]')).toStrictEqual('#fff');
+    expect(request.config.data.get('banner[background]')).toStrictEqual('#000');
+    expect(request.config.data.get('banner[title]')).toStrictEqual('');
+    expect(request.config.data.get('banner[icon]')).toStrictEqual('');
+    expect(request.config.data.get('banner[link]')).toStrictEqual('');
+    expect(request.config.data.get('help_url')).toStrictEqual('');
+
+    expect(request.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
+    expect(request.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
+    expect(request.config.data.get('attendance[enabled]')).toStrictEqual('0');
+    expect(request.config.data.get('room_auto_delete[enabled]')).toStrictEqual('1');
+
+    view.destroy();
+  });
 
   it('updateSettings error handler', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
@@ -638,7 +632,7 @@ describe('Application', () => {
     });
 
     await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
       response: {
@@ -673,26 +667,25 @@ describe('Application', () => {
           }
         }
       }
-    }).then(() => {
-      // Save button, which triggers updateSettings method when clicked
-      const saveSettingsButton = view.find('#application-save-button');
-      expect(saveSettingsButton.exists()).toBeTruthy();
-      saveSettingsButton.trigger('click');
-      return view.vm.$nextTick();
-    }).then(async () => {
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 500,
-        response: {
-          message: 'Test'
-        }
-      }).then(() => {
-        view.vm.$nextTick();
-        expect(spy).toBeCalledTimes(1);
-        Base.error.mockRestore();
-      });
     });
+    // Save button, which triggers updateSettings method when clicked
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+    await view.vm.$nextTick();
+    expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
   });
 
   it('updateSettings error handler code 413', async () => {
@@ -707,7 +700,7 @@ describe('Application', () => {
     });
 
     await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
       response: {
@@ -742,37 +735,333 @@ describe('Application', () => {
           }
         }
       }
-    }).then(() => {
-      // Errors data 'logo_file' array is undefined at the beginning
-      expect(view.vm.$data.errors.logo_file).toBeUndefined();
-
-      // Save button, which triggers updateSettings method when clicked
-      const saveSettingsButton = view.find('#application-save-button');
-      expect(saveSettingsButton.exists()).toBeTruthy();
-      saveSettingsButton.trigger('click');
-      return view.vm.$nextTick();
-    }).then(async () => {
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: env.HTTP_PAYLOAD_TOO_LARGE,
-        response: {
-          message: 'Test'
-        }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(spy).toBeCalledTimes(1);
-        Base.error.mockRestore();
-      });
     });
+    // Errors data 'logo_file' array is undefined at the beginning
+    expect(view.vm.$data.errors.logo_file).toBeUndefined();
+
+    // Save button, which triggers updateSettings method when clicked
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: env.HTTP_PAYLOAD_TOO_LARGE,
+      response: {
+        message: 'Test'
+      }
+    });
+    await view.vm.$nextTick();
+    expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
   });
 
   it('updateSettings error handler code 422', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const view = mount(Application, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    // Errors data logo file array is undefined at the beginning
+    expect(view.vm.$data.errors.pagination_page_size).toBeUndefined();
+
+    // Save button, which triggers updateSettings method when clicked
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: env.HTTP_UNPROCESSABLE_ENTITY,
+      response: {
+        errors: {
+          logo: ['logo error'],
+          room_limit: ['room limit error'],
+          pagination_page_size: ['pagination page size error.'],
+          own_rooms_pagination_page_size: ['own rooms pagination page size error'],
+          help_url: ['help url error']
+        }
+      }
+    });
+    await view.vm.$nextTick();
+    // Errors data populated accordingly to error response for this code
+    expect(view.vm.$data.errors.logo.length).toBeGreaterThan(0);
+    expect(view.vm.$data.errors.room_limit.length).toBeGreaterThan(0);
+    expect(view.vm.$data.errors.pagination_page_size.length).toBeGreaterThan(0);
+    expect(view.vm.$data.errors.own_rooms_pagination_page_size.length).toBeGreaterThan(0);
+    expect(view.vm.$data.errors.help_url.length).toBeGreaterThan(0);
+
+    view.destroy();
+  });
+
+  it('uploadLogoFile watcher called base64Encode method when value of data props uploadLogoFile changed', async () => {
+    const view = mount(Application, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    // base64Encode method spy
+    const spy = jest.spyOn(view.vm, 'base64Encode');
+
+    expect(spy).toBeCalledTimes(0);
+
+    expect(view.vm.$data.uploadLogoFile).toBe(null);
+    expect(view.vm.$data.uploadLogoFileSrc).toBe(null);
+
+    // Trigger watcher by setting to data props uploadLogoFile, empty array to avoid test warn
+    await view.setData({ uploadLogoFile: [] });
+
+    // baseEncode64 method should be called after value change of uploadLogoFileSrc
+    expect(spy).toBeCalledTimes(1);
+
+    expect(view.vm.$data.uploadFaviconFile).toBe(null);
+    expect(view.vm.$data.uploadFaviconFileSrc).toBe(null);
+
+    await view.setData({ uploadFaviconFile: [] });
+
+    expect(spy).toBeCalledTimes(2);
+
+    expect(view.vm.$data.uploadBBBLogoFile).toBe(null);
+    expect(view.vm.$data.uploadBBBLogoFileSrc).toBe(null);
+
+    await view.setData({ uploadBBBLogoFile: [] });
+
+    expect(spy).toBeCalledTimes(3);
+
+    view.destroy();
+  });
+
+  it('disable edit button if user does not have permission', () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
 
     const view = mount(Application, {
       localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    // Save button should be missing
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeFalsy();
+
+    view.destroy();
+  });
+
+  it('delete default presentation button is not visible if the view is in view only mode', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+          {
+            session: { actions, namespaced: true }
+          }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(false);
+    view.destroy();
+  });
+
+  it('delete default presentation button is visible if the view is not in view only mode', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+          {
+            session: { actions, namespaced: true }
+          }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(true);
+    view.destroy();
+  });
+
+  it('delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
       mocks: {
         $t: key => key
       },
@@ -816,82 +1105,23 @@ describe('Application', () => {
           }
         }
       }
-    }).then(async () => {
-      // Errors data logo file array is undefined at the beginning
-      expect(view.vm.$data.errors.pagination_page_size).toBeUndefined();
-
-      // Save button, which triggers updateSettings method when clicked
-      const saveSettingsButton = view.find('#application-save-button');
-      expect(saveSettingsButton.exists()).toBeTruthy();
-      saveSettingsButton.trigger('click');
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: env.HTTP_UNPROCESSABLE_ENTITY,
-        response: {
-          errors: {
-            logo: ['logo error'],
-            room_limit: ['room limit error'],
-            pagination_page_size: ['pagination page size error.'],
-            own_rooms_pagination_page_size: ['own rooms pagination page size error'],
-            help_url: ['help url error']
-          }
-        }
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        // Errors data populated accordingly to error response for this code
-        expect(view.vm.$data.errors.logo.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.room_limit.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.pagination_page_size.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.own_rooms_pagination_page_size.length).toBeGreaterThan(0);
-        expect(view.vm.$data.errors.help_url.length).toBeGreaterThan(0);
-
-        Base.error.mockRestore();
-      });
-    });
-  });
-
-  it('uploadLogoFile watcher called base64Encode method when value of data props uploadLogoFile changed', async (object, method) => {
-    const view = mount(Application, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer()
     });
 
-    // base64Encode method spy
-    const spy = jest.spyOn(view.vm, 'base64Encode').mockImplementation();
+    expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(false);
+    // fake new upload
+    view.setData({
+      default_presentation: new window.File(['foo'], 'foo.txt', {
+        type: 'text/plain',
+        lastModified: Date.now()
+      })
+    });
+    await view.vm.$nextTick();
 
-    expect(spy).toBeCalledTimes(0);
-
-    expect(view.vm.$data.uploadLogoFile).toBe(null);
-    expect(view.vm.$data.uploadLogoFileSrc).toBe(null);
-
-    // Trigger watcher by setting to data props uploadLogoFile, empty array to avoid test warn
-    await view.setData({ uploadLogoFile: [] });
-
-    // baseEncode64 method should be called after value change of uploadLogoFileSrc
-    expect(spy).toBeCalledTimes(1);
-
-    expect(view.vm.$data.uploadFaviconFile).toBe(null);
-    expect(view.vm.$data.uploadFaviconFileSrc).toBe(null);
-
-    await view.setData({ uploadFaviconFile: [] });
-
-    expect(spy).toBeCalledTimes(2);
-
-    expect(view.vm.$data.uploadBBBLogoFile).toBe(null);
-    expect(view.vm.$data.uploadBBBLogoFileSrc).toBe(null);
-
-    await view.setData({ uploadBBBLogoFile: [] });
-
-    expect(spy).toBeCalledTimes(3);
+    expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(false);
+    view.destroy();
   });
 
-  it('disable edit button if user does not have permission', () => {
+  it('revert default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
     const actions = {
@@ -915,694 +1145,437 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    // Save button should be missing
-    const saveSettingsButton = view.find('#application-save-button');
-    expect(saveSettingsButton.exists()).toBeFalsy();
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    await expect(view.findComponent({ ref: 'reset-default-presentation' }).exists()).toBe(false);
+    view.destroy();
   });
 
-  it('delete default presentation button is not visible if the view is in view only mode',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
+  it('revert default presentation button is not visible if there is no new default presentation', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-      const actions = {
-        getSettings () {
-        }
-      };
+    const actions = {
+      getSettings () {
+      }
+    };
 
-      const store = new Vuex.Store({
-        modules:
+    const store = new Vuex.Store({
+      modules:
           {
             session: { actions, namespaced: true }
           }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(false);
-        view.destroy();
-      });
     });
 
-  it('delete default presentation button is visible if the view is not in view only mode',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(true);
-        view.destroy();
-      });
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
     });
 
-  it('delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
 
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
               enabled: true,
-              retention_period: 14
+              retention_period: 7
             },
-            room_auto_delete: {
+            meetings: {
               enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
+              retention_period: 30
             }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
           }
         }
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(false);
-        // fake new upload
-        view.setData({
-          default_presentation: new window.File(['foo'], 'foo.txt', {
-            type: 'text/plain',
-            lastModified: Date.now()
-          })
-        });
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'delete-default-presentation' }).exists()).toBe(false);
-        view.destroy();
-      });
+      }
     });
-
-  it('revert default presentation button is not visible if the view is in view only mode',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        expect(view.findComponent({ ref: 'reset-default-presentation' }).exists()).toBe(false);
-        view.destroy();
-      });
-    });
-
-  it('revert default presentation button is not visible if there is no new default presentation',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        expect(view.findComponent({ ref: 'reset-default-presentation' }).exists()).toBe(false);
-        // fake new upload
-        view.setData({
-          default_presentation: new window.File(['foo'], 'foo.txt', {
-            type: 'text/plain',
-            lastModified: Date.now()
-          })
-        });
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'reset-default-presentation' }).exists()).toBe(true);
-        view.destroy();
-      });
-    });
-
-  it('view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        expect(view.findComponent({ ref: 'view-default-presentation' }).exists()).toBe(false);
-        // fake new upload
-        view.setData({
-          default_presentation: new window.File(['foo'], 'foo.txt', {
-            type: 'text/plain',
-            lastModified: Date.now()
-          })
-        });
-        return view.vm.$nextTick();
-      }).then(() => {
-        expect(view.findComponent({ ref: 'view-default-presentation' }).exists()).toBe(false);
-        view.destroy();
-      });
-    });
-
-  it('if no new default presentation was uploaded the attribute does not get send with the request',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        const saveSettingsButton = view.find('#application-save-button');
-        expect(saveSettingsButton.exists()).toBeTruthy();
-        saveSettingsButton.trigger('click');
-        return view.vm.$nextTick();
-      }).then(async () => {
-        await waitMoxios();
-        const request = moxios.requests.mostRecent();
-        expect(request.config.data.has('default_presentation')).toBe(false);
-
-        view.destroy();
-      });
-    });
-
-  it('if the default presentation was deleted the attribute gets send as null value the request',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
-              enabled: true,
-              retention_period: 14
-            },
-            room_auto_delete: {
-              enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
-            }
-          }
-        }
-      }).then(() => {
-        view.findComponent({ ref: 'delete-default-presentation' }).trigger('click');
-
-        const saveSettingsButton = view.find('#application-save-button');
-        expect(saveSettingsButton.exists()).toBeTruthy();
-        saveSettingsButton.trigger('click');
-        return view.vm.$nextTick();
-      }).then(async () => {
-        await waitMoxios();
-        const request = moxios.requests.mostRecent();
-        expect(request.config.data.get('default_presentation')).toBe('');
-
-        view.destroy();
-      });
-    });
-
-  it('if a new default presentation was uploaded the file gets send',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
-
-      const actions = {
-        getSettings () {
-        }
-      };
-
-      const store = new Vuex.Store({
-        modules:
-          {
-            session: { actions, namespaced: true }
-          }
-      });
-
-      const view = mount(Application, {
-        localVue,
-        store,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer()
-      });
-
-      const file = new window.File(['foo'], 'foo.txt', {
+    expect(view.findComponent({ ref: 'reset-default-presentation' }).exists()).toBe(false);
+    // fake new upload
+    view.setData({
+      default_presentation: new window.File(['foo'], 'foo.txt', {
         type: 'text/plain',
         lastModified: Date.now()
-      });
+      })
+    });
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'reset-default-presentation' }).exists()).toBe(true);
 
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
+    view.destroy();
+  });
 
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: {
-            logo: 'test.svg',
-            room_limit: -1,
-            pagination_page_size: 10,
-            own_rooms_pagination_page_size: 5,
-            banner: {
-              enabled: false
-            },
-            bbb: bbbSettings,
-            default_presentation: 'foo.pdf',
-            statistics: {
-              servers: {
-                enabled: true,
-                retention_period: 7
-              },
-              meetings: {
-                enabled: false,
-                retention_period: 30
-              }
-            },
-            attendance: {
+  it('view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
               enabled: true,
-              retention_period: 14
+              retention_period: 7
             },
-            room_auto_delete: {
+            meetings: {
               enabled: false,
-              inactive_period: 30,
-              never_used_period: 14,
-              deadline_period: 7
+              retention_period: 30
             }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
           }
         }
-      }).then(() => {
-        view.setData({
-          default_presentation: file
-        });
-
-        const saveSettingsButton = view.find('#application-save-button');
-        expect(saveSettingsButton.exists()).toBeTruthy();
-        saveSettingsButton.trigger('click');
-        return view.vm.$nextTick();
-      }).then(async () => {
-        await waitMoxios();
-        const request = moxios.requests.mostRecent();
-        expect(request.config.data.get('default_presentation')).toBe(file);
-
-        view.destroy();
-      });
+      }
     });
+    expect(view.findComponent({ ref: 'view-default-presentation' }).exists()).toBe(false);
+    // fake new upload
+    view.setData({
+      default_presentation: new window.File(['foo'], 'foo.txt', {
+        type: 'text/plain',
+        lastModified: Date.now()
+      })
+    });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'view-default-presentation' }).exists()).toBe(false);
+    view.destroy();
+  });
+
+  it('if no new default presentation was uploaded the attribute does not get send with the request', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.data.has('default_presentation')).toBe(false);
+
+    view.destroy();
+  });
+
+  it('if the default presentation was deleted the attribute gets send as null value the request', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+          {
+            session: { actions, namespaced: true }
+          }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    view.findComponent({ ref: 'delete-default-presentation' }).trigger('click');
+
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.data.get('default_presentation')).toBe('');
+
+    view.destroy();
+  });
+
+  it('if a new default presentation was uploaded the file gets send', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+          {
+            session: { actions, namespaced: true }
+          }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    const file = new window.File(['foo'], 'foo.txt', {
+      type: 'text/plain',
+      lastModified: Date.now()
+    });
+
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+    view.setData({
+      default_presentation: file
+    });
+
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    saveSettingsButton.trigger('click');
+    await view.vm.$nextTick();
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.data.get('default_presentation')).toBe(file);
+
+    view.destroy();
+  });
 
   it('bbb style', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
@@ -1890,7 +1863,7 @@ describe('Application', () => {
 
     const img = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAwIDUwMCIgd2lkdGg9IjUwMCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHRleHQgc3R5bGU9IndoaXRlLXNwYWNlOiBwcmU7IGZpbGw6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE2LjNweDsiIHg9IjIwNi4wNTQiIHk9IjIzNy40ODUiPlRlc3QgTG9nbzwvdGV4dD4KPC9zdmc+';
 
-    jest.replace(view.vm, 'base64Encode', jest.fake.resolves(img));
+    jest.spyOn(view.vm, 'base64Encode').mockImplementation(() => Promise.resolve(img));
 
     const file = new window.File(['foo'], 'foo.png', {
       type: 'image/png',
@@ -2132,7 +2105,6 @@ describe('Application', () => {
       }
     });
 
-    jest.mockRestore();
     view.destroy();
   });
 

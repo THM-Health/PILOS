@@ -96,24 +96,20 @@ describe('ServerPoolsIndex', () => {
       store,
       attachTo: createContainer()
     });
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    await waitMoxios(function () {
-      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        response: defaultResponse
-      }).then(() => {
-        return view.vm.$nextTick();
-      }).then(() => {
-        const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
-        expect(html).toContain('Test');
-        expect(html).toContain('2');
-
-        view.destroy();
-      });
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: defaultResponse
     });
+    await view.vm.$nextTick();
+    const html = view.findComponent(BTbody).findAllComponents(BTr).at(0).html();
+    expect(html).toContain('Test');
+    expect(html).toContain('2');
+
+    view.destroy();
   });
 
   it('list of server pools with search', async () => {
@@ -130,65 +126,61 @@ describe('ServerPoolsIndex', () => {
       store,
       attachTo: createContainer()
     });
+    await view.vm.$nextTick();
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    await waitMoxios(function () {
-      expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-      const request = moxios.requests.mostRecent();
-      request.respondWith({
-        status: 200,
-        response: defaultResponse
-      }).then(async () => {
-        await view.vm.$nextTick();
-        expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
-
-        const search = view.findComponent(BFormInput);
-        expect(search.exists()).toBeTruthy();
-        expect(search.html()).toContain('app.search');
-        await search.setValue('Prod');
-
-        await waitMoxios(function () {
-          expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-          const request = moxios.requests.mostRecent();
-          expect(request.config.params.name).toBe('Prod');
-          request.respondWith({
-            status: 200,
-            response: {
-              data: [
-                {
-                  id: 2,
-                  name: 'Production',
-                  description: 'Pool for producation',
-                  server_count: 1,
-                  model_name: 'ServerPool',
-                  updated_at: '2020-12-21T13:43:21.000000Z'
-                }
-              ],
-              links: {
-                first: 'http://localhost/api/v1/serverPools?page=1',
-                last: 'http://localhost/api/v1/serverPools?page=1',
-                prev: null,
-                next: null
-              },
-              meta: {
-                current_page: 1,
-                from: 1,
-                last_page: 1,
-                path: 'http://localhost/api/v1/serverPools',
-                per_page: 15,
-                to: 1,
-                total: 1
-              }
-            }
-          }).then(async () => {
-            await view.vm.$nextTick();
-            expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
-            view.destroy();
-          });
-        });
-      });
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: defaultResponse
     });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(2);
+
+    const search = view.findComponent(BFormInput);
+    expect(search.exists()).toBeTruthy();
+    expect(search.html()).toContain('app.search');
+    await search.setValue('Prod');
+
+    await waitMoxios();
+    expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
+
+    request = moxios.requests.mostRecent();
+    expect(request.config.params.name).toBe('Prod');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 2,
+            name: 'Production',
+            description: 'Pool for producation',
+            server_count: 1,
+            model_name: 'ServerPool',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/serverPools?page=1',
+          last: 'http://localhost/api/v1/serverPools?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/serverPools',
+          per_page: 15,
+          to: 1,
+          total: 1
+        }
+      }
+    });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(1);
+    view.destroy();
   });
 
   it('update and delete buttons only shown if user has the permission',
@@ -209,27 +201,24 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      await waitMoxios(function () {
-        moxios.requests.mostRecent().respondWith(response).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-            expect(row.findAllComponents(BButton).length).toEqual(0);
-          });
+      await waitMoxios();
+      await moxios.requests.mostRecent().respondWith(response);
+      await view.vm.$nextTick();
 
-          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.update', 'serverPools.view', 'serverPools.delete'] });
-
-          return view.vm.$nextTick();
-        }).then(() => {
-          const rows = view.findComponent(BTbody).findAllComponents(BTr);
-          expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
-          expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
-
-          view.destroy();
-        });
+      view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+        expect(row.findAllComponents(BButton).length).toEqual(0);
       });
-    }
-  );
+
+      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.update', 'serverPools.view', 'serverPools.delete'] });
+
+      await view.vm.$nextTick();
+
+      const rows = view.findComponent(BTbody).findAllComponents(BTr);
+      expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
+      expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
+
+      view.destroy();
+    });
 
   it('error handler gets called if an error occurs during loading of data',
     async () => {
@@ -244,23 +233,20 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      await waitMoxios(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 500,
-          response: {
-            message: 'Test'
-          }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(spy).toBeCalledTimes(1);
-          Base.error.mockRestore();
-          view.destroy();
-        });
+      await waitMoxios();
+      const request = moxios.requests.mostRecent();
+      await request.respondWith({
+        status: 500,
+        response: {
+          message: 'Test'
+        }
       });
-    }
-  );
+      await view.vm.$nextTick();
+
+      expect(spy).toBeCalledTimes(1);
+
+      view.destroy();
+    });
 
   it('property gets cleared correctly if deletion gets aborted',
     async () => {
@@ -283,30 +269,27 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      await waitMoxios(function () {
-        moxios.requests.mostRecent().respondWith(response).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
-          view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+      await waitMoxios();
+      await moxios.requests.mostRecent().respondWith(response);
+      await view.vm.$nextTick();
 
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-          expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
-          view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
 
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-          expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+      await view.vm.$nextTick();
 
-          view.destroy();
-        });
-      });
-    }
-  );
+      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+      view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+
+      await view.vm.$nextTick();
+
+      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+
+      view.destroy();
+    });
 
   it('server pool delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
@@ -349,7 +332,7 @@ describe('ServerPoolsIndex', () => {
 
     await waitMoxios();
     // delete without room types attached
-    request = moxios.requests.mostRecent();
+    let request = moxios.requests.mostRecent();
     expect(request.config.url).toBe('/api/v1/serverPools/2');
     expect(request.config.method).toBe('delete');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
@@ -360,7 +343,7 @@ describe('ServerPoolsIndex', () => {
 
     await waitMoxios();
     // reload data for server pools
-    let request = moxios.requests.mostRecent();
+    request = moxios.requests.mostRecent();
     expect(request.config.url).toBe('/api/v1/serverPools');
     expect(request.config.method).toBe('get');
     await request.respondWith({
@@ -496,7 +479,6 @@ describe('ServerPoolsIndex', () => {
     expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
     expect(spy).toBeCalledTimes(1);
-    Base.error.mockRestore();
 
     view.destroy();
   });
@@ -634,7 +616,7 @@ describe('ServerPoolsIndex', () => {
     await view.vm.$nextTick();
 
     expect(spy).toBeCalledTimes(1);
-    Base.error.mockRestore();
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
     expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
 
@@ -654,39 +636,36 @@ describe('ServerPoolsIndex', () => {
         store
       });
 
-      await waitMoxios(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            links: {
-              first: 'http://localhost/api/v1/serverPools?page=1',
-              last: 'http://localhost/api/v1/serverPools?page=1',
-              prev: null,
-              next: null
-            },
-            meta: {
-              current_page: 1,
-              from: 1,
-              last_page: 1,
-              path: 'http://localhost/api/v1/serverPools',
-              per_page: 15,
-              to: 0,
-              total: 0
-            }
+      await waitMoxios();
+      const request = moxios.requests.mostRecent();
+      await request.respondWith({
+        status: 200,
+        response: {
+          data: [],
+          links: {
+            first: 'http://localhost/api/v1/serverPools?page=1',
+            last: 'http://localhost/api/v1/serverPools?page=1',
+            prev: null,
+            next: null
+          },
+          meta: {
+            current_page: 1,
+            from: 1,
+            last_page: 1,
+            path: 'http://localhost/api/v1/serverPools',
+            per_page: 15,
+            to: 0,
+            total: 0
           }
-        }).then(() => {
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent({ ref: 'newServerPool' }).exists()).toBeFalsy();
-          PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.create'] });
-          return view.vm.$nextTick();
-        }).then(() => {
-          expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
-          view.destroy();
-        });
+        }
       });
-    }
-  );
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'newServerPool' }).exists()).toBeFalsy();
+      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.create'] });
+      await view.vm.$nextTick();
+
+      expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
+      view.destroy();
+    });
 });
