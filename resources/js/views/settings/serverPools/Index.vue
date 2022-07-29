@@ -63,7 +63,7 @@
         <b-button-group>
           <can method='view' :policy='data.item'>
             <b-button
-              v-b-tooltip.hover
+              v-b-tooltip.hover.bottom
               :title="$t('settings.serverPools.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='primary'
@@ -74,7 +74,7 @@
           </can>
           <can method='update' :policy='data.item'>
             <b-button
-              v-b-tooltip.hover
+              v-b-tooltip.hover.bottom
               :title="$t('settings.serverPools.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='dark'
@@ -85,7 +85,7 @@
           </can>
           <can method='delete' :policy='data.item'>
             <b-button
-              v-b-tooltip.hover
+              v-b-tooltip.hover.bottom
               :title="$t('settings.serverPools.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
