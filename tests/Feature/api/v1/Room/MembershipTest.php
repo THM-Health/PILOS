@@ -162,7 +162,7 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner adding member
+     * Test functionality room owner and co-owner adding member
      */
     public function testAddMember()
     {
@@ -256,7 +256,7 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner removing member
+     * Test functionality room owner and co-owner removing member
      */
     public function testRemoveMember()
     {
@@ -337,7 +337,7 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner removing member //shouldn't this be editing member role?
+     * Test functionality room owner and co-owner changing room membership role
      */
     public function testChangeMemberRole()
     {
