@@ -4,12 +4,9 @@ require('jsdom-global')(undefined, {
 const glob = require('glob');
 const path = require('path');
 
-global.$ = global.jQuery = require('jquery');
-
+// Required for bootstrap vue modal
 const MutationObserver = require('mutationobserver-shim');
 global.MutationObserver = MutationObserver;
-
-require('array-flat-polyfill');
 
 if (!process.env.MIX_AVAILABLE_LOCALES) {
   process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*').map(folder => {

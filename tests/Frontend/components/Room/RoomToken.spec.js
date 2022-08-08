@@ -54,7 +54,7 @@ const store = new Vuex.Store({
         currentUser: exampleUser
       },
       getters: {
-        isAuthenticated: (state) => !$.isEmptyObject(state.currentUser),
+        isAuthenticated: (state) => !_.isEmpty(state.currentUser),
         settings: () => (setting) => null
       },
       mutations: {
