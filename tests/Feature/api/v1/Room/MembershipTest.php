@@ -136,7 +136,7 @@ class MembershipTest extends TestCase
         $this->actingAs($memberModerator)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertForbidden();
 
-        // Check member list as member moderator
+        // Check member list as member co-owner
         $this->actingAs($memberCoOwner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
             ->assertSuccessful();
 
@@ -162,7 +162,7 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner adding member
+     * Test functionality room owner and co-owner adding member
      */
     public function testAddMember()
     {
@@ -256,7 +256,7 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner removing member
+     * Test functionality room owner and co-owner removing member
      */
     public function testRemoveMember()
     {
@@ -337,7 +337,7 @@ class MembershipTest extends TestCase
     }
 
     /**
-     * Test functionality room owner removing member
+     * Test functionality room owner and co-owner changing room membership role
      */
     public function testChangeMemberRole()
     {

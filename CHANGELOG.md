@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228])
 - Remove git hooks ([#217],[#228])
 - Random room polling interval ([#229],[#230])
+- Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
+
+### Fixed
+- Tooltip covering view and edit button in server pool overview ([#245],[#246])
+
+## [1.9.5] - 2022-07-25
+### Fixed
+- Tooltip covering view and edit button in server pool overview ([#245], Backport from [#246])
 
 ## [1.9.4] - 2022-06-30
 ### Changed
@@ -299,8 +307,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#230]: https://github.com/THM-Health/PILOS/pull/230
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
+[#240]: https://github.com/THM-Health/PILOS/pull/240
+[#245]: https://github.com/THM-Health/PILOS/issues/245
+[#246]: https://github.com/THM-Health/PILOS/pull/246
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.4...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -317,3 +328,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.9.2]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.2
 [1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
 [1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4
+[1.9.5]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.5

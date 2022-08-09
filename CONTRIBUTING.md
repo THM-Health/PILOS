@@ -82,7 +82,7 @@ appropriate unit and feature tests, depending on the case. In case of bugfixes a
 case should be implemented, to make regression tests possible for further changes in the application. For the backend the
 api can be tested by using feature tests and other functions just with unit tests. For more information about tests
 checkout the [Laravel testing guides](https://laravel.com/docs/7.x/testing). The frontend implemented in vue, and the
-tests gets executed by the test framework mocha. The api responses can be stubbed by using the
+tests gets executed by the test framework jest. The api responses can be stubbed by using the
 [moxios](https://github.com/axios/moxios) framework. In case of api changes, the stubbed responses also should be
 changed. For more information about writing tests for the frontend, consider the vue test utils
 [documentation](https://vue-test-utils.vuejs.org/) and the

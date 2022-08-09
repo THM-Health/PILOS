@@ -3,23 +3,17 @@ import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
 import BootstrapVue, { BBadge, BCard } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
+import { waitMoxios, overrideStub, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
@@ -50,26 +44,12 @@ const store = new Vuex.Store({
   }
 });
 
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
-
-describe('Own Room Index', function () {
-  beforeEach(function () {
+describe('Own Room Index', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
@@ -153,7 +133,7 @@ describe('Own Room Index', function () {
     ]
   };
 
-  it('check list of rooms', function (done) {
+  it('check list of rooms', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -176,26 +156,22 @@ describe('Own Room Index', function () {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      expect(view.vm.ownRooms).toEqual(exampleOwnRoomResponse);
-      expect(view.vm.sharedRooms).toEqual(exampleSharedRoomResponse);
-      const rooms = view.findAllComponents(RoomComponent);
+    expect(view.vm.ownRooms).toEqual(exampleOwnRoomResponse);
+    expect(view.vm.sharedRooms).toEqual(exampleSharedRoomResponse);
+    const rooms = view.findAllComponents(RoomComponent);
 
-      expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
-      expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
+    expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
+    expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
 
-      view.destroy();
-      done();
-    });
+    view.destroy();
   });
 
-  it('click on room in list', function (done) {
-    const spy = sinon.stub().resolves();
-
+  it('click on room in list', async () => {
     const router = new VueRouter();
-    router.push = spy;
+    const routerSpy = jest.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
 
     const exampleRoomListEntry = {
       id: 'abc-def-123',
@@ -230,16 +206,14 @@ describe('Own Room Index', function () {
 
     view.findComponent(BCard).trigger('click');
 
-    moxios.wait(() => {
-      sinon.assert.calledOnce(spy);
-      sinon.assert.calledWith(spy, { name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
+    await waitMoxios();
+    expect(routerSpy).toBeCalledTimes(1);
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
-      view.destroy();
-      done();
-    });
+    view.destroy();
   });
 
-  it('test reload function and room limit reach event', function (done) {
+  it('test reload function and room limit reach event', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -266,83 +240,80 @@ describe('Own Room Index', function () {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
-      // find current amount of rooms
-      const rooms = view.findAllComponents(RoomComponent);
-      expect(rooms.length).toBe(3);
+    await waitMoxios();
+    await view.vm.$nextTick();
+    // find current amount of rooms
+    let rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(3);
 
-      // change response and fire event
-      overrideStub('/api/v1/rooms?filter=own&page=1', {
-        status: 200,
-        response: {
-          data: [
-            {
-              id: 'abc-def-123',
-              name: 'Meeting One',
-              owner: {
-                id: 1,
-                name: 'John Doe'
-              },
-              type: {
-                id: 2,
-                short: 'ME',
-                description: 'Meeting',
-                color: '#4a5c66',
-                default: false
-              }
+    // change response and fire event
+    overrideStub('/api/v1/rooms?filter=own&page=1', {
+      status: 200,
+      response: {
+        data: [
+          {
+            id: 'abc-def-123',
+            name: 'Meeting One',
+            owner: {
+              id: 1,
+              name: 'John Doe'
             },
-            {
-              id: 'abc-def-345',
-              name: 'Meeting Two',
-              owner: {
-                id: 1,
-                name: 'John Doe'
-              },
-              type: {
-                id: 2,
-                short: 'ME',
-                description: 'Meeting',
-                color: '#4a5c66',
-                default: false
-              }
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
             }
-          ],
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            per_page: 10,
-            to: 2,
-            total: 2,
-            total_no_filter: 2
+          },
+          {
+            id: 'abc-def-345',
+            name: 'Meeting Two',
+            owner: {
+              id: 1,
+              name: 'John Doe'
+            },
+            type: {
+              id: 2,
+              short: 'ME',
+              description: 'Meeting',
+              color: '#4a5c66',
+              default: false
+            }
           }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          per_page: 10,
+          to: 2,
+          total: 2,
+          total_no_filter: 2
         }
-      });
-
-      // find new room component and fire event
-      const newRoomComponent = view.findComponent(NewRoomComponent);
-      expect(newRoomComponent.exists()).toBeTruthy();
-      newRoomComponent.vm.$emit('limitReached');
-
-      moxios.wait(function () {
-        view.vm.$nextTick();
-        // check if now two rooms are displayed
-        const rooms = view.findAllComponents(RoomComponent);
-        expect(rooms.length).toBe(4);
-
-        // try to find new room component, should be missing as the limit is reached
-        const newRoomComponent = view.findComponent(NewRoomComponent);
-        expect(newRoomComponent.exists()).toBeFalsy();
-
-        store.commit('session/setCurrentUser', exampleUser);
-        view.destroy();
-        done();
-      });
+      }
     });
+
+    // find new room component and fire event
+    let newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeTruthy();
+    newRoomComponent.vm.$emit('limitReached');
+
+    await waitMoxios();
+    await view.vm.$nextTick();
+    // check if now two rooms are displayed
+    rooms = view.findAllComponents(RoomComponent);
+    expect(rooms.length).toBe(4);
+
+    // try to find new room component, should be missing as the limit is reached
+    newRoomComponent = view.findComponent(NewRoomComponent);
+    expect(newRoomComponent.exists()).toBeFalsy();
+
+    store.commit('session/setCurrentUser', exampleUser);
+    view.destroy();
   });
 
-  it('test search', function (done) {
+  it('test search', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -365,121 +336,117 @@ describe('Own Room Index', function () {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      const searchField = view.findComponent({ ref: 'search' });
-      expect(searchField.exists()).toBeTruthy();
+    let searchField = view.findComponent({ ref: 'search' });
+    expect(searchField.exists()).toBeTruthy();
 
-      // Enter search query
-      await searchField.setValue('test');
-      searchField.trigger('change');
+    // Enter search query
+    await searchField.setValue('test');
+    searchField.trigger('change');
 
-      // Check room pagination reset
-      expect(view.vm.$data.ownRooms.meta.current_page).toBe(1);
-      expect(view.vm.$data.sharedRooms.meta.current_page).toBe(1);
+    // Check room pagination reset
+    expect(view.vm.$data.ownRooms.meta.current_page).toBe(1);
+    expect(view.vm.$data.sharedRooms.meta.current_page).toBe(1);
 
-      moxios.requests.reset();
+    moxios.requests.reset();
 
-      moxios.wait(async () => {
-        // Check if requests use the search string
-        const ownRequest = moxios.requests.at(0);
-        const sharedRequest = moxios.requests.at(1);
+    await waitMoxios();
+    // Check if requests use the search string
+    let ownRequest = moxios.requests.at(0);
+    let sharedRequest = moxios.requests.at(1);
 
-        expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
-        expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
+    expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
+    expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
 
-        await ownRequest.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            meta: {
-              current_page: 1,
-              from: null,
-              last_page: 1,
-              per_page: 10,
-              to: null,
-              total: 0,
-              total_no_filter: 1
-            }
-          }
-        });
-        await sharedRequest.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            meta: {
-              current_page: 1,
-              from: null,
-              last_page: 1,
-              per_page: 10,
-              to: null,
-              total: 0,
-              total_no_filter: 1
-            }
-          }
-        });
-
-        // check if message shows users that the user has rooms, but none that match the search query
-        const sectionOwnRooms = view.find('#ownRooms');
-        const sectionSharedRooms = view.find('#sharedRooms');
-        expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
-        expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
-
-        // check empty list message for no user rooms
-        const searchField = view.findComponent({ ref: 'search' });
-        await searchField.setValue('test2');
-        searchField.trigger('change');
-        moxios.requests.reset();
-        moxios.wait(async () => {
-          const ownRequest = moxios.requests.at(0);
-          const sharedRequest = moxios.requests.at(1);
-          expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test2');
-          expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test2');
-          await ownRequest.respondWith({
-            status: 200,
-            response: {
-              data: [],
-              meta: {
-                current_page: 1,
-                from: null,
-                last_page: 1,
-                per_page: 10,
-                to: null,
-                total: 0,
-                total_no_filter: 0
-              }
-            }
-          });
-          await sharedRequest.respondWith({
-            status: 200,
-            response: {
-              data: [],
-              meta: {
-                current_page: 1,
-                from: null,
-                last_page: 1,
-                per_page: 10,
-                to: null,
-                total: 0,
-                total_no_filter: 0
-              }
-            }
-          });
-
-          const sectionOwnRooms = view.find('#ownRooms');
-          const sectionSharedRooms = view.find('#sharedRooms');
-          expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
-          expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
-
-          view.destroy();
-          done();
-        });
-      });
+    await ownRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1
+        }
+      }
     });
+    await sharedRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1
+        }
+      }
+    });
+
+    // check if message shows users that the user has rooms, but none that match the search query
+    let sectionOwnRooms = view.find('#ownRooms');
+    let sectionSharedRooms = view.find('#sharedRooms');
+    expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+    expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+
+    // check empty list message for no user rooms
+    searchField = view.findComponent({ ref: 'search' });
+    await searchField.setValue('test2');
+    searchField.trigger('change');
+    moxios.requests.reset();
+    await waitMoxios();
+    ownRequest = moxios.requests.at(0);
+    sharedRequest = moxios.requests.at(1);
+    expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test2');
+    expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test2');
+    await ownRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0
+        }
+      }
+    });
+    await sharedRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 0
+        }
+      }
+    });
+
+    sectionOwnRooms = view.find('#ownRooms');
+    sectionSharedRooms = view.find('#sharedRooms');
+    expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+    expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+
+    view.destroy();
   });
 
-  it('test room limit', function (done) {
+  it('test room limit', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -502,69 +469,66 @@ describe('Own Room Index', function () {
       attachTo: createContainer()
     });
 
-    moxios.wait(async () => {
-      await view.vm.$nextTick();
+    await waitMoxios();
+    await view.vm.$nextTick();
 
-      // Hide room count for users without limit
-      expect(view.findComponent(BBadge).exists()).toBeFalsy();
+    // Hide room count for users without limit
+    expect(view.findComponent(BBadge).exists()).toBeFalsy();
 
-      // Show room count for users with limit
-      const newUser = _.cloneDeep(exampleUser);
-      newUser.room_limit = 2;
-      store.commit('session/setCurrentUser', newUser);
+    // Show room count for users with limit
+    const newUser = _.cloneDeep(exampleUser);
+    newUser.room_limit = 2;
+    store.commit('session/setCurrentUser', newUser);
 
-      await view.vm.$nextTick();
-      expect(view.findComponent(BBadge).exists()).toBeTruthy();
-      expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
+    await view.vm.$nextTick();
+    expect(view.findComponent(BBadge).exists()).toBeTruthy();
+    expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
 
-      // Enter search query
-      const searchField = view.findComponent({ ref: 'search' });
-      await searchField.setValue('test');
-      searchField.trigger('change');
-      moxios.requests.reset();
-      moxios.wait(async () => {
-        const ownRequest = moxios.requests.at(0);
-        const sharedRequest = moxios.requests.at(1);
-        await ownRequest.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            meta: {
-              current_page: 1,
-              from: null,
-              last_page: 1,
-              per_page: 10,
-              to: null,
-              total: 0,
-              total_no_filter: 1
-            }
-          }
-        });
-        await sharedRequest.respondWith({
-          status: 200,
-          response: {
-            data: [],
-            meta: {
-              current_page: 1,
-              from: null,
-              last_page: 1,
-              per_page: 10,
-              to: null,
-              total: 0,
-              total_no_filter: 1
-            }
-          }
-        });
-
-        // Check if room count is not based on items on the current page or the total results,
-        // but all rooms of the user, independent of the search query
-        expect(view.findComponent(BBadge).exists()).toBeTruthy();
-        expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
-
-        store.commit('session/setCurrentUser', exampleUser);
-        view.destroy();
-        done();
-      });
+    // Enter search query
+    const searchField = view.findComponent({ ref: 'search' });
+    await searchField.setValue('test');
+    searchField.trigger('change');
+    moxios.requests.reset();
+    await waitMoxios();
+    const ownRequest = moxios.requests.at(0);
+    const sharedRequest = moxios.requests.at(1);
+    await ownRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1
+        }
+      }
     });
+    await sharedRequest.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        meta: {
+          current_page: 1,
+          from: null,
+          last_page: 1,
+          per_page: 10,
+          to: null,
+          total: 0,
+          total_no_filter: 1
+        }
+      }
+    });
+
+    // Check if room count is not based on items on the current page or the total results,
+    // but all rooms of the user, independent of the search query
+    expect(view.findComponent(BBadge).exists()).toBeTruthy();
+    expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
+
+    store.commit('session/setCurrentUser', exampleUser);
+    view.destroy();
   });
 });
