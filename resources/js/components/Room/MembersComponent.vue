@@ -82,7 +82,7 @@
 
           <!-- render user profile image -->
           <template v-slot:cell(image)="data">
-            <img :src="data.value ? data.value : '/images/default_profile.png'" class="profileImage" />
+            <img :src="data.value ? data.value : '/images/default_profile.png'" class="profile-image" />
           </template>
 
           <!-- render user role -->
@@ -508,8 +508,8 @@ export default {
         fields.push({
           key: 'actions',
           label: this.$t('rooms.members.actions'),
-          thClass: 'actionColumn',
-          tdClass: 'actionButton'
+          thClass: 'action-column',
+          tdClass: 'action-button'
         });
       }
 

@@ -65,7 +65,7 @@
       <div class="row pt-7 pt-sm-9">
         <!-- Room icon -->
         <div class="col-lg-1 col-2">
-          <div :style="{ 'background-color': room.type.color}" class="roomicon" v-if="room.type">
+          <div :style="{ 'background-color': room.type.color}" class="room-icon" v-if="room.type">
             {{room.type.short}}
           </div>
         </div>
@@ -781,7 +781,7 @@ export default {
 </script>
 
 <style scoped>
-  .roomicon {
+  .room-icon {
     margin-top: 8px;
   }
 </style>

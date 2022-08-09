@@ -316,7 +316,7 @@ export default {
       ];
 
       if (this.settings('attendance.enabled') || this.settings('statistics.meetings.enabled')) {
-        table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'actionColumn' });
+        table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'action-column' });
       }
 
       return table;

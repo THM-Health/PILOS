@@ -44,7 +44,7 @@
       </template>
 
       <template v-slot:cell(short)="data">
-        <div class="roomicon" :style="{ 'background-color': data.item.color}">{{ data.item.short }}</div>
+        <div class="room-icon" :style="{ 'background-color': data.item.color}">{{ data.item.short }}</div>
       </template>
 
       <template v-slot:cell(actions)="data">

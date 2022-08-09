@@ -80,7 +80,7 @@
                     {{ room.owner.name }}
                   </small>
                 </div>
-                <div v-if="room.type" v-b-tooltip.hover :title="room.type.description" class="roomicon" :style="{ 'background-color': room.type.color}">{{room.type.short}}</div>
+                <div v-if="room.type" v-b-tooltip.hover :title="room.type.description" class="room-icon" :style="{ 'background-color': room.type.color}">{{room.type.short}}</div>
               </div>
             </b-list-group-item>
           </b-list-group>

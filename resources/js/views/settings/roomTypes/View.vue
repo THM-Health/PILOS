@@ -58,7 +58,7 @@
             label-cols-sm='4'
             :label="$t('settings.roomTypes.preview')"
           >
-            <div class="roomicon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+            <div class="room-icon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
           </b-form-group>
 
           <b-form-group

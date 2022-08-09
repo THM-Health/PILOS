@@ -7,18 +7,17 @@ $font-family-sans-serif: 'Source Sans Pro', sans-serif;
 //$line-height-base: 1.6;
 
 // Colors
-$blue: #3490dc;
-$red: #9C132E;
-$orange: #F4AA00;
-$green: #80BA27;
-$cyan: #6cb2eb;
+$blue: #2980b9;
+$red: #c0392b;
+$orange: #d35400;
+$green: #27ae60;
 
 // Branding color
-$primary: $green;
+$primary: #1abc9c;
 $link-color: $primary;
 
 // Recommended to use a black/grey, color is used for some buttons and most text
-$secondary: #343a40;
+$secondary: #2c3e50;
 $body-color: $secondary;
 
 // Semantic colors
@@ -26,6 +25,11 @@ $success: $green;
 $info: $blue;
 $warning: $orange;
 $danger: $red;
+
+// Overwrite button text color, by default automatically set to a light or dark color
+// depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
+$btn-text-color: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
+$btn-text-color-hover: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
 
 // Elements to have rounded edges
 $enable-rounded: false;
@@ -40,3 +44,5 @@ $profile-image-width: 40px;
 // Size of a single action button (view, edit, delete) in the admin ui
 $action-column-button-width: 44px;
 $action-column-button-height: 38px;
+
+@import '../custom/style';

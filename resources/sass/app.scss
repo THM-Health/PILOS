@@ -3,19 +3,24 @@
 // Variables
 @import 'variables';
 
-@import '../custom/style';
-
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap-vue/src/index.scss';
 
-
-.btn-success {
-    color: #FFF;
+// Custom button text color
+@each $name, $color in $btn-text-color {
+    @if $color {
+        .btn-#{$name} {
+            color: $color;
+        }
+    }
 }
-
-.btn-warning {
-    color: #FFF;
+@each $name, $color in $btn-text-color-hover {
+    @if $color {
+        .btn-#{$name}:hover {
+            color: $color;
+        }
+    }
 }
 
 // Font Awesome
@@ -26,7 +31,7 @@ $fa-font-path:  "../webfonts";
 
 @import "~vue-multiselect/dist/vue-multiselect.min.css";
 
-.roomicon {
+.room-icon {
     width: 40px;
     min-width: 40px;
     max-width: 40px;
@@ -42,11 +47,11 @@ $fa-font-path:  "../webfonts";
     @include border-radius($thumbnail-border-radius);
 }
 
-.roomcard{
+.room-card{
     pointer-events: auto;
     cursor: pointer;
 }
-.roomcard:hover{
+.room-card:hover{
     background-color: darken(#FFF, 7.5%) !important;
 }
 
@@ -86,9 +91,9 @@ $fa-font-path:  "../webfonts";
         font-size: inherit;
     }
 
-    & ._vue-flash-msg-body_success {
-        border: 1px solid $success !important;
-        background-color: rgba($success, 0.68) !important;
+    &._vue-flash-msg-body_success {
+        border: 1px solid $green !important;
+        background-color: rgba($green, 0.68) !important;
         &:hover {
             background-color: rgba($success, 1) !important;
         }
@@ -209,19 +214,19 @@ body {
     white-space: nowrap;
 }
 
-.profileImageColumn {
+.profile-image-column {
     width: $profile-image-width;
 }
 
-.profileImage {
+.profile-image {
     width: $profile-image-width;
 }
 
-.actionColumn{
+.action-column{
     // width of the default three action buttons (view, edit, delete) + cell padding
     width: calc(3 * #{$action-column-button-width} + 2 * #{$table-cell-padding});
 }
-.actionButton{
+.action-button{
     button, a {
         width: $action-column-button-width;
         height: $action-column-button-height;
