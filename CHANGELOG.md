@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228])
 - Remove git hooks ([#217],[#228])
 - Random room polling interval ([#229],[#230])
+- Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
 
 ### Fixed
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
@@ -306,6 +307,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#230]: https://github.com/THM-Health/PILOS/pull/230
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
+[#240]: https://github.com/THM-Health/PILOS/pull/240
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
 

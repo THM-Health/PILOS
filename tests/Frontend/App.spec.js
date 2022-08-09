@@ -33,12 +33,12 @@ const store = new Vuex.Store({
   }
 });
 
-describe('App', function () {
-  it('settings menu item gets only shown if the user has permissions to manage settings', async function () {
+describe('App', () => {
+  it('settings menu item gets only shown if the user has permissions to manage settings', async () => {
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
 
-    const wrapper = mount(App, {
+    const view = mount(App, {
       localVue,
       store,
       mocks: {
@@ -56,19 +56,23 @@ describe('App', function () {
       }
     });
 
-    await Vue.nextTick();
-    expect(wrapper.findAllComponents(BNavItem).filter((w) => {
+    // Check without permissions
+    await view.vm.$nextTick();
+    expect(view.findAllComponents(BNavItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(0);
 
+    // Check with permissions
     currentUser.permissions = ['settings.manage'];
     PermissionService.setCurrentUser(currentUser);
     await Vue.nextTick();
-    expect(wrapper.findAllComponents(BNavItem).filter((w) => {
+    expect(view.findAllComponents(BNavItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(1);
 
-    wrapper.destroy();
+    // Cleanup
+    view.destroy();
     PermissionService.setCurrentUser(oldUser);
-  });
+  }
+  );
 });

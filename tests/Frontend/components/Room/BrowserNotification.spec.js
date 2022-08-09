@@ -2,9 +2,9 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
 import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification';
-import sinon from 'sinon';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import { createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -22,26 +22,20 @@ const store = new Vuex.Store({
   }
 });
 
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
-
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-describe('Browser Notification', function () {
-  beforeEach(function () {
+describe('Browser Notification', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('show enable button if permission is granted', function (done) {
+  it('show enable button if permission is granted', async () => {
     const NotificationFake = class {
       static permission = 'granted';
     };
@@ -60,15 +54,14 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
-  it('show enable button if permission is denied', function (done) {
+
+  it('show enable button if permission is denied', async () => {
     const NotificationFake = class {
       static permission = 'denied';
     };
@@ -87,17 +80,17 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
-  it('show enable button if permission is missing', function (done) {
-    const constructorSpy = sinon.spy();
-    const closeSpy = sinon.spy();
+
+  it('show enable button if permission is missing', async () => {
+    const constructorSpy = jest.fn();
+    const closeSpy = jest.fn();
 
     const NotificationFake = class {
       constructor () {
@@ -113,6 +106,9 @@ describe('Browser Notification', function () {
 
     window.Notification = global.Notification = NotificationFake;
 
+    expect(constructorSpy).toBeCalledTimes(0);
+    expect(closeSpy).toBeCalledTimes(0);
+
     const view = mount(BrowserNotification, {
       localVue,
       mocks: {
@@ -125,17 +121,17 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      sinon.assert.calledOnce(constructorSpy);
-      sinon.assert.calledOnce(closeSpy);
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(constructorSpy).toBeCalledTimes(1);
+    expect(closeSpy).toBeCalledTimes(1);
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
-  it('hide enable button if not supported by browser', function (done) {
+
+  it('hide enable button if not supported by browser', async () => {
     const view = mount(BrowserNotification, {
       localVue,
       mocks: {
@@ -148,13 +144,11 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeFalsy();
-      view.destroy();
-      done();
-    });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BButton).exists()).toBeFalsy();
+    view.destroy();
   });
-  it('show enable button if not fully supported', function (done) {
+  it('show enable button if not fully supported', async () => {
     const NotificationFake = class {
       constructor () {
         throw new TypeError('test');
@@ -177,16 +171,14 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeFalsy();
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    await view.vm.$nextTick();
+    expect(view.findComponent(BButton).exists()).toBeFalsy();
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
 
-  it('enable notifications wih granted permission', function (done) {
+  it('enable notifications wih granted permission', async () => {
     const NotificationFake = class {
       static permission = 'granted';
     };
@@ -205,30 +197,25 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      await view.findComponent(BButton).trigger('click');
-      expect(view.findComponent(BButton).exists()).toBeFalsy();
-      expect(view.findComponent(BAlert).exists()).toBeTruthy();
+    await view.vm.$nextTick();
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BAlert).exists()).toBeFalsy();
+    await view.findComponent(BButton).trigger('click');
+    expect(view.findComponent(BButton).exists()).toBeFalsy();
+    expect(view.findComponent(BAlert).exists()).toBeTruthy();
+
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
-  it('enable notifications wih denied permission', function (done) {
+  it('enable notifications wih denied permission', async () => {
     const NotificationFake = class {
       static permission = 'denied';
     };
 
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessageSpy = jest.fn();
+    const flashMessage = { error: flashMessageSpy };
 
     window.Notification = global.Notification = NotificationFake;
 
@@ -245,23 +232,21 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      await view.findComponent(BButton).trigger('click');
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      expect(flashMessageSpy.calledOnce).toBeTruthy();
-      expect(flashMessageSpy.getCall(0).args[0]).toEqual('rooms.notification.denied');
+    await view.vm.$nextTick();
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BAlert).exists()).toBeFalsy();
+    await view.findComponent(BButton).trigger('click');
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BAlert).exists()).toBeFalsy();
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
-  it('enable notifications wih default permission, but granted on request', function (done) {
-    const constructorSpy = sinon.spy();
+  it('enable notifications wih default permission, but granted on request', async () => {
+    const constructorSpy = jest.fn();
 
     const NotificationFake = class {
       constructor () {
@@ -293,22 +278,21 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      sinon.assert.calledOnce(constructorSpy);
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      await view.findComponent(BButton).trigger('click');
-      expect(view.findComponent(BButton).exists()).toBeFalsy();
-      expect(view.findComponent(BAlert).exists()).toBeTruthy();
+    await view.vm.$nextTick();
+    expect(constructorSpy).toBeCalledTimes(1);
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BAlert).exists()).toBeFalsy();
+    await view.findComponent(BButton).trigger('click');
+    expect(view.findComponent(BButton).exists()).toBeFalsy();
+    expect(view.findComponent(BAlert).exists()).toBeTruthy();
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
-  });
-  it('enable notifications wih default permission, but denied on request', function (done) {
-    const constructorSpy = sinon.spy();
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
+  }
+  );
+  it('enable notifications wih default permission, but denied on request', async () => {
+    const constructorSpy = jest.fn();
     const NotificationFake = class {
       constructor () {
         constructorSpy();
@@ -327,12 +311,8 @@ describe('Browser Notification', function () {
 
     window.Notification = global.Notification = NotificationFake;
 
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessageSpy = jest.fn();
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(BrowserNotification, {
       localVue,
@@ -347,29 +327,28 @@ describe('Browser Notification', function () {
       attachTo: createContainer()
     });
 
-    view.vm.$nextTick().then(async () => {
-      sinon.assert.calledOnce(constructorSpy);
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
-      await view.findComponent(BButton).trigger('click');
-      expect(view.findComponent(BButton).exists()).toBeTruthy();
-      expect(view.findComponent(BAlert).exists()).toBeFalsy();
+    await view.vm.$nextTick();
+    expect(constructorSpy).toBeCalledTimes(1);
 
-      expect(flashMessageSpy.calledOnce).toBeTruthy();
-      expect(flashMessageSpy.getCall(0).args[0]).toEqual('rooms.notification.denied');
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BAlert).exists()).toBeFalsy();
+    await view.findComponent(BButton).trigger('click');
+    expect(view.findComponent(BButton).exists()).toBeTruthy();
+    expect(view.findComponent(BAlert).exists()).toBeFalsy();
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
+
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
 
-  it('change status from not running to running', function (done) {
-    const constructorSpy = sinon.spy();
-    const closeSpy = sinon.spy();
-    const focusSpy = sinon.spy();
-    const clock = sinon.useFakeTimers({ now: 1483228800000 });
+  it('change status from not running to running', async () => {
+    const constructorSpy = jest.fn();
+    const closeSpy = jest.fn();
+    const focusSpy = jest.fn();
+    jest.useFakeTimers().setSystemTime(new Date('2017-01-01'));
 
     const NotificationFake = class {
       constructor (title, options = {}) {
@@ -408,39 +387,34 @@ describe('Browser Notification', function () {
       store
     });
 
-    view.vm.$nextTick().then(async () => {
-      await view.findComponent(BButton).trigger('click');
-      await view.setProps({ running: true });
+    await view.vm.$nextTick();
+    await view.findComponent(BButton).trigger('click');
+    await view.setProps({ running: true });
 
-      sinon.assert.calledOnce(constructorSpy);
-      expect(constructorSpy.getCall(0).args[0]).toEqual('test');
-      expect(constructorSpy.getCall(0).args[1]).toEqual({ body: 'rooms.notification.body:{"time":"01/01/2017, 01:00"}', icon: 'favicon.ico' });
+    expect(constructorSpy).toBeCalledTimes(1);
+    expect(constructorSpy.mock.calls[0][0]).toEqual('test');
+    expect(constructorSpy.mock.calls[0][1]).toEqual({ body: 'rooms.notification.body:{"time":"01/01/2017, 01:00"}', icon: 'favicon.ico' });
 
-      await view.setProps({ running: false });
-      sinon.assert.calledOnce(closeSpy);
+    await view.setProps({ running: false });
+    expect(closeSpy).toBeCalledTimes(1);
 
-      await view.setProps({ running: true });
-      sinon.assert.calledTwice(constructorSpy);
+    await view.setProps({ running: true });
+    expect(constructorSpy).toBeCalledTimes(2);
 
-      view.vm.$data.notification.triggerClick();
-      sinon.assert.calledTwice(closeSpy);
-      sinon.assert.calledOnce(focusSpy);
+    view.vm.$data.notification.triggerClick();
+    expect(closeSpy).toBeCalledTimes(2);
+    expect(focusSpy).toBeCalledTimes(1);
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      delete window.focus;
-      clock.restore();
-      done();
-    });
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
+    delete window.focus;
+
+    jest.useRealTimers();
   });
-  it('change status from not running to running with error', function (done) {
-    const flashMessageSpy = sinon.spy();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+  it('change status from not running to running with error', async () => {
+    const flashMessageSpy = jest.fn();
+    const flashMessage = { error: flashMessageSpy };
 
     const NotificationFake = class {
       constructor (title, options = {}) {
@@ -467,19 +441,17 @@ describe('Browser Notification', function () {
       store
     });
 
-    view.vm.$nextTick().then(async () => {
-      await view.findComponent(BButton).trigger('click');
-      await view.setProps({ running: true });
+    await view.vm.$nextTick();
+    await view.findComponent(BButton).trigger('click');
+    await view.setProps({ running: true });
 
-      expect(view.findComponent(BButton).exists()).toBeFalsy();
+    expect(view.findComponent(BButton).exists()).toBeFalsy();
 
-      sinon.assert.calledOnce(flashMessageSpy);
-      expect(flashMessageSpy.getCall(0).args[0]).toEqual('rooms.notification.browserSupport');
+    expect(flashMessageSpy).toBeCalledTimes(1);
+    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.browserSupport');
 
-      view.destroy();
-      delete window.Notification;
-      delete global.Notification;
-      done();
-    });
+    view.destroy();
+    delete window.Notification;
+    delete global.Notification;
   });
 });

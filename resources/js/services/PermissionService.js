@@ -3,6 +3,7 @@ import WrongTypeError from '../errors/WrongTypeError';
 import Policies from '../policies';
 import PolicyDoesNotExistsError from '../errors/PolicyDoesNotExistsError';
 import EventBus from './EventBus';
+import _ from 'lodash';
 
 /**
  * Service that holds the current user and provides methods that allows to check the permissions of the current user.
@@ -41,7 +42,7 @@ class PermissionService {
    * @return undefined
    */
   setCurrentUser (currentUser, emit = true) {
-    this.currentUser = $.isEmptyObject(currentUser) ? undefined : currentUser;
+    this.currentUser = _.isEmpty(currentUser) ? undefined : currentUser;
 
     /**
      * Triggers when new current user set on this service.

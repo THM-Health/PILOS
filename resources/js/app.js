@@ -1,5 +1,4 @@
-import './bootstrap';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
+import { BootstrapVue } from 'bootstrap-vue';
 import Vue from 'vue';
 import store from './store';
 import App from './views/App';
@@ -9,11 +8,18 @@ import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
 
+/**
+ * We'll load the axios HTTP library which allows us to easily issue requests
+ * to our Laravel back-end. This library automatically handles sending the
+ * CSRF token as a header based on the value of the "XSRF" token cookie.
+ */
+window.axios = require('axios');
+window.axios.defaults.withCredentials = true;
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
 Vue.use(Clipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin);
 
 Vue.use(FlashMessage, {
   strategy: 'multiple'

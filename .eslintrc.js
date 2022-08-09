@@ -3,12 +3,12 @@ module.exports = {
     browser: true,
     es6: true,
     jquery: true,
-    mocha: true
+    'jest/globals': true
   },
   extends: [
     'plugin:vue/essential',
     'standard',
-    'plugin:mocha/recommended'
+    'plugin:jest/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -24,7 +24,7 @@ module.exports = {
   plugins: [
     'vue',
     '@intlify/vue-i18n',
-    'mocha'
+    'jest'
   ],
   rules: {
     '@intlify/vue-i18n/no-html-messages': 'error',
