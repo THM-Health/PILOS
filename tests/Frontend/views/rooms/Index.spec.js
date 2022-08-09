@@ -192,11 +192,11 @@ describe('Room Index', () => {
 
     expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
     expect(rooms.at(0).get('small').text()).toEqual('John Doe');
-    expect(rooms.at(0).get('.roomicon').text()).toEqual('ME');
+    expect(rooms.at(0).get('.room-icon').text()).toEqual('ME');
 
     expect(rooms.at(1).get('h5').text()).toEqual('Meeting Two');
     expect(rooms.at(1).get('small').text()).toEqual('Max Doe');
-    expect(rooms.at(1).get('.roomicon').text()).toEqual('VL');
+    expect(rooms.at(1).get('.room-icon').text()).toEqual('VL');
 
     // check if all room types are shown
     const roomTypes = view.findAll('[name="room-types-checkbox"]');
@@ -417,7 +417,7 @@ describe('Room Index', () => {
     expect(rooms.length).toEqual(1);
     expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
     expect(rooms.at(0).get('small').text()).toEqual('John Doe');
-    expect(rooms.at(0).get('.roomicon').text()).toEqual('ME');
+    expect(rooms.at(0).get('.room-icon').text()).toEqual('ME');
 
     // check if no room info is missing
     expect(view.find('em').exists()).toBeFalsy();
