@@ -14,17 +14,11 @@ import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
-import { waitMoxios } from '../../helper';
+import { waitMoxios, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(Vuex);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 const bbbSettings = {
   file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',

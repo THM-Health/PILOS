@@ -15,7 +15,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -32,26 +32,6 @@ const store = new Vuex.Store({
     }
   }
 });
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 let oldUser;
 
@@ -118,6 +98,7 @@ describe('RolesView', () => {
 
     await waitMoxios();
     expect(view.html()).toContain('settings.roles.view app.roles.admin');
+    view.destroy();
   });
 
   it('role name in title gets translated for update view', async () => {
@@ -137,6 +118,7 @@ describe('RolesView', () => {
 
     await waitMoxios();
     expect(view.html()).toContain('settings.roles.edit app.roles.admin');
+    view.destroy();
   });
 
   it('input fields are disabled if the role is displayed in view mode', async () => {
@@ -158,6 +140,7 @@ describe('RolesView', () => {
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.isDisabled)).toBe(true);
     expect(view.findAllComponents(BFormRadio).wrappers.every(input => input.vm.isDisabled)).toBe(true);
+    view.destroy();
   });
 
   it('data gets loaded for update view of a role', async () => {
@@ -231,6 +214,7 @@ describe('RolesView', () => {
     expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
     expect(roomLimitCustomRadio.vm.isChecked).toBe(true);
     expect(view.vm.model.room_limit).toBe(0);
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during load of data', async () => {
@@ -274,6 +258,7 @@ describe('RolesView', () => {
 
     restoreRoleResponse();
     restorePermissionsResponse();
+    view.destroy();
   });
 
   it('back button causes a back navigation without persistence', async () => {
@@ -401,6 +386,7 @@ describe('RolesView', () => {
     await waitMoxios();
     expect(spy).toBeCalledTimes(1);
     restoreRoleResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
@@ -465,6 +451,8 @@ describe('RolesView', () => {
 
     expect(data.updated_at).toBe(newModel.updated_at);
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    restoreRoleResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
@@ -525,6 +513,7 @@ describe('RolesView', () => {
     await view.vm.$nextTick();
     expect(view.findComponent(BFormInput).element.value).toBe('Test');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    view.destroy();
   });
 
   it('reload overlay gets shown if an error occurs during load of permissions', async () => {
@@ -560,6 +549,7 @@ describe('RolesView', () => {
     expect(saveButton.wrappers.length).toBe(1);
 
     restorePermissionsResponse();
+    view.destroy();
   });
 
   it('user gets redirected to index page if the role is not found', async () => {
@@ -577,7 +567,7 @@ describe('RolesView', () => {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
@@ -598,6 +588,7 @@ describe('RolesView', () => {
     expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
 
     restoreRoleResponse();
+    view.destroy();
   });
 
   it('reload overlay gets shown if another error than 404 occurs during load of the role', async () => {
@@ -632,6 +623,7 @@ describe('RolesView', () => {
     expect(saveButton.wrappers.length).toBe(1);
 
     restoreRoleResponse();
+    view.destroy();
   });
 
   it('user gets redirected to index page if the role is not found during save', async () => {
@@ -673,6 +665,7 @@ describe('RolesView', () => {
     expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
 
     restoreRoleResponse();
+    view.destroy();
   });
 
   it('included permissions get shown and updated', async () => {
@@ -773,5 +766,6 @@ describe('RolesView', () => {
     expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
 
     restorePermissionsResponse();
+    view.destroy();
   });
 });

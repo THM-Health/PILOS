@@ -1,20 +1,7 @@
 import Session from '../../../resources/js/store/modules/session';
 import moxios from 'moxios';
 import i18n, { importLanguage } from '../../../resources/js/i18n';
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
+import { overrideStub } from '../helper';
 
 describe('store/session', () => {
   beforeEach(() => {

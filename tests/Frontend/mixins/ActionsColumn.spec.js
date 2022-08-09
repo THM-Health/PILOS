@@ -100,5 +100,7 @@ describe('ActionsColumn', () => {
     expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'testClass', thStyle: 'testStyle', tdClass: 'testClass2' }]);
     await Vue.nextTick();
     PermissionService.setCurrentUser(oldUser);
+
+    view.destroy();
   });
 });

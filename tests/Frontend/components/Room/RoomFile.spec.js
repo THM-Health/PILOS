@@ -7,15 +7,9 @@ import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
@@ -835,6 +829,7 @@ describe('RoomFile', () => {
 
     expect(baseError).toBeCalledTimes(1);
     expect(baseError.mock.calls[0][0].response.status).toEqual(500);
+    view.destroy();
   });
 
   it('download file', async () => {

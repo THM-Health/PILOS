@@ -13,7 +13,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -30,26 +30,6 @@ const store = new Vuex.Store({
     }
   }
 });
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 let oldUser;
 
@@ -108,6 +88,7 @@ describe('ServerView', () => {
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(BFormRating).wrappers.every(input => input.vm.disabled)).toBe(true);
     expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.disabled)).toBe(true);
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
@@ -150,6 +131,7 @@ describe('ServerView', () => {
 
     expect(view.vm.$data.model.id).toBe(1);
     expect(view.vm.$data.model.name).toEqual('Server 01');
+    view.destroy();
   });
 
   it('error handler gets called and redirected if a 404 error occurs during load of data', async () => {
@@ -166,7 +148,7 @@ describe('ServerView', () => {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -186,6 +168,7 @@ describe('ServerView', () => {
     expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
 
     restoreServerResponse();
+    view.destroy();
   });
 
   it('error handler gets called and redirected if a 404 error occurs during save of data', async () => {
@@ -225,6 +208,7 @@ describe('ServerView', () => {
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
     restoreServerResponse();
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during update', async () => {
@@ -257,6 +241,7 @@ describe('ServerView', () => {
     expect(spy).toBeCalledTimes(1);
 
     restoreServerResponse();
+    view.destroy();
   });
 
   it('back button causes a back navigation without persistence', async () => {
@@ -363,6 +348,7 @@ describe('ServerView', () => {
     await waitMoxios();
     expect(spy).toBeCalledTimes(1);
     restoreServerResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
@@ -419,6 +405,7 @@ describe('ServerView', () => {
     expect(data.updated_at).toBe(newModel.updated_at);
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
     restoreServerResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
@@ -464,6 +451,7 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Server 02');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    view.destroy();
   });
 
   it('show correct status on page load', async () => {
@@ -702,6 +690,7 @@ describe('ServerView', () => {
     expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
 
     restoreServerResponse();
+    view.destroy();
   });
 
   it('show panic button only if user has permission', async () => {
@@ -724,6 +713,7 @@ describe('ServerView', () => {
     PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(false);
+    view.destroy();
   });
 
   it('panic button calls api and gets disabled while running', async () => {
@@ -801,5 +791,6 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
     expect(spy).toBeCalledTimes(1);
+    view.destroy();
   });
 });

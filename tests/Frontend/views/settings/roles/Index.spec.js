@@ -3,17 +3,11 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, createContainer } from '../../../helper';
 import Base from '../../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 describe('RolesIndex', () => {
   beforeEach(() => {

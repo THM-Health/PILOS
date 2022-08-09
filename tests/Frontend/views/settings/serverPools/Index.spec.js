@@ -3,7 +3,6 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
-
   BTr,
   BTbody,
   BButton,
@@ -13,7 +12,7 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -53,12 +52,6 @@ const defaultResponse = {
     to: 2,
     total: 2
   }
-};
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
 };
 
 const store = new Vuex.Store({
@@ -183,113 +176,110 @@ describe('ServerPoolsIndex', () => {
     view.destroy();
   });
 
-  it('update and delete buttons only shown if user has the permission',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it('update and delete buttons only shown if user has the permission', async () => {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-      const response = {
-        status: 200,
-        response: defaultResponse
-      };
+    const response = {
+      status: 200,
+      response: defaultResponse
+    };
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        store
-      });
-
-      await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
-
-      view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
-        expect(row.findAllComponents(BButton).length).toEqual(0);
-      });
-
-      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.update', 'serverPools.view', 'serverPools.delete'] });
-
-      await view.vm.$nextTick();
-
-      const rows = view.findComponent(BTbody).findAllComponents(BTr);
-      expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
-      expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
-
-      view.destroy();
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      store
     });
 
-  it('error handler gets called if an error occurs during loading of data',
-    async () => {
-      const spy = jest.spyOn(Base, 'error').mockImplementation();
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        store
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 500,
-        response: {
-          message: 'Test'
-        }
-      });
-      await view.vm.$nextTick();
-
-      expect(spy).toBeCalledTimes(1);
-
-      view.destroy();
+    view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
+      expect(row.findAllComponents(BButton).length).toEqual(0);
     });
 
-  it('property gets cleared correctly if deletion gets aborted',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.update', 'serverPools.view', 'serverPools.delete'] });
 
-      const response = {
-        status: 200,
-        response: defaultResponse
-      };
+    await view.vm.$nextTick();
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        propsData: {
-          modalStatic: true
-        },
-        store
-      });
+    const rows = view.findComponent(BTbody).findAllComponents(BTr);
+    expect(rows.at(0).findAllComponents(BButton).length).toEqual(3);
+    expect(rows.at(1).findAllComponents(BButton).length).toEqual(3);
 
-      await waitMoxios();
-      await moxios.requests.mostRecent().respondWith(response);
-      await view.vm.$nextTick();
+    view.destroy();
+  });
 
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
-      view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+  it('error handler gets called if an error occurs during loading of data', async () => {
+    const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-      await view.vm.$nextTick();
-
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-      expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
-      view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
-
-      await view.vm.$nextTick();
-
-      expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-      expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
-
-      view.destroy();
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      store
     });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+    await view.vm.$nextTick();
+
+    expect(spy).toBeCalledTimes(1);
+
+    view.destroy();
+  });
+
+  it('property gets cleared correctly if deletion gets aborted', async () => {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
+
+    const response = {
+      status: 200,
+      response: defaultResponse
+    };
+
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      propsData: {
+        modalStatic: true
+      },
+      store
+    });
+
+    await waitMoxios();
+    await moxios.requests.mostRecent().respondWith(response);
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+    view.findComponent(BTbody).findAllComponents(BTr).at(1).findComponent(BButton).trigger('click');
+
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+    expect(view.vm.$data.serverPoolToDelete.id).toEqual(2);
+    view.findComponent(BModal).findComponent(BButtonClose).trigger('click');
+
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.vm.$data.serverPoolToDelete).toBeUndefined();
+
+    view.destroy();
+  });
 
   it('server pool delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
@@ -623,49 +613,48 @@ describe('ServerPoolsIndex', () => {
     view.destroy();
   });
 
-  it('new server pool button is displayed if the user has the corresponding permissions',
-    async () => {
-      PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+  it('new server pool button is displayed if the user has the corresponding permissions', async () => {
+    PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-      const view = mount(Index, {
-        localVue,
-        mocks: {
-          $t: key => key
-        },
-        attachTo: createContainer(),
-        store
-      });
-
-      await waitMoxios();
-      const request = moxios.requests.mostRecent();
-      await request.respondWith({
-        status: 200,
-        response: {
-          data: [],
-          links: {
-            first: 'http://localhost/api/v1/serverPools?page=1',
-            last: 'http://localhost/api/v1/serverPools?page=1',
-            prev: null,
-            next: null
-          },
-          meta: {
-            current_page: 1,
-            from: 1,
-            last_page: 1,
-            path: 'http://localhost/api/v1/serverPools',
-            per_page: 15,
-            to: 0,
-            total: 0
-          }
-        }
-      });
-      await view.vm.$nextTick();
-
-      expect(view.findComponent({ ref: 'newServerPool' }).exists()).toBeFalsy();
-      PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.create'] });
-      await view.vm.$nextTick();
-
-      expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
-      view.destroy();
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer(),
+      store
     });
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: [],
+        links: {
+          first: 'http://localhost/api/v1/serverPools?page=1',
+          last: 'http://localhost/api/v1/serverPools?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/serverPools',
+          per_page: 15,
+          to: 0,
+          total: 0
+        }
+      }
+    });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'newServerPool' }).exists()).toBeFalsy();
+    PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.create'] });
+    await view.vm.$nextTick();
+
+    expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
+    view.destroy();
+  });
 });

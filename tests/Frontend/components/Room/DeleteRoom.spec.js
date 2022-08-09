@@ -5,15 +5,9 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios } from '../../helper';
+import { waitMoxios, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
@@ -94,7 +88,7 @@ describe('Delete room', () => {
       status: 204
     });
 
-    component.vm.$nextTick();
+    await component.vm.$nextTick();
     expect(component.emitted().roomDeleted).toBeTruthy();
   });
 
@@ -127,7 +121,7 @@ describe('Delete room', () => {
       status: 404
     });
 
-    component.vm.$nextTick();
+    await component.vm.$nextTick();
     expect(flashMessageSpy).toBeCalledTimes(1);
     expect(flashMessageSpy.mock.calls[0][0].response.status).toBe(404);
   });

@@ -14,15 +14,9 @@ import env from '../../../../resources/js/env';
 
 import storeOrg from '../../../../resources/js/store';
 import i18n from '../../../../resources/js/i18n';
-import { waitModalHidden, waitModalShown, waitMoxios } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);

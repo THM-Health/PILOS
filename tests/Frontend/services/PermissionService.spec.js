@@ -7,50 +7,44 @@ import Vue from 'vue';
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {
-    it('fires an event if the current user gets set and passes the newly set user as parameter',
-      async () => {
-        const oldUser = PermissionService.currentUser;
-        const newUser = { permissions: ['foo', 'bar'] };
-        const handleUserChanged = jest.fn();
+    it('fires an event if the current user gets set and passes the newly set user as parameter', async () => {
+      const oldUser = PermissionService.currentUser;
+      const newUser = { permissions: ['foo', 'bar'] };
+      const handleUserChanged = jest.fn();
 
-        EventBus.$on('currentUserChangedEvent', handleUserChanged);
-        PermissionService.setCurrentUser(newUser);
-        await Vue.nextTick();
+      EventBus.$on('currentUserChangedEvent', handleUserChanged);
+      PermissionService.setCurrentUser(newUser);
+      await Vue.nextTick();
 
-        expect(handleUserChanged).toBeCalledTimes(1);
-        expect(handleUserChanged).toBeCalledWith(newUser);
+      expect(handleUserChanged).toBeCalledTimes(1);
+      expect(handleUserChanged).toBeCalledWith(newUser);
 
-        EventBus.$off('currentUserChangedEvent', handleUserChanged);
+      EventBus.$off('currentUserChangedEvent', handleUserChanged);
 
-        const spy = jest.fn();
-        EventBus.$on('currentUserChangedEvent', spy);
-        PermissionService.setCurrentUser(newUser, false);
-        await Vue.nextTick();
+      const spy = jest.fn();
+      EventBus.$on('currentUserChangedEvent', spy);
+      PermissionService.setCurrentUser(newUser, false);
+      await Vue.nextTick();
 
-        expect(spy).toBeCalledTimes(0);
+      expect(spy).toBeCalledTimes(0);
 
-        EventBus.$off('currentUserChangedEvent', spy);
-        PermissionService.setCurrentUser(oldUser);
-      }
-    );
+      EventBus.$off('currentUserChangedEvent', spy);
+      PermissionService.setCurrentUser(oldUser);
+    });
   });
 
   describe('can', () => {
     describe('policy and method parameter', () => {
-      it('throws an error if the passed parameters hasn\'t the correct type',
-        () => {
-          expect(() => PermissionService.can({}, 'test')).toThrow(WrongTypeError);
-        }
-      );
+      it('throws an error if the passed parameters hasn\'t the correct type', () => {
+        expect(() => PermissionService.can({}, 'test')).toThrow(WrongTypeError);
+      });
 
-      it('throws an error if the policy or its method doesn\'t exists',
-        () => {
-          PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
-          expect(() => PermissionService.can('test', 'test')).toThrow(new PolicyDoesNotExistsError('test', 'test'));
-          expect(() => PermissionService.can('testA', 'TestPolicy')).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
-          PermissionService.__ResetDependency__('Policies');
-        }
-      );
+      it('throws an error if the policy or its method doesn\'t exists', () => {
+        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+        expect(() => PermissionService.can('test', 'test')).toThrow(new PolicyDoesNotExistsError('test', 'test'));
+        expect(() => PermissionService.can('testA', 'TestPolicy')).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
+        PermissionService.__ResetDependency__('Policies');
+      });
 
       it('returns the boolean value returned by the policy method', () => {
         PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
@@ -60,27 +54,21 @@ describe('PermissionService', () => {
     });
 
     describe('object and method parameter', () => {
-      it('throws an error if the passed parameters hasn\'t the correct type',
-        () => {
-          expect(() => PermissionService.can({}, {})).toThrow(WrongTypeError);
-        }
-      );
+      it('throws an error if the passed parameters hasn\'t the correct type', () => {
+        expect(() => PermissionService.can({}, {})).toThrow(WrongTypeError);
+      });
 
-      it('throws an error if the passed object hasn\'t set the `model_name` property',
-        () => {
-          expect(() => PermissionService.can('test', {})).toThrow(ParameterMissingError);
-          expect(() => PermissionService.can('test', { model_name: {} })).toThrow(ParameterMissingError);
-        }
-      );
+      it('throws an error if the passed object hasn\'t set the `model_name` property', () => {
+        expect(() => PermissionService.can('test', {})).toThrow(ParameterMissingError);
+        expect(() => PermissionService.can('test', { model_name: {} })).toThrow(ParameterMissingError);
+      });
 
-      it('throws an error if the policy for the object or its method doesn\'t exists',
-        () => {
-          PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
-          expect(() => PermissionService.can('test', { model_name: 'test' })).toThrow(new PolicyDoesNotExistsError('testPolicy', 'test'));
-          expect(() => PermissionService.can('testA', { model_name: 'Test' })).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
-          PermissionService.__ResetDependency__('Policies');
-        }
-      );
+      it('throws an error if the policy for the object or its method doesn\'t exists', () => {
+        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+        expect(() => PermissionService.can('test', { model_name: 'test' })).toThrow(new PolicyDoesNotExistsError('testPolicy', 'test'));
+        expect(() => PermissionService.can('testA', { model_name: 'Test' })).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
+        PermissionService.__ResetDependency__('Policies');
+      });
 
       it('returns the boolean value returned by the policy method', () => {
         PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
@@ -91,12 +79,10 @@ describe('PermissionService', () => {
   });
 
   describe('cannot', () => {
-    it('returns the inverted boolean value of the can method and passes all arguments to it',
-      () => {
-        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
-        expect(PermissionService.cannot('test', 'TestPolicy')).toEqual(false);
-        PermissionService.__ResetDependency__('Policies');
-      }
-    );
+    it('returns the inverted boolean value of the can method and passes all arguments to it', () => {
+      PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+      expect(PermissionService.cannot('test', 'TestPolicy')).toEqual(false);
+      PermissionService.__ResetDependency__('Policies');
+    });
   });
 });

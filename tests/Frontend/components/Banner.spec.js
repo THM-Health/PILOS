@@ -69,5 +69,7 @@ describe('Banner', () => {
     content = view.html();
     expect(content).toContain('fa-open-door');
     expect(content).toContain('Foo');
+
+    view.destroy();
   });
 });

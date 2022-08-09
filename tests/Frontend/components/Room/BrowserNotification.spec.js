@@ -4,6 +4,7 @@ import moxios from 'moxios';
 import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
+import { createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -20,12 +21,6 @@ const store = new Vuex.Store({
     }
   }
 });
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });

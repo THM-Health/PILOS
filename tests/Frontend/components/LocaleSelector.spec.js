@@ -54,8 +54,9 @@ describe('LocaleSelector', () => {
     expect(dropdownItems.filter(w => w.text() === 'English').length).toBe(0);
     expect(dropdownItems.filter(w => w.text() === 'Russian').length).toBe(1);
     expect(dropdownItems.filter(w => w.text() === 'German').length).toBe(1);
-  }
-  );
+
+    wrapper.destroy();
+  });
 
   it('the `currentLocale` should be active in the dropdown', async () => {
     store.commit('session/setCurrentLocale', 'ru');
@@ -73,6 +74,8 @@ describe('LocaleSelector', () => {
     const activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('Russian');
+
+    wrapper.destroy();
   });
 
   it('shows an corresponding error message and doesn\'t change the language on 422', async () => {
@@ -116,6 +119,8 @@ describe('LocaleSelector', () => {
 
     expect(flashMessageSpy).toBeCalledTimes(1);
     expect(flashMessageSpy).toBeCalledWith({ message: 'Test' });
+
+    wrapper.destroy();
   });
 
   it('calls global error handler on other errors than 422 and finishes loading', async () => {
@@ -158,6 +163,8 @@ describe('LocaleSelector', () => {
     expect(store.state.loadingCounter).toEqual(0);
 
     expect(spy).toBeCalledTimes(1);
+
+    wrapper.destroy();
   });
 
   it('changes to the selected language successfully', async () => {
@@ -197,5 +204,7 @@ describe('LocaleSelector', () => {
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('German');
+
+    wrapper.destroy();
   });
 });

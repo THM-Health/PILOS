@@ -1,6 +1,6 @@
 const moxios = require('moxios');
 /**
- * Various asynchronous helper functions for testing with promises
+ * Various helper functions for testing
  */
 module.exports = {
   /**
@@ -46,5 +46,37 @@ module.exports = {
    */
   waitModalShown: async (wrapper, action) => {
     await module.exports.waitModalEvent(wrapper, action, 'shown');
+  },
+
+  /**
+   * Overwrite an existing moxios response
+   * @see https://github.com/axios/moxios/issues/42#issuecomment-499578991
+   * @param url Url of the axios call
+   * @param response New response for axios call
+   * @returns {restoreFunc} Function to restore old response
+   */
+  overrideStub: (url, response) => {
+    const l = moxios.stubs.count();
+    for (let i = 0; i < l; i++) {
+      const stub = moxios.stubs.at(i);
+      if (stub.url === url) {
+        const oldResponse = stub.response;
+        const restoreFunc = () => { stub.response = oldResponse; };
+
+        stub.response = response;
+        return restoreFunc;
+      }
+    }
+  },
+
+  /**
+   * Create new html element in html body
+   * @param tag tag of the element
+   * @returns {HTMLDivElement}
+   */
+  createContainer: (tag = 'div') => {
+    const container = document.createElement(tag);
+    document.body.appendChild(container);
+    return container;
   }
 };

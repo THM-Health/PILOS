@@ -8,23 +8,9 @@ import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios } from '../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../helper';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 const store = new Vuex.Store({
   modules: {
@@ -57,12 +43,6 @@ const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 describe('Create new rooms', () => {
   beforeEach(() => {

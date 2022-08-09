@@ -2,7 +2,6 @@ import Index from '../../../../resources/js/views/meetings/Index';
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
-
   BTr,
   BTbody, BButton, BPagination, BFormInput, BOverlay, BThead, BTh
 } from 'bootstrap-vue';
@@ -10,7 +9,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios } from '../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -65,26 +64,6 @@ const defaultResponse = {
   }
 
 };
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });

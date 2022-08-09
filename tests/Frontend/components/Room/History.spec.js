@@ -8,18 +8,12 @@ import HistoryComponent from '../../../../resources/js/components/Room/HistoryCo
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, waitMoxios } from '../../helper';
+import { waitModalShown, waitMoxios, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
-};
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
 };
 
 localVue.use(BootstrapVue);

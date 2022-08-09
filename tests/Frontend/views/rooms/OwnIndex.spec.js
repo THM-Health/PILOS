@@ -8,18 +8,12 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios } from '../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
@@ -49,20 +43,6 @@ const store = new Vuex.Store({
     loadingCounter: 0
   }
 });
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 describe('Own Room Index', () => {
   beforeEach(() => {

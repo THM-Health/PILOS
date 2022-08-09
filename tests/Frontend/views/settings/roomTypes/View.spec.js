@@ -15,7 +15,7 @@ import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
 import Multiselect from 'vue-multiselect';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, overrideStub } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -32,20 +32,6 @@ const store = new Vuex.Store({
     }
   }
 });
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 let oldUser;
 
@@ -134,6 +120,7 @@ describe('RoomTypeView', () => {
 
     await waitMoxios();
     expect(view.html()).toContain('settings.roomTypes.view Meeting');
+    view.destroy();
   });
 
   it('room type description in title gets translated for update view', async () => {
@@ -151,6 +138,7 @@ describe('RoomTypeView', () => {
 
     await waitMoxios();
     expect(view.html()).toContain('settings.roomTypes.edit Meeting');
+    view.destroy();
   });
 
   it('server pools get loaded, pagination and error handling', async () => {
@@ -273,6 +261,7 @@ describe('RoomTypeView', () => {
     expect(multiSelect.props('loading')).toBeFalsy();
     expect(multiSelect.props('disabled')).toBeFalsy();
     expect(saveButton.attributes('disabled')).toBeUndefined();
+    view.destroy();
   });
 
   it('input fields are disabled if the room type is displayed in view mode', async () => {
@@ -292,6 +281,7 @@ describe('RoomTypeView', () => {
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(VSwatches).wrappers.every(input => input.vm.disabled)).toBe(true);
     expect(view.findComponent(Multiselect).props('disabled')).toBeTruthy();
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
@@ -333,6 +323,7 @@ describe('RoomTypeView', () => {
 
     expect(view.vm.$data.model.id).toBe(1);
     expect(view.vm.$data.model.description).toEqual('Meeting');
+    view.destroy();
   });
 
   it('error handler gets called and redirected if a 404 error occurs during load of data', async () => {
@@ -349,7 +340,7 @@ describe('RoomTypeView', () => {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -368,6 +359,7 @@ describe('RoomTypeView', () => {
     expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
 
     restoreRoomTypeResponse();
+    view.destroy();
   });
 
   it('error handler gets called and redirected if a 404 error occurs during save of data', async () => {
@@ -406,6 +398,7 @@ describe('RoomTypeView', () => {
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
     restoreRoomTypeResponse();
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during update', async () => {
@@ -436,6 +429,7 @@ describe('RoomTypeView', () => {
     await waitMoxios();
     expect(spy).toBeCalledTimes(1);
     restoreRoomTypeResponse();
+    view.destroy();
   });
 
   it('back button causes a back navigation without persistence', async () => {
@@ -532,6 +526,7 @@ describe('RoomTypeView', () => {
     await waitMoxios();
     expect(spy).toBeCalledTimes(1);
     restoreRoomTypeResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
@@ -586,6 +581,8 @@ describe('RoomTypeView', () => {
 
     expect(data.updated_at).toBe(newModel.updated_at);
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    restoreRoomTypeResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
@@ -636,5 +633,6 @@ describe('RoomTypeView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Test');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    view.destroy();
   });
 });

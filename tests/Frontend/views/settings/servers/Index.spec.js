@@ -13,7 +13,7 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -101,12 +101,6 @@ const defaultResponse = {
     to: 2,
     total: 2
   }
-};
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
 };
 
 const store = new Vuex.Store({

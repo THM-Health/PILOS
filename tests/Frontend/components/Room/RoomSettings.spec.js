@@ -11,15 +11,9 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios } from '../../helper';
+import { waitMoxios, createContainer } from '../../helper';
 
 const localVue = createLocalVue();
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
@@ -883,5 +877,7 @@ describe('RoomSettings', () => {
       listed: true,
       record_attendance: true
     });
+
+    view.destroy();
   });
 });

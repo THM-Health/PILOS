@@ -2,17 +2,12 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import { shallowMount, mount } from '@vue/test-utils';
 import Can from '../../../../resources/js/components/Permissions/Can';
 import Vue from 'vue';
+import { createContainer } from '../../helper';
 
 const testComponent = {
   name: 'test-component',
   /* eslint-disable @intlify/vue-i18n/no-raw-text */
   template: '<p>test</p>'
-};
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
 };
 
 describe('Can', () => {
@@ -35,8 +30,7 @@ describe('Can', () => {
 
     wrapper.destroy();
     PermissionService.__ResetDependency__('Policies');
-  }
-  );
+  });
 
   it('shows the content if the necessary permission is available', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
@@ -57,8 +51,7 @@ describe('Can', () => {
 
     wrapper.destroy();
     PermissionService.__ResetDependency__('Policies');
-  }
-  );
+  });
 
   it('updates state on changes of the current user of the permission service', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
@@ -85,8 +78,7 @@ describe('Can', () => {
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
-  }
-  );
+  });
 
   it('describes from `currentUserChangedEvent` after destroy', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
@@ -120,8 +112,7 @@ describe('Can', () => {
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
-  }
-  );
+  });
 
   it('component does not generate an extra html tag', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });

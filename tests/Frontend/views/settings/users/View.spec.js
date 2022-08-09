@@ -18,26 +18,12 @@ import env from '../../../../../resources/js/env.js';
 import Vuex from 'vuex';
 import Multiselect from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, overrideStub } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 let store;
 let oldUser;
@@ -255,19 +241,17 @@ describe('UsersView', () => {
     view.destroy();
   });
 
-  it('throws an error if the config property is not passed or contains wrong data',
-    () => {
-      expect(View.props.config.validator({})).toBe(false);
-      expect(View.props.config.validator({ id: '1' })).toBe(false);
-      expect(View.props.config.validator({ type: '1' })).toBe(false);
-      expect(View.props.config.validator({ type: 'edit' })).toBe(false);
-      expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
-      expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(true);
-      expect(View.props.config.validator({ id: 2, type: 'profile' })).toBe(false);
-      PermissionService.setCurrentUser(null);
-      expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(false);
-    }
-  );
+  it('throws an error if the config property is not passed or contains wrong data', () => {
+    expect(View.props.config.validator({})).toBe(false);
+    expect(View.props.config.validator({ id: '1' })).toBe(false);
+    expect(View.props.config.validator({ type: '1' })).toBe(false);
+    expect(View.props.config.validator({ type: 'edit' })).toBe(false);
+    expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
+    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(true);
+    expect(View.props.config.validator({ id: 2, type: 'profile' })).toBe(false);
+    PermissionService.setCurrentUser(null);
+    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(false);
+  });
 
   it('the configured locales should be selectable in the corresponding select', async () => {
     View.__set__('LocaleMap', {

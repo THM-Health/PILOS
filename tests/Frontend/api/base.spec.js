@@ -13,7 +13,6 @@ describe('base', () => {
 
   afterEach(() => {
     moxios.uninstall();
-    consoleErrorStub.mockRestore();
   });
 
   describe('call', () => {
@@ -28,7 +27,6 @@ describe('base', () => {
       await Base.call('test', {}, true);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      spy.mockRestore();
     });
 
     it('makes an call to the passed route with the passed parameters', async () => {
@@ -75,7 +73,7 @@ describe('base', () => {
 
       const router = new VueRouter();
       const routerSpy = jest.spyOn(router, 'replace').mockImplementation();
-      const routerMock = jest.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
+      jest.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
 
       const storeCommitSpy = jest.fn();
       const store = {
@@ -169,9 +167,6 @@ describe('base', () => {
       expect(flashMessageErrorSpy).toBeCalledWith('app.flash.clientError');
       expect(consoleErrorStub).toBeCalledTimes(1);
       expect(consoleErrorStub).toBeCalledWith('Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
-      jest.clearAllMocks();
-
-      routerMock.mockRestore();
     });
 
     it('`getCsrfCookie` calls the route for getting a csrf cookie',
@@ -192,7 +187,6 @@ describe('base', () => {
       await Base.setLocale('de');
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith('setLocale', { data: { locale: 'de' }, method: 'post' });
-      spy.mockRestore();
     });
   });
 });

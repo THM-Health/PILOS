@@ -12,7 +12,7 @@ import VueRouter from 'vue-router';
 import RoomView from '../../../../resources/js/views/rooms/View';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import { waitModalHidden, waitModalShown, waitMoxios } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
 
 const routerMock = new VueRouter({
   mode: 'abstract',
@@ -27,12 +27,6 @@ const localVue = createLocalVue();
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
-};
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
 };
 
 localVue.use(BootstrapVue);

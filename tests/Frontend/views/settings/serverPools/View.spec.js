@@ -14,7 +14,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -31,26 +31,6 @@ const store = new Vuex.Store({
     }
   }
 });
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 let oldUser;
 
@@ -186,6 +166,7 @@ describe('ServerPoolView', () => {
     await waitMoxios();
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(Multiselect).wrappers.every(input => input.vm.disabled)).toBe(true);
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
@@ -228,6 +209,7 @@ describe('ServerPoolView', () => {
 
     expect(view.vm.$data.model.id).toBe(1);
     expect(view.vm.$data.model.name).toEqual('Test');
+    view.destroy();
   });
 
   it('error handler gets called and redirected if a 404 error occurs during load of data', async () => {
@@ -244,7 +226,7 @@ describe('ServerPoolView', () => {
       }
     });
 
-    mount(View, {
+    const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key
@@ -264,6 +246,7 @@ describe('ServerPoolView', () => {
     expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
 
     restoreServerPoolResponse();
+    view.destroy();
   });
 
   it('error handler gets called and redirected if a 404 error occurs during save of data', async () => {
@@ -303,6 +286,7 @@ describe('ServerPoolView', () => {
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
     restoreServerPoolResponse();
+    view.destroy();
   });
 
   it('error handler gets called if an error occurs during update', async () => {
@@ -335,6 +319,7 @@ describe('ServerPoolView', () => {
     expect(spy).toBeCalledTimes(1);
 
     restoreServerPoolResponse();
+    view.destroy();
   });
 
   it('back button causes a back navigation without persistence', async () => {
@@ -363,6 +348,7 @@ describe('ServerPoolView', () => {
     await view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click');
     expect(moxios.requests.count()).toBe(requestCount);
     expect(spy).toBeCalledTimes(1);
+    view.destroy();
   });
 
   it('request with updates get send during saving the server', async () => {
@@ -428,6 +414,7 @@ describe('ServerPoolView', () => {
     await waitMoxios();
     expect(spy).toBeCalledTimes(1);
     restoreServerPoolResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
@@ -484,6 +471,7 @@ describe('ServerPoolView', () => {
     expect(data.updated_at).toBe(newModel.updated_at);
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
     restoreServerPoolResponse();
+    view.destroy();
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
@@ -529,6 +517,7 @@ describe('ServerPoolView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Demo');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    view.destroy();
   });
 
   it('server get loaded, pagination and error handling', async () => {
@@ -679,5 +668,6 @@ describe('ServerPoolView', () => {
     expect(multiSelect.props('loading')).toBeFalsy();
     expect(multiSelect.props('disabled')).toBeFalsy();
     expect(saveButton.attributes('disabled')).toBeUndefined();
+    view.destroy();
   });
 });

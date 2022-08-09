@@ -2,14 +2,10 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import Vue from 'vue';
 import TextTruncate from '../../../resources/js/components/TextTruncate';
 import BootstrapVue from 'bootstrap-vue';
+import { createContainer } from '../helper';
 
 const localVue = createLocalVue();
 
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 localVue.use(BootstrapVue);
 
 describe('TextTruncate', () => {

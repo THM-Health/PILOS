@@ -13,17 +13,11 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(Vuex);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
 
 const store = new Vuex.Store({
   modules: {

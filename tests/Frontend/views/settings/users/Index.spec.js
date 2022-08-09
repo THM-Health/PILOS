@@ -5,30 +5,10 @@ import PermissionService from '../../../../../resources/js/services/PermissionSe
 import Index from '../../../../../resources/js/views/settings/users/Index';
 import Base from '../../../../../resources/js/api/base';
 import Multiselect from 'vue-multiselect';
-import { waitMoxios } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
-
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
 
 describe('UsersIndex', () => {
   beforeEach(() => {
@@ -821,13 +801,14 @@ describe('UsersIndex', () => {
       }
     });
 
-    // clea role
+    // clear role
     await view.findComponent({ ref: 'clearRolesButton' }).trigger('click');
     await waitMoxios();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
     request = moxios.requests.mostRecent();
     expect(request.config.params.role).toBeUndefined();
+    view.destroy();
   });
 
   it('role filter error', async () => {
@@ -953,5 +934,6 @@ describe('UsersIndex', () => {
     expect(roleOptions.at(2).html()).toContain('Students');
 
     restoreRoles();
+    view.destroy();
   });
 });

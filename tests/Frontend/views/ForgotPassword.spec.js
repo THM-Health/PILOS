@@ -71,6 +71,8 @@ describe('ForgotPassword', () => {
     });
     expect(spy).toBeCalledTimes(1);
     expect(spy.mock.calls[0][0].response.status).toEqual(500);
+
+    view.destroy();
   });
 
   it('submit redirects to home page withe a success message on success', async () => {
@@ -108,5 +110,7 @@ describe('ForgotPassword', () => {
 
     expect(flashMessageSpy).toBeCalledTimes(1);
     expect(flashMessageSpy).toBeCalledWith({ title: 'Success!' });
+
+    view.destroy();
   });
 });
