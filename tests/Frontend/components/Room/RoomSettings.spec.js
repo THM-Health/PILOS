@@ -12,6 +12,7 @@ import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { waitMoxios, createContainer } from '../../helper';
+import _ from 'lodash';
 
 const localVue = createLocalVue();
 
@@ -34,6 +35,15 @@ const exampleRoomTypeResponse = {
   ]
 };
 
+const settings = {
+  attendance: {
+    enabled: true
+  },
+  bbb: {
+    welcome_message_limit: 250
+  }
+};
+
 const store = new Vuex.Store({
   modules: {
     session: {
@@ -46,7 +56,7 @@ const store = new Vuex.Store({
       },
       getters: {
         isAuthenticated: () => true,
-        settings: () => (setting) => setting === 'attendance.enabled' ? true : null
+        settings: () => (setting) => _.get(settings, setting)
       }
     }
   },
@@ -79,12 +89,7 @@ describe('RoomSettings', () => {
         room: exampleRoom
       },
       store,
-      attachTo: createContainer(),
-      data () {
-        return {
-          welcomeMessageLimit: '50'
-        };
-      }
+      attachTo: createContainer()
     });
 
     await waitMoxios();
@@ -144,7 +149,7 @@ describe('RoomSettings', () => {
     expect(inputFields.at(0).element.value).toBe('Meeting One');
     expect(textArea.element.value).toBe('welcome');
     // check if welcome char limit is shown
-    expect(textArea.element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"7 / 50"}');
+    expect(textArea.element.parentElement.parentElement.children[1].innerHTML).toContain('rooms.settings.general.chars:{"chars":"7 / 250"}');
     expect(inputFields.at(1).element.value).toBe('5');
 
     // security
@@ -736,7 +741,7 @@ describe('RoomSettings', () => {
       response: {
         message: 'The given data was invalid.',
         errors: {
-          welcome: ['The Welcome message may not be greater than 500 characters.']
+          welcome: ['The Welcome message may not be greater than 250 characters.']
         }
       }
     });
@@ -744,12 +749,21 @@ describe('RoomSettings', () => {
 
     // check if error message is shown
     const welcome = view.findComponent(BFormTextarea);
-    expect(welcome.element.parentElement.parentElement.children[2].innerHTML).toContain('The Welcome message may not be greater than 500 characters.');
+    expect(welcome.element.parentElement.parentElement.children[2].innerHTML).toContain('The Welcome message may not be greater than 250 characters.');
 
     view.destroy();
   });
 
   it('load and save settings with attendance logging globally disabled', async () => {
+    const settings = {
+      attendance: {
+        enabled: false
+      },
+      bbb: {
+        welcome_message_limit: 250
+      }
+    };
+
     const store = new Vuex.Store({
       modules: {
         session: {
@@ -763,7 +777,7 @@ describe('RoomSettings', () => {
           },
           getters: {
             isAuthenticated: () => true,
-            settings: () => (setting) => setting === 'attendance.enabled' ? false : null
+            settings: () => (setting) => _.get(settings, setting)
           }
         }
       },
@@ -787,12 +801,7 @@ describe('RoomSettings', () => {
         room: ownerRoom
       },
       store,
-      attachTo: createContainer(),
-      data () {
-        return {
-          welcomeMessageLimit: '50'
-        };
-      }
+      attachTo: createContainer()
     });
 
     await waitMoxios();

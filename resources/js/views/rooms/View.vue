@@ -381,7 +381,7 @@ export default {
      * @returns {number} random refresh internal in seconds
      */
     getRandomRefreshInterval: function () {
-      const base = Math.abs(env.REFRESH_RATE);
+      const base = Math.abs(this.settings('room_refresh_rate'));
       // 15% range to scatter the values around the base refresh rate
       const percentageRange = 0.15;
       const absoluteRange = base * percentageRange;
@@ -750,7 +750,8 @@ export default {
   computed: {
 
     ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated'
+      isAuthenticated: 'session/isAuthenticated',
+      settings: 'session/settings'
     }),
 
     /**
@@ -758,7 +759,7 @@ export default {
      */
     invitationText: function () {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
+      message += this.$t('rooms.invitation.link', { link: this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
         message += '\n' + this.$t('rooms.invitation.code', {

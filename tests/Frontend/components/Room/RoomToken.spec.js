@@ -49,7 +49,7 @@ const store = new Vuex.Store({
       },
       getters: {
         isAuthenticated: (state) => !_.isEmpty(state.currentUser),
-        settings: () => (setting) => null
+        settings: () => (setting) => setting === 'base_url' ? 'https://domain.tld' : null
       },
       mutations: {
         setCurrentUser (state, { currentUser, emit = true }) {
@@ -243,7 +243,7 @@ describe('Room Token', () => {
     await buttonsRow0.at(0).trigger('click');
 
     expect(clipboardSpy).toBeCalledTimes(1);
-    expect(clipboardSpy).toBeCalledWith(process.env.MIX_FRONTEND_BASE_URL + '/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+    expect(clipboardSpy).toBeCalledWith('https://domain.tld/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
 
     expect(flashMessageSpy).toBeCalledTimes(1);
     expect(flashMessageSpy).toBeCalledWith({ message: 'rooms.tokens.roomLinkCopied:{"firstname":"John","lastname":"Doe"}' });

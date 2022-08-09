@@ -42,16 +42,22 @@ const store = new Vuex.Store({
         getCurrentUser () {}
       },
       state: {
-        currentUser: exampleUser
+        currentUser: exampleUser,
+        settings: {
+          room_refresh_rate: 30
+        }
       },
       getters: {
         isAuthenticated: (state) => !_.isEmpty(state.currentUser),
-        settings: () => (setting) => null
+        settings: (state) => (setting) => _.isEmpty(state.settings) ? undefined : _.get(state.settings, setting)
       },
       mutations: {
         setCurrentUser (state, { currentUser, emit = true }) {
           state.currentUser = currentUser;
           PermissionService.setCurrentUser(state.currentUser, emit);
+        },
+        setSettings (state, settings) {
+          state.settings = settings;
         }
       }
     }
@@ -2330,31 +2336,25 @@ describe('Room', () => {
       attachTo: createContainer()
     });
 
-    const currentRefreshRate = env.REFRESH_RATE;
-
     await view.vm.$nextTick();
     // use fixed random value for testing only
-    const random = jest.spyOn(Math, 'random').mockReturnValue(0.4);
+    jest.spyOn(Math, 'random').mockReturnValue(0.4);
 
     // check for pos. integer
-    env.REFRESH_RATE = 10;
+    await store.commit('session/setSettings', { room_refresh_rate: 10 });
     expect(view.vm.getRandomRefreshInterval()).toBe(9.7);
 
     // check for zero
-    env.REFRESH_RATE = 0;
+    await store.commit('session/setSettings', { room_refresh_rate: 0 });
     expect(view.vm.getRandomRefreshInterval()).toBe(0);
 
     // check for neg. integer
-    env.REFRESH_RATE = -20;
+    await store.commit('session/setSettings', { room_refresh_rate: -20 });
     expect(view.vm.getRandomRefreshInterval()).toBe(19.4);
 
     // check for float
-    env.REFRESH_RATE = 4.2;
+    await store.commit('session/setSettings', { room_refresh_rate: 4.2 });
     expect(view.vm.getRandomRefreshInterval()).toBe(4.074);
-
-    // restore stubbed functions and properties
-    random.mockRestore();
-    env.REFRESH_RATE = currentRefreshRate;
 
     view.destroy();
   });

@@ -51,6 +51,8 @@ class SettingsTest extends TestCase
         ]]);
         setting(['help_url' => 'http://localhost']);
         setting(['room_token_expiration' => -1]);
+        setting(['room_refresh_rate' => 20]);
+        config(['app.url' => 'https://domain.tld']);
 
         setting(['statistics' => [
             'meetings' => [
@@ -67,6 +69,7 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
+                    'base_url'                       => 'https://domain.tld',
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
                     'own_rooms_pagination_page_size' => '123',
@@ -91,7 +94,8 @@ class SettingsTest extends TestCase
                         'enabled'           => false,
                         'retention_period'  => 14
                     ],
-                    'room_token_expiration' => -1
+                    'room_token_expiration' => -1,
+                    'room_refresh_rate'     => 20,
                 ]
             ])
             ->assertSuccessful();
@@ -120,6 +124,7 @@ class SettingsTest extends TestCase
         ]]);
 
         setting(['room_token_expiration' => 100]);
+        setting(['room_refresh_rate' => 5.5]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -142,7 +147,8 @@ class SettingsTest extends TestCase
                         'enabled'           => true,
                         'retention_period'  => 14
                     ],
-                    'room_token_expiration' => 100
+                    'room_token_expiration' => 100,
+                    'room_refresh_rate'     => 5.5,
                 ]
             ])
             ->assertSuccessful();
@@ -176,6 +182,8 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.max_filesize' => 10]);
         config(['bigbluebutton.room_name_limit' => 20]);
         config(['bigbluebutton.welcome_message_limit' => 100]);
+        config(['app.url' => 'https://domain.tld']);
+        setting(['room_refresh_rate' => 20]);
 
         setting(['statistics' => [
             'servers' => [
@@ -211,10 +219,12 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application.complete'))
             ->assertJson([
                 'data' => [
+                    'base_url'                       => 'https://domain.tld',
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
                     'own_rooms_pagination_page_size' => '123',
                     'room_limit'                     => '-1',
+                    'room_refresh_rate'              => 20,
                     'banner'                         => [
                         'enabled'    => true,
                         'message'    => 'Welcome to Test!',

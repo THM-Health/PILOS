@@ -422,7 +422,6 @@ export default {
       roomTypeSelectBusy: false,
       roomTypeSelectLoadingError: false,
       modelLoadingError: false,
-      welcomeMessageLimit: env.WELCOME_MESSAGE_LIMIT,
       errors: {}
     };
   },
@@ -507,7 +506,7 @@ export default {
       const char = this.settings.welcome
         ? this.settings.welcome.length
         : 0;
-      return char + ' / ' + this.welcomeMessageLimit;
+      return char + ' / ' + this.globalSettings('bbb.welcome_message_limit');
     }
   },
   created () {
