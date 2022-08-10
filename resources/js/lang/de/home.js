@@ -19,9 +19,9 @@ export default {
       description: 'Teile Nutzer für Gruppenarbeiten in Kleingruppen auf',
       title: 'Kleingruppen'
     },
-    recording: {
-      description: 'Zeichne die Unterhaltung auf und stelle diese später zur Verfügung',
-      title: 'Aufzeichnung'
+    statistics: {
+      description: 'Werte die Anwesenheit und Mediennutzung aus',
+      title: 'Auswertungen'
     },
     screenSharing: {
       description: 'Teile den Inhalt deines Bildschirms oder Anwendung',

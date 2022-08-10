@@ -228,6 +228,18 @@ body {
     }
 }
 
+.stamp {
+    color: #fff;
+    display: inline-block;
+    min-width: 2rem;
+    padding: 1em 1.5em;
+    height: auto;
+    line-height: 2rem;
+    text-align: center;
+    font-weight: 600;
+    @include border-radius($thumbnail-border-radius);
+}
+
 
 .nav-icon-item {
     font-size: 1.25rem;
