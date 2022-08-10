@@ -1,11 +1,6 @@
-// Fonts
-@import 'fonts';
-// Variables
-@import 'variables';
-
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
-@import '~bootstrap-vue/src/index.scss';
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index';
 
 // Custom button text color
 @each $name, $color in $btn-text-color {
@@ -25,11 +20,11 @@
 
 // Font Awesome
 $fa-font-path:  "../webfonts";
-@import "../fontawesome/scss/fontawesome.scss";
-@import "../fontawesome/scss/solid.scss";
-@import "../fontawesome/scss/brands.scss";
+@import "../fontawesome/scss/fontawesome";
+@import "../fontawesome/scss/solid";
+@import "../fontawesome/scss/brands";
 
-@import "~vue-multiselect/dist/vue-multiselect.min.css";
+@import "vue-multiselect/dist/vue-multiselect.min.css";
 
 .room-icon {
     width: 40px;

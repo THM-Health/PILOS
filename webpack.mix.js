@@ -34,9 +34,11 @@ if (fs.existsSync('resources/custom/js/')) {
   });
 }
 
+const theme = fs.existsSync('resources/sass/theme/custom/app.scss') ? 'custom' : 'default';
+
 mix.js(files, 'public/js')
   .vue()
-  .sass('resources/sass/app.scss', 'public/css')
+  .sass('resources/sass/theme/' + theme + '/app.scss', 'public/css')
   .copy('resources/images', 'public/images')
   .sourceMaps(false);
 

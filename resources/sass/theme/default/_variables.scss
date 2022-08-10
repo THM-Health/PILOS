@@ -45,4 +45,6 @@ $profile-image-width: 40px;
 $action-column-button-width: 44px;
 $action-column-button-height: 38px;
 
-@import '../custom/style';
+// Overwrite button text color
+//$btn-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
+//$btn-text-color-hover: ("primary": #FFF, "success": #FFF, "warning": #FFF);
