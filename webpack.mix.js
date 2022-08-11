@@ -26,8 +26,8 @@ if (!process.env.MIX_DEFAULT_LOCALE) {
   process.env.MIX_DEFAULT_LOCALE = 'en';
 }
 
-if (fs.existsSync('resources/custom/js/')) {
-  const customFiles = glob.sync('resources/custom/js/**/*.js');
+if (fs.existsSync('resources/custom/js/lang/')) {
+  const customFiles = glob.sync('resources/custom/js/lang/**/*.js');
 
   customFiles.forEach(file => {
     files.push(file);
@@ -42,14 +42,26 @@ mix.js(files, 'public/js')
   .vue()
   .sass('resources/sass/theme/' + process.env.MIX_THEME + '/app.scss', 'public/css')
   .copy('resources/images', 'public/images')
-  .sourceMaps(false);
+  .sourceMaps(false)
+  .webpackConfig({
+    resolve: {
+      modules: [
+        path.resolve(__dirname, 'resources/custom/js'),
+        path.resolve(__dirname, 'resources/js'),
+        'node_modules'
+      ]
+    }
+  });
 
 if (fs.existsSync('resources/custom/images')) {
   mix.copy('resources/custom/images', 'public/images');
 }
 
 if (!mix.inProduction()) {
-  mix.browserSync(process.env.BROWSERSYNC_URL || process.env.APP_URL);
+  mix.browserSync({
+    proxy: process.env.BROWSERSYNC_URL || process.env.APP_URL,
+    files: ['resources']
+  });
 } else {
   mix.version();
 }

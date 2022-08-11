@@ -5,7 +5,7 @@ import RoomsIndex from './views/rooms/Index';
 import RoomsOwnIndex from './views/rooms/OwnIndex';
 import RoomView from './views/rooms/View';
 import store from './store';
-import Home from './views/Home';
+import Home from 'views/Home';
 import Vue from 'vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';

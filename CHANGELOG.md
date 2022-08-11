@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Config option to disable ldap (disabled by default) ([#236],[#237])
 - **Breaking:** Custom theme / color support for application css style (see UPGRADE.md) ([#231],[#232])
 - Improve change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
+- Override welcome page, feature component and footer with custom code ([#234],[#235],[#249])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Renamed .env setting MIX_REFRESH_RATE to ROOM_REFRESH_RATE ([#243],[#244])
 - Random room polling interval ([#229],[#230])
 - Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
+- Use application name in join room link ([#249])
 
 ### Fixed
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
@@ -315,6 +317,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#230]: https://github.com/THM-Health/PILOS/pull/230
 [#231]: https://github.com/THM-Health/PILOS/issues/231
 [#232]: https://github.com/THM-Health/PILOS/pull/232
+[#234]: https://github.com/THM-Health/PILOS/issues/234
+[#235]: https://github.com/THM-Health/PILOS/issues/235
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
 [#240]: https://github.com/THM-Health/PILOS/pull/240
@@ -322,6 +326,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#244]: https://github.com/THM-Health/PILOS/pull/244
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
+[#249]: https://github.com/THM-Health/PILOS/pull/249
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
