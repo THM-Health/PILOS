@@ -7,10 +7,8 @@
 @import "override/pagination";
 
 // Font Awesome
-$fa-font-path:  "../webfonts";
-@import "../fontawesome/scss/fontawesome";
-@import "../fontawesome/scss/solid";
-@import "../fontawesome/scss/brands";
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
+@import "@fortawesome/fontawesome-free/scss/solid";
 
 // Vue Multi-Select
 @import "vue-multiselect/dist/vue-multiselect.min.css";
