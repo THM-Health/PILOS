@@ -1,4 +1,6 @@
 const { defaults } = require('jest-config');
+const path = require('path');
+
 module.exports = {
   restoreMocks: true,
   clearMocks: true,
@@ -22,6 +24,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/resources/js/$1'
   },
   moduleFileExtensions: [...defaults.moduleFileExtensions, 'vue'],
+  moduleDirectories: [path.join(__dirname, 'resources/js'), 'node_modules'],
   setupFilesAfterEnv: [
     '<rootDir>tests/Frontend/setup.js'
   ]

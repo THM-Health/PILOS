@@ -93,7 +93,7 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
-import FooterComponent from '../components/FooterComponent';
+import FooterComponent from 'components/FooterComponent';
 import Can from '../components/Permissions/Can';
 import Cannot from '../components/Permissions/Cannot';
 import Banner from '../components/Banner';
