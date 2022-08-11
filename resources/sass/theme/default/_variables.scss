@@ -1,32 +1,32 @@
 // Overrides variables of app/variables and bootstrap
 
 // Body background
-$body-bg: #f8fafc !default;
+$body-bg: #f8fafc;
 
 // Colors
-$blue: #2980b9 !default;
-$red: #c0392b !default;
-$orange: #d35400 !default;
-$green: #27ae60 !default;
+$blue: #2980b9;
+$red: #c0392b;
+$orange: #d35400;
+$green: #27ae60;
 
 // Branding color
-$primary: #1abc9c !default;
-$link-color: $primary !default;
+$primary: #1abc9c;
+$link-color: $primary;
 
 // Recommended to use a black/grey, color is used for some buttons and most text
-$secondary: #2c3e50 !default;
-$body-color: $secondary !default;
+$secondary: #2c3e50;
+$body-color: $secondary;
 
 // Semantic colors
-$success: $green !default;
-$info: $blue !default;
-$warning: $orange !default;
-$danger: $red !default;
+$success: $green;
+$info: $blue;
+$warning: $orange;
+$danger: $red;
 
 // Overwrite button text color, by default automatically set to a light or dark color
 // depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
-$btn-text-color: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null) !default;
-$btn-text-color-hover: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null) !default;
+$btn-text-color: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
+$btn-text-color-hover: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
 
 // Elements to have rounded edges
-$enable-rounded: true !default;
+$enable-rounded: true;

@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Breaking:** Config option to disable ldap (disabled by default) ([#236],[#237])
+- **Breaking:** Custom theme / color support for application css style (see UPGRADE.md) ([#231],[#232])
 - Improve change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
-- Custom theme/color support for application css style ([#231],[#232])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
