@@ -16,7 +16,7 @@
             </can>
 
             <b-button
-              variant="dark"
+              variant="secondary"
               @click="reload"
               :disabled="isBusy"
               :title="$t('app.reload')"
@@ -65,7 +65,7 @@
               >
                 <b-button
                   :disabled="isBusy"
-                  variant="success"
+                  variant="primary"
                   @click="copyPersonalizedRoomLink(data.item)"
                   :title="$t('rooms.tokens.copy')"
                   v-b-tooltip.hover
@@ -75,7 +75,7 @@
                 <can method="manageSettings" :policy="room">
                   <b-button
                     :disabled="isBusy"
-                    variant="dark"
+                    variant="secondary"
                     @click="showTokenEditModal(data.item)"
                     :title="$t('rooms.tokens.edit')"
                     v-b-tooltip.hover
@@ -126,7 +126,7 @@
       :busy="actionRunning"
       :static='modalStatic'
       ok-variant="danger"
-      cancel-variant="dark"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
       @cancel="resetModel"
       @close="resetModel"

@@ -19,7 +19,7 @@
           <!-- Reload meetings list -->
           <b-button
             class="float-right"
-            variant="dark"
+            variant="secondary"
             :disabled="meetingsLoading"
             @click="$root.$emit('bv::refresh::table', 'meetings-table')"
             :title="$t('app.reload')"
@@ -69,7 +69,7 @@
                 :title="$t('meetings.viewMeetingStats')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.statistical"
-                variant='primary'
+                variant='info'
                 @click="loadMeetingStats(data.item)"
               >
                 <i class='fa-solid fa-chart-line'></i>
@@ -79,7 +79,7 @@
                 :title="$t('meetings.viewMeetingAttendance')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.attendance && data.item.end != null"
-                variant='primary'
+                variant='info'
                 @click="loadMeetingAttendance(data.item)"
               >
                 <i class="fa-solid fa-user-clock"></i>
@@ -176,6 +176,7 @@ import Base from '../../api/base';
 import LineChart from './../../charts/LineChart';
 import { mapGetters } from 'vuex';
 import RawText from '../RawText';
+import env from '../../env';
 
 export default {
   components: { RawText, LineChart },
@@ -316,7 +317,7 @@ export default {
       ];
 
       if (this.settings('attendance.enabled') || this.settings('statistics.meetings.enabled')) {
-        table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'actionColumn' });
+        table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'action-column' });
       }
 
       return table;
@@ -372,8 +373,8 @@ export default {
                * Callback to set the ticks label of the x-axes
                * @param label the tick value in the internal data format of the associated scale
                * @param index the tick index in the ticks array
-               * @param ticks the array containing all of the tick objects
-               * @return {string} Localised human readable string with the timezone of the user
+               * @param ticks the array containing all the tick objects
+               * @return {string} Localised human-readable string with the timezone of the user
                */
               callback: (label, index, ticks) => {
                 // get value of the current tick that is the unix timestamp chart-js parsed from the ISO 8601 datetime string
@@ -393,7 +394,7 @@ export default {
             /**
              * Callback to set the title of the tooltip (hover on datapoint)
              * @param data Array with charts x-y data of this datapoint
-             * @return {string} Localised human readable string with the timezone of the user
+             * @return {string} Localised human-readable string with the timezone of the user
              */
             title: (data) => {
               // get xLabel of the first dataset (all have the same xLabel) that is a ISO 8601 datetime string
@@ -409,24 +410,24 @@ export default {
       return {
         datasets: [{
           label: this.$t('meetings.stats.participants'),
-          backgroundColor: '#9C132E',
-          borderColor: '#9C132E',
+          backgroundColor: env.HISTORY_PARTICIPANT_COLOR,
+          borderColor: env.HISTORY_PARTICIPANT_COLOR,
           fill: false,
           cubicInterpolationMode: 'monotone',
           data: this.chartDataRows.participants
         },
         {
           label: this.$t('meetings.stats.voices'),
-          backgroundColor: '#00B8E4',
-          borderColor: '#00B8E4',
+          backgroundColor: env.HISTORY_VOICES_COLOR,
+          borderColor: env.HISTORY_VOICES_COLOR,
           fill: false,
           cubicInterpolationMode: 'monotone',
           data: this.chartDataRows.voices
         },
         {
           label: this.$t('meetings.stats.videos'),
-          backgroundColor: '#F4AA00',
-          borderColor: '#F4AA00',
+          backgroundColor: env.HISTORY_VIDEOS_COLOR,
+          borderColor: env.HISTORY_VIDEOS_COLOR,
           fill: false,
           cubicInterpolationMode: 'monotone',
           data: this.chartDataRows.videos

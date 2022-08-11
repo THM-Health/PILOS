@@ -34,9 +34,13 @@ if (fs.existsSync('resources/custom/js/')) {
   });
 }
 
+if (!process.env.MIX_THEME) {
+  process.env.MIX_THEME = 'default';
+}
+
 mix.js(files, 'public/js')
   .vue()
-  .sass('resources/sass/app.scss', 'public/css')
+  .sass('resources/sass/theme/' + process.env.MIX_THEME + '/app.scss', 'public/css')
   .copy('resources/images', 'public/images')
   .sourceMaps(false);
 
@@ -46,8 +50,6 @@ if (fs.existsSync('resources/custom/images')) {
 
 if (!mix.inProduction()) {
   mix.browserSync(process.env.BROWSERSYNC_URL || process.env.APP_URL);
-}
-
-if (mix.inProduction()) {
+} else {
   mix.version();
 }

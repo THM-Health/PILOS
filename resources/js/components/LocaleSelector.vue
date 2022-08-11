@@ -1,6 +1,6 @@
 <template>
   <b-nav-item-dropdown right
-    toggle-class="text-success nav-icon-item">
+    toggle-class="text-primary nav-icon-item">
     <template v-slot:button-content>
       <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.selectLocale') }}</span>
     </template>

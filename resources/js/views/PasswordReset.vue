@@ -53,7 +53,7 @@
                 </template>
               </b-form-invalid-feedback>
 
-              <b-button type='submit' variant='success' :disabled="loading" block>
+              <b-button type='submit' variant='primary' :disabled="loading" block>
                 <b-spinner v-if="loading" small></b-spinner>
                 {{ welcome ? $t('auth.setPassword') : $t('auth.changePassword') }}
               </b-button>

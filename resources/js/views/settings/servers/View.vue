@@ -67,7 +67,7 @@
             <b-input-group>
               <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("salt")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
-                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="success"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
+                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>
@@ -105,7 +105,7 @@
               <b-form-input type='text' v-model='onlineStatus' id="onlineStatus" :disabled='true'></b-form-input>
               <b-input-group-append>
                 <b-button :disabled='isBusy || modelLoadingError || checking'
-                          variant='primary'
+                          variant='info'
                           @click="testConnection()"><i class="fa-solid fa-link"></i> {{ $t('settings.servers.testConnection') }}</b-button>
               </b-input-group-append>
             </b-input-group>
@@ -196,7 +196,7 @@
         :static='modalStatic'
         :busy='isBusy'
         ok-variant='danger'
-        cancel-variant='dark'
+        cancel-variant='secondary'
         @ok='forceOverwrite'
         @cancel='refreshServer'
         :hide-header-close='true'

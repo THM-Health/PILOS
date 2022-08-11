@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-12">
         <b-card no-body>
-          <b-tabs content-class="p-3" fill  active-nav-item-class="bg-success text-white">
+          <b-tabs content-class="p-3" fill  active-nav-item-class="bg-primary text-white">
             <!-- Membership tab -->
             <b-tab  active>
               <template v-slot:title>

@@ -45,9 +45,9 @@ export default {
        * CSS class of the column heading
        * @type string
        * @property actionColumnThClass
-       * @default actionColumn
+       * @default action-column
        */
-      actionColumnThClass: 'actionColumn',
+      actionColumnThClass: 'action-column',
       /**
        * CSS style(s) of the column heading
        * @type string
@@ -58,9 +58,9 @@ export default {
        * CSS class of the column cell
        * @type string
        * @property actionColumnTdClass
-       * @default actionButton
+       * @default action-button
        */
-      actionColumnTdClass: 'actionButton'
+      actionColumnTdClass: 'action-button'
     };
   },
 

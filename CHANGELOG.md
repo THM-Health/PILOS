@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Breaking:** Config option to disable ldap (disabled by default) ([#236],[#237])
+- **Breaking:** Custom theme / color support for application css style (see UPGRADE.md) ([#231],[#232])
 - Improve change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
 
 ### Changed
@@ -312,6 +313,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#228]: https://github.com/THM-Health/PILOS/pull/228
 [#229]: https://github.com/THM-Health/PILOS/issues/229
 [#230]: https://github.com/THM-Health/PILOS/pull/230
+[#231]: https://github.com/THM-Health/PILOS/issues/231
+[#232]: https://github.com/THM-Health/PILOS/pull/232
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
 [#240]: https://github.com/THM-Health/PILOS/pull/240

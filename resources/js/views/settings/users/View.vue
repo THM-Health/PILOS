@@ -109,7 +109,7 @@
                   <b-col sm="12" lg="9" v-if="config.type !== 'view'">
                     <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
 
-                    <b-button class="my-1 my-lg-0" variant='dark' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fa-solid fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
+                    <b-button class="my-1 my-lg-0" variant='secondary' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fa-solid fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
                     <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('settings.users.image.cancel') }}</b-button>
                     <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fa-solid fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
                     <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fa-solid fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
@@ -152,7 +152,7 @@
                   @ok="saveImage"
                   ok-variant="success"
                   :ok-title="$t('settings.users.image.save')"
-                  cancel-variant="dark"
+                  cancel-variant="secondary"
                   :cancel-title="$t('settings.users.image.cancel')"
                 >
                   <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" :alt="$t('settings.users.image.title')"></VueCropper>
@@ -236,7 +236,7 @@
                     <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
                     <template slot='tag' slot-scope='{ option, remove }'>
                       <h5 class='d-inline mr-1 mb-1'>
-                        <b-badge variant='primary'>
+                        <b-badge variant='info'>
                           {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
                           <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
                         </b-badge>
@@ -381,7 +381,7 @@
           :static='modalStatic'
           :busy='isBusy'
           ok-variant='danger'
-          cancel-variant='dark'
+          cancel-variant='secondary'
           @ok='forceOverwrite'
           @cancel='refreshUser'
           :hide-header-close='true'
