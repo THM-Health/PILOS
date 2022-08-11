@@ -297,7 +297,7 @@ export default {
       model: {
         description: null,
         short: null,
-        color: '#4a5c66',
+        color: env.ROOM_TYPE_COLORS[0],
         server_pool: null,
         allow_listing: false,
         restrict: false,
@@ -308,7 +308,7 @@ export default {
       rolesLoadingError: false,
       currentRolePage: 1,
       hasNextRolePage: false,
-      swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
+      swatches: env.ROOM_TYPE_COLORS,
 
       serverPoolsLoading: false,
       serverPools: [],
