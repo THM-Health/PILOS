@@ -758,7 +758,7 @@ export default {
      * Build invitation message
      */
     invitationText: function () {
-      let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
+      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.settings('name') }) + '\n';
       message += this.$t('rooms.invitation.link', { link: this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
