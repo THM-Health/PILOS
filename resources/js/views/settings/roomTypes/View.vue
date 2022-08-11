@@ -47,7 +47,7 @@
             label-for='color'
             :state='fieldState("color")'
           >
-            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
+            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatches="swatches" v-model="model.color" inline></v-swatches>
             <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 

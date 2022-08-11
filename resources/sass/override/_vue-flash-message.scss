@@ -1,0 +1,62 @@
+._vue-flash-msg-body {
+    width: 300px !important;
+    z-index: 9999;
+
+    & ._vue-flash-msg-body__content {
+        h3 {
+            font-size: $h5-font-size;
+        }
+
+        padding: 10px;
+    }
+
+    & .flash_small_title._vue-flash-msg-body__content h3 {
+        border-top: 1px solid #FFF !important;
+        padding-top: 10px;
+        font-size: inherit;
+    }
+
+    &._vue-flash-msg-body_success {
+        border: 1px solid $green !important;
+        background-color: rgba($green, 0.68) !important;
+        &:hover {
+            background-color: rgba($success, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $success !important;
+        }
+    }
+
+    &._vue-flash-msg-body_info {
+        border: 1px solid var($info) !important;
+        background-color: rgba($info, 0.68) !important;
+        &:hover {
+            background-color: rgba($info, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $info !important;
+        }
+    }
+
+    &._vue-flash-msg-body_error {
+        border: 1px solid $danger !important;
+        background-color: rgba($danger, 0.68) !important;
+        &:hover {
+            background-color: rgba($danger, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $danger !important;
+        }
+    }
+
+    &._vue-flash-msg-body_warning {
+        border: 1px solid $warning !important;
+        background-color: rgba($warning, 0.68) !important;
+        &:hover {
+            background-color: rgba($warning, 1) !important;
+        }
+        & ._vue-flash-msg-body__content {
+            border-left: 5px solid $warning !important;
+        }
+    }
+}

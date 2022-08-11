@@ -1,0 +1,15 @@
+// Custom button text color
+@each $name, $color in $btn-text-color {
+    @if $color {
+        .btn-#{$name} {
+            color: $color;
+        }
+    }
+}
+@each $name, $color in $btn-text-color-hover {
+    @if $color {
+        .btn-#{$name}:hover {
+            color: $color;
+        }
+    }
+}

@@ -1,5 +1,3 @@
-@import "../default/variables";
-
 // Colors
 $blue: #3490dc;
 $red: #9C132E;
@@ -26,4 +24,7 @@ $btn-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
 $btn-text-color-hover: ("primary": #FFF, "success": #FFF, "warning": #FFF);
 
 // Elements to have rounded edges
-$enable-rounded: false;
+$enable-rounded: true;
+
+// Typography
+$font-family-sans-serif: 'Source Sans Pro', sans-serif;

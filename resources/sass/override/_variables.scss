@@ -1,0 +1,30 @@
+// Body background
+$body-bg: #f8fafc !default;
+
+// Colors
+$blue: #2980b9 !default;
+$red: #c0392b !default;
+$orange: #d35400 !default;
+$green: #27ae60 !default;
+
+// Branding color
+$primary: #1abc9c !default;
+$link-color: $primary !default;
+
+// Recommended to use a black/grey, color is used for some buttons and most text
+$secondary: #2c3e50 !default;
+$body-color: $secondary !default;
+
+// Semantic colors
+$success: $green !default;
+$info: $blue !default;
+$warning: $orange !default;
+$danger: $red !default;
+
+// Overwrite button text color, by default automatically set to a light or dark color
+// depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
+$btn-text-color: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null) !default;
+$btn-text-color-hover: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null) !default;
+
+// Elements to have rounded edges
+$enable-rounded: true !default;
