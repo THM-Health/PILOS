@@ -1,0 +1,63 @@
+# LDIF Export for ou=people,dc=university,dc=org
+# Server: ldap-host (ldap-host)
+# Search Scope: sub
+# Search Filter: (objectClass=*)
+# Total Entries: 2
+
+version: 1
+
+# ou=people
+dn: ou=people,{{ LDAP_BASE_DN }}
+objectclass: organizationalUnit
+ou: People
+
+# ou=groups
+dn: ou=groups,{{ LDAP_BASE_DN }}
+objectclass: organizationalUnit
+ou: Groups
+
+# Student user
+dn: uid=jdoe,ou=people,{{ LDAP_BASE_DN }}
+cn: John Doe
+givenname: John
+mail: john.doe@{{ LDAP_DOMAIN }}
+objectclass: inetOrgPerson
+sn: Doe
+uid: jdoe
+userpassword: {SSHA}bYQpduXuXfe92icR57kuCn6E14OWtFT5
+
+# Staff user
+dn: uid=rroe,ou=people,{{ LDAP_BASE_DN }}
+cn: Richard Roe
+givenname: Richard
+mail: richard.roe@{{ LDAP_DOMAIN }}
+objectclass: inetOrgPerson
+sn: Roe
+uid: rroe
+userpassword: {SSHA}bYQpduXuXfe92icR57kuCn6E14OWtFT5
+
+# Staff and student user
+dn: uid=jsmi,ou=people,{{ LDAP_BASE_DN }}
+cn: John Smith
+givenname: John
+mail: john.smith@{{ LDAP_DOMAIN }}
+objectclass: inetOrgPerson
+sn: Smith
+uid: jsmi
+userpassword: {SSHA}bYQpduXuXfe92icR57kuCn6E14OWtFT5
+
+# Student group
+dn: cn=students,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: groupOfUniqueNames
+cn: students
+description: All students
+uniquemember: uid=jdoe,ou=people,{{ LDAP_BASE_DN }}
+uniquemember: uid=jsmi,ou=people,{{ LDAP_BASE_DN }}
+
+# Staff group
+dn: cn=staff,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: groupOfUniqueNames
+cn: staff
+description: All staff
+uniquemember: uid=rroe,ou=people,{{ LDAP_BASE_DN }}
+uniquemember: uid=jsmi,ou=people,{{ LDAP_BASE_DN }}

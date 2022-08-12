@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Breaking:** Config option to disable ldap (disabled by default) ([#236],[#237])
+- **Breaking:** Config option to disable LDAP (disabled by default) ([#236],[#237])
 - **Breaking:** Custom theme / color support for application css style (see UPGRADE.md) ([#231],[#232])
-- Improve change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
+- Improved change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
 - Override welcome page, feature component and footer with custom code ([#234],[#235],[#249])
+- OpenLDAP and phpLDAPadmin to local dev environment ([#225],[#250])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Renamed .env setting MIX_WELCOME_MESSAGE_LIMIT to WELCOME_MESSAGE_LIMIT ([#243],[#244])
 - **Breaking:** Renamed .env setting MIX_ROOM_NAME_LIMIT to ROOM_NAME_LIMIT ([#243],[#244])
 - **Breaking:** Renamed .env setting MIX_REFRESH_RATE to ROOM_REFRESH_RATE ([#243],[#244])
+- **Breaking:** LDAP_ROLE_MAP syntax ([#250])
 - Random room polling interval ([#229],[#230])
 - Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
 - Use application name in join room link ([#249])
@@ -327,6 +329,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
 [#249]: https://github.com/THM-Health/PILOS/pull/249
+[#250]: https://github.com/THM-Health/PILOS/pull/250
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
