@@ -129,7 +129,7 @@ class LoginController extends Controller
     protected function mapLdapRoles($user)
     {
         $ldapRoleAttribute = config('ldap.ldapRoleAttribute');
-        $ldapUser          = LdapUser::findByGuidOrFail($user->getLdapGuid());
+        $ldapUser          = LdapUser::findByGuidOrFail($user->getLdapGuid(),['*',$ldapRoleAttribute]);
 
         if ($ldapUser->hasAttribute($ldapRoleAttribute)) {
             $ldapRoles = $ldapUser->getAttribute($ldapRoleAttribute);
