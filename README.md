@@ -109,6 +109,7 @@ If you want to adjust the frontend, please checkout this [page](https://github.c
 
 Finally, build the frontend using the following npm command:
 ```bash
+npm install
 npm run production
 ```
 
