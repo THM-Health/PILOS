@@ -19,9 +19,9 @@ export default {
       description: 'Divide user in small groups for team works',
       title: 'Small groups'
     },
-    recording: {
-      description: 'Record the conversation and share the recording later',
-      title: 'Recording'
+    statistics: {
+      description: 'Measure attendance and media use',
+      title: 'Reports'
     },
     screenSharing: {
       description: 'Share your screen or application',

@@ -998,7 +998,7 @@
               <!-- View file -->
               <b-button
                 v-if='settings.bbb.style'
-                variant='dark'
+                variant='secondary'
                 :href='settings.bbb.style'
                 target='_blank'
                 ref='view-bbb-style'
@@ -1057,7 +1057,7 @@
                 <!-- View file -->
                 <b-button
                   v-if='settings.default_presentation'
-                  variant='dark'
+                  variant='secondary'
                   :href='settings.default_presentation'
                   target='_blank'
                   ref='view-default-presentation'
@@ -1159,8 +1159,8 @@ export default {
         room_auto_delete: {}
       },
       errors: {},
-      colorSwatches: ['#fff', '#000'],
-      backgroundSwatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
+      colorSwatches: env.BANNER_TEXT_COLORS,
+      backgroundSwatches: env.BANNER_BACKGROUND_COLORS,
       timezonesLoading: false,
       timezonesLoadingError: false,
       timezones: []

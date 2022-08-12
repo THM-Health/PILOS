@@ -107,10 +107,12 @@ jobs:
                 key: ${{ runner.os }}-${{ matrix.php-versions }}-node-${{ hashFiles('**/package-lock.json') }}
                 restore-keys: |
                   ${{ runner.os }}-${{ matrix.php-versions }}-node-
-            - name: Execute frontend code style check via eslint and frontend tests
-              run: |
-                npm ci
-                npm run ci
+            - name: Install dependencies
+              run: npm ci
+            - name: Execute frontend code style check via eslint
+              run: npm run lint
+            - name: Execute frontend tests
+              run: npm run cover -- --max-workers=2
             - name: Upload npm logs
               uses: actions/upload-artifact@v2
               if: failure()

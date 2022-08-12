@@ -5,7 +5,7 @@ import RoomsIndex from './views/rooms/Index';
 import RoomsOwnIndex from './views/rooms/OwnIndex';
 import RoomView from './views/rooms/View';
 import store from './store';
-import Home from './views/Home';
+import Home from 'views/Home';
 import Vue from 'vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings';
@@ -398,7 +398,7 @@ const router = new VueRouter({
  * be redirected to the home route with a error messsage.
  */
 export function beforeEachRoute (router, store, to, from, next) {
-  const locale = $('html').prop('lang') || process.env.MIX_DEFAULT_LOCALE;
+  const locale = document.documentElement.lang || process.env.MIX_DEFAULT_LOCALE;
   const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
 
   store.commit('loading');

@@ -1,0 +1,24 @@
+// Bootstrap
+@import "theme/default/variables";
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-vue/src/index';
+@import "override/buttons";
+@import "override/tables";
+@import "override/pagination";
+
+// Font Awesome
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
+@import "@fortawesome/fontawesome-free/scss/solid";
+
+// Vue Multi-Select
+@import "vue-multiselect/dist/vue-multiselect.min.css";
+@import "override/multiselect";
+
+// Vue Flash Messages color override
+@import "override/vue-flash-message";
+
+// Vue Swatches
+@import "override/vue-swatches";
+
+// Application specify style
+@import "app/app";

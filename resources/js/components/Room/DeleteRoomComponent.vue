@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-frag>
     <!-- Remove room -->
     <b-button
       :class="buttonClass"
@@ -20,7 +20,7 @@
       :no-close-on-esc="isDeleting"
       :hide-header-close="isDeleting"
       ok-variant="danger"
-      cancel-variant="dark"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
       @ok="deleteRoom"
       id="remove-modal" >
@@ -37,8 +37,12 @@
 
 <script>
 import Base from '../../api/base';
+import frag from 'vue-frag';
 
 export default {
+  directives: {
+    frag
+  },
   data () {
     return {
       isDeleting: false // is room getting deleted

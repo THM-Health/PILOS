@@ -1,0 +1,32 @@
+// Overrides variables of app/variables and bootstrap
+
+// Colors
+$blue: #3490dc;
+$red: #9C132E;
+$orange: #F4AA00;
+$green: #80BA27;
+
+// Branding color
+$primary: $green;
+$link-color: $green;
+
+// Recommended to use a black/grey, color is used for some buttons and most text
+$secondary: #343a40;
+$body-color: $secondary;
+
+// Semantic colors
+$success: $green;
+$info: $blue;
+$warning: $orange;
+$danger: $red;
+
+// Overwrite button text color, by default automatically set to a light or dark color
+// depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
+$btn-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
+$btn-text-color-hover: ("primary": #FFF, "success": #FFF, "warning": #FFF);
+
+// Elements to have rounded edges
+$enable-rounded: false;
+
+// Typography
+$font-family-sans-serif: 'Source Sans Pro', sans-serif;

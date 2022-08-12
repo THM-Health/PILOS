@@ -1,33 +1,19 @@
 import Session from '../../../resources/js/store/modules/session';
-import sinon from 'sinon';
 import moxios from 'moxios';
 import i18n, { importLanguage } from '../../../resources/js/i18n';
+import { overrideStub } from '../helper';
 
-function overrideStub (url, response) {
-  const l = moxios.stubs.count();
-  for (let i = 0; i < l; i++) {
-    const stub = moxios.stubs.at(i);
-    if (stub.url === url) {
-      const oldResponse = stub.response;
-      const restoreFunc = () => { stub.response = oldResponse; };
-
-      stub.response = response;
-      return restoreFunc;
-    }
-  }
-}
-
-describe('store/session', function () {
-  beforeEach(function () {
+describe('store/session', () => {
+  beforeEach(() => {
     moxios.install();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     moxios.uninstall();
   });
 
-  it('getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property', async function () {
-    const commit = sinon.spy();
+  it('getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property', async () => {
+    const commit = jest.fn();
 
     moxios.stubRequest('/api/v1/settings', {
       status: 200,
@@ -36,15 +22,15 @@ describe('store/session', function () {
 
     await Session.actions.getSettings({ commit });
 
-    sinon.assert.calledOnce(commit);
-    sinon.assert.calledWith(commit, 'setSettings', { foo: 'bar' });
+    expect(commit).toBeCalledTimes(1);
+    expect(commit).toBeCalledWith('setSettings', { foo: 'bar' });
   });
 
-  it('getCurrentUser and set i18n timezone', async function () {
+  it('getCurrentUser and set i18n timezone', async () => {
     const messagesEN = require('../../../resources/js/lang/en/index.js').default;
     importLanguage('en', messagesEN);
 
-    const commit = sinon.spy();
+    const commit = jest.fn();
 
     const user = {
       id: 1,
@@ -69,8 +55,8 @@ describe('store/session', function () {
 
     await Session.actions.getCurrentUser({ commit });
 
-    sinon.assert.calledOnce(commit);
-    sinon.assert.calledWith(commit, 'setCurrentUser', { currentUser: user });
+    expect(commit).toBeCalledTimes(1);
+    expect(commit).toBeCalledWith('setCurrentUser', { currentUser: user });
 
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/13/2021, 05:09');
 
@@ -84,11 +70,10 @@ describe('store/session', function () {
 
     await Session.actions.getCurrentUser({ commit });
 
-    sinon.assert.calledTwice(commit);
-    sinon.assert.calledWith(commit, 'setCurrentUser', { currentUser: user });
+    expect(commit).toBeCalledTimes(2);
+    expect(commit).toHaveBeenLastCalledWith('setCurrentUser', { currentUser: user });
 
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/12/2021, 19:09');
-
     restoreCurrentUserResponse();
   });
 });

@@ -47,7 +47,7 @@
             label-for='color'
             :state='fieldState("color")'
           >
-            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatch-style="{ borderRadius: '0px' }" :swatches="swatches" v-model="model.color" inline></v-swatches>
+            <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatches="swatches" v-model="model.color" inline></v-swatches>
             <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
@@ -58,7 +58,7 @@
             label-cols-sm='4'
             :label="$t('settings.roomTypes.preview')"
           >
-            <div class="roomicon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
+            <div class="room-icon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
           </b-form-group>
 
           <b-form-group
@@ -168,7 +168,7 @@
                 <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
                 <template slot='tag' slot-scope='{ option, remove }'>
                   <h5 class='d-inline mr-1 mb-1'>
-                    <b-badge variant='primary'>
+                    <b-badge variant='secondary'>
                       {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
                       <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
                     </b-badge>
@@ -227,7 +227,7 @@
       :static='modalStatic'
       :busy='isBusy'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       @ok='forceOverwrite'
       @cancel='refreshRoomType'
       :hide-header-close='true'
@@ -297,7 +297,7 @@ export default {
       model: {
         description: null,
         short: null,
-        color: '#4a5c66',
+        color: env.ROOM_TYPE_COLORS[0],
         server_pool: null,
         allow_listing: false,
         restrict: false,
@@ -308,7 +308,7 @@ export default {
       rolesLoadingError: false,
       currentRolePage: 1,
       hasNextRolePage: false,
-      swatches: ['#4a5c66', '#80ba24', '#9C132E', '#F4AA00', '#00B8E4', '#002878'],
+      swatches: env.ROOM_TYPE_COLORS,
 
       serverPoolsLoading: false,
       serverPools: [],

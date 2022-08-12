@@ -2,6 +2,7 @@ import axios from 'axios';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import dateTimeFormats from './lang/date-time-formats';
+import _ from 'lodash';
 
 const defaultLocale = process.env.MIX_DEFAULT_LOCALE;
 
@@ -49,7 +50,7 @@ export function loadLanguageAsync (lang) {
     return Promise.resolve(setI18nLanguage(lang));
   }
 
-  if (process.env.NODE_ENV !== 'testing') {
+  if (process.env.NODE_ENV !== 'test') {
     return import(
       /* webpackChunkName: "js/lang/[request]" */
       /* webpackInclude: /\.js/ */
@@ -64,7 +65,7 @@ export function loadLanguageAsync (lang) {
 
 export function importLanguage (lang, messages) {
   const existingLocaleMessages = i18n.getLocaleMessage(lang);
-  i18n.setLocaleMessage(lang, $.extend(true, {}, messages.default, existingLocaleMessages));
+  i18n.setLocaleMessage(lang, _.merge({}, messages.default, existingLocaleMessages));
   loadedLanguages.push(lang);
   return setI18nLanguage(lang);
 }

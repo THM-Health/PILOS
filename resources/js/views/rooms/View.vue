@@ -2,76 +2,70 @@
   <div class="container mt-5 mb-5" v-cloak>
     <template v-if="room !== null">
 
-      <!-- Delete button and modal -->
-      <can method="delete" :policy="room">
-        <delete-room-component
-          @roomDeleted="$router.push({ name: 'rooms.own_index' })"
-          :room="room"
+      <b-button-group class="float-right">
+            <!-- If membership is enabled, allow user to become member -->
+            <can v-if="room.authenticated && isAuthenticated" method="becomeMember" :policy="room">
+            <b-button
+              v-on:click="joinMembership"
+              :disabled="loading"
+              variant="secondary"
+            >
+              <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
+            </b-button>
+            </can>
+            <!-- If user is member, allow user to end the membership -->
+            <b-button
+              id="leave-membership-button"
+              v-if="room.authenticated && isAuthenticated && room.isMember"
+              v-b-modal.leave-membership-modal
+              :disabled="loading"
+              variant="danger"
+            >
+              <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
+            </b-button>
+
+            <b-modal
+              v-if="room.authenticated && isAuthenticated"
+              :static='modalStatic'
+              :title="$t('rooms.endMembership.title')"
+              ok-variant="danger"
+              cancel-variant="secondary"
+              :ok-title="$t('rooms.endMembership.yes')"
+              :cancel-title="$t('rooms.endMembership.no')"
+              @ok="leaveMembership"
+              id="leave-membership-modal"
+              ref="leave-membership-modal"
+            >
+              {{ $t('rooms.endMembership.message') }}
+            </b-modal>
+
+        <!-- Reload general room settings/details -->
+        <b-button
+          variant="secondary"
+          :title="$t('app.reload')"
+          ref="reloadButton"
+          v-b-tooltip.hover
+          v-on:click="reload"
           :disabled="loading"
-          button-class="float-right"
-        ></delete-room-component>
-      </can>
+        >
+          <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
+        </b-button>
 
-      <!-- Reload general room settings/details -->
-      <b-button
-        class="float-right"
-        variant="dark"
-        :title="$t('app.reload')"
-        ref="reloadButton"
-        v-b-tooltip.hover
-        v-on:click="reload"
-        :disabled="loading"
-      >
-        <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
-      </b-button>
-
-      <!-- Show membership options for users that are logged into the room (via access code, membership, ownership) -->
-      <div class="row pt-7 pt-sm-9 mb-3" v-if="room.authenticated && isAuthenticated">
-        <div class="col-lg-12">
-          <!-- If membership is enabled, allow user to become member -->
-          <can method="becomeMember" :policy="room">
-          <b-button
-            class="float-right"
-            v-on:click="joinMembership"
+        <!-- Delete button and modal -->
+        <can method="delete" :policy="room">
+          <delete-room-component
+            @roomDeleted="$router.push({ name: 'rooms.own_index' })"
+            :room="room"
             :disabled="loading"
-            variant="dark"
-          >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
-          </b-button>
-          </can>
-          <!-- If user is member, allow user to end the membership -->
-          <b-button
-            id="leave-membership-button"
-            class="float-right"
-            v-if="room.isMember"
-            v-b-modal.leave-membership-modal
-            :disabled="loading"
-            variant="danger"
-          >
-            <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
-          </b-button>
-
-          <b-modal
-            :static='modalStatic'
-            :title="$t('rooms.endMembership.title')"
-            ok-variant="danger"
-            cancel-variant="dark"
-            :ok-title="$t('rooms.endMembership.yes')"
-            :cancel-title="$t('rooms.endMembership.no')"
-            @ok="leaveMembership"
-            id="leave-membership-modal"
-            ref="leave-membership-modal"
-          >
-            {{ $t('rooms.endMembership.message') }}
-          </b-modal>
-        </div>
-      </div>
+          ></delete-room-component>
+        </can>
+      </b-button-group>
 
       <!-- Display room name, icon and owner -->
       <div class="row pt-7 pt-sm-9">
         <!-- Room icon -->
         <div class="col-lg-1 col-2">
-          <div :style="{ 'background-color': room.type.color}" class="roomicon" v-if="room.type">
+          <div :style="{ 'background-color': room.type.color}" class="room-icon" v-if="room.type">
             {{room.type.short}}
           </div>
         </div>
@@ -145,7 +139,7 @@
                     ref="joinMeeting"
                     v-on:click="join"
                     :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
-                    variant="success"
+                    variant="primary"
                   >
                     <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.join') }}
                   </b-button>
@@ -158,7 +152,7 @@
                     v-if="room.canStart"
                     :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
                     v-on:click="start"
-                    variant="success"
+                    variant="primary"
                   >
                       <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.start') }}
                   </b-button>
@@ -217,7 +211,7 @@
             <b-button
               v-on:click="login"
               :disabled="loading"
-              variant="success"
+              variant="primary"
             >
               <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-lock"></i> {{ $t('rooms.login') }}
             </b-button>
@@ -252,7 +246,7 @@
           <!-- Redirect the login the access room -->
           <b-button
             @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
-            variant="success"
+            variant="primary"
           >
             <i class="fa-solid fa-lock"></i> {{$t('rooms.login')}}
           </b-button>
@@ -387,7 +381,7 @@ export default {
      * @returns {number} random refresh internal in seconds
      */
     getRandomRefreshInterval: function () {
-      const base = Math.abs(env.REFRESH_RATE);
+      const base = Math.abs(this.settings('room_refresh_rate'));
       // 15% range to scatter the values around the base refresh rate
       const percentageRange = 0.15;
       const absoluteRange = base * percentageRange;
@@ -756,15 +750,16 @@ export default {
   computed: {
 
     ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated'
+      isAuthenticated: 'session/isAuthenticated',
+      settings: 'session/settings'
     }),
 
     /**
      * Build invitation message
      */
     invitationText: function () {
-      let message = this.$t('rooms.invitation.room', { roomname: this.room.name }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
+      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.settings('name') }) + '\n';
+      message += this.$t('rooms.invitation.link', { link: this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.accessCode) {
         message += '\n' + this.$t('rooms.invitation.code', {
@@ -787,7 +782,7 @@ export default {
 </script>
 
 <style scoped>
-  .roomicon {
+  .room-icon {
     margin-top: 8px;
   }
 </style>

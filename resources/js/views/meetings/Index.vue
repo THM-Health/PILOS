@@ -10,7 +10,7 @@
         <b-input-group>
           <b-form-input :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter" lazy></b-form-input>
           <b-input-group-append>
-            <b-button @click="$root.$emit('bv::refresh::table', 'meetings-table')" :disabled="isBusy || loadingError" variant="success"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+            <b-button @click="$root.$emit('bv::refresh::table', 'meetings-table')" :disabled="isBusy || loadingError" variant="primary"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -124,7 +124,7 @@
           v-b-tooltip.hover
           :title="$t('meetings.viewRoom', { name: data.item.room.name })"
           :disabled='isBusy'
-          variant='primary'
+          variant='info'
           :to="{ name: 'rooms.view', params: { id: data.item.room.id } }"
         >
           <i class='fa-solid fa-eye'></i>

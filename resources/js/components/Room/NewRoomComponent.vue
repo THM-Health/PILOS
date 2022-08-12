@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card no-body class="roomcard" @click="$bvModal.show('new-room')">
+    <b-card no-body class="room-card" @click="$bvModal.show('new-room')">
       <b-card-body class="p-3">
        <h5 class="mt-2"><i class="fa-solid fa-plus mr-3"></i> {{ $t('rooms.create.title') }}</h5>
       </b-card-body>
@@ -132,7 +132,7 @@ export default {
 };
 </script>
 <style scoped>
-.roomcard{
+.room-card{
   background: none;
   border-style: dotted;
 }

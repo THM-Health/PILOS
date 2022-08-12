@@ -17,6 +17,5 @@ yarn-error.log
 /public/mix-manifest.json
 /public/fonts
 /public/images
-/resources/custom
 .nyc_output
 coverage

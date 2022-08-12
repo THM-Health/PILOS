@@ -3,7 +3,7 @@
     <b-overlay :show="loadingCounter > 0" z-index="10000" no-wrap>
       <template v-slot:overlay>
         <div class="text-center">
-          <b-spinner variant="dark" :label="$t('app.wait')"></b-spinner>
+          <b-spinner variant="secondary" :label="$t('app.wait')"></b-spinner>
           <p>{{ $t('app.wait') }}</p>
         </div>
       </template>
@@ -69,8 +69,8 @@
 
               <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-success nav-icon-item' target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')" right>
-              <i class="fa-solid fa-question-square"></i>
+            <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-info nav-icon-item' target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')" right>
+              <i class="fa-solid fa-circle-question"></i>
             </b-nav-item>
             <b-nav-item class="d-block d-lg-none" target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')">
               {{$t('app.help')}}
@@ -93,7 +93,7 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector';
-import FooterComponent from '../components/FooterComponent';
+import FooterComponent from 'components/FooterComponent';
 import Can from '../components/Permissions/Can';
 import Cannot from '../components/Permissions/Cannot';
 import Banner from '../components/Banner';

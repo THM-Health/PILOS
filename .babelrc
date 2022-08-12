@@ -1,7 +1,12 @@
 {
     "env": {
-        "testing": {
-            "plugins": ["rewire", "istanbul", "@babel/plugin-proposal-class-properties"],
+        "test": {
+            "presets": [
+                [
+                    "@babel/preset-env"
+                ]
+            ],
+            "plugins": ["rewire"],
             "retainLines": true
         }
     }

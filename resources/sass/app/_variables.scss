@@ -1,0 +1,10 @@
+// Height of footer
+$footer-height: 25px !default;
+
+// Size of profile picture in membership list
+// profile images are cropped to 100px on upload, so recommended to not set display size bigger than 100px
+$profile-image-width: 40px !default;
+
+// Size of a single action button (view, edit, delete) in the admin ui
+$action-column-button-width: 44px !default;
+$action-column-button-height: 38px !default;

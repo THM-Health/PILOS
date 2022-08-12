@@ -237,7 +237,7 @@ class Room extends Model
      */
     public function getModeratorOnlyMessage()
     {
-        $message =  __('rooms.invitation.room', ['roomname'=>$this->name]).'<br>';
+        $message =  __('rooms.invitation.room', ['roomname'=>$this->name, 'platform' => setting('name')]).'<br>';
         $message .= __('rooms.invitation.link', ['link'=>config('app.url').'/rooms/'.$this->id]);
         if ($this->access_code != null) {
             $message .= '<br>'.__('rooms.invitation.code', ['code'=>implode('-', str_split($this->access_code, 3))]);
