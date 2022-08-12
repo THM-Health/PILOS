@@ -22,6 +22,6 @@ export default {
   HISTORY_VOICES_COLOR: process.env.MIX_HISTORY_VOICES_COLOR || '#2980b9',
   HISTORY_VIDEOS_COLOR: process.env.MIX_HISTORY_VIDEOS_COLOR || '#27ae60',
   ROOM_TYPE_COLORS: process.env.MIX_ROOM_TYPE_COLORS ? JSON.parse(process.env.MIX_ROOM_TYPE_COLORS) : ['#16a085', '#27ae60', '#2980b9', '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#2c3e50'],
-  BANNER_BACKGROUND_COLORS: process.env.MIX_HISTORY_ROOM_TYPE_COLORS ? JSON.parse(process.env.MIX_HISTORY_ROOM_TYPE_COLORS) : ['#16a085', '#27ae60', '#2980b9', '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#2c3e50'],
-  BANNER_TEXT_COLORS: process.env.MIX_HISTORY_ROOM_TYPE_COLORS ? JSON.parse(process.env.MIX_HISTORY_ROOM_TYPE_COLORS) : ['#ffffff', '#000000']
+  BANNER_BACKGROUND_COLORS: process.env.MIX_BANNER_BACKGROUND_COLORS ? JSON.parse(process.env.MIX_BANNER_BACKGROUND_COLORS) : ['#16a085', '#27ae60', '#2980b9', '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#2c3e50'],
+  BANNER_TEXT_COLORS: process.env.MIX_BANNER_TEXT_COLORS ? JSON.parse(process.env.MIX_BANNER_TEXT_COLORS) : ['#ffffff', '#000000']
 };
