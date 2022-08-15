@@ -15,10 +15,3 @@
     </b-container>
   </footer>
 </template>
-
-<script>
-</script>
-
-<style scoped>
-
-</style>

@@ -12,11 +12,11 @@ const state = () => ({
 
 const getters = {
   isAuthenticated: state => {
-    return !$.isEmptyObject(state.currentUser);
+    return !_.isEmpty(state.currentUser);
   },
 
   settings: (state) => (setting) => {
-    return $.isEmptyObject(state.settings) ? undefined : _.get(state.settings, setting);
+    return _.isEmpty(state.settings) ? undefined : _.get(state.settings, setting);
   }
 };
 
@@ -38,7 +38,7 @@ const actions = {
 
   async getCurrentUser ({ commit }) {
     let currentUser = await auth.getCurrentUser();
-    if ($.isEmptyObject(currentUser)) { currentUser = null; }
+    if (_.isEmpty(currentUser)) { currentUser = null; }
     // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
     setTimeZone(currentUser == null ? undefined : currentUser.timezone);
     commit('setCurrentUser', { currentUser });

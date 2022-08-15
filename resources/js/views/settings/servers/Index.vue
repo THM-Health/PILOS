@@ -25,7 +25,7 @@
             :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-success text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -98,7 +98,7 @@
               v-b-tooltip.hover
               :title="$t('settings.servers.view', { name: data.item.name })"
               :disabled='isBusy'
-              variant='primary'
+              variant='info'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id }, query: { view: '1' } }"
             >
               <i class='fa-solid fa-eye'></i>
@@ -109,7 +109,7 @@
               v-b-tooltip.hover
               :title="$t('settings.servers.edit', { name: data.item.name })"
               :disabled='isBusy'
-              variant='dark'
+              variant='secondary'
               :to="{ name: 'settings.servers.view', params: { id: data.item.id } }"
             >
               <i class='fa-solid fa-edit'></i>
@@ -147,7 +147,7 @@
       <b-button
         v-b-tooltip.hover
         size="sm"
-        variant='primary'
+        variant='info'
         :disabled="isBusy"
         @click="updateUsage=true;$root.$emit('bv::refresh::table', 'servers-table')"
       ><i class="fa-solid fa-sync"></i> {{ $t('settings.servers.reload') }}</b-button>
@@ -156,7 +156,7 @@
     <b-modal
       :busy='deleting'
       ok-variant='danger'
-      cancel-variant='dark'
+      cancel-variant='secondary'
       :cancel-title="$t('app.no')"
       @ok='deleteServer($event)'
       @cancel='clearServerToDelete'

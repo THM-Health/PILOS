@@ -72,7 +72,7 @@
                 <template slot='option' slot-scope="props">{{ props.option.name }}</template>
                 <template slot='tag' slot-scope='{ option, remove }'>
                   <h5 class='d-inline mr-1 mb-1'>
-                    <b-badge variant='primary'>
+                    <b-badge variant='info'>
                       {{ option.name }}
                       <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.serverPools.removeServer')"></i></span>
                     </b-badge>
@@ -132,7 +132,7 @@
         :static='modalStatic'
         :busy='isBusy'
         ok-variant='danger'
-        cancel-variant='dark'
+        cancel-variant='secondary'
         @ok='forceOverwrite'
         @cancel='refreshServerPool'
         :hide-header-close='true'

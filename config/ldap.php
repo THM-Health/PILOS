@@ -87,9 +87,5 @@ return [
 
     'ldapRoleAttribute' => env('LDAP_ROLE_ATTRIBUTE', 'userclass'),
 
-    'roleMap' => array_reduce(array_filter(explode(',', env('LDAP_ROLE_MAP', ''))), function ($carry, $value) {
-        [$ldapRole, $role] = explode('=', $value);
-        $carry[$ldapRole] = $role;
-        return $carry;
-    }, [])
+    'roleMap' => json_decode(env('LDAP_ROLE_MAP', ''), true)
 ];

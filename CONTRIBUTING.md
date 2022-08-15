@@ -42,14 +42,56 @@ alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 
 You can start the application with: `sail up -d` 
 To adjust the port of the webserver, change APP_PORT in the .env file.
-To adjust the port of phpmyadmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
 
-To run the artisan commands for migration, seeding, user creation, etc. (see README.md) you need to call them via sail.
-**Example** `php artisan migrate` -> `sail artisan migrate`
+### Install dependencies
+```bash
+sail composer install
+sail npm install
+```
 
-Also, you need to set up a ldap server. A corresponding tutorial can be found on
-[this](https://github.com/THM-Health/PILOS/wiki/Installing-OpenLDAP) wiki page. For testing functionality of the
-application which requires a running BigBlueButton server you may need to install a server on your development machine.
+### Adjust config
+Copy the `.env.example` to `.env` and make your necessary adjustments.
+
+Also, it is necessary to generate a new application key with the following command:
+```bash
+sail artisan key:generate
+```
+
+### Database
+The development environment comes with mariadb that is preconfigured in the .env file.
+You need to run the artisan commands for migration and seeding (see README.md).
+**Example** 
+```bash
+sail artisan migrate
+sail artisan db:seed
+```
+
+### PHPMyAdmin
+To adjust the port of PHPMyAdmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
+By default PHPMyAdmin is servered at http://localhost:8080
+
+### Admin user
+To create a new admin user run the artisan command for admin user creation (see README.md).
+```bash
+sail artisan users:create:admin
+```
+
+### LDAP 
+To use the local openldap server, enable ldap in the .env file with the option `LDAP_ENABLED`.
+There are three user accounts (see docker/openldap/bootstrap.ldif)
+1. Name: John Doe, Username: jdoe, Password: password, Groups: Student
+2. Name: Richard Roe, Username: rroe, Password: password, Groups: Staff
+3. Name: John Smith, Username: jsmi, Password: password, Groups: Student and Staff
+
+### PHPLdapAdmin
+The manage your local openldap server, you can use the PHPLdapAdmin UI.
+To adjust the port of PHPLdapAdmin, change FORWARD_PHPLDAP_PORT in the .env file.
+By default PHPLdapAdmin is servered at http://localhost:6680
+
+### BigBlueButton
+For testing functionality of the application which requires a running BigBlueButton server you may need to install a server on your development machine.
+
+### Finish Setup
 Checkout the installation guide in the [readme](README.md) for additional steps needed to finish the setup. Instead of
 running `sail npm run production` you must run in the dev environment `sail npm run dev`. For the development you can use any
 editor of your choice but please do not check in any configuration files for your editor. In this case you may want to
@@ -82,7 +124,7 @@ appropriate unit and feature tests, depending on the case. In case of bugfixes a
 case should be implemented, to make regression tests possible for further changes in the application. For the backend the
 api can be tested by using feature tests and other functions just with unit tests. For more information about tests
 checkout the [Laravel testing guides](https://laravel.com/docs/7.x/testing). The frontend implemented in vue, and the
-tests gets executed by the test framework mocha. The api responses can be stubbed by using the
+tests gets executed by the test framework jest. The api responses can be stubbed by using the
 [moxios](https://github.com/axios/moxios) framework. In case of api changes, the stubbed responses also should be
 changed. For more information about writing tests for the frontend, consider the vue test utils
 [documentation](https://vue-test-utils.vuejs.org/) and the

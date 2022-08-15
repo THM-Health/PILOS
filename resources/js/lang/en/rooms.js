@@ -97,7 +97,7 @@ export default {
     }
   },
   invitation: {
-    room: 'Join \'{roomname}\' with PILOS',
+    room: 'Join \'{roomname}\' with {platform}',
     link: 'Link: {link}',
     code: 'Access code: {code}'
   },

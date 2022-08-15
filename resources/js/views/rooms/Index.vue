@@ -15,7 +15,7 @@
         <b-input-group>
           <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="success" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="primary" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -51,7 +51,7 @@
             ></b-form-checkbox-group>
           </b-overlay>
         </div>
-        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="success" @click="loadRooms"><i class="fa-solid fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
+        <b-button :disabled="isBusy || roomTypesBusy || loadingError || roomTypesLoadingError" class="mt-3" variant="primary" @click="loadRooms"><i class="fa-solid fa-filter"></i> {{ $t('rooms.filter.apply') }}</b-button>
       </b-col>
       <b-col lg="9" order="1" order-lg="2">
 
@@ -80,7 +80,7 @@
                     {{ room.owner.name }}
                   </small>
                 </div>
-                <div v-if="room.type" v-b-tooltip.hover :title="room.type.description" class="roomicon" :style="{ 'background-color': room.type.color}">{{room.type.short}}</div>
+                <div v-if="room.type" v-b-tooltip.hover :title="room.type.description" class="room-icon" :style="{ 'background-color': room.type.color}">{{room.type.short}}</div>
               </div>
             </b-list-group-item>
           </b-list-group>

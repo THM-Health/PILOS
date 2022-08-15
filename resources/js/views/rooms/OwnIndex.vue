@@ -5,7 +5,7 @@
           <b-input-group>
             <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
-              <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="success" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+              <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>

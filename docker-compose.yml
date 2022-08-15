@@ -64,6 +64,28 @@ services:
         PMA_PASSWORD: "${DB_PASSWORD}"
       networks:
         - sail
+    openldap:
+      image: osixia/openldap
+      environment:
+        LDAP_ORGANISATION: "Demo University"
+        LDAP_DOMAIN: "university.org"
+        LDAP_READONLY_USER: 'true'
+      volumes:
+        - './docker/openldap:/container/service/slapd/assets/config/bootstrap/ldif/custom'
+      command: --copy-service
+      networks:
+      - sail
+    phpldapadmin:
+      image: osixia/phpldapadmin
+      links:
+        - openldap:ldap-host
+      ports:
+        - '${FORWARD_PHPLDAPADMIN_PORT:-6680}:80'
+      environment:
+        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ldap-host': [{'server': []},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org', 'bind_pass': 'admin'}]}]}]"
+        PHPLDAPADMIN_HTTPS: 'false'
+      networks:
+        - sail
 networks:
     sail:
         driver: bridge

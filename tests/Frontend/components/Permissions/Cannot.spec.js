@@ -2,7 +2,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import { mount, shallowMount } from '@vue/test-utils';
 import Cannot from '../../../../resources/js/components/Permissions/Cannot';
 import Vue from 'vue';
-import sinon from 'sinon';
+import { createContainer } from '../../helper';
 
 const testComponent = {
   name: 'test-component',
@@ -10,14 +10,8 @@ const testComponent = {
   template: '<p>test</p>'
 };
 
-const createContainer = (tag = 'div') => {
-  const container = document.createElement(tag);
-  document.body.appendChild(container);
-  return container;
-};
-
-describe('Cannot', function () {
-  it('hides the content if the necessary permission is available', async function () {
+describe('Cannot', () => {
+  it('hides the content if the necessary permission is available', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
 
     const wrapper = shallowMount(Cannot, {
@@ -38,7 +32,7 @@ describe('Cannot', function () {
     PermissionService.__ResetDependency__('Policies');
   });
 
-  it('shows the content if the necessary permission isn\'t available', async function () {
+  it('shows the content if the necessary permission isn\'t available', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
 
     const wrapper = shallowMount(Cannot, {
@@ -59,7 +53,7 @@ describe('Cannot', function () {
     PermissionService.__ResetDependency__('Policies');
   });
 
-  it('updates state on changes of the current user of the permission service', async function () {
+  it('updates state on changes of the current user of the permission service', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
     const oldUser = PermissionService.currentUser;
 
@@ -86,10 +80,10 @@ describe('Cannot', function () {
     PermissionService.__ResetDependency__('Policies');
   });
 
-  it('describes from `currentUserChangedEvent` after destroy', async function () {
+  it('describes from `currentUserChangedEvent` after destroy', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
     const oldUser = PermissionService.currentUser;
-    const spy = sinon.spy(Cannot.methods, 'evaluatePermissions');
+    const spy = jest.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation();
 
     const wrapper = shallowMount(Cannot, {
       propsData: {
@@ -103,7 +97,7 @@ describe('Cannot', function () {
     });
 
     await Vue.nextTick();
-    spy.resetHistory();
+    spy.mockClear();
     PermissionService.setCurrentUser({ permissions: ['foo'] });
 
     await Vue.nextTick();
@@ -113,14 +107,14 @@ describe('Cannot', function () {
     PermissionService.setCurrentUser({ permissions: ['qux'] });
 
     await Vue.nextTick();
-    expect(spy.callCount).toEqual(1);
+    expect(spy).toBeCalledTimes(1);
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
     PermissionService.__ResetDependency__('Policies');
   });
 
-  it('component does not generate an extra html tag', async function () {
+  it('component does not generate an extra html tag', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
     const oldUser = PermissionService.currentUser;
 

@@ -232,14 +232,14 @@ class Meeting extends Model
         $users  = $this->attendees()->whereNotNull('user_id')->get()->groupBy('user_id');
 
         // create array of guest attendees
-        $guests = $guests->map(function ($guest, $key) {
+        $guests       = $guests->map(function ($guest, $key) {
             $sessions = $this->mapAttendanceSessions($guest);
 
             return ['name' => $guest[0]->name, 'email' => null, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];
         });
 
         // create array of user attendees
-        $users = $users->map(function ($user, $key) {
+        $users        = $users->map(function ($user, $key) {
             $sessions = $this->mapAttendanceSessions($user);
 
             return ['name' => $user[0]->user->firstname.' '.$user[0]->user->lastname, 'email' => $user[0]->user->email, 'duration' => $sessions->sum('duration'), 'sessions' => $sessions];

@@ -102,7 +102,7 @@
             label-for='room-limit'
             :state='fieldState("room_limit")'
           >
-            <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="text-dark" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
+            <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="secondary" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
             <b-form-radio-group
               class='mb-2'
               v-model='roomLimitMode'
@@ -224,7 +224,7 @@
         :static='modalStatic'
         :busy='isBusy'
         ok-variant='danger'
-        cancel-variant='dark'
+        cancel-variant='secondary'
         @ok='forceOverwrite'
         @cancel='refreshRole'
         :hide-header-close='true'

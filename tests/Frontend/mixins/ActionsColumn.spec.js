@@ -3,8 +3,8 @@ import { mount } from '@vue/test-utils';
 import PermissionService from '../../../resources/js/services/PermissionService';
 import Vue from 'vue';
 
-describe('ActionsColumn', function () {
-  it('show and hides the actions column depending on the users `actionsPermissions`', async function () {
+describe('ActionsColumn', () => {
+  it('show and hides the actions column depending on the users `actionsPermissions`', async () => {
     const oldUser = PermissionService.currentUser;
 
     const Test = {
@@ -37,11 +37,11 @@ describe('ActionsColumn', function () {
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'action-column', thStyle: '', tdClass: 'action-button' }]);
     PermissionService.setCurrentUser({ permissions: ['users.delete'] });
     await Vue.nextTick();
 
-    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'actionColumn', thStyle: '', tdClass: 'actionButton' }]);
+    expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'action-column', thStyle: '', tdClass: 'action-button' }]);
     PermissionService.setCurrentUser({ permissions: [] });
     await Vue.nextTick();
 
@@ -58,9 +58,10 @@ describe('ActionsColumn', function () {
 
     expect(view.vm.tableFields).toEqual([]);
     PermissionService.setCurrentUser(oldUser);
-  });
+  }
+  );
 
-  it('changes class and style based on data', async function () {
+  it('changes class and style based on data', async () => {
     const oldUser = PermissionService.currentUser;
 
     const Test = {
@@ -99,5 +100,7 @@ describe('ActionsColumn', function () {
     expect(view.vm.tableFields).toEqual([{ key: 'actions', label: 'app.actions', sortable: false, thClass: 'testClass', thStyle: 'testStyle', tdClass: 'testClass2' }]);
     await Vue.nextTick();
     PermissionService.setCurrentUser(oldUser);
+
+    view.destroy();
   });
 });

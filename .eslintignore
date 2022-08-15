@@ -1,7 +1,7 @@
 /node_modules
 /public/hot
 /public/storage
-/resources/fontawesome
+/resources/custom
 /storage/*.key
 /vendor
 .env

@@ -28,7 +28,7 @@ class UserRequest extends FormRequest
             $rules['firstname'] = 'required|string|max:255';
             $rules['lastname']  = 'required|string|max:255';
             $rules['email']     = ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where(function ($query) {
-                $query = $query->where('authenticator', '=', 'users');
+                $query          = $query->where('authenticator', '=', 'users');
 
                 if ($this->user) {
                     $query = $query->where('id', '!=', $this->user->id);

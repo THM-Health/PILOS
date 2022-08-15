@@ -16,7 +16,7 @@
             </can>
 
             <b-button
-              variant="dark"
+              variant="secondary"
               @click="reload"
               :disabled="isBusy"
               :title="$t('app.reload')"
@@ -65,7 +65,7 @@
               >
                 <b-button
                   :disabled="isBusy"
-                  variant="success"
+                  variant="primary"
                   @click="copyPersonalizedRoomLink(data.item)"
                   :title="$t('rooms.tokens.copy')"
                   v-b-tooltip.hover
@@ -75,7 +75,7 @@
                 <can method="manageSettings" :policy="room">
                   <b-button
                     :disabled="isBusy"
-                    variant="dark"
+                    variant="secondary"
                     @click="showTokenEditModal(data.item)"
                     :title="$t('rooms.tokens.edit')"
                     v-b-tooltip.hover
@@ -126,7 +126,7 @@
       :busy="actionRunning"
       :static='modalStatic'
       ok-variant="danger"
-      cancel-variant="dark"
+      cancel-variant="secondary"
       :cancel-title="$t('app.no')"
       @cancel="resetModel"
       @close="resetModel"
@@ -267,7 +267,7 @@ export default {
      * Copies the room link for the personalized token to the users clipboard.
      */
     copyPersonalizedRoomLink (token) {
-      this.$clipboard(process.env.MIX_FRONTEND_BASE_URL + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
+      this.$clipboard(this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
       this.flashMessage.info({ message: this.$t('rooms.tokens.roomLinkCopied', { firstname: token.firstname, lastname: token.lastname }) });
     },
 

@@ -5,8 +5,8 @@ import BootstrapVue, { BAlert } from 'bootstrap-vue';
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
-describe('Banner', function () {
-  it('alert gets shown only if the enabled flag was provided and is not falsy', function () {
+describe('Banner', () => {
+  it('alert gets shown only if the enabled flag was provided and is not falsy', async () => {
     let view = mount(Banner, {
       localVue
     });
@@ -33,9 +33,10 @@ describe('Banner', function () {
 
     expect(view.findComponent(BAlert).exists()).toBe(true);
     view.destroy();
-  });
+  }
+  );
 
-  it('alert contains the configured props data', async function () {
+  it('alert contains the configured props data', async () => {
     const view = mount(Banner, {
       localVue,
       propsData: {
@@ -68,5 +69,7 @@ describe('Banner', function () {
     content = view.html();
     expect(content).toContain('fa-open-door');
     expect(content).toContain('Foo');
+
+    view.destroy();
   });
 });
