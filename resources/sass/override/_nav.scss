@@ -1,0 +1,6 @@
+// Use custom text-color for primary button in nav-tab
+.nav-tabs .nav-link.active.bg-primary {
+    @if (map-has-key($btn-text-color, "primary")) {
+        color: map-get($btn-text-color, "primary");
+    }
+}

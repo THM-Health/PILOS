@@ -96,10 +96,7 @@
             </template>
 
             <template v-slot:cell(role)="data">
-              <b-badge
-                class="text-white"
-                v-if="data.value === 1"
-                variant="success"
+              <b-badge v-if="data.value === 1" variant="success"
               >{{ $t('rooms.tokens.roles.participant') }}
               </b-badge>
               <b-badge v-if="data.value === 2" variant="danger"
@@ -205,7 +202,7 @@
           v-model.number="model.role"
           value="1"
         >
-          <b-badge class="text-white" variant="success">
+          <b-badge variant="success">
             {{ $t('rooms.tokens.roles.participant') }}
           </b-badge>
         </b-form-radio>
