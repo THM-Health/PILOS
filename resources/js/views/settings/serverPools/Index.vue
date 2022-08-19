@@ -25,7 +25,7 @@
             :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>

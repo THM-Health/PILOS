@@ -88,10 +88,7 @@
           <!-- render user role -->
           <template v-slot:cell(role)="data">
             <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.members.roles.guest') }}</b-badge>
-            <b-badge
-              class="text-white"
-              v-if="data.value === 1"
-              variant="success"
+            <b-badge v-if="data.value === 1" variant="success"
             >{{ $t('rooms.members.roles.participant') }}
             </b-badge>
             <b-badge v-if="data.value === 2" variant="danger"
@@ -143,7 +140,7 @@
       <div v-if="editMember">
         <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
           <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
-            <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+            <b-badge variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
           </b-form-radio>
           <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
             <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
@@ -230,7 +227,7 @@
       <!-- select role -->
       <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newMember" :state="newMemberRoleValid">
         <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="1">
-          <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+          <b-badge variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
         </b-form-radio>
         <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="2">
           <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>

@@ -1,8 +1,10 @@
 // Bootstrap
-@import "theme/default/variables";
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index';
 @import "override/buttons";
+@import "override/badges";
+@import "override/background";
+@import "override/nav";
 @import "override/tables";
 @import "override/pagination";
 
