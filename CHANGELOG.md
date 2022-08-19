@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
 - Override welcome page, feature component and footer with custom code ([#234],[#235],[#249])
 - OpenLDAP and phpLDAPadmin to local dev environment ([#225],[#250])
+- Meeting running indicator to own rooms page and find room / all rooms list ([#253],[#258])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
@@ -332,9 +333,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#249]: https://github.com/THM-Health/PILOS/pull/249
 [#250]: https://github.com/THM-Health/PILOS/pull/250
 [#252]: https://github.com/THM-Health/PILOS/issues/252
+[#253]: https://github.com/THM-Health/PILOS/issues/253
 [#254]: https://github.com/THM-Health/PILOS/pull/254
 [#255]: https://github.com/THM-Health/PILOS/pull/255
 [#256]: https://github.com/THM-Health/PILOS/pull/256
+[#258]: https://github.com/THM-Health/PILOS/pull/258
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
