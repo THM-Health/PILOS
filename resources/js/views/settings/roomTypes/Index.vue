@@ -6,6 +6,7 @@
         <b-button
           class='float-right'
           v-b-tooltip.hover
+          v-tooltip-hide-click
           variant='success'
           :title="$t('settings.roomTypes.new')"
           :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
@@ -52,6 +53,7 @@
         <can method='view' :policy='data.item'>
           <b-button
             v-b-tooltip.hover
+            v-tooltip-hide-click
             :title="$t('settings.roomTypes.view', { name: data.item.description })"
             :disabled='isBusy'
             variant='info'
@@ -63,6 +65,7 @@
         <can method='update' :policy='data.item'>
           <b-button
             v-b-tooltip.hover
+            v-tooltip-hide-click
             :title="$t('settings.roomTypes.edit', { name: data.item.description })"
             :disabled='isBusy'
             variant='secondary'
@@ -74,6 +77,7 @@
         <can method='delete' :policy='data.item'>
           <b-button
             v-b-tooltip.hover
+            v-tooltip-hide-click
             :title="$t('settings.roomTypes.delete.item', { id: data.item.description })"
             :disabled='isBusy'
             variant='danger'

@@ -9,6 +9,7 @@
             <b-button
               class='ml-2 float-right'
               v-b-tooltip.hover
+              v-tooltip-hide-click
               variant='success'
               ref="newServerPool"
               :title="$t('settings.serverPools.new')"
@@ -64,6 +65,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover.bottom
+              v-tooltip-hide-click
               :title="$t('settings.serverPools.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='info'
@@ -75,6 +77,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover.bottom
+              v-tooltip-hide-click
               :title="$t('settings.serverPools.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='secondary'
@@ -86,6 +89,7 @@
           <can method='delete' :policy='data.item'>
             <b-button
               v-b-tooltip.hover.bottom
+              v-tooltip-hide-click
               :title="$t('settings.serverPools.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'

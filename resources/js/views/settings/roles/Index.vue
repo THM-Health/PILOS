@@ -6,6 +6,7 @@
         <b-button
           class='float-right'
           v-b-tooltip.hover
+          v-tooltip-hide-click
           variant='success'
           :title="$t('settings.roles.new')"
           :to="{ name: 'settings.roles.view', params: { id: 'new' } }"
@@ -51,6 +52,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.roles.view', { name: data.item.id })"
               :disabled='isBusy'
               variant='info'
@@ -62,6 +64,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.roles.edit', { name: data.item.id })"
               :disabled='isBusy'
               variant='secondary'
@@ -73,6 +76,7 @@
           <can method='delete' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.roles.delete.item', { id: data.item.id })"
               :disabled='isBusy'
               variant='danger'

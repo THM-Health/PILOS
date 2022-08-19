@@ -21,6 +21,7 @@
               :disabled="isBusy"
               :title="$t('app.reload')"
               v-b-tooltip.hover
+              v-tooltip-hide-click
             >
               <i class="fa-solid fa-sync"></i>
             </b-button>
@@ -69,6 +70,7 @@
                   @click="copyPersonalizedRoomLink(data.item)"
                   :title="$t('rooms.tokens.copy')"
                   v-b-tooltip.hover
+                  v-tooltip-hide-click
                 >
                   <i class="fa-solid fa-link"></i>
                 </b-button>
@@ -79,6 +81,7 @@
                     @click="showTokenEditModal(data.item)"
                     :title="$t('rooms.tokens.edit')"
                     v-b-tooltip.hover
+                    v-tooltip-hide-click
                   >
                     <i class="fa-solid fa-pen-square"></i>
                   </b-button>
@@ -88,6 +91,7 @@
                     @click="showTokenDeleteModal(data.item)"
                     :title="$t('rooms.tokens.delete')"
                     v-b-tooltip.hover
+                    v-tooltip-hide-click
                   >
                     <i class="fa-solid fa-trash"></i>
                   </b-button>
