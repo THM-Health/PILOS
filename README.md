@@ -70,7 +70,7 @@ PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework
 
 ## Installation
 
-[Laravel](https://laravel.com/) is the main backend framework that used to develop PILOS. Follow the documentation [here](https://laravel.com/docs/7.x/) to install the necessary libs on your server.
+[Laravel](https://laravel.com/) is the main backend framework that used to develop PILOS. Follow the documentation [here](https://laravel.com/docs/9.x/deployment#server-requirements) to install the necessary libs on your server.
 
 A BigBlueButton server is necessary to use this application. See how to set up a BigBlueButton server [here](https://docs.bigbluebutton.org/).
 
@@ -112,6 +112,8 @@ Finally, build the frontend using the following npm command:
 npm install
 npm run production
 ```
+
+**Note:** If you have issues installing node-canvas, your architecture is not supported and you have to compile it yourself. Please have a look at https://github.com/Automattic/node-canvas#compiling
 
 The first admin user can be created by running the following command:
 ```bash

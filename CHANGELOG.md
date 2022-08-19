@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
 - **Breaking:** Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
-- **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228])
+- **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228],[#254])
 - **Breaking:** Renamed .env setting MIX_WELCOME_MESSAGE_LIMIT to WELCOME_MESSAGE_LIMIT ([#243],[#244])
 - **Breaking:** Renamed .env setting MIX_ROOM_NAME_LIMIT to ROOM_NAME_LIMIT ([#243],[#244])
 - **Breaking:** Renamed .env setting MIX_REFRESH_RATE to ROOM_REFRESH_RATE ([#243],[#244])
@@ -330,6 +330,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#246]: https://github.com/THM-Health/PILOS/pull/246
 [#249]: https://github.com/THM-Health/PILOS/pull/249
 [#250]: https://github.com/THM-Health/PILOS/pull/250
+[#254]: https://github.com/THM-Health/PILOS/pull/254
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
