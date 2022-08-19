@@ -32,3 +32,6 @@ $background-text-color: ("primary": null, "secondary": null, "success": null, "i
 
 // Elements to have rounded edges
 $enable-rounded: true;
+
+// Show red indicator if room is closed/not running
+$showRoomClosedIndicator: false;

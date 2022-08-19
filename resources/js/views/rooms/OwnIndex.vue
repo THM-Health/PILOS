@@ -18,7 +18,7 @@
           <em v-else-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
+              <room-component :id="room.id" :name="room.name" :type="room.type" :running="room.running"></room-component>
             </b-col>
             <can method="create" policy="RoomPolicy" v-if="!limitReached">
             <b-col class="pt-2">
@@ -44,7 +44,7 @@
           <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
+              <room-component :id="room.id" :name="room.name" v-bind:shared="true" :running="room.running" :shared-by="room.owner" :type="room.type"></room-component>
             </b-col>
           </b-row>
           <b-pagination
