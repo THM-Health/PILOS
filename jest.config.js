@@ -16,6 +16,7 @@ module.exports = {
     '.*\\.(vue)$': '@vue/vue2-jest',
     '^.+\\.js$': 'babel-jest'
   },
+  collectCoverageFrom: ['<rootDir>/resources/js/**/*.{js,vue}'],
   // (optional) with that you can import your components like
   // "import Counter from '@/Counter.vue'"
   // (no need for a full path)
