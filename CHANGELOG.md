@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
+- Tooltip not hiding ([#252],[#256])
 
 ### Removed
 - **Breaking:** .env setting MIX_FRONTEND_BASE_URL ([#243],[#244])
@@ -330,8 +331,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#246]: https://github.com/THM-Health/PILOS/pull/246
 [#249]: https://github.com/THM-Health/PILOS/pull/249
 [#250]: https://github.com/THM-Health/PILOS/pull/250
+[#252]: https://github.com/THM-Health/PILOS/issues/252
 [#254]: https://github.com/THM-Health/PILOS/pull/254
 [#255]: https://github.com/THM-Health/PILOS/pull/255
+[#256]: https://github.com/THM-Health/PILOS/pull/256
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
