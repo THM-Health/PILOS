@@ -24,6 +24,7 @@
             :disabled="isBusy"
             :title="$t('app.reload')"
             v-b-tooltip.hover
+            v-tooltip-hide-click
           >
             <i class="fa-solid fa-sync"></i>
           </b-button>
@@ -63,6 +64,7 @@
                 variant="secondary"
                 @click="showEditMemberModal(data.item)"
                 v-b-tooltip.hover
+                v-tooltip-hide-click
                 :title="$t('rooms.members.editUser')"
               >
                 <i class="fa-solid fa-user-edit"></i>
@@ -73,6 +75,7 @@
                 variant="danger"
                 @click="showRemoveMemberModal(data.item)"
                 v-b-tooltip.hover
+                v-tooltip-hide-click
                 :title="$t('rooms.members.deleteUser')"
               >
                 <i class="fa-solid fa-trash"></i>

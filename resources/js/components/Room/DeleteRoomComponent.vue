@@ -7,6 +7,7 @@
       :title="$t('rooms.modals.delete.title')"
       ref="deleteButton"
       v-b-tooltip.hover
+      v-tooltip-hide-click
       @click="$bvModal.show('remove-modal')"
       :disabled="disabled"
     >

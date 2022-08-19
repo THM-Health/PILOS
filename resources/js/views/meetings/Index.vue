@@ -122,6 +122,7 @@
       <template v-slot:cell(actions)="data">
         <b-button
           v-b-tooltip.hover
+          v-tooltip-hide-click
           :title="$t('meetings.viewRoom', { name: data.item.room.name })"
           :disabled='isBusy'
           variant='info'

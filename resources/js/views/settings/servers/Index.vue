@@ -9,6 +9,7 @@
             <b-button
               class='ml-2 float-right'
               v-b-tooltip.hover
+              v-tooltip-hide-click
               variant='success'
               ref="newServer"
               :title="$t('settings.servers.new')"
@@ -96,6 +97,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.servers.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='info'
@@ -107,6 +109,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.servers.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='secondary'
@@ -119,6 +122,7 @@
             <b-button
               v-if="data.item.status===-1"
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.servers.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
@@ -146,6 +150,7 @@
       <br><br>
       <b-button
         v-b-tooltip.hover
+        v-tooltip-hide-click
         size="sm"
         variant='info'
         :disabled="isBusy"

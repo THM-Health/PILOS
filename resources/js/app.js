@@ -7,6 +7,7 @@ import i18n from './i18n';
 import FlashMessage from '@smartweb/vue-flash-message';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
+import HideTooltip from './directives/hide-tooltip';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -32,6 +33,8 @@ if (process.env.ENABLE_AXE && process.env.NODE_ENV === 'development') {
 }
 
 Vue.config.errorHandler = Base.error;
+
+Vue.directive('tooltip-hide-click', HideTooltip);
 
 export default new Vue({
   el: '#app',

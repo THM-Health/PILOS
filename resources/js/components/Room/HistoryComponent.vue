@@ -24,6 +24,7 @@
             @click="$root.$emit('bv::refresh::table', 'meetings-table')"
             :title="$t('app.reload')"
             v-b-tooltip.hover
+            v-tooltip-hide-click
           >
             <i class="fa-solid fa-sync"></i>
           </b-button>
@@ -66,6 +67,7 @@
             <template v-slot:cell(actions)="data">
               <b-button
                 v-b-tooltip.hover
+                v-tooltip-hide-click
                 :title="$t('meetings.viewMeetingStats')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.statistical"
@@ -76,6 +78,7 @@
               </b-button>
               <b-button
                 v-b-tooltip.hover
+                v-tooltip-hide-click
                 :title="$t('meetings.viewMeetingAttendance')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.attendance && data.item.end != null"
