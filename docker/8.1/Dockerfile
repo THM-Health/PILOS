@@ -52,9 +52,6 @@ RUN chmod +x /usr/local/bin/start-container
 # Copy supervisor config
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-#RUN mkdir -p /var/run/apache2
-#RUN mkdir -p /var/run/php
-
 # Copy apache default site conf
 COPY 000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
