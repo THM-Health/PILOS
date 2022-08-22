@@ -77,6 +77,6 @@ class UpgradeDatabaseCommand extends Command
         }
         $this->info('Created new migrations table');
 
-        $this->alert('Upgrade to v2 completed. Please Upgrade to latest v2 database: php artisan migrate');
+        $this->alert('Upgrade to v2 completed. Please upgrade to latest v2 database: php artisan migrate');
     }
 }
