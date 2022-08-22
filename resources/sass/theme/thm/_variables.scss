@@ -25,10 +25,7 @@ $danger: $red;
 
 // Overwrite button and badge text color, by default automatically set to a light or dark color
 // depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
-$btn-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
-$btn-text-color-hover: ("primary": #FFF, "success": #FFF, "warning": #FFF);
-$badge-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
-$background-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
+$text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
 
 // Elements to have rounded edges
 $enable-rounded: false;

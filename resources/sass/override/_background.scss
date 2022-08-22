@@ -2,11 +2,6 @@
 
 @each $variant, $value in $theme-colors {
     .bg-#{$variant} {
-        @if (map-has-key($background-text-color, $variant)) {
-            color: map-get($background-text-color, $variant);
-        }
-        @else {
-            color: color-yiq($value);
-        }
+        color: text-color($variant);
     }
 }

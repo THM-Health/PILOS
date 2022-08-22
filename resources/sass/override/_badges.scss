@@ -1,5 +1,5 @@
 // Custom badge text color
-@each $name, $color in $badge-text-color {
+@each $name, $color in $text-color {
     @if $color {
         .badge-#{$name} {
             color: $color;

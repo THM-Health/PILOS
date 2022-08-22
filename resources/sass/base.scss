@@ -1,6 +1,7 @@
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
 @import 'bootstrap-vue/src/index';
+@import "app/functions";
 @import "override/buttons";
 @import "override/badges";
 @import "override/background";
