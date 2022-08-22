@@ -96,7 +96,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
+        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -118,19 +118,19 @@ class RoomTest extends TestCase
         // -- Try different invalid requests --
 
         // empty name and invalid roomtype
-        $room = ['roomType' => 0, 'name' => ''];
+        $room = ['room_type' => 0, 'name' => ''];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name', 'roomType']);
+            ->assertJsonValidationErrors(['name', 'room_type']);
 
         // name too short
-        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => 'A'];
+        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => 'A'];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertJsonValidationErrors(['name']);
 
         // missing parameters
         $room = [];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name', 'roomType']);
+            ->assertJsonValidationErrors(['name', 'room_type']);
     }
 
     /**
@@ -143,8 +143,8 @@ class RoomTest extends TestCase
         $this->user->roles()->attach($role);
         setting(['room_limit' => '1']);
 
-        $room_1 = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
-        $room_2 = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
+        $room_1 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
+        $room_2 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
 
         // Create first room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_1)

@@ -103,7 +103,7 @@ class RoomController extends Controller
         $room              = new Room();
         $room->name        = $request->name;
         $room->access_code = rand(111111111, 999999999);
-        $room->roomType()->associate($request->roomType);
+        $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());
         $room->save();
 

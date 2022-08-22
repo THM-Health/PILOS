@@ -214,7 +214,7 @@ return [
         'available'                         => 'verfügbar',
         'size'                              => 'Größe',
         'welcome'                           => 'Begrüßungsnachricht',
-        'roomType'                          => 'Raumart',
+        'room_type'                         => 'Raumart',
         'defaultRole'                       => 'Standardrolle',
         'duration'                          => 'Max. Dauer',
         'accessCode'                        => 'Zugangscode',

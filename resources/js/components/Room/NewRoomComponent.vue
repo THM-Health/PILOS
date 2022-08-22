@@ -21,16 +21,16 @@
       :no-close-on-backdrop="isLoadingAction || roomTypeSelectBusy"
       :hide-header-close="isLoadingAction || roomTypeSelectBusy"
     >
-      <b-form-group :state="fieldState('roomType')" :label="$t('rooms.settings.general.type')">
+      <b-form-group :state="fieldState('room_type')" :label="$t('rooms.settings.general.type')">
         <room-type-select
           :disabled="isLoadingAction"
           v-on:loadingError="(value) => this.roomTypeSelectLoadingError = value"
           v-on:busy="(value) => this.roomTypeSelectBusy = value"
           ref="roomTypeSelect"
-          v-model="room.roomType"
-          :state="fieldState('roomType')"
+          v-model="room.room_type"
+          :state="fieldState('room_type')"
         ></room-type-select>
-        <template slot='invalid-feedback'><div v-html="fieldError('roomType')"></div></template>
+        <template slot='invalid-feedback'><div v-html="fieldError('room_type')"></div></template>
       </b-form-group>
       <!-- Room name -->
       <b-form-group :state="fieldState('name')" :label="$t('rooms.settings.general.roomName')">
@@ -71,7 +71,7 @@ export default {
       roomTypeSelectLoadingError: false,
       isLoadingAction: false,
       room: {
-        roomType: null
+        room_type: null
       },
       errors: {}
     };
@@ -83,14 +83,14 @@ export default {
     },
 
     handleCancel: function () {
-      this.room = { roomType: null };
+      this.room = { room_type: null };
     },
 
     handleSubmit () {
       this.isLoadingAction = true;
 
       const newRoom = _.clone(this.room);
-      newRoom.roomType = newRoom.roomType ? newRoom.roomType.id : null;
+      newRoom.room_type = newRoom.room_type ? newRoom.room_type.id : null;
 
       Base.call('rooms', {
         method: 'post',
@@ -103,7 +103,7 @@ export default {
         if (error.response) {
           // failed due to form validation errors
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-            if (error.response.data.errors.roomType !== undefined) {
+            if (error.response.data.errors.room_type !== undefined) {
               this.$refs.roomTypeSelect.reloadRoomTypes();
             }
 

@@ -215,7 +215,7 @@ return [
         'available'                         => 'Available',
         'size'                              => 'Size',
         'welcome'                           => 'Welcome message',
-        'roomType'                          => 'Room type',
+        'room_type'                         => 'Room type',
         'defaultRole'                       => 'Default role',
         'duration'                          => 'Max. duration',
         'accessCode'                        => 'Access code',
