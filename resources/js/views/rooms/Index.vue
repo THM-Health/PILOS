@@ -152,7 +152,7 @@ export default {
         config.params.search = this.filter;
       }
 
-      config.params.roomTypes = this.filterRoomTypes;
+      config.params.room_types = this.filterRoomTypes;
 
       Base.call('rooms', config).then(response => {
         this.perPage = response.data.meta.per_page;

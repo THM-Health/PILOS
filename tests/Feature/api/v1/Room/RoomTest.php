@@ -465,20 +465,20 @@ class RoomTest extends TestCase
             ->assertJsonCount(0, 'data');
 
         // Filter by room types
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id)
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
             ->assertJsonCount(8, 'meta');
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&roomTypes[]='.$roomType2->id)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id.'&room_types[]='.$roomType2->id)
             ->assertStatus(200)
             ->assertJsonCount(4, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]=0')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]=0')
             ->assertStatus(200)
             ->assertJsonCount(0, 'data');
 
         // Filter by room types and search
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&search=test+a')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id.'&search=test+a')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }

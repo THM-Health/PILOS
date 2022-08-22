@@ -79,8 +79,8 @@ class RoomController extends Controller
             }
         }
 
-        if ($request->has('roomTypes')) {
-            $collection->whereIn('room_type_id', $request->roomTypes);
+        if ($request->has('room_types')) {
+            $collection->whereIn('room_type_id', $request->room_types);
         }
 
         $collection = $collection->orderBy('name')->paginate(setting('pagination_page_size'));
