@@ -500,9 +500,9 @@ class RoomTest extends TestCase
 
         $meeting2 = $rooms[2]->meetings()->create();
         $meeting2->server()->associate($server);
-        $meeting2->start       = date('Y-m-d H:i:s');
-        $meeting2->attendeePW  = bin2hex(random_bytes(5));
-        $meeting2->moderatorPW = bin2hex(random_bytes(5));
+        $meeting2->start        = date('Y-m-d H:i:s');
+        $meeting2->attendee_pw  = bin2hex(random_bytes(5));
+        $meeting2->moderator_pW = bin2hex(random_bytes(5));
         $meeting2->save();
 
         // Testing guests access
