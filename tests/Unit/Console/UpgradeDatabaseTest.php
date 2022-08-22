@@ -84,5 +84,8 @@ class UpgradeDatabaseTest extends TestCase
         $this->artisan('db:upgrade')
             ->expectsOutput('Database is missing')
             ->expectsOutput('Please run: php artisan migrate');
+
+        // Restore database
+        $this->artisan('migrate:fresh');
     }
 }
