@@ -493,7 +493,7 @@ class RoomTest extends TestCase
         $server   = Server::factory()->create();
         $meeting1 = $rooms[0]->meetings()->create();
         $meeting1->server()->associate($server);
-        $meeting1->start       = date('Y-m-d H:i:s');
+        $meeting1->start        = date('Y-m-d H:i:s');
         $meeting1->attendee_pw  = bin2hex(random_bytes(5));
         $meeting1->moderator_pw = bin2hex(random_bytes(5));
         $meeting1->save();
