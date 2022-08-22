@@ -48,6 +48,7 @@
           @click="reload"
           :title="$t('app.reload')"
           v-b-tooltip.hover
+          v-tooltip-hide-click
         >
           <i class="fa-solid fa-sync"></i>
         </b-button>
@@ -89,6 +90,7 @@
                 @click="showDeleteFileModal(data.item)"
                 :title="$t('rooms.files.delete')"
                 v-b-tooltip.hover
+                v-tooltip-hide-click
               >
                 <i class="fa-solid fa-trash"></i>
               </b-button>
@@ -101,6 +103,7 @@
               target="_blank"
               :title="$t('rooms.files.view')"
               v-b-tooltip.hover
+              v-tooltip-hide-click
             >
               <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fa-solid fa-eye"></i>
             </b-button>

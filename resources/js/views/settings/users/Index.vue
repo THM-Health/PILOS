@@ -11,6 +11,7 @@
             <b-button
               class='float-right'
               v-b-tooltip.hover
+              v-tooltip-hide-click
               variant='success'
               :title="$t('settings.users.new')"
               :to="{ name: 'settings.users.view', params: { id: 'new' } }"
@@ -28,7 +29,7 @@
                 :debounce='200'
               ></b-form-input>
               <b-input-group-append>
-                <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+                <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
               </b-input-group-append>
             </b-input-group>
           </b-col>
@@ -147,6 +148,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.users.view', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='info'
@@ -159,6 +161,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.users.edit', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='secondary'
@@ -172,6 +175,7 @@
             <b-button
               :id="'resetPassword' + data.item.id"
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.users.resetPassword.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='warning'
@@ -184,6 +188,7 @@
           <can method='delete' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.users.delete.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='danger'

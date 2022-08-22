@@ -72,7 +72,7 @@
                 <template slot='option' slot-scope="props">{{ props.option.name }}</template>
                 <template slot='tag' slot-scope='{ option, remove }'>
                   <h5 class='d-inline mr-1 mb-1'>
-                    <b-badge variant='info'>
+                    <b-badge variant='secondary'>
                       {{ option.name }}
                       <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.serverPools.removeServer')"></i></span>
                     </b-badge>

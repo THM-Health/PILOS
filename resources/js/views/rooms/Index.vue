@@ -15,7 +15,7 @@
         <b-input-group>
           <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="primary" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -74,6 +74,7 @@
           <b-list-group>
             <b-list-group-item button :disabled="openRoom" v-for="room in rooms" :key="room.id" @click="open(room)" class="flex-column align-items-start">
               <div class="d-flex w-100 justify-content-between">
+                <room-status-component :running="room.running"></room-status-component>
                 <div>
                   <h5 class="mb-0">{{ room.name }}</h5>
                   <small>
@@ -106,9 +107,10 @@ import Base from '../../api/base';
 import Can from '../../components/Permissions/Can';
 import Cannot from '../../components/Permissions/Cannot';
 import PermissionService from '../../services/PermissionService';
+import RoomStatusComponent from '../../components/Room/RoomStatusComponent';
 
 export default {
-  components: { Can, Cannot },
+  components: { RoomStatusComponent, Can, Cannot },
 
   data () {
     return {

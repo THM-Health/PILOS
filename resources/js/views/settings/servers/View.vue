@@ -67,7 +67,7 @@
             <b-input-group>
               <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("salt")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
-                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
+                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-tooltip-hide-click v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>

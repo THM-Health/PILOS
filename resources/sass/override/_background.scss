@@ -1,0 +1,7 @@
+// Custom bg-background text color
+
+@each $variant, $value in $theme-colors {
+    .bg-#{$variant} {
+        color: text-color($variant);
+    }
+}

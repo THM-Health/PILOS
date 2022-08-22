@@ -5,7 +5,7 @@
           <b-input-group>
             <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
-              <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+              <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
@@ -18,7 +18,7 @@
           <em v-else-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" :type="room.type"></room-component>
+              <room-component :id="room.id" :name="room.name" :type="room.type" :running="room.running"></room-component>
             </b-col>
             <can method="create" policy="RoomPolicy" v-if="!limitReached">
             <b-col class="pt-2">
@@ -44,12 +44,12 @@
           <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" v-bind:shared="true"  :shared-by="room.owner" :type="room.type"></room-component>
+              <room-component :id="room.id" :name="room.name" v-bind:shared="true" :running="room.running" :shared-by="room.owner" :type="room.type"></room-component>
             </b-col>
           </b-row>
           <b-pagination
             class="mt-4"
-            v-if="sharedRooms.meta.last_page != 1"
+            v-if="sharedRooms.meta.last_page !== 1"
             v-model="sharedRooms.meta.current_page"
             :total-rows="sharedRooms.meta.total"
             :per-page="sharedRooms.meta.per_page"

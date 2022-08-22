@@ -48,6 +48,7 @@ class Room extends JsonResource
                 'id'   => $this->owner->id,
                 'name' => $this->owner->fullname,
             ],
+            'running'           => $runningMeeting != null,
             'type'              => new RoomType($this->roomType),
             'model_name'        => $this->model_name,
             $this->mergeWhen($this->details, [
@@ -60,7 +61,6 @@ class Room extends JsonResource
                 'canStart'          => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
                 'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
-                'running'           => $runningMeeting != null,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
                 'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles()
             ])

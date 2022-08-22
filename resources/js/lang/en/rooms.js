@@ -11,6 +11,10 @@ export default {
   sharedRooms: 'Rooms shared with me',
   start: 'Start',
   notRunning: 'This room is not started yet.',
+  status: {
+    running: 'Meeting running',
+    notRunning: 'No running meeting'
+  },
   tryAgain: 'Try again',
   join: 'Join',
   recordingAttendanceInfo: 'The attendance in this room is logged.',

@@ -62,6 +62,7 @@ describe('Own Room Index', () => {
           id: 1,
           name: 'John Doe'
         },
+        running: false,
         type: {
           id: 2,
           short: 'ME',
@@ -90,6 +91,7 @@ describe('Own Room Index', () => {
           id: 1,
           name: 'John Doe'
         },
+        running: true,
         type: {
           id: 2,
           short: 'ME',
@@ -105,6 +107,7 @@ describe('Own Room Index', () => {
           id: 1,
           name: 'John Doe'
         },
+        running: false,
         type: {
           id: 2,
           short: 'ME',
@@ -133,7 +136,7 @@ describe('Own Room Index', () => {
     ]
   };
 
-  it('check list of rooms', async () => {
+  it('check list of rooms and attribute bindings', async () => {
     moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
       status: 200,
       response: exampleOwnRoomResponse
@@ -163,8 +166,26 @@ describe('Own Room Index', () => {
     expect(view.vm.sharedRooms).toEqual(exampleSharedRoomResponse);
     const rooms = view.findAllComponents(RoomComponent);
 
-    expect(rooms.filter(room => room.vm.shared === false).length).toBe(1);
-    expect(rooms.filter(room => room.vm.shared === true).length).toBe(2);
+    expect(rooms.at(0).vm.id).toBe('abc-def-123');
+    expect(rooms.at(0).vm.name).toBe('Meeting One');
+    expect(rooms.at(0).vm.shared).toBe(false);
+    expect(rooms.at(0).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(0).vm.running).toBe(false);
+    expect(rooms.at(0).vm.sharedBy).toBeUndefined();
+
+    expect(rooms.at(1).vm.id).toBe('def-abc-123');
+    expect(rooms.at(1).vm.name).toBe('Meeting Two');
+    expect(rooms.at(1).vm.shared).toBe(true);
+    expect(rooms.at(1).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(1).vm.running).toBe(true);
+    expect(rooms.at(1).vm.sharedBy).toEqual({ id: 1, name: 'John Doe' });
+
+    expect(rooms.at(2).vm.id).toBe('def-abc-456');
+    expect(rooms.at(2).vm.name).toBe('Meeting Three');
+    expect(rooms.at(2).vm.shared).toBe(true);
+    expect(rooms.at(2).vm.type).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false });
+    expect(rooms.at(2).vm.running).toBe(false);
+    expect(rooms.at(2).vm.sharedBy).toEqual({ id: 1, name: 'John Doe' });
 
     view.destroy();
   });
@@ -180,6 +201,7 @@ describe('Own Room Index', () => {
         id: 1,
         name: 'John Doe'
       },
+      running: false,
       type: {
         id: 2,
         short: 'ME',
@@ -258,6 +280,7 @@ describe('Own Room Index', () => {
               id: 1,
               name: 'John Doe'
             },
+            running: false,
             type: {
               id: 2,
               short: 'ME',
@@ -273,6 +296,7 @@ describe('Own Room Index', () => {
               id: 1,
               name: 'John Doe'
             },
+            running: false,
             type: {
               id: 2,
               short: 'ME',

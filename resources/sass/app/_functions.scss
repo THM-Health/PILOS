@@ -1,0 +1,7 @@
+// Text-color on background with a boostrap theme color, eg. primary, danger, etc.
+@function text-color($variant) {
+  @if (map-has-key($text-color, $variant) and map-get($text-color, $variant)) {
+    @return map-get($text-color, $variant);
+  }
+  @return color-yiq(map-get($theme-colors, $variant));
+}

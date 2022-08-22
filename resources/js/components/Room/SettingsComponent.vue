@@ -78,6 +78,7 @@
                     variant="outline-secondary"
                     :title="$t('rooms.settings.general.resetDuration')"
                     v-b-tooltip.hover
+                    v-tooltip-hide-click
                   ><i class="fa-solid fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
@@ -100,6 +101,7 @@
                     variant="outline-secondary"
                     :title="$t('rooms.settings.security.generateAccessCode')"
                     v-b-tooltip.hover
+                    v-tooltip-hide-click
                   ><i class="fa-solid fa-dice"></i
                   ></b-button>
                 </b-input-group-prepend>
@@ -120,6 +122,7 @@
                     variant="outline-secondary"
                     :title="$t('rooms.settings.security.deleteAccessCode')"
                     v-b-tooltip.hover
+                    v-tooltip-hide-click
                   ><i class="fa-solid fa-trash"></i
                   ></b-button>
                 </b-input-group-append>
@@ -192,6 +195,7 @@
                       variant="outline-secondary"
                       :title="$t('rooms.settings.participants.clearMaxParticipants')"
                       v-b-tooltip.hover
+                      v-tooltip-hide-click
                     ><i class="fa-solid fa-trash"></i
                     ></b-button>
                   </b-input-group-append>

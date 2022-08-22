@@ -490,6 +490,21 @@ class RoomTest extends TestCase
     {
         $rooms = Room::factory()->count(4)->create();
 
+        $server   = Server::factory()->create();
+        $meeting1 = $rooms[0]->meetings()->create();
+        $meeting1->server()->associate($server);
+        $meeting1->start       = date('Y-m-d H:i:s');
+        $meeting1->attendeePW  = bin2hex(random_bytes(5));
+        $meeting1->moderatorPW = bin2hex(random_bytes(5));
+        $meeting1->save();
+
+        $meeting2 = $rooms[2]->meetings()->create();
+        $meeting2->server()->associate($server);
+        $meeting2->start       = date('Y-m-d H:i:s');
+        $meeting2->attendeePW  = bin2hex(random_bytes(5));
+        $meeting2->moderatorPW = bin2hex(random_bytes(5));
+        $meeting2->save();
+
         // Testing guests access
         $this->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertUnauthorized();
@@ -507,20 +522,76 @@ class RoomTest extends TestCase
         $rooms[3]->save();
 
         // Testing working filter
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
             ->assertOk()
             ->assertJsonFragment(['id'=>$rooms[2]->id])
             ->assertJsonFragment(['id'=>$rooms[3]->id])
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.total_no_filter', 2)
-            ->assertJsonCount(9, 'meta');
+            ->assertJsonCount(9, 'meta')
+            ->assertJsonStructure([
+                'data' => [
+                    0 => [
+                        'id',
+                        'name',
+                        'owner' => [
+                            'id',
+                            'name',
+                        ],
+                        'running',
+                        'type' => [
+                            'id',
+                            'short',
+                            'description',
+                            'color'
+                        ],
+                        'model_name',
+                    ]
+                ]
+            ]);
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
+        foreach ($results->json('data') as $room) {
+            if ($room['id'] == $rooms[2]->id) {
+                self::assertTrue($room['running']);
+            } else {
+                self::assertFalse($room['running']);
+            }
+        }
+
+        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
             ->assertOk()
             ->assertJsonFragment(['id'=>$rooms[0]->id])
             ->assertJsonFragment(['id'=>$rooms[1]->id])
             ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('meta.total_no_filter', 2);
+            ->assertJsonPath('meta.total_no_filter', 2)
+            ->assertJsonStructure([
+                'data' => [
+                    0 => [
+                        'id',
+                        'name',
+                        'owner' => [
+                            'id',
+                            'name',
+                        ],
+                        'running',
+                        'type' => [
+                            'id',
+                            'short',
+                            'description',
+                            'color'
+                        ],
+                        'model_name',
+                    ]
+                ]
+            ]);
+
+        foreach ($results->json('data') as $room) {
+            if ($room['id'] == $rooms[0]->id) {
+                self::assertTrue($room['running']);
+            } else {
+                self::assertFalse($room['running']);
+            }
+        }
     }
 
     /**
