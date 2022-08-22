@@ -30,5 +30,8 @@ $background-text-color: ("primary": #FFF, "success": #FFF, "warning": #FFF);
 // Elements to have rounded edges
 $enable-rounded: false;
 
+// Show red indicator if room is closed/not running
+$showRoomClosedIndicator: false;
+
 // Typography
 $font-family-sans-serif: 'Source Sans Pro', sans-serif;
