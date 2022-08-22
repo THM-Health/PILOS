@@ -26,7 +26,7 @@ class UpgradeDatabaseTest extends TestCase
             ->expectsOutput('Upgraded to v2 database')
             ->expectsOutput('Cleared old migrations table')
             ->expectsOutput('Created new migrations table')
-            ->expectsOutputToContain('Upgrade to v2 completed. Please Upgrade to latest v2 database: php artisan migrate');
+            ->expectsOutputToContain('Upgrade to v2 completed. Please upgrade to latest v2 database: php artisan migrate');
 
         $tables_upgrade     = DB::connection()->getDoctrineSchemaManager()->listTableNames();
         $migrations_upgrade = DB::table('migrations')->pluck('migration')->toArray();
