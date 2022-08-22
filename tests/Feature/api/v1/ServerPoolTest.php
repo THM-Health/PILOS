@@ -363,7 +363,7 @@ class ServerPoolTest extends TestCase
         // Test delete with room type attached
         $this->actingAs($this->user)->deleteJson(route('api.v1.serverPools.destroy', ['serverPool'=>$serverPool->id]))
             ->assertStatus(CustomStatusCodes::STALE_MODEL)
-            ->assertJsonCount(2, 'roomTypes')
+            ->assertJsonCount(2, 'room_types')
             ->assertJsonFragment(['id'=>$roomTypes[0]->id,'short'=>$roomTypes[0]->short,'description'=>$roomTypes[0]->description]);
         $roomTypes[0]->delete();
         $roomTypes[1]->delete();
