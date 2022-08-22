@@ -199,7 +199,7 @@ class ServerTest extends TestCase
         $server = Server::factory()->create();
         $server->setBBB($bbbMock);
 
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendee_pw'=> 'asdfgh32343','moderator_pw'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 
@@ -304,7 +304,7 @@ class ServerTest extends TestCase
         $server = Server::factory()->create();
         $server->setBBB($bbbMock);
 
-        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendeePW'=> 'asdfgh32343','moderatorPW'=> 'h6gfdew423']);
+        $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendee_pw'=> 'asdfgh32343','moderator_pw'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
         $meeting->save();
 

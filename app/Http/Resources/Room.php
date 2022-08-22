@@ -54,12 +54,12 @@ class Room extends JsonResource
             $this->mergeWhen($this->details, [
                 'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
                 'authenticated'     => $this->authenticated,
-                'allowMembership'   => $this->allowMembership,
+                'allowMembership'   => $this->allow_membership,
                 'isMember'          => $this->resource->isMember(Auth::user()),
                 'isModerator'       => $this->resource->isModerator(Auth::user(), $this->token),
                 'isCoOwner'         => $this->resource->isCoOwner(Auth::user()),
                 'canStart'          => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
-                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->accessCode),
+                'accessCode'        => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
                 'roomTypeInvalid'   => $this->roomTypeInvalid,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
                 'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles()

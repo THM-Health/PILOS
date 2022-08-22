@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use application name in join room link ([#249])
 
 ### Fixed
+- **Breaking:** Database column inconsistencies ([#241],[#242])
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
 - Tooltip not hiding ([#252],[#256])
 
@@ -326,6 +327,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#236]: https://github.com/THM-Health/PILOS/issues/236
 [#237]: https://github.com/THM-Health/PILOS/pull/237
 [#240]: https://github.com/THM-Health/PILOS/pull/240
+[#241]: https://github.com/THM-Health/PILOS/issues/241
+[#242]: https://github.com/THM-Health/PILOS/pull/242
 [#243]: https://github.com/THM-Health/PILOS/issues/243
 [#244]: https://github.com/THM-Health/PILOS/pull/244
 [#245]: https://github.com/THM-Health/PILOS/issues/245

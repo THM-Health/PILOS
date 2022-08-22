@@ -62,7 +62,7 @@ class RoomController extends Controller
         if (Auth::user()->cannot('viewAll', Room::class)) {
             $collection = $collection
                 ->where('listed', 1)
-                ->whereNull('accessCode')
+                ->whereNull('access_code')
                 ->whereIn('room_type_id', RoomType::where('allow_listing', 1)->get('id'));
         }
 
@@ -100,9 +100,9 @@ class RoomController extends Controller
             abort(CustomStatusCodes::ROOM_LIMIT_EXCEEDED, __('app.errors.room_limit_exceeded'));
         }
 
-        $room             = new Room();
-        $room->name       = $request->name;
-        $room->accessCode = rand(111111111, 999999999);
+        $room              = new Room();
+        $room->name        = $request->name;
+        $room->access_code = rand(111111111, 999999999);
         $room->roomType()->associate($request->roomType);
         $room->owner()->associate(Auth::user());
         $room->save();
@@ -175,10 +175,10 @@ class RoomController extends Controller
                 }
 
                 // Create new meeting
-                $meeting                    = new Meeting();
-                $meeting->attendeePW        = bin2hex(random_bytes(5));
-                $meeting->moderatorPW       = bin2hex(random_bytes(5));
-                $meeting->record_attendance = setting('attendance.enabled') && $room->record_attendance;
+                $meeting                     = new Meeting();
+                $meeting->attendee_pw        = bin2hex(random_bytes(5));
+                $meeting->moderator_pw       = bin2hex(random_bytes(5));
+                $meeting->record_attendance  = setting('attendance.enabled') && $room->record_attendance;
 
                 // Basic load balancing, get server with lowest usage
                 $server = $room->roomType->serverPool->lowestUsage();
@@ -326,30 +326,30 @@ class RoomController extends Controller
      */
     public function update(UpdateRoomSettings $request, Room $room)
     {
-        $room->name            = $request->name;
-        $room->welcome         = $request->welcome;
-        $room->maxParticipants = $request->maxParticipants;
-        $room->duration        = $request->duration;
-        $room->accessCode      = $request->accessCode;
-        $room->listed          = $request->listed;
+        $room->name             = $request->name;
+        $room->welcome          = $request->welcome;
+        $room->max_participants = $request->maxParticipants;
+        $room->duration         = $request->duration;
+        $room->access_code      = $request->accessCode;
+        $room->listed           = $request->listed;
 
-        $room->muteOnStart                    = $request->muteOnStart;
-        $room->lockSettingsDisableCam         = $request->lockSettingsDisableCam;
-        $room->webcamsOnlyForModerator        = $request->webcamsOnlyForModerator;
-        $room->lockSettingsDisableMic         = $request->lockSettingsDisableMic;
-        $room->lockSettingsDisablePrivateChat = $request->lockSettingsDisablePrivateChat;
-        $room->lockSettingsDisablePublicChat  = $request->lockSettingsDisablePublicChat;
-        $room->lockSettingsDisableNote        = $request->lockSettingsDisableNote;
-        $room->lockSettingsLockOnJoin         = $request->lockSettingsLockOnJoin;
-        $room->lockSettingsHideUserList       = $request->lockSettingsHideUserList;
-        $room->everyoneCanStart               = $request->everyoneCanStart;
-        $room->allowMembership                = $request->allowMembership;
-        $room->allowGuests                    = $request->allowGuests;
+        $room->mute_on_start                      = $request->muteOnStart;
+        $room->lock_settings_disable_cam          = $request->lockSettingsDisableCam;
+        $room->webcams_only_for_moderator         = $request->webcamsOnlyForModerator;
+        $room->lock_settings_disable_mic          = $request->lockSettingsDisableMic;
+        $room->lock_settings_disable_private_chat = $request->lockSettingsDisablePrivateChat;
+        $room->lock_settings_disable_public_chat  = $request->lockSettingsDisablePublicChat;
+        $room->lock_settings_disable_note         = $request->lockSettingsDisableNote;
+        $room->lock_settings_lock_on_join         = $request->lockSettingsLockOnJoin;
+        $room->lock_settings_hide_user_list       = $request->lockSettingsHideUserList;
+        $room->everyone_can_start                 = $request->everyoneCanStart;
+        $room->allow_membership                   = $request->allowMembership;
+        $room->allow_guests                       = $request->allowGuests;
 
         $room->record_attendance              = $request->record_attendance;
 
-        $room->defaultRole = $request->defaultRole;
-        $room->lobby       = $request->lobby;
+        $room->default_role = $request->defaultRole;
+        $room->lobby        = $request->lobby;
         $room->roomType()->associate($request->roomType);
 
         $room->save();

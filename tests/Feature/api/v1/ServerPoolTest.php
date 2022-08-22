@@ -5,6 +5,7 @@ namespace Tests\Feature\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Permission;
 use App\Role;
+use App\RoomToken;
 use App\RoomType;
 use App\Server;
 use App\ServerPool;
@@ -39,7 +40,10 @@ class ServerPoolTest extends TestCase
     {
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
-        ServerPool::truncate();
+        RoomToken::query()->delete();
+        RoomType::query()->delete();
+        Server::query()->delete();
+        ServerPool::query()->delete();
         $serverPools  = ServerPool::factory()->count(9)->create();
         $serverPool1  = ServerPool::factory()->create(['name'=>'testPool']);
 

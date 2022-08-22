@@ -239,22 +239,22 @@ class ImportGreenlight extends Command
             }
 
             // create room with same id, same name, access code
-            $dbRoom              = new Room();
-            $dbRoom->id          = $room->uid;
-            $dbRoom->name        = ($prefix != null ? ($prefix.' ') : '').$room->name; // if prefix given, add prefix separated by a space from the title
-            $dbRoom->accessCode  = $room->access_code == '' ? null : $room->access_code;
-            $dbRoom->allowGuests = $allowGuests;
+            $dbRoom               = new Room();
+            $dbRoom->id           = $room->uid;
+            $dbRoom->name         = ($prefix != null ? ($prefix.' ') : '').$room->name; // if prefix given, add prefix separated by a space from the title
+            $dbRoom->access_code  = $room->access_code == '' ? null : $room->access_code;
+            $dbRoom->allow_guests = $allowGuests;
 
             // set room settings
             if (isset($room->room_settings->muteOnStart)) {
-                $dbRoom->muteOnStart      = $room->room_settings->muteOnStart;
+                $dbRoom->mute_on_start      = $room->room_settings->muteOnStart;
             }
             if (isset($room->room_settings->anyoneCanStart)) {
-                $dbRoom->everyoneCanStart = $room->room_settings->anyoneCanStart;
+                $dbRoom->everyone_can_start = $room->room_settings->anyoneCanStart;
             }
             if (isset($room->room_settings->joinModerator)) {
                 // in greenlight all shared accesses result in the users being moderators in the meeting
-                $dbRoom->defaultRole      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
+                $dbRoom->default_role      = $room->room_settings->joinModerator ? RoomUserRole::MODERATOR : RoomUserRole::USER;
             }
             if (isset($room->room_settings->requireModeratorApproval)) {
                 // in greenlight the lobby setting applies to all non-moderator users

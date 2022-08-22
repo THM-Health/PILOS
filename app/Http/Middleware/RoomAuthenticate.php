@@ -47,12 +47,12 @@ class RoomAuthenticate
         }
 
         // user is not authenticated and room is not allowed for guests
-        if (!$room->allowGuests && !$authenticated && !Auth::user()) {
+        if (!$room->allow_guests && !$authenticated && !Auth::user()) {
             abort(403, 'guests_not_allowed');
         }
 
         // if room has not access code
-        if ($room->accessCode == null) {
+        if ($room->access_code == null) {
             $authenticated = true;
         }
 
@@ -60,7 +60,7 @@ class RoomAuthenticate
         if ($request->headers->has('Access-Code')) {
             $accessCode = $request->header('Access-Code');
             // check if access code is correct
-            if (is_numeric($accessCode) && $room->accessCode == $accessCode) {
+            if (is_numeric($accessCode) && $room->access_code == $accessCode) {
                 $authenticated = true;
             } else {
                 // access code is incorrect
