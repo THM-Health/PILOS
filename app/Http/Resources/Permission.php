@@ -35,7 +35,7 @@ class Permission extends JsonResource
         return [
             'id'                     => $this->id,
             'name'                   => $this->name,
-            'includedPermissions'    => $this->when($this->withIncludedPermissions, function () {
+            'included_permissions'   => $this->when($this->withIncludedPermissions, function () {
                 return $this->includedPermissions->pluck('id');
             }),
         ];
