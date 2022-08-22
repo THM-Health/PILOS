@@ -49,7 +49,7 @@
           </b-row>
           <b-pagination
             class="mt-4"
-            v-if="sharedRooms.meta.last_page != 1"
+            v-if="sharedRooms.meta.last_page !== 1"
             v-model="sharedRooms.meta.current_page"
             :total-rows="sharedRooms.meta.total"
             :per-page="sharedRooms.meta.per_page"
