@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+function buildFrontend() {
+    echo "Building frontend..."
+	su www-data -s /bin/bash -c 'cd /var/www/html && npm run prod'
+}
+
+function databaseInit() {
+    echo "Migrate database and seed with example data..."
+    wait-for-it $DB_HOST:$DB_PORT --strict -- echo "database is ready"
+    su www-data -s /bin/bash -c 'cd /var/www/html && php artisan migrate --force --seed'
+}
+
+if [ ! -d /.composer ]; then
+    mkdir /.composer
+fi
+
+chmod -R ugo+rw /.composer
+
+if [ $# -gt 0 ]; then
+    exec gosu www-data "$@"
+else
+    buildFrontend
+    databaseInit
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi
