@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Renamed .env setting MIX_ROOM_NAME_LIMIT to ROOM_NAME_LIMIT ([#243],[#244])
 - **Breaking:** Renamed .env setting MIX_REFRESH_RATE to ROOM_REFRESH_RATE ([#243],[#244])
 - **Breaking:** LDAP_ROLE_MAP syntax ([#250])
+- **Breaking:** API attributes and parameters naming convention ([#259],[#260])
 - Random room polling interval ([#229],[#230])
 - Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
 - Use application name in join room link ([#249])
@@ -341,6 +342,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#255]: https://github.com/THM-Health/PILOS/pull/255
 [#256]: https://github.com/THM-Health/PILOS/pull/256
 [#258]: https://github.com/THM-Health/PILOS/pull/258
+[#259]: https://github.com/THM-Health/PILOS/issues/259
+[#260]: https://github.com/THM-Health/PILOS/pull/260
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
