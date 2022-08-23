@@ -520,7 +520,7 @@ describe('ServerPoolsIndex', () => {
       response: {
         error: 428,
         message: 'app.errors.server_pool_delete_failed',
-        roomTypes: [
+        room_types: [
           {
             id: 1,
             short: 'TA',

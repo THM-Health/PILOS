@@ -106,7 +106,7 @@ class Meeting extends Model
             ->setLearningDashboardEnabled(false);
 
         // get files that should be used in this meeting and add links to the files
-        $files = $this->room->files()->where('useinmeeting', true)->orderBy('default', 'desc')->get();
+        $files = $this->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
             $meetingParams->addPresentation($file->getDownloadLink(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }

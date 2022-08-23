@@ -294,7 +294,7 @@ describe('Create new rooms', () => {
     await waitMoxios();
 
     const request = moxios.requests.mostRecent();
-    expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+    expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 201,
       response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
@@ -347,7 +347,7 @@ describe('Create new rooms', () => {
     await waitMoxios();
 
     const request = moxios.requests.mostRecent();
-    expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+    expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 403
     });
@@ -395,7 +395,7 @@ describe('Create new rooms', () => {
     await waitMoxios();
 
     const request = moxios.requests.mostRecent();
-    expect(JSON.parse(request.config.data)).toMatchObject({ roomType: 2, name: 'Test' });
+    expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 463,
       response: { message: 'test' }
@@ -488,7 +488,7 @@ describe('Create new rooms', () => {
     let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 422,
-      response: { message: 'The given data was invalid.', errors: { roomType: ['error'] } }
+      response: { message: 'The given data was invalid.', errors: { room_type: ['error'] } }
     });
     await view.vm.$nextTick();
     expect(typeInput.classes()).toContain('is-invalid');
@@ -496,7 +496,7 @@ describe('Create new rooms', () => {
     request = moxios.requests.mostRecent();
     expect(request.url).toEqual('/api/v1/roomTypes?filter=own');
 
-    expect(view.vm.$data.room.roomType).toBeNull();
+    expect(view.vm.$data.room.room_type).toBeNull();
 
     restoreRoomTypeResponse();
     view.destroy();
@@ -533,7 +533,7 @@ describe('Create new rooms', () => {
     await typeInput.trigger('change');
 
     await view.findComponent(BFormInput).setValue('Test');
-    expect(view.vm.$data.room).toMatchObject({ roomType: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
+    expect(view.vm.$data.room).toMatchObject({ room_type: { color: '#4a5c66', description: 'Meeting', id: 2, short: 'ME' }, name: 'Test' });
     view.vm.handleCancel();
     view.destroy();
     expect(view.vm.$data.room).toMatchObject({});

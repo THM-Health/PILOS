@@ -96,7 +96,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
+        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -118,19 +118,19 @@ class RoomTest extends TestCase
         // -- Try different invalid requests --
 
         // empty name and invalid roomtype
-        $room = ['roomType' => 0, 'name' => ''];
+        $room = ['room_type' => 0, 'name' => ''];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name', 'roomType']);
+            ->assertJsonValidationErrors(['name', 'room_type']);
 
         // name too short
-        $room = ['roomType' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => 'A'];
+        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => 'A'];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
             ->assertJsonValidationErrors(['name']);
 
         // missing parameters
         $room = [];
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room)
-            ->assertJsonValidationErrors(['name', 'roomType']);
+            ->assertJsonValidationErrors(['name', 'room_type']);
     }
 
     /**
@@ -143,8 +143,8 @@ class RoomTest extends TestCase
         $this->user->roles()->attach($role);
         setting(['room_limit' => '1']);
 
-        $room_1 = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
-        $room_2 = ['roomType'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
+        $room_1 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
+        $room_2 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
 
         // Create first room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_1)
@@ -283,7 +283,7 @@ class RoomTest extends TestCase
         // Try without access code
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false, 'allowMembership' => false])
+            ->assertJsonFragment(['authenticated' => false, 'allow_membership' => false])
             ->assertJsonPath('data.current_user.id', $this->user->id);
 
         // Try with empty access code
@@ -371,16 +371,16 @@ class RoomTest extends TestCase
                         'model_name'    => 'RoomType',
                         'updated_at'    => $room->roomType->updated_at->toJSON(),
                     ],
-                    'model_name'        => 'Room',
-                    'authenticated'     => true,
-                    'allowMembership'   => $room->allow_membership,
-                    'isMember'          => false,
-                    'isModerator'       => false,
-                    'isCoOwner'         => false,
-                    'canStart'          => false,
-                    'running'           => false,
-                    'record_attendance' => false,
-                    'current_user'      => [
+                    'model_name'          => 'Room',
+                    'authenticated'       => true,
+                    'allow_membership'    => $room->allow_membership,
+                    'is_member'           => false,
+                    'is_moderator'        => false,
+                    'is_co_owner'         => false,
+                    'can_start'           => false,
+                    'running'             => false,
+                    'record_attendance'   => false,
+                    'current_user'        => [
                         'id'        => $this->user->id,
                         'firstname' => $this->user->firstname,
                         'lastname'  => $this->user->lastname,
@@ -465,20 +465,20 @@ class RoomTest extends TestCase
             ->assertJsonCount(0, 'data');
 
         // Filter by room types
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id)
             ->assertStatus(200)
             ->assertJsonCount(2, 'data')
             ->assertJsonCount(8, 'meta');
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&roomTypes[]='.$roomType2->id)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id.'&room_types[]='.$roomType2->id)
             ->assertStatus(200)
             ->assertJsonCount(4, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]=0')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]=0')
             ->assertStatus(200)
             ->assertJsonCount(0, 'data');
 
         // Filter by room types and search
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?roomTypes[]='.$roomType1->id.'&search=test+a')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id.'&search=test+a')
             ->assertStatus(200)
             ->assertJsonCount(1, 'data');
     }
@@ -738,31 +738,31 @@ class RoomTest extends TestCase
         // Testing unauthenticated user
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonMissing(['accessCode' => $room->access_code]);
+            ->assertJsonMissing(['access_code' => $room->access_code]);
 
         // Testing authenticated user
         $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonMissing(['accessCode' => $room->access_code]);
+            ->assertJsonMissing(['access_code' => $room->access_code]);
         $this->flushHeaders();
 
         // Testing member
         $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonMissing(['accessCode' => $room->access_code]);
+            ->assertJsonMissing(['access_code' => $room->access_code]);
 
         // Testing member as moderator
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['accessCode' => $room->access_code]);
+            ->assertJsonFragment(['access_code' => $room->access_code]);
 
         // Testing member as co-owner
         $room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['accessCode' => $room->access_code]);
+            ->assertJsonFragment(['access_code' => $room->access_code]);
 
         // Reset room membership
         $room->members()->sync([]);
@@ -772,13 +772,13 @@ class RoomTest extends TestCase
         $this->role->permissions()->attach($this->viewAllPermission);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['accessCode' => $room->access_code]);
+            ->assertJsonFragment(['access_code' => $room->access_code]);
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Testing access owner
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertSuccessful()
-            ->assertJsonFragment(['accessCode' => $room->access_code]);
+            ->assertJsonFragment(['access_code' => $room->access_code]);
     }
 
     public function testUpdateSettings()
@@ -792,28 +792,28 @@ class RoomTest extends TestCase
 
         $roomType = $this->faker->randomElement(RoomType::all());
 
-        $settings['accessCode']                     = $this->faker->numberBetween(111111111, 999999999);
-        $settings['allowMembership']                = $this->faker->boolean;
-        $settings['everyoneCanStart']               = true;
-        $settings['lockSettingsDisableCam']         = $this->faker->boolean;
-        $settings['lockSettingsDisableMic']         = $this->faker->boolean;
-        $settings['lockSettingsDisableNote']        = $this->faker->boolean;
-        $settings['lockSettingsDisablePrivateChat'] = $this->faker->boolean;
-        $settings['lockSettingsDisablePublicChat']  = $this->faker->boolean;
-        $settings['lockSettingsLockOnJoin']         = $this->faker->boolean;
-        $settings['lockSettingsHideUserList']       = $this->faker->boolean;
-        $settings['muteOnStart']                    = $this->faker->boolean;
-        $settings['webcamsOnlyForModerator']        = $this->faker->boolean;
-        $settings['defaultRole']                    = $this->faker->randomElement([RoomUserRole::MODERATOR,RoomUserRole::USER]);
-        $settings['allowGuests']                    = $this->faker->boolean;
-        $settings['lobby']                          = $this->faker->randomElement(RoomLobby::getValues());
-        $settings['roomType']                       = $roomType->id;
-        $settings['duration']                       = $this->faker->numberBetween(1, 50);
-        $settings['maxParticipants']                = $this->faker->numberBetween(1, 50);
-        $settings['name']                           = RoomTestHelper::createValidRoomName();
-        $settings['welcome']                        = $this->faker->text;
-        $settings['listed']                         = $this->faker->boolean;
-        $settings['record_attendance']              = $this->faker->boolean;
+        $settings['access_code']                        = $this->faker->numberBetween(111111111, 999999999);
+        $settings['allow_membership']                   = $this->faker->boolean;
+        $settings['everyone_can_start']                 = true;
+        $settings['lock_settings_disable_cam']          = $this->faker->boolean;
+        $settings['lock_settings_disable_mic']          = $this->faker->boolean;
+        $settings['lock_settings_disable_note']         = $this->faker->boolean;
+        $settings['lock_settings_disable_private_chat'] = $this->faker->boolean;
+        $settings['lock_settings_disable_public_chat']  = $this->faker->boolean;
+        $settings['lock_settings_lock_on_join']         = $this->faker->boolean;
+        $settings['lock_settings_hide_user_list']       = $this->faker->boolean;
+        $settings['mute_on_start']                      = $this->faker->boolean;
+        $settings['webcams_only_for_moderator']         = $this->faker->boolean;
+        $settings['default_role']                       = $this->faker->randomElement([RoomUserRole::MODERATOR,RoomUserRole::USER]);
+        $settings['allow_guests']                       = $this->faker->boolean;
+        $settings['lobby']                              = $this->faker->randomElement(RoomLobby::getValues());
+        $settings['room_type']                          = $roomType->id;
+        $settings['duration']                           = $this->faker->numberBetween(1, 50);
+        $settings['max_participants']                   = $this->faker->numberBetween(1, 50);
+        $settings['name']                               = RoomTestHelper::createValidRoomName();
+        $settings['welcome']                            = $this->faker->text;
+        $settings['listed']                             = $this->faker->boolean;
+        $settings['record_attendance']                  = $this->faker->boolean;
 
         // Testing user
         $this->actingAs($this->user)->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
@@ -859,8 +859,8 @@ class RoomTest extends TestCase
         $response = $this->actingAs($room->owner)->getJson(route('api.v1.rooms.settings', ['room'=>$room]))
             ->assertSuccessful();
 
-        $new_settings         = $response->json('data');
-        $settings['roomType'] = new \App\Http\Resources\RoomType($roomType);
+        $new_settings          = $response->json('data');
+        $settings['room_type'] = new \App\Http\Resources\RoomType($roomType);
 
         $this->assertJsonStringEqualsJsonString(json_encode($new_settings), json_encode($settings));
     }
@@ -875,26 +875,26 @@ class RoomTest extends TestCase
         $settings = $response->json('data');
 
         // Room type invalid format
-        $settings['roomType']            = [ 'id' => 5 ];
+        $settings['room_type']            = [ 'id' => 5 ];
         $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
-            ->assertJsonValidationErrors(['roomType']);
+            ->assertJsonValidationErrors(['room_type']);
 
         // Name too short
-        $settings['name']            = 'A';
-        $settings['roomType']        = $this->faker->randomElement(RoomType::pluck('id'));
+        $settings['name']             = 'A';
+        $settings['room_type']        = $this->faker->randomElement(RoomType::pluck('id'));
         $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
             ->assertJsonValidationErrors(['name']);
 
-        $settings['accessCode']      = $this->faker->numberBetween(1111111, 9999999);
-        $settings['defaultRole']     = RoomUserRole::GUEST;
-        $settings['duration']        = -10;
-        $settings['lobby']           = 5;
-        $settings['maxParticipants'] = -10;
-        $settings['name']            = null;
-        $settings['roomType']        = 0;
+        $settings['access_code']      = $this->faker->numberBetween(1111111, 9999999);
+        $settings['default_role']     = RoomUserRole::GUEST;
+        $settings['duration']         = -10;
+        $settings['lobby']            = 5;
+        $settings['max_participants'] = -10;
+        $settings['name']             = null;
+        $settings['room_type']        = 0;
 
         $this->putJson(route('api.v1.rooms.update', ['room'=>$room]), $settings)
-            ->assertJsonValidationErrors(['accessCode','defaultRole','duration','lobby','maxParticipants','name','roomType']);
+            ->assertJsonValidationErrors(['access_code','default_role','duration','lobby','max_participants','name','room_type']);
     }
 
     /**

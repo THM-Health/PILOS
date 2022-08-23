@@ -270,7 +270,7 @@ export default {
         this.$refs.serverPools.refresh();
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-          this.deleteFailedRoomTypes = error.response.data.roomTypes;
+          this.deleteFailedRoomTypes = error.response.data.room_types;
         } else {
           Base.error(error, this.$root, error.message);
           this.clearServerPoolToDelete();

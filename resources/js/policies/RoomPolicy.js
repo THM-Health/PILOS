@@ -28,7 +28,7 @@ export default {
    * @return {boolean}
    */
   viewInvitation (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isModerator || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.viewAll');
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.is_moderator || model.is_co_owner || permissionService.currentUser.permissions.includes('rooms.viewAll');
   },
 
   /**
@@ -48,7 +48,7 @@ export default {
    * @return {boolean}
    */
   viewSettings (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.viewAll');
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.is_co_owner || permissionService.currentUser.permissions.includes('rooms.viewAll');
   },
 
   /**
@@ -58,7 +58,7 @@ export default {
    * @return {boolean}
    */
   manageSettings (permissionService, model) {
-    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.isCoOwner || permissionService.currentUser.permissions.includes('rooms.manage');
+    return !permissionService.currentUser ? false : model.owner.id === permissionService.currentUser.id || model.is_co_owner || permissionService.currentUser.permissions.includes('rooms.manage');
   },
 
   /**
@@ -67,7 +67,7 @@ export default {
    * @param model
    */
   becomeMember (permissionService, model) {
-    return !permissionService.currentUser ? false : model.allowMembership && !model.isMember && model.owner.id !== permissionService.currentUser.id;
+    return !permissionService.currentUser ? false : model.allow_membership && !model.is_member && model.owner.id !== permissionService.currentUser.id;
   }
 
 };

@@ -172,7 +172,7 @@ describe('Room', () => {
     expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     await moxios.requests.mostRecent().respondWith({
       status: 200,
-      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: null } }
+      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
     });
 
     // wait for promise to be resolved (room data is loaded)
@@ -199,7 +199,7 @@ describe('Room', () => {
     expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     await moxios.requests.mostRecent().respondWith({
       status: 200,
-      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'Peter Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: null } }
+      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'Peter Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
     });
 
     // check if ui reflects the change
@@ -394,7 +394,7 @@ describe('Room', () => {
       router: routerMock,
       data () {
         return {
-          room: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: false, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, current_user: exampleUser },
+          room: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: false, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: exampleUser },
           room_id: 'abc-def-456'
         };
       }
@@ -424,11 +424,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             current_user: null
           },
@@ -449,7 +449,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(joinButton.attributes('disabled')).toBeUndefined();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
 
@@ -474,13 +474,13 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: true,
-            isCoOwner: false,
-            isModerator: true,
-            canStart: true,
+            allow_membership: false,
+            is_member: true,
+            is_co_owner: false,
+            is_moderator: true,
+            can_start: true,
             running: false,
-            accessCode: 123456789,
+            access_code: 123456789,
             current_user: exampleUser
           },
           room_id: 'cba-fed-123'
@@ -496,7 +496,7 @@ describe('Room', () => {
     const adminComponent = view.findComponent(AdminComponent);
     expect(adminComponent.exists()).toBeFalsy();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
     view.destroy();
@@ -520,13 +520,13 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
-            accessCode: 123456789,
+            access_code: 123456789,
             current_user: exampleUser
           },
           room_id: 'gs4-6fb-kk8'
@@ -544,7 +544,7 @@ describe('Room', () => {
     expect(adminComponent.exists()).toBeTruthy();
 
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
 
@@ -569,13 +569,13 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: true,
-            isCoOwner: true,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: true,
+            is_co_owner: true,
+            is_moderator: false,
+            can_start: true,
             running: false,
-            accessCode: 123456789,
+            access_code: 123456789,
             current_user: exampleUser
           },
           room_id: 'gs4-6fb-kk8'
@@ -592,7 +592,7 @@ describe('Room', () => {
     expect(adminComponent.exists()).toBeTruthy();
 
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
-    view.vm.$set(view.vm.$data.room, 'roomTypeInvalid', true);
+    view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(true);
 
@@ -617,13 +617,13 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
-            accessCode: 123456789,
+            access_code: 123456789,
             current_user: exampleUser
           },
           room_id: 'gs4-6fb-kk8'
@@ -667,7 +667,7 @@ describe('Room', () => {
       attachTo: createContainer(),
       data () {
         return {
-          room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser },
+          room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: true, running: false, access_code: 123456789, current_user: exampleUser },
           room_id: 'cba-fed-234'
         };
       }
@@ -687,7 +687,7 @@ describe('Room', () => {
     expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-234');
     await moxios.requests.mostRecent().respondWith({
       status: 200,
-      response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: false, isModerator: true, canStart: true, running: false, accessCode: 123456789, current_user: exampleUser } }
+      response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: false, is_moderator: true, can_start: true, running: false, access_code: 123456789, current_user: exampleUser } }
     });
     expect(view.html()).toContain('Meeting Two');
 
@@ -742,9 +742,11 @@ describe('Room', () => {
         $t: (key) => key,
         flashMessage: flashMessage
       },
-      propsData: {
-        accessCodeValid: null,
-        accessCode: 123456789
+      data () {
+        return {
+          accessCodeValid: null,
+          accessCode: 123456789
+        };
       },
       store,
       attachTo: createContainer()
@@ -772,7 +774,7 @@ describe('Room', () => {
       },
       data () {
         return {
-          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: true, record_attendance: false, current_user: null },
+          room: { id: 'abc-def-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: true, record_attendance: false, current_user: null },
           room_id: 'abc-def-789',
           name: 'John Doe',
           token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
@@ -811,12 +813,12 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: false,
-            allowMembership: false,
-            isMember: false,
-            isOwner: false,
-            isGuest: true,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_owner: false,
+            is_guest: true,
+            is_moderator: false,
+            can_start: false,
             running: false,
             current_user: null
           },
@@ -871,12 +873,12 @@ describe('Room', () => {
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: false,
-          allowMembership: false,
-          isMember: false,
-          isOwner: false,
-          isGuest: true,
-          isModerator: false,
-          canStart: false,
+          allow_membership: false,
+          is_member: false,
+          is_owner: false,
+          is_guest: true,
+          is_moderator: false,
+          can_start: false,
           running: false,
           current_user: null
         }
@@ -902,10 +904,7 @@ describe('Room', () => {
         $t: (key) => key,
         flashMessage: flashMessage
       },
-      propsData: {
-        room: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, accessCode: 123456789, current_user: exampleUser },
-        accessCode: 123456789
-      },
+      router: routerMock,
       store,
       attachTo: createContainer()
     });
@@ -953,11 +952,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             record_attendance: false,
             current_user: exampleUser
@@ -1026,11 +1025,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             record_attendance: true,
             current_user: exampleUser
@@ -1094,11 +1093,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             record_attendance: true,
             current_user: null
@@ -1198,11 +1197,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             record_attendance: true,
             current_user: null
@@ -1306,11 +1305,11 @@ describe('Room', () => {
             model_name: 'Room',
             authenticated: true,
             username: 'John Doe',
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             record_attendance: false,
             current_user: null
@@ -1377,11 +1376,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: true,
             record_attendance: false,
             current_user: exampleUser
@@ -1525,11 +1524,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
             record_attendance: false,
             current_user: exampleUser
@@ -1597,11 +1596,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
             record_attendance: true,
             current_user: exampleUser
@@ -1665,11 +1664,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
             record_attendance: true,
             current_user: null
@@ -1783,11 +1782,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
             record_attendance: false,
             current_user: exampleUser
@@ -1924,11 +1923,11 @@ describe('Room', () => {
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
-          allowMembership: false,
-          isMember: false,
-          isCoOwner: false,
-          isModerator: false,
-          canStart: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
           running: false,
           record_attendance: false,
           current_user: exampleUser
@@ -1965,11 +1964,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
             record_attendance: false,
             current_user: exampleUser
@@ -2039,11 +2038,11 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
             record_attendance: false,
             current_user: exampleUser
@@ -2122,13 +2121,13 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: true,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: true,
+            allow_membership: false,
+            is_member: true,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
             running: false,
-            accessCode: 123456789,
+            access_code: 123456789,
             current_user: exampleUser
           },
           room_id: 'cba-fed-123'
@@ -2194,13 +2193,13 @@ describe('Room', () => {
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
-          allowMembership: false,
-          isMember: false,
-          isCoOwner: false,
-          isModerator: false,
-          canStart: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
           running: false,
-          accessCode: 123456789,
+          access_code: 123456789,
           current_user: exampleUser
         }
       }
@@ -2227,13 +2226,13 @@ describe('Room', () => {
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
-            allowMembership: false,
-            isMember: false,
-            isCoOwner: false,
-            isModerator: false,
-            canStart: false,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: false,
             running: false,
-            accessCode: 123456789,
+            access_code: 123456789,
             current_user: exampleUser
           },
           room_id: 'cba-fed-234'
@@ -2264,11 +2263,11 @@ describe('Room', () => {
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
-          allowMembership: false,
-          isMember: false,
-          isCoOwner: false,
-          isModerator: false,
-          canStart: true,
+          allow_membership: false,
+          is_member: false,
+          is_co_owner: false,
+          is_moderator: false,
+          can_start: true,
           running: false,
           current_user: null
         }
@@ -2277,6 +2276,7 @@ describe('Room', () => {
 
     await view.vm.$nextTick();
     expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
+
     expect(store.getters['session/isAuthenticated']).toBeFalsy();
 
     await reloadButton.trigger('click');
@@ -2291,13 +2291,13 @@ describe('Room', () => {
           type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
           model_name: 'Room',
           authenticated: true,
-          allowMembership: false,
-          isMember: true,
-          isCoOwner: true,
-          isModerator: false,
-          canStart: true,
+          allow_membership: false,
+          is_member: true,
+          is_co_owner: true,
+          is_moderator: false,
+          can_start: true,
           running: false,
-          accessCode: 123456789,
+          access_code: 123456789,
           current_user: exampleUser
         }
       }
@@ -2315,7 +2315,6 @@ describe('Room', () => {
 
     expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
     expect(store.getters['session/isAuthenticated']).toBeFalsy();
-
     view.destroy();
   });
 
@@ -2327,7 +2326,7 @@ describe('Room', () => {
       },
       data () {
         return {
-          room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false, accessCode: 123456789, current_user: exampleUser },
+          room: { id: 'cba-fed-234', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, access_code: 123456789, current_user: exampleUser },
           room_id: 'cba-fed-234'
         };
       },

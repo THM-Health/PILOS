@@ -30,6 +30,9 @@ return new class extends Migration {
             $table->renameColumn('accessCode', 'access_code');
             $table->dropColumn('everyoneModerator');
         });
+        Schema::table('room_files', function (Blueprint $table) {
+            $table->renameColumn('useinmeeting', 'use_in_meeting');
+        });
     }
 
     public function down()

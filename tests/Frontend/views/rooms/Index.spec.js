@@ -384,7 +384,7 @@ describe('Room Index', () => {
     // check if new request with the search query is send
     await waitMoxios();
     expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [] });
+    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', room_types: [] });
     await moxios.requests.mostRecent().respondWith({
       status: 200,
       response: {
@@ -441,7 +441,7 @@ describe('Room Index', () => {
     await waitMoxios();
     // check if the search query and the room filter are send, respond with no rooms found
     expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [1, 3] });
+    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', room_types: [1, 3] });
     await moxios.requests.mostRecent().respondWith({
       status: 200,
       response: {

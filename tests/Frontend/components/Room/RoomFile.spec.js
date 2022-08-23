@@ -15,10 +15,10 @@ localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], modelName: 'User', room_limit: -1 };
-const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
-const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: true, isCoOwner: true, isModerator: false, canStart: false, running: false };
-const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allowMembership: false, isMember: false, isCoOwner: false, isModerator: false, canStart: false, running: false };
+const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
+const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
+const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
+const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 
 const store = new Vuex.Store({
   modules: {
@@ -75,9 +75,9 @@ describe('RoomFile', () => {
       response: {
         data: {
           files: [
-            { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' },
-            { id: 2, filename: 'File2.pdf', download: true, useinmeeting: true, default: true, uploaded: '2020-09-21T07:08:00.000000Z' },
-            { id: 3, filename: 'File3.pdf', download: false, useinmeeting: false, default: false, uploaded: '2020-09-21T07:09:00.000000Z' }
+            { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' },
+            { id: 2, filename: 'File2.pdf', download: true, use_in_meeting: true, default: true, uploaded: '2020-09-21T07:08:00.000000Z' },
+            { id: 3, filename: 'File3.pdf', download: false, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:09:00.000000Z' }
           ],
           default: 2
         }
@@ -161,7 +161,7 @@ describe('RoomFile', () => {
     expect(fields).toContain('uploaded');
     expect(fields).toContain('actions');
     expect(fields).not.toContain('download');
-    expect(fields).not.toContain('useinmeeting');
+    expect(fields).not.toContain('use_in_meeting');
     expect(fields).not.toContain('default');
 
     view.destroy();
@@ -189,7 +189,7 @@ describe('RoomFile', () => {
     expect(fields).toContain('uploaded');
     expect(fields).toContain('actions');
     expect(fields).toContain('download');
-    expect(fields).toContain('useinmeeting');
+    expect(fields).toContain('use_in_meeting');
     expect(fields).toContain('default');
     view.destroy();
   });
@@ -216,7 +216,7 @@ describe('RoomFile', () => {
     expect(fields).toContain('uploaded');
     expect(fields).toContain('actions');
     expect(fields).toContain('download');
-    expect(fields).toContain('useinmeeting');
+    expect(fields).toContain('use_in_meeting');
     expect(fields).toContain('default');
 
     view.destroy();
@@ -249,7 +249,7 @@ describe('RoomFile', () => {
     expect(fields).toContain('uploaded');
     expect(fields).toContain('actions');
     expect(fields).not.toContain('download');
-    expect(fields).not.toContain('useinmeeting');
+    expect(fields).not.toContain('use_in_meeting');
     expect(fields).not.toContain('default');
 
     PermissionService.setCurrentUser(oldUser);
@@ -283,7 +283,7 @@ describe('RoomFile', () => {
     expect(fields).toContain('uploaded');
     expect(fields).toContain('actions');
     expect(fields).toContain('download');
-    expect(fields).toContain('useinmeeting');
+    expect(fields).toContain('use_in_meeting');
     expect(fields).toContain('default');
 
     PermissionService.setCurrentUser(oldUser);
@@ -347,7 +347,7 @@ describe('RoomFile', () => {
       response: {
         data: {
           files: [
-            { id: 1, filename: 'File1.pdf', download: true, useinmeeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
+            { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
           ],
           default: null
         }
@@ -602,7 +602,7 @@ describe('RoomFile', () => {
               id: 1,
               filename: 'File1.pdf',
               download: true,
-              useinmeeting: false,
+              use_in_meeting: false,
               default: false,
               uploaded: '2020-09-21T07:08:00.000000Z'
             },
@@ -610,7 +610,7 @@ describe('RoomFile', () => {
               id: 2,
               filename: 'File2.pdf',
               download: true,
-              useinmeeting: true,
+              use_in_meeting: true,
               default: true,
               uploaded: '2020-09-21T07:08:00.000000Z'
             },
@@ -618,7 +618,7 @@ describe('RoomFile', () => {
               id: 3,
               filename: 'File3.pdf',
               download: false,
-              useinmeeting: false,
+              use_in_meeting: false,
               default: false,
               uploaded: '2020-09-21T07:09:00.000000Z'
             }
@@ -675,7 +675,7 @@ describe('RoomFile', () => {
               id: 1,
               filename: 'File1.pdf',
               download: true,
-              useinmeeting: false,
+              use_in_meeting: false,
               default: false,
               uploaded: '2020-09-21T07:08:00.000000Z'
             },
@@ -683,7 +683,7 @@ describe('RoomFile', () => {
               id: 2,
               filename: 'File2.pdf',
               download: true,
-              useinmeeting: true,
+              use_in_meeting: true,
               default: true,
               uploaded: '2020-09-21T07:09:00.000000Z'
             },
@@ -691,7 +691,7 @@ describe('RoomFile', () => {
               id: 3,
               filename: 'File3.pdf',
               download: false,
-              useinmeeting: false,
+              use_in_meeting: false,
               default: false,
               uploaded: '2020-09-21T07:10:00.000000Z'
             }
@@ -741,7 +741,7 @@ describe('RoomFile', () => {
                 id: 1,
                 filename: 'File1.pdf',
                 download: true,
-                useinmeeting: false,
+                use_in_meeting: false,
                 default: false,
                 uploaded: '2020-09-21T07:08:00.000000Z'
               },
@@ -749,7 +749,7 @@ describe('RoomFile', () => {
                 id: 2,
                 filename: 'File2.pdf',
                 download: true,
-                useinmeeting: true,
+                use_in_meeting: true,
                 default: true,
                 uploaded: '2020-09-21T07:09:00.000000Z'
               }
@@ -1083,7 +1083,7 @@ describe('RoomFile', () => {
                 id: 1,
                 filename: 'File1.pdf',
                 download: false,
-                useinmeeting: true,
+                use_in_meeting: true,
                 default: true,
                 uploaded: '2020-09-21T07:08:00.000000Z'
               }
@@ -1106,7 +1106,7 @@ describe('RoomFile', () => {
       response: {
         data: {
           files: [
-            { id: 1, filename: 'File1.pdf', download: true, useinmeeting: true, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
+            { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: true, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
           ],
           default: 1,
           file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
