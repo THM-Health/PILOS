@@ -37,7 +37,7 @@ class MembershipTest extends TestCase
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false,  'allowMembership' => true]);
+            ->assertJsonFragment(['authenticated' => false,  'allow_membership' => true]);
 
         $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
@@ -47,7 +47,7 @@ class MembershipTest extends TestCase
 
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => false]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
     }
 
     public function testJoinMembership()
@@ -68,12 +68,12 @@ class MembershipTest extends TestCase
         // Try to get room details with access code even not needed
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => true]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
         // Try to get room details without access code, because members don't need it
         $this->flushHeaders();
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => true]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
     }
 
     public function testLeaveMembership()
@@ -91,12 +91,12 @@ class MembershipTest extends TestCase
         // Check membership is removed
         $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => false]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
         // Try to get room details without access code
         $this->flushHeaders();
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false,  'allowMembership' => true, 'isMember' => false]);
+            ->assertJsonFragment(['authenticated' => false,  'allow_membership' => true, 'is_member' => false]);
     }
 
     /**
@@ -236,7 +236,7 @@ class MembershipTest extends TestCase
         // Check if user is member
         $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true, 'isMember' => true]);
+            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
 
         // Reset membership
         $room->members()->detach($newUser->id);
@@ -333,7 +333,7 @@ class MembershipTest extends TestCase
         // Check if user is no member
         $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['isMember' => false]);
+            ->assertJsonFragment(['is_member' => false]);
     }
 
     /**
