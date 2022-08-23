@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('filename');
             $table->boolean('default')->default(false);
             $table->boolean('download')->default(false);
-            $table->boolean('useinmeeting')->default(false);
+            $table->boolean('use_in_meeting')->default(false);
             $table->string('room_id',15);
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->timestamps();

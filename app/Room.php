@@ -94,14 +94,14 @@ class Room extends Model
         if ($currentDefault != null) {
             // If the default file is also used in the next meeting, it can stay the default, otherwise remove default
             // and look for alternative
-            if ($currentDefault->useinmeeting == true) {
+            if ($currentDefault->use_in_meeting == true) {
                 return;
             }
             $currentDefault->default = false;
             $currentDefault->save();
         }
         // If any other files are found that are used in the next meeting, select the first one to become new default
-        $newDefaultFile = $this->files()->firstWhere('useinmeeting', true);
+        $newDefaultFile = $this->files()->firstWhere('use_in_meeting', true);
         if ($newDefaultFile != null) {
             $newDefaultFile->default = true;
             $newDefaultFile->save();

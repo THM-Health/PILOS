@@ -81,8 +81,8 @@ class RoomFileController extends Controller
             abort(404, __('app.errors.file_not_found'));
         }
 
-        if ($request->has('useinmeeting')) {
-            $file->useinmeeting = $request->useinmeeting;
+        if ($request->has('use_in_meeting')) {
+            $file->use_in_meeting = $request->use_in_meeting;
             if (!$room->files()->where('default', true)->exists()) {
                 $file->default = true;
             }

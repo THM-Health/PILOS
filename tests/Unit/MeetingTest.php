@@ -95,36 +95,36 @@ class MeetingTest extends TestCase
 
         Storage::fake('local');
 
-        $file1               = new RoomFile();
-        $file1->path         = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
-        $file1->filename     = 'file1';
-        $file1->useinmeeting = true;
+        $file1                 = new RoomFile();
+        $file1->path           = UploadedFile::fake()->image('file1.pdf')->store($meeting->room->id);
+        $file1->filename       = 'file1';
+        $file1->use_in_meeting = true;
         $meeting->room->files()->save($file1);
 
-        $file2               = new RoomFile();
-        $file2->path         = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
-        $file2->filename     = 'file2';
-        $file2->useinmeeting = true;
-        $file2->default      = true;
+        $file2                 = new RoomFile();
+        $file2->path           = UploadedFile::fake()->image('file2.pdf')->store($meeting->room->id);
+        $file2->filename       = 'file2';
+        $file2->use_in_meeting = true;
+        $file2->default        = true;
         $meeting->room->files()->save($file2);
 
-        $file3               = new RoomFile();
-        $file3->path         = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
-        $file3->filename     = 'file3';
-        $file3->useinmeeting = true;
+        $file3                 = new RoomFile();
+        $file3->path           = UploadedFile::fake()->image('file3.pdf')->store($meeting->room->id);
+        $file3->filename       = 'file3';
+        $file3->use_in_meeting = true;
         $meeting->room->files()->save($file3);
 
-        $file4               = new RoomFile();
-        $file4->path         = UploadedFile::fake()->image('file4.pdf')->store($meeting->room->id);
-        $file4->filename     = 'file4';
-        $file4->useinmeeting = false;
+        $file4                 = new RoomFile();
+        $file4->path           = UploadedFile::fake()->image('file4.pdf')->store($meeting->room->id);
+        $file4->filename       = 'file4';
+        $file4->use_in_meeting = false;
         $meeting->room->files()->save($file4);
 
         $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($meeting) {
             $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
                 $this->assertCount(3, $arg->getPresentations());
                 $fileNames = array_values($arg->getPresentations());
-                // check order based on default and missing file 4 because useinmeeting disabled
+                // check order based on default and missing file 4 because use_in_meeting disabled
                 $this->assertEquals('file2', $fileNames[0]);
                 $this->assertEquals('file1', $fileNames[1]);
                 $this->assertEquals('file3', $fileNames[2]);

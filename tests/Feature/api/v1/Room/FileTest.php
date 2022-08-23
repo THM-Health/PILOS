@@ -547,8 +547,8 @@ class FileTest extends TestCase
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
-        $room_file->useinmeeting = false;
-        $room_file->download     = false;
+        $room_file->use_in_meeting = false;
+        $room_file->download       = false;
         $room_file->save();
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
@@ -557,9 +557,9 @@ class FileTest extends TestCase
 
         $route  = route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file]);
         $params = [
-            'useinmeeting'=> true,
-            'download'    => true,
-            'default'     => false,
+            'use_in_meeting'=> true,
+            'download'      => true,
+            'default'       => false,
         ];
 
         // Testing guest
@@ -605,7 +605,7 @@ class FileTest extends TestCase
 
         $room_file->refresh();
 
-        $this->assertTrue($room_file->useinmeeting);
+        $this->assertTrue($room_file->use_in_meeting);
         $this->assertTrue($room_file->download);
         $this->assertTrue($room_file->default); // Manually setting default to false is forbidden
 
@@ -639,39 +639,39 @@ class FileTest extends TestCase
         $room_file_2 = $this->room->files()->where('filename', $file_2->name)->first();
 
         $this->assertFalse($room_file_1->default);
-        $this->assertFalse($room_file_1->useinmeeting);
+        $this->assertFalse($room_file_1->use_in_meeting);
 
         $this->assertFalse($room_file_2->default);
-        $this->assertFalse($room_file_2->useinmeeting);
+        $this->assertFalse($room_file_2->use_in_meeting);
 
-        // Set new default without useinmeeting
+        // Set new default without use_in_meeting
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['default'=>true])
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
         $this->assertFalse($room_file_1->default);
-        $this->assertFalse($room_file_1->useinmeeting);
+        $this->assertFalse($room_file_1->use_in_meeting);
         $this->assertFalse($room_file_2->default);
-        $this->assertFalse($room_file_2->useinmeeting);
+        $this->assertFalse($room_file_2->use_in_meeting);
 
-        // Set new default with useinmeeting
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_1]), ['useinmeeting'=>true])
+        // Set new default with use_in_meeting
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_1]), ['use_in_meeting'=>true])
             ->assertSuccessful();
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['useinmeeting'=>true])
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['use_in_meeting'=>true])
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
         $this->assertTrue($room_file_1->default);
-        $this->assertTrue($room_file_1->useinmeeting);
+        $this->assertTrue($room_file_1->use_in_meeting);
         $this->assertFalse($room_file_2->default);
-        $this->assertTrue($room_file_2->useinmeeting);
+        $this->assertTrue($room_file_2->use_in_meeting);
 
         // Remove current default
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file_1]))
             ->assertSuccessful();
         $room_file_2->refresh();
         $this->assertTrue($room_file_2->default);
-        $this->assertTrue($room_file_2->useinmeeting);
+        $this->assertTrue($room_file_2->use_in_meeting);
     }
 
     /**
