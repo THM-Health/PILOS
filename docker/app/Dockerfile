@@ -46,11 +46,8 @@ COPY ./docker/app/apache/000-default.conf /etc/apache2/sites-enabled/000-default
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
 
-# Copy cron file to the cron.d directory
-COPY ./docker/app/cron/schedule /etc/cron.d/schedule
-RUN chmod 0644 /etc/cron.d/schedule
-RUN crontab /etc/cron.d/schedule
-RUN touch /var/log/cron.log
+# Setup cron job
+RUN echo "* * * * * www-data cd /var/www/html/ && php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
 
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
@@ -63,7 +60,6 @@ COPY --chown=www-data:www-data ./ /var/www/html
 USER www-data
 
 RUN npm install
-RUN npm run production
 RUN composer install
 
 USER root
