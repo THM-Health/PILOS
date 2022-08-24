@@ -16,8 +16,8 @@ services:
           - './resources/custom:/var/www/html/resources/custom'
           - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
         depends_on:
-          - mariadb
-    mariadb:
+          - db
+    db:
       image: 'mariadb:10'
       environment:
         MYSQL_DATABASE: '${DB_DATABASE}'

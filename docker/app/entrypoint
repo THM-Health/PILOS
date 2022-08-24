@@ -11,6 +11,10 @@ function databaseInit() {
     su www-data -s /bin/bash -c 'cd /var/www/html && php artisan migrate --force --seed'
 }
 
+function storage() {
+    su www-data -s /bin/bash -c 'cd /var/www/html && php artisan storage:link'
+}
+
 if [ ! -d /.composer ]; then
     mkdir /.composer
 fi
@@ -22,5 +26,6 @@ if [ $# -gt 0 ]; then
 else
     buildFrontend
     databaseInit
+    storage
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 fi
