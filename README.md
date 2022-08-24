@@ -70,71 +70,9 @@ PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework
 
 ## Installation
 
-[Laravel](https://laravel.com/) is the main backend framework that used to develop PILOS. Follow the documentation [here](https://laravel.com/docs/9.x/deployment#server-requirements) to install the necessary libs on your server.
-
 A BigBlueButton server is necessary to use this application. See how to set up a BigBlueButton server [here](https://docs.bigbluebutton.org/).
 
-PILOS allows users to login with LDAP and manual user accounts.
-For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.org/) is necessary.
-An alternative Shibboleth authenticator is in progress (#139).
-
-For bundling the javascript frontend nodejs is necessary. Currently, all versions above `12.0.0` are supported.
-
-After installing the necessary packages either download a zip or clone the application into the desired path by using the following git command:
-```bash
-git clone https://github.com/THM-Health/PILOS.git custom-path
-```
-
-Install the necessary requirements for the backend by running the following command:
-```bash
-composer install
-```
-
-Afterwards copy the `.env.example` to `.env` and make your necessary adjustments.
-At least the database and email must be configured.
-
-Also, it is necessary to generate a new application key with the following command:
-```bash
-php artisan key:generate
-```
-
-Next it is necessary to initialize the database with the following commands:
-
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-If you want to adjust the frontend, please checkout this [page](https://github.com/THM-Health/PILOS/wiki/Customization).
-
-Finally, build the frontend using the following npm command:
-```bash
-npm install
-npm run production
-```
-
-**Note:** If you have issues installing node-canvas, your architecture is not supported and you have to compile it yourself. Please have a look at https://github.com/Automattic/node-canvas#compiling
-
-The first admin user can be created by running the following command:
-```bash
-php artisan users:create:admin
-```
-
-After successfully executing all the steps above, application is successfully installed and ready to be used.
-
-To log the status of all meetings and servers and to keep the database up to date, setup a cronjob on your server.
-
-```
-* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
-```
-
-### LDAP
-You can configure the LDAP login in the .env file and check if the LDAP configuration is correct, by using the following artisan command:
-```bash
-php artisan ldap:test
-```
-
-You may also want to map LDAP groups to user roles in this application by adjusting the `LDAP_ROLE_ATTRIBUTE` and the `LDAP_ROLE_MAP` environment variables.
+For information on installing PILOS using Docker or native, have a look at our [Installing PILOS](INSTALL.md) documentation.
 
 ## Stacks
 

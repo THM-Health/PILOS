@@ -14,7 +14,6 @@ tests
 .php-cs-fixer.php
 .phpunit.result.cache
 .styleci.yml
-docker-compose.yml
 docs
 jest.config.js
 phpunit.xml
