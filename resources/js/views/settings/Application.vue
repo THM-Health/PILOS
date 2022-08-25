@@ -66,7 +66,54 @@
             </b-form-group>
           </b-col>
         </b-row>
+        <b-row cols='12'>
+          <b-col md='6'>
+            <!--Legal Notice URL-->
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="legal-notice-url-input"
+              :description="$t('settings.application.legalNoticeUrl.description')"
+              :state='fieldState("legal_notice_url")'
+              :label="$t('settings.application.legalNoticeUrl.title')"
+            >
+              <b-form-input id="legal-notice-url-input"
+                            v-model="settings.legal_notice_url"
+                            type="url"
+                            :disabled="isBusy || viewOnly || !loaded"
+                            :state='fieldState("legal_notice_url")'
+              >
+              </b-form-input>
 
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('legal_notice_url')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+          <b-col md='6'>
+            <!--Privacy Policy URL-->
+            <b-form-group
+              label-class="font-weight-bold"
+              class="mb-4"
+              label-for="privacy-policy-url-input"
+              :description="$t('settings.application.privacyPolicyUrl.description')"
+              :state='fieldState("privacy_policy_url")'
+              :label="$t('settings.application.privacyPolicyUrl.title')"
+            >
+              <b-form-input id="privacy-policy-url-input"
+                            v-model="settings.privacy_policy_url"
+                            type="url"
+                            :disabled="isBusy || viewOnly || !loaded"
+                            :state='fieldState("privacy_policy_url")'
+              >
+              </b-form-input>
+
+              <template slot='invalid-feedback'>
+                <div v-html="fieldError('privacy_policy_url')"></div>
+              </template>
+            </b-form-group>
+          </b-col>
+        </b-row>
         <!--Favicon Settings-->
         <b-form-group
           label-class="font-weight-bold"
@@ -1247,6 +1294,8 @@ export default {
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
       formData.append('help_url', this.settings.help_url || '');
+      formData.append('legal_notice_url', this.settings.legal_notice_url || '');
+      formData.append('privacy_policy_url', this.settings.privacy_policy_url || '');
 
       formData.append('statistics[servers][enabled]', this.settings.statistics.servers.enabled ? 1 : 0);
       formData.append('statistics[servers][retention_period]', this.settings.statistics.servers.retention_period);

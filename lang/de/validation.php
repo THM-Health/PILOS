@@ -262,7 +262,9 @@ return [
         'timezone'                           => 'Zeitzone',
         'default_timezone'                   => 'Standardzeitzone',
         'default_presentation'               => 'Standard Präsentation',
-        'help_url'                           => 'URL zur Hilfeseite',
+        'help_url'                           => 'Hilfeseite',
+        'legal_notice_url'                   => 'Impressum',
+        'privacy_policy_url'                 => 'Datenschutzerklärung',
         'restrict'                           => 'Verwendung einschränken',
         'room_token_expiration'              => 'Ablaufzeit für personalisierte Raumlinks'
     ],

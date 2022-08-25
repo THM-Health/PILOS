@@ -134,6 +134,18 @@ class ApplicationController extends Controller
             setting()->forget('help_url');
         }
 
+        if (!empty($request->legal_notice_url)) {
+            setting()->set('legal_notice_url', $request->legal_notice_url);
+        } else {
+            setting()->forget('legal_notice_url');
+        }
+
+        if (!empty($request->privacy_policy_url)) {
+            setting()->set('privacy_policy_url', $request->privacy_policy_url);
+        } else {
+            setting()->forget('privacy_policy_url');
+        }
+
         setting()->save();
 
         return (new ApplicationSettings())->allSettings();
