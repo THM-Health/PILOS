@@ -2,6 +2,16 @@
     border-color: $danger;
 }
 
+.multiselect__option--highlight {
+    background: $success;
+    color: text-color("success");
+}
+
+.multiselect__option--selected.multiselect__option--highlight {
+    background: $danger;
+    color: text-color("danger");
+}
+
 .multiselect-form-control {
     @extend .form-control;
     padding: 0;
@@ -23,6 +33,6 @@
     }
 
     .multiselect__placeholder{
-        margin-bottom: 0px;
+        margin-bottom: 0;
     }
 }

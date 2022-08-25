@@ -86,27 +86,27 @@ class Meeting extends Model
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->id, $this->room->name);
-        $meetingParams->setModeratorPW($this->moderatorPW)
-            ->setAttendeePW($this->attendeePW)
+        $meetingParams->setModeratorPW($this->moderator_pw)
+            ->setAttendeePW($this->attendee_pw)
             ->setLogoutURL(url('rooms/'.$this->room->id))
             ->setEndCallbackUrl(url()->route('api.v1.meetings.endcallback', ['meeting'=>$this,'salt'=>$this->getCallbackSalt(true)]))
             ->setDuration($this->room->duration)
             ->setWelcome($this->room->welcome)
             ->setModeratorOnlyMessage($this->room->getModeratorOnlyMessage())
-            ->setLockSettingsDisableMic($this->room->lockSettingsDisableMic)
-            ->setLockSettingsDisableCam($this->room->lockSettingsDisableCam)
-            ->setWebcamsOnlyForModerator($this->room->webcamsOnlyForModerator)
-            ->setLockSettingsDisablePrivateChat($this->room->lockSettingsDisablePrivateChat)
-            ->setLockSettingsDisablePublicChat($this->room->lockSettingsDisablePublicChat)
-            ->setLockSettingsDisableNote($this->room->lockSettingsDisableNote)
-            ->setLockSettingsHideUserList($this->room->lockSettingsHideUserList)
-            ->setLockSettingsLockOnJoin($this->room->lockSettingsLockOnJoin)
-            ->setMuteOnStart($this->room->muteOnStart)
+            ->setLockSettingsDisableMic($this->room->lock_settings_disable_mic)
+            ->setLockSettingsDisableCam($this->room->lock_settings_disable_cam)
+            ->setWebcamsOnlyForModerator($this->room->webcams_only_for_moderator)
+            ->setLockSettingsDisablePrivateChat($this->room->lock_settings_disable_private_chat)
+            ->setLockSettingsDisablePublicChat($this->room->lock_settings_disable_public_chat)
+            ->setLockSettingsDisableNote($this->room->lock_settings_disable_note)
+            ->setLockSettingsHideUserList($this->room->lock_settings_hide_user_list)
+            ->setLockSettingsLockOnJoin($this->room->lock_settings_lock_on_join)
+            ->setMuteOnStart($this->room->mute_on_start)
             ->setMeetingLayout(CreateMeetingParameters::CUSTOM_LAYOUT)
             ->setLearningDashboardEnabled(false);
 
         // get files that should be used in this meeting and add links to the files
-        $files = $this->room->files()->where('useinmeeting', true)->orderBy('default', 'desc')->get();
+        $files = $this->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
         foreach ($files as $file) {
             $meetingParams->addPresentation($file->getDownloadLink(), null, preg_replace("/[^A-Za-z0-9.-_\(\)]/", '', $file->filename));
         }
@@ -150,7 +150,7 @@ class Meeting extends Model
      */
     public function endMeeting()
     {
-        $endParams = new EndMeetingParameters($this->id, $this->moderatorPW);
+        $endParams = new EndMeetingParameters($this->id, $this->moderator_pw);
         $this->server->bbb()->endMeeting($endParams)->success();
         $this->setEnd();
     }
@@ -183,7 +183,7 @@ class Meeting extends Model
      */
     public function getJoinUrl($name, $role, $userid, $skipAudioCheck, $avatar)
     {
-        $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderatorPW : $this->attendeePW;
+        $password = ($role == RoomUserRole::MODERATOR || $role == RoomUserRole::CO_OWNER || $role == RoomUserRole::OWNER ) ? $this->moderator_pw : $this->attendee_pw;
 
         $joinMeetingParams = new JoinMeetingParameters($this->id, $name, $password);
         $joinMeetingParams->setRedirect(true);

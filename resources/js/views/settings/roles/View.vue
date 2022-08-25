@@ -383,7 +383,7 @@ export default {
 
           this.permissions[group].push(permission);
 
-          this.$set(this.includedPermissionMap, permission.id, permission.includedPermissions);
+          this.$set(this.includedPermissionMap, permission.id, permission.included_permissions);
         });
       }).catch(error => {
         this.modelLoadingError = true;

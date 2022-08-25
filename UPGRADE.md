@@ -1,7 +1,13 @@
 # Migrate from PILOS v1 to PILOS v2
 
-## LDAP
+## Database
+The database schema has changed quite a lot from v1 to v2.
+This was necessary to support PostgreSQL in the future.
+This version also fixes inconsistent naming of table columns, eases development and cleans up the long migration list.
 
+To migrate to v2 just run: `php artisan db:upgrade` or if you are using sail: `sail artisan db:upgrade`
+
+## LDAP
 LDAP is disabled by default. To enable LDAP change the `LDAP_ENABLED` option in the .env file to `true`.
 
 ### Role Mapping Syntax
@@ -27,4 +33,5 @@ In v2 the default theme and color are not based on the [corporate design](https:
 ### v1 theme
 1. Change the `MIX_THEME` option in the .env file to `thm`.
 2. Recompile the frontend with: `npm run production`
+
 

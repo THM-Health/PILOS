@@ -30,14 +30,14 @@ class MembershipTest extends TestCase
     public function testAccessCodeMembership()
     {
         $room = Room::factory()->create([
-            'allowGuests'     => true,
-            'allowMembership' => true,
-            'accessCode'      => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests'     => true,
+            'allow_membership' => true,
+            'access_code'      => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false,  'allowMembership' => true]);
+            ->assertJsonFragment(['authenticated' => false,  'allow_membership' => true]);
 
         $this->withHeaders(['Access-Code' => ''])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
@@ -45,43 +45,43 @@ class MembershipTest extends TestCase
         $this->withHeaders(['Access-Code' => $this->faker->numberBetween(111111111, 999999999)])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertUnauthorized();
 
-        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => false]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
     }
 
     public function testJoinMembership()
     {
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
-        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
             ->assertForbidden();
 
-        $room->allowMembership = true;
+        $room->allow_membership = true;
         $room->save();
 
-        $this->withHeaders(['Access-Code' => $room->accessCode])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->actingAs($this->user)->postJson(route('api.v1.rooms.membership.join', ['room'=>$room]))
             ->assertNoContent();
         // Try to get room details with access code even not needed
-        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => true]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
         // Try to get room details without access code, because members don't need it
         $this->flushHeaders();
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => true]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => true]);
     }
 
     public function testLeaveMembership()
     {
         $room = Room::factory()->create([
-            'allowGuests'     => true,
-            'allowMembership' => true,
-            'accessCode'      => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests'     => true,
+            'allow_membership' => true,
+            'access_code'      => $this->faker->numberBetween(111111111, 999999999)
         ]);
 
         $room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
@@ -89,14 +89,14 @@ class MembershipTest extends TestCase
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.membership.leave', ['room'=>$room]))
             ->assertNoContent();
         // Check membership is removed
-        $this->withHeaders(['Access-Code' => $room->accessCode])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+        $this->withHeaders(['Access-Code' => $room->access_code])->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true,  'allowMembership' => true, 'isMember' => false]);
+            ->assertJsonFragment(['authenticated' => true,  'allow_membership' => true, 'is_member' => false]);
         // Try to get room details without access code
         $this->flushHeaders();
         $this->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => false,  'allowMembership' => true, 'isMember' => false]);
+            ->assertJsonFragment(['authenticated' => false,  'allow_membership' => true, 'is_member' => false]);
     }
 
     /**
@@ -110,8 +110,8 @@ class MembershipTest extends TestCase
         $owner           = User::factory()->create();
 
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -173,8 +173,8 @@ class MembershipTest extends TestCase
         $owner           = User::factory()->create();
 
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -236,7 +236,7 @@ class MembershipTest extends TestCase
         // Check if user is member
         $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true, 'isMember' => true]);
+            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
 
         // Reset membership
         $room->members()->detach($newUser->id);
@@ -267,8 +267,8 @@ class MembershipTest extends TestCase
         $owner           = User::factory()->create();
 
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -333,7 +333,7 @@ class MembershipTest extends TestCase
         // Check if user is no member
         $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
             ->assertStatus(200)
-            ->assertJsonFragment(['isMember' => false]);
+            ->assertJsonFragment(['is_member' => false]);
     }
 
     /**
@@ -349,8 +349,8 @@ class MembershipTest extends TestCase
         $otherUser       = User::factory()->create();
 
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
         $room->owner()->associate($owner);
         $room->save();

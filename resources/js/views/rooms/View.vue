@@ -2,7 +2,9 @@
   <div class="container mt-5 mb-5" v-cloak>
     <template v-if="room !== null">
 
-      <b-button-group class="float-right">
+      <div class="row">
+        <div class="col-12">
+          <b-button-group class="float-right">
             <!-- If membership is enabled, allow user to become member -->
             <can v-if="room.authenticated && isAuthenticated" method="becomeMember" :policy="room">
             <b-button
@@ -16,7 +18,7 @@
             <!-- If user is member, allow user to end the membership -->
             <b-button
               id="leave-membership-button"
-              v-if="room.authenticated && isAuthenticated && room.isMember"
+              v-if="room.authenticated && isAuthenticated && room.is_member"
               v-b-modal.leave-membership-modal
               :disabled="loading"
               variant="danger"
@@ -39,30 +41,33 @@
               {{ $t('rooms.endMembership.message') }}
             </b-modal>
 
-        <!-- Reload general room settings/details -->
-        <b-button
-          variant="secondary"
-          :title="$t('app.reload')"
-          ref="reloadButton"
-          v-b-tooltip.hover
-          v-on:click="reload"
-          :disabled="loading"
-        >
-          <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
-        </b-button>
+            <!-- Reload general room settings/details -->
+            <b-button
+              variant="secondary"
+              :title="$t('app.reload')"
+              ref="reloadButton"
+              v-b-tooltip.hover
+              v-tooltip-hide-click
+              v-on:click="reload"
+              :disabled="loading"
+            >
+              <i v-bind:class="{ 'fa-spin': loading  }" class="fa-solid fa-sync"></i>
+            </b-button>
 
-        <!-- Delete button and modal -->
-        <can method="delete" :policy="room">
-          <delete-room-component
-            @roomDeleted="$router.push({ name: 'rooms.own_index' })"
-            :room="room"
-            :disabled="loading"
-          ></delete-room-component>
-        </can>
-      </b-button-group>
+            <!-- Delete button and modal -->
+            <can method="delete" :policy="room">
+              <delete-room-component
+                @roomDeleted="$router.push({ name: 'rooms.own_index' })"
+                :room="room"
+                :disabled="loading"
+              ></delete-room-component>
+            </can>
+          </b-button-group>
+        </div>
+      </div>
 
       <!-- Display room name, icon and owner -->
-      <div class="row pt-7 pt-sm-9">
+      <div class="row pt-2">
         <!-- Room icon -->
         <div class="col-lg-1 col-2">
           <div :style="{ 'background-color': room.type.color}" class="room-icon" v-if="room.type">
@@ -76,7 +81,7 @@
         </div>
       </div>
 
-      <div class="row pt-7 pt-sm-9" v-if="room.authenticated && room.canStart && room.roomTypeInvalid">
+      <div class="row pt-2" v-if="room.authenticated && room.can_start && room.room_type_invalid">
         <div class="col-lg-12 col-12">
           <b-alert show variant="warning" ref="roomTypeInvalidAlert">
             {{ $t('rooms.roomTypeInvalidAlert', { roomTypeName: room.type.name }) }}
@@ -89,7 +94,7 @@
       <!-- room join/start, files, settings for logged in users -->
       <template v-if="room.authenticated">
         <!-- Room join/start -->
-        <b-row class="pt-7 pt-sm-9">
+        <b-row>
           <!-- Show invitation text/link to moderators and room owners -->
           <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="viewInvitation">
             <div class="jumbotron p-4" >
@@ -138,7 +143,7 @@
                     block
                     ref="joinMeeting"
                     v-on:click="join"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
                     variant="primary"
                   >
                     <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.join') }}
@@ -149,8 +154,8 @@
                   <b-button
                     block
                     ref="startMeeting"
-                    v-if="room.canStart"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.roomTypeInvalid || (room.record_attendance && !recordAttendanceAgreement)"
+                    v-if="room.can_start"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
                     v-on:click="start"
                     variant="primary"
                   >
@@ -581,7 +586,7 @@ export default {
               this.flashMessage.error(this.$t('rooms.flash.startForbidden'));
               // Disable room start button and reload the room settings, as there was obviously
               // a different understanding of the users permission in this room
-              this.room.canStart = false;
+              this.room.can_start = false;
               this.reload();
               return;
             }
@@ -713,7 +718,7 @@ export default {
 
             // Membership not allowed, update status
             if (error.response.status === env.HTTP_FORBIDDEN) {
-              this.room.allowMembership = false;
+              this.room.allow_membership = false;
             }
           }
           Base.error(error, this.$root);
@@ -761,9 +766,9 @@ export default {
       let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.settings('name') }) + '\n';
       message += this.$t('rooms.invitation.link', { link: this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
-      if (this.room.accessCode) {
+      if (this.room.access_code) {
         message += '\n' + this.$t('rooms.invitation.code', {
-          code: String(this.room.accessCode)
+          code: String(this.room.access_code)
             .match(/.{1,3}/g)
             .join('-')
         });

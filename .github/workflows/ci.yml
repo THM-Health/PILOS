@@ -65,17 +65,25 @@ jobs:
     - name: Migrate Database
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: root
+        DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
     - name: Execute code style check via php-cs-fixer
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
-    - name: Execute tests (Unit and Feature tests) via PHPUnit and upload coverage
+    - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+        DB_DATABASE: test
+        DB_USERNAME: root
+        DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
       run: |
-        vendor/bin/paratest --coverage-clover=coverage.xml
+        php artisan test --parallel --coverage-clover=coverage.xml
         bash <(curl -s https://codecov.io/bash)
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()
@@ -107,6 +115,8 @@ jobs:
               run: npm run lint
             - name: Execute frontend tests
               run: npm run cover -- --max-workers=2
+            - name: Upload coverage
+              uses: codecov/codecov-action@v3
             - name: Upload npm logs
               uses: actions/upload-artifact@v2
               if: failure()

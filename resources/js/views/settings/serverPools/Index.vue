@@ -9,6 +9,7 @@
             <b-button
               class='ml-2 float-right'
               v-b-tooltip.hover
+              v-tooltip-hide-click
               variant='success'
               ref="newServerPool"
               :title="$t('settings.serverPools.new')"
@@ -25,7 +26,7 @@
             :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -64,6 +65,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover.bottom
+              v-tooltip-hide-click
               :title="$t('settings.serverPools.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='info'
@@ -75,6 +77,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover.bottom
+              v-tooltip-hide-click
               :title="$t('settings.serverPools.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='secondary'
@@ -86,6 +89,7 @@
           <can method='delete' :policy='data.item'>
             <b-button
               v-b-tooltip.hover.bottom
+              v-tooltip-hide-click
               :title="$t('settings.serverPools.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
@@ -266,7 +270,7 @@ export default {
         this.$refs.serverPools.refresh();
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_STALE_MODEL) {
-          this.deleteFailedRoomTypes = error.response.data.roomTypes;
+          this.deleteFailedRoomTypes = error.response.data.room_types;
         } else {
           Base.error(error, this.$root, error.message);
           this.clearServerPoolToDelete();

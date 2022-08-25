@@ -23,10 +23,12 @@ $info: $blue;
 $warning: $orange;
 $danger: $red;
 
-// Overwrite button text color, by default automatically set to a light or dark color
+// Overwrite button, badge and background text color, by default automatically set to a light or dark color
 // depending on the best contrast (see https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast)
-$btn-text-color: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
-$btn-text-color-hover: ("primary": null, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
+$text-color: ("primary": #FFF, "secondary": null, "success": null, "info": null, "warning": null, "danger": null);
 
 // Elements to have rounded edges
 $enable-rounded: true;
+
+// Show red indicator if room is closed/not running
+$showRoomClosedIndicator: false;

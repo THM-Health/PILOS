@@ -108,9 +108,9 @@ class ServerPoolController extends Controller
             return response()->noContent();
         } else {
             return response()->json([
-                'error'     => CustomStatusCodes::STALE_MODEL,
-                'message'   => __('app.errors.server_pool_delete_failed'),
-                'roomTypes' => \App\Http\Resources\RoomType::collection($serverPool->roomTypes)
+                'error'      => CustomStatusCodes::STALE_MODEL,
+                'message'    => __('app.errors.server_pool_delete_failed'),
+                'room_types' => \App\Http\Resources\RoomType::collection($serverPool->roomTypes)
             ], CustomStatusCodes::STALE_MODEL);
         }
     }

@@ -9,6 +9,7 @@
             <b-button
               class='ml-2 float-right'
               v-b-tooltip.hover
+              v-tooltip-hide-click
               variant='success'
               ref="newServer"
               :title="$t('settings.servers.new')"
@@ -25,7 +26,7 @@
             :debounce='searchDebounce'
           ></b-form-input>
           <b-input-group-append>
-            <b-input-group-text class='bg-primary text-white'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
+            <b-input-group-text class='bg-primary'><i class="fa-solid fa-magnifying-glass"></i></b-input-group-text>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -66,9 +67,9 @@
       </template>
 
       <template v-slot:cell(status)="data">
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2 text-white"><i class='fa-solid fa-pause'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2 text-white"><i class='fa-solid fa-stop'></i></b-badge>
-        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2 text-white"><i class='fa-solid fa-play'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.disabled')" v-if="data.item.status === -1" variant="secondary"  class="p-2"><i class='fa-solid fa-pause'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.offline')" v-else-if="data.item.status === 0" variant="danger"  class="p-2"><i class='fa-solid fa-stop'></i></b-badge>
+        <b-badge v-b-tooltip.hover :title="$t('settings.servers.online')" v-else variant="success" class="p-2"><i class='fa-solid fa-play'></i></b-badge>
       </template>
 
       <template v-slot:cell(participant_count)="data">
@@ -96,6 +97,7 @@
           <can method='view' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.servers.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='info'
@@ -107,6 +109,7 @@
           <can method='update' :policy='data.item'>
             <b-button
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.servers.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='secondary'
@@ -119,6 +122,7 @@
             <b-button
               v-if="data.item.status===-1"
               v-b-tooltip.hover
+              v-tooltip-hide-click
               :title="$t('settings.servers.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
@@ -146,6 +150,7 @@
       <br><br>
       <b-button
         v-b-tooltip.hover
+        v-tooltip-hide-click
         size="sm"
         variant='info'
         :disabled="isBusy"

@@ -48,6 +48,7 @@
           @click="reload"
           :title="$t('app.reload')"
           v-b-tooltip.hover
+          v-tooltip-hide-click
         >
           <i class="fa-solid fa-sync"></i>
         </b-button>
@@ -89,6 +90,7 @@
                 @click="showDeleteFileModal(data.item)"
                 :title="$t('rooms.files.delete')"
                 v-b-tooltip.hover
+                v-tooltip-hide-click
               >
                 <i class="fa-solid fa-trash"></i>
               </b-button>
@@ -101,6 +103,7 @@
               target="_blank"
               :title="$t('rooms.files.view')"
               v-b-tooltip.hover
+              v-tooltip-hide-click
             >
               <b-spinner small v-if="loadingDownload===data.item.id"></b-spinner> <i v-else class="fa-solid fa-eye"></i>
             </b-button>
@@ -121,12 +124,12 @@
         Checkbox if file should be send to the api on the next meeting start,
         setting can't be changed manually if the file is the default presentation
         -->
-        <template v-slot:cell(useinmeeting)="data">
+        <template v-slot:cell(use_in_meeting)="data">
           <b-form-checkbox
             size="lg"
             switch
-            @change="changeSettings(data.item,'useinmeeting',$event)"
-            v-model="data.item.useinmeeting"
+            @change="changeSettings(data.item,'use_in_meeting',$event)"
+            v-model="data.item.use_in_meeting"
           ></b-form-checkbox>
         </template>
 
@@ -136,7 +139,7 @@
             size="lg"
             name="default"
             :value="data.item.id"
-            :disabled="data.item.useinmeeting !== true"
+            :disabled="data.item.use_in_meeting !== true"
             @change="changeSettings(data.item,'default',$event)"
             v-model="files.default"
           ></b-form-radio>
@@ -512,7 +515,7 @@ export default {
           sortable: true
         },
         {
-          key: 'useinmeeting',
+          key: 'use_in_meeting',
           label: this.$t('rooms.files.useInNextMeeting'),
           sortable: true
         },

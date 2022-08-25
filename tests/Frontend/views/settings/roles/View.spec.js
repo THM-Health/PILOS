@@ -673,11 +673,11 @@ describe('RolesView', () => {
       status: 200,
       response: {
         data: [
-          { id: 1, name: 'tests.test1', includedPermissions: [] },
-          { id: 2, name: 'tests.test2', includedPermissions: [] },
-          { id: 3, name: 'tests.test3', includedPermissions: [1, 2] },
-          { id: 4, name: 'tests.test4', includedPermissions: [] },
-          { id: 10, name: 'tests.test5', includedPermissions: [4] }
+          { id: 1, name: 'tests.test1', included_permissions: [] },
+          { id: 2, name: 'tests.test2', included_permissions: [] },
+          { id: 3, name: 'tests.test3', included_permissions: [1, 2] },
+          { id: 4, name: 'tests.test4', included_permissions: [] },
+          { id: 10, name: 'tests.test5', included_permissions: [4] }
         ]
       }
     });
@@ -740,11 +740,11 @@ describe('RolesView', () => {
       status: 200,
       response: {
         data: [
-          { id: 1, name: 'tests.test1', includedPermissions: [] },
-          { id: 2, name: 'tests.test2', includedPermissions: [] },
-          { id: 3, name: 'tests.test3', includedPermissions: [] },
-          { id: 4, name: 'tests.test4', includedPermissions: [] },
-          { id: 10, name: 'tests.test5', includedPermissions: [] }
+          { id: 1, name: 'tests.test1', included_permissions: [] },
+          { id: 2, name: 'tests.test2', included_permissions: [] },
+          { id: 3, name: 'tests.test3', included_permissions: [] },
+          { id: 4, name: 'tests.test4', included_permissions: [] },
+          { id: 10, name: 'tests.test5', included_permissions: [] }
         ]
       }
     });

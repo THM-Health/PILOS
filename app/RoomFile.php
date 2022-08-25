@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\URL;
 class RoomFile extends Model
 {
     protected $casts = [
-        'default'          => 'boolean',
-        'download'         => 'boolean',
-        'useinmeeting'     => 'boolean',
+        'default'            => 'boolean',
+        'download'           => 'boolean',
+        'use_in_meeting'     => 'boolean',
     ];
 
     /**

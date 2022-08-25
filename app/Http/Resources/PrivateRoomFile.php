@@ -15,12 +15,12 @@ class PrivateRoomFile extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'            => $this->id,
-            'filename'      => $this->filename,
-            'download'      => $this->download,
-            'useinmeeting'  => $this->useinmeeting,
-            'default'       => $this->default,
-            'uploaded'      => $this->created_at
+            'id'              => $this->id,
+            'filename'        => $this->filename,
+            'download'        => $this->download,
+            'use_in_meeting'  => $this->use_in_meeting,
+            'default'         => $this->default,
+            'uploaded'        => $this->created_at
         ];
     }
 }

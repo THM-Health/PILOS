@@ -19,5 +19,7 @@ if (!process.env.MIX_DEFAULT_LOCALE) {
 }
 
 const Vue = require('vue');
+const HideTooltip = require('../../resources/js/directives/hide-tooltip');
 Vue.config.productionTip = false;
 Vue.config.devtools = false;
+Vue.directive('tooltip-hide-click', HideTooltip);

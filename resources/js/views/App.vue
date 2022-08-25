@@ -69,7 +69,7 @@
 
               <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
             </b-nav-item-dropdown>
-            <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-info nav-icon-item' target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')" right>
+            <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-primary nav-icon-item' target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')" right>
               <i class="fa-solid fa-circle-question"></i>
             </b-nav-item>
             <b-nav-item class="d-block d-lg-none" target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')">

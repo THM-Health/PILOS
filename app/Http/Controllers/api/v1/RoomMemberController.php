@@ -116,12 +116,12 @@ class RoomMemberController extends Controller
     public function join(Room $room)
     {
         // Check if membership is enabled
-        if (!$room->allowMembership) {
+        if (!$room->allow_membership) {
             return response()->json(['message'=>__('app.errors.membership_disabled')], 403);
         }
         // Only add to members, if user isn't already a member or the owner
         if (!$room->members->contains(Auth::user()) && !$room->owner->is(Auth::user())) {
-            $room->members()->attach(Auth::user()->id, ['role' => $room->defaultRole]);
+            $room->members()->attach(Auth::user()->id, ['role' => $room->default_role]);
         }
 
         return response()->noContent();

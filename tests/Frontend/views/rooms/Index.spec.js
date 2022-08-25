@@ -15,6 +15,7 @@ import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
 import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -68,6 +69,7 @@ describe('Room Index', () => {
           id: 1,
           name: 'John Doe'
         },
+        running: false,
         type: {
           id: 2,
           short: 'ME',
@@ -83,6 +85,7 @@ describe('Room Index', () => {
           id: 2,
           name: 'Max Doe'
         },
+        running: true,
         type: {
           id: 1,
           short: 'VL',
@@ -193,10 +196,12 @@ describe('Room Index', () => {
     expect(rooms.at(0).get('h5').text()).toEqual('Meeting One');
     expect(rooms.at(0).get('small').text()).toEqual('John Doe');
     expect(rooms.at(0).get('.room-icon').text()).toEqual('ME');
+    expect(rooms.at(0).findComponent(RoomStatusComponent).props('running')).toBeFalsy();
 
     expect(rooms.at(1).get('h5').text()).toEqual('Meeting Two');
     expect(rooms.at(1).get('small').text()).toEqual('Max Doe');
     expect(rooms.at(1).get('.room-icon').text()).toEqual('VL');
+    expect(rooms.at(1).findComponent(RoomStatusComponent).props('running')).toBeTruthy();
 
     // check if all room types are shown
     const roomTypes = view.findAll('[name="room-types-checkbox"]');
@@ -379,7 +384,7 @@ describe('Room Index', () => {
     // check if new request with the search query is send
     await waitMoxios();
     expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [] });
+    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', room_types: [] });
     await moxios.requests.mostRecent().respondWith({
       status: 200,
       response: {
@@ -436,7 +441,7 @@ describe('Room Index', () => {
     await waitMoxios();
     // check if the search query and the room filter are send, respond with no rooms found
     expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', roomTypes: [1, 3] });
+    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', room_types: [1, 3] });
     await moxios.requests.mostRecent().respondWith({
       status: 200,
       response: {

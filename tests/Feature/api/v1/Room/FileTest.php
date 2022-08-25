@@ -55,12 +55,12 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.add', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertForbidden();
 
         // Testing co-owner member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.files.add', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
 
@@ -122,7 +122,7 @@ class FileTest extends TestCase
         $this->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertForbidden();
 
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
 
         // Testing guests with guest access
@@ -134,7 +134,7 @@ class FileTest extends TestCase
             ->assertForbidden();
         \Auth::logout();
 
-        $this->room->accessCode = $this->faker->numberBetween(111111111, 999999999);
+        $this->room->access_code = $this->faker->numberBetween(111111111, 999999999);
         $this->room->save();
 
         // Testing guests without access code
@@ -147,13 +147,13 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Testing guests with access code
-        $this->withHeaders(['Access-Code' => $this->room->accessCode])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertSuccessful()
             ->assertJsonCount(0, 'data.files');
         $this->flushHeaders();
 
         // Testing users with access code
-        $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->accessCode])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
+        $this->actingAs($this->user)->withHeaders(['Access-Code' => $this->room->access_code])->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertSuccessful()
             ->assertJsonCount(0, 'data.files');
         $this->flushHeaders();
@@ -165,13 +165,13 @@ class FileTest extends TestCase
             ->assertJsonCount(0, 'data.files');
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id =>['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertSuccessful()
             ->assertJsonCount(0, 'data.files');
 
         // Testing co-owner member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->getJson(route('api.v1.rooms.files.get', ['room'=>$this->room]))
             ->assertSuccessful()
             ->assertJsonFragment(['filename'=>$this->file_valid->name]);
@@ -230,7 +230,7 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Allow guest access
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
         $response = $this->get($download_link);
         $response->assertSuccessful();
@@ -248,7 +248,7 @@ class FileTest extends TestCase
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
-        $this->room->accessCode  = $this->faker->numberBetween(111111111, 999999999);
+        $this->room->access_code  = $this->faker->numberBetween(111111111, 999999999);
         $this->room->save();
         $room_file           = $this->room->files()->where('filename', $this->file_valid->name)->first();
         $room_file->download = true;
@@ -262,7 +262,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Access as guest, without guest access and with access code
-        $this->withHeaders(['Access-Code' => $this->room->accessCode])->get($download_link)
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
             ->assertForbidden();
         $this->flushHeaders();
 
@@ -271,7 +271,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing user with access code
-        $this->actingAs($this->user)->get(route('api.v1.rooms.show', ['room'=>$this->room->id, 'roomFile' => $room_file,'code'=>$this->room->accessCode]))
+        $this->actingAs($this->user)->get(route('api.v1.rooms.show', ['room'=>$this->room->id, 'roomFile' => $room_file,'code'=>$this->room->access_code]))
             ->assertSuccessful();
 
         // Testing member
@@ -280,7 +280,7 @@ class FileTest extends TestCase
             ->assertSuccessful();
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->get($download_link)
             ->assertSuccessful();
 
@@ -298,7 +298,7 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Allow guest access
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
 
         // Access as guest, with guest access and without access code
@@ -306,7 +306,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Access as guest, with guest access and access code
-        $this->withHeaders(['Access-Code' => $this->room->accessCode])->get($download_link)
+        $this->withHeaders(['Access-Code' => $this->room->access_code])->get($download_link)
             ->assertSuccessful();
         $this->flushHeaders();
     }
@@ -318,7 +318,7 @@ class FileTest extends TestCase
     {
         $this->actingAs($this->room->owner)->postJson(route('api.v1.rooms.files.get', ['room'=>$this->room]), ['file' => $this->file_valid])
             ->assertSuccessful();
-        $this->room->allowGuests = true;
+        $this->room->allow_guests = true;
         $this->room->save();
 
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
@@ -336,7 +336,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->get($download_link)
             ->assertForbidden();
 
@@ -418,7 +418,7 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertForbidden();
 
@@ -442,7 +442,7 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         // Testing co-owner
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertSuccessful();
 
@@ -547,8 +547,8 @@ class FileTest extends TestCase
             ->assertSuccessful();
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
-        $room_file->useinmeeting = false;
-        $room_file->download     = false;
+        $room_file->use_in_meeting = false;
+        $room_file->download       = false;
         $room_file->save();
 
         Storage::disk('local')->assertExists($this->room->id.'/'.$this->file_valid->hashName());
@@ -557,9 +557,9 @@ class FileTest extends TestCase
 
         $route  = route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file]);
         $params = [
-            'useinmeeting'=> true,
-            'download'    => true,
-            'default'     => false,
+            'use_in_meeting'=> true,
+            'download'      => true,
+            'default'       => false,
         ];
 
         // Testing guest
@@ -576,12 +576,12 @@ class FileTest extends TestCase
             ->assertForbidden();
 
         // Testing moderator member
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::MODERATOR]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
         $this->actingAs($this->user)->putJson($route, $params)
             ->assertForbidden();
 
         // Testing co-owner
-        $this->room->members()->sync([$this->user->id,['role'=>RoomUserRole::CO_OWNER]]);
+        $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
         $this->actingAs($this->user)->putJson($route, $params)
             ->assertSuccessful();
 
@@ -605,7 +605,7 @@ class FileTest extends TestCase
 
         $room_file->refresh();
 
-        $this->assertTrue($room_file->useinmeeting);
+        $this->assertTrue($room_file->use_in_meeting);
         $this->assertTrue($room_file->download);
         $this->assertTrue($room_file->default); // Manually setting default to false is forbidden
 
@@ -639,39 +639,39 @@ class FileTest extends TestCase
         $room_file_2 = $this->room->files()->where('filename', $file_2->name)->first();
 
         $this->assertFalse($room_file_1->default);
-        $this->assertFalse($room_file_1->useinmeeting);
+        $this->assertFalse($room_file_1->use_in_meeting);
 
         $this->assertFalse($room_file_2->default);
-        $this->assertFalse($room_file_2->useinmeeting);
+        $this->assertFalse($room_file_2->use_in_meeting);
 
-        // Set new default without useinmeeting
+        // Set new default without use_in_meeting
         $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['default'=>true])
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
         $this->assertFalse($room_file_1->default);
-        $this->assertFalse($room_file_1->useinmeeting);
+        $this->assertFalse($room_file_1->use_in_meeting);
         $this->assertFalse($room_file_2->default);
-        $this->assertFalse($room_file_2->useinmeeting);
+        $this->assertFalse($room_file_2->use_in_meeting);
 
-        // Set new default with useinmeeting
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_1]), ['useinmeeting'=>true])
+        // Set new default with use_in_meeting
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_1]), ['use_in_meeting'=>true])
             ->assertSuccessful();
-        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['useinmeeting'=>true])
+        $this->actingAs($this->room->owner)->putJson(route('api.v1.rooms.files.update', ['room'=>$this->room->id, 'file' => $room_file_2]), ['use_in_meeting'=>true])
             ->assertSuccessful();
         $room_file_1->refresh();
         $room_file_2->refresh();
         $this->assertTrue($room_file_1->default);
-        $this->assertTrue($room_file_1->useinmeeting);
+        $this->assertTrue($room_file_1->use_in_meeting);
         $this->assertFalse($room_file_2->default);
-        $this->assertTrue($room_file_2->useinmeeting);
+        $this->assertTrue($room_file_2->use_in_meeting);
 
         // Remove current default
         $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file_1]))
             ->assertSuccessful();
         $room_file_2->refresh();
         $this->assertTrue($room_file_2->default);
-        $this->assertTrue($room_file_2->useinmeeting);
+        $this->assertTrue($room_file_2->use_in_meeting);
     }
 
     /**

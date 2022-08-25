@@ -5,6 +5,7 @@ namespace Tests\Feature\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Permission;
 use App\Role;
+use App\RoomToken;
 use App\RoomType;
 use App\Server;
 use App\ServerPool;
@@ -39,7 +40,10 @@ class ServerPoolTest extends TestCase
     {
         $page_size = 5;
         setting(['pagination_page_size' => $page_size]);
-        ServerPool::truncate();
+        RoomToken::query()->delete();
+        RoomType::query()->delete();
+        Server::query()->delete();
+        ServerPool::query()->delete();
         $serverPools  = ServerPool::factory()->count(9)->create();
         $serverPool1  = ServerPool::factory()->create(['name'=>'testPool']);
 
@@ -359,7 +363,7 @@ class ServerPoolTest extends TestCase
         // Test delete with room type attached
         $this->actingAs($this->user)->deleteJson(route('api.v1.serverPools.destroy', ['serverPool'=>$serverPool->id]))
             ->assertStatus(CustomStatusCodes::STALE_MODEL)
-            ->assertJsonCount(2, 'roomTypes')
+            ->assertJsonCount(2, 'room_types')
             ->assertJsonFragment(['id'=>$roomTypes[0]->id,'short'=>$roomTypes[0]->short,'description'=>$roomTypes[0]->description]);
         $roomTypes[0]->delete();
         $roomTypes[1]->delete();

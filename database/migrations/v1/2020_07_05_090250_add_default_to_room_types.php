@@ -1,6 +1,6 @@
 <?php
 
-use Database\Seeders\RoomTypeSeeder;
+use Database\Seeders\RoomTypeSeederV1;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +13,7 @@ class AddDefaultToRoomTypes extends Migration
             $table->boolean('default')->default(false);
         });
 
-        $seeder = new RoomTypeSeeder();
+        $seeder = new RoomTypeSeederV1();
         $seeder->run();
     }
 
