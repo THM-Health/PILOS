@@ -38,6 +38,7 @@
           :per-page="settings('pagination_page_size')"
           :fields="tableFields"
           :items="members"
+          v-model="displayedMembers"
           hover
           ref="membersTable"
           stacked="lg"
@@ -52,7 +53,7 @@
           </template>
 
           <template #head(selected) v-if="currentUser">
-            <b-form-checkbox :checked="selectedMembers.length == members.length && members.length > 0" @change="onAllRowsSelected" />
+            <b-form-checkbox :checked="selectedMembers.length == selectableMembers && displayedMembers.length > 0" @change="onAllRowsSelected" />
           </template>
 
           <!-- checkbox to select the current row -->
@@ -112,7 +113,6 @@
         <b-row>
           <b-col cols="12" class="my-1">
             <b-pagination
-              v-if="members.length>settings('pagination_page_size')"
               v-model="currentPage"
               :total-rows="members.length"
               :per-page="settings('pagination_page_size')"
@@ -127,6 +127,7 @@
               variant="dark"
               @click="showEditMultipleMemberModal(selectedMembers)"
               v-b-tooltip.hover
+              ref="edit-multiple-members-button"
               :title="$t('rooms.members.multipleEditUser',{numberOfSelectedUsers: selectedMembers.length})"
             >
               <i class="fas fa-users-cog"></i>
@@ -137,6 +138,7 @@
               variant="danger"
               @click="showRemoveMultipleMemberModal(selectedMembers,{numberOfSelectedUsers: selectedMembers.length})"
               v-b-tooltip.hover
+              ref="delete-multiple-members-button"
               :title="$t('rooms.members.multipleDeleteUser',{numberOfSelectedUsers: selectedMembers.length})"
             >
               <i class="fas fa-users-slash"></i>
@@ -377,7 +379,8 @@ export default {
       deleteMember: null, // member to be deleted
       errors: {},
       currentPage: 1,
-      selectedMembers: []
+      selectedMembers: [],
+      displayedMembers: []
     };
   },
   methods: {
@@ -613,9 +616,6 @@ export default {
             return;
           }
         }
-        if (error.response.status === env.HTTP_GONE) {
-          toBeEditedMembers.removeMemberItems([this.editMember]);
-        }
         Base.error(error, this.$root);
         this.$refs['edit-multiple-members-modal'].hide();
       }).finally(() => {
@@ -688,6 +688,11 @@ export default {
     ...mapState({
       currentUser: state => state.session.currentUser
     }),
+
+    // amount of members that can be selected on the current page (user cannot select himself)
+    selectableMembers: function () {
+      return this.displayedMembers.filter(member => member.id !== this.currentUser.id).length;
+    },
 
     // check if new user input field is valid, local and server-side check
     newMemberValid: function () {

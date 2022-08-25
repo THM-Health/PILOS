@@ -412,10 +412,10 @@ describe('RoomMembers', () => {
     expect(rows.length).toBe(4);
 
     // new member
-    expect(rows.at(3).findAll('td').at(1).text()).toBe('Laura');
-    expect(rows.at(3).findAll('td').at(2).text()).toBe('Walter');
-    expect(rows.at(3).findAll('td').at(3).text()).toBe('LauraMWalter@domain.tld');
-    expect(rows.at(3).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(3).findAll('td').at(2).text()).toBe('Laura');
+    expect(rows.at(3).findAll('td').at(3).text()).toBe('Walter');
+    expect(rows.at(3).findAll('td').at(4).text()).toBe('LauraMWalter@domain.tld');
+    expect(rows.at(3).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
 
     view.destroy();
   });
@@ -571,7 +571,7 @@ describe('RoomMembers', () => {
     let rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
 
     // first member
     const editButton = rows.at(0).findAllComponents(BButton).at(0);
@@ -637,7 +637,7 @@ describe('RoomMembers', () => {
     rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
 
     view.destroy();
   });
@@ -689,7 +689,7 @@ describe('RoomMembers', () => {
     let rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
 
     // first member
     const editButton = rows.at(0).findAllComponents(BButton).at(0);
