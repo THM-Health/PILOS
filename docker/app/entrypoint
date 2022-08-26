@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+chown -R :www-data /var/www/html/storage/app
+chown -R :www-data /var/www/html/storage/logs
+chmod  -R 775 /var/www/html/storage/app
+chmod  -R 775 /var/www/html/storage/logs
+
 function buildFrontend() {
     echo "Building frontend..."
 	su www-data -s /bin/bash -c 'cd /var/www/html && npm run prod'
