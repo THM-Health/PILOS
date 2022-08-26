@@ -13,7 +13,7 @@ ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update \
-    && apt-get install -y gnupg gosu curl ca-certificates cron zip unzip libzip-dev git supervisor libcap2-bin libpng-dev python2 \
+    && apt-get install -y gnupg gosu curl ca-certificates zip unzip libzip-dev git supervisor libcap2-bin libpng-dev python2 \
     && apt-get install -y apache2 libapache2-mod-xsendfile \
     && apt-get install -y libldap2-dev \
     && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev  \
@@ -32,8 +32,10 @@ RUN a2enmod rewrite headers alias proxy proxy_fcgi
 
 # Copy start script
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
+COPY ./docker/app/schedule /usr/local/bin/schedule
 COPY ./docker/app/wait-for-it /usr/local/bin/wait-for-it
 RUN chmod +x /usr/local/bin/entrypoint
+RUN chmod +x /usr/local/bin/schedule
 RUN chmod +x /usr/local/bin/wait-for-it
 
 # Copy supervisor config
@@ -46,9 +48,6 @@ COPY ./docker/app/apache/000-default.conf /etc/apache2/sites-enabled/000-default
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
 
-# Setup cron job
-RUN echo "* * * * * www-data cd /var/www/html/ && php artisan schedule:run >> /dev/null 2>&1" >> /etc/crontab
-
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
 
@@ -56,6 +55,9 @@ RUN mkdir /var/www/.npm
 RUN chown www-data:www-data /var/www/.npm
 
 COPY --chown=www-data:www-data ./ /var/www/html
+
+COPY ./docker/app/frontend-hash.sh /var/www/html/frontend-hash.sh
+RUN chmod +x /var/www/html/frontend-hash.sh
 
 USER www-data
 

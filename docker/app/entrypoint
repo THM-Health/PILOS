@@ -15,14 +15,6 @@ function storage() {
     su www-data -s /bin/bash -c 'cd /var/www/html && php artisan storage:link'
 }
 
-function startCron() {
-    echo "Starting cron job..."
-    # Publish env vars to file, so cron can read it
-    env >> /etc/environment
-    # Run cron
-    cron
-}
-
 if [ ! -d /.composer ]; then
     mkdir /.composer
 fi
@@ -32,9 +24,11 @@ chmod -R ugo+rw /.composer
 if [ $# -gt 0 ]; then
     exec gosu www-data "$@"
 else
-    buildFrontend
-    databaseInit
-    storage
-    startCron
+    if [ "$APP_ENV" == "production" ]; then
+        buildFrontend
+        databaseInit
+        storage
+    fi
+
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 fi
