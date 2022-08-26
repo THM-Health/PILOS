@@ -1,38 +1,45 @@
 #!/usr/bin/env bash
 
-chown -R :www-data /var/www/html/storage/app
-chown -R :www-data /var/www/html/storage/logs
-chmod  -R 775 /var/www/html/storage/app
-chmod  -R 775 /var/www/html/storage/logs
+function changePermissions() {
+    echo "Changing permissions"
+    chown -R :www-data /var/www/html/storage/app
+    chown -R :www-data /var/www/html/storage/logs
+    find /var/www/html/storage/ -type f -exec chmod 664 {} \;
+    find /var/www/html/storage/ -type d -exec chmod 775 {} \;
+}
 
 function buildFrontend() {
-    echo "Building frontend..."
-	su www-data -s /bin/bash -c 'cd /var/www/html && ./frontend-hash.sh'
+    echo "Building frontend"
+	gosu www-data /usr/local/etc/laravel-mix/run.sh
 }
 
-function databaseInit() {
-    echo "Migrate database and seed with example data..."
-    wait-for-it $DB_HOST:$DB_PORT --strict -- echo "database is ready"
-    su www-data -s /bin/bash -c 'cd /var/www/html && php artisan migrate --force --seed'
+function migrateDatabase() {
+    echo "Migrating database and seed with example data"
+
+    while ! mysqladmin ping -h${DB_HOST} -u${DB_USERNAME} -p${DB_PASSWORD} --silent; do
+        echo "Waiting for database connection..."
+        sleep 5
+    done
+    gosu www-data php artisan migrate --force --seed
 }
 
-function storage() {
-    su www-data -s /bin/bash -c 'cd /var/www/html && php artisan storage:link'
+function linkStorage() {
+    gosu www-data php artisan storage:link
 }
 
-if [ ! -d /.composer ]; then
-    mkdir /.composer
+if [ "$ENABLE_XDEBUG" == "yes" ]; then
+    echo "Enabling xdebug"
+    docker-php-ext-enable xdebug
 fi
-
-chmod -R ugo+rw /.composer
 
 if [ $# -gt 0 ]; then
     exec gosu www-data "$@"
 else
     if [ "$APP_ENV" == "production" ]; then
+        changePermissions
         buildFrontend
-        databaseInit
-        storage
+        migrateDatabase
+        linkStorage
     fi
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

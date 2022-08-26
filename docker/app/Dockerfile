@@ -15,10 +15,12 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update \
     && apt-get install -y gnupg gosu curl ca-certificates zip unzip libzip-dev git supervisor libcap2-bin libpng-dev python2 \
     && apt-get install -y apache2 libapache2-mod-xsendfile \
+    && apt-get install -y default-mysql-client \
     && apt-get install -y libldap2-dev \
     && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev  \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) bcmath pdo_mysql ldap zip gd \
+    && pecl install xdebug-3.1.5 \
     && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
     && curl -sL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
     && apt-get install -y nodejs \
@@ -32,14 +34,19 @@ RUN a2enmod rewrite headers alias proxy proxy_fcgi
 
 # Copy start script
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
-COPY ./docker/app/schedule /usr/local/bin/schedule
-COPY ./docker/app/wait-for-it /usr/local/bin/wait-for-it
 RUN chmod +x /usr/local/bin/entrypoint
-RUN chmod +x /usr/local/bin/schedule
-RUN chmod +x /usr/local/bin/wait-for-it
+
+# Copy scheduler script
+COPY ./docker/app/scheduler /usr/local/etc/scheduler
+RUN chmod +x /usr/local/etc/scheduler/run.sh
+
+# Copy larave mix wrapper script
+COPY ./docker/app/laravel-mix /usr/local/etc/laravel-mix
+RUN chmod +x /usr/local/etc/laravel-mix/run.sh
+RUN chown www-data:www-data /usr/local/etc/laravel-mix/
 
 # Copy supervisor config
-COPY ./docker/app/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
 
 # Copy apache default site conf
 COPY ./docker/app/apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
@@ -51,16 +58,15 @@ COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
 
+# Create npm cache folder
 RUN mkdir /var/www/.npm
 RUN chown www-data:www-data /var/www/.npm
 
+# Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
 
-COPY ./docker/app/frontend-hash.sh /var/www/html/frontend-hash.sh
-RUN chmod +x /var/www/html/frontend-hash.sh
-
 USER www-data
-
+# Run npm and composer install as www-data user
 RUN npm install
 RUN composer install
 

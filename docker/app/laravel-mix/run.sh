@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Setup vars
-MD5FILE=frontend.md5
+MD5FILE=/usr/local/etc/laravel-mix/hash
 PREVIOUSMD5=""
 
 # If there was a previous hash get it if not create the file for later
