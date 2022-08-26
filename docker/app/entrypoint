@@ -7,7 +7,7 @@ chmod  -R 775 /var/www/html/storage/logs
 
 function buildFrontend() {
     echo "Building frontend..."
-	su www-data -s /bin/bash -c 'cd /var/www/html && npm run prod'
+	su www-data -s /bin/bash -c 'cd /var/www/html && ./frontend-hash.sh'
 }
 
 function databaseInit() {
