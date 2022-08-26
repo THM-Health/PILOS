@@ -18,7 +18,7 @@ mkdir ~/pilos && cd ~/pilos
 
 To make the following steps independent to docker image changes, we define an environment variable
 ```bash
-export IMAGE="ghcr.io/thm-health/pilos:latest"
+export IMAGE="pilos/pilos:latest"
 ```
 
 Next we need the `docker-compose.yml` and `.env` files. They can be copied from the image to your host.
