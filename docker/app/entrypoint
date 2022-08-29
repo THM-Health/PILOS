@@ -4,8 +4,14 @@ function changePermissions() {
     echo "Changing permissions"
     chown -R :www-data /var/www/html/storage/app
     chown -R :www-data /var/www/html/storage/logs
+    chown -R :www-data /var/www/html/resources/custom
+    chown -R :www-data /var/www/html/resources/sass/theme/custom 
     find /var/www/html/storage/ -type f -exec chmod 664 {} \;
     find /var/www/html/storage/ -type d -exec chmod 775 {} \;
+    find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
+    find /var/www/html/resources/custom/ -type d -exec chmod 775 {} \;
+    find /var/www/html/resources/sass/theme/custom/ -type f -exec chmod 664 {} \;
+    find /var/www/html/resources/sass/theme/custom/ -type d -exec chmod 775 {} \;
 }
 
 function buildFrontend() {
