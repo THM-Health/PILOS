@@ -357,10 +357,10 @@
             <b-form-checkbox
               :disabled="disabled"
               :state="fieldState('lock_settings_disable_private_chat')"
-              v-model="settings.lockSettingsDisablePrivateChat"
+              v-model="settings.lock_settings_disable_private_chat"
               switch
             >
-              {{ $t('rooms.settings.restrictions.disable_private_chat') }}
+              {{ $t('rooms.settings.restrictions.disablePrivateChat') }}
             </b-form-checkbox>
             <b-form-invalid-feedback :state="fieldState('Y')" v-html="fieldError('lock_settings_disable_private_chat')"></b-form-invalid-feedback>
             <!-- Disable the ability to edit the notes for non moderator-uses, can be changed during the meeting -->
