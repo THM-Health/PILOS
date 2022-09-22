@@ -1244,4 +1244,30 @@ describe('UsersView', () => {
 
     view.destroy();
   });
+
+  it('default image shown on new page', async () => {
+    const view = mount(View, {
+      localVue,
+      store,
+      mocks: {
+        $t: (key) => key,
+        $te: () => false
+      },
+      propsData: {
+        config: {
+          id: 'new',
+          type: 'edit'
+        }
+      }
+    });
+
+    await waitMoxios();
+    await view.vm.$nextTick();
+
+    const image = view.findComponent(BImg);
+    expect(image.exists()).toBeTruthy();
+    expect(image.attributes('src')).toBe('/images/default_profile.png');
+
+    view.destroy();
+  });
 });

@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Database column inconsistencies ([#241],[#242])
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
 - Tooltip not hiding ([#252],[#256])
+- Default profile image not shown on new user page ([#264],[#265])
 
 ### Removed
 - **Breaking:** .env setting MIX_FRONTEND_BASE_URL ([#243],[#244])
@@ -344,6 +345,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#258]: https://github.com/THM-Health/PILOS/pull/258
 [#259]: https://github.com/THM-Health/PILOS/issues/259
 [#260]: https://github.com/THM-Health/PILOS/pull/260
+[#264]: https://github.com/THM-Health/PILOS/issues/264
+[#265]: https://github.com/THM-Health/PILOS/pull/265
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
