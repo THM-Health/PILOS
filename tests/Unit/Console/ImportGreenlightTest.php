@@ -215,7 +215,7 @@ class ImportGreenlightTest extends TestCase
 
         // run artisan command and text questions and outputs
         $this->artisan('import:greenlight localhost 5432 greenlight_production postgres 12345678')
-            ->expectsQuestion('What room type should the rooms be assigned to?', 'VL')
+            ->expectsQuestion('What room type should the rooms be assigned to?', 'LE')
             ->expectsQuestion('Prefix for room names:', $prefix)
             ->expectsQuestion('Please select the default role for new imported non-ldap users', 'student')
             ->expectsOutput('Importing users')
