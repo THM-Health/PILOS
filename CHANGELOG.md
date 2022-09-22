@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenLDAP and phpLDAPadmin to local dev environment ([#225],[#250])
 - Meeting running indicator to own rooms page and find room / all rooms list ([#253],[#258])
 - Dockerfile for production deployment ([#262],[#266])
+- Default user role on fresh installation ([#267],[#268])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
@@ -350,6 +351,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#264]: https://github.com/THM-Health/PILOS/issues/264
 [#265]: https://github.com/THM-Health/PILOS/pull/265
 [#266]: https://github.com/THM-Health/PILOS/issues/266
+[#267]: https://github.com/THM-Health/PILOS/issues/267
+[#268]: https://github.com/THM-Health/PILOS/pull/268
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
