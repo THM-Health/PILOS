@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Permission;
 use App\Role;
+use App\RoomType;
+use App\ServerPool;
 use App\User;
 use Illuminate\Database\Seeder;
 
@@ -17,6 +19,11 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run()
     {
+        // Check if roles already exists (not a clean installation)
+        $freshInstall = Role::all()->count() == 0;
+
+        // Setup default admin role and permissions
+
         $adminPermissions = [];
 
         $adminPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
@@ -66,11 +73,21 @@ class RolesAndPermissionsSeeder extends Seeder
         }
         $adminRole->permissions()->syncWithoutDetaching($adminPermissions);
 
-        // Remove non existing permissions
+
+        // Setup default user role and permissions on fresh installation
+        if($freshInstall) {
+            $userRole = Role::create([ 'name' => 'user']);
+
+            $userPermissions = [];
+            $userPermissions[] = Permission::firstOrCreate([ 'name' => 'rooms.create' ])->id;
+            $userRole->permissions()->syncWithoutDetaching($userPermissions);
+        }
+
+        // Remove non-existing permissions
         Permission::whereNotIn('id', $adminPermissions)->delete();
 
         // Setup permission inheritances
-        /// Eg. If you have permission x, you also get the permissions a,b,c
+        /// e.g. If you have permission x, you also get the permissions a,b,c
         Permission::SetupIncludedPermissions('rooms.manage', ['rooms.create','rooms.viewAll']);
 
         Permission::SetupIncludedPermissions('meetings.viewAny', ['rooms.viewAll']);

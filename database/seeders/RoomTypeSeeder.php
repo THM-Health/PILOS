@@ -19,10 +19,10 @@ class RoomTypeSeeder extends Seeder
         if(RoomType::all()->count()==0) {
             $pool = ServerPool::all()->first();
             $pool->roomTypes()->createMany([
-                ['short' => 'VL', 'description' => 'Vorlesung', 'color' => '#80BA27'],
-                ['short' => 'ME', 'description' => 'Meeting', 'color' => '#4a5c66'],
-                ['short' => 'PR', 'description' => 'Prüfung', 'color' => '#9C132E'],
-                ['short' => 'ÜB', 'description' => 'Übung', 'color' => '#00B8E4']
+                ['short' => 'LE', 'description' => 'Lecture', 'color' => '#16a085'],
+                ['short' => 'ME', 'description' => 'Meeting', 'color' => '#2c3e50'],
+                ['short' => 'EX', 'description' => 'Exam', 'color' => '#c0392b'],
+                ['short' => 'SE', 'description' => 'Seminar', 'color' => '#2980b9']
             ]);
         }
     }
