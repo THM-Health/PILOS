@@ -1,94 +1,29 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
 services:
-    laravel.test:
-        build:
-            context: ./docker/8.1
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP:-1000}'
-        image: PILOS-PHP-8.1/app
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
+    app:
+        image: pilos/pilos:latest
         ports:
-            - '${APP_PORT:-80}:80'
-        environment:
-            WWWUSER: '${WWWUSER:-1000}'
-            LARAVEL_SAIL: 1
-            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+          - '127.0.0.1:5000:80'
+        env_file:
+          - .env
         volumes:
-            - '.:/var/www/html'
-        networks:
-            - sail
+          - './storage/logs:/var/www/html/storage/logs'
+          - './storage/app:/var/www/html/storage/app'
+          - './resources/custom:/var/www/html/resources/custom'
+          - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
         depends_on:
-            - mariadb
-    mariadb:
-        image: 'mariadb:10'
-        ports:
-            - '${FORWARD_DB_PORT:-3306}:3306'
-        environment:
-            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ROOT_HOST: "%"
-            MYSQL_DATABASE: '${DB_DATABASE}'
-            MYSQL_USER: '${DB_USERNAME}'
-            MYSQL_PASSWORD: '${DB_PASSWORD}'
-            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-        volumes:
-            - 'sail-mariadb:/var/lib/mysql'
-            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
-        networks:
-            - sail
-        healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
-            retries: 3
-            timeout: 5s
-    mailhog:
-        image: 'mailhog/mailhog:latest'
-        ports:
-            - '${FORWARD_MAILHOG_PORT:-1025}:1025'
-            - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
-        networks:
-            - sail
-    phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      links:
-        - mariadb:mariadb
-      ports:
-        - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
+          - db
+    db:
+      image: 'mariadb:10'
       environment:
-        MYSQL_USERNAME: "${DB_USERNAME}"
-        MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-        PMA_HOST: mariadb
-        PMA_USER: "${DB_USERNAME}"
-        PMA_PASSWORD: "${DB_PASSWORD}"
-      networks:
-        - sail
-    openldap:
-      image: osixia/openldap
-      environment:
-        LDAP_ORGANISATION: "Demo University"
-        LDAP_DOMAIN: "university.org"
-        LDAP_READONLY_USER: 'true'
+        MYSQL_DATABASE: '${DB_DATABASE}'
+        MYSQL_USER: '${DB_USERNAME}'
+        MYSQL_PASSWORD: '${DB_PASSWORD}'
+        MYSQL_RANDOM_ROOT_PASSWORD: 'true'
       volumes:
-        - './docker/openldap:/container/service/slapd/assets/config/bootstrap/ldif/custom'
-      command: --copy-service
-      networks:
-      - sail
-    phpldapadmin:
-      image: osixia/phpldapadmin
-      links:
-        - openldap:ldap-host
-      ports:
-        - '${FORWARD_PHPLDAPADMIN_PORT:-6680}:80'
-      environment:
-        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ldap-host': [{'server': []},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org', 'bind_pass': 'admin'}]}]}]"
-        PHPLDAPADMIN_HTTPS: 'false'
-      networks:
-        - sail
-networks:
-    sail:
-        driver: bridge
-volumes:
-    sail-mariadb:
-        driver: local
+        - './db:/var/lib/mysql'
+      healthcheck:
+        test: [ "CMD", "mysqladmin", "ping", "-u${DB_USERNAME}", "-p${DB_PASSWORD}" ]
+        retries: 3
+        timeout: 5s

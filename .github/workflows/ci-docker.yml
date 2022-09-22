@@ -1,0 +1,58 @@
+name: CI Docker build
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - master
+      - 'v[0-9]*'
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.0.1
+        with:
+          images: pilos/pilos
+          flavor: |
+            latest=auto
+            prefix=
+            suffix=
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=branch,prefix=dev-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3.1.1
+        with:
+          file: docker/app/Dockerfile
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=pilos/pilos:buildcache
+          cache-to: type=registry,ref=pilos/pilos:buildcache,mode=max
