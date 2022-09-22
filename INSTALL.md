@@ -12,7 +12,7 @@ It is **recommended** to use the image with the latest major version e.g. `v1.9.
 **[All Tags](https://hub.docker.com/r/pilos/pilos/tags)**
 
 #### Development Images
-Additionally, we provide images for the latest commit on the `master` and the release branches, e.g. `v1-dev`.
+Additionally, we provide images for the latest commit on the `master` and the release branches, e.g. `dev-v1`.
 
 #### Latest
 We **don't** recommend using the `latest` tag for production, as breaking changes can cause you some trouble.

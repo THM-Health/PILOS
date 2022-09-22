@@ -4,7 +4,9 @@ on:
   release:
     types: [published]
   push:
-
+    branches:
+      - master
+      - 'v[0-9]*'
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -41,7 +43,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=ref,event=branch,suffix=-dev
+            type=ref,event=branch,prefix=dev-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.1
