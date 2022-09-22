@@ -485,6 +485,7 @@ export default {
         user_locale: null,
         bbb_skip_check_audio: false,
         timezone: null,
+        image: null,
         roles: []
       },
       generate_password: false,
