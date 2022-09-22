@@ -4,6 +4,20 @@
 To make installing PILOS easy, we provide a Docker image.
 The application will be installed with some default settings, but you can customize it later via the UI, config files and overriding some files.
 
+### Docker Tags
+We use [Semantic Versioning](https://semver.org/spec/v2.0.0.html) for our releases and tag the images accordingly.
+
+It is **recommended** to use the image with the latest major version e.g. `v1.9.5` -> `v1` to always get the latest features and bugfixes.
+
+**[All Tags](https://hub.docker.com/r/pilos/pilos/tags)**
+
+#### Development Images
+Additionally, we provide images for the latest commit on the `master` and the release branches, e.g. `v1-dev`.
+
+#### Latest
+We **don't** recommend using the `latest` tag for production, as breaking changes can cause you some trouble.
+**Always** check the changelog before changing the major version!
+
 ### Requirements
 - fully qualified hostname
 - valid SSL certificate (HTTPS)
@@ -16,7 +30,8 @@ Create a directory for the data and config of PILOS
 mkdir ~/pilos && cd ~/pilos
 ```
 
-To make the following steps independent to docker image changes, we define an environment variable
+To make the following steps independent to docker image changes, we define an environment variable.
+Adjust the docker image tag according to the version you want to use (see [Docker Tags](#docker-tags) section).
 ```bash
 export IMAGE="pilos/pilos:latest"
 ```
@@ -26,6 +41,8 @@ Next we need the `docker-compose.yml` and `.env` files. They can be copied from 
 docker run --rm $IMAGE cat ./.env.example > .env
 docker run --rm $IMAGE cat ./docker-compose.yml > docker-compose.yml
 ```
+
+If you used a different docker image tag, you need to adjust the image tag in the `docker-compose.yml` file.
 
 ### Configuring PILOS
 In the .env file all application settings can be found, some of them can be changed with the UI.
