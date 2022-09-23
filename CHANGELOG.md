@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- **Breaking:** Wrong database migration filenames ([#271],[#272])
 
 ## [v2.0.0-alpha.1] - 2022-09-23
 
@@ -357,6 +359,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#266]: https://github.com/THM-Health/PILOS/issues/266
 [#267]: https://github.com/THM-Health/PILOS/issues/267
 [#268]: https://github.com/THM-Health/PILOS/pull/268
+[#272]: https://github.com/THM-Health/PILOS/issues/272
+[#273]: https://github.com/THM-Health/PILOS/pull/273
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
