@@ -63,22 +63,22 @@ class MeetingService
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
-        $meetingParams->setModeratorPW($this->meeting->moderatorPW)
-            ->setAttendeePW($this->meeting->attendeePW)
+        $meetingParams->setModeratorPW($this->meeting->moderator_pw)
+            ->setAttendeePW($this->meeting->attendee_pw)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
             ->setDuration($this->meeting->room->duration)
             ->setWelcome($this->meeting->room->welcome)
             ->setModeratorOnlyMessage($this->meeting->room->getModeratorOnlyMessage())
-            ->setLockSettingsDisableMic($this->meeting->room->lockSettingsDisableMic)
-            ->setLockSettingsDisableCam($this->meeting->room->lockSettingsDisableCam)
-            ->setWebcamsOnlyForModerator($this->meeting->room->webcamsOnlyForModerator)
-            ->setLockSettingsDisablePrivateChat($this->meeting->room->lockSettingsDisablePrivateChat)
-            ->setLockSettingsDisablePublicChat($this->meeting->room->lockSettingsDisablePublicChat)
-            ->setLockSettingsDisableNote($this->meeting->room->lockSettingsDisableNote)
-            ->setLockSettingsHideUserList($this->meeting->room->lockSettingsHideUserList)
-            ->setLockSettingsLockOnJoin($this->meeting->room->lockSettingsLockOnJoin)
-            ->setMuteOnStart($this->meeting->room->muteOnStart)
+            ->setLockSettingsDisableMic($this->meeting->room->lock_settings_disable_mic)
+            ->setLockSettingsDisableCam($this->meeting->room->lock_settings_disable_cam)
+            ->setWebcamsOnlyForModerator($this->meeting->room->webcams_only_for_moderator)
+            ->setLockSettingsDisablePrivateChat($this->meeting->room->lock_settings_disable_private_chat)
+            ->setLockSettingsDisablePublicChat($this->meeting->room->lock_settings_disable_public_chat)
+            ->setLockSettingsDisableNote($this->meeting->room->lock_settings_disable_note)
+            ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
+            ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
+            ->setMuteOnStart($this->meeting->room->mute_on_start)
             ->setMeetingLayout(CreateMeetingParameters::CUSTOM_LAYOUT)
             ->setLearningDashboardEnabled(false);
 
@@ -158,7 +158,7 @@ class MeetingService
      */
     public function end(): void
     {
-        $endParams = new EndMeetingParameters($this->meeting->id, $this->meeting->moderatorPW);
+        $endParams = new EndMeetingParameters($this->meeting->id, $this->meeting->moderator_pw);
         $this->serverService->getBigBlueButton()->endMeeting($endParams)->success();
         $this->setEnd();
     }
@@ -242,7 +242,7 @@ class MeetingService
         $userId = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $role   = $this->meeting->room->getRole(Auth::user(), $token);
 
-        $password = ($role->is(RoomUserRole::MODERATOR()) || $role->is(RoomUserRole::CO_OWNER()) || $role->is(RoomUserRole::OWNER)) ? $this->meeting->moderatorPW : $this->meeting->attendeePW;
+        $password = ($role->is(RoomUserRole::MODERATOR()) || $role->is(RoomUserRole::CO_OWNER()) || $role->is(RoomUserRole::OWNER)) ? $this->meeting->moderator_pw : $this->meeting->attendee_pw;
 
         $joinMeetingParams = new JoinMeetingParameters($this->meeting->id, $name, $password);
         $joinMeetingParams->setRedirect(true);

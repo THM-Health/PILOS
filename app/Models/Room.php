@@ -229,7 +229,7 @@ class Room extends Model
             return RoomUserRole::fromValue($member->pivot->role);
         }
 
-        return RoomUserRole::fromValue($this->defaultRole);
+        return RoomUserRole::fromValue($this->default_role);
     }
 
     /**

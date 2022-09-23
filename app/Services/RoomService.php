@@ -63,8 +63,8 @@ class RoomService
 
                 // Create new meeting
                 $meeting                    = new Meeting();
-                $meeting->attendeePW        = bin2hex(random_bytes(5));
-                $meeting->moderatorPW       = bin2hex(random_bytes(5));
+                $meeting->attendee_pw        = bin2hex(random_bytes(5));
+                $meeting->moderator_pw       = bin2hex(random_bytes(5));
                 $meeting->record_attendance = setting('attendance.enabled') && $this->room->record_attendance;
                 $meeting->server()->associate($server);
                 $meeting->room()->associate($this->room);
