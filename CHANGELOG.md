@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.0-alpha.1] - 2022-09-23
+
 ### Added
 - **Breaking:** Config option to disable LDAP (disabled by default) ([#236],[#237])
 - **Breaking:** Custom theme / color support for application css style (see UPGRADE.md) ([#231],[#232],[#255])
@@ -356,7 +358,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#267]: https://github.com/THM-Health/PILOS/issues/267
 [#268]: https://github.com/THM-Health/PILOS/pull/268
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -374,3 +376,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
 [1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4
 [1.9.5]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.5
+[v2.0.0-alpha.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.1
