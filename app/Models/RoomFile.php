@@ -30,7 +30,7 @@ class RoomFile extends Model
     public function delete()
     {
         $response = parent::delete();
-        // if delete successfull
+        // if delete successfully
         if ($response) {
             Storage::delete($this->path);
         }
