@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\RoomType;
-use App\ServerPool;
+use App\Models\RoomType;
+use App\Models\ServerPool;
 use Illuminate\Database\Seeder;
 
 class RoomTypeSeeder extends Seeder

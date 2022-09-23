@@ -6,8 +6,8 @@ use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerPoolRequest;
 use App\Http\Resources\ServerPool as ServerPoolResource;
-use App\Server;
-use App\ServerPool;
+use App\Models\Server;
+use App\Models\ServerPool;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 

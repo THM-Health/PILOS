@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\RoomUserRole;
-use App\Room;
-use App\RoomToken;
+use App\Models\Room;
+use App\Models\RoomToken;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 

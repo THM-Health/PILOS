@@ -6,10 +6,10 @@ use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Attendee;
 use App\Http\Resources\MeetingStat;
-use App\Meeting;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
+use App\Models\Meeting;
+use App\Services\MeetingService;
+use Illuminate\Http\Request;
 
 /**
  * Class MeetingController
@@ -85,15 +85,16 @@ class MeetingController extends Controller
      */
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
+        $meetingService = new MeetingService($meeting);
         // Validate request
-        if (!Hash::check($meeting->getCallbackSalt(), $request->salt)) {
+        if (!$meetingService->validateCallbackSalt($request->salt)) {
             abort(401);
         }
 
         // Only set end of meeting, if not set before
         if ($meeting->end == null) {
             // Set end of meeting
-            $meeting->setEnd();
+            $meetingService->setEnd();
         }
     }
 
@@ -124,6 +125,7 @@ class MeetingController extends Controller
     public function attendance(Meeting $meeting)
     {
         $this->authorize('viewStatistics', $meeting->room);
+        $meetingService = new MeetingService($meeting);
 
         // check if attendance recording is enabled for this meeting and globally enabled
         if (!$meeting->record_attendance || !setting('attendance.enabled')) {
@@ -135,6 +137,6 @@ class MeetingController extends Controller
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
         }
 
-        return Attendee::collection($meeting->attendance());
+        return Attendee::collection($meetingService->attendance());
     }
 }

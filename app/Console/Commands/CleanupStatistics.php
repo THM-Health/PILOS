@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\MeetingStat;
-use App\ServerStat;
+use App\Models\MeetingStat;
+use App\Models\ServerStat;
 use Illuminate\Console\Command;
 
 class CleanupStatistics extends Command

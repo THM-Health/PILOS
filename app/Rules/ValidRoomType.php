@@ -2,9 +2,9 @@
 
 namespace App\Rules;
 
-use App\Room;
-use App\RoomType;
-use App\User;
+use App\Models\Room;
+use App\Models\RoomType;
+use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 class ValidRoomType implements Rule

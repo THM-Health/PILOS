@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

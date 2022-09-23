@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** API attributes and parameters naming convention ([#259],[#260])
 - Random room polling interval ([#229],[#230])
 - Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
+- Restructure/refactor code to service classes ([#248])
 - Use application name in join room link ([#249])
 
 ### Fixed
@@ -337,6 +338,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#244]: https://github.com/THM-Health/PILOS/pull/244
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
+[#248]: https://github.com/THM-Health/PILOS/pull/248
 [#249]: https://github.com/THM-Health/PILOS/pull/249
 [#250]: https://github.com/THM-Health/PILOS/pull/250
 [#252]: https://github.com/THM-Health/PILOS/issues/252

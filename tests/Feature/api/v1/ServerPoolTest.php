@@ -3,13 +3,13 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
-use App\Permission;
-use App\Role;
-use App\RoomToken;
-use App\RoomType;
-use App\Server;
-use App\ServerPool;
-use App\User;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\RoomToken;
+use App\Models\RoomType;
+use App\Models\Server;
+use App\Models\ServerPool;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

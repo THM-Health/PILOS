@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Console;
 
-use App\Meeting;
-use App\MeetingAttendee;
+use App\Models\Meeting;
+use App\Models\MeetingAttendee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

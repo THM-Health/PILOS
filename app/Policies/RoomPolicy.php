@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
-use App\Room;
-use App\RoomFile;
-use App\RoomToken;
-use App\User;
+use App\Models\Room;
+use App\Models\RoomFile;
+use App\Models\RoomToken;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RoomPolicy
