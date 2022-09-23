@@ -15,7 +15,7 @@ use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\MeetingService;
-use App\Services\RoomTestHelper;
+use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -96,7 +96,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
+        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomFactory::createValidRoomName()];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -143,8 +143,8 @@ class RoomTest extends TestCase
         $this->user->roles()->attach($role);
         setting(['room_limit' => '1']);
 
-        $room_1 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
-        $room_2 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
+        $room_1 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomFactory::createValidRoomName()];
+        $room_2 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomFactory::createValidRoomName()];
 
         // Create first room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_1)
@@ -809,7 +809,7 @@ class RoomTest extends TestCase
         $settings['room_type']                          = $roomType->id;
         $settings['duration']                           = $this->faker->numberBetween(1, 50);
         $settings['max_participants']                   = $this->faker->numberBetween(1, 50);
-        $settings['name']                               = RoomTestHelper::createValidRoomName();
+        $settings['name']                               = RoomFactory::createValidRoomName();
         $settings['welcome']                            = $this->faker->text;
         $settings['listed']                             = $this->faker->boolean;
         $settings['record_attendance']                  = $this->faker->boolean;

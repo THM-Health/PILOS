@@ -25,9 +25,24 @@ class RoomFactory extends Factory
     public function definition()
     {
         return [
-            'name'         => RoomTestHelper::createValidRoomName(),
+            'name'         => self::createValidRoomName(),
             'room_type_id' => RoomType::factory(),
             'user_id'      => User::factory(),
         ];
+    }
+
+    /**
+     * Create valid random room name
+     * @return string
+     */
+    public static function createValidRoomName()
+    {
+        $faker = \Faker\Factory::create();
+        while (true) {
+            $name = $faker->word;
+            if (strlen($name) > 1 && strlen($name) < config('bigbluebutton.room_name_limit') ) {
+                return $name;
+            }
+        }
     }
 }

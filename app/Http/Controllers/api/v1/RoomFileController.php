@@ -65,8 +65,9 @@ class RoomFileController extends Controller
         }
 
         $roomFileService = new RoomFileService($file);
+        $url             = $roomFileService->setTimeLimit(1)->url();
 
-        return response()->json(['url' => $roomFileService->setTimeLimit(1)->url()]);
+        return response()->json(['url' => $url]);
     }
 
     /**
@@ -85,16 +86,20 @@ class RoomFileController extends Controller
 
         if ($request->has('use_in_meeting')) {
             $file->use_in_meeting = $request->use_in_meeting;
+            // If no default file for this room is set, set this file as default
             if (!$room->files()->where('default', true)->exists()) {
                 $file->default = true;
             }
         }
+
         if ($request->has('download')) {
             $file->download = $request->download;
         }
 
         if ($request->has('default') && $request->default === true) {
+            // Make other files not the default
             $room->files()->update(['default' => false]);
+            // Set this file as default
             $file->refresh();
             $file->default = true;
         }

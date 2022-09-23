@@ -146,9 +146,7 @@ class RoomController extends Controller
         $this->authorize('start', [$room, $request->get('token')]);
 
         $roomService = new RoomService($room);
-        $url         = $roomService
-            ->start($request->record_attendance)
-            ->getJoinUrl($request);
+        $url         = $roomService->start($request->record_attendance)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
@@ -162,9 +160,7 @@ class RoomController extends Controller
     public function join(Room $room, StartJoinMeeting $request)
     {
         $roomService = new RoomService($room);
-        $url         = $roomService
-            ->join($request->record_attendance)
-            ->getJoinUrl($request);
+        $url         = $roomService->join($request->record_attendance)->getJoinUrl($request);
 
         return response()->json(['url' => $url]);
     }
@@ -232,7 +228,8 @@ class RoomController extends Controller
     public function meetings(Room $room)
     {
         $this->authorize('viewStatistics', $room);
+        $meetings = $room->meetings()->orderByDesc('start')->whereNotNull('start');
 
-        return \App\Http\Resources\Meeting::collection($room->meetings()->orderByDesc('start')->whereNotNull('start')->paginate(setting('pagination_page_size')));
+        return \App\Http\Resources\Meeting::collection($meetings->paginate(setting('pagination_page_size')));
     }
 }

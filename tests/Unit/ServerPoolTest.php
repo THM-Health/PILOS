@@ -30,7 +30,7 @@ class ServerPoolTest extends TestCase
 
         // Check basic load balancing
         $serverPool->refresh();
-        $server = $loadBalancingService->getLowestUsage();
+        $server = $loadBalancingService->getLowestUsageServer();
         $this->assertEquals($lightUsage->id, $server->id);
 
         // Check with different server strengths
@@ -38,14 +38,14 @@ class ServerPoolTest extends TestCase
         $heavyUsage->save();
         $serverPool->refresh();
         $loadBalancingService->setServerPool($serverPool);
-        $server = $loadBalancingService->getLowestUsage();
+        $server = $loadBalancingService->getLowestUsageServer();
         $this->assertEquals($heavyUsage->id, $server->id);
 
         // Check offline and disabled servers
         $serverPool->servers()->sync([$disabled->id,$offline->id]);
         $serverPool->refresh();
         $loadBalancingService->setServerPool($serverPool);
-        $server = $loadBalancingService->getLowestUsage();
+        $server = $loadBalancingService->getLowestUsageServer();
         $this->assertNull($server);
     }
 }

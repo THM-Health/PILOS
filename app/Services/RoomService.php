@@ -49,11 +49,11 @@ class RoomService
                     abort(CustomStatusCodes::ATTENDANCE_AGREEMENT_MISSING, __('app.errors.attendance_agreement_missing'));
                 }
 
-                // Basic load balancing, get server with lowest usage
+                // Basic load balancing: get server with the lowest usage
                 $loadBalancingService = new LoadBalancingService();
                 $server               = $loadBalancingService
                     ->setServerPool($this->room->roomType->serverPool)
-                    ->getLowestUsage();
+                    ->getLowestUsageServer();
 
                 // If no server found, throw error
                 if ($server == null) {

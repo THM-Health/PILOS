@@ -13,10 +13,6 @@ class LoadBalancingService
     private int $audioWeight       = 2;
     private int $videoWeight       = 3;
 
-    public function __construct()
-    {
-    }
-
     public function setServerPool(ServerPool $serverPool)
     {
         $this->servers = $serverPool->servers;
@@ -28,7 +24,7 @@ class LoadBalancingService
      * Find server in the pool with the lowest usage
      * @return Server|null
      */
-    public function getLowestUsage(): ?Server
+    public function getLowestUsageServer(): ?Server
     {
         return $this->servers
             ->where('status', ServerStatus::ONLINE)
