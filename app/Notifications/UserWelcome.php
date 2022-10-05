@@ -68,19 +68,16 @@ class UserWelcome extends Notification
             'welcome' => true
         ]);
 
-        $locale = Carbon::getLocale();
-        Carbon::setLocale($notifiable->locale);
         $date = $this->expireDate
             ->addMinutes(config('auth.passwords.new_users.expire'))
             ->timezone($notifiable->timezone)
             ->isoFormat('LLLL');
-        Carbon::setLocale($locale);
 
         return (new MailMessage)
-            ->subject(Lang::get('mail.user_welcome.subject', [], $notifiable->locale))
-            ->line(Lang::get('mail.user_welcome.description', [], $notifiable->locale))
-            ->action(Lang::get('mail.user_welcome.action', [], $notifiable->locale), $url)
-            ->line(Lang::get('mail.user_welcome.expire', ['date' => $date], $notifiable->locale))
-            ->markdown('vendor.notifications.email', ['notifiable' => $notifiable]);
+            ->subject(Lang::get('mail.user_welcome.subject', []))
+            ->line(Lang::get('mail.user_welcome.description', []))
+            ->action(Lang::get('mail.user_welcome.action', []), $url)
+            ->line(Lang::get('mail.user_welcome.expire', ['date' => $date]))
+            ->markdown('vendor.notifications.email', ['name' => $notifiable->fullname]);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\Room;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -49,11 +48,6 @@ class RoomExpires extends Notification
      */
     public function toMail($notifiable)
     {
-        // Get system locale
-        $locale = Carbon::getLocale();
-        // Change local for processing the date formatting
-        Carbon::setLocale($notifiable->locale);
-
         // Date the room will be deleted
         $date = $this->room->delete_inactive
             ->timezone($notifiable->timezone)
@@ -71,27 +65,24 @@ class RoomExpires extends Notification
         $lastMeeting = $this->room->latestMeeting();
 
         $message = (new MailMessage)
-            ->subject(Lang::get('mail.room_expires.subject', ['name' => $this->room->name], $notifiable->locale))
-            ->line(Lang::get('mail.room_expires.intro', [], $notifiable->locale));
+            ->subject(Lang::get('mail.room_expires.subject', ['name' => $this->room->name]))
+            ->line(Lang::get('mail.room_expires.intro', []));
 
         // If room has no meeting, room will deleted due to creating but never using the room
         if ($lastMeeting == null) {
-            $message->line(Lang::get('mail.room_expires.no_meeting', ['name' => $this->room->name,'date' => $createdAt], $notifiable->locale));
+            $message->line(Lang::get('mail.room_expires.no_meeting', ['name' => $this->room->name,'date' => $createdAt]));
         }
         // If room has a meeting, that was too long ago
         else {
             $days = now()->diffInDays($lastMeeting->start);
-            $message->line(Lang::get('mail.room_expires.inactivity', ['name' => $this->room->name,'date' => $createdAt, 'days' => $days], $notifiable->locale));
+            $message->line(Lang::get('mail.room_expires.inactivity', ['name' => $this->room->name,'date' => $createdAt, 'days' => $days]));
         }
 
-        // Reset system locale
-        Carbon::setLocale($locale);
-
         return $message
-            ->action(Lang::get('mail.room_expires.open', [], $notifiable->locale), $url)
-            ->line(Lang::get('mail.room_expires.expire', ['date' => $date], $notifiable->locale))
-            ->line(Lang::get('mail.room_expires.keep', [], $notifiable->locale))
-            ->line(Lang::get('mail.room_expires.delete', [], $notifiable->locale))
-            ->markdown('vendor.notifications.email', ['notifiable' => $notifiable]);
+            ->action(Lang::get('mail.room_expires.open', []), $url)
+            ->line(Lang::get('mail.room_expires.expire', ['date' => $date]))
+            ->line(Lang::get('mail.room_expires.keep', []))
+            ->line(Lang::get('mail.room_expires.delete', []))
+            ->markdown('vendor.notifications.email', ['name' => $notifiable->fullname]);
     }
 }

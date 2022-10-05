@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Storage;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
 
@@ -73,6 +75,17 @@ class User extends Authenticatable
     public function getImageUrlAttribute()
     {
         return $this->image != null ? Storage::disk('public')->url($this->image) : null;
+    }
+
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @param  Notification $notification
+     * @return array
+     */
+    public function routeNotificationForMail(Notification $notification): array
+    {
+        return [$this->email => $this->fullname];
     }
 
     /**
@@ -228,5 +241,10 @@ class User extends Authenticatable
             })
             ->where('role_user.user_id', '=', $this->id)
             ->exists();
+    }
+
+    public function preferredLocale()
+    {
+        return $this->locale;
     }
 }
