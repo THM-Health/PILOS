@@ -1,0 +1,64 @@
+<template>
+  <b-container class="mt-3 mb-5">
+    <b-card class="p-3 border bg-white">
+      <h3>
+        {{ $t('app.verifyEmail.title') }}
+      </h3>
+      <hr>
+      <div v-if="loading" class="text-center my-5">
+        <b-spinner></b-spinner>
+      </div>
+      <div v-else >
+        <div v-if="success">
+          <b-alert variant="success" show><i class="fa-solid fa-envelope-circle-check"></i> {{ $t('app.verifyEmail.success') }}</b-alert>
+        </div>
+        <div v-else>
+          <b-alert variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.fail') }}</b-alert>
+        </div>
+      </div>
+    </b-card>
+  </b-container>
+</template>
+
+<script>
+import Base from '../api/base';
+
+export default {
+  name: 'ConfirmEmailChange.vue',
+  props: {
+    token: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      loading: true,
+      success: true,
+      error: null
+    };
+  },
+  mounted () {
+    this.verifyEmail();
+  },
+  methods: {
+    verifyEmail () {
+      this.loading = true;
+      Base.call('verify_email', {
+        method: 'POST',
+        data: {
+          token: this.token
+        }
+      })
+        .then(response => {
+          this.success = true;
+        })
+        .catch(() => {
+          this.success = false;
+        }).finally(() => {
+          this.loading = false;
+        });
+    }
+  }
+};
+</script>

@@ -143,6 +143,12 @@ export default {
     description: 'Bestätigen Sie bitte Ihr Passwort bevor Sie fortfahren!'
   },
 
+  verifyEmail: {
+    title: 'E-mail verifizieren',
+    success: 'Ihre E-Mail wurde erfolgreich verifiziert!',
+    fail: 'Ihre E-Mail konnte nicht verifiziert werden!'
+  },
+
   buttonStyles: {
     primary: 'Primär',
     secondary: 'Sekundär',

@@ -14,7 +14,7 @@
               v-tooltip-hide-click
               variant='success'
               :title="$t('settings.users.new')"
-              :to="{ name: 'settings.users.view', params: { id: 'new' } }"
+              :to="{ name: 'settings.users.new' }"
             ><i class="fa-solid fa-plus"></i></b-button>
           </can>
         </b-col>

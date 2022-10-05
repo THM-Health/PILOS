@@ -60,6 +60,7 @@ export default {
 
     nodata: 'Es sind keine Benutzer vorhanden!',
     nodataFiltered: 'Für die Suchanfrage wurden keine Benutzer gefunden!',
+    role_filter: 'Rolle zum Filtern auswählen',
 
     image: {
       title: 'Profilbild',
@@ -78,19 +79,13 @@ export default {
     id: 'ID',
     firstname: 'Vorname',
     lastname: 'Nachname',
-    email: 'E-Mail',
     password: 'Passwort',
-    password_confirmation: 'Passwort bestätigen',
+    current_password: 'Aktuelles Passwort',
+    new_password: 'Neues Passwort',
+    new_password_confirmation: 'Neues Passwort bestätigen',
     user_locale: 'Sprache',
-    roles: 'Rollen',
-    role_filter: 'Rolle zum Filtern auswählen',
-    select_roles: 'Bitte wählen Sie mindestens eine Rolle aus',
-    select_locale: 'Bitte wählen Sie eine Sprache aus',
-    removeRole: 'Rolle entfernen',
 
     base_data: 'Stammdaten',
-    room_settings: 'Benutzerdefinierte Raumeinstellungen',
-    skip_check_audio: 'Echo-Test deaktivieren',
 
     generate_password: 'Passwort generieren lassen',
     generate_password_description: 'Es wird ein generiertes Passwort gesetzt und eine E-Mail mit einem Passwort-Rücksetz-Link an den Nutzer gesendet. Wenn der Nutzer das Passwort in einem bestimmten Zeitraum nicht ändert, wird dieser automatisch wieder gelöscht.',
@@ -111,6 +106,60 @@ export default {
       item: 'Passwort für den Benutzer {firstname} {lastname} zurücksetzen',
       confirm: 'Wollen Sie das Passwort für {firstname} {lastname} wirklich zurücksetzen?',
       title: 'Passwort zurücksetzen?'
+    },
+
+    tabs: {
+      profile: 'Stammdaten',
+      email: 'E-Mail',
+      authentication: 'Sicherheit',
+      other_settings: 'Weitere Einstellungen'
+    },
+
+    email: {
+      title: 'E-Mail',
+      current_password: 'Aktuelles Passwort',
+      email: 'E-Mail',
+      save: 'E-Mail Adresse ändern',
+      verifyEmail: {
+        title: 'Verifizierung erforderlich',
+        message: 'Es wurde eine Bestätigungsmail an die neue Adresse gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.'
+      }
+    },
+
+    authentication: {
+
+      change_password: {
+        title: 'Passwort ändern',
+        current_password: 'Aktuelles Passwort',
+        new_password: 'Neues Passwort',
+        new_password_confirmation: 'Neues Passwort bestätigen',
+        save: 'Passwort ändern'
+      },
+
+      roles_and_perm: {
+        title: 'Rollen and Berechtigungen',
+        roles: 'Rollen',
+        select_roles: 'Bitte wählen Sie mindestens eine Rolle aus',
+        select_locale: 'Bitte wählen Sie eine Sprache aus',
+        removeRole: 'Rolle entfernen'
+      },
+
+      sessions: {
+        title: 'Aktive Sitzungen',
+        unknown: 'Unbekannt',
+        current: 'Aktuelle Sitzung',
+        browser: 'Browser',
+        last_active: 'Zuletzt aktiv',
+        ip: 'IP',
+        logout_all: 'Alle anderen Sitzungen abmelden'
+      }
+    },
+
+    other_settings: {
+      bbb: {
+        title: 'BigBlueButton',
+        skip_check_audio: 'Echo-Test deaktivieren'
+      }
     },
 
     passwordResetSuccess: 'Passwort-Rücksetz-Mail wurde erfolgreich an {mail} verschickt!',

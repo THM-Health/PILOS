@@ -32,6 +32,11 @@ export default {
     logout: {
       message: 'Die Abmeldung verlief erfolgreich!',
       title: 'Erfolgreiche Abmeldung'
+    },
+
+    logoutAllOthers: {
+      message: 'Die Abmeldung von allen anderen Geräten verlief erfolgreich!',
+      title: 'Erfolgreiche Abmeldung'
     }
   }
 };

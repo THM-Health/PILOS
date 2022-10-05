@@ -13,6 +13,27 @@ return [
         'signature'   => 'Wenn Sie keine Anfrage zum Zurücksetzen des Passworts gestellt haben, ist keine weitere Aktion nötig.'
     ],
 
+    'verify_email' => [
+        'subject'     => 'E-Mail-Verifizierung',
+        'description' => 'Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den untenstehenden Button klicken.',
+        'action'      => 'E-Mail-Adresse verifizieren',
+        'expire'      => 'Der Verifizierungs-Link wird am :expireDateTime ablaufen.',
+        'signature'   => 'Wenn Sie keine Anfrage zur Änderung Ihrer E-Mail-Adresse gestellt haben, wenden Sie sich bitte an den Support.'
+    ],
+
+    'email_changed' => [
+        'subject'     => 'E-Mail-Adresse geändert',
+        'description' => 'die E-Mail-Adresse Ihres Benutzerkontos wurde geändert.',
+        'new_email'   => 'Neue E-Mail-Adresse: :email',
+        'signature'   => 'Wenn Sie keine Anfrage zum Ändern der E-Mail-Adresse gestellt haben, wenden Sie sich bitte an den Support.'
+    ],
+
+    'password_changed' => [
+        'subject'     => 'Passwort geändert',
+        'description' => 'das Passwort Ihres Benutzerkontos wurde geändert.',
+        'signature'   => 'Wenn Sie keine Anfrage zum Ändern des Passworts gestellt haben, wenden Sie sich bitte an den Support.'
+    ],
+
     'user_welcome' => [
         'subject'     => 'Benutzerkonto wurde erstellt',
         'description' => 'Sie erhalten diese E-Mail, weil ein neues Nutzerkonto für Ihre E-Mail-Adresse erstellt wurde.',

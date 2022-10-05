@@ -15,6 +15,7 @@ import RoomTypesIndex from './views/settings/roomTypes/Index';
 import RoomTypesView from './views/settings/roomTypes/View';
 import UsersIndex from './views/settings/users/Index';
 import UsersView from './views/settings/users/View';
+import NewUser from './views/settings/users/New';
 import Application from './views/settings/Application';
 import SettingsHome from './views/settings/SettingsHome';
 import ServersIndex from './views/settings/servers/Index';
@@ -25,6 +26,8 @@ import MeetingsIndex from './views/meetings/Index';
 import PasswordReset from './views/PasswordReset';
 import Base from './api/base';
 import ForgotPassword from './views/ForgotPassword';
+import VerifyEmail from './views/VerifyEmail';
+import Profile from './views/Profile';
 
 Vue.use(VueRouter);
 
@@ -37,15 +40,7 @@ export const routes = [
   {
     path: '/profile',
     name: 'profile',
-    component: UsersView,
-    props: () => {
-      return {
-        config: {
-          id: store.state.session.currentUser ? store.state.session.currentUser.id : 0,
-          type: 'profile'
-        }
-      };
-    },
+    component: Profile,
     meta: { requiresAuth: true }
   },
   {
@@ -64,6 +59,17 @@ export const routes = [
         token: route.query.token,
         email: route.query.email,
         welcome: route.query.welcome === 'true'
+      };
+    }
+  },
+  {
+    path: '/verify_email',
+    name: 'verify.email',
+    component: VerifyEmail,
+    meta: { requiresAuth: true },
+    props: route => {
+      return {
+        token: route.query.token
       };
     }
   },
@@ -126,15 +132,25 @@ export const routes = [
         }
       },
       {
+        path: 'users/new',
+        name: 'settings.users.new',
+        component: NewUser,
+        meta: {
+          requiresAuth: true,
+          accessPermitted: () => Promise.resolve(
+            PermissionService.can('manage', 'SettingPolicy') &&
+            PermissionService.can('create', 'UserPolicy')
+          )
+        }
+      },
+      {
         path: 'users/:id',
         name: 'settings.users.view',
         component: UsersView,
         props: route => {
           return {
-            config: {
-              id: route.params.id,
-              type: route.query.view === '1' ? 'view' : 'edit'
-            }
+            id: parseInt(route.params.id),
+            viewOnly: route.query.view === '1'
           };
         },
         meta: {
@@ -143,12 +159,7 @@ export const routes = [
             const id = params.id;
             const view = query.view;
 
-            if (id === 'new') {
-              return Promise.resolve(
-                PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'UserPolicy')
-              );
-            } else if (view === '1') {
+            if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
                 PermissionService.can('view', { model_name: 'User', id })

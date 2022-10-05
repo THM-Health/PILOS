@@ -248,6 +248,11 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->hasMany(Session::class);
     }
 
+    public function verifyEmails()
+    {
+        return $this->hasMany(VerifyEmail::class);
+    }
+
     public function preferredLocale()
     {
         return $this->locale;
