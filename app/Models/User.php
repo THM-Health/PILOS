@@ -243,6 +243,11 @@ class User extends Authenticatable implements HasLocalePreference
             ->exists();
     }
 
+    public function sessions()
+    {
+        return $this->hasMany(Session::class);
+    }
+
     public function preferredLocale()
     {
         return $this->locale;
