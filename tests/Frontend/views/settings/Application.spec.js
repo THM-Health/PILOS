@@ -15,6 +15,7 @@ import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
 import { waitMoxios, createContainer } from '../../helper';
+import * as https from 'https';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -2250,6 +2251,132 @@ describe('Application', () => {
         }
       }
     });
+
+    view.destroy();
+  });
+
+  it('custom urls', async () => {
+    PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const actions = {
+      getSettings () {
+      }
+    };
+
+    const store = new Vuex.Store({
+      modules:
+        {
+          session: { actions, namespaced: true }
+        }
+    });
+
+    const view = mount(Application, {
+      localVue,
+      store,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          help_url: 'www.pilos.com/help',
+          legal_notice_url: 'www.pilos.com/legal',
+          privacy_policy_url: 'www.pilos.com/privacy',
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+
+    // check if urls have been set
+    expect(view.vm.$data.settings.help_url).toBe('www.pilos.com/help');
+    expect(view.vm.$data.settings.legal_notice_url).toBe('www.pilos.com/legal');
+    expect(view.vm.$data.settings.privacy_policy_url).toBe('www.pilos.com/privacy');
+
+    const saveSettingsButton = view.find('#application-save-button');
+    expect(saveSettingsButton.exists()).toBeTruthy();
+    await saveSettingsButton.trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          logo: 'test.svg',
+          room_limit: -1,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          help_url: '',
+          legal_notice_url: '',
+          privacy_policy_url: '',
+          bbb: bbbSettings,
+          default_presentation: 'foo.pdf',
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: false,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+
+    // test if urls are empty
+    expect(view.vm.$data.settings.help_url).toBe('');
+    expect(view.vm.$data.settings.legal_notice_url).toBe('');
+    expect(view.vm.$data.settings.privacy_policy_url).toBe('');
 
     view.destroy();
   });
