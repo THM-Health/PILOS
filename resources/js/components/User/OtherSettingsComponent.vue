@@ -1,32 +1,33 @@
 <template>
   <div>
     <h4>{{ $t('settings.users.other_settings.bbb.title') }}</h4>
-    <b-form-group
-      label-cols-sm='3'
-      :label="$t('settings.users.other_settings.bbb.skip_check_audio')"
-      label-for='bbb_skip_check_audio'
-      :state="fieldState('bbb_skip_check_audio')"
-      class="align-items-center d-flex"
-    >
-      <b-form-checkbox
-        id='bbb_skip_check_audio'
-        v-model='model.bbb_skip_check_audio'
+    <b-form @submit="save">
+      <b-form-group
+        label-cols-sm='3'
+        :label="$t('settings.users.other_settings.bbb.skip_check_audio')"
+        label-for='bbb_skip_check_audio'
         :state="fieldState('bbb_skip_check_audio')"
-        :disabled="isBusy || !edit"
-        switch
-      ></b-form-checkbox>
-      <template slot='invalid-feedback'><div v-html="fieldError('bbb_skip_check_audio')"></div></template>
-    </b-form-group>
+        class="align-items-center d-flex"
+      >
+        <b-form-checkbox
+          id='bbb_skip_check_audio'
+          v-model='model.bbb_skip_check_audio'
+          :state="fieldState('bbb_skip_check_audio')"
+          :disabled="isBusy || !edit"
+          switch
+        ></b-form-checkbox>
+        <template slot='invalid-feedback'><div v-html="fieldError('bbb_skip_check_audio')"></div></template>
+      </b-form-group>
 
-    <b-button
-      :disabled='isBusy'
-      variant='success'
-      type='submit'
-      v-if="edit"
-      @click="save"
-    >
-      <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
-    </b-button>
+      <b-button
+        :disabled='isBusy'
+        variant='success'
+        type='submit'
+        v-if="edit"
+      >
+        <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
+      </b-button>
+    </b-form>
   </div>
 </template>
 
@@ -72,8 +73,13 @@ export default {
      * Saves the changes of the user to the database by making a api call.
      *
      */
-    save () {
+    save (evt) {
+      if (evt) {
+        evt.preventDefault();
+      }
+
       this.isBusy = true;
+      this.errors = {};
 
       Base.call('users/' + this.model.id, {
         method: 'POST',
@@ -84,11 +90,11 @@ export default {
 
         }
       }).then(response => {
-        this.errors = {};
-
         this.$emit('updateUser', response.data.data);
       }).catch(error => {
-        if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.$emit('notFoundError', error);
+        } else if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           // Validation errors
           this.errors = error.response.data.errors;
         } else if (error.response && error.response.status === env.HTTP_STALE_MODEL) {

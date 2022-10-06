@@ -1,59 +1,63 @@
 <template>
   <div>
-    <b-form-group
-      label-cols-sm='3'
-      :label="$t('settings.users.authentication.change_password.current_password')"
-      label-for='current_password'
-      :state='fieldState("password")'
-      v-if="isOwnUser"
-    >
-      <b-form-input
-        id='current_password'
-        type='password'
-        v-model='current_password'
-        :state='fieldState("current_password")'
-        :disabled="isBusy"
-      ></b-form-input>
-      <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
-    </b-form-group>
-    <b-form-group
-      label-cols-sm='3'
-      :label="$t('settings.users.authentication.change_password.new_password')"
-      label-for='new_password'
-      :state='fieldState("password")'
-    >
-      <b-form-input
-        id='new_password'
-        type='password'
-        v-model='new_password'
-        :state='fieldState("new_password")'
-        :disabled="isBusy"
-      ></b-form-input>
-      <template slot='invalid-feedback'><div v-html="fieldError('new_password')"></div></template>
-    </b-form-group>
-    <b-form-group
-      label-cols-sm='3'
-      :label="$t('settings.users.authentication.change_password.new_password_confirmation')"
-      label-for='new_password_confirmation'
-      :state='fieldState("password_confirmation")'
-    >
-      <b-form-input
-        id='new_password_confirmation'
-        type='password'
-        v-model='new_password_confirmation'
-        :state='fieldState("new_password_confirmation")'
-        :disabled="isBusy"
-      ></b-form-input>
-      <template slot='invalid-feedback'><div v-html="fieldError('new_password_confirmation')"></div></template>
-    </b-form-group>
-    <b-button
-      :disabled='isBusy'
-      variant='success'
-      type='submit'
-      @click="changePassword"
-    >
-      <i class='fa-solid fa-save'></i> {{ $t('settings.users.authentication.change_password.save') }}
-    </b-button>
+    <b-form @submit="changePassword">
+      <b-form-group
+        label-cols-sm='3'
+        :label="$t('settings.users.authentication.change_password.current_password')"
+        label-for='current_password'
+        :state='fieldState("password")'
+        v-if="isOwnUser"
+      >
+        <b-form-input
+          id='current_password'
+          type='password'
+          v-model='current_password'
+          required
+          :state='fieldState("current_password")'
+          :disabled="isBusy"
+        ></b-form-input>
+        <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm='3'
+        :label="$t('settings.users.authentication.change_password.new_password')"
+        label-for='new_password'
+        :state='fieldState("password")'
+      >
+        <b-form-input
+          id='new_password'
+          type='password'
+          v-model='new_password'
+          required
+          :state='fieldState("new_password")'
+          :disabled="isBusy"
+        ></b-form-input>
+        <template slot='invalid-feedback'><div v-html="fieldError('new_password')"></div></template>
+      </b-form-group>
+      <b-form-group
+        label-cols-sm='3'
+        :label="$t('settings.users.authentication.change_password.new_password_confirmation')"
+        label-for='new_password_confirmation'
+        :state='fieldState("password_confirmation")'
+      >
+        <b-form-input
+          id='new_password_confirmation'
+          type='password'
+          v-model='new_password_confirmation'
+          required
+          :state='fieldState("new_password_confirmation")'
+          :disabled="isBusy"
+        ></b-form-input>
+        <template slot='invalid-feedback'><div v-html="fieldError('new_password_confirmation')"></div></template>
+      </b-form-group>
+      <b-button
+        :disabled='isBusy'
+        variant='success'
+        type='submit'
+      >
+        <i class='fa-solid fa-save'></i> {{ $t('settings.users.authentication.change_password.save') }}
+      </b-button>
+    </b-form>
   </div>
 </template>
 
@@ -87,7 +91,11 @@ export default {
     }
   },
   methods: {
-    changePassword () {
+    changePassword (evt) {
+      if (evt) {
+        evt.preventDefault();
+      }
+
       this.isBusy = true;
       this.errors = {};
       Base.call('users/' + this.user.id + '/password', {
@@ -99,11 +107,12 @@ export default {
         }
       })
         .then(response => {
-          // this.flashMessage(this.$t('settings.users.changePassword.success'));
           this.$emit('updateUser', response.data.data);
         })
         .catch(error => {
-          if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+          if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+            this.$emit('notFoundError', error);
+          } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
           } else {
             Base.error(error, this.$root, error.message);

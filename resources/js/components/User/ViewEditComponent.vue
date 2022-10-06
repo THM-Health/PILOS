@@ -1,29 +1,52 @@
 <template>
   <div>
-    <b-tabs v-if="busyCounter===0" fill nav-wrapper-class="mb-3">
+    <b-tabs v-if="!isBusy && user" fill nav-wrapper-class="mb-3">
       <b-tab lazy>
         <template #title>
           <i class="fa-solid fa-user"></i> {{ $t('settings.users.tabs.profile') }}
         </template>
-        <profile-component :user="user" :edit="!viewOnly" @updateUser="updateUser" @staleError="handleStaleError" ></profile-component>
+        <profile-component
+          :user="user"
+          :edit="!viewOnly"
+          @updateUser="updateUser"
+          @staleError="handleStaleError"
+          @notFoundError="handleNotFoundError"
+        ></profile-component>
       </b-tab>
       <b-tab lazy>
         <template #title>
           <i class="fa-solid fa-envelope"></i> {{ $t('settings.users.tabs.email') }}
         </template>
-        <email-settings-component :user="user" :edit="!viewOnly" :is-own-user="isOwnUser" @updateUser="updateUser"></email-settings-component>
+        <email-settings-component
+          :user="user"
+          :edit="!viewOnly"
+          @updateUser="updateUser"
+          @notFoundError="handleNotFoundError"
+        ></email-settings-component>
       </b-tab>
       <b-tab lazy>
         <template #title>
           <i class="fa-solid fa-user-shield"></i> {{ $t('settings.users.tabs.authentication') }}
         </template>
-        <authentication-settings-component :user="user" :edit="!viewOnly" @updateUser="updateUser" @staleError="handleStaleError"></authentication-settings-component>
+        <authentication-settings-component
+          :user="user"
+          :edit="!viewOnly"
+          @updateUser="updateUser"
+          @staleError="handleStaleError"
+          @notFoundError="handleNotFoundError"
+        ></authentication-settings-component>
       </b-tab>
       <b-tab lazy>
         <template #title>
           <i class="fa-solid fa-user-gear"></i> {{ $t('settings.users.tabs.other_settings') }}
         </template>
-        <other-settings-component :user="user" :edit="!viewOnly" @updateUser="updateUser" @staleError="handleStaleError" ></other-settings-component>
+        <other-settings-component
+          :user="user"
+          :edit="!viewOnly"
+          @updateUser="updateUser"
+          @staleError="handleStaleError"
+          @notFoundError="handleNotFoundError"
+        ></other-settings-component>
       </b-tab>
     </b-tabs>
 
@@ -56,7 +79,6 @@ import OtherSettingsComponent from './OtherSettingsComponent';
 import EmailSettingsComponent from './EmailSettingsComponent';
 import ProfileComponent from './ProfileComponent';
 import Base from '../../api/base';
-import PermissionService from '../../services/PermissionService';
 import env from '../../env';
 
 export default {
@@ -69,20 +91,8 @@ export default {
   },
   data () {
     return {
-      user: {
-        firstname: null,
-        lastname: null,
-        username: null,
-        email: null,
-        new_password: null,
-        new_password_confirmation: null,
-        user_locale: null,
-        bbb_skip_check_audio: false,
-        timezone: null,
-        image: null,
-        roles: []
-      },
-      busyCounter: 0,
+      user: null,
+      isBusy: false,
       staleError: {}
     };
   },
@@ -91,7 +101,6 @@ export default {
       type: [String, Number],
       required: true
     },
-
     viewOnly: {
       type: Boolean,
       required: true
@@ -101,20 +110,12 @@ export default {
       default: false
     }
   },
-  computed: {
-    /**
-     * Boolean that indicates, whether any request for this form is pending or not.
-     */
-    isBusy () {
-      return this.busyCounter > 0;
+  methods: {
+    handleNotFoundError (error) {
+      this.$router.push({ name: 'settings.users' });
+      Base.error(error, this.$root, error.message);
     },
 
-    isOwnUser () {
-      return PermissionService.currentUser.id === this.user.id;
-    }
-
-  },
-  methods: {
     handleStaleError (error) {
       this.staleError = error;
       this.$refs['stale-user-modal'].show();
@@ -138,8 +139,11 @@ export default {
       this.$refs['stale-user-modal'].hide();
     },
 
+    /**
+     * Load user from the API.
+     */
     loadUser () {
-      this.busyCounter++;
+      this.isBusy = true;
 
       Base.call('users/' + this.id).then(response => {
         this.user = response.data.data;
@@ -148,30 +152,19 @@ export default {
         });
         this.$emit('updateUser', this.user);
       }).catch(error => {
-        // If user is not found and is the current user, redirect to login
-        if (PermissionService.currentUser && this.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$store.dispatch('session/logout').then(() => {
-            this.$router.push({ name: 'home' });
-          });
-        } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
+        if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
           this.$router.push({ name: 'settings.users' });
         }
 
         Base.error(error, this.$root, error.message);
       }).finally(() => {
-        this.busyCounter--;
+        this.isBusy = false;
       });
     }
   },
-  created () {
-    if (this.id !== 'new') {
-      this.loadUser();
-    }
+  mounted () {
+    this.loadUser();
   }
 };
 
 </script>
-
-<style scoped>
-
-</style>

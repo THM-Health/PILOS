@@ -11,7 +11,7 @@
           </h5>
           <small
             v-if="!session.current"
-            :title="$t('settings.users.sessions.lastActive')"
+            :title="$t('settings.users.authentication.sessions.last_active')"
             v-b-tooltip.hover
             v-tooltip-hide-click
           >

@@ -102,8 +102,9 @@
                     :title="$t('rooms.settings.security.generateAccessCode')"
                     v-b-tooltip.hover
                     v-tooltip-hide-click
-                  ><i class="fa-solid fa-dice"></i
-                  ></b-button>
+                  >
+                    <i class="fa-solid fa-dice"></i>
+                  </b-button>
                 </b-input-group-prepend>
                 <b-form-input
                   id="settings-accessCode"
@@ -406,7 +407,7 @@
 import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
-import RoomTypeSelect from '../RoomType/RoomTypeSelect';
+import RoomTypeSelect from '../Inputs/RoomTypeSelect';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
 import { mapGetters } from 'vuex';

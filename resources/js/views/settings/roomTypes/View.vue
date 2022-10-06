@@ -170,7 +170,7 @@
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='secondary'>
                       {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
-                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
+                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.remove_role')"></i></span>
                     </b-badge>
                   </h5>
                 </template>

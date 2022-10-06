@@ -52,7 +52,7 @@ import Base from '../../api/base';
 import store from '../../store';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from './../../env.js';
-import RoomTypeSelect from '../RoomType/RoomTypeSelect';
+import RoomTypeSelect from '../Inputs/RoomTypeSelect';
 import _ from 'lodash';
 
 export default {

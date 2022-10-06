@@ -37,7 +37,7 @@ export default {
         note: 'X: Nutzer ist nicht Mitglied dieser Rolle'
       }
     },
-
+    select_roles: 'Bitte wählen Sie mindestens eine Rolle aus',
     default: 'Standard',
     nodata: 'Es sind keine Rollen vorhanden!',
 
@@ -80,9 +80,14 @@ export default {
     firstname: 'Vorname',
     lastname: 'Nachname',
     password: 'Passwort',
+    roles: 'Rollen',
+    remove_role: 'Rolle entfernen',
     current_password: 'Aktuelles Passwort',
     new_password: 'Neues Passwort',
     new_password_confirmation: 'Neues Passwort bestätigen',
+    show_password: 'Passwort anzeigen',
+    hide_password: 'Passwort verbergen',
+
     user_locale: 'Sprache',
 
     base_data: 'Stammdaten',
@@ -120,10 +125,7 @@ export default {
       current_password: 'Aktuelles Passwort',
       email: 'E-Mail',
       save: 'E-Mail Adresse ändern',
-      verifyEmail: {
-        title: 'Verifizierung erforderlich',
-        message: 'Es wurde eine Bestätigungsmail an die neue Adresse gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.'
-      }
+      validation_required: 'Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.'
     },
 
     authentication: {
@@ -139,9 +141,7 @@ export default {
       roles_and_perm: {
         title: 'Rollen and Berechtigungen',
         roles: 'Rollen',
-        select_roles: 'Bitte wählen Sie mindestens eine Rolle aus',
-        select_locale: 'Bitte wählen Sie eine Sprache aus',
-        removeRole: 'Rolle entfernen'
+        select_locale: 'Bitte wählen Sie eine Sprache aus'
       },
 
       sessions: {
