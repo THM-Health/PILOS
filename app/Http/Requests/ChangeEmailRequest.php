@@ -19,7 +19,7 @@ class ChangeEmailRequest extends FormRequest
             'email'    => [ 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where(function ($query) {
                 return $query->where('authenticator', '=', 'users')->where('id', '!=', $this->user->id);
             })],
-            'current_password' => [ $this->user->is(Auth::user()) ? 'current_password' : '' ]
+            'current_password' => $this->user->is(Auth::user()) ? 'required|current_password' : ''
         ];
     }
 }
