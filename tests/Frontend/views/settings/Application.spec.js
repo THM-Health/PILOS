@@ -15,7 +15,6 @@ import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
 import { waitMoxios, createContainer } from '../../helper';
-import * as https from 'https';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
