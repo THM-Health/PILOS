@@ -265,7 +265,7 @@ return [
         'color'                              => 'Color',
         'allow_listing'                      => 'Room search allowed',
         'listed'                             => 'Include in room search',
-        'password_self_reset_enabled'        => 'Give registered users the possibility to reset their password',
+        'password_self_reset_enabled'        => 'Give registered users the possibility to reset and change their password',
         'timezone'                           => 'Timezone',
         'default_timezone'                   => 'Default timezone',
         'default_presentation'               => 'Default presentation',

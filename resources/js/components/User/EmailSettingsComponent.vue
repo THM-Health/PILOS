@@ -7,7 +7,7 @@
         :label="$t('settings.users.email.current_password')"
         label-for='current_password'
         :state='fieldState("password")'
-        v-if="edit && isOwnUser"
+        v-if="edit && isOwnUser && canUpdateAttributes"
       >
         <b-form-input
           id='current_password'
@@ -31,7 +31,7 @@
           v-model='email'
           required
           :state='fieldState("email")'
-          :disabled="isBusy || !edit"
+          :disabled="isBusy || !edit || !canUpdateAttributes"
         ></b-form-input>
         <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
 
@@ -43,7 +43,7 @@
       </b-form-group>
       <b-button
         :disabled='isBusy || email === this.user.email'
-        v-if="edit"
+        v-if="edit && canUpdateAttributes"
         variant='success'
         type='submit'
       >
@@ -68,7 +68,8 @@ export default {
       email: '',
       isBusy: false,
       validationRequiredEmail: null,
-      errors: {}
+      errors: {},
+      canUpdateAttributes: false
     };
   },
   props: {
@@ -89,6 +90,7 @@ export default {
   mounted () {
     this.email = this.user.email;
     this.validationRequiredEmail = null;
+    this.canUpdateAttributes = PermissionService.can('updateAttributes', this.user);
   },
   methods: {
     save: function (evt) {

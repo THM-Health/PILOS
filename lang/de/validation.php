@@ -263,7 +263,7 @@ return [
         'color'                              => 'Farbe',
         'allow_listing'                      => 'Raumsuche erlaubt',
         'listed'                             => 'In Raumsuche einschließen',
-        'password_self_reset_enabled'        => 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+        'password_self_reset_enabled'        => 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen und zu ändern',
         'timezone'                           => 'Zeitzone',
         'default_timezone'                   => 'Standardzeitzone',
         'default_presentation'               => 'Standard Präsentation',

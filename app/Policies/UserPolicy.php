@@ -95,6 +95,20 @@ class UserPolicy
     }
 
     /**
+     * Returns true if the user has permission to change/reset user password.
+     *
+     * @param  User $user
+     * @param  User $model
+     * @return bool
+     */
+    public function updatePassword(User $user, User $model)
+    {
+        return $model->authenticator === 'users'
+            && $user->can('update', $model)
+            && (setting('password_self_reset_enabled') || $model->id !== $user->id);
+    }
+
+    /**
      * Returns true if the user has the permission to reset the password.
      *
      * @param  User $user

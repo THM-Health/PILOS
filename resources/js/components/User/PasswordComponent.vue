@@ -108,6 +108,7 @@ export default {
       })
         .then(response => {
           this.$emit('updateUser', response.data.data);
+          this.flashMessage.success(this.$t('settings.users.authentication.change_password.success'));
         })
         .catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {

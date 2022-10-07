@@ -103,7 +103,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('users/search', [UserController::class,'search'])->name('users.search');
         Route::apiResource('users', UserController::class);
         Route::put('users/{user}/email', [UserController::class,'changeEmail'])->name('users.email.change')->middleware('can:updateAttributes,user');
-        Route::put('users/{user}/password', [UserController::class,'changePassword'])->name('users.password.change')->middleware('can:updateAttributes,user');
+        Route::put('users/{user}/password', [UserController::class,'changePassword'])->name('users.password.change')->middleware('can:changePassword,user');
         Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware('can:resetPassword,user');
 
         Route::post('verify_email', [UserController::class,'verifyEmail'])->name('users.email.verify');

@@ -11,7 +11,7 @@
       ></roles-and-permissions-component>
     </div>
 
-    <div v-if="edit && user.authenticator === 'users'" class="mt-3">
+    <div v-if="edit && user.authenticator === 'users' && canChangePassword" class="mt-3">
       <hr>
       <h4>{{ $t('settings.users.authentication.change_password.title') }}</h4>
       <password-component
@@ -34,6 +34,8 @@ import SessionsComponent from './SessionsComponent';
 import PermissionService from '../../services/PermissionService';
 import PasswordComponent from './PasswordComponent';
 import RolesAndPermissionsComponent from './RolesAndPermissionsComponent';
+import { mapGetters } from 'vuex';
+
 export default {
   name: 'AuthenticationSettingsComponent',
   components: { PasswordComponent, RolesAndPermissionsComponent, SessionsComponent },
@@ -48,8 +50,15 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      settings: 'session/settings'
+    }),
+
     isOwnUser () {
       return PermissionService.currentUser.id === this.user.id;
+    },
+    canChangePassword () {
+      return !this.isOwnUser || this.settings('password_self_reset_enabled');
     }
   },
   methods: {

@@ -136,7 +136,11 @@ export default {
         current_password: 'Aktuelles Passwort',
         new_password: 'Neues Passwort',
         new_password_confirmation: 'Neues Passwort bestätigen',
-        save: 'Passwort ändern'
+        save: 'Passwort ändern',
+        success: {
+          message: 'Das Passwort wurde erfolgreich geändert.',
+          title: 'Passwort geändert'
+        }
       },
 
       roles_and_perm: {
@@ -293,7 +297,7 @@ export default {
     },
 
     userSettings: 'Benutzereinstellungen',
-    passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen',
+    passwordSelfResetEnabled: 'Registrierten Nutzern ermöglichen das Passwort zurückzusetzen und zu ändern',
     defaultTimezone: 'Standardzeitzone',
 
     roomTokenExpiration: {
