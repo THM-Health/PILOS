@@ -563,6 +563,13 @@ class UserTest extends TestCase
                 return $notifiable->routes['mail'] === [$email => $user->fullname];
             }
         );
+
+        // Try to change email for different authenticator
+        $user->authenticator = 'ldap';
+        $user->username = $this->faker->unique()->userName;
+        $user->save();
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertForbidden();
     }
 
     /**
@@ -595,6 +602,13 @@ class UserTest extends TestCase
                 return $notifiable->routes['mail'] === [$email => $user->fullname];
             }
         );
+
+        // Try to change email for user with different authenticator
+        $user->authenticator = 'ldap';
+        $user->username = $this->faker->unique()->userName;
+        $user->save();
+        $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertForbidden();
 
         // Check if admin can change own email without verification
         $newAdminEmail = $this->faker->email;
@@ -664,6 +678,13 @@ class UserTest extends TestCase
 
         // Check if notification is sent to user
         Notification::assertSentTo($user, PasswordChanged::class);
+
+        // Try to change password for user with different authenticator
+        $user->authenticator = 'ldap';
+        $user->username = $this->faker->unique()->userName;
+        $user->save();
+        $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertForbidden();
     }
 
     /**
@@ -705,6 +726,13 @@ class UserTest extends TestCase
 
         // Check if notification is sent to user
         Notification::assertSentTo($user, PasswordChanged::class);
+
+        // Try to change password for user with different authenticator
+        $user->authenticator = 'ldap';
+        $user->username = $this->faker->unique()->userName;
+        $user->save();
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertForbidden();
 
         // Check if admin cannot change own password if self reset is disabled
         $changes = [
