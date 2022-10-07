@@ -101,7 +101,7 @@ class UserPolicy
      * @param  User $model
      * @return bool
      */
-    public function updatePassword(User $user, User $model)
+    public function changePassword(User $user, User $model)
     {
         return $model->authenticator === 'users'
             && $user->can('update', $model)

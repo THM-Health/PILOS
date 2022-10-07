@@ -32,6 +32,13 @@ class VerifyEmail extends Notification
         return ['mail'];
     }
 
+    public function getVerificationUrl()
+    {
+        return url('/verify_email?') . \Arr::query([
+                'token' => $this->token->getPlainTextToken(),
+            ]);
+    }
+
     /**
      * Get the mail representation of the notification.
      *
@@ -45,14 +52,10 @@ class VerifyEmail extends Notification
             ->timezone($this->timezone)
             ->isoFormat('LLLL');
 
-        $url = url('/verify_email?') . \Arr::query([
-                'token' => $this->token->getPlainTextToken(),
-            ]);
-
         return (new MailMessage)
             ->subject(__('mail.verify_email.subject'))
             ->line(__('mail.verify_email.description'))
-            ->action(__('mail.verify_email.action'), $url)
+            ->action(__('mail.verify_email.action'), $this->getVerificationUrl())
             ->line(__('mail.verify_email.expire', ['expireDateTime' => $this->expireDateTime]))
             ->markdown('vendor.notifications.email', ['name' => $this->token->getVerifyEmail()->user->fullname]);
     }

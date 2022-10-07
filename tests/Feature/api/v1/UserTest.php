@@ -6,12 +6,18 @@ use App\Enums\CustomStatusCodes;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Notifications\EmailChanged;
+use App\Notifications\PasswordChanged;
 use App\Notifications\UserWelcome;
+use App\Notifications\VerifyEmail;
 use Carbon\Carbon;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
@@ -464,6 +470,254 @@ class UserTest extends TestCase
             'username'      => $ldapUserToUpdate->username,
             'authenticator' => 'ldap'
         ]);
+    }
+
+    /**
+     * Test if user can change his own email and verify it
+     */
+    public function testChangeEmail()
+    {
+        Notification::fake();
+
+        $password  = $this->faker->password;
+        $email     = $this->faker->email;
+        $user      = User::factory()->create(['password' => Hash::make($password), 'email' => $email]);
+        $otherUser = User::factory()->create();
+
+        $newEmail = $this->faker->email;
+        $changes  = [
+            'email'      => $newEmail,
+            'updated_at' => $user->updated_at,
+        ];
+
+        // Check as unauthenticated user
+        $this->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertUnauthorized();
+
+        // Check as other authenticated user
+        $this->actingAs($otherUser)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertForbidden();
+
+        // Check without permission to change own email
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertForbidden();
+
+        // Give user permission to change own email
+        $role       = Role::factory()->create();
+        $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
+        $role->permissions()->attach($permission->id);
+        $user->roles()->attach($role);
+
+        // Check with missing password
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors(['current_password']);
+
+        // Check with wrong password
+        $changes['current_password'] = 'wrong_password';
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors(['current_password']);
+
+        // Check with correct password
+        $changes['current_password'] = $password;
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(202);
+        $user->refresh();
+        // Check if email is not changed yet
+        $this->assertSame($email, $user->email);
+
+        $verificationUrl = null;
+
+        Notification::assertSentOnDemand(
+            VerifyEmail::class,
+            function ($notification, $channels, $notifiable) use ($user, $newEmail, &$verificationUrl) {
+                $verificationUrl = $notification->getVerificationUrl();
+
+                return $notifiable->routes['mail'] === [$newEmail => $user->fullname];
+            }
+        );
+
+        $query = [];
+        parse_str(parse_url($verificationUrl, PHP_URL_QUERY), $query);
+
+        // Try to verify email as unauthenticated user
+        Auth::logout();
+        $this->postJson(route('api.v1.users.email.verify'), ['token' => $query['token']])
+            ->assertUnauthorized();
+
+        // Try to verify email as other authenticated user
+        $this->actingAs($otherUser)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token']])
+            ->assertStatus(422);
+
+        // Try to verify email as correct user
+        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token']])
+            ->assertSuccessful();
+
+        // Check if email is changed
+        $user->refresh();
+        $this->assertSame($newEmail, $user->email);
+
+        // Check if notification is sent to old email
+        Notification::assertSentOnDemand(
+            EmailChanged::class,
+            function ($notification, $channels, $notifiable) use ($user, $email) {
+                return $notifiable->routes['mail'] === [$email => $user->fullname];
+            }
+        );
+    }
+
+    /**
+     * Test if admin can change email of another user without verification
+     */
+    public function testChangeEmailAdmin()
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        Notification::fake();
+        $email = $this->faker->email;
+        $user  = User::factory()->create([ 'email' => $email ]);
+
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first());
+
+        $newEmail = $this->faker->email;
+        $changes  = [
+            'email'      => $newEmail
+        ];
+        $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+        $this->assertSame($newEmail, $user->email);
+
+        // Check if notification is sent to old email
+        Notification::assertSentOnDemand(
+            EmailChanged::class,
+            function ($notification, $channels, $notifiable) use ($user, $email) {
+                return $notifiable->routes['mail'] === [$email => $user->fullname];
+            }
+        );
+
+        // Check if admin can change own email without verification
+        $newAdminEmail = $this->faker->email;
+        $changes       = [
+            'email'      => $newAdminEmail
+        ];
+        $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $admin]), $changes)
+            ->assertJsonValidationErrors('current_password');
+    }
+
+    /**
+     * Test if user can change his own password
+     */
+    public function testChangePassword()
+    {
+        Notification::fake();
+        setting(['password_self_reset_enabled' => false]);
+
+        $password    = $this->faker->password;
+        $newPassword = '!SuperSecretPassword123';
+        $user        = User::factory()->create(['password' => Hash::make($password)]);
+        $otherUser   = User::factory()->create();
+
+        $changes = [
+            'new_password'              => $newPassword,
+            'new_password_confirmation' => $newPassword,
+        ];
+
+        // Check as unauthenticated user
+        $this->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertUnauthorized();
+
+        // Check as other authenticated user
+        $this->actingAs($otherUser)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertForbidden();
+
+        // Check without permission to change own password
+        $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertForbidden();
+
+        // Give user permission to change own password
+        setting(['password_self_reset_enabled' => true]);
+
+        // Check with missing password
+        $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors('current_password');
+
+        // Check with wrong password
+        $changes['current_password'] = 'wrong_password';
+        $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors('current_password');
+
+        // Check with invalid password confirmation
+        $changes['current_password']          = $password;
+        $changes['new_password_confirmation'] = 'wrong_password';
+        $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors('new_password');
+
+        // Check with correct password confirmation
+        $changes['new_password_confirmation'] = $newPassword;
+        $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertSuccessful();
+
+        // Check if password is changed
+        $user->refresh();
+        $this->assertTrue(Hash::check($newPassword, $user->password));
+
+        // Check if notification is sent to user
+        Notification::assertSentTo($user, PasswordChanged::class);
+    }
+
+    /**
+     * Test if admin can change password of another user
+     */
+    public function testChangePasswordAdmin()
+    {
+        Notification::fake();
+        setting(['password_self_reset_enabled' => false]);
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $newPassword = '!SuperSecretPassword123';
+        $user        = User::factory()->create();
+
+        // Create admin user
+        $admin = User::factory()->create();
+        $admin->roles()->attach(Role::where('name', 'admin')->first());
+
+        $changes = [];
+
+        // Check with empty password
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors('new_password');
+
+        // Check with invalid password confirmation
+        $changes['new_password']              = $newPassword;
+        $changes['new_password_confirmation'] = 'wrong_password';
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors('new_password');
+
+        // Check with correct password confirmation
+        $changes['new_password_confirmation'] = $newPassword;
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertSuccessful();
+
+        // Check if password is changed
+        $user->refresh();
+        $this->assertTrue(Hash::check($newPassword, $user->password));
+
+        // Check if notification is sent to user
+        Notification::assertSentTo($user, PasswordChanged::class);
+
+        // Check if admin cannot change own password if self reset is disabled
+        $changes = [
+            'new_password'              => $newPassword,
+            'new_password_confirmation' => $newPassword,
+        ];
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $admin]), $changes)
+            ->assertForbidden();
+
+        // Check if admin can change own password if self reset is enabled, but also has to provide current password
+        setting(['password_self_reset_enabled' => true]);
+        $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $admin]), $changes)
+            ->assertJsonValidationErrors('current_password');
     }
 
     public function testUpdateNewImage()

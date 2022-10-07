@@ -269,7 +269,7 @@ class UserController extends Controller
         if ($success) {
             return response('', 200);
         } else {
-            return response('', 400);
+            return response('', 422);
         }
     }
 }
