@@ -802,11 +802,9 @@ class SettingsTest extends TestCase
             'enabled' => 'foo'
         ];
         $payload['room_token_expiration'] = 1440;
-        $payload                          = [
-            'help_url'              => '',
-            'legal_notice_url'      => '',
-            'privacy_policy_url'    => ''
-        ];
+        $payload['help_url']              = '';
+        $payload['legal_notice_url']      = '';
+        $payload[ 'privacy_policy_url']   = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
             ->assertStatus(422)

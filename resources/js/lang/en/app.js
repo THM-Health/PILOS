@@ -46,8 +46,7 @@ export default {
 
   footer: {
     legalNotice: 'Legal notice',
-    privacyPolicy: 'Privacy policy',
-    separator: '|'
+    privacyPolicy: 'Privacy policy'
   },
 
   roles: {
