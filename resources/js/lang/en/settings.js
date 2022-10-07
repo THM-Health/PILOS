@@ -36,6 +36,7 @@ export default {
         note: 'X: User is not member of this role'
       }
     },
+    select_roles: 'Please select at least one role.',
     default: 'Default',
     nodata: 'No roles found!',
 
@@ -57,6 +58,7 @@ export default {
 
     nodata: 'No users found!',
     nodataFiltered: 'For the filter query no users were found!',
+    role_filter: 'Select role for filtering',
 
     image: {
       title: 'Profile picture',
@@ -72,25 +74,26 @@ export default {
       }
     },
 
+    id: 'ID',
+    firstname: 'Firstname',
+    lastname: 'Lastname',
+    password: 'Password',
+    roles: 'Roles',
+    remove_role: 'Remove role',
+    select_locale: 'Please select a language',
+    current_password: 'Current password',
+    new_password: 'New password',
+    new_password_confirmation: 'New password confirmation',
+    show_password: 'Show password',
+    hide_password: 'Hide password',
+
+    user_locale: 'Language',
+
     base_data: 'Base data',
-    room_settings: 'Custom room settings',
-    skip_check_audio: 'Disable echo audio test',
 
     generate_password: 'Generate password',
     generate_password_description: 'A generated password will be set and an email with a reset link will be sent to the user. The user will be automatically deleted, if he doesn\'t change his password in the given time.',
 
-    id: 'ID',
-    firstname: 'Firstname',
-    lastname: 'Lastname',
-    email: 'E-Mail',
-    password: 'Password',
-    password_confirmation: 'Password confirmation',
-    user_locale: 'Language',
-    roles: 'Roles',
-    role_filter: 'Select role for filtering',
-    select_roles: 'Please select at least one role',
-    select_locale: 'Please select a language',
-    removeRole: 'Remove role',
     authenticator: {
       title: 'Authentication Type',
       users: 'Registered User',
@@ -107,6 +110,54 @@ export default {
       item: 'Reset password for the user {firstname} {lastname}',
       confirm: 'Are you really want to reset the password for {firstname} {lastname}?',
       title: 'Reset password?'
+    },
+
+    tabs: {
+      profile: 'Base data',
+      email: 'E-Mail',
+      authentication: 'Security',
+      other_settings: 'Other settings'
+    },
+
+    email: {
+      title: 'E-Mail',
+      current_password: 'Current password',
+      email: 'E-Mail',
+      save: 'Change E-Mail',
+      validation_required: 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.'
+    },
+
+    authentication: {
+
+      change_password: {
+        title: 'Change password',
+        current_password: 'Current password',
+        new_password: 'New password',
+        new_password_confirmation: 'New password confirmation',
+        save: 'Change password'
+      },
+
+      roles_and_perm: {
+        title: 'Roles and permissions',
+        roles: 'Roles'
+      },
+
+      sessions: {
+        title: 'Active sessions',
+        unknown: 'Unknown',
+        current: 'Current session',
+        browser: 'Browser',
+        last_active: 'Last active',
+        ip: 'IP',
+        logout_all: 'Logout all other sessions'
+      }
+    },
+
+    other_settings: {
+      bbb: {
+        title: 'BigBlueButton',
+        skip_check_audio: 'Disable echo audio test'
+      }
     },
 
     passwordResetSuccess: 'Password reset mail was successfully send to {mail}!',

@@ -32,6 +32,11 @@ export default {
     logout: {
       message: 'You have been successfully logged out!',
       title: 'Successful logout'
+    },
+
+    logoutAllOthers: {
+      message: 'The other devices have been successfully logged out!',
+      title: 'Successful logout'
     }
   }
 };

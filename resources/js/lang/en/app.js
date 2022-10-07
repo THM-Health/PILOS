@@ -143,6 +143,12 @@ export default {
     tooLarge: 'The selected file is too large.'
   },
 
+  verifyEmail: {
+    title: 'Email verification',
+    success: 'Your email address was successfully verified!',
+    fail: 'Your email address could not be verified!'
+  },
+
   buttonStyles: {
     primary: 'Primary',
     secondary: 'Secondary',

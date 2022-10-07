@@ -287,7 +287,7 @@ export default {
         { key: 'id', label: this.$t('settings.users.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
         { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'email', label: this.$t('settings.users.email.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true },
         { key: 'roles', label: this.$t('settings.users.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
       ];

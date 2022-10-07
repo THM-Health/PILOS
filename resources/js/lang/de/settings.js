@@ -82,6 +82,7 @@ export default {
     password: 'Passwort',
     roles: 'Rollen',
     remove_role: 'Rolle entfernen',
+    select_locale: 'Wählen Sie eine Sprache aus',
     current_password: 'Aktuelles Passwort',
     new_password: 'Neues Passwort',
     new_password_confirmation: 'Neues Passwort bestätigen',
@@ -140,8 +141,7 @@ export default {
 
       roles_and_perm: {
         title: 'Rollen and Berechtigungen',
-        roles: 'Rollen',
-        select_locale: 'Bitte wählen Sie eine Sprache aus'
+        roles: 'Rollen'
       },
 
       sessions: {
