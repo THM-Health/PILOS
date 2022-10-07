@@ -230,7 +230,6 @@ class UserController extends Controller
     {
         // Email changed
         if ($user->email != $request->email) {
-
             // User is changing his own email, require verification
             if (Auth::user()->is($user)) {
                 $emailVerificationService = new EmailVerificationService($user);

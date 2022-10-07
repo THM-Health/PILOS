@@ -148,7 +148,6 @@ class ImportGreenlightTest extends TestCase
 
     protected function testCommand($roomAuth, ?string $prefix = null)
     {
-
         // password for all users
         $password = Hash::make('secret');
 

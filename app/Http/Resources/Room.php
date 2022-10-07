@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Gate;
 
 class Room extends JsonResource
 {
-
     /**
      * @var bool is user authenticated (has valid access code, member or owner)
      */

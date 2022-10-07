@@ -6,7 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ServerPool extends JsonResource
 {
-
     /**
      * @var bool Indicates whether the servers should be included or not.
      */
