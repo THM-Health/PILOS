@@ -1,9 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use App\Traits\AddsModelNameTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -184,7 +184,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Role')->withPivot('automatic')->using('App\RoleUser');
+        return $this->belongsToMany('App\Models\Role')->withPivot('automatic')->using('App\Models\RoleUser');
     }
 
     /**

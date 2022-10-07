@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Meeting;
-use App\Room;
-use App\Server;
+use App\Models\Meeting;
+use App\Models\Room;
+use App\Models\Server;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MeetingFactory extends Factory

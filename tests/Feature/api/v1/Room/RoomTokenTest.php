@@ -3,10 +3,10 @@
 namespace Tests\Feature\api\v1\Room;
 
 use App\Enums\RoomUserRole;
-use App\Role;
-use App\Room;
-use App\RoomToken;
-use App\User;
+use App\Models\Role;
+use App\Models\Room;
+use App\Models\RoomToken;
+use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

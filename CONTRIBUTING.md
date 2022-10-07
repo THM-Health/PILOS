@@ -37,7 +37,7 @@ composer install --ignore-platform-reqs
 
 Next you should set an alias for sail.
 ```bash
-alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+alias sail='[ -f sail ] && bash sail || bash ./sail'
 ```
 
 You can start the application with: `sail up -d` 

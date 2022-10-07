@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Console;
 
-use App\Meeting;
-use App\MeetingStat;
-use App\Server;
-use App\ServerStat;
+use App\Models\Meeting;
+use App\Models\MeetingStat;
+use App\Models\Server;
+use App\Models\ServerStat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

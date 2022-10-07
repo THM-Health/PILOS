@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [v2.0.0-alpha.2] - 2022-10-05
+### Fixed
+- **Breaking:** Wrong database migration filenames ([#271],[#272])
+- Missing PostgreSQL driver in docker image ([#275],[#276])
+
+## [v2.0.0-alpha.1] - 2022-09-23
 
 ### Added
 - **Breaking:** Config option to disable LDAP (disabled by default) ([#236],[#237])
@@ -13,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Override welcome page, feature component and footer with custom code ([#234],[#235],[#249])
 - OpenLDAP and phpLDAPadmin to local dev environment ([#225],[#250])
 - Meeting running indicator to own rooms page and find room / all rooms list ([#253],[#258])
+- Dockerfile for production deployment ([#262],[#266])
+- Default user role on fresh installation ([#267],[#268])
 
 ### Changed
 - Upgrade to Laravel 9 ([#226],[#227])
@@ -25,12 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** API attributes and parameters naming convention ([#259],[#260])
 - Random room polling interval ([#229],[#230])
 - Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
+- Restructure/refactor code to service classes ([#248])
 - Use application name in join room link ([#249])
 
 ### Fixed
 - **Breaking:** Database column inconsistencies ([#241],[#242])
 - Tooltip covering view and edit button in server pool overview ([#245],[#246])
 - Tooltip not hiding ([#252],[#256])
+- Default profile image not shown on new user page ([#264],[#265])
 
 ### Removed
 - **Breaking:** .env setting MIX_FRONTEND_BASE_URL ([#243],[#244])
@@ -334,6 +344,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#244]: https://github.com/THM-Health/PILOS/pull/244
 [#245]: https://github.com/THM-Health/PILOS/issues/245
 [#246]: https://github.com/THM-Health/PILOS/pull/246
+[#248]: https://github.com/THM-Health/PILOS/pull/248
 [#249]: https://github.com/THM-Health/PILOS/pull/249
 [#250]: https://github.com/THM-Health/PILOS/pull/250
 [#252]: https://github.com/THM-Health/PILOS/issues/252
@@ -344,8 +355,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#258]: https://github.com/THM-Health/PILOS/pull/258
 [#259]: https://github.com/THM-Health/PILOS/issues/259
 [#260]: https://github.com/THM-Health/PILOS/pull/260
+[#262]: https://github.com/THM-Health/PILOS/pull/262
+[#264]: https://github.com/THM-Health/PILOS/issues/264
+[#265]: https://github.com/THM-Health/PILOS/pull/265
+[#266]: https://github.com/THM-Health/PILOS/issues/266
+[#267]: https://github.com/THM-Health/PILOS/issues/267
+[#268]: https://github.com/THM-Health/PILOS/pull/268
+[#271]: https://github.com/THM-Health/PILOS/issues/271
+[#272]: https://github.com/THM-Health/PILOS/pull/272
+[#273]: https://github.com/THM-Health/PILOS/pull/273
+[#275]: https://github.com/THM-Health/PILOS/issues/275
+[#276]: https://github.com/THM-Health/PILOS/pull/276
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v1.9.5...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -363,3 +385,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
 [1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4
 [1.9.5]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.5
+[v2.0.0-alpha.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.1
+[v2.0.0-alpha.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.2

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\RoomType;
-use App\ServerPool;
+use App\Models\RoomType;
+use App\Models\ServerPool;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RoomTypeFactory extends Factory

@@ -103,7 +103,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('users', UserController::class);
         Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware('can:resetPassword,user');
 
-        Route::post('servers/check', [ServerController::class,'check'])->name('servers.check')->middleware('can:viewAny,App\Server');
+        Route::post('servers/check', [ServerController::class,'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
         Route::get('servers/{server}/panic', [ServerController::class,'panic'])->name('servers.panic')->middleware('can:update,server');
         Route::apiResource('servers', ServerController::class);
         Route::apiResource('serverPools', ServerPoolController::class);

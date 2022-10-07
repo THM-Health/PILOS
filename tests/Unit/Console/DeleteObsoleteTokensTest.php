@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Console;
 
-use App\RoomToken;
+use App\Models\RoomToken;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

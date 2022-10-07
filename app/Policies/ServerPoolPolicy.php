@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\ServerPool;
-use App\User;
+use App\Models\ServerPool;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ServerPoolPolicy

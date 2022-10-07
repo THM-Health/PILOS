@@ -10,7 +10,7 @@ class UserSearch extends JsonResource
     /**
      * User resource constructor.
      *
-     * @param \App\User $resource The user model that should be transformed.
+     * @param \App\Models\User $resource The user model that should be transformed.
      */
     public function __construct($resource)
     {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\CustomStatusCodes;
 use App\Exports\AttendanceExport;
-use App\Meeting;
+use App\Models\Meeting;
 use Illuminate\Auth\Access\AuthorizationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;

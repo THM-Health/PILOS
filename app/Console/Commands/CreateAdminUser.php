@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Http\Requests\UserRequest;
-use App\Role;
-use App\User;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;

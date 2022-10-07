@@ -4,11 +4,11 @@ namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Enums\ServerStatus;
-use App\Meeting;
-use App\Permission;
-use App\Role;
-use App\Server;
-use App\User;
+use App\Models\Meeting;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Server;
+use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

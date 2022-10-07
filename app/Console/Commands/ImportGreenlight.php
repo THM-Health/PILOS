@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
-use App\Role;
-use App\Room;
-use App\RoomType;
-use App\User;
+use App\Models\Role;
+use App\Models\Room;
+use App\Models\RoomType;
+use App\Models\User;
 use Config;
 use DB;
 use Illuminate\Console\Command;

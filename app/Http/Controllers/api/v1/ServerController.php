@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ServerConnectionCheckRequest;
 use App\Http\Requests\ServerRequest;
 use App\Http\Resources\Server as ServerResource;
-use App\Server;
+use App\Models\Server;
+use App\Services\ServerService;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,7 +35,8 @@ class ServerController extends Controller
          */
         if ($request->has('update_usage') && $request->update_usage == 'true') {
             foreach (Server::all() as $server) {
-                $server->updateUsage();
+                $serverService = new ServerService($server);
+                $serverService->updateUsage();
             }
         }
 
@@ -86,7 +88,8 @@ class ServerController extends Controller
         $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
         // Check if server is online/offline and update usage data
-        $server->updateUsage();
+        $serverService = new ServerService($server);
+        $serverService->updateUsage();
 
         $server->save();
 
@@ -110,7 +113,8 @@ class ServerController extends Controller
         $server->status       = $request->disabled ? ServerStatus::DISABLED : ServerStatus::ONLINE;
 
         // Check if server is online/offline and update usage data
-        $server->updateUsage();
+        $serverService = new ServerService($server);
+        $serverService->updateUsage();
 
         $server->save();
 
@@ -149,7 +153,8 @@ class ServerController extends Controller
      */
     public function panic(Request $request, Server $server)
     {
-        $result = $server->panic();
+        $serverService = new ServerService($server);
+        $result        = $serverService->panic();
 
         return \response()->json($result);
     }

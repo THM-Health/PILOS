@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Room;
-use App\RoomType;
+use App\Models\Room;
+use App\Models\RoomType;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

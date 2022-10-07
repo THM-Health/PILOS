@@ -6,15 +6,16 @@ use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Enums\ServerStatus;
-use App\Meeting;
-use App\Permission;
-use App\Role;
-use App\Room;
-use App\RoomToken;
-use App\RoomType;
-use App\Server;
-use App\Services\RoomTestHelper;
-use App\User;
+use App\Models\Meeting;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Room;
+use App\Models\RoomToken;
+use App\Models\RoomType;
+use App\Models\Server;
+use App\Models\User;
+use App\Services\MeetingService;
+use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Contracts\Cache\LockTimeoutException;
@@ -24,7 +25,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Symfony\Component\Routing\Route;
 use Tests\TestCase;
 
 /**
@@ -96,7 +96,7 @@ class RoomTest extends TestCase
     {
         setting(['room_limit' => '-1']);
 
-        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomTestHelper::createValidRoomName()];
+        $room = ['room_type' => $this->faker->randomElement(RoomType::pluck('id')), 'name' => RoomFactory::createValidRoomName()];
 
         // Test unauthenticated user
         $this->postJson(route('api.v1.rooms.store'), $room)
@@ -143,8 +143,8 @@ class RoomTest extends TestCase
         $this->user->roles()->attach($role);
         setting(['room_limit' => '1']);
 
-        $room_1 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
-        $room_2 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomTestHelper::createValidRoomName()];
+        $room_1 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomFactory::createValidRoomName()];
+        $room_2 = ['room_type'=>$this->faker->randomElement(RoomType::pluck('id')),'name'=>RoomFactory::createValidRoomName()];
 
         // Create first room
         $this->actingAs($this->user)->postJson(route('api.v1.rooms.store'), $room_1)
@@ -664,8 +664,8 @@ class RoomTest extends TestCase
 
         self::assertNull($meeting->end);
 
-        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
-
+        $url = (new MeetingService($meeting))->getCallbackUrl();
+        var_dump($url);
         // check with invalid salt
         $this->getJson($url.'test')
             ->assertUnauthorized();
@@ -679,7 +679,6 @@ class RoomTest extends TestCase
         $end = $meeting->end;
 
         // Check if second call doesn't change timestamp
-        $url = route('api.v1.meetings.endcallback', ['meeting'=>$meeting,'salt'=>$meeting->getCallbackSalt(true)]);
         $this->getJson($url)
             ->assertSuccessful();
 
@@ -810,7 +809,7 @@ class RoomTest extends TestCase
         $settings['room_type']                          = $roomType->id;
         $settings['duration']                           = $this->faker->numberBetween(1, 50);
         $settings['max_participants']                   = $this->faker->numberBetween(1, 50);
-        $settings['name']                               = RoomTestHelper::createValidRoomName();
+        $settings['name']                               = RoomFactory::createValidRoomName();
         $settings['welcome']                            = $this->faker->text;
         $settings['listed']                             = $this->faker->boolean;
         $settings['record_attendance']                  = $this->faker->boolean;
@@ -1071,7 +1070,7 @@ class RoomTest extends TestCase
         $this->assertNull($room->delete_inactive);
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         // Create meeting without agreement to record attendance
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
@@ -1087,7 +1086,7 @@ class RoomTest extends TestCase
         setting(['attendance.enabled' => false]);
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
             ->assertSuccessful();
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         // Create meeting with attendance disabled
         setting(['attendance.enabled' => true]);
@@ -1095,7 +1094,7 @@ class RoomTest extends TestCase
         $room->save();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room'=>$room,'record_attendance' => 0]))
             ->assertSuccessful();
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         // Room token moderator
         Auth::logout();
@@ -1112,7 +1111,7 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         $this->flushHeaders();
 
@@ -1148,7 +1147,7 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals('John Doe', $params['fullName']);
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         $this->flushHeaders();
 
@@ -1159,7 +1158,7 @@ class RoomTest extends TestCase
         $url_components = parse_url($response['url']);
         parse_str($url_components['query'], $params);
         $this->assertEquals($this->user->fullName, $params['fullName']);
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
 
         $this->flushHeaders();
 
@@ -1337,8 +1336,8 @@ class RoomTest extends TestCase
             ]);
 
         // Clear
-        $room1->runningMeeting()->endMeeting();
-        $room2->runningMeeting()->endMeeting();
+        (new MeetingService($room1->runningMeeting()))->end();
+        (new MeetingService($room2->runningMeeting()))->end();
     }
 
     /**
@@ -1523,7 +1522,7 @@ class RoomTest extends TestCase
 
         // Clear
         $this->assertNull($runningMeeting->end);
-        $runningMeeting->endMeeting();
+        (new MeetingService($runningMeeting))->end();
         $runningMeeting->refresh();
         $this->assertNotNull($runningMeeting->end);
     }
@@ -1639,7 +1638,7 @@ class RoomTest extends TestCase
 
         // Clear
         $this->assertNull($runningMeeting->end);
-        $runningMeeting->endMeeting();
+        (new MeetingService($runningMeeting))->end();
         $runningMeeting->refresh();
         $this->assertNotNull($runningMeeting->end);
     }
@@ -1683,7 +1682,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
     }
 
     /**
@@ -1724,7 +1723,7 @@ class RoomTest extends TestCase
         $this->assertFalse($this->checkGuestWaitPage($room, $this->user));
 
         // Clear
-        $room->runningMeeting()->endMeeting();
+        (new MeetingService($room->runningMeeting()))->end();
     }
 
     /**

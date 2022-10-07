@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Enums\CustomStatusCodes;
-use App\Role;
+use App\Models\Role;
 use Carbon\Carbon;
 use DateInterval;
 use Illuminate\Foundation\Testing\RefreshDatabase;

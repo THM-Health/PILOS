@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\api\v1\auth;
 
 use App\Http\Controllers\Controller;
-use App\User;
-use Illuminate\Contracts\Auth\StatefulGuard;
-use Illuminate\Support\Facades\Password as PasswordBrokerFacade;
+use App\Models\User;
 use App\Rules\Password;
 use Illuminate\Contracts\Auth\PasswordBroker;
+use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password as PasswordBrokerFacade;
 use Illuminate\Validation\ValidationException;
 
 class ResetPasswordController extends Controller

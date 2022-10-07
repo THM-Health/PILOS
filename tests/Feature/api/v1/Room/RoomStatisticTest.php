@@ -4,13 +4,13 @@ namespace Tests\Feature\api\v1\Room;
 
 use App\Enums\CustomStatusCodes;
 use App\Enums\RoomUserRole;
-use App\Meeting;
-use App\MeetingAttendee;
-use App\MeetingStat;
-use App\Permission;
-use App\Role;
-use App\Room;
-use App\User;
+use App\Models\Meeting;
+use App\Models\MeetingAttendee;
+use App\Models\MeetingStat;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Room;
+use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -428,6 +428,75 @@ class RoomStatisticTest extends TestCase
         setting(['attendance.enabled' => false]);
         $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
             ->assertStatus(CustomStatusCodes::FEATURE_DISABLED);
+    }
+
+    /**
+     * Test attendance at a meetings for a room without any guests
+     */
+    public function testAttendanceWithoutGuests()
+    {
+        setting(['attendance.enabled' => true]);
+
+        // create room
+        $meeting = Meeting::factory()->create(['start' => '2020-01-01 08:12:45', 'end' => '2020-01-01 08:35:23','record_attendance'=>true]);
+
+        // set firstname, lastname and email to fixes values to make api output predictable
+        $this->user->firstname = 'Mable';
+        $this->user->lastname  = 'Torres';
+        $this->user->email     = 'm.torres@example.net';
+        $this->user->save();
+        $meeting->room->owner->firstname = 'Gregory';
+        $meeting->room->owner->lastname  = 'Dumas';
+        $meeting->room->owner->email     = 'g.dumas@example.net';
+        $meeting->room->owner->save();
+
+        // add attendance data
+        // one and multiple sessions
+        $attendees   = [];
+        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:14:15','leave'=>'2020-01-01 08:30:40']);
+        $attendees[] = new MeetingAttendee(['user_id'=>$this->user->id,'join'=>'2020-01-01 08:31:07','leave'=>'2020-01-01 08:35:23']);
+        $attendees[] = new MeetingAttendee(['user_id'=>$meeting->room->owner->id,'join'=>'2020-01-01 08:12:45','leave'=>'2020-01-01 08:35:23']);
+        $meeting->attendees()->saveMany($attendees);
+
+        // check content and order by name
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.meetings.attendance', ['meeting'=>$meeting]))
+            ->assertSuccessful()
+            ->assertJson([
+                'data' => [
+                    [
+                        'name'     => 'Gregory Dumas',
+                        'email'    => 'g.dumas@example.net',
+                        'duration' => 22,
+                        'sessions' => [
+                            [
+                                'id'       => $attendees[2]->id,
+                                'join'     => '2020-01-01T08:12:45.000000Z',
+                                'leave'    => '2020-01-01T08:35:23.000000Z',
+                                'duration' => 22,
+                            ],
+                        ],
+                    ],
+                    [
+                        'name'     => 'Mable Torres',
+                        'email'    => 'm.torres@example.net',
+                        'duration' => 20,
+                        'sessions' => [
+                            [
+                                'id'       => $attendees[0]->id,
+                                'join'     => '2020-01-01T08:14:15.000000Z',
+                                'leave'    => '2020-01-01T08:30:40.000000Z',
+                                'duration' => 16,
+                            ],
+                            [
+                                'id'       => $attendees[1]->id,
+                                'join'     => '2020-01-01T08:31:07.000000Z',
+                                'leave'    => '2020-01-01T08:35:23.000000Z',
+                                'duration' => 4,
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     /**

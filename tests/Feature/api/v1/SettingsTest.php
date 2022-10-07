@@ -2,16 +2,15 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\Meeting;
-use App\MeetingAttendee;
-use App\Permission;
-use App\Role;
-use App\User;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\Meeting;
+use App\Models\MeetingAttendee;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class SettingsTest extends TestCase

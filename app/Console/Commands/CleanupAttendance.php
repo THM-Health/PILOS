@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\MeetingAttendee;
+use App\Models\MeetingAttendee;
 use Illuminate\Console\Command;
 
 class CleanupAttendance extends Command

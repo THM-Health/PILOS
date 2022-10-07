@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSetting;
 use App\Http\Resources\ApplicationSettings;
 use App\Http\Resources\User as UserResource;
-use App\Meeting;
+use App\Models\Meeting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 

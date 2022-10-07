@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Notifications;
 
+use App\Models\User;
 use App\Notifications\PasswordReset;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-/** @see \App\RoomFile */
+/** @see \App\Models\RoomFile */
 class PrivateRoomFileCollection extends ResourceCollection
 {
     protected $default;

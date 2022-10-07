@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\ServerPool;
+use App\Models\ServerPool;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ServerPoolFactory extends Factory
