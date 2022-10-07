@@ -473,6 +473,55 @@ class UserTest extends TestCase
     }
 
     /**
+     * Test if user attributes can be updated separately
+     */
+    public function testPartialUpdate()
+    {
+        $user    = User::factory()->create(['firstname'=> 'John', 'lastname' => 'Doe', 'bbb_skip_check_audio' => false]);
+        $newRole = Role::factory()->create();
+        $user->roles()->attach($newRole);
+
+        // Check if only updating single attributes works
+        $this->assertFalse($user->bbb_skip_check_audio);
+        $changes = [
+            'bbb_skip_check_audio' => true,
+            'updated_at'           => $user->updated_at,
+        ];
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+        $this->assertTrue($user->bbb_skip_check_audio);
+
+        // Check if updating firstname and lastname without special permissions results in no change
+        $this->assertSame('John', $user->firstname);
+        $this->assertSame('Doe', $user->lastname);
+        $changes = [
+            'firstname'            => 'Max',
+            'lastname'             => 'Mustermann',
+            'updated_at'           => $user->updated_at,
+        ];
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+        $this->assertSame('John', $user->firstname);
+        $this->assertSame('Doe', $user->lastname);
+
+        // Check if updating firstname and lastname with special permissions results in change
+        $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
+        $newRole->permissions()->attach($permission->id);
+        $changes = [
+            'firstname'  => 'Max',
+            'lastname'   => 'Mustermann',
+            'updated_at' => $user->updated_at,
+        ];
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+        $this->assertSame('Max', $user->firstname);
+        $this->assertSame('Mustermann', $user->lastname);
+    }
+
+    /**
      * Test if user can change his own email and verify it
      */
     public function testChangeEmail()
@@ -566,7 +615,7 @@ class UserTest extends TestCase
 
         // Try to change email for different authenticator
         $user->authenticator = 'ldap';
-        $user->username = $this->faker->unique()->userName;
+        $user->username      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertForbidden();
@@ -605,7 +654,7 @@ class UserTest extends TestCase
 
         // Try to change email for user with different authenticator
         $user->authenticator = 'ldap';
-        $user->username = $this->faker->unique()->userName;
+        $user->username      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertForbidden();
@@ -681,7 +730,7 @@ class UserTest extends TestCase
 
         // Try to change password for user with different authenticator
         $user->authenticator = 'ldap';
-        $user->username = $this->faker->unique()->userName;
+        $user->username      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertForbidden();
@@ -729,7 +778,7 @@ class UserTest extends TestCase
 
         // Try to change password for user with different authenticator
         $user->authenticator = 'ldap';
-        $user->username = $this->faker->unique()->userName;
+        $user->username      = $this->faker->unique()->userName;
         $user->save();
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertForbidden();
