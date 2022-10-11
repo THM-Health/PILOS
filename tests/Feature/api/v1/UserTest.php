@@ -1169,7 +1169,6 @@ class UserTest extends TestCase
         $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
         $role->permissions()->attach($permission->id);
 
-
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $userToDelete]))
             ->assertNoContent();
 
