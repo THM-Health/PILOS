@@ -274,49 +274,48 @@ class UserTest extends TestCase
         // Empty request
         $this->actingAs($user)->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles']);
+            ->assertJsonValidationErrors(['firstname', 'generate_password', 'email', 'lastname', 'user_locale', 'roles']);
 
         $request = [
-            'firstname'   => str_repeat('a', 256),
-            'lastname'    => str_repeat('a', 256),
-            'user_locale' => 451,
-            'email'       => 'test',
-            'password'    => 'aT2wqw_2',
-            'roles'       => [99],
-            'timezone'    => 'Europe/Berlin'
+            'firstname'         => str_repeat('a', 256),
+            'lastname'          => str_repeat('a', 256),
+            'user_locale'       => 451,
+            'email'             => 'test',
+            'generate_password' => 0,
+            'new_password'      => 'aT2wqw_2',
+            'roles'             => [99],
+            'timezone'          => 'Europe/Berlin'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['firstname', 'password', 'email', 'lastname', 'user_locale', 'roles.0']);
+            ->assertJsonValidationErrors(['firstname', 'new_password', 'email', 'lastname', 'user_locale', 'roles.0']);
 
         config([
             'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
         $request = [
-            'firstname'             => $this->faker->firstName,
-            'lastname'              => $this->faker->lastName,
-            'user_locale'           => 'hr',
-            'email'                 => $user->email,
-            'username'              => $this->faker->userName,
-            'generate_password'     => false,
-            'password'              => 'aT2wqw_2',
-            'password_confirmation' => 'aT2wqw_2',
-            'roles'                 => [$role->id],
-            'authenticator'         => 'ldap',
-            'bbb_skip_check_audio'  => 'test',
-            'timezone'              => 'UTC'
+            'firstname'                 => $this->faker->firstName,
+            'lastname'                  => $this->faker->lastName,
+            'user_locale'               => 'hr',
+            'email'                     => $user->email,
+            'username'                  => $this->faker->userName,
+            'generate_password'         => false,
+            'new_password'              => 'aT2wqw_2',
+            'new_password_confirmation' => 'aT2wqw_2',
+            'roles'                     => [$role->id],
+            'authenticator'             => 'ldap',
+            'timezone'                  => 'UTC'
         ];
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['email', 'user_locale', 'bbb_skip_check_audio']);
+            ->assertJsonValidationErrors(['email', 'user_locale']);
 
         $request['email']                   = $ldapUserMail;
         $request['user_locale']             = 'de';
         $request['username']                = $this->faker->userName;
-        $request['bbb_skip_check_audio']    = false;
 
         $this->postJson(route('api.v1.users.store', $request))
             ->assertSuccessful()
@@ -328,149 +327,224 @@ class UserTest extends TestCase
                 'username'             => null,
                 'roles'                => [[ 'id' => $role->id, 'name' => $role->name, 'automatic' => false ]],
                 'authenticator'        => 'users',
-                'bbb_skip_check_audio' => false
             ]);
     }
 
-    public function testUpdate()
+    /**
+     * Test if users can update own profile
+     */
+    public function testUpdateSelf()
     {
         config([
             'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
-        $newRole = Role::factory()->create(['default' => true]);
+        $roleA = Role::factory()->create();
+        $roleB = Role::factory()->create();
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $user->roles()->sync([$roleA->id, $roleB->id]);
 
         $changes = [
             'firstname'            => $this->faker->firstName,
             'lastname'             => $this->faker->lastName,
-            'email'                => $user->email,
-            'roles'                => [$newRole->id],
             'username'             => $user->username,
             'user_locale'          => 'de',
             'bbb_skip_check_audio' => true,
-            'timezone'             => 'Foo/Bar'
+            'timezone'             => 'Foo/Bar',
+            'roles'                => [$roleA->id],
         ];
-
-        $userToUpdate = User::factory()->create();
-
-        DirectoryEmulator::setup('default');
-        LdapUser::create([
-            'givenName'              => 'Jane',
-            'sn'                     => 'Doe',
-            'cn'                     => $this->faker->name,
-            'mail'                   => $this->faker->unique()->safeEmail,
-            'uid'                    => $this->faker->unique()->userName,
-            'entryuuid'              => $this->faker->uuid,
-        ]);
-        $this->artisan('ldap:import', [
-            'provider' => 'ldap',
-            '--no-interaction'
-        ])->assertExitCode(0);
-
-        $ldapUserToUpdate = User::where(['authenticator' => 'ldap'])->first();
 
         // Unauthenticated user
         $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertUnauthorized();
 
-        // User without permission other user
-        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $userToUpdate]), $changes)
-            ->assertForbidden();
-
-        // Own user
-        $role = Role::factory()->create(['default' => true]);
-
-        $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
-        $role->permissions()->attach($permission->id);
-
-        $role->users()->attach([$user->id]);
-
-        $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+        // Try to update user without timestamp
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(CustomStatusCodes::STALE_MODEL);
 
-        $changes['updated_at'] = Carbon::now();
-        $changes['password']   = 'Test2_34T';
-
-        $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+        // Check with timestamp and invalid data
+        $changes['updated_at']           = Carbon::now();
+        $changes['bbb_skip_check_audio'] = 'test';
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['password', 'timezone']);
+            ->assertJsonValidationErrors(['bbb_skip_check_audio', 'timezone']);
 
-        $changes['password_confirmation'] = 'Test2_34T';
-        $changes['timezone']              = 'Europe/Berlin';
-
-        $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+        // Check with valid data
+        $changes['bbb_skip_check_audio'] = 0;
+        $changes['timezone']             = 'Europe/Berlin';
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
-
         $user->refresh();
-        $user->unsetRelation('roles');
-        $this->assertEquals($role->id, $user->roles->first()->id);
+
+        // Firstname and lastname should not be changed, due to missing permissions
         $this->assertNotEquals($user->firstname, $changes['firstname']);
+        $this->assertNotEquals($user->lastname, $changes['lastname']);
+        // Other attributes should be changed
+        $this->assertEquals($user->locale, $changes['user_locale']);
+        $this->assertEquals($user->timezone, $changes['timezone']);
+        $this->assertEquals($user->bbb_skip_check_audio, $changes['bbb_skip_check_audio']);
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
-        $role->permissions()->attach($permission->id);
-
+        // Check if attributes (firstname/lastname) can be changed with special permission, but role cannot be changed
+        $permission = Permission::firstOrCreate(['name' => 'users.updateOwnAttributes']);
+        $roleA->permissions()->attach($permission->id);
         $changes['updated_at'] = Carbon::now();
-        $this->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
             ->assertSuccessful();
-
         $user->refresh();
-        $user->unsetRelation('roles');
-        $this->assertEquals($role->id, $user->roles->first()->id);
         $this->assertEquals($user->firstname, $changes['firstname']);
+        $this->assertEquals($user->lastname, $changes['lastname']);
+        $this->assertNotEquals($user->roles->pluck('id')->toArray(), [$roleA->id]);
 
-        $permission = Permission::firstOrCreate([ 'name' => 'users.update' ]);
-        $role->permissions()->attach($permission->id);
+        // Check if role cannot be changed for current user, even with permissions to change role
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $roleA->permissions()->attach($permission->id);
+        $changes['updated_at'] = Carbon::now();
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+        $this->assertNotEquals($user->roles->pluck('id')->toArray(), [$roleA->id]);
+    }
+
+    /**
+     * Test if ldap-users can update own profile
+     */
+    public function testUpdateSelfLdap()
+    {
+        config([
+            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+        ]);
+
+        $roleA      = Role::factory()->create();
+        $permission = Permission::firstOrCreate(['name' => 'users.updateOwnAttributes']);
+        $roleA->permissions()->attach($permission->id);
+
+        $roleB = Role::factory()->create();
+
+        $user = User::factory()->create(['authenticator' => 'ldap', 'username' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $user->roles()->sync([$roleA->id, $roleB->id]);
+
+        $changes = [
+            'firstname'            => $this->faker->firstName,
+            'lastname'             => $this->faker->lastName,
+            'username'             => $user->username,
+            'user_locale'          => 'de',
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'Europe/Berlin',
+            'roles'                => [$roleA->id],
+        ];
+
+        // Check if the attributes firstname and lastname cannot be changed even with special permission
+        $changes['updated_at'] = Carbon::now();
+        $this->actingAs($user)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+        // Firstname and lastname should not be changed
+        $this->assertNotEquals($user->firstname, $changes['firstname']);
+        $this->assertNotEquals($user->lastname, $changes['lastname']);
+        // Other attributes should be changed
+        $this->assertEquals($user->locale, $changes['user_locale']);
+        $this->assertEquals($user->timezone, $changes['timezone']);
+        $this->assertEquals($user->bbb_skip_check_audio, $changes['bbb_skip_check_audio']);
+    }
+
+    /**
+     * Test if admin users can update other users
+     */
+    public function testUpdate()
+    {
+        $roleA     = Role::factory()->create();
+        $roleB     = Role::factory()->create();
+        $adminRole = Role::factory()->create();
+
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $adminRole->permissions()->attach($permission->id);
+
+        $user      = User::factory()->create(['locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $otherUser = User::factory()->create();
+        $admin     = User::factory()->create();
+
+        $user->roles()->sync([$roleA->id, $roleB->id]);
+        $admin->roles()->sync([$adminRole->id]);
+
+        $changes = [
+            'firstname'            => $this->faker->firstName,
+            'lastname'             => $this->faker->lastName,
+            'username'             => $user->username,
+            'user_locale'          => 'de',
+            'bbb_skip_check_audio' => true,
+            'timezone'             => 'Europe/Berlin',
+            'roles'                => [$roleA->id],
+        ];
+
+        // Unauthorized
+        $this->actingAs($otherUser)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertForbidden();
 
         // Not existing user
-        $this->putJson(route('api.v1.users.update', ['user' => 1337]), $changes)
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => 1337]), $changes)
             ->assertNotFound();
 
-        // Existing user invalid
-        $this->putJson(route('api.v1.users.update', ['user' => $userToUpdate]), $changes)
-            ->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
+        // Check as admin
+        $changes['updated_at'] = Carbon::now();
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
 
-        // Existing user valid normal user
-        $this->putJson(route('api.v1.users.update', ['user' => $userToUpdate]), [
+        // Check if all attributes are changed
+        $this->assertEquals($user->firstname, $changes['firstname']);
+        $this->assertEquals($user->lastname, $changes['lastname']);
+        $this->assertEquals($user->locale, $changes['user_locale']);
+        $this->assertEquals($user->timezone, $changes['timezone']);
+        $this->assertEquals($user->bbb_skip_check_audio, $changes['bbb_skip_check_audio']);
+        $this->assertEquals($user->roles->pluck('id')->toArray(), [$roleA->id]);
+    }
+
+    /**
+     * Test if admin users can update other ldap-users
+     */
+    public function testUpdateLdap()
+    {
+        $roleA     = Role::factory()->create();
+        $roleB     = Role::factory()->create();
+        $adminRole = Role::factory()->create();
+
+        $permission = Permission::firstOrCreate(['name' => 'users.update']);
+        $adminRole->permissions()->attach($permission->id);
+
+        $user  = User::factory()->create(['authenticator' => 'ldap', 'username' => $this->faker->unique()->userName, 'locale' => 'en', 'timezone' => 'UTC', 'bbb_skip_check_audio' => false]);
+        $admin = User::factory()->create();
+
+        $user->roles()->sync([$roleA->id => ['automatic' => true], $roleB->id]);
+        $admin->roles()->sync([$adminRole->id]);
+
+        $changes = [
             'firstname'            => $this->faker->firstName,
             'lastname'             => $this->faker->lastName,
-            'email'                => $userToUpdate->email,
-            'roles'                => [$newRole->id],
-            'username'             => $userToUpdate->username,
+            'username'             => $user->username,
             'user_locale'          => 'de',
-            'updated_at'           => $userToUpdate->updated_at,
             'bbb_skip_check_audio' => true,
-            'timezone'             => 'UTC'
-        ])
-        ->assertSuccessful()
-        ->assertJsonFragment(['roles' => [['id' => $newRole->id, 'name' => $newRole->name, 'automatic' => false]]]);
+            'timezone'             => 'Europe/Berlin',
+            'roles'                => [$roleB->id],
+        ];
 
-        // Existing user valid ldap user
-        $ldapUserToUpdate->roles()->sync([$role->id => ['automatic' => true]]);
-        $this->putJson(route('api.v1.users.update', ['user' => $ldapUserToUpdate]), [
-            'firstname'            => $this->faker->firstName,
-            'lastname'             => $this->faker->lastName,
-            'email'                => $this->faker->email,
-            'roles'                => [$newRole->id],
-            'username'             => $this->faker->userName,
-            'updated_at'           => $ldapUserToUpdate->updated_at,
-            'user_locale'          => 'de',
-            'authenticator'        => 'users',
-            'bbb_skip_check_audio' => true,
-            'timezone'             => 'UTC'
-        ])
-        ->assertSuccessful()
-        ->assertJsonFragment([
-            'roles'         => [['id' => $role->id, 'name' => $role->name, 'automatic' => true], ['id' => $newRole->id, 'name' => $newRole->name, 'automatic' => false]],
-            'user_locale'   => 'de',
-            'firstname'     => $ldapUserToUpdate->firstname,
-            'lastname'      => $ldapUserToUpdate->lastname,
-            'email'         => $ldapUserToUpdate->email,
-            'username'      => $ldapUserToUpdate->username,
-            'authenticator' => 'ldap'
-        ]);
+        // Check as admin
+        $changes['updated_at'] = Carbon::now();
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => $user]), $changes)
+            ->assertSuccessful();
+        $user->refresh();
+
+        // Check if firstname and lastname cannot be changed for ldap users
+        $this->assertNotEquals($user->firstname, $changes['firstname']);
+        $this->assertNotEquals($user->lastname, $changes['lastname']);
+
+        // Check if all other attributes are changed
+        $this->assertEquals($user->locale, $changes['user_locale']);
+        $this->assertEquals($user->timezone, $changes['timezone']);
+        $this->assertEquals($user->bbb_skip_check_audio, $changes['bbb_skip_check_audio']);
+
+        // Check if automatic role cannot be removed
+        $this->assertEquals($user->roles->pluck('id')->toArray(), [$roleA->id, $roleB->id]);
     }
 
     /**
@@ -613,6 +687,12 @@ class UserTest extends TestCase
                 return $notifiable->routes['mail'] === [$email => $user->fullname];
             }
         );
+
+        // Try to change email with same email
+        Notification::fake();
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(200);
+        Notification::assertNothingSent();
 
         // Try to change email for different authenticator
         $user->authenticator = 'ldap';

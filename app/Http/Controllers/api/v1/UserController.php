@@ -191,6 +191,7 @@ class UserController extends Controller
                 ->whereNotIn('role_id', $request->roles)->pluck('role_id')->toArray());
         }
 
+        $user->touch();
         $user->refresh();
 
         return new UserResource($user);
