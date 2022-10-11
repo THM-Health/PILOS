@@ -29,6 +29,8 @@ class UserTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    public const INVALID_USER_ID = 999999999;
+
     public function testIndex()
     {
         $page_size = 5;
@@ -482,7 +484,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Not existing user
-        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => 1337]), $changes)
+        $this->actingAs($admin)->putJson(route('api.v1.users.update', ['user' => self::INVALID_USER_ID]), $changes)
             ->assertNotFound();
 
         // Check as admin
@@ -1097,7 +1099,7 @@ class UserTest extends TestCase
 
         $role->users()->attach([$ldapUser->id, $user->id]);
 
-        $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => 1337]))
+        $this->actingAs($user)->getJson(route('api.v1.users.show', ['user' => self::INVALID_USER_ID]))
             ->assertNotFound();
 
         // Existing user
@@ -1154,7 +1156,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Not existing model
-        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => 1337]))->assertNotFound();
+        $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => self::INVALID_USER_ID]))->assertNotFound();
 
         // User own model
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $user]))
@@ -1166,6 +1168,7 @@ class UserTest extends TestCase
 
         $permission = Permission::firstOrCreate([ 'name' => 'users.delete' ]);
         $role->permissions()->attach($permission->id);
+
 
         $this->actingAs($user)->deleteJson(route('api.v1.users.destroy', ['user' => $userToDelete]))
             ->assertNoContent();
@@ -1199,7 +1202,7 @@ class UserTest extends TestCase
 
         $role->users()->attach([$user->id]);
 
-        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => 1337]))
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => self::INVALID_USER_ID]))
             ->assertNotFound();
 
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $user]))

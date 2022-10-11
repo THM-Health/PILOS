@@ -39,7 +39,7 @@ class SessionTest extends TestCase
         $this->otherSession->user_agent    = 'Agent 2';
         $this->otherSession->ip_address    = $this->faker->ipv4;
         $this->otherSession->payload       = '';
-        $this->otherSession->last_activity = now();
+        $this->otherSession->last_activity = now()->subMinutes(5);
         $this->otherSession->user()->associate($this->user);
         $this->otherSession->save();
 
@@ -48,7 +48,7 @@ class SessionTest extends TestCase
         $this->otherUserSession->user_agent    = 'Agent 3';
         $this->otherUserSession->ip_address    = $this->faker->ipv4;
         $this->otherUserSession->payload       = '';
-        $this->otherUserSession->last_activity = now();
+        $this->otherUserSession->last_activity = now()->subMinutes(5);
         $this->otherUserSession->user()->associate($this->otherUser);
         $this->otherUserSession->save();
     }
