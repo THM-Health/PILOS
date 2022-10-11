@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Session extends Model
 {
-    protected $keyType = 'string';
+    protected $keyType   = 'string';
+    public $incrementing = false;
+
+    public $timestamps = false;
 
     protected $casts = [
         'last_activity' => 'datetime',
     ];
+
+    protected $dateFormat = 'U';
 
     /**
      * User this session belongs to

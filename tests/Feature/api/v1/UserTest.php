@@ -5,6 +5,7 @@ namespace Tests\Feature\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Session;
 use App\Models\User;
 use App\Notifications\EmailChanged;
 use App\Notifications\PasswordChanged;
@@ -718,12 +719,47 @@ class UserTest extends TestCase
 
         // Check with correct password confirmation
         $changes['new_password_confirmation'] = $newPassword;
+
+        // Create new sessions in database
+        $currentSession                = new Session();
+        $currentSession->id            = $this->app['session']->getId();
+        $currentSession->user_agent    = $this->faker->userAgent;
+        $currentSession->ip_address    = $this->faker->ipv4;
+        $currentSession->payload       = '';
+        $currentSession->last_activity = now();
+        $currentSession->user()->associate($user);
+        $currentSession->save();
+
+        $otherSession                = new Session();
+        $otherSession->id            = \Str::random(40);
+        $otherSession->user_agent    = $this->faker->userAgent;
+        $otherSession->ip_address    = $this->faker->ipv4;
+        $otherSession->payload       = '';
+        $otherSession->last_activity = now();
+        $otherSession->user()->associate($user);
+        $otherSession->save();
+
+        $otherUserSession                = new Session();
+        $otherUserSession->id            = \Str::random(40);
+        $otherUserSession->user_agent    = $this->faker->userAgent;
+        $otherUserSession->ip_address    = $this->faker->ipv4;
+        $otherUserSession->payload       = '';
+        $otherUserSession->last_activity = now();
+        $otherUserSession->user()->associate($otherUser);
+        $otherUserSession->save();
+
+        // Check with correct password
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertSuccessful();
 
         // Check if password is changed
         $user->refresh();
         $this->assertTrue(Hash::check($newPassword, $user->password));
+
+        // Check if other sessions are deleted, but not the current one or of other users
+        $this->assertNotNull(Session::find($currentSession->id));
+        $this->assertNull(Session::find($otherSession->id));
+        $this->assertNotNull(Session::find($otherUserSession->id));
 
         // Check if notification is sent to user
         Notification::assertSentTo($user, PasswordChanged::class);
@@ -747,6 +783,7 @@ class UserTest extends TestCase
 
         $newPassword = '!SuperSecretPassword123';
         $user        = User::factory()->create();
+        $otherUser   = User::factory()->create();
 
         // Create admin user
         $admin = User::factory()->create();
@@ -764,6 +801,43 @@ class UserTest extends TestCase
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
             ->assertJsonValidationErrors('new_password');
 
+        // Create new sessions in database
+        $adminSession                = new Session();
+        $adminSession->id            = $this->app['session']->getId();
+        $adminSession->user_agent    = $this->faker->userAgent;
+        $adminSession->ip_address    = $this->faker->ipv4;
+        $adminSession->payload       = '';
+        $adminSession->last_activity = now();
+        $adminSession->user()->associate($admin);
+        $adminSession->save();
+
+        $otherAdminSession                = new Session();
+        $otherAdminSession->id            = \Str::random(40);
+        $otherAdminSession->user_agent    = $this->faker->userAgent;
+        $otherAdminSession->ip_address    = $this->faker->ipv4;
+        $otherAdminSession->payload       = '';
+        $otherAdminSession->last_activity = now();
+        $otherAdminSession->user()->associate($admin);
+        $otherAdminSession->save();
+
+        $userSession                = new Session();
+        $userSession->id            = \Str::random(40);
+        $userSession->user_agent    = $this->faker->userAgent;
+        $userSession->ip_address    = $this->faker->ipv4;
+        $userSession->payload       = '';
+        $userSession->last_activity = now();
+        $userSession->user()->associate($user);
+        $userSession->save();
+
+        $otherUserSession                = new Session();
+        $otherUserSession->id            = \Str::random(40);
+        $otherUserSession->user_agent    = $this->faker->userAgent;
+        $otherUserSession->ip_address    = $this->faker->ipv4;
+        $otherUserSession->payload       = '';
+        $otherUserSession->last_activity = now();
+        $otherUserSession->user()->associate($otherUser);
+        $otherUserSession->save();
+
         // Check with correct password confirmation
         $changes['new_password_confirmation'] = $newPassword;
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
@@ -772,6 +846,12 @@ class UserTest extends TestCase
         // Check if password is changed
         $user->refresh();
         $this->assertTrue(Hash::check($newPassword, $user->password));
+
+        // Check if only sessions of the user are deleted, but not of the admin or other users
+        $this->assertNotNull(Session::find($adminSession->id));
+        $this->assertNotNull(Session::find($otherAdminSession->id));
+        $this->assertNull(Session::find($userSession->id));
+        $this->assertNotNull(Session::find($otherUserSession->id));
 
         // Check if notification is sent to user
         Notification::assertSentTo($user, PasswordChanged::class);
