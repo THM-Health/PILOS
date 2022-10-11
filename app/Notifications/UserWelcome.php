@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Lang;
 
 /**
  * This class provides the notification for newly created users with generated passwords.
@@ -74,10 +73,10 @@ class UserWelcome extends Notification
             ->isoFormat('LLLL');
 
         return (new MailMessage)
-            ->subject(Lang::get('mail.user_welcome.subject', []))
-            ->line(Lang::get('mail.user_welcome.description', []))
-            ->action(Lang::get('mail.user_welcome.action', []), $url)
-            ->line(Lang::get('mail.user_welcome.expire', ['date' => $date]))
+            ->subject(__('mail.user_welcome.subject'))
+            ->line(__('mail.user_welcome.description'))
+            ->action(__('mail.user_welcome.action'), $url)
+            ->line(__('mail.user_welcome.expire', ['date' => $date]))
             ->markdown('vendor.notifications.email', ['name' => $notifiable->fullname]);
     }
 }

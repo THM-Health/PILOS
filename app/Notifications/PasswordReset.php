@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Lang;
 
 /**
  * This class provides the notification for password reset emails.
@@ -67,18 +66,17 @@ class PasswordReset extends Notification
             'email' => $notifiable->getEmailForPasswordReset()
         ]);
 
-        Carbon::setLocale($notifiable->locale);
         $date = $this->expireDate
             ->addMinutes(config('auth.passwords.users.expire'))
             ->timezone($notifiable->timezone)
             ->isoFormat('LLLL');
 
         return (new MailMessage)
-            ->subject(Lang::get('mail.password_reset.subject', []))
-            ->line(Lang::get('mail.password_reset.description', []))
-            ->action(Lang::get('mail.password_reset.action', []), $url)
-            ->line(Lang::get('mail.password_reset.expire', ['date' => $date]))
-            ->line(Lang::get('mail.password_reset.signature', []))
+            ->subject(__('mail.password_reset.subject'))
+            ->line(__('mail.password_reset.description'))
+            ->action(__('mail.password_reset.action'), $url)
+            ->line(__('mail.password_reset.expire', ['date' => $date]))
+            ->line(__('mail.password_reset.signature'))
             ->markdown('vendor.notifications.email', ['name' => $notifiable->fullname]);
     }
 }

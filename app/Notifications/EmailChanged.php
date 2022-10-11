@@ -5,7 +5,6 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Lang;
 
 /**
  * This class provides the notification for password reset emails.
@@ -45,10 +44,10 @@ class EmailChanged extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject(Lang::get('mail.email_changed.subject', []))
-            ->line(Lang::get('mail.email_changed.description'))
-            ->line(Lang::get('mail.email_changed.new_email', ['email' => $this->email]))
-            ->line(Lang::get('mail.email_changed.signature', []))
+            ->subject(__('mail.email_changed.subject'))
+            ->line(__('mail.email_changed.description'))
+            ->line(__('mail.email_changed.new_email', ['email' => $this->email]))
+            ->line(__('mail.email_changed.signature'))
             ->markdown('vendor.notifications.email', ['name' => $this->fullname]);
     }
 }

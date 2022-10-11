@@ -6,7 +6,6 @@ use App\Models\Room;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Lang;
 
 class RoomExpires extends Notification
 {
@@ -65,24 +64,24 @@ class RoomExpires extends Notification
         $lastMeeting = $this->room->latestMeeting();
 
         $message = (new MailMessage)
-            ->subject(Lang::get('mail.room_expires.subject', ['name' => $this->room->name]))
-            ->line(Lang::get('mail.room_expires.intro', []));
+            ->subject(__('mail.room_expires.subject', ['name' => $this->room->name]))
+            ->line(__('mail.room_expires.intro'));
 
         // If room has no meeting, room will deleted due to creating but never using the room
         if ($lastMeeting == null) {
-            $message->line(Lang::get('mail.room_expires.no_meeting', ['name' => $this->room->name,'date' => $createdAt]));
+            $message->line(__('mail.room_expires.no_meeting', ['name' => $this->room->name,'date' => $createdAt]));
         }
         // If room has a meeting, that was too long ago
         else {
             $days = now()->diffInDays($lastMeeting->start);
-            $message->line(Lang::get('mail.room_expires.inactivity', ['name' => $this->room->name,'date' => $createdAt, 'days' => $days]));
+            $message->line(__('mail.room_expires.inactivity', ['name' => $this->room->name,'date' => $createdAt, 'days' => $days]));
         }
 
         return $message
-            ->action(Lang::get('mail.room_expires.open', []), $url)
-            ->line(Lang::get('mail.room_expires.expire', ['date' => $date]))
-            ->line(Lang::get('mail.room_expires.keep', []))
-            ->line(Lang::get('mail.room_expires.delete', []))
+            ->action(__('mail.room_expires.open', ), $url)
+            ->line(__('mail.room_expires.expire', ['date' => $date]))
+            ->line(__('mail.room_expires.keep'))
+            ->line(__('mail.room_expires.delete'))
             ->markdown('vendor.notifications.email', ['name' => $notifiable->fullname]);
     }
 }
