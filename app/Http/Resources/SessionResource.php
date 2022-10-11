@@ -18,7 +18,7 @@ class SessionResource extends JsonResource
             'last_activity' => $this->last_activity,
             'ip_address'    => $this->ip_address,
             'user_agent'    => $this->user_agent,
-            'current'       => $this->id === $request->session()->getId(),
+            'current'       => $this->id === session()->getId()
         ];
     }
 }

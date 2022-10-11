@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SessionResource;
 use App\Services\AuthenticationService;
 use Auth;
-use Illuminate\Http\Request;
 
 class SessionController extends Controller
 {
@@ -15,10 +14,10 @@ class SessionController extends Controller
         return SessionResource::collection(\Auth::user()->sessions()->orderByDesc('last_activity')->get());
     }
 
-    public function destroy(Request $request)
+    public function destroy()
     {
         $authService = new AuthenticationService(Auth::user());
-        $authService->logoutOtherSessions($request->session()->getId());
+        $authService->logoutOtherSessions(session()->getId());
 
         return response()->noContent();
     }
