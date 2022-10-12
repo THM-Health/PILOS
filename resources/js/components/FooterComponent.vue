@@ -1,14 +1,14 @@
 <template>
   <footer class="footer">
-    <b-container class="border-top bg-white" v-if="!!settings('legal_notice_url') || !!settings('privacy_policy_url')" fluid>
+    <b-container class="border-top bg-white" v-if="settings('legal_notice_url') || settings('privacy_policy_url')" fluid>
       <b-row align-h="center" align-v="center" ref="url_footer">
-        <a :href="settings('legal_notice_url')" v-if="!!settings('legal_notice_url')">
+        <a :href="settings('legal_notice_url')" v-if="settings('legal_notice_url')">
           <small>{{$t('app.footer.legalNotice')}}</small>
         </a>
 
-        <div class="mx-2" v-if="!!settings('legal_notice_url') && settings('privacy_policy_url')"><small><raw-text>|</raw-text></small></div>
+        <div class="mx-2" v-if="settings('legal_notice_url') && settings('privacy_policy_url')"><small><raw-text>|</raw-text></small></div>
 
-        <a :href="settings('privacy_policy_url')" v-if="!!settings('privacy_policy_url')">
+        <a :href="settings('privacy_policy_url')" v-if="settings('privacy_policy_url')">
           <small>{{$t('app.footer.privacyPolicy')}}</small>
         </a>
       </b-row>

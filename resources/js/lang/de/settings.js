@@ -190,12 +190,12 @@ export default {
 
     legalNoticeUrl: {
       title: 'URL zum Impressum',
-      description: 'Wenn nicht gesetzt, wird kein Link in der Fußzeile angezeigt.'
+      description: 'Wenn nicht gesetzt, wird kein Link zum Impressum in der Fußzeile angezeigt.'
     },
 
     privacyPolicyUrl: {
       title: 'URL zur Datenschutzerklärung',
-      description: 'Wenn nicht gesetzt, wird kein Link in der Fußzeile angezeigt.'
+      description: 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.'
     },
 
     roomLimit: {
