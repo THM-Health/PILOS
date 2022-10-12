@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Facade;
 
 $available_locales = array_diff(scandir(base_path('lang')), array('..', '.'));
-$locales_env = env('MIX_AVAILABLE_LOCALES');
+$locales_env = env('MIX_AVAILABLE_LOCALES','en,de');
 $available_locales = $locales_env !== null ? preg_split('/,/', $locales_env) : $available_locales;
 
 return [

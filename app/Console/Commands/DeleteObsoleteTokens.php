@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\RoomToken;
+use App\Models\RoomToken;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 

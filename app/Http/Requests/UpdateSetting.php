@@ -42,6 +42,8 @@ class UpdateSetting extends FormRequest
             'banner.background'                         => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', new Color()],
             'default_presentation'                      => ['nullable', 'file', 'max:'.(intval(config('bigbluebutton.max_filesize')) * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],
             'help_url'                                  => 'nullable|string|url|max:255',
+            'legal_notice_url'                          => 'nullable|string|url|max:255',
+            'privacy_policy_url'                        => 'nullable|string|url|max:255',
             'statistics.servers.enabled'                => 'required|boolean',
             'statistics.servers.retention_period'       => 'required|numeric|min:1|max:365',
             'statistics.meetings.enabled'               => 'required|boolean',

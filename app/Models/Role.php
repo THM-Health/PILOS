@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +33,7 @@ class Role extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\User')->withPivot('automatic')->using('App\RoleUser');
+        return $this->belongsToMany('App\Models\User')->withPivot('automatic')->using('App\Models\RoleUser');
     }
 
     /**
@@ -43,7 +43,7 @@ class Role extends Model
      */
     public function permissions()
     {
-        return $this->belongsToMany('App\Permission');
+        return $this->belongsToMany('App\Models\Permission');
     }
 
     /**

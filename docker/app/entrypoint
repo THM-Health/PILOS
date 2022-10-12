@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+function changePermissions() {
+    echo "Changing permissions"
+    chown -R :www-data /var/www/html/storage/app
+    chown -R :www-data /var/www/html/storage/logs
+    chown -R :www-data /var/www/html/resources/custom
+    chown -R :www-data /var/www/html/resources/sass/theme/custom 
+    find /var/www/html/storage/ -type f -exec chmod 664 {} \;
+    find /var/www/html/storage/ -type d -exec chmod 775 {} \;
+    find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
+    find /var/www/html/resources/custom/ -type d -exec chmod 775 {} \;
+    find /var/www/html/resources/sass/theme/custom/ -type f -exec chmod 664 {} \;
+    find /var/www/html/resources/sass/theme/custom/ -type d -exec chmod 775 {} \;
+}
+
+function buildFrontend() {
+    echo "Building frontend"
+	gosu www-data /usr/local/etc/laravel-mix/run.sh
+}
+
+function migrateDatabase() {
+    echo "Migrating database and seed with example data"
+
+    while ! mysqladmin ping -h${DB_HOST} -u${DB_USERNAME} -p${DB_PASSWORD} --silent; do
+        echo "Waiting for database connection..."
+        sleep 5
+    done
+    gosu www-data php artisan migrate --force --seed
+}
+
+function linkStorage() {
+    gosu www-data php artisan storage:link
+}
+
+if [ "$ENABLE_XDEBUG" == "yes" ]; then
+    echo "Enabling xdebug"
+    docker-php-ext-enable xdebug
+fi
+
+if [ $# -gt 0 ]; then
+    exec gosu www-data "$@"
+else
+    if [ "$APP_ENV" == "production" ]; then
+        changePermissions
+        buildFrontend
+        migrateDatabase
+        linkStorage
+    fi
+
+    exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+fi

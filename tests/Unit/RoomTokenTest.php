@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Room;
-use App\RoomToken;
+use App\Models\Room;
+use App\Models\RoomToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

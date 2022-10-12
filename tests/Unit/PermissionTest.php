@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use App\Permission;
-use App\Role;
-use App\User;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -41,7 +41,7 @@ class PermissionTest extends TestCase
         $user->roles()->attach($role);
 
         $this->assertFalse($user->can($inheritedPermission->name));
-        Permission::SetupIncludedPermissions($permission->name, [$inheritedPermission->name]);
+        Permission::setIncludedPermissions($permission->name, [$inheritedPermission->name]);
         $this->assertTrue($user->can($inheritedPermission->name));
     }
 
@@ -59,7 +59,7 @@ class PermissionTest extends TestCase
         $user->roles()->attach($role);
 
         $this->assertFalse($user->can($permission->name));
-        Permission::SetupIncludedPermissions($permission->name, [$inheritedPermission->name]);
+        Permission::setIncludedPermissions($permission->name, [$inheritedPermission->name]);
         $this->assertFalse($user->can($permission->name));
     }
 

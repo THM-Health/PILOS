@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +28,7 @@ class Permission extends Model
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Role');
+        return $this->belongsToMany('App\Models\Role');
     }
 
     /**
@@ -45,7 +45,7 @@ class Permission extends Model
      * @param $permissionName string Name of the permission
      * @param $includedPermissionNames string[] Names of the permissions that should be included
      */
-    public static function SetupIncludedPermissions($permissionName, $includedPermissionNames)
+    public static function setIncludedPermissions($permissionName, $includedPermissionNames)
     {
         $permission             = self::where('name', $permissionName)->firstOrFail();
         $includedPermissions    = [];

@@ -8,8 +8,8 @@ use App\Http\Requests\MassUpdateRequest;
 use App\Http\Requests\MassDeleteRequest;
 use App\Http\Requests\UpdateRoomMember;
 use App\Http\Resources\RoomUser;
-use App\Room;
-use App\User;
+use App\Models\Room;
+use App\Models\User;
 use Auth;
 
 class RoomMemberController extends Controller

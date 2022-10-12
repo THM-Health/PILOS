@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Room;
+use App\Models\Room;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;

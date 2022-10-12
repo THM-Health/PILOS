@@ -3,9 +3,9 @@
 namespace Tests\Feature\api\v1;
 
 use App\Enums\CustomStatusCodes;
-use App\Permission;
-use App\Role;
-use App\User;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

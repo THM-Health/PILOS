@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSetting;
 use App\Http\Resources\ApplicationSettings;
 use App\Http\Resources\User as UserResource;
-use App\Meeting;
+use App\Models\Meeting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -132,6 +132,18 @@ class ApplicationController extends Controller
             setting()->set('help_url', $request->help_url);
         } else {
             setting()->forget('help_url');
+        }
+
+        if (!empty($request->legal_notice_url)) {
+            setting()->set('legal_notice_url', $request->legal_notice_url);
+        } else {
+            setting()->forget('legal_notice_url');
+        }
+
+        if (!empty($request->privacy_policy_url)) {
+            setting()->set('privacy_policy_url', $request->privacy_policy_url);
+        } else {
+            setting()->forget('privacy_policy_url');
         }
 
         setting()->save();

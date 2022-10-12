@@ -1,91 +1,44 @@
 <?php
 
-namespace App;
+namespace App\Services;
 
 use App\Enums\ServerStatus;
-use App\Traits\AddsModelNameTrait;
+use App\Models\Meeting;
+use App\Models\MeetingAttendee;
+use App\Models\MeetingStat;
+use App\Models\Server;
+use App\Models\ServerStat;
+use App\Models\User;
 use BigBlueButton\BigBlueButton;
 use BigBlueButton\Http\Transport\CurlTransport;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class Server extends Model
+class ServerService
 {
-    use AddsModelNameTrait, HasFactory;
-
-    protected $bbb;
-
-    protected $casts = [
-        'strength'                  => 'integer',
-        'status'                    => 'integer',
-        'participant_count'         => 'integer',
-        'listener_count'            => 'integer',
-        'voice_participant_count'   => 'integer',
-        'video_count'               => 'integer',
-        'meeting_count'             => 'integer',
-    ];
+    protected BigBlueButton $bbb;
 
     /**
-     * The "booted" method of the model.
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::updating(function (self $model) {
-            /**
-             * If status is changed and new status is not online, reset live usage data
-             */
-            if ($model->status != $model->getOriginal('status')) {
-                if ($model->status != ServerStatus::ONLINE) {
-                    $model->version                 = null;
-                    $model->participant_count       = null;
-                    $model->listener_count          = null;
-                    $model->voice_participant_count = null;
-                    $model->video_count             = null;
-                    $model->meeting_count           = null;
-                }
-                if ($model->status == ServerStatus::OFFLINE) {
-                    $model->endMeetings();
-                }
-            }
-        });
-        static::deleting(function (self $model) {
-            // Delete Server, only possible if no meetings from this system are running and the server is disabled
-            if ($model->status != ServerStatus::DISABLED || $model->meetings()->whereNull('end')->count() != 0) {
-                return false;
-            }
-        });
-    }
-
-    /**
-     * Get bigbluebutton api instance
-     * If not set before with setBBB initialise with the url and secret stored in the database fields
      * @return BigBlueButton
-     * @throws \Exception
      */
-    public function bbb()
+    public function getBigBlueButton(): BigBlueButton
     {
-        if ($this->bbb == null) {
-            $transport  = CurlTransport::createWithDefaultOptions([CURLOPT_TIMEOUT => config('bigbluebutton.server_timeout')]);
-            $this->setBBB(new BigBlueButton($this->base_url, $this->salt, $transport));
-        }
-
         return $this->bbb;
     }
+    protected Server $server;
 
-    /**
-     * Set bigbluebutton api instance
-     * @param BigBlueButton $bbb
-     */
-    public function setBBB(BigBlueButton $bbb)
+    public function __construct(Server $server)
+    {
+        $this->server = $server;
+        $transport    = CurlTransport::createWithDefaultOptions([CURLOPT_TIMEOUT => config('bigbluebutton.server_timeout')]);
+        $this->bbb    = new BigBlueButton($server->base_url, $server->salt, $transport);
+    }
+
+    public function setBigBlueButton(BigBlueButton $bbb)
     {
         $this->bbb = $bbb;
+
+        return $this;
     }
 
     /**
@@ -94,12 +47,12 @@ class Server extends Model
      */
     public function getMeetings()
     {
-        if ($this->status == ServerStatus::DISABLED) {
+        if ($this->server->status == ServerStatus::DISABLED) {
             return null;
         }
 
         try {
-            $response = $this->bbb()->getMeetings();
+            $response = $this->bbb->getMeetings();
             if ($response->failed()) {
                 return null;
             }
@@ -115,14 +68,14 @@ class Server extends Model
      * Get list of currently running meeting from the api
      * @return string|null
      */
-    public function getBBBVersion()
+    public function getBBBVersion(): ?string
     {
-        if ($this->status == ServerStatus::DISABLED) {
+        if ($this->server->status == ServerStatus::DISABLED) {
             return null;
         }
 
         try {
-            $response = $this->bbb()->getApiVersion();
+            $response = $this->bbb->getApiVersion();
             if ($response->failed()) {
                 return null;
             }
@@ -136,53 +89,14 @@ class Server extends Model
     }
 
     /**
-     * Meetings that (have) run on this server
-     * @return HasMany
-     */
-    public function meetings()
-    {
-        return $this->hasMany(Meeting::class);
-    }
-
-    /**
-     * Server pools the server is part of
-     * @return BelongsToMany
-     */
-    public function pools(): BelongsToMany
-    {
-        return $this->belongsToMany(ServerPool::class);
-    }
-
-    /**
-     * Statistical data of this server
-     * @return HasMany
-     */
-    public function stats()
-    {
-        return $this->hasMany(ServerStat::class);
-    }
-
-    /**
-     * Scope a query to only get servers that have a name like the passed one.
-     *
-     * @param  Builder $query Query that should be scoped
-     * @param  String  $name  Name to search for
-     * @return Builder The scoped query
-     */
-    public function scopeWithName(Builder $query, $name)
-    {
-        return $query->where('name', 'like', '%' . $name . '%');
-    }
-
-    /**
      * A call to the api failed, mark server as offline
      * @todo Could be used in the future to trigger alarms, notifications, etc.
      */
-    public function apiCallFailed()
+    public function handleApiCallFailed()
     {
-        $this->status     = ServerStatus::OFFLINE;
-        $this->timestamps = false;
-        $this->save();
+        $this->server->status     = ServerStatus::OFFLINE;
+        $this->server->timestamps = false;
+        $this->server->save();
     }
 
     /**
@@ -191,8 +105,8 @@ class Server extends Model
      */
     public function endMeetings()
     {
-        foreach ($this->meetings()->whereNull('end')->get() as $meeting) {
-            $meeting->setEnd();
+        foreach ($this->server->meetings()->whereNull('end')->get() as $meeting) {
+            (new MeetingService($meeting))->setEnd();
 
             // If no other meeting is running for this room, reset live room usage
             if ($meeting->room->runningMeeting() == null) {
@@ -208,22 +122,22 @@ class Server extends Model
     /**
      * Panic server, set status offline and try to end all meeting using the api
      */
-    public function panic()
+    public function panic(): array
     {
-        $this->status = ServerStatus::DISABLED;
-        $this->save();
+        $this->server->status = ServerStatus::DISABLED;
+        $this->server->save();
 
-        $query   = $this->meetings()->whereNull('end');
+        $query   = $this->server->meetings()->whereNull('end');
         $total   = $query->count();
         $success = 0;
         foreach ($query->get() as $meeting) {
             try {
-                $meeting->endMeeting();
+                (new MeetingService($meeting))->end();
                 $success++;
             } catch (\Exception $exception) {
-                $this->apiCallFailed();
-                $this->status = ServerStatus::DISABLED;
-                $this->save();
+                $this->handleApiCallFailed();
+                $this->server->status = ServerStatus::DISABLED;
+                $this->server->save();
 
                 return ['total'=>$total,'success'=>$total];
             }
@@ -240,19 +154,19 @@ class Server extends Model
     {
         // Get list with all meetings marked in the db as running and collect meetings
         // that are currently running on the server
-        $allRunningMeetingsInDb      = $this->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
+        $allRunningMeetingsInDb      = $this->server->meetings()->whereNull('end')->whereNotNull('start')->pluck('id');
         $allRunningMeetingsOnServers = new Collection();
 
-        if ($this->status != ServerStatus::DISABLED) {
+        if ($this->server->status != ServerStatus::DISABLED) {
             $bbbMeetings = $this->getMeetings();
 
             // Server is offline, end all meetings  in database
             if ($bbbMeetings === null) {
-                $this->apiCallFailed();
+                $this->handleApiCallFailed();
                 // Add server statistics if enabled
                 if (setting('statistics.servers.enabled')) {
                     $serverStat = new ServerStat();
-                    $this->stats()->save($serverStat);
+                    $this->server->stats()->save($serverStat);
                 }
             } else {
                 $serverStat                          = new ServerStat();
@@ -375,19 +289,19 @@ class Server extends Model
                 }
 
                 // Save current live server status
-                $this->participant_count       = $serverStat->participant_count;
-                $this->listener_count          = $serverStat->listener_count;
-                $this->voice_participant_count = $serverStat->voice_participant_count;
-                $this->video_count             = $serverStat->video_count;
-                $this->meeting_count           = $serverStat->meeting_count;
-                $this->status                  = ServerStatus::ONLINE;
-                $this->timestamps              = false;
-                $this->version                 = $this->getBBBVersion();
-                $this->save();
+                $this->server->participant_count       = $serverStat->participant_count;
+                $this->server->listener_count          = $serverStat->listener_count;
+                $this->server->voice_participant_count = $serverStat->voice_participant_count;
+                $this->server->video_count             = $serverStat->video_count;
+                $this->server->meeting_count           = $serverStat->meeting_count;
+                $this->server->status                  = ServerStatus::ONLINE;
+                $this->server->timestamps              = false;
+                $this->server->version                 = $this->getBBBVersion();
+                $this->server->save();
 
                 // Save server statistics if enabled
                 if (setting('statistics.servers.enabled')) {
-                    $this->stats()->save($serverStat);
+                    $this->server->stats()->save($serverStat);
                 }
             }
         }
@@ -397,7 +311,7 @@ class Server extends Model
         foreach ($meetingsNotRunningOnServers as $meetingId) {
             $meeting = Meeting::find($meetingId);
             if ($meeting != null && $meeting->end == null) {
-                $meeting->setEnd();
+                (new MeetingService($meeting))->setEnd();
             }
         }
     }

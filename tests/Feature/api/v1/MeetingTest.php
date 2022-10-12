@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\Meeting;
-use App\Permission;
-use App\Role;
-use App\Room;
-use App\Server;
-use App\User;
+use App\Models\Meeting;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Room;
+use App\Models\Server;
+use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

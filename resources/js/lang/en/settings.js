@@ -179,8 +179,18 @@ export default {
     },
 
     helpUrl: {
-      title: 'URL to the help',
+      title: 'URL to the help page',
       description: 'If not set, no help button will be displayed.'
+    },
+
+    legalNoticeUrl: {
+      title: 'URL to the legal notice',
+      description: 'If not set, no legal notice link will be displayed in the footer.'
+    },
+
+    privacyPolicyUrl: {
+      title: 'URL to the privacy policy',
+      description: 'If not set, no privacy policy link will be displayed in the footer.'
     },
 
     roomLimit: {

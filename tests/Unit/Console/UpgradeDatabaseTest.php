@@ -28,7 +28,6 @@ class UpgradeDatabaseTest extends TestCase
             ->expectsOutput('Created new migrations table')
             ->expectsOutputToContain('Upgrade to v2 completed. Please upgrade to latest v2 database: php artisan migrate');
 
-        $tables_upgrade     = DB::connection()->getDoctrineSchemaManager()->listTableNames();
         $migrations_upgrade = DB::table('migrations')->pluck('migration')->toArray();
 
         // Check migration table was rewritten
@@ -38,14 +37,14 @@ class UpgradeDatabaseTest extends TestCase
         $this->artisan('db:upgrade')
             ->expectsOutput('Database is already upgraded');
 
-        // Creat v2 database
+        // Create v2 database
         $this->artisan('migrate:fresh');
-        $tables_v2     = DB::connection()->getDoctrineSchemaManager()->listTableNames();
         $migrations_v2 = DB::table('migrations')->pluck('migration')->toArray();
 
-        // Check table names and migration table is equal
-        $this->assertEqualsCanonicalizing($tables_upgrade, $tables_v2);
-        $this->assertEqualsCanonicalizing($migrations_upgrade, $migrations_v2);
+        // Check migration table after upgrade starts with the same as a fresh v2 database
+        foreach ($migrations_upgrade as $key => $migration) {
+            $this->assertEquals($migration, $migrations_v2[$key]);
+        }
     }
 
     /**

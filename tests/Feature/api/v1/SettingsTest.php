@@ -2,16 +2,15 @@
 
 namespace Tests\Feature\api\v1;
 
-use App\Meeting;
-use App\MeetingAttendee;
-use App\Permission;
-use App\Role;
-use App\User;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\Meeting;
+use App\Models\MeetingAttendee;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class SettingsTest extends TestCase
@@ -50,6 +49,8 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
         setting(['help_url' => 'http://localhost']);
+        setting(['legal_notice_url' => 'http://localhost']);
+        setting(['privacy_policy_url' => 'http://localhost']);
         setting(['room_token_expiration' => -1]);
         setting(['room_refresh_rate' => 20]);
         config(['app.url' => 'https://domain.tld']);
@@ -83,8 +84,10 @@ class SettingsTest extends TestCase
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
                     ],
-                    'help_url'   => 'http://localhost',
-                    'statistics' => [
+                    'help_url'           => 'http://localhost',
+                    'legal_notice_url'   => 'http://localhost',
+                    'privacy_policy_url' => 'http://localhost',
+                    'statistics'         => [
                         'meetings' => [
                             'enabled'           => true,
                             'retention_period'  => 90
@@ -110,6 +113,8 @@ class SettingsTest extends TestCase
             'icon'       => 'fas fa-door-open',
         ]]);
         setting(['help_url' => null]);
+        setting(['legal_notice_url' => null]);
+        setting(['privacy_policy_url' => null]);
 
         setting(['statistics' => [
             'meetings' => [
@@ -136,8 +141,10 @@ class SettingsTest extends TestCase
                     'banner'                         => [
                         'enabled'    => false
                     ],
-                    'help_url'   => null,
-                    'statistics' => [
+                    'help_url'            => null,
+                    'legal_notice_url'    => null,
+                    'privacy_policy_url'  => null,
+                    'statistics'          => [
                         'meetings' => [
                             'enabled'           => false,
                             'retention_period'  => 90
@@ -366,6 +373,8 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled' => '1',
             'default_timezone'            => 'Europe/Berlin',
             'help_url'                    => 'http://localhost',
+            'legal_notice_url'            => 'http://localhost',
+            'privacy_policy_url'          => 'http://localhost',
             'room_token_expiration'       => -1,
             'statistics'                  => [
                 'servers' => [
@@ -419,6 +428,8 @@ class SettingsTest extends TestCase
                     'password_self_reset_enabled' => true,
                     'default_timezone'            => 'Europe/Berlin',
                     'help_url'                    => 'http://localhost',
+                    'legal_notice_url'            => 'http://localhost',
+                    'privacy_policy_url'          => 'http://localhost',
                     'room_token_expiration'       => -1,
                     'statistics'                  => [
                         'servers' => [
@@ -445,12 +456,22 @@ class SettingsTest extends TestCase
         $this->assertTrue(setting()->has('help_url'));
         $this->assertEquals('http://localhost', setting('help_url'));
 
-        $payload['help_url'] = '';
+        $this->assertTrue(setting()->has('legal_notice_url'));
+        $this->assertEquals('http://localhost', setting('legal_notice_url'));
+
+        $this->assertTrue(setting()->has('privacy_policy_url'));
+        $this->assertEquals('http://localhost', setting('privacy_policy_url'));
+
+        $payload['help_url']           = '';
+        $payload['legal_notice_url']   = '';
+        $payload['privacy_policy_url'] = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
             ->assertSuccessful();
 
         $this->assertFalse(setting()->has('help_url'));
+        $this->assertFalse(setting()->has('legal_notice_url'));
+        $this->assertFalse(setting()->has('privacy_policy_url'));
     }
 
     /**
@@ -669,6 +690,8 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => 'foo',
             'default_timezone'               => 'timezone',
             'help_url'                       => 33,
+            'legal_notice_url'               => 44,
+            'privacy_policy_url'             => 55,
             'room_token_expiration'          => 123,
             'statistics'                     => [
                 'servers' => [
@@ -708,6 +731,8 @@ class SettingsTest extends TestCase
                 'password_self_reset_enabled',
                 'default_timezone',
                 'help_url',
+                'legal_notice_url',
+                'privacy_policy_url',
                 'statistics.servers.enabled',
                 'statistics.servers.retention_period',
                 'statistics.meetings.enabled',
@@ -735,6 +760,8 @@ class SettingsTest extends TestCase
             'password_self_reset_enabled'    => '1',
             'default_timezone'               => 'Europe/Berlin',
             'help_url'                       => 'http://localhost',
+            'legal_notice_url'               => 'http://localhost',
+            'privacy_policy_url'             => 'http://localhost',
             'room_token_expiration'          => -2,
             'statistics'                     => [
                 'servers' => [
@@ -766,7 +793,9 @@ class SettingsTest extends TestCase
                 'room_token_expiration'
             ])
             ->assertJsonMissingValidationErrors([
-                'help_url'
+                'help_url',
+                'legal_notice_url',
+                'privacy_policy_url'
             ]);
 
         $payload['banner'] = [
@@ -774,6 +803,8 @@ class SettingsTest extends TestCase
         ];
         $payload['room_token_expiration'] = 1440;
         $payload['help_url']              = '';
+        $payload['legal_notice_url']      = '';
+        $payload[ 'privacy_policy_url']   = '';
 
         $this->putJson(route('api.v1.application.update'), $payload)
             ->assertStatus(422)
@@ -782,6 +813,8 @@ class SettingsTest extends TestCase
             ])
             ->assertJsonMissingValidationErrors([
                 'help_url',
+                'legal_notice_url',
+                'privacy_policy_url',
                 'room_token_expiration'
             ]);
 
