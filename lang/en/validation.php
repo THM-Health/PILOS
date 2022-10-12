@@ -266,7 +266,9 @@ return [
         'timezone'                           => 'Timezone',
         'default_timezone'                   => 'Default timezone',
         'default_presentation'               => 'Default presentation',
-        'help_url'                           => 'URL to the help',
+        'help_url'                           => 'Help page',
+        'legal_notice_url'                   => 'Legal notice',
+        'privacy_policy_url'                 => 'Privacy policy',
         'restrict'                           => 'Restrict usage',
         'room_token_expiration'              => 'Expiration time for personalized room links'
     ],

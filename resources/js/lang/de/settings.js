@@ -188,6 +188,16 @@ export default {
       description: 'Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.'
     },
 
+    legalNoticeUrl: {
+      title: 'URL zum Impressum',
+      description: 'Wenn nicht gesetzt, wird kein Link zum Impressum in der Fußzeile angezeigt.'
+    },
+
+    privacyPolicyUrl: {
+      title: 'URL zur Datenschutzerklärung',
+      description: 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.'
+    },
+
     roomLimit: {
       title: 'Anzahl der Räume pro Benutzer',
       description: 'Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.'

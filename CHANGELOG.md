@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Customization options for legal notice url and privacy policy url in UI and env ([#234],[#261])
+
+### Removed
+- **Breaking:** Legal notice url and privacy policy url internationalisation ([#234],[#261])
+
 ## [v2.0.0-alpha.2] - 2022-10-05
 ### Fixed
 - **Breaking:** Wrong database migration filenames ([#271],[#272])
@@ -355,6 +361,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#258]: https://github.com/THM-Health/PILOS/pull/258
 [#259]: https://github.com/THM-Health/PILOS/issues/259
 [#260]: https://github.com/THM-Health/PILOS/pull/260
+[#261]: https://github.com/THM-Health/PILOS/pull/261
 [#262]: https://github.com/THM-Health/PILOS/pull/262
 [#264]: https://github.com/THM-Health/PILOS/issues/264
 [#265]: https://github.com/THM-Health/PILOS/pull/265

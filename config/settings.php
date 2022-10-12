@@ -94,6 +94,8 @@ return [
         'password_self_reset_enabled' => env('PASSWORD_SELF_RESET_ENABLED', false),
         'default_timezone'            => env('DEFAULT_TIMEZONE', 'UTC'),
         'help_url'                    => env('HELP_URL'),
+        'legal_notice_url'            => env('LEGAL_NOTICE_URL'),
+        'privacy_policy_url'          => env('PRIVACY_POLICY_URL'),
         'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1),
         'room_refresh_rate'           => env('ROOM_REFRESH_RATE', 30),
         'room_auto_delete' => [
