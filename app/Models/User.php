@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Notifications\PasswordReset;
 use App\Traits\AddsModelNameTrait;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -256,5 +258,20 @@ class User extends Authenticatable implements HasLocalePreference
     public function preferredLocale()
     {
         return $this->locale;
+    }
+
+    /**
+     * Send a password reset notification to the user.
+     *
+     * @param  string $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $reset = DB::table('password_resets')
+            ->where('email', '=', $this->email)
+            ->first();
+
+        $this->notify(new PasswordReset($token, Carbon::parse($reset->created_at)));
     }
 }

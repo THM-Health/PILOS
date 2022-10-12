@@ -2,8 +2,9 @@
 
 namespace Tests\Feature\api\v1;
 
+use App\Models\Session;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\PasswordReset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
@@ -31,12 +32,15 @@ class ResetPasswordTest extends TestCase
         Notification::fake();
         $this->postJson(route('api.v1.password.email'), ['email' => $user->email])
             ->assertStatus(200);
-        $token = '';
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use (&$token) {
-            $token = $notification->token;
+
+        $resetUrl = '';
+        Notification::assertSentTo($user, function (PasswordReset $notification, $channels, $notifiable) use (&$resetUrl) {
+            $resetUrl = $notification->getActionUrl($notifiable);
 
             return true;
         });
+        $query = [];
+        parse_str(parse_url($resetUrl, PHP_URL_QUERY), $query);
 
         $this->postJson(route('api.v1.password.reset'))
             ->assertStatus(422)
@@ -71,7 +75,7 @@ class ResetPasswordTest extends TestCase
 
         $this->postJson(route('api.v1.password.reset'), [
             'token'                 => 'foo',
-            'email'                 => $user->email,
+            'email'                 => $query['email'],
             'password'              => 'bar_T123',
             'password_confirmation' => 'bar_T123'
         ])
@@ -79,8 +83,8 @@ class ResetPasswordTest extends TestCase
             ->assertJsonValidationErrors('email');
 
         $this->postJson(route('api.v1.password.reset'), [
-            'token'                 => $token,
-            'email'                 => $user->email,
+            'token'                 => $query['token'],
+            'email'                 => $query['email'],
             'password'              => 'bar_T123',
             'password_confirmation' => 'bar_T123'
         ])
@@ -88,14 +92,42 @@ class ResetPasswordTest extends TestCase
 
         $this->artisan('cache:clear');
         $this->postJson(route('api.v1.password.reset'), [
-            'token'                 => $token,
-            'email'                 => $user->email,
+            'token'                 => $query['token'],
+            'email'                 => $query['email'],
             'password'              => 'bar_T123',
             'password_confirmation' => 'bar_T123'
         ])
             ->assertStatus(200);
         $this->assertAuthenticatedAs($user);
         Auth::logout();
+
+        // Create sessions in database
+        $this->session                = new Session();
+        $this->session->id            = \Str::random(40);
+        $this->session->user_agent    = 'Agent 1';
+        $this->session->ip_address    = $this->faker->ipv4;
+        $this->session->payload       = '';
+        $this->session->last_activity = now();
+        $this->session->user()->associate($newUser);
+        $this->session->save();
+
+        $this->otherSession                = new Session();
+        $this->otherSession->id            = \Str::random(40);
+        $this->otherSession->user_agent    = 'Agent 2';
+        $this->otherSession->ip_address    = $this->faker->ipv4;
+        $this->otherSession->payload       = '';
+        $this->otherSession->last_activity = now()->subMinutes(5);
+        $this->otherSession->user()->associate($newUser);
+        $this->otherSession->save();
+
+        $this->otherUserSession                = new Session();
+        $this->otherUserSession->id            = \Str::random(40);
+        $this->otherUserSession->user_agent    = 'Agent 3';
+        $this->otherUserSession->ip_address    = $this->faker->ipv4;
+        $this->otherUserSession->payload       = '';
+        $this->otherUserSession->last_activity = now()->subMinutes(5);
+        $this->otherUserSession->user()->associate($user);
+        $this->otherUserSession->save();
 
         $this->postJson(route('api.v1.password.reset'), [
             'token'                 => $newUserToken,
@@ -106,5 +138,9 @@ class ResetPasswordTest extends TestCase
             ->assertStatus(200);
         $this->assertAuthenticatedAs($newUser);
         Auth::logout();
+
+        // Check if all sessions of the user (newUser) are terminated due to password reset, and  sessions of other users are still there
+        $this->assertCount(0, $newUser->sessions);
+        $this->assertCount(1, $user->sessions);
     }
 }

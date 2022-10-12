@@ -53,6 +53,14 @@ class PasswordReset extends Notification
         return ['mail'];
     }
 
+    public function getActionUrl($notifiable)
+    {
+        return url('/reset_password?') . \Arr::query([
+                'token' => $this->token,
+                'email' => $notifiable->getEmailForPasswordReset()
+            ]);
+    }
+
     /**
      * Get the mail representation of the notification.
      *
@@ -61,11 +69,6 @@ class PasswordReset extends Notification
      */
     public function toMail($notifiable): MailMessage
     {
-        $url = url('/reset_password?') . \Arr::query([
-            'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset()
-        ]);
-
         $date = $this->expireDate
             ->addMinutes(config('auth.passwords.users.expire'))
             ->timezone($notifiable->timezone)
@@ -74,7 +77,7 @@ class PasswordReset extends Notification
         return (new MailMessage)
             ->subject(__('mail.password_reset.subject'))
             ->line(__('mail.password_reset.description'))
-            ->action(__('mail.password_reset.action'), $url)
+            ->action(__('mail.password_reset.action'), $this->getActionUrl($notifiable))
             ->line(__('mail.password_reset.expire', ['date' => $date]))
             ->line(__('mail.password_reset.signature'))
             ->markdown('vendor.notifications.email', ['name' => $notifiable->fullname]);

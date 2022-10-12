@@ -32,10 +32,11 @@ class VerifyEmail extends Notification
         return ['mail'];
     }
 
-    public function getVerificationUrl()
+    public function getActionUrl()
     {
         return url('/verify_email?') . \Arr::query([
                 'token' => $this->token->getPlainTextToken(),
+                'email' => $this->token->getVerifyEmail()->email,
             ]);
     }
 
@@ -55,7 +56,7 @@ class VerifyEmail extends Notification
         return (new MailMessage)
             ->subject(__('mail.verify_email.subject'))
             ->line(__('mail.verify_email.description'))
-            ->action(__('mail.verify_email.action'), $this->getVerificationUrl())
+            ->action(__('mail.verify_email.action'), $this->getActionUrl())
             ->line(__('mail.verify_email.expire', ['expireDateTime' => $this->expireDateTime]))
             ->markdown('vendor.notifications.email', ['name' => $this->token->getVerifyEmail()->user->fullname]);
     }

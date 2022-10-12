@@ -9,11 +9,11 @@ use App\Models\Session;
 use App\Models\User;
 use App\Notifications\EmailChanged;
 use App\Notifications\PasswordChanged;
+use App\Notifications\PasswordReset;
 use App\Notifications\UserWelcome;
 use App\Notifications\VerifyEmail;
 use Carbon\Carbon;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -656,7 +656,7 @@ class UserTest extends TestCase
         Notification::assertSentOnDemand(
             VerifyEmail::class,
             function ($notification, $channels, $notifiable) use ($user, $newEmail, &$verificationUrl) {
-                $verificationUrl = $notification->getVerificationUrl();
+                $verificationUrl = $notification->getActionUrl();
 
                 return $notifiable->routes['mail'] === [$newEmail => $user->fullname];
             }
@@ -1217,12 +1217,14 @@ class UserTest extends TestCase
         $resetUser->save();
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertSuccessful();
-        Notification::assertSentTo($resetUser, ResetPassword::class);
+        $resetUrl = '';
+        Notification::assertSentTo($resetUser, PasswordReset::class);
 
+        // Check if requesting reset immediately after another reset request is not possible
         Notification::fake();
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED);
-        Notification::assertNotSentTo($resetUser, ResetPassword::class);
+        Notification::assertNotSentTo($resetUser, PasswordReset::class);
     }
 
     public function testCreateUserWithGeneratedPassword()
