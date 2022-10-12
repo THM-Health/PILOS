@@ -415,8 +415,8 @@ class MembershipTest extends TestCase
 
         // create and save new test-room
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
         $room->owner()->associate($owner);
         $room->save();
@@ -565,8 +565,8 @@ class MembershipTest extends TestCase
 
         // create and save new test-room
         $room = Room::factory()->create([
-            'allowGuests' => true,
-            'accessCode'  => $this->faker->numberBetween(111111111, 999999999)
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
         ]);
         $room->owner()->associate($owner);
         $room->save();
