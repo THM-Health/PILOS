@@ -28,7 +28,12 @@ export default {
   props: {
     token: {
       type: String,
-      required: true
+      default: null
+    },
+
+    email: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -47,6 +52,7 @@ export default {
       Base.call('verify_email', {
         method: 'POST',
         data: {
+          email: this.email,
           token: this.token
         }
       })

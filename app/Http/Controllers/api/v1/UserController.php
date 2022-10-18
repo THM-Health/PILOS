@@ -8,6 +8,7 @@ use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\NewUserRequest;
 use App\Http\Requests\UserRequest;
+use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\UserSearch;
 use App\Models\User;
@@ -234,9 +235,12 @@ class UserController extends Controller
             // User is changing his own email, require verification
             if (Auth::user()->is($user)) {
                 $emailVerificationService = new EmailVerificationService($user);
-                $emailVerificationService->sendEmailVerificationNotification($request->email);
-
-                return response()->noContent(202);
+                $success                  = $emailVerificationService->sendEmailVerificationNotification($request->email);
+                if ($success) {
+                    return response()->noContent(202);
+                } else {
+                    abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+                }
             }
             // Admin is changing the email of another user, no verification required
             else {
@@ -263,10 +267,10 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function verifyEmail(Request $request)
+    public function verifyEmail(VerifyEmailRequest $request)
     {
         $emailVerificationService = new EmailVerificationService(Auth::user());
-        $success                  = $emailVerificationService->processVerification($request->input('token'));
+        $success                  = $emailVerificationService->processVerification($request->input('token'), $request->input('email'));
         if ($success) {
             return response('', 200);
         } else {

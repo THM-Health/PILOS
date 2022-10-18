@@ -122,6 +122,8 @@ export default {
             this.$emit('notFoundError', error);
           } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
+          } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
+            this.flashMessage.error(this.$t('settings.users.email.throttle'));
           } else {
             Base.error(error, this.$root, error.message);
           }

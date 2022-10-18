@@ -49,7 +49,7 @@ class VerifyEmail extends Notification
     public function toMail($notifiable): MailMessage
     {
         $this->expireDateTime = $this->token->getVerifyEmail()->created_at
-            ->addMinutes(config('auth.passwords.users.expire'))
+            ->addMinutes(config('auth.email_change.expire'))
             ->timezone($this->timezone)
             ->isoFormat('LLLL');
 

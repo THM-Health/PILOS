@@ -69,7 +69,8 @@ export const routes = [
     meta: { requiresAuth: true },
     props: route => {
       return {
-        token: route.query.token
+        token: route.query.token,
+        email: route.query.email,
       };
     }
   },

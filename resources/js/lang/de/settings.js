@@ -126,7 +126,11 @@ export default {
       current_password: 'Aktuelles Passwort',
       email: 'E-Mail',
       save: 'E-Mail Adresse ändern',
-      validation_required: 'Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.'
+      validation_required: 'Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.',
+      throttle: {
+        title: 'Zu viele Anfragen',
+        message: 'Sie haben bereits vor kurzem eine Anfrage zur Änderung der E-Mail Adresse gestellt. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.'
+      }
     },
 
     authentication: {

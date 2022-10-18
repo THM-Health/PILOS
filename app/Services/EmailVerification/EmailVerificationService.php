@@ -6,6 +6,7 @@ use App\Models\VerifyEmail;
 use App\Models\User;
 use App\Notifications\EmailChanged;
 use App\Notifications\VerifyEmail as VerifyEmailNotification;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -22,34 +23,49 @@ class EmailVerificationService
     /**
      * Send the email verification notification.
      */
-    public function sendEmailVerificationNotification(string $newEmail)
+    public function sendEmailVerificationNotification(string $newEmail): bool
     {
+        if ($this->recentlyCreated()) {
+            return false;
+        }
+
         $token = $this->createToken($newEmail);
 
         Notification::route('mail', [
             $newEmail => $this->user->fullname
         ])->notifyNow((new VerifyEmailNotification($token, $this->user->timezone))->locale($this->user->locale));
+
+        return true;
     }
 
-    public function processVerification(string $token): bool
+    /**
+     * Determine if the given user recently created an email change request.
+     *
+     * @return bool
+     */
+    public function recentlyCreated(): bool
     {
-        $emailChange = $this->user->verifyEmails()->first();
-
-        if ($emailChange === null) {
-            \Log::notice('token not found');
-
+        $throttle = config('auth.email_change.throttle');
+        if ($throttle <= 0) {
             return false;
         }
 
-        if ($emailChange->created_at->addMinutes(config('auth.passwords.users.expire'))->isPast()) {
-            \Log::notice('token expired');
+        return $this->user->verifyEmails()->where('created_at', '>=', Carbon::now()->subMinutes($throttle))->exists();
+    }
 
+    public function processVerification(string $token, string $email): bool
+    {
+        $emailChange = $this->user->verifyEmails()->where('email', $email)->orderByDesc('created_at')->first();
+
+        if ($emailChange === null) {
+            return false;
+        }
+
+        if ($emailChange->created_at->addMinutes(config('auth.email_change.expire'))->isPast()) {
             return false;
         }
 
         if (!Hash::check($token, $emailChange->token)) {
-            \Log::notice('token invalid');
-
             return false;
         }
 

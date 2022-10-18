@@ -125,6 +125,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Changing Email
+    |--------------------------------------------------------------------------
+    |
+    | These settings control the email change feature for users with a local account (provider = users).
+    |
+    | The expire time is the number of minutes that the verification token should be
+    | considered valid.
+    |
+    | The throttle time is the number of minutes that a user must wait before requesting
+    | another verification token. If throttle is set to 0, throttling is disabled.
+    |
+    */
+
+    'email_change' => [
+        'expire' => env('EMAIL_CHANGE_EXPIRE', 60),
+        'throttle' => env('EMAIL_CHANGE_THROTTLE', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Password Confirmation Timeout
     |--------------------------------------------------------------------------
     |
@@ -141,5 +161,4 @@ return [
         'failed'     => env('AUTH_LOG_FAILED', false),
         'ldap_roles' => env('AUTH_LOG_LDAP_ROLES', false),
     ]
-
 ];

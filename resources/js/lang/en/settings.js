@@ -124,7 +124,11 @@ export default {
       current_password: 'Current password',
       email: 'E-Mail',
       save: 'Change E-Mail',
-      validation_required: 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.'
+      validation_required: 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.',
+      throttle: {
+        title: 'Too many requests',
+        message: 'You have recently requested an email change. Please wait and try again later.'
+      }
     },
 
     authentication: {
