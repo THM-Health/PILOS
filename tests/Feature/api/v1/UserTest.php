@@ -12,6 +12,7 @@ use App\Notifications\PasswordChanged;
 use App\Notifications\PasswordReset;
 use App\Notifications\UserWelcome;
 use App\Notifications\VerifyEmail;
+use Cache;
 use Carbon\Carbon;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -604,11 +605,15 @@ class UserTest extends TestCase
     public function testChangeEmail()
     {
         Notification::fake();
+        config(['auth.email_change.throttle' => 5]);
+        config(['auth.email_change.expire' => 60]);
 
-        $password  = $this->faker->password;
-        $email     = $this->faker->email;
-        $user      = User::factory()->create(['password' => Hash::make($password), 'email' => $email]);
-        $otherUser = User::factory()->create();
+        $password           = $this->faker->password;
+        $otherUserPassword  = $this->faker->password;
+        $email              = $this->faker->email;
+        $user               = User::factory()->create(['password' => Hash::make($password), 'email' => $email]);
+        $otherUser          = User::factory()->create(['password' => Hash::make($otherUserPassword)]);
+        $ldapUser           = User::factory()->create(['authenticator' => 'ldap']);
 
         $newEmail = $this->faker->email;
         $changes  = [
@@ -628,11 +633,15 @@ class UserTest extends TestCase
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertForbidden();
 
+        // Clear cache (and rate limiter)
+        Cache::clear();
+
         // Give user permission to change own email
         $role       = Role::factory()->create();
         $permission = Permission::firstOrCreate([ 'name' => 'users.updateOwnAttributes' ]);
         $role->permissions()->attach($permission->id);
         $user->roles()->attach($role);
+        $otherUser->roles()->attach($role);
 
         // Check with missing password
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
@@ -643,16 +652,42 @@ class UserTest extends TestCase
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertJsonValidationErrors(['current_password']);
 
-        // Check with correct password
+        // Check changing email to existing email of other user
+        $changes['email']            = $otherUser->email;
         $changes['current_password'] = $password;
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertJsonValidationErrors(['email']);
+
+        // Check with correct password
+        $changes['email'] = $this->faker->email;
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertStatus(202);
         $user->refresh();
+
+        // Clear cache (and rate limiter)
+        Cache::clear();
+
+        // Check if email can be changed immediately
+        $changes['email'] = $this->faker->email;
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+
+        // Check if email can be changed after throttle time
+        Carbon::setTestNow(Carbon::now()->addMinutes(6));
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(202);
+
+        // Check if email can be changed immediately if throttling is disabled
+        config(['auth.email_change.throttle' => 0]);
+        $changes['email'] = $newEmail;
+        $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(202);
+
         // Check if email is not changed yet
         $this->assertSame($email, $user->email);
 
+        // Check if validation email was send and get url from email
         $verificationUrl = null;
-
         Notification::assertSentOnDemand(
             VerifyEmail::class,
             function ($notification, $channels, $notifiable) use ($user, $newEmail, &$verificationUrl) {
@@ -661,21 +696,34 @@ class UserTest extends TestCase
                 return $notifiable->routes['mail'] === [$newEmail => $user->fullname];
             }
         );
-
         $query = [];
         parse_str(parse_url($verificationUrl, PHP_URL_QUERY), $query);
 
         // Try to verify email as unauthenticated user
         Auth::logout();
-        $this->postJson(route('api.v1.users.email.verify'), ['token' => $query['token']])
+        $this->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertUnauthorized();
 
         // Try to verify email as other authenticated user
-        $this->actingAs($otherUser)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token']])
+        $this->actingAs($otherUser)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertStatus(422);
 
+        // Try to verify email as correct user with invalid email
+        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => 'test@domain.tld'])
+            ->assertUnprocessable();
+
+        // Try to verify email as correct user with invalid token
+        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => '1234', 'email' => $query['email']])
+            ->assertUnprocessable();
+
+        // Try to verify email after expiration time
+        Carbon::setTestNow(Carbon::now()->addHour());
+        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
+            ->assertUnprocessable();
+        Carbon::setTestNow(Carbon::now()->subHour());
+
         // Try to verify email as correct user
-        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token']])
+        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertSuccessful();
 
         // Check if email is changed
@@ -691,10 +739,31 @@ class UserTest extends TestCase
         );
 
         // Try to change email with same email
+        $changes['email'] = $newEmail;
         Notification::fake();
         $this->actingAs($user)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
             ->assertStatus(200);
         Notification::assertNothingSent();
+
+        // Clear cache (and rate limiter)
+        Cache::clear();
+        // Check rate limiter for same user and ip
+        for ($i = 0; $i < 5; $i++) {
+            $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+                ->assertStatus(200);
+        }
+        // Check if rate limiter is triggered
+        $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(429);
+        // Check if rate limiter is not triggered for different ip
+        $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.2'])->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+            ->assertStatus(200);
+        // Check if other user is not affected by rate limiter
+        $changes['email']            = $otherUser->email;
+        $changes['current_password'] = $otherUserPassword;
+        $this->actingAs($otherUser)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.email.change', ['user' => $otherUser]), $changes)
+            ->assertStatus(200);
+        Cache::clear();
 
         // Try to change email for different authenticator
         $user->authenticator = 'ldap';
@@ -735,6 +804,12 @@ class UserTest extends TestCase
             }
         );
 
+        // Check rate limiter does not affect admin
+        for ($i = 0; $i < 10; $i++) {
+            $this->actingAs($admin)->putJson(route('api.v1.users.email.change', ['user' => $user]), $changes)
+                ->assertSuccessful();
+        }
+
         // Try to change email for user with different authenticator
         $user->authenticator = 'ldap';
         $user->username      = $this->faker->unique()->userName;
@@ -762,7 +837,7 @@ class UserTest extends TestCase
         $password    = $this->faker->password;
         $newPassword = '!SuperSecretPassword123';
         $user        = User::factory()->create(['password' => Hash::make($password)]);
-        $otherUser   = User::factory()->create();
+        $otherUser   = User::factory()->create(['password' => Hash::make($newPassword)]);
 
         $changes = [
             'new_password'              => $newPassword,
@@ -845,6 +920,28 @@ class UserTest extends TestCase
 
         // Check if notification is sent to user
         Notification::assertSentTo($user, PasswordChanged::class);
+
+        // Clear cache (and rate limiter)
+        Cache::clear();
+        $changes['current_password']          = $newPassword;
+        $changes['new_password']              = $newPassword;
+        $changes['new_password_confirmation'] = $newPassword;
+
+        // Check rate limiter for same user and ip
+        for ($i = 0; $i < 5; $i++) {
+            $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+                ->assertStatus(200);
+        }
+        // Check if rate limiter is triggered
+        $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertStatus(429);
+        // Check if rate limiter is not triggered for different ip
+        $this->actingAs($user)->withServerVariables(['REMOTE_ADDR' => '10.1.0.2'])->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+            ->assertStatus(200);
+        // Check if other user is not affected by rate limiter
+        $this->actingAs($otherUser)->withServerVariables(['REMOTE_ADDR' => '10.1.0.1'])->putJson(route('api.v1.users.password.change', ['user' => $otherUser]), $changes)
+            ->assertStatus(200);
+        Cache::clear();
 
         // Try to change password for user with different authenticator
         $user->authenticator = 'ldap';
@@ -937,6 +1034,12 @@ class UserTest extends TestCase
 
         // Check if notification is sent to user
         Notification::assertSentTo($user, PasswordChanged::class);
+
+        // Check rate limiter does not affect admin
+        for ($i = 0; $i < 10; $i++) {
+            $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
+                ->assertSuccessful();
+        }
 
         // Try to change password for user with different authenticator
         $user->authenticator = 'ldap';
