@@ -70,7 +70,7 @@ export const routes = [
     props: route => {
       return {
         token: route.query.token,
-        email: route.query.email,
+        email: route.query.email
       };
     }
   },
