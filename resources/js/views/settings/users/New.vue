@@ -75,13 +75,13 @@
               label-for='user_locale'
               :state='fieldState("user_locale")'
             >
-              <locale-input
+              <locale-select
                 id='user_locale'
                 required
                 v-model="model.user_locale"
                 :state='fieldState("user_locale")'
                 :disabled="isBusy"
-              ></locale-input>
+              ></locale-select>
               <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
             </b-form-group>
             <b-form-group
@@ -109,7 +109,7 @@
               label-for='roles'
               :state='fieldState("roles", true)'
             >
-              <role-input
+              <role-select
                 id='roles'
                 v-model='model.roles'
                 :invalid='fieldState("roles", true)===false'
@@ -117,7 +117,7 @@
                 @loadingError="(value) => this.rolesLoadingError = value"
                 @busy="(value) => this.rolesLoading = value"
 
-              ></role-input>
+              ></role-select>
               <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
             </b-form-group>
           </b-form-group>
@@ -213,14 +213,14 @@
 import FieldErrors from '../../../mixins/FieldErrors';
 import Base from '../../../api/base';
 import env from '../../../env';
-import RoleInput from '../../../components/Inputs/RoleInput';
+import RoleSelect from '../../../components/Inputs/RoleSelect';
 import 'cropperjs/dist/cropper.css';
-import LocaleInput from '../../../components/Inputs/LocaleInput';
+import LocaleSelect from '../../../components/Inputs/LocaleSelect';
 import TimezoneSelect from '../../../components/Inputs/TimezoneSelect';
 
 export default {
   mixins: [FieldErrors],
-  components: { TimezoneSelect, LocaleInput, RoleInput },
+  components: { TimezoneSelect, LocaleSelect, RoleSelect },
   data () {
     return {
       isBusy: false,
