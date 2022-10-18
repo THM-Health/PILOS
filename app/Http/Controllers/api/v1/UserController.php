@@ -8,7 +8,6 @@ use App\Http\Requests\ChangeEmailRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\NewUserRequest;
 use App\Http\Requests\UserRequest;
-use App\Http\Requests\VerifyEmailRequest;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\UserSearch;
 use App\Models\User;
@@ -265,16 +264,5 @@ class UserController extends Controller
         $authService->changePassword($request->new_password, $keepSession);
 
         return new UserResource($user);
-    }
-
-    public function verifyEmail(VerifyEmailRequest $request)
-    {
-        $emailVerificationService = new EmailVerificationService(Auth::user());
-        $success                  = $emailVerificationService->processVerification($request->input('token'), $request->input('email'));
-        if ($success) {
-            return response('', 200);
-        } else {
-            return response('', 422);
-        }
     }
 }

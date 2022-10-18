@@ -13,7 +13,9 @@
           <b-alert variant="success" show><i class="fa-solid fa-envelope-circle-check"></i> {{ $t('app.verifyEmail.success') }}</b-alert>
         </div>
         <div v-else>
-          <b-alert variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.fail') }}</b-alert>
+          <b-alert v-if="error === env.HTTP_TOO_MANY_REQUESTS" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.tooMany') }}</b-alert>
+          <b-alert v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.invalid') }}</b-alert>
+          <b-alert v-else  variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.fail') }}</b-alert>
         </div>
       </div>
     </b-card>
@@ -22,6 +24,7 @@
 
 <script>
 import Base from '../api/base';
+import env from '../env';
 
 export default {
   name: 'ConfirmEmailChange.vue',
@@ -40,7 +43,8 @@ export default {
     return {
       loading: true,
       success: true,
-      error: null
+      error: null,
+      env
     };
   },
   mounted () {
@@ -49,7 +53,7 @@ export default {
   methods: {
     verifyEmail () {
       this.loading = true;
-      Base.call('verify_email', {
+      Base.call('email/verify', {
         method: 'POST',
         data: {
           email: this.email,
@@ -59,7 +63,10 @@ export default {
         .then(response => {
           this.success = true;
         })
-        .catch(() => {
+        .catch((error) => {
+          if (error.response) {
+            this.error = error.response.status;
+          }
           this.success = false;
         }).finally(() => {
           this.loading = false;

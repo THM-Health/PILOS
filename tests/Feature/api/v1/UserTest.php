@@ -701,29 +701,41 @@ class UserTest extends TestCase
 
         // Try to verify email as unauthenticated user
         Auth::logout();
-        $this->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
+        $this->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertUnauthorized();
 
         // Try to verify email as other authenticated user
-        $this->actingAs($otherUser)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
+        $this->actingAs($otherUser)->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertStatus(422);
 
         // Try to verify email as correct user with invalid email
-        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => 'test@domain.tld'])
+        $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => 'test@domain.tld'])
             ->assertUnprocessable();
 
         // Try to verify email as correct user with invalid token
-        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => '1234', 'email' => $query['email']])
+        $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => '1234', 'email' => $query['email']])
             ->assertUnprocessable();
+
+        // Try to send too many request, trying to guess the token
+        // Clear cache (and rate limiter)
+        Cache::clear();
+        for ($i = 0; $i < 5; $i++) {
+            $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => '1234', 'email' => $query['email']])
+                ->assertUnprocessable();
+        }
+        $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => '1234', 'email' => $query['email']])
+            ->assertStatus(429);
+        // Clear cache (and rate limiter)
+        Cache::clear();
 
         // Try to verify email after expiration time
         Carbon::setTestNow(Carbon::now()->addHour());
-        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
+        $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertUnprocessable();
         Carbon::setTestNow(Carbon::now()->subHour());
 
         // Try to verify email as correct user
-        $this->actingAs($user)->postJson(route('api.v1.users.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
+        $this->actingAs($user)->postJson(route('api.v1.email.verify'), ['token' => $query['token'], 'email' => $query['email']])
             ->assertSuccessful();
 
         // Check if email is changed

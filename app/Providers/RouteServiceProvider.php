@@ -58,6 +58,11 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Rate limit verify email requests
+        RateLimiter::for('verify_email', function (Request $request) {
+            return Limit::perMinutes(30, 5)->by($request->user()->id);
+        });
+
         // Rate limit for changes to the current user profile, requiring to current password of the user if the user is editing himself
         // Prevent brute force attacks on the password
         RateLimiter::for('current_password', function (Request $request) {

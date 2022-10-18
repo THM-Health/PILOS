@@ -146,7 +146,9 @@ export default {
   verifyEmail: {
     title: 'Email verification',
     success: 'Your email address was successfully verified!',
-    fail: 'Your email address could not be verified!'
+    fail: 'Your email address could not be verified!',
+    tooMany: 'You have reached the maximum number of verification attempts! Please try again later.',
+    invalid: 'The verification link is invalid or has expired!'
   },
 
   buttonStyles: {
