@@ -253,4 +253,56 @@ describe('NewUserView', () => {
 
     view.destroy();
   });
+
+  it('handle component events', async () => {
+    const view = mount(New, {
+      store,
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+      },
+      stubs: { 'timezone-select': true, 'locale-select': true, 'role-select': true },
+      attachTo: createContainer()
+    });
+
+    // Find components
+    const timezoneSelect = view.findComponent(TimezoneSelect);
+    const roleSelect = view.findComponent(RoleSelect);
+
+    // Find submit button
+    const form = view.findComponent(BForm);
+    const buttons = form.findAllComponents(BButton);
+    const submitButton = buttons.at(1);
+
+    console.log(submitButton.html());
+
+    // Check submit button enabled
+    expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    // Load roles
+    await roleSelect.vm.$emit('busy', true);
+    expect(submitButton.attributes('disabled')).toBeTruthy();
+    await roleSelect.vm.$emit('busy', false);
+    expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    // Load roles error
+    await roleSelect.vm.$emit('loadingError', true);
+    expect(submitButton.attributes('disabled')).toBeTruthy();
+    await roleSelect.vm.$emit('loadingError', false);
+    expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    // Load timezones
+    await timezoneSelect.vm.$emit('busy', true);
+    expect(submitButton.attributes('disabled')).toBeTruthy();
+    await timezoneSelect.vm.$emit('busy', false);
+    expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    // Load timezones error
+    await timezoneSelect.vm.$emit('loadingError', true);
+    expect(submitButton.attributes('disabled')).toBeTruthy();
+    await timezoneSelect.vm.$emit('loadingError', false);
+    expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    view.destroy();
+  });
 });
