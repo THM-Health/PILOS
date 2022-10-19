@@ -122,7 +122,7 @@
             required
             v-model="model.user_locale"
             :state='fieldState("user_locale")'
-            :disabled="isBusy  || !edit"
+            :disabled="isBusy || !edit"
           ></locale-select>
           <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
         </b-form-group>
@@ -137,7 +137,7 @@
             required
             v-model="model.timezone"
             :state='fieldState("timezone")'
-            :disabled="isBusy"
+            :disabled="isBusy || !edit"
             @loadingError="(value) => this.timezonesLoadingError = value"
             @busy="(value) => this.timezonesLoading = value"
             :placeholder="$t('settings.users.timezone')"
