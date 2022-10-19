@@ -69,7 +69,7 @@
 
             </b-col>
 
-            <b-col sm="12" lg="3" class="text-left text-lg-right">
+            <b-col sm="12" lg="3" class="text-left" v-bind:class="{'text-lg-right': edit}">
               <b-img
                 v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
                 :src="croppedImage ? croppedImage : model.image"
