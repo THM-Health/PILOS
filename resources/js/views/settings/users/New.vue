@@ -116,7 +116,6 @@
                 :disabled="isBusy"
                 @loadingError="(value) => this.rolesLoadingError = value"
                 @busy="(value) => this.rolesLoading = value"
-
               ></role-select>
               <template slot='invalid-feedback'><div v-html="fieldError('roles', true)"></div></template>
             </b-form-group>
@@ -228,7 +227,6 @@ export default {
       model: {
         firstname: null,
         lastname: null,
-        username: null,
         email: null,
         new_password: null,
         new_password_confirmation: null,
@@ -266,8 +264,9 @@ export default {
       }
 
       this.isBusy = true;
+      this.errors = {};
 
-      const formData = {
+      const data = {
         firstname: this.model.firstname,
         lastname: this.model.lastname,
         username: this.model.username,
@@ -278,16 +277,15 @@ export default {
         generate_password: this.generate_password
       };
 
-      if (!this.generate_password && this.model.new_password != null) {
-        formData.new_password = this.model.new_password;
-        formData.new_password_confirmation = this.model.new_password_confirmation;
+      if (!this.generate_password) {
+        data.new_password = this.model.new_password;
+        data.new_password_confirmation = this.model.new_password_confirmation;
       }
 
       Base.call('users', {
         method: 'POST',
-        data: formData
+        data: data
       }).then(response => {
-        this.errors = {};
         this.$router.push({ name: 'settings.users.view', params: { id: response.data.data.id } });
       }).catch(error => {
         if (error.response && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
