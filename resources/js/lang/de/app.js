@@ -147,7 +147,7 @@ export default {
     title: 'E-mail verifizieren',
     success: 'Ihre E-Mail wurde erfolgreich verifiziert!',
     fail: 'Ihre E-Mail konnte nicht verifiziert werden!',
-    tooMany: 'Sie haben die maximale Anzahl an Verifizierungsversuchen erreicht. Versuchen Sie es später erneut!',
+    tooMany: 'Sie haben die maximale Anzahl an Verifizierungsversuchen erreicht! Versuchen Sie es später erneut.',
     invalid: 'Der Verifizierungslink ist ungültig oder abgelaufen!'
   },
 

@@ -23,14 +23,14 @@ return [
 
     'email_changed' => [
         'subject'     => 'Email changed',
-        'description' => 'the email address of your account has been changed.',
+        'description' => 'The email address of your account has been changed.',
         'new_email'   => 'New Email Address: :email',
         'signature'   => 'If you did not request changing your email address, please contact the support.'
     ],
 
     'password_changed' => [
         'subject'     => 'Password changed',
-        'description' => 'the password of your account has been changed.',
+        'description' => 'The password of your account has been changed.',
         'signature'   => 'If you did not request changing your password, please contact the support.'
     ],
 
@@ -43,7 +43,7 @@ return [
 
     'room_expires' => [
         'subject'     => 'The room \':name\' will be deleted due to inactivity',
-        'intro'       => 'to save server resources, unused rooms are automatically deleted.',
+        'intro'       => 'To save server resources, unused rooms are automatically deleted.',
         'no_meeting'  => 'Your room \':name\' was created on :date but never started.',
         'inactivity'  => 'Your room \':name\' was created on :date, but the last usage was :days ago.',
         'open'        => 'Show room',

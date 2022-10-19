@@ -23,14 +23,14 @@ return [
 
     'email_changed' => [
         'subject'     => 'E-Mail-Adresse geändert',
-        'description' => 'die E-Mail-Adresse Ihres Benutzerkontos wurde geändert.',
+        'description' => 'Die E-Mail-Adresse Ihres Benutzerkontos wurde geändert.',
         'new_email'   => 'Neue E-Mail-Adresse: :email',
         'signature'   => 'Wenn Sie keine Anfrage zum Ändern der E-Mail-Adresse gestellt haben, wenden Sie sich bitte an den Support.'
     ],
 
     'password_changed' => [
         'subject'     => 'Passwort geändert',
-        'description' => 'das Passwort Ihres Benutzerkontos wurde geändert.',
+        'description' => 'Das Passwort Ihres Benutzerkontos wurde geändert.',
         'signature'   => 'Wenn Sie keine Anfrage zum Ändern des Passworts gestellt haben, wenden Sie sich bitte an den Support.'
     ],
 
@@ -43,7 +43,7 @@ return [
 
     'room_expires' => [
         'subject'     => 'Der Raum ":name" wird wegen Inaktivität gelöscht',
-        'intro'       => 'um Serverressourcen  zu sparen, werden nicht genutzte Räume automatisch gelöscht.',
+        'intro'       => 'Um Serverressourcen  zu sparen, werden nicht genutzte Räume automatisch gelöscht.',
         'no_meeting'  => 'Ihr Raum ":name" wurde am :date erstellt, jedoch noch nie gestartet.',
         'inactivity'  => 'Ihr Raum ":name" wurde am :date erstellt, die letzte Nutzung liegt jedoch schon :days Tage zurück.',
         'open'        => 'Raum anzeigen',
