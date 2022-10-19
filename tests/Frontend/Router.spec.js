@@ -9,6 +9,9 @@ const accessPermittedRolesView = routes.filter(route => route.path === '/setting
 const accessPermittedUsersView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.users.view')[0].meta.accessPermitted;
 
+const accessPermittedNewUsersView = routes.filter(route => route.path === '/settings')[0]
+  .children.filter(route => route.name === 'settings.users.new')[0].meta.accessPermitted;
+
 const accessPermittedSettingsView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.application')[0].meta.accessPermitted;
 
@@ -299,13 +302,13 @@ describe('Router', () => {
     it('for users new view returns true if user has the necessary permissions', async () => {
       const oldUser = PermissionService.currentUser;
 
-      expect(await accessPermittedUsersView({ id: 'new' }, {})).toBe(false);
+      expect(await accessPermittedNewUsersView()).toBe(false);
 
       PermissionService.setCurrentUser({ permissions: ['users.create'] });
-      expect(await accessPermittedUsersView({ id: 'new' }, {})).toBe(false);
+      expect(await accessPermittedNewUsersView()).toBe(false);
 
       PermissionService.setCurrentUser({ permissions: ['users.create', 'settings.manage'] });
-      expect(await accessPermittedUsersView({ id: 'new' }, {})).toBe(true);
+      expect(await accessPermittedNewUsersView()).toBe(true);
 
       PermissionService.setCurrentUser(oldUser);
     });

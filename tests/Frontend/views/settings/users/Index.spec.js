@@ -586,7 +586,9 @@ describe('UsersIndex', () => {
     });
     await view.vm.$nextTick();
 
-    expect(view.findComponent(BButton).html()).toContain('settings.users.new');
+    const newButton = view.findComponent(BButton);
+    expect(newButton.html()).toContain('settings.users.new');
+    expect(newButton.props('to')).toEqual({ name: 'settings.users.new' });
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);

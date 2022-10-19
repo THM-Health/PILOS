@@ -1,7 +1,7 @@
 <template>
     <div>
       <h3>
-        {{ viewOnly ? $t('settings.users.view', { firstname: user.firstname, lastname: user.lastname }) : $t('settings.users.edit', { firstname: user.firstname, lastname: user.lastname }) }}
+        {{ viewOnly ? $t('settings.users.view', { firstname: firstname, lastname: lastname }) : $t('settings.users.edit', { firstname: firstname, lastname: lastname }) }}
       </h3>
       <hr>
 
@@ -18,11 +18,16 @@ export default {
   },
   data () {
     return {
-      user: {
-        firstname: null,
-        lastname: null
-      }
+      user: null
     };
+  },
+  computed: {
+    firstname: function () {
+      return this.user?.firstname;
+    },
+    lastname: function () {
+      return this.user?.lastname;
+    }
   },
   methods: {
     updateUser (user) {
@@ -40,5 +45,4 @@ export default {
     }
   }
 };
-
 </script>
