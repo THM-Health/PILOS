@@ -1,6 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
-import moxios from 'moxios';
 import View from '../../../../../resources/js/views/settings/users/View.vue';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
@@ -36,10 +35,6 @@ const user = {
 };
 
 describe('UsersView', () => {
-  afterEach(() => {
-    moxios.uninstall();
-  });
-
   it('title', async () => {
     const view = shallowMount(View, {
       localVue,
