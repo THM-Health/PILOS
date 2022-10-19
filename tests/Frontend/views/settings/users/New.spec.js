@@ -274,8 +274,6 @@ describe('NewUserView', () => {
     const buttons = form.findAllComponents(BButton);
     const submitButton = buttons.at(1);
 
-    console.log(submitButton.html());
-
     // Check submit button enabled
     expect(submitButton.attributes('disabled')).toBeFalsy();
 
