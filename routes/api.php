@@ -128,7 +128,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/meetings', [RoomController::class,'meetings'])->name('rooms.meetings');
 
         Route::get('getTimezones', function () {
-            return response()->json([ 'timezones' => timezone_identifiers_list() ]);
+            return response()->json([ 'data' => timezone_identifiers_list() ]);
         });
     });
 

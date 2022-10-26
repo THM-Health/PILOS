@@ -47,6 +47,7 @@
     </multiselect>
     <b-input-group-append v-if="loadingError">
       <b-button
+        :disabled='loading'
         ref="reloadRolesButton"
         @click="loadRoles(currentPage)"
         variant="outline-secondary"
@@ -86,8 +87,16 @@ export default {
   watch: {
     value: {
       handler (value) {
-        this.selectedRoles = this.value;
+        this.selectedRoles = value;
         this.disableRoles(this.selectedRoles);
+      },
+      deep: true
+    },
+
+    disabledRoles: {
+      handler () {
+        this.disableRoles(this.selectedRoles);
+        this.disableRoles(this.roles);
       },
       deep: true
     },
@@ -158,6 +167,7 @@ export default {
         this.disableRoles(roles);
         this.roles = roles;
       }).catch(error => {
+        // close open multiselect
         this.$refs['roles-multiselect'].deactivate();
         this.loadingError = true;
         Base.error(error, this.$root, error.message);

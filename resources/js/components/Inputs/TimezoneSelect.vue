@@ -7,14 +7,15 @@
       :value="value"
       @input="input"
       :state='state'
-      :disabled="disabled"
+      :disabled="disabled || loading || loadingError"
     >
       <template v-slot:first v-if="placeholder">
         <b-form-select-option :value="null" disabled>{{ placeholder }}</b-form-select-option>
       </template>
     </b-form-select>
-    <b-input-group-append  v-if="loadingError">
+    <b-input-group-append v-if="loadingError">
       <b-button
+        :disabled='loading'
         @click="loadTimezones()"
         variant="outline-secondary"
       ><i class="fa-solid fa-sync"></i></b-button>
@@ -80,10 +81,10 @@ export default {
      */
     loadTimezones () {
       this.loading = true;
-      this.loadingError = false;
 
       Base.call('getTimezones').then(response => {
-        this.timezones = response.data.timezones;
+        this.timezones = response.data.data;
+        this.loadingError = false;
       }).catch(error => {
         this.loadingError = true;
         Base.error(error, this.$root, error.message);
