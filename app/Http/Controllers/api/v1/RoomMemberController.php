@@ -4,8 +4,8 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddRoomMember;
-use App\Http\Requests\MassUpdateRequest;
-use App\Http\Requests\MassDeleteRequest;
+use App\Http\Requests\BulkUpdateRequest;
+use App\Http\Requests\BulkDestroyRequest;
 use App\Http\Requests\UpdateRoomMember;
 use App\Http\Resources\RoomUser;
 use App\Models\Room;
@@ -64,14 +64,14 @@ class RoomMemberController extends Controller
     /**
      * Update multiple member roles
      *
-     * @param  MassUpdateRequest         $request
+     * @param  BulkUpdateRequest         $request
      * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
-    public function bulkUpdate(Room $room, MassUpdateRequest $request)
+    public function bulkUpdate(Room $room, BulkUpdateRequest $request)
     {
         foreach ($request->users as $user) {
-            $room->members()->updateExistingPivot($user, ['role' => $request->role]); //
+            $room->members()->updateExistingPivot($user, ['role' => $request->role]);
         }
 
         return response()->noContent();
@@ -98,10 +98,10 @@ class RoomMemberController extends Controller
      * Remove multiple members
      *
      * @param  Room                      $room
-     * @param  MassDeleteRequest         $request
+     * @param  BulkDestroyRequest        $request
      * @return \Illuminate\Http\Response
      */
-    public function bulkDestroy(Room $room, MassDeleteRequest $request)
+    public function bulkDestroy(Room $room, BulkDestroyRequest $request)
     {
         $room->members()->detach($request->users);
 

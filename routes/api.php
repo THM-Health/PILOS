@@ -79,21 +79,22 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', [RoomMemberController::class,'join'])->name('rooms.membership.join');
         Route::delete('rooms/{room}/membership', [RoomMemberController::class,'leave'])->name('rooms.membership.leave');
+
         // Membership operations by room owner
         Route::get('rooms/{room}/member', [RoomMemberController::class,'index'])->name('rooms.member.get')->middleware('can:viewMembers,room');
         Route::post('rooms/{room}/member', [RoomMemberController::class,'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/{user}', [RoomMemberController::class,'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.remove')->middleware('can:manageMembers,room');
 
+        // Membership users for mass update & delete
+        Route::put('rooms/{room}/member', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkRemove')->middleware('can:manageMembers,room');
+
         // Personalized room tokens
         Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
         Route::post('rooms/{room}/tokens', [RoomTokenController::class, 'store'])->name('rooms.tokens.add')->middleware('can:manageTokens,room');
         Route::put('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'update'])->name('rooms.tokens.update')->middleware('can:manageTokens,room');
         Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.remove')->middleware('can:manageTokens,room');
-
-        // Membership users for mass update & delete
-        Route::put('rooms/{room}/member', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
-        Route::delete('rooms/{room}/member', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
 
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {

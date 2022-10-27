@@ -45,7 +45,7 @@ const store = new Vuex.Store({
   }
 });
 
-describe('RoomMembers', () => {
+describe('RoomMembersBulk', () => {
   beforeEach(() => {
     moxios.install();
   });
@@ -53,7 +53,7 @@ describe('RoomMembers', () => {
     moxios.uninstall();
   });
 
-  it('visibility of bulk edit/delete buttons', async () => {
+  it('visibility of bulk edit/remove buttons', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -89,10 +89,10 @@ describe('RoomMembers', () => {
     });
 
     // check if button not exists if no user is selected
-    let bulkEditButton = view.findComponent({ ref: 'edit-multiple-members-button' });
-    let bulkDeleteButton = view.findComponent({ ref: 'delete-multiple-members-button' });
+    let bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });
+    let bulkRemoveButton = view.findComponent({ ref: 'bulk-remove-members-button' });
     expect(bulkEditButton.exists()).toBeFalsy();
-    expect(bulkDeleteButton.exists()).toBeFalsy();
+    expect(bulkRemoveButton.exists()).toBeFalsy();
 
     const members = view.findComponent(BTbody);
     const rows = members.findAllComponents(BTr);
@@ -108,12 +108,12 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers.length).toBe(1);
 
     // check if buttons exits and show correct title
-    bulkEditButton = view.findComponent({ ref: 'edit-multiple-members-button' });
-    bulkDeleteButton = view.findComponent({ ref: 'delete-multiple-members-button' });
+    bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });
+    bulkRemoveButton = view.findComponent({ ref: 'bulk-remove-members-button' });
     expect(bulkEditButton.exists()).toBeTruthy();
-    expect(bulkDeleteButton.exists()).toBeTruthy();
-    expect(bulkEditButton.attributes('title')).toBe('rooms.members.multipleEditUser:{"numberOfSelectedUsers":1}');
-    expect(bulkDeleteButton.attributes('title')).toBe('rooms.members.multipleDeleteUser:{"numberOfSelectedUsers":1}');
+    expect(bulkRemoveButton.exists()).toBeTruthy();
+    expect(bulkEditButton.attributes('title')).toBe('rooms.members.bulkEditUser:{"numberOfSelectedUsers":1}');
+    expect(bulkRemoveButton.attributes('title')).toBe('rooms.members.bulkRemoveUser:{"numberOfSelectedUsers":1}');
 
     view.destroy();
   });
@@ -277,7 +277,7 @@ describe('RoomMembers', () => {
     });
 
     // find modal
-    const modal = view.findComponent({ ref: 'edit-multiple-members-modal' });
+    const modal = view.findComponent({ ref: 'bulk-edit-members-modal' });
     expect(modal.exists()).toBeTruthy();
     await view.vm.$nextTick();
     // check if modal is closed and try to open it
@@ -299,8 +299,8 @@ describe('RoomMembers', () => {
     expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
 
     // check if button shows correct title
-    const bulkEditButton = view.findComponent({ ref: 'edit-multiple-members-button' });
-    expect(bulkEditButton.attributes('title')).toBe('rooms.members.multipleEditUser:{"numberOfSelectedUsers":1}');
+    const bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });
+    expect(bulkEditButton.attributes('title')).toBe('rooms.members.bulkEditUser:{"numberOfSelectedUsers":1}');
 
     await waitModalShown(view, () => {
       bulkEditButton.trigger('click');
@@ -313,7 +313,7 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers).toMatchObject([{ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 }]);
 
     // check if modal displays correct number of selected users
-    expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.titleMultiple:{"numberOfSelectedUsers":1}');
+    expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.titleBulk:{"numberOfSelectedUsers":1}');
 
     // check role selector, labels and values
     const roleSelector = modal.findAllComponents(BFormRadio);
@@ -328,7 +328,7 @@ describe('RoomMembers', () => {
 
     // select role moderator
     await roleSelector.at(1).find('input').setChecked();
-    expect(view.vm.$data.massEditRole).toBe(2);
+    expect(view.vm.$data.bulkEditRole).toBe(2);
 
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
@@ -378,7 +378,7 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers.length).toBe(2);
 
     // check if button shows correct title
-    expect(bulkEditButton.attributes('title')).toBe('rooms.members.multipleEditUser:{"numberOfSelectedUsers":2}');
+    expect(bulkEditButton.attributes('title')).toBe('rooms.members.bulkEditUser:{"numberOfSelectedUsers":2}');
 
     await waitModalShown(view, () => {
       bulkEditButton.trigger('click');
@@ -392,11 +392,11 @@ describe('RoomMembers', () => {
       [{ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 2 }, { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1 }]);
 
     // check if modal displays correct number of selected users
-    expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.titleMultiple:{"numberOfSelectedUsers":2}');
+    expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.titleBulk:{"numberOfSelectedUsers":2}');
 
     // select role co-owner
     await roleSelector.at(2).find('input').setChecked();
-    expect(view.vm.$data.massEditRole).toBe(3);
+    expect(view.vm.$data.bulkEditRole).toBe(3);
 
     // confirm changes
     await footerButtons.at(1).trigger('click');
@@ -431,7 +431,7 @@ describe('RoomMembers', () => {
     view.destroy();
   });
 
-  it('bulk delete members', async () => {
+  it('bulk remove members', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -467,7 +467,7 @@ describe('RoomMembers', () => {
     });
 
     // find modal
-    const modal = view.findComponent({ ref: 'remove-multiple-members-modal' });
+    const modal = view.findComponent({ ref: 'bulk-remove-members-modal' });
     expect(modal.exists()).toBeTruthy();
     await view.vm.$nextTick();
     // check if modal is closed and try to open it
@@ -488,11 +488,11 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers.length).toBe(1);
 
     // button check
-    const bulkDeleteButton = view.findComponent({ ref: 'delete-multiple-members-button' });
-    expect(bulkDeleteButton.attributes('title')).toBe('rooms.members.multipleDeleteUser');
+    const bulkRemoveButton = view.findComponent({ ref: 'bulk-remove-members-button' });
+    expect(bulkRemoveButton.attributes('title')).toBe('rooms.members.bulkRemoveUser');
 
     await waitModalShown(view, () => {
-      bulkDeleteButton.trigger('click');
+      bulkRemoveButton.trigger('click');
     });
 
     // check if modal is open
@@ -502,9 +502,9 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers).toMatchObject([{ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 }]);
 
     // check if modal displays correct number of selected users
-    expect(modal.find('h5').text()).toBe('rooms.members.modals.delete.titleMultiple');
+    expect(modal.find('h5').text()).toBe('rooms.members.modals.remove.titleBulk');
 
-    // confirm delete of user
+    // confirm removal of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
@@ -539,10 +539,10 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers.length).toBe(2);
 
     // button check
-    expect(bulkDeleteButton.attributes('title')).toBe('rooms.members.multipleDeleteUser');
+    expect(bulkRemoveButton.attributes('title')).toBe('rooms.members.bulkRemoveUser');
 
     await waitModalShown(view, () => {
-      bulkDeleteButton.trigger('click');
+      bulkRemoveButton.trigger('click');
     });
 
     // check if modal is open
@@ -553,9 +553,9 @@ describe('RoomMembers', () => {
       { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3 }]);
 
     // check if modal displays correct number of selected users
-    expect(modal.find('h5').text()).toBe('rooms.members.modals.delete.titleMultiple');
+    expect(modal.find('h5').text()).toBe('rooms.members.modals.remove.titleBulk');
 
-    // confirm delete of user
+    // confirm removal of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
@@ -617,7 +617,7 @@ describe('RoomMembers', () => {
     });
 
     // find modal
-    const modal = view.findComponent({ ref: 'edit-multiple-members-modal' });
+    const modal = view.findComponent({ ref: 'bulk-edit-members-modal' });
     expect(modal.exists()).toBeTruthy();
     await view.vm.$nextTick();
     // check if modal is closed and try to open it
@@ -639,8 +639,8 @@ describe('RoomMembers', () => {
     expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
 
     // check if button shows correct title
-    const bulkEditButton = view.findComponent({ ref: 'edit-multiple-members-button' });
-    expect(bulkEditButton.attributes('title')).toBe('rooms.members.multipleEditUser:{"numberOfSelectedUsers":1}');
+    const bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });
+    expect(bulkEditButton.attributes('title')).toBe('rooms.members.bulkEditUser:{"numberOfSelectedUsers":1}');
 
     await waitModalShown(view, () => {
       bulkEditButton.trigger('click');
@@ -653,7 +653,7 @@ describe('RoomMembers', () => {
     expect(view.vm.$data.selectedMembers).toMatchObject([{ id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1 }]);
 
     // check if modal displays correct number of selected users
-    expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.titleMultiple:{"numberOfSelectedUsers":1}');
+    expect(modal.find('h5').text()).toBe('rooms.members.modals.edit.titleBulk:{"numberOfSelectedUsers":1}');
 
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
@@ -690,7 +690,7 @@ describe('RoomMembers', () => {
     // select role moderator
     const roleSelector = modal.findAllComponents(BFormRadio);
     await roleSelector.at(1).find('input').setChecked();
-    expect(view.vm.$data.massEditRole).toBe(2);
+    expect(view.vm.$data.bulkEditRole).toBe(2);
 
     // confirm changes
     await footerButtons.at(1).trigger('click');

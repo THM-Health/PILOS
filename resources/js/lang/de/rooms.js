@@ -123,13 +123,13 @@ export default {
       co_owner: 'Mitbesitzer'
     },
     editUser: 'Mitglied bearbeiten',
-    deleteUser: 'Mitglied löschen',
-    multipleEditUser: '{numberOfSelectedUsers} Mitglieder bearbeiten',
-    multipleDeleteUser: '{numberOfSelectedUsers} Mitglieder löschen',
+    removeUser: 'Mitglied löschen',
+    bulkEditUser: '{numberOfSelectedUsers} Mitglieder bearbeiten',
+    bulkRemoveUser: '{numberOfSelectedUsers} Mitglieder löschen',
     modals: {
       edit: {
         title: '{firstname} {lastname} bearbeiten',
-        titleMultiple: '{numberOfSelectedUsers} Mitglieder bearbeiten',
+        titleBulk: '{numberOfSelectedUsers} Mitglieder bearbeiten',
         save: 'Speichern',
         cancel: 'Abbrechen',
         role: 'Rolle'
@@ -146,11 +146,11 @@ export default {
         role: 'Rolle',
         selectRole: 'Bitte wählen Sie eine Rolle aus'
       },
-      delete: {
+      remove: {
         title: 'Mitglied aus dem Raum entfernen',
         confirm: 'Soll {firstname} {lastname} aus dem Raum entfernt werden?',
-        titleMultiple: '{numberOfSelectedUsers} Mitglieder aus dem Raum entfernen',
-        confirmMultiple: 'Sollen {numberOfSelectedUsers} Mitglieder aus dem Raum entfernt werden?'
+        titleBulk: '{numberOfSelectedUsers} Mitglieder aus dem Raum entfernen',
+        confirmBulk: 'Sollen {numberOfSelectedUsers} Mitglieder aus dem Raum entfernt werden?'
       }
     }
   },

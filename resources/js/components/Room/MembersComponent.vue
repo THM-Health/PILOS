@@ -53,8 +53,10 @@
             <i>{{ $t('rooms.members.nodata') }}</i>
           </template>
 
-          <template #head(selected) v-if="currentUser">
-            <b-form-checkbox :checked="selectedMembers.length == selectableMembers && displayedMembers.length > 0" @change="onAllRowsSelected" />
+          <!-- checkbox in header -->
+          <template #head(selected)>
+            <b-form-checkbox v-if="selectableMembers>0" :checked="selectedMembers.length == selectableMembers && displayedMembers.length > 0" @change="onAllRowsSelected" />
+            <span v-else></span>
           </template>
 
           <!-- checkbox to select the current row -->
@@ -83,7 +85,7 @@
                 @click="showRemoveMemberModal(data.item)"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
-                :title="$t('rooms.members.deleteUser')"
+                :title="$t('rooms.members.removeUser')"
               >
                 <i class="fa-solid fa-trash"></i>
               </b-button>
@@ -120,26 +122,26 @@
           </b-col>
         </b-row>
         <!-- selected rows action buttons -->
-        <b-button-group class="float-md-right" v-if="selectedMembers.length > 0 && members.length > 0">
-            <!-- multiple edit membership role -->
+        <b-button-group class="float-md-right" v-if="selectedMembers.length > 0">
+            <!-- bulk edit membership role -->
             <b-button
               :disabled="isBusy"
               variant="dark"
-              @click="showEditMultipleMemberModal(selectedMembers)"
+              @click="showBulkEditMemberModal"
               v-b-tooltip.hover
-              ref="edit-multiple-members-button"
-              :title="$t('rooms.members.multipleEditUser',{numberOfSelectedUsers: selectedMembers.length})"
+              ref="bulk-edit-members-button"
+              :title="$t('rooms.members.bulkEditUser',{numberOfSelectedUsers: selectedMembers.length})"
             >
               <i class="fas fa-users-cog"></i>
             </b-button>
-            <!-- multiple remove member -->
+            <!-- bulk remove member -->
             <b-button
               :disabled="isBusy"
               variant="danger"
-              @click="showRemoveMultipleMemberModal(selectedMembers,{numberOfSelectedUsers: selectedMembers.length})"
+              @click="showBulkRemoveMemberModal"
               v-b-tooltip.hover
-              ref="delete-multiple-members-button"
-              :title="$t('rooms.members.multipleDeleteUser',{numberOfSelectedUsers: selectedMembers.length})"
+              ref="bulk-remove-members-button"
+              :title="$t('rooms.members.bulkRemoveUser',{numberOfSelectedUsers: selectedMembers.length})"
             >
               <i class="fas fa-users-slash"></i>
             </b-button>
@@ -186,35 +188,35 @@
       </div>
     </b-modal>
 
-    <!-- edit multiple users role modal -->
+    <!-- bulk edit users role modal -->
     <b-modal
       :static='modalStatic'
       :busy="isLoadingAction"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.edit.cancel')"
-      @ok="saveEditMultipleMembers"
-      ref="edit-multiple-members-modal"
+      @ok="saveBulkEditMembers"
+      ref="bulk-edit-members-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
-        <span v-if="editMember">
-        {{ $t('rooms.members.modals.edit.titleMultiple', {numberOfSelectedUsers: selectedMembers.length}) }}
+        <span>
+        {{ $t('rooms.members.modals.edit.titleBulk', {numberOfSelectedUsers: selectedMembers.length}) }}
           </span>
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
       </template>
-      <div v-if="editMember">
-        <b-form-group :state="fieldState('role')" :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
-          <b-form-radio :state="fieldState('role')" v-model.number="massEditRole" name="some-radios" value="1">
+      <div>
+        <b-form-group :state="fieldState('role')" :label="$t('rooms.members.modals.edit.role')">
+          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="1">
             <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="massEditRole" name="some-radios" value="2">
+          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="2">
             <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="massEditRole" name="some-radios" value="3">
+          <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="3">
             <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
           </b-form-radio>
 
@@ -241,38 +243,38 @@
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.members.modals.delete.title') }}
+        {{ $t('rooms.members.modals.remove.title') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
       </template>
-      <span v-if="deleteMember">
-        {{ $t('rooms.members.modals.delete.confirm',{firstname: deleteMember.firstname,lastname: deleteMember.lastname}) }}
+      <span v-if="removeMember">
+        {{ $t('rooms.members.modals.remove.confirm',{firstname: removeMember.firstname,lastname: removeMember.lastname}) }}
       </span>
 
     </b-modal>
 
-    <!-- remove multiple user modal -->
+    <!-- bulk remove user modal -->
     <b-modal
       :busy="isLoadingAction"
       :static='modalStatic'
       ok-variant="danger"
       cancel-variant="dark"
       :cancel-title="$t('app.no')"
-      @ok="confirmRemoveMultipleMember"
-      ref="remove-multiple-members-modal"
+      @ok="confirmBulkRemoveMember"
+      ref="bulk-remove-members-modal"
       :no-close-on-esc="isLoadingAction"
       :no-close-on-backdrop="isLoadingAction"
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.members.modals.delete.titleMultiple', {numberOfSelectedUsers: selectedMembers.length}) }}
+        {{ $t('rooms.members.modals.remove.titleBulk', {numberOfSelectedUsers: selectedMembers.length}) }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span>
-        {{ $t('rooms.members.modals.delete.confirmMultiple', {numberOfSelectedUsers: selectedMembers.length}) }}
+        {{ $t('rooms.members.modals.remove.confirmBulk', {numberOfSelectedUsers: selectedMembers.length}) }}
       </span>
 
       <b-form-invalid-feedback :force-show="true"><div v-html="fieldError('users',true)"></div></b-form-invalid-feedback>
@@ -375,8 +377,8 @@ export default {
       members: [], // list of all members
       createError: null, // error on adding new user as member
       editMember: null, // member to be edited
-      massEditRole: null, // role that will be applied to multiple members
-      deleteMember: null, // member to be deleted
+      bulkEditRole: null, // role that will be applied to multiple members
+      removeMember: null, // member to be removed
       errors: {},
       currentPage: 1,
       selectedMembers: [],
@@ -404,12 +406,12 @@ export default {
      * @param selectedRows selected rows
      */
     onRowsSelected (selectedRows) {
-      // set selected members to all selected table columns, exclude current user (prevent self edit/delete)
+      // set selected members to all selected table columns, exclude current user (prevent self edit/removed)
       this.selectedMembers = selectedRows.filter(user => user.id !== this.currentUser.id);
     },
 
     /**
-     * Remove given members from member list, usable for both single removal or mass removal
+     * Remove given members from member list, usable for both single removal or bulk removal
      */
     removeMemberItems: function (members) {
       members.forEach(member => {
@@ -443,18 +445,17 @@ export default {
      * @param member member object
      */
     showRemoveMemberModal: function (member) {
-      this.deleteMember = member;
+      this.removeMember = member;
       this.$refs['remove-member-modal'].show();
     },
 
     /**
-     * show modal to remove multiple members
+     * show modal to bulk remove members
      * @param member member object
      */
-    showRemoveMultipleMemberModal: function (member) {
-      this.deleteMember = member;
+    showBulkRemoveMemberModal: function () {
       this.errors = {};
-      this.$refs['remove-multiple-members-modal'].show();
+      this.$refs['bulk-remove-members-modal'].show();
     },
 
     /**
@@ -466,14 +467,14 @@ export default {
 
       this.isLoadingAction = true;
 
-      Base.call('rooms/' + this.room.id + '/member/' + this.deleteMember.id, {
+      Base.call('rooms/' + this.room.id + '/member/' + this.removeMember.id, {
         method: 'delete'
       }).then(response => {
         // remove user entry from list
-        this.removeMemberItems([this.deleteMember.id]);
+        this.removeMemberItems([this.removeMember.id]);
       }).catch((error) => {
         if (error.response.status === env.HTTP_GONE) {
-          this.removeMemberItems([this.deleteMember.id]);
+          this.removeMemberItems([this.removeMember.id]);
         }
         Base.error(error, this.$root);
       }).finally(() => {
@@ -485,21 +486,21 @@ export default {
      * Remove multiple members
      * @param bvModalEvt
      */
-    confirmRemoveMultipleMember: function (bvModalEvt) {
+    confirmBulkRemoveMember: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
       this.isLoadingAction = true;
 
-      const toBeDeletedMembers = this.selectedMembers.map(user => user.id);
+      const toBeRemovedMembers = this.selectedMembers.map(user => user.id);
 
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'delete',
-        data: { users: toBeDeletedMembers }
+        data: { users: toBeRemovedMembers }
       }).then(response => {
         // remove user entry from list
-        this.removeMemberItems(toBeDeletedMembers);
-        this.$refs['remove-multiple-members-modal'].hide();
+        this.removeMemberItems(toBeRemovedMembers);
+        this.$refs['bulk-remove-members-modal'].hide();
       }).catch((error) => {
         // removing failed
         if (error.response) {
@@ -510,9 +511,9 @@ export default {
           }
         }
         if (error.response.status === env.HTTP_GONE) {
-          this.removeMemberItems(toBeDeletedMembers);
+          this.removeMemberItems(toBeRemovedMembers);
         }
-        this.$refs['remove-multiple-members-modal'].hide();
+        this.$refs['bulk-remove-members-modal'].hide();
         Base.error(error, this.$root);
       }).finally(() => {
         this.isLoadingAction = false;
@@ -533,12 +534,11 @@ export default {
      * show modal to edit multiple users role
      * @param user user object
      */
-    showEditMultipleMemberModal: function (selectedMembers) {
+    showBulkEditMemberModal: function () {
       // Clone object to edit properties without displaying the changes in realtime in the members list
-      this.editMember = _.cloneDeep(selectedMembers);
       this.errors = {};
-      this.massEditRole = null;
-      this.$refs['edit-multiple-members-modal'].show();
+      this.bulkEditRole = null;
+      this.$refs['bulk-edit-members-modal'].show();
     },
 
     /**
@@ -552,7 +552,7 @@ export default {
     },
 
     /**
-     * Edit role of given members from member list for both single or mass update
+     * Edit role of given members from member list for both single or bulk update
      */
     editMemberItems: function (members, role) {
       members.forEach(member => {
@@ -591,7 +591,7 @@ export default {
      * save new user roles for multiple members
      * @param bvModalEvt
      */
-    saveEditMultipleMembers: function (bvModalEvt) {
+    saveBulkEditMembers: function (bvModalEvt) {
       // prevent modal from closing
       bvModalEvt.preventDefault();
 
@@ -602,11 +602,11 @@ export default {
 
       Base.call('rooms/' + this.room.id + '/member', {
         method: 'put',
-        data: { role: this.massEditRole, users: toBeEditedMembers }
+        data: { role: this.bulkEditRole, users: toBeEditedMembers }
       }).then(response => {
         // user role was saved
-        this.editMemberItems(toBeEditedMembers, this.massEditRole);
-        this.$refs['edit-multiple-members-modal'].hide();
+        this.editMemberItems(toBeEditedMembers, this.bulkEditRole);
+        this.$refs['bulk-edit-members-modal'].hide();
       }).catch((error) => {
         // editing failed
         if (error.response) {
@@ -617,7 +617,7 @@ export default {
           }
         }
         Base.error(error, this.$root);
-        this.$refs['edit-multiple-members-modal'].hide();
+        this.$refs['bulk-edit-members-modal'].hide();
       }).finally(() => {
         this.isLoadingAction = false;
       });

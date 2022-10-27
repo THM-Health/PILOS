@@ -799,7 +799,7 @@ describe('RoomMembers', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    expect(view.vm.$data.deleteMember.id).toBe(5);
+    expect(view.vm.$data.removeMember.id).toBe(5);
 
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
@@ -886,7 +886,7 @@ describe('RoomMembers', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    expect(view.vm.$data.deleteMember.id).toBe(5);
+    expect(view.vm.$data.removeMember.id).toBe(5);
 
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
@@ -978,7 +978,7 @@ describe('RoomMembers', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    expect(view.vm.$data.deleteMember.id).toBe(5);
+    expect(view.vm.$data.removeMember.id).toBe(5);
 
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
