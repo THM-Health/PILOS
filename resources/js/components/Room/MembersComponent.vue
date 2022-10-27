@@ -285,6 +285,7 @@
     <b-modal
       :busy="isLoadingAction"
       :static='modalStatic'
+      :ok-disabled="!newMember"
       ok-variant="success"
       :cancel-title="$t('rooms.members.modals.add.cancel')"
       @ok="saveNewMember"
