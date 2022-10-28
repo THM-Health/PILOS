@@ -408,7 +408,7 @@ export default {
      */
     onRowsSelected (selectedRows) {
       // set selected members to all selected table columns, exclude current user (prevent self edit/removed)
-      this.selectedMembers = selectedRows.filter(user => user.id !== this.currentUser.id);
+      this.selectedMembers = selectedRows.filter(user => user.id !== (this.currentUser ? this.currentUser.id : null));
     },
 
     /**
@@ -689,7 +689,7 @@ export default {
 
     // amount of members that can be selected on the current page (user cannot select himself)
     selectableMembers: function () {
-      return this.displayedMembers.filter(member => member.id !== this.currentUser.id).length;
+      return this.displayedMembers.filter(member => member.id !== (this.currentUser ? this.currentUser.id : null)).length;
     },
 
     // check if new user input field is valid, local and server-side check
