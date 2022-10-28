@@ -511,9 +511,6 @@ export default {
             return;
           }
         }
-        if (error.response.status === env.HTTP_GONE) {
-          this.removeMemberItems(toBeRemovedMembers);
-        }
         this.$refs['bulk-remove-members-modal'].hide();
         Base.error(error, this.$root);
       }).finally(() => {
