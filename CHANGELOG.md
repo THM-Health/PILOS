@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Error on logout if room member list is shown ([#280], [#281])
 
 ## [v2.0.0-alpha.3] - 2022-10-28
 ### Added
@@ -381,6 +383,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#273]: https://github.com/THM-Health/PILOS/pull/273
 [#275]: https://github.com/THM-Health/PILOS/issues/275
 [#276]: https://github.com/THM-Health/PILOS/pull/276
+[#280]: https://github.com/THM-Health/PILOS/issues/280
+[#281]: https://github.com/THM-Health/PILOS/pull/281
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.3...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
