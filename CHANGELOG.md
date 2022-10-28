@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Customization options for legal notice url and privacy policy url in UI and env ([#234],[#261])
 - Bulk edit and bulk remove options for room members ([#211], [#216])
 
+### Fixed
+- Error on adding new room member without selecting a user ([#216])
+
 ### Removed
 - **Breaking:** Legal notice url and privacy policy url internationalisation ([#234],[#261])
 
