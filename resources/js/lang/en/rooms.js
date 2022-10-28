@@ -123,10 +123,13 @@ export default {
       co_owner: 'Co-owner'
     },
     editUser: 'Edit member',
-    deleteUser: 'Delete member',
+    removeUser: 'Remove member',
+    bulkEditUser: 'Edit {numberOfSelectedUsers} members',
+    bulkRemoveUser: 'Remove {numberOfSelectedUsers} members',
     modals: {
       edit: {
         title: 'Edit {firstname} {lastname}',
+        titleBulk: 'Edit {numberOfSelectedUsers} users',
         save: 'Save',
         cancel: 'Cancel',
         role: 'Role'
@@ -143,9 +146,11 @@ export default {
         role: 'Role',
         selectRole: 'Please select a role'
       },
-      delete: {
+      remove: {
         title: 'Remove member from this room',
-        confirm: 'Do you want to remove {firstname} {lastname} from this room?'
+        confirm: 'Do you want to remove {firstname} {lastname} from this room?',
+        titleBulk: 'Remove {numberOfSelectedUsers} members from this room',
+        confirmBulk: 'Do you want to remove {numberOfSelectedUsers} members from this room?'
       }
     }
   },

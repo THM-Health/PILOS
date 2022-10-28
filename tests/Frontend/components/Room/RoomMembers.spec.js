@@ -412,10 +412,10 @@ describe('RoomMembers', () => {
     expect(rows.length).toBe(4);
 
     // new member
-    expect(rows.at(3).findAll('td').at(1).text()).toBe('Laura');
-    expect(rows.at(3).findAll('td').at(2).text()).toBe('Walter');
-    expect(rows.at(3).findAll('td').at(3).text()).toBe('LauraMWalter@domain.tld');
-    expect(rows.at(3).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(3).findAll('td').at(2).text()).toBe('Laura');
+    expect(rows.at(3).findAll('td').at(3).text()).toBe('Walter');
+    expect(rows.at(3).findAll('td').at(4).text()).toBe('LauraMWalter@domain.tld');
+    expect(rows.at(3).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
 
     view.destroy();
   });
@@ -571,7 +571,7 @@ describe('RoomMembers', () => {
     let rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
 
     // first member
     const editButton = rows.at(0).findAllComponents(BButton).at(0);
@@ -637,7 +637,7 @@ describe('RoomMembers', () => {
     rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
 
     view.destroy();
   });
@@ -689,7 +689,7 @@ describe('RoomMembers', () => {
     let rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
 
     // first member
     const editButton = rows.at(0).findAllComponents(BButton).at(0);
@@ -799,7 +799,7 @@ describe('RoomMembers', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    expect(view.vm.$data.deleteMember.id).toBe(5);
+    expect(view.vm.$data.removeMember.id).toBe(5);
 
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
@@ -886,7 +886,7 @@ describe('RoomMembers', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    expect(view.vm.$data.deleteMember.id).toBe(5);
+    expect(view.vm.$data.removeMember.id).toBe(5);
 
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
@@ -978,7 +978,7 @@ describe('RoomMembers', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    expect(view.vm.$data.deleteMember.id).toBe(5);
+    expect(view.vm.$data.removeMember.id).toBe(5);
 
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');

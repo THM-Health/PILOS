@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Customization options for legal notice url and privacy policy url in UI and env ([#234],[#261])
+- Bulk edit and bulk remove options for room members ([#211], [#216])
+
+### Fixed
+- Error on adding new room member without selecting a user ([#216])
 
 ### Removed
 - **Breaking:** Legal notice url and privacy policy url internationalisation ([#234],[#261])
@@ -324,8 +328,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#203]: https://github.com/THM-Health/PILOS/pull/203
 [#204]: https://github.com/THM-Health/PILOS/issues/204
 [#205]: https://github.com/THM-Health/PILOS/pull/205
+[#211]: https://github.com/THM-Health/PILOS/issues/211
 [#212]: https://github.com/THM-Health/PILOS/issues/212
 [#213]: https://github.com/THM-Health/PILOS/pull/213
+[#216]: https://github.com/THM-Health/PILOS/pull/216
 [#217]: https://github.com/THM-Health/PILOS/issues/217
 [#221]: https://github.com/THM-Health/PILOS/issues/221
 [#222]: https://github.com/THM-Health/PILOS/pull/222
