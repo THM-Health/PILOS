@@ -314,42 +314,4 @@ describe('RoleSelect', () => {
 
     view.destroy();
   });
-
-  /*
-  it('check roles pagination', async () => {
-
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 1, name: 'admin' },
-          { id: 2, name: 'user' }
-        ],
-        links: {
-          first: 'http://localhost/api/v1/roles?page=1',
-          last: 'http://localhost/api/v1/roles?page=2',
-          prev: null,
-          next: 'http://localhost/api/v1/roles?page=2'
-        },
-        meta: {
-          current_page: 1,
-          from: 1,
-          last_page: 2,
-          links: [
-            { url: null, label: '&laquo; Previous', active: false },
-            { url: 'http://localhost/api/v1/roles?page=1', label: '1', active: true },
-            { url: 'http://localhost/api/v1/roles?page=2', label: '2', active: false },
-            { url: null, label: 'Next &raquo;', active: false }
-          ],
-          path: 'http://localhost/api/v1/roles',
-          per_page: 2,
-          to: 2,
-          total: 4
-        }
-      }
-    });
-
-  });
-
-   */
 });
