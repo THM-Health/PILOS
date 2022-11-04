@@ -8,7 +8,7 @@
             <b-form @submit.prevent="submit">
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('auth.password')"
+                :label="$t('settings.users.new_password')"
                 label-for='password'
                 :state='fieldState("password")'
               >
@@ -25,7 +25,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.password_confirmation')"
+                :label="$t('settings.users.new_password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
               >
