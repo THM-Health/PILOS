@@ -89,6 +89,11 @@ A almost full list of libraries and other software components can be found [here
 
 Please check our contribution [guidelines](CONTRIBUTING.md).
 
+## Localization
+
+The localization is managed in our [POEditor](https://poeditor.com/join/project/UGpZY4JAnz) project.
+Feel free to join and help us translate PILOS into your language or improve the existing translations.
+
 ## License
 
 This PILOS project is open-sourced software licensed under the LGPL license.

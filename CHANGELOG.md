@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Combine backend and frontend localization into single json file ([#284], [#287])
+
 ### Fixed
 - Error on logout if room member list is shown ([#280], [#281])
+- Support for different Font Awesome syntax ([#287])
 
 ## [v2.0.0-alpha.3] - 2022-10-28
 ### Added
@@ -385,6 +389,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#276]: https://github.com/THM-Health/PILOS/pull/276
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
+[#284]: https://github.com/THM-Health/PILOS/issues/284
+[#287]: https://github.com/THM-Health/PILOS/pull/287
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.3...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
