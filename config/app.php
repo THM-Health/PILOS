@@ -62,6 +62,8 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
+    'mix_url' => env('MIX_ASSET_URL', null),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

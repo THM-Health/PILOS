@@ -94,7 +94,7 @@
 
           <!-- render user profile image -->
           <template v-slot:cell(image)="data">
-            <img :src="data.value ? data.value : '/images/default_profile.png'" class="profile-image" />
+            <img :src="data.value ? data.value : settings('base_url')+'images/default_profile.png'" class="profile-image" />
           </template>
 
           <!-- render user role -->

@@ -39,7 +39,7 @@ class ApplicationController extends Controller
         // Logo for frontend
         if ($request->has('logo_file')) {
             $path = $request->file('logo_file')->store('images', 'public');
-            $url  = Storage::url($path);
+            $url  = Storage::disk('public')->url($path);
             $logo = $url;
         } else {
             $logo = $request->logo;
@@ -48,7 +48,7 @@ class ApplicationController extends Controller
         // Favicon for frontend
         if ($request->has('favicon_file')) {
             $path    = $request->file('favicon_file')->store('images', 'public');
-            $url     = Storage::url($path);
+            $url     = Storage::disk('public')->url($path);
             $favicon = $url;
         } else {
             $favicon = $request->favicon;
@@ -71,8 +71,8 @@ class ApplicationController extends Controller
         // Logo for BBB
         if ($request->has('bbb.logo_file')) {
             $path = $request->file('bbb.logo_file')->store('images', 'public');
-            $url  = Storage::url($path);
-            setting()->set('bbb_logo', url($url));
+            $url  = Storage::disk('public')->url($path);
+            setting()->set('bbb_logo', $url);
         } elseif ($request->has('bbb.logo') && trim($request->bbb['logo']) != '') {
             setting()->set('bbb_logo', $request->bbb['logo']);
         } else {
@@ -83,8 +83,8 @@ class ApplicationController extends Controller
         if ($request->has('bbb.style')) {
             if (!empty($request->file('bbb.style'))) {
                 $path = $request->file('bbb.style')->storeAs('styles', 'bbb.css', 'public');
-                $url  = Storage::url($path);
-                setting()->set('bbb_style', url($url));
+                $url  = Storage::disk('public')->url($path);
+                setting()->set('bbb_style', $url);
             } else {
                 Storage::disk('public')->delete('styles/bbb.css');
                 setting()->forget('bbb_style');

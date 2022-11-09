@@ -127,7 +127,7 @@
                     </b-img>
                     <b-img
                       v-else
-                      src="/images/default_profile.png"
+                      :src="settings('base_url')+'/images/default_profile.png'"
                       :alt="$t('settings.users.image.title')"
                       width="80"
                       height="80"
@@ -415,12 +415,18 @@ import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
 import VueCropper from 'vue-cropperjs';
 import 'cropperjs/dist/cropper.css';
+import {mapGetters} from 'vuex';
 
 export default {
   mixins: [FieldErrors],
   components: { Multiselect, VueCropper },
 
   computed: {
+
+    ...mapGetters({
+      settings: 'session/settings'
+    }),
+
     /**
      * The available locales that the user can select from.
      */

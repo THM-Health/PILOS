@@ -38,6 +38,12 @@ if (!process.env.MIX_THEME) {
   process.env.MIX_THEME = 'default';
 }
 
+const ASSET_URL = process.env.MIX_ASSET_URL || '/';
+console.log(ASSET_URL);
+
+// Set resourceRoot accordingly
+mix.setResourceRoot(ASSET_URL);
+
 mix.js(files, 'public/js')
   .vue()
   .sass('resources/sass/theme/' + process.env.MIX_THEME + '/app.scss', 'public/css')
