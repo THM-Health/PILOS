@@ -7,11 +7,26 @@ import _ from 'lodash';
 const defaultLocale = process.env.MIX_DEFAULT_LOCALE;
 
 const messages = {};
-messages[defaultLocale] = require(`./lang/${process.env.MIX_DEFAULT_LOCALE}`).default;
+messages[defaultLocale] = require(`../../lang/${process.env.MIX_DEFAULT_LOCALE}.json`);
 
 Vue.use(VueI18n);
 
+class CustomFormatter {
+  interpolate (message, values) {
+    if (!values) {
+      return [message];
+    }
+    Object.keys(values).forEach(key => {
+      // Use Laravel syntax :placeholder instead of {placeholder}
+      message = message.replace(`:${key}`, values[key]);
+    });
+
+    return [message];
+  }
+}
+
 const i18n = new VueI18n({
+  formatter: new CustomFormatter(),
   dateTimeFormats,
   locale: defaultLocale,
   fallbackLocale: defaultLocale,
@@ -54,7 +69,7 @@ export function loadLanguageAsync (lang) {
     return import(
       /* webpackChunkName: "js/lang/[request]" */
       /* webpackInclude: /\.js/ */
-      `./lang/${lang}`
+      `../../lang/${lang}.json`
     ).then(messages => {
       return Promise.resolve(importLanguage(lang, messages));
     });
