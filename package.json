@@ -82,9 +82,6 @@
             ".js",
             ".vue"
         ],
-        "exclude": [
-            "resources/js/lang/**/*.js"
-        ],
         "instrument": true,
         "sourceMap": false,
         "all": true

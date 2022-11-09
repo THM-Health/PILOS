@@ -9,8 +9,8 @@ const MutationObserver = require('mutationobserver-shim');
 global.MutationObserver = MutationObserver;
 
 if (!process.env.MIX_AVAILABLE_LOCALES) {
-  process.env.MIX_AVAILABLE_LOCALES = glob.sync('resources/js/lang/*').map(folder => {
-    return path.basename(folder);
+  process.env.MIX_AVAILABLE_LOCALES = glob.sync('lang/*.json').map(file => {
+    return path.parse(file).name;
   }).join(',');
 }
 

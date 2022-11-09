@@ -27,7 +27,7 @@ describe('store/session', () => {
   });
 
   it('getCurrentUser and set i18n timezone', async () => {
-    const messagesEN = require('../../../resources/js/lang/en/index.js').default;
+    const messagesEN = require('../../../lang/en.json');
     importLanguage('en', messagesEN);
 
     const commit = jest.fn();
