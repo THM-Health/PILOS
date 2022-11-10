@@ -37,11 +37,9 @@
     "app.flash.clientError": "An unknown error occurred in the application!",
     "app.flash.guestsOnly": "The request can only be made by guests!",
     "app.flash.serverError.emptyMessage": "An error occurred on the server during request!",
-    "app.flash.serverError.message": ":message",
     "app.flash.serverError.errorCode": "Error code: :statusCode",
-
+    "app.flash.serverError.message": ":message",
     "app.flash.tooLarge": "The transmitted data was too large!",
-
     "app.flash.unauthenticated": "You must be authenticated to execute the request!",
     "app.flash.unauthorized": "You don't have the necessary rights to access the called route!",
     "app.footer.legalNotice": "Legal notice",
@@ -606,9 +604,9 @@
     "settings.servers.ownMeetingCount": "Own meetings",
     "settings.servers.ownMeetingDescription": "Meetings that are managed by this system",
     "settings.servers.panic": "Disable & cleanup",
-    "settings.servers.panicDescription": "Only meetings managed by this system are stopped!",
-    "settings.servers.panic.flash.title": "The server has been disabled.",
     "settings.servers.panic.flash.description": ":total meetings were found and :success were successfully stopped.",
+    "settings.servers.panic.flash.title": "The server has been disabled.",
+    "settings.servers.panicDescription": "Only meetings managed by this system are stopped!",
     "settings.servers.panicServer": "Disable server and end all meetings",
     "settings.servers.participantCount": "Participants",
     "settings.servers.reload": "Recalculate usage",
@@ -670,7 +668,6 @@
     "settings.users.title": "Users",
     "settings.users.user_locale": "Language",
     "settings.users.view": "Detailed information for the user :firstname :lastname",
-
     "validation.accepted": "The :attribute must be accepted.",
     "validation.active_url": "The :attribute is not a valid URL.",
     "validation.after": "The :attribute must be a date after :date.",
