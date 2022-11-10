@@ -110,7 +110,6 @@
     "app.save": "Save",
     "app.search": "Search",
     "app.selectLocale": "Please select a language",
-    "app.toSearch": "Search",
     "app.validation.tooLarge": "The selected file is too large.",
     "app.wait": "Please wait...",
     "app.yes": "Yes",
@@ -121,6 +120,7 @@
     "auth.failed": "These credentials do not match our records.",
     "auth.flash.login.message": "You have been successfully logged in!",
     "auth.flash.login.title": "Successful login",
+
     "auth.flash.logout.message": "You have been successfully logged out!",
     "auth.flash.logout.title": "Successful logout",
     "auth.forgotPassword": "Forgot password?",
@@ -682,6 +682,7 @@
     "settings.users.title": "Users",
     "settings.users.user_locale": "Language",
     "settings.users.view": "Detailed information for the user :firstname :lastname",
+
     "validation.accepted": "The :attribute must be accepted.",
     "validation.active_url": "The :attribute is not a valid URL.",
     "validation.after": "The :attribute must be a date after :date.",
