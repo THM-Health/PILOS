@@ -200,11 +200,7 @@ describe('Room Token', () => {
     const clipboardSpy = jest.fn();
 
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      info (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { info: flashMessageSpy };
 
     const view = mount(TokensComponent, {
       localVue,
@@ -246,7 +242,7 @@ describe('Room Token', () => {
     expect(clipboardSpy).toBeCalledWith('https://domain.tld/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({ message: 'rooms.tokens.roomLinkCopied:{"firstname":"John","lastname":"Doe"}' });
+    expect(flashMessageSpy).toBeCalledWith('rooms.tokens.roomLinkCopied:{"firstname":"John","lastname":"Doe"}');
 
     view.destroy();
   });

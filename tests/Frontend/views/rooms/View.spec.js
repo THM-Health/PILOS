@@ -896,7 +896,7 @@ describe('Room', () => {
     const handleInvalidToken = jest.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation();
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
     const flashMessageSpy = jest.fn();
-    const flashMessage = { error (param) { flashMessageSpy(param); } };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
       localVue,
@@ -1760,7 +1760,7 @@ describe('Room', () => {
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
 
     const flashMessageSpy = jest.fn();
-    const flashMessage = { error (param) { flashMessageSpy(param); } };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
       localVue,

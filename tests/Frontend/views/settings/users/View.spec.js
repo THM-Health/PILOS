@@ -1125,11 +1125,7 @@ describe('UsersView', () => {
     };
 
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(View, {
       localVue,

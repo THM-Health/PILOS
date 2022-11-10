@@ -359,7 +359,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit reached room limit', async () => {
-    const flashMessageSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = jest.spyOn(Base, 'error').mockImplementation();
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -401,8 +401,8 @@ describe('Create new rooms', () => {
       response: { message: 'test' }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0].response.data.message).toBe('test');
+    expect(baseError).toBeCalledTimes(1);
+    expect(baseError.mock.calls[0][0].response.data.message).toBe('test');
     expect(view.emitted().limitReached).toBeTruthy();
     view.destroy();
   });

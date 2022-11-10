@@ -718,11 +718,7 @@ describe('ServerView', () => {
 
   it('panic button calls api and gets disabled while running', async () => {
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      success (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { success: flashMessageSpy };
 
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
@@ -763,10 +759,10 @@ describe('ServerView', () => {
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({
-      title: 'settings.servers.panicFlash.title',
-      message: 'settings.servers.panicFlash.message:{"total":5,"success":3}'
-    });
+    expect(flashMessageSpy).toBeCalledWith(
+      'settings.servers.panic.flash.title',
+      'settings.servers.panic.flash.description:{"total":5,"success":3}'
+    );
 
     // check reload of server data
     await waitMoxios();

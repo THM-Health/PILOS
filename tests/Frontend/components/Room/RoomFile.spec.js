@@ -637,11 +637,7 @@ describe('RoomFile', () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(FileComponent, {
       localVue,
@@ -837,11 +833,7 @@ describe('RoomFile', () => {
     const removeFile = jest.spyOn(FileComponent.methods, 'removeFile').mockImplementation();
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(FileComponent, {
       localVue,
@@ -1059,11 +1051,7 @@ describe('RoomFile', () => {
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
     const removeFile = jest.spyOn(FileComponent.methods, 'removeFile').mockImplementation();
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      error (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(FileComponent, {
       localVue,

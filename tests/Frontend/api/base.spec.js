@@ -63,12 +63,8 @@ describe('base', () => {
       const flashMessageErrorSpy = jest.fn();
       const flashMessageInfoSpy = jest.fn();
       const flashMessage = {
-        info (param) {
-          flashMessageInfoSpy(param);
-        },
-        error (param) {
-          flashMessageErrorSpy(param);
-        }
+        info: flashMessageInfoSpy,
+        error: flashMessageErrorSpy
       };
 
       const router = new VueRouter();
@@ -143,22 +139,20 @@ describe('base', () => {
       error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
       expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith({
-        contentClass: 'flash_small_title flex-column-reverse d-flex',
-        message: 'app.flash.serverError.message:{"message":"syntax error"}',
-        title: 'app.flash.serverError.title:{"statusCode":500}'
-      });
+      expect(flashMessageErrorSpy).toBeCalledWith(
+        'app.flash.serverError.message:{"message":"syntax error"}',
+        'app.flash.serverError.errorCode:{"statusCode":500}'
+      );
       jest.clearAllMocks();
 
       // other server errors without message
       error = { response: { data: { message: '' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
       expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith({
-        contentClass: 'flash_small_title flex-column-reverse d-flex',
-        message: 'app.flash.serverError.emptyMessage',
-        title: 'app.flash.serverError.title:{"statusCode":500}'
-      });
+      expect(flashMessageErrorSpy).toBeCalledWith(
+        'app.flash.serverError.emptyMessage',
+        'app.flash.serverError.errorCode:{"statusCode":500}'
+      );
       jest.clearAllMocks();
 
       // other non server error
