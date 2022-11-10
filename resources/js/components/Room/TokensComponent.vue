@@ -101,10 +101,10 @@
 
             <template v-slot:cell(role)="data">
               <b-badge v-if="data.value === 1" variant="success"
-              >{{ $t('rooms.tokens.roles.participant') }}
+              >{{ $t('rooms.roles.participant') }}
               </b-badge>
               <b-badge v-if="data.value === 2" variant="danger"
-              >{{ $t('rooms.tokens.roles.moderator') }}
+              >{{ $t('rooms.roles.moderator') }}
               </b-badge>
             </template>
           </b-table>
@@ -138,13 +138,13 @@
       :hide-header-close="actionRunning"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.tokens.modals.delete.title') }}
+        {{ $t('rooms.tokens.delete') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="actionRunning"></b-spinner> {{ $t('app.yes') }}
       </template>
       <span>
-        {{ $t('rooms.tokens.modals.delete.confirm', { firstname: model.firstname,lastname: model.lastname }) }}
+        {{ $t('rooms.tokens.confirm_delete', { firstname: model.firstname,lastname: model.lastname }) }}
       </span>
     </b-modal>
 
@@ -170,7 +170,7 @@
 
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.firstname')"
+        :label="$t('app.firstname')"
         label-for='firstname'
         :state='fieldState("firstname")'
       >
@@ -185,7 +185,7 @@
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.lastname')"
+        :label="$t('app.lastname')"
         label-for='lastname'
         :state='fieldState("lastname")'
       >
@@ -199,7 +199,7 @@
         <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
       </b-form-group>
       <b-form-group
-        :label="$t('rooms.tokens.role')"
+        :label="$t('rooms.role')"
         :state='fieldState("role")'
       >
         <b-form-radio
@@ -207,7 +207,7 @@
           value="1"
         >
           <b-badge variant="success">
-            {{ $t('rooms.tokens.roles.participant') }}
+            {{ $t('rooms.roles.participant') }}
           </b-badge>
         </b-form-radio>
         <b-form-radio
@@ -215,7 +215,7 @@
           value="2"
         >
           <b-badge variant="danger">
-            {{ $t('rooms.tokens.roles.moderator') }}
+            {{ $t('rooms.roles.moderator') }}
           </b-badge>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
@@ -375,15 +375,15 @@ export default {
     tableFields () {
       return [{
         key: 'firstname',
-        label: this.$t('rooms.tokens.firstname'),
+        label: this.$t('app.firstname'),
         sortable: true
       }, {
         key: 'lastname',
-        label: this.$t('rooms.tokens.lastname'),
+        label: this.$t('app.lastname'),
         sortable: true
       }, {
         key: 'role',
-        label: this.$t('rooms.tokens.role'),
+        label: this.$t('rooms.role'),
         sortable: true
       },
       {

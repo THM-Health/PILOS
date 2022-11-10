@@ -25,7 +25,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.password_confirmation')"
+                :label="$t('auth.password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
               >

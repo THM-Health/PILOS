@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <h3>
-          {{ $t('settings.users.title') }}
+          {{ $t('app.users') }}
         </h3>
       </b-col>
         <b-col>
@@ -284,12 +284,12 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.users.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
-        { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'id', label: this.$t('app.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
+        { key: 'firstname', label: this.$t('app.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'lastname', label: this.$t('app.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true },
-        { key: 'roles', label: this.$t('settings.users.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
+        { key: 'roles', label: this.$t('app.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
       ];
 
       if (this.actionColumnVisible) {

@@ -207,7 +207,7 @@
         <b-input-group>
           <b-form-input
             :state="accessCodeValid"
-            :placeholder="$t('rooms.placeholderAccessCode')"
+            :placeholder="$t('rooms.access_code')"
             v-mask="'999-999-999'"
             v-model="accessCodeInput"
             v-on:keyup.enter="login"

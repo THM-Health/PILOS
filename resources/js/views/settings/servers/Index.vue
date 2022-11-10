@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <h3>
-          {{ $t('settings.servers.title') }}
+          {{ $t('app.servers') }}
 
           <can method='create' policy='ServerPolicy'>
             <b-button
@@ -212,8 +212,8 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.servers.id'), sortable: true, thStyle: { width: '8%' } },
-        { key: 'name', label: this.$t('settings.servers.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'id', label: this.$t('app.id'), sortable: true, thStyle: { width: '8%' } },
+        { key: 'name', label: this.$t('app.model_name'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
         { key: 'version', label: this.$t('settings.servers.version'), sortable: true, thStyle: { width: '10%' } },
         { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },

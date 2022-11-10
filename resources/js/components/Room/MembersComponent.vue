@@ -13,7 +13,7 @@
             ref="add-member"
             @click="showAddMemberModal"
           >
-            <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.addUser') }}
+            <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.add_user') }}
           </b-button>
           </can>
 
@@ -99,15 +99,15 @@
 
           <!-- render user role -->
           <template v-slot:cell(role)="data">
-            <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.members.roles.guest') }}</b-badge>
+            <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.roles.guest') }}</b-badge>
             <b-badge v-if="data.value === 1" variant="success"
-            >{{ $t('rooms.members.roles.participant') }}
+            >{{ $t('rooms.roles.participant') }}
             </b-badge>
             <b-badge v-if="data.value === 2" variant="danger"
-            >{{ $t('rooms.members.roles.moderator') }}
+            >{{ $t('rooms.roles.moderator') }}
             </b-badge>
             <b-badge v-if="data.value === 3" variant="dark"
-            >{{ $t('rooms.members.roles.co_owner') }}
+            >{{ $t('rooms.roles.co_owner') }}
             </b-badge>
           </template>
 
@@ -158,7 +158,7 @@
       :static='modalStatic'
       :busy="isLoadingAction"
       ok-variant="success"
-      :cancel-title="$t('rooms.members.modals.edit.cancel')"
+      :cancel-title="$t('app.cancel')"
       @ok="saveEditMember"
       ref="edit-member-modal"
       :no-close-on-esc="isLoadingAction"
@@ -171,18 +171,18 @@
           </span>
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.save') }}
       </template>
       <div v-if="editMember">
-        <b-form-group :label="$t('rooms.members.modals.edit.role')" v-if="editMember">
+        <b-form-group :label="$t('rooms.role')" v-if="editMember">
           <b-form-radio v-model.number="editMember.role" name="some-radios" value="1">
-            <b-badge variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+            <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
           <b-form-radio v-model.number="editMember.role" name="some-radios" value="2">
-            <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
+            <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
           </b-form-radio>
           <b-form-radio v-model.number="editMember.role" name="some-radios" value="3">
-            <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
+            <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
         </b-form-group>
       </div>
@@ -193,7 +193,7 @@
       :static='modalStatic'
       :busy="isLoadingAction"
       ok-variant="success"
-      :cancel-title="$t('rooms.members.modals.edit.cancel')"
+      :cancel-title="$t('app.cancel')"
       @ok="saveBulkEditMembers"
       ref="bulk-edit-members-modal"
       :no-close-on-esc="isLoadingAction"
@@ -206,18 +206,18 @@
           </span>
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.edit.save') }}
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.save') }}
       </template>
       <div>
-        <b-form-group :state="fieldState('role')" :label="$t('rooms.members.modals.edit.role')">
+        <b-form-group :state="fieldState('role')" :label="$t('rooms.role')">
           <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="1">
-            <b-badge class="text-white" variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+            <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
           <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="2">
-            <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
+            <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
           </b-form-radio>
           <b-form-radio :state="fieldState('role')" v-model.number="bulkEditRole" name="some-radios" value="3">
-            <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
+            <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
 
           <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
@@ -287,7 +287,7 @@
       :static='modalStatic'
       :ok-disabled="!newMember"
       ok-variant="success"
-      :cancel-title="$t('rooms.members.modals.add.cancel')"
+      :cancel-title="$t('app.cancel')"
       @ok="saveNewMember"
       ref="add-member-modal"
       :no-close-on-esc="isLoadingAction"
@@ -295,7 +295,7 @@
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.members.modals.add.title') }}
+        {{ $t('rooms.members.add_user') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.members.modals.add.add') }}
@@ -303,11 +303,11 @@
       <!-- show server validation errors -->
       <b-alert v-if="createError" show variant="danger">{{ createError }}</b-alert>
       <!-- select user -->
-      <b-form-group :label="$t('rooms.members.modals.add.user')" :state="newMemberValid">
+      <b-form-group :label="$t('app.user')" :state="newMemberValid">
         <multiselect v-model="newMember"
                      label="lastname"
                      track-by="id"
-                     :placeholder="$t('rooms.members.modals.add.name')"
+                     :placeholder="$t('app.user_name')"
                      open-direction="bottom"
                      :options="users"
                      :multiple="false"
@@ -330,15 +330,15 @@
         <template slot='invalid-feedback'><div v-html="userValidationError"></div></template>
       </b-form-group>
       <!-- select role -->
-      <b-form-group :label="$t('rooms.members.modals.add.role')" v-if="newMember" :state="newMemberRoleValid">
+      <b-form-group :label="$t('rooms.role')" v-if="newMember" :state="newMemberRoleValid">
         <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="1">
-          <b-badge variant="success">{{ $t('rooms.members.roles.participant') }}</b-badge>
+          <b-badge variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
         </b-form-radio>
         <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="2">
-          <b-badge variant="danger">{{ $t('rooms.members.roles.moderator') }}</b-badge>
+          <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
         </b-form-radio>
         <b-form-radio v-model.number="newMember.role" name="addmember-role-radios" value="3">
-          <b-badge variant="dark">{{ $t('rooms.members.roles.co_owner') }}</b-badge>
+          <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
         </b-form-radio>
         <template slot='invalid-feedback'><div v-html="roleValidationError"></div></template>
       </b-form-group>
@@ -722,29 +722,29 @@ export default {
         },
         {
           key: 'firstname',
-          label: this.$t('rooms.members.firstname'),
+          label: this.$t('app.firstname'),
           sortable: true
         },
         {
           key: 'lastname',
-          label: this.$t('rooms.members.lastname'),
+          label: this.$t('app.lastname'),
           sortable: true
         },
         {
           key: 'email',
-          label: this.$t('rooms.members.email'),
+          label: this.$t('app.email'),
           sortable: true
         },
         {
           key: 'role',
-          label: this.$t('rooms.members.role'),
+          label: this.$t('rooms.role'),
           sortable: true
         }];
 
       if (PermissionService.can('manageSettings', this.room)) {
         fields.push({
           key: 'actions',
-          label: this.$t('rooms.members.actions'),
+          label: this.$t('app.actions'),
           thClass: 'action-column',
           tdClass: 'action-button'
         });

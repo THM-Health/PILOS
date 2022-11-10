@@ -596,7 +596,7 @@
           </template>
         </b-form-group>
 
-        <h4>{{ $t('settings.application.roomsTitle') }}</h4>
+        <h4>{{ $t('app.rooms') }}</h4>
         <hr>
 
         <b-row cols='12'>
@@ -680,7 +680,7 @@
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.room_auto_delete.enabled.enabled') }}
+                {{ $t('app.enable') }}
               </b-form-checkbox>
               <template slot='invalid-feedback'>
                 <div v-html="fieldError('room_auto_delete.enabled')"></div>
@@ -763,7 +763,7 @@
           </b-col>
         </b-row>
 
-        <h4>{{ $t('settings.application.usersTitle') }}</h4>
+        <h4>{{ $t('app.users') }}</h4>
         <hr>
 
         <b-row cols='12'>
@@ -807,7 +807,7 @@
                   :disabled='isBusy || viewOnly || !loaded'
                   switch
                 >
-                  {{ $t('settings.application.statistics.servers.enabled') }}
+                  {{ $t('app.enable') }}
                 </b-form-checkbox>
                 <template slot='invalid-feedback'>
                   <div v-html="fieldError('statistics.servers.enabled')"></div>
@@ -854,7 +854,7 @@
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.statistics.meetings.enabled') }}
+                {{ $t('app.enable') }}
               </b-form-checkbox>
               <template slot='invalid-feedback'>
                 <div v-html="fieldError('statistics.meetings.enabled')"></div>
@@ -901,7 +901,7 @@
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.attendance.enabled') }}
+                {{ $t('app.enable') }}
               </b-form-checkbox>
               <template slot='invalid-feedback'>
                 <div v-html="fieldError('attendance.enabled')"></div>
@@ -978,7 +978,7 @@
                   @click='bbb_logo_deleted = false'
                   ref='reset-bbb-logo'
                   v-b-tooltip
-                  :title="$t('settings.application.bbb.logo.reset')"
+                  :title="$t('app.reset')"
                 >
                   <i class="fa-solid fa-undo"></i>
                 </b-button>
@@ -989,7 +989,7 @@
                   @click="bbb_logo_deleted = true"
                   ref='delete-bbb-logo'
                   v-b-tooltip
-                  :title="$t('settings.application.bbb.logo.delete')"
+                  :title="$t('app.delete')"
                 >
                   <i class="fa-solid fa-trash"></i>
                 </b-button>
@@ -1050,7 +1050,7 @@
                 target='_blank'
                 ref='view-bbb-style'
                 v-b-tooltip
-                :title="$t('settings.application.bbb.style.view')"
+                :title="$t('app.view')"
               >
                 <i class="fa-solid fa-eye"></i>
               </b-button>
@@ -1060,7 +1060,7 @@
                 @click='bbb_style = null; bbb_style_deleted = false'
                 ref='reset-bbb-style'
                 v-b-tooltip
-                :title="$t('settings.application.bbb.style.reset')"
+                :title="$t('app.reset')"
               >
                 <i class="fa-solid fa-undo"></i>
               </b-button>
@@ -1071,7 +1071,7 @@
                 @click="bbb_style_deleted = true"
                 ref='delete-bbb-style'
                 v-b-tooltip
-                :title="$t('settings.application.bbb.style.delete')"
+                :title="$t('app.delete')"
               >
                 <i class="fa-solid fa-trash"></i>
               </b-button>
@@ -1109,7 +1109,7 @@
                   target='_blank'
                   ref='view-default-presentation'
                   v-b-tooltip
-                  :title="$t('settings.application.viewDefaultPresentation')"
+                  :title="$t('app.view')"
                 >
                   <i class="fa-solid fa-eye"></i>
                 </b-button>
@@ -1119,7 +1119,7 @@
                   @click='default_presentation = null; default_presentation_deleted = false'
                   ref='reset-default-presentation'
                   v-b-tooltip
-                  :title="$t('settings.application.resetDefaultPresentation')"
+                  :title="$t('app.reset')"
                 >
                   <i class="fa-solid fa-undo"></i>
                 </b-button>
@@ -1130,7 +1130,7 @@
                   @click="default_presentation_deleted = true"
                   ref='delete-default-presentation'
                   v-b-tooltip
-                  :title="$t('settings.application.deleteDefaultPresentation')"
+                  :title="$t('app.delete')"
                 >
                   <i class="fa-solid fa-trash"></i>
                 </b-button>

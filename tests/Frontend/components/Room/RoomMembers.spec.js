@@ -91,13 +91,13 @@ describe('RoomMembers', () => {
     expect(rows.at(0).findAll('td').at(1).text()).toBe('Laura');
     expect(rows.at(0).findAll('td').at(2).text()).toBe('Rivera');
     expect(rows.at(0).findAll('td').at(3).text()).toBe('LauraWRivera@domain.tld');
-    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(4).text()).toBe('rooms.roles.participant');
 
     // second member
     expect(rows.at(1).findAll('td').at(1).text()).toBe('Juan');
     expect(rows.at(1).findAll('td').at(2).text()).toBe('Walter');
     expect(rows.at(1).findAll('td').at(3).text()).toBe('JuanMWalter@domain.tld');
-    expect(rows.at(1).findAll('td').at(4).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(1).findAll('td').at(4).text()).toBe('rooms.roles.moderator');
 
     // third member
     img = rows.at(2).findAll('td').at(0).find('img');
@@ -106,7 +106,7 @@ describe('RoomMembers', () => {
     expect(rows.at(2).findAll('td').at(1).text()).toBe('Tammy');
     expect(rows.at(2).findAll('td').at(2).text()).toBe('Law');
     expect(rows.at(2).findAll('td').at(3).text()).toBe('TammyGLaw@domain.tld');
-    expect(rows.at(2).findAll('td').at(4).text()).toBe('rooms.members.roles.co_owner');
+    expect(rows.at(2).findAll('td').at(4).text()).toBe('rooms.roles.co_owner');
 
     view.destroy();
   });
@@ -347,9 +347,9 @@ describe('RoomMembers', () => {
     // check role selector, labels and values
     const roleSelector = modal.findAllComponents(BFormRadio);
     expect(roleSelector.length).toBe(3);
-    expect(roleSelector.at(0).text()).toBe('rooms.members.roles.participant');
-    expect(roleSelector.at(1).text()).toBe('rooms.members.roles.moderator');
-    expect(roleSelector.at(2).text()).toBe('rooms.members.roles.co_owner');
+    expect(roleSelector.at(0).text()).toBe('rooms.roles.participant');
+    expect(roleSelector.at(1).text()).toBe('rooms.roles.moderator');
+    expect(roleSelector.at(2).text()).toBe('rooms.roles.co_owner');
 
     expect(roleSelector.at(0).find('input').attributes('value')).toBe('1');
     expect(roleSelector.at(1).find('input').attributes('value')).toBe('2');
@@ -362,7 +362,7 @@ describe('RoomMembers', () => {
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
     expect(footerButtons.length).toBe(2);
-    expect(footerButtons.at(0).text()).toBe('rooms.members.modals.add.cancel');
+    expect(footerButtons.at(0).text()).toBe('app.cancel');
     expect(footerButtons.at(1).text()).toBe('rooms.members.modals.add.add');
 
     // confirm add of new user
@@ -415,7 +415,7 @@ describe('RoomMembers', () => {
     expect(rows.at(3).findAll('td').at(2).text()).toBe('Laura');
     expect(rows.at(3).findAll('td').at(3).text()).toBe('Walter');
     expect(rows.at(3).findAll('td').at(4).text()).toBe('LauraMWalter@domain.tld');
-    expect(rows.at(3).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(3).findAll('td').at(5).text()).toBe('rooms.roles.moderator');
 
     view.destroy();
   });
@@ -571,7 +571,7 @@ describe('RoomMembers', () => {
     let rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.participant');
 
     // first member
     const editButton = rows.at(0).findAllComponents(BButton).at(0);
@@ -592,9 +592,9 @@ describe('RoomMembers', () => {
     // check role selector, labels and values
     const roleSelector = modal.findAllComponents(BFormRadio);
     expect(roleSelector.length).toBe(3);
-    expect(roleSelector.at(0).text()).toBe('rooms.members.roles.participant');
-    expect(roleSelector.at(1).text()).toBe('rooms.members.roles.moderator');
-    expect(roleSelector.at(2).text()).toBe('rooms.members.roles.co_owner');
+    expect(roleSelector.at(0).text()).toBe('rooms.roles.participant');
+    expect(roleSelector.at(1).text()).toBe('rooms.roles.moderator');
+    expect(roleSelector.at(2).text()).toBe('rooms.roles.co_owner');
 
     expect(roleSelector.at(0).find('input').attributes('value')).toBe('1');
     expect(roleSelector.at(1).find('input').attributes('value')).toBe('2');
@@ -607,8 +607,8 @@ describe('RoomMembers', () => {
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
     expect(footerButtons.length).toBe(2);
-    expect(footerButtons.at(0).text()).toBe('rooms.members.modals.edit.cancel');
-    expect(footerButtons.at(1).text()).toBe('rooms.members.modals.edit.save');
+    expect(footerButtons.at(0).text()).toBe('app.cancel');
+    expect(footerButtons.at(1).text()).toBe('app.save');
 
     // confirm changes
     await footerButtons.at(1).trigger('click');
@@ -637,7 +637,7 @@ describe('RoomMembers', () => {
     rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.moderator');
 
     view.destroy();
   });
@@ -689,7 +689,7 @@ describe('RoomMembers', () => {
     let rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.participant');
 
     // first member
     const editButton = rows.at(0).findAllComponents(BButton).at(0);

@@ -25,7 +25,7 @@
         <b-container fluid>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roles.name')"
+            :label="$t('app.model_name')"
             label-for='name'
             :state='fieldState("name")'
           >
@@ -35,7 +35,7 @@
 
           <b-modal id="modal-help-roomlimit" :hide-footer="true">
             <template v-slot:modal-title>
-              <i class="fa-solid fa-circle-info"></i> {{ $t('settings.roles.roomLimit.helpModal.title') }}
+              <i class="fa-solid fa-circle-info"></i> {{ $t('app.room_limit') }}
             </template>
             <p>{{ $t('settings.roles.roomLimit.helpModal.info') }}</p>
 
@@ -46,7 +46,7 @@
                 <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</th>
                 <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleA') }}</th>
                 <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleB') }}</th>
-                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.maxAmount') }}</th>
+                <th scope="col">{{ $t('app.room_limit') }}</th>
               </tr>
               </thead>
               <tbody>
@@ -102,7 +102,7 @@
             label-for='room-limit'
             :state='fieldState("room_limit")'
           >
-            <template slot='label'>{{ $t('settings.roles.roomLimit.label') }}  <b-button variant="link" class="secondary" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
+            <template slot='label'>{{ $t('app.room_limit') }}  <b-button variant="link" class="secondary" :disabled="isBusy || modelLoadingError" v-b-modal.modal-help-roomlimit><i class="fa-solid fa-circle-info"></i></b-button></template>
             <b-form-radio-group
               class='mb-2'
               v-model='roomLimitMode'

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>
-      {{ $t('settings.roomTypes.title') }}
+      {{ $t('app.room_types') }}
       <can method='create' policy='RoomTypePolicy'>
         <b-button
           class='float-right'
@@ -249,7 +249,7 @@ export default {
 
     tableFields () {
       const fields = [
-        { key: 'description', label: this.$t('settings.roomTypes.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'description', label: this.$t('app.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true, thStyle: { width: '10%' } }
       ];
 

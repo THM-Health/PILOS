@@ -26,7 +26,7 @@
         <b-container fluid>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.serverPools.name')"
+            :label="$t('app.model_name')"
             label-for='name'
             :state='fieldState("name")'
           >
@@ -35,7 +35,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.serverPools.description')"
+            :label="$t('app.description')"
             label-for='description'
             :state='fieldState("description")'
           >
@@ -44,7 +44,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.serverPools.servers')"
+            :label="$t('app.servers')"
             label-for='servers'
             :state='fieldState("servers", true)'
           >

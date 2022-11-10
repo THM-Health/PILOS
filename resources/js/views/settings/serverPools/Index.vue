@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <h3>
-          {{ $t('settings.serverPools.title') }}
+          {{ $t('app.server_pools') }}
 
           <can method='create' policy='ServerPoolPolicy'>
             <b-button
@@ -175,8 +175,8 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.serverPools.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.serverPools.name'), sortable: true },
+        { key: 'id', label: this.$t('app.id'), sortable: true },
+        { key: 'name', label: this.$t('app.model_name'), sortable: true },
         { key: 'servers_count', label: this.$t('settings.serverPools.serverCount'), sortable: true }
       ];
 

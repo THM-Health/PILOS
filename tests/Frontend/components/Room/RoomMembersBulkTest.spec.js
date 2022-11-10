@@ -296,7 +296,7 @@ describe('RoomMembersBulk', () => {
     expect(rows.at(0).find('input').element.checked).toBeTruthy();
     expect(view.vm.$data.selectedMembers.length).toBe(1);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.participant');
 
     // check if button shows correct title
     const bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });
@@ -318,9 +318,9 @@ describe('RoomMembersBulk', () => {
     // check role selector, labels and values
     const roleSelector = modal.findAllComponents(BFormRadio);
     expect(roleSelector.length).toBe(3);
-    expect(roleSelector.at(0).text()).toBe('rooms.members.roles.participant');
-    expect(roleSelector.at(1).text()).toBe('rooms.members.roles.moderator');
-    expect(roleSelector.at(2).text()).toBe('rooms.members.roles.co_owner');
+    expect(roleSelector.at(0).text()).toBe('rooms.roles.participant');
+    expect(roleSelector.at(1).text()).toBe('rooms.roles.moderator');
+    expect(roleSelector.at(2).text()).toBe('rooms.roles.co_owner');
 
     expect(roleSelector.at(0).find('input').attributes('value')).toBe('1');
     expect(roleSelector.at(1).find('input').attributes('value')).toBe('2');
@@ -333,8 +333,8 @@ describe('RoomMembersBulk', () => {
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
     expect(footerButtons.length).toBe(2);
-    expect(footerButtons.at(0).text()).toBe('rooms.members.modals.edit.cancel');
-    expect(footerButtons.at(1).text()).toBe('rooms.members.modals.edit.save');
+    expect(footerButtons.at(0).text()).toBe('app.cancel');
+    expect(footerButtons.at(1).text()).toBe('app.save');
 
     // confirm changes
     await footerButtons.at(1).trigger('click');
@@ -363,7 +363,7 @@ describe('RoomMembersBulk', () => {
     rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.moderator');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.moderator');
 
     // test if two users can be edited
 
@@ -425,8 +425,8 @@ describe('RoomMembersBulk', () => {
     rows = members.findAllComponents(BTr);
     expect(rows.length).toBe(3);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.co_owner');
-    expect(rows.at(1).findAll('td').at(5).text()).toBe('rooms.members.roles.co_owner');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.co_owner');
+    expect(rows.at(1).findAll('td').at(5).text()).toBe('rooms.roles.co_owner');
 
     view.destroy();
   });
@@ -636,7 +636,7 @@ describe('RoomMembersBulk', () => {
     expect(rows.at(0).find('input').element.checked).toBeTruthy();
     expect(view.vm.$data.selectedMembers.length).toBe(1);
 
-    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.members.roles.participant');
+    expect(rows.at(0).findAll('td').at(5).text()).toBe('rooms.roles.participant');
 
     // check if button shows correct title
     const bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });

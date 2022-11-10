@@ -26,7 +26,7 @@
             :disabled="isBusy"
             :state="fieldState('file')"
             :browse-text="$t('app.browse')"
-            :placeholder="$t('rooms.files.selectordrag')"
+            :placeholder="$t('rooms.files.select_or_drag')"
             v-on:change="uploadFile"
             v-model="fileUpload"
             v-bind:multiple="false"
@@ -177,13 +177,13 @@
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.files.modals.delete.title') }}
+        {{ $t('rooms.files.delete') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="deleteFile">
-        {{ $t('rooms.files.modals.delete.confirm', { filename: deleteFile.filename }) }}
+        {{ $t('rooms.files.confirm_delete', { filename: deleteFile.filename }) }}
       </span>
     </b-modal>
 
@@ -493,7 +493,7 @@ export default {
           },
           {
             key: 'actions',
-            label: this.$t('rooms.files.actions')
+            label: this.$t('app.actions')
           }
         ];
       }
@@ -526,7 +526,7 @@ export default {
         },
         {
           key: 'actions',
-          label: this.$t('rooms.files.actions')
+          label: this.$t('app.actions')
         }
       ];
     }

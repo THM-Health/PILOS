@@ -31,7 +31,7 @@
               <template slot='invalid-feedback'><div v-html="fieldError('room_type')"></div></template>
             </b-form-group>
             <!-- Room name -->
-            <b-form-group :state="fieldState('name')" :label="$t('rooms.settings.general.roomName')">
+            <b-form-group :state="fieldState('name')" :label="$t('rooms.name')">
               <b-input-group>
                 <b-form-input
                   :disabled="disabled"
@@ -91,7 +91,7 @@
           <b-col lg="3" md="6" cols="12">
             <h5>{{ $t('rooms.settings.security.title') }}</h5>
             <!-- Access code -->
-            <b-form-group :state="fieldState('access_code')" :label="$t('rooms.settings.security.accessCode')">
+            <b-form-group :state="fieldState('access_code')" :label="$t('rooms.access_code')">
               <b-input-group>
                 <b-input-group-prepend>
                   <!-- Generate random access code -->
@@ -206,7 +206,7 @@
               <!-- Radio default user role for logged in users only -->
               <b-form-group :state="fieldState('default_role')">
                 <template v-slot:label>
-                  {{ $t('rooms.settings.participants.defaultRole.title') }}<br><small>{{ $t('rooms.settings.participants.defaultRole.onlyLoggedIn') }}</small>
+                  {{ $t('rooms.settings.participants.default_role.title') }}<br><small>{{ $t('rooms.settings.participants.default_role.only_logged_in') }}</small>
                 </template>
                 <b-form-radio
                   :disabled="disabled"
@@ -214,7 +214,7 @@
                   v-model.number="settings.default_role"
                   :state="fieldState('default_role')"
                   value="1">
-                  {{ $t('rooms.settings.participants.defaultRole.participant') }}
+                  {{ $t('rooms.roles.participant') }}
                 </b-form-radio>
                 <b-form-radio
                   name="setting-defaultRole"
@@ -222,7 +222,7 @@
                   v-model.number="settings.default_role"
                   :state="fieldState('default_role')"
                   value="2">
-                  {{ $t('rooms.settings.participants.defaultRole.moderator') }}
+                  {{ $t('rooms.roles.moderator') }}
                 </b-form-radio>
                 <template slot='invalid-feedback'><div v-html="fieldError('default_role')"></div></template>
               </b-form-group>
@@ -235,7 +235,7 @@
                 v-model.number="settings.lobby"
                 :state="fieldState('lobby')"
                 value="0">
-                {{ $t('rooms.settings.participants.waitingRoom.disabled') }}
+                {{ $t('app.disabled') }}
               </b-form-radio>
               <b-form-radio
                 :disabled="disabled"
@@ -243,7 +243,7 @@
                 v-model.number="settings.lobby"
                 :state="fieldState('lobby')"
                 value="1">
-                {{ $t('rooms.settings.participants.waitingRoom.enabled') }}
+                {{ $t('app.enabled') }}
               </b-form-radio>
               <b-form-radio
                 :disabled="disabled"

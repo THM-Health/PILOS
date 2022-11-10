@@ -26,7 +26,7 @@
         <b-container fluid>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.servers.name')"
+            :label="$t('app.model_name')"
             label-for='name'
             :state='fieldState("name")'
           >
@@ -35,7 +35,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.servers.description')"
+            :label="$t('app.description')"
             label-for='description'
             :state='fieldState("description")'
           >

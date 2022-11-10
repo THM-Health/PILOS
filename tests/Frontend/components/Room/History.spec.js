@@ -514,14 +514,14 @@ describe('History', () => {
 
     expect(rows[0].at(0).text()).toBe('Claus Doe');
     expect(rows[0].at(1).text()).toBe('claus.doe@demo.tld');
-    expect(rows[0].at(2).text()).toBe('meetings.attendance.durationMinute:{"duration":33}');
-    expect(rows[0].at(3).text()).toContain('06/18/2021, 09:13 - 06/18/2021, 09:42 (meetings.attendance.durationMinute:{"duration":28})');
-    expect(rows[0].at(3).text()).toContain('06/18/2021, 09:44 - 06/18/2021, 09:49 (meetings.attendance.durationMinute:{"duration":5})');
+    expect(rows[0].at(2).text()).toBe('meetings.attendance.duration_minute:{"duration":33}');
+    expect(rows[0].at(3).text()).toContain('06/18/2021, 09:13 - 06/18/2021, 09:42 (meetings.attendance.duration_minute:{"duration":28})');
+    expect(rows[0].at(3).text()).toContain('06/18/2021, 09:44 - 06/18/2021, 09:49 (meetings.attendance.duration_minute:{"duration":5})');
 
     expect(rows[1].at(0).text()).toBe('John Doe');
     expect(rows[1].at(1).text()).toBe('---');
-    expect(rows[1].at(2).text()).toBe('meetings.attendance.durationMinute:{"duration":4}');
-    expect(rows[1].at(3).text()).toContain('06/18/2021, 09:41 - 06/18/2021, 09:45 (meetings.attendance.durationMinute:{"duration":4})');
+    expect(rows[1].at(2).text()).toBe('meetings.attendance.duration_minute:{"duration":4}');
+    expect(rows[1].at(3).text()).toContain('06/18/2021, 09:41 - 06/18/2021, 09:45 (meetings.attendance.duration_minute:{"duration":4})');
 
     const downloadButton = view.find('#attendanceModal').find('a');
     expect(downloadButton.text()).toBe('meetings.attendance.download');

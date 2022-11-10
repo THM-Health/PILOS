@@ -2,7 +2,7 @@
   <b-nav-item-dropdown right
     toggle-class="text-primary nav-icon-item">
     <template v-slot:button-content>
-      <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.selectLocale') }}</span>
+      <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.select_locale') }}</span>
     </template>
     <b-dropdown-item
       v-for="(value, key) in locales"

@@ -38,7 +38,7 @@
             >
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.firstname')"
+                :label="$t('app.firstname')"
                 label-for='firstname'
                 :state='fieldState("firstname")'
               >
@@ -53,7 +53,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.lastname')"
+                :label="$t('app.lastname')"
                 label-for='lastname'
                 :state='fieldState("lastname")'
               >
@@ -110,7 +110,7 @@
                     <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
 
                     <b-button class="my-1 my-lg-0" variant='secondary' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fa-solid fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
-                    <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('settings.users.image.cancel') }}</b-button>
+                    <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('app.cancel') }}</b-button>
                     <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fa-solid fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
                     <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fa-solid fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
 
@@ -153,7 +153,7 @@
                   ok-variant="success"
                   :ok-title="$t('settings.users.image.save')"
                   cancel-variant="secondary"
-                  :cancel-title="$t('settings.users.image.cancel')"
+                  :cancel-title="$t('app.cancel')"
                 >
                   <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" :alt="$t('settings.users.image.title')"></VueCropper>
                 </b-modal>
@@ -172,7 +172,7 @@
                   :disabled="isBusy || modelLoadingError || config.type === 'view'"
                 >
                   <template v-slot:first>
-                    <b-form-select-option :value="null" disabled>{{ $t('settings.users.select_locale') }}</b-form-select-option>
+                    <b-form-select-option :value="null" disabled>{{ $t('app.select_locale') }}</b-form-select-option>
                   </template>
                 </b-form-select>
                 <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
@@ -208,7 +208,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.roles')"
+                :label="$t('app.roles')"
                 label-for='roles'
                 :state='fieldState("roles", true)'
               >
@@ -272,7 +272,7 @@
             <hr>
             <b-form-group
               label-cols-lg="12"
-              :label="$t('settings.users.password')"
+              :label="$t('auth.password')"
               label-size="lg"
               label-class="font-weight-bold pt-0"
               class="mb-0"
@@ -299,7 +299,7 @@
               <b-form-group
                 v-if="!generate_password"
                 label-cols-sm='3'
-                :label="$t('settings.users.password')"
+                :label="$t('auth.password')"
                 label-for='password'
                 :state='fieldState("password")'
               >
@@ -315,7 +315,7 @@
               <b-form-group
                 v-if="!generate_password"
                 label-cols-sm='3'
-                :label="$t('settings.users.password_confirmation')"
+                :label="$t('auth.password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
               >

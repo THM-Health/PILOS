@@ -23,7 +23,7 @@
             <router-link class="stretched-link" :to="{ name: 'settings.users' }">
               <h2 class="text-center text-primary"><i class='fa-solid fa-users'></i></h2>
             </router-link>
-            <b-card-title class="text-center text-primary">{{ $t('settings.users.title') }}</b-card-title>
+            <b-card-title class="text-center text-primary">{{ $t('app.users') }}</b-card-title>
             <b-card-text>
               {{ $t('settings.users.tileDescription') }}
             </b-card-text>
@@ -36,7 +36,7 @@
             <router-link class="stretched-link" :to="{ name: 'settings.roles' }">
               <h2 class="text-center text-primary"><i class='fa-solid fa-user-tag'></i></h2>
             </router-link>
-            <b-card-title class="text-center text-primary">{{ $t('settings.roles.title') }}</b-card-title>
+            <b-card-title class="text-center text-primary">{{ $t('app.roles') }}</b-card-title>
             <b-card-text>
               {{ $t('settings.roles.tileDescription') }}
             </b-card-text>
@@ -49,7 +49,7 @@
             <router-link class="stretched-link" :to="{ name: 'settings.room_types' }">
               <h2 class="text-center text-primary"><i class='fa-solid fa-tags'></i></h2>
             </router-link>
-            <b-card-title class="text-center text-primary">{{ $t('settings.roomTypes.title') }}</b-card-title>
+            <b-card-title class="text-center text-primary">{{ $t('app.room_types') }}</b-card-title>
             <b-card-text>
               {{ $t('settings.roomTypes.tileDescription') }}
             </b-card-text>
@@ -62,7 +62,7 @@
             <router-link class="stretched-link" :to="{ name: 'settings.servers' }">
               <h2 class="text-center text-primary"><i class='fa-solid fa-server'></i></h2>
             </router-link>
-            <b-card-title class="text-center text-primary">{{ $t('settings.servers.title') }}</b-card-title>
+            <b-card-title class="text-center text-primary">{{ $t('app.servers') }}</b-card-title>
             <b-card-text>
               {{ $t('settings.servers.tileDescription') }}
             </b-card-text>
@@ -75,7 +75,7 @@
             <router-link class="stretched-link" :to="{ name: 'settings.server_pools' }">
               <h2 class="text-center text-primary"><i class='fa-solid fa-th-large'></i></h2>
             </router-link>
-            <b-card-title class="text-center text-primary">{{ $t('settings.serverPools.title') }}</b-card-title>
+            <b-card-title class="text-center text-primary">{{ $t('app.server_pools') }}</b-card-title>
             <b-card-text>
               {{ $t('settings.serverPools.tileDescription') }}
             </b-card-text>

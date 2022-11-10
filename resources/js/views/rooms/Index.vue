@@ -25,7 +25,7 @@
     <b-row class="mb-3">
       <b-col lg="3" order="2" order-lg="1">
         <h4>{{ $t('rooms.filter.title') }}</h4>
-        <h5>{{ $t('rooms.filter.roomTypes') }}</h5>
+        <h5>{{ $t('app.room_types') }}</h5>
         <div style="position: relative; min-height: 40px">
           <b-overlay :no-center="true" :show="roomTypesBusy || roomTypesLoadingError" >
             <template #overlay>

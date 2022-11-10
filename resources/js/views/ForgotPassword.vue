@@ -7,7 +7,7 @@
             <h5>{{ $t('auth.resetPassword') }}</h5>
             <b-form @submit.prevent="submit">
               <b-form-group
-                :label="$t('auth.email.email')"
+                :label="$t('app.email')"
                 label-for='email'
                 :state='fieldState("email")'
               >

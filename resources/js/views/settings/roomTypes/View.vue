@@ -24,7 +24,7 @@
         <b-container fluid>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.description')"
+            :label="$t('app.description')"
             label-for='description'
             :state='fieldState("description")'
           >
@@ -74,7 +74,7 @@
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.serverPool')"
+            :label="$t('app.server_pool')"
             label-for='server_pool'
             :state='fieldState("server_pool")'
             :description="$t('settings.roomTypes.serverPoolDescription')"
@@ -139,7 +139,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.roles')"
+            :label="$t('app.roles')"
             label-for='roles'
             :state='fieldState("roles", true)'
             v-if='model.restrict'
