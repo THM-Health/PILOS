@@ -289,10 +289,7 @@ export default {
 
       Base.call(`servers/${this.id}/panic`).then(response => {
         if (response.status === 200) {
-          this.flashMessage.success({
-            title: this.$t('settings.servers.panicFlash.title'),
-            message: this.$t('settings.servers.panicFlash.message', { total: response.data.total, success: response.data.success })
-          });
+          this.flashMessage.success(this.$t('settings.servers.panic.flash.title'), this.$t('settings.servers.panic.flash.description', { total: response.data.total, success: response.data.success }));
           this.load();
         }
       }).catch(error => {

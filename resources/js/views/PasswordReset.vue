@@ -123,9 +123,7 @@ export default {
       try {
         const response = await Base.call('password/reset', config, true);
 
-        this.flashMessage.success({
-          title: response.data.message
-        });
+        this.flashMessage.success(response.data.message);
 
         await this.$store.dispatch('session/getCurrentUser');
 

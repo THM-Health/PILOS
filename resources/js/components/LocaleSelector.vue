@@ -54,9 +54,7 @@ export default {
         await loadLanguageAsync(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.flashMessage.error({
-            message: error.response.data.errors.locale.join(' ')
-          });
+          this.flashMessage.error(error.response.data.errors.locale.join(' '));
         } else {
           this.$store.commit('loadingFinished');
           Base.error(error, this.$root, error.message);

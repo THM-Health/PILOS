@@ -51,11 +51,10 @@ export default {
     } else if (responseStatus === env.HTTP_SERVICE_UNAVAILABLE) { // 503 => maintenance mode
       window.location.reload();
     } else if (responseStatus !== undefined) { // Another error on server
-      vm.flashMessage.error({
-        message: errorMessage ? vm.$t('app.flash.serverError.message', { message: errorMessage }) : vm.$t('app.flash.serverError.emptyMessage'),
-        title: vm.$t('app.flash.serverError.title', { statusCode: responseStatus }),
-        contentClass: 'flash_small_title flex-column-reverse d-flex'
-      });
+      vm.flashMessage.error(
+        errorMessage ? vm.$t('app.flash.serverError.message', { message: errorMessage }) : vm.$t('app.flash.serverError.emptyMessage'),
+        vm.$t('app.flash.serverError.errorCode', { statusCode: responseStatus })
+      );
     } else {
       vm.flashMessage.error(vm.$t('app.flash.clientError'));
       console.error(`Error: ${error.toString()}\nInfo: ${info}`);

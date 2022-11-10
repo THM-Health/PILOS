@@ -470,9 +470,7 @@ export default {
       };
 
       Base.call(`users/${this.userToResetPassword.id}/resetPassword`, config).then(() => {
-        this.flashMessage.success({
-          title: this.$t('settings.users.passwordResetSuccess', { mail: this.userToResetPassword.email })
-        });
+        this.flashMessage.success(this.$t('settings.users.passwordResetSuccess', { mail: this.userToResetPassword.email }));
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {

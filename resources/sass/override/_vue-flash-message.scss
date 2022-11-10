@@ -7,7 +7,28 @@
             font-size: $h5-font-size;
         }
 
-        padding: 10px;
+        padding: 10px !important;
+
+        & ._vue-flash-msg-body__title {
+            padding-left: 35px;
+            margin: 0;
+            font-weight: bold;
+        }
+        & ._vue-flash-msg-body__text {
+            padding-left: 35px;
+            margin: 0;
+        }
+    }
+
+    ._vue-flash-msg-body__content::before {
+        font-family: $fa-style-family;
+        font-size: 25px;
+        position: absolute;
+        top: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     & .flash_small_title._vue-flash-msg-body__content h3 {
@@ -24,6 +45,10 @@
         }
         & ._vue-flash-msg-body__content {
             border-left: 5px solid $success !important;
+
+            &::before {
+                content: fa-content($fa-var-circle-check);
+            }
         }
     }
 
@@ -35,6 +60,10 @@
         }
         & ._vue-flash-msg-body__content {
             border-left: 5px solid $info !important;
+
+            &::before {
+                content: fa-content($fa-var-circle-info);
+            }
         }
     }
 
@@ -46,6 +75,10 @@
         }
         & ._vue-flash-msg-body__content {
             border-left: 5px solid $danger !important;
+
+            &::before {
+                content: fa-content($fa-var-circle-xmark);
+            }
         }
     }
 
@@ -57,6 +90,10 @@
         }
         & ._vue-flash-msg-body__content {
             border-left: 5px solid $warning !important;
+
+            &::before {
+                content: fa-content($fa-var-circle-exclamation);
+            }
         }
     }
 }

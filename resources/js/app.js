@@ -4,7 +4,8 @@ import store from './store';
 import App from './views/App';
 import router from './router';
 import i18n from './i18n';
-import FlashMessage from '@smartweb/vue-flash-message';
+import VueFlashMessage from '@smartweb/vue-flash-message';
+import FlashMessage from './plugins/FlashMessage';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
@@ -22,8 +23,13 @@ Vue.use(Clipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
 
-Vue.use(FlashMessage, {
+Vue.use(VueFlashMessage, {
+  name: 'vueFlashMessage',
   strategy: 'multiple'
+});
+Vue.use(FlashMessage, {
+  name: 'flashMessage',
+  vueFlashMessageName: 'vueFlashMessage'
 });
 
 // Add accessibility check tools for development
