@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Combine backend and frontend localization into single json file ([#284], [#287])
+- Look and feel of flash messages ([#287])
 
 ### Fixed
 - Error on logout if room member list is shown ([#280], [#281])
