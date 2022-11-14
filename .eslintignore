@@ -4,6 +4,7 @@
 /resources/custom
 /storage/*.key
 /vendor
+/coverage
 .env
 .env.backup
 .phpunit.result.cache
