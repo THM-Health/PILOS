@@ -35,8 +35,8 @@
         </div>
         <div class="col-lg-4 col-md-6">
           <span class="stamp bg-primary"><i class="fa-solid fa-desktop fa-2x"></i></span>
-          <h4 class="mt-4">{{ $t('home.possibilities.screenSharing.title') }}</h4>
-          <p>{{ $t('home.possibilities.screenSharing.description') }}</p>
+          <h4 class="mt-4">{{ $t('home.possibilities.screen_sharing.title') }}</h4>
+          <p>{{ $t('home.possibilities.screen_sharing.description') }}</p>
         </div>
         <div class="col-lg-4 col-md-6">
           <span class="stamp bg-primary"><i class="fa-solid fa-chalkboard-teacher fa-2x"></i></span>

@@ -33,17 +33,17 @@
 
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav v-if='isAuthenticated'>
-            <b-nav-item :to="{ name: 'rooms.own_index' }">{{ $t('rooms.myRooms') }}</b-nav-item>
+            <b-nav-item :to="{ name: 'rooms.own_index' }">{{ $t('rooms.my_rooms') }}</b-nav-item>
             <b-nav-item :to="{ name: 'rooms.index' }">
               <can method='viewAll' policy='RoomPolicy'>
-                {{ $t('rooms.allRooms') }}
+                {{ $t('rooms.all_rooms') }}
               </can>
               <cannot method='viewAll' policy='RoomPolicy'>
-                {{ $t('rooms.findRooms') }}
+                {{ $t('rooms.find_rooms') }}
               </cannot>
             </b-nav-item>
             <can method='viewAny' policy='MeetingPolicy'>
-              <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currentlyRunning') }}</b-nav-item>
+              <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currently_running') }}</b-nav-item>
             </can>
             <can method='manage' policy='SettingPolicy'>
               <b-nav-item :to="{ name: 'settings' }">

@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <h3>
-          {{ $t('settings.users.title') }}
+          {{ $t('app.users') }}
         </h3>
       </b-col>
         <b-col>
@@ -68,13 +68,13 @@
                   :disabled='rolesLoading || rolesCurrentPage === 1'
                   variant='outline-secondary'
                   @click='loadRoles(Math.max(1, rolesCurrentPage - 1))'>
-                  <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                  <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
                 </b-button>
                 <b-button
                   :disabled='rolesLoading || !rolesHasNextPage'
                   variant='outline-secondary'
                   @click='loadRoles(rolesCurrentPage + 1)'>
-                  <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                  <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
                 </b-button>
               </template>
             </multiselect>
@@ -120,11 +120,11 @@
       </template>
 
       <template v-slot:empty>
-        <i>{{ $t('settings.users.nodata') }}</i>
+        <i>{{ $t('settings.users.no_data') }}</i>
       </template>
 
       <template v-slot:emptyfiltered>
-        <i>{{ $t('settings.users.nodataFiltered') }}</i>
+        <i>{{ $t('settings.users.no_data_filtered') }}</i>
       </template>
 
       <template v-slot:cell(authenticator)="data">
@@ -176,7 +176,7 @@
               :id="'resetPassword' + data.item.id"
               v-b-tooltip.hover
               v-tooltip-hide-click
-              :title="$t('settings.users.resetPassword.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
+              :title="$t('settings.users.reset_password.item', { firstname: data.item.firstname, lastname: data.item.lastname })"
               :disabled='isBusy'
               variant='warning'
               class='mb-1'
@@ -226,13 +226,13 @@
       :hide-header-close="resetting"
     >
       <template v-slot:modal-title>
-        {{ $t('settings.users.resetPassword.title') }}
+        {{ $t('settings.users.reset_password.title') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="resetting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="userToResetPassword">
-        {{ $t('settings.users.resetPassword.confirm', { firstname: userToResetPassword.firstname, lastname: userToResetPassword.lastname }) }}
+        {{ $t('settings.users.reset_password.confirm', { firstname: userToResetPassword.firstname, lastname: userToResetPassword.lastname }) }}
       </span>
     </b-modal>
 
@@ -284,12 +284,12 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.users.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
-        { key: 'firstname', label: this.$t('settings.users.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'lastname', label: this.$t('settings.users.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'id', label: this.$t('app.id'), sortable: true, tdClass: 'td-max-width-0-lg', thStyle: { width: '8%' } },
+        { key: 'firstname', label: this.$t('app.firstname'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'lastname', label: this.$t('app.lastname'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'email', label: this.$t('settings.users.email'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'authenticator', label: this.$t('settings.users.authenticator.title'), sortable: true },
-        { key: 'roles', label: this.$t('settings.users.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
+        { key: 'roles', label: this.$t('app.roles'), sortable: false, tdClass: 'td-max-width-0-lg' }
       ];
 
       if (this.actionColumnVisible) {
@@ -470,9 +470,7 @@ export default {
       };
 
       Base.call(`users/${this.userToResetPassword.id}/resetPassword`, config).then(() => {
-        this.flashMessage.success({
-          title: this.$t('settings.users.passwordResetSuccess', { mail: this.userToResetPassword.email })
-        });
+        this.flashMessage.success(this.$t('settings.users.password_reset_success', { mail: this.userToResetPassword.email }));
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {

@@ -4,10 +4,10 @@
       <div class='col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3'>
         <b-card no-body bg-variant='light'>
           <div class='m-3'>
-            <h5>{{ $t('auth.resetPassword') }}</h5>
+            <h5>{{ $t('auth.reset_password') }}</h5>
             <b-form @submit.prevent="submit">
               <b-form-group
-                :label="$t('auth.email.email')"
+                :label="$t('app.email')"
                 label-for='email'
                 :state='fieldState("email")'
               >
@@ -25,7 +25,7 @@
 
               <b-button type='submit' variant='primary' :disabled="loading" block>
                 <b-spinner v-if="loading" small></b-spinner>
-                {{ $t('auth.sendPasswordResetLink') }}
+                {{ $t('auth.send_password_reset_link') }}
               </b-button>
             </b-form>
           </div>
@@ -77,9 +77,7 @@ export default {
       };
 
       Base.call('password/email', config, true).then(response => {
-        this.flashMessage.success({
-          title: response.data.message
-        });
+        this.flashMessage.success(response.data.message);
         this.$router.push({ name: 'home' });
       }).catch(error => {
         Base.error(error, this.$root, error.message);

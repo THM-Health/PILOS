@@ -3,7 +3,7 @@
     <b-row class="mb-3">
       <b-col>
         <h2>
-          {{ $t('meetings.currentlyRunning') }}
+          {{ $t('meetings.currently_running') }}
         </h2>
       </b-col>
       <b-col sm='12' md='3'>
@@ -45,11 +45,11 @@
       :current-page='currentPage'>
 
       <template v-slot:empty>
-        <i>{{ $t('meetings.nodata') }}</i>
+        <i>{{ $t('meetings.no_data') }}</i>
       </template>
 
       <template v-slot:emptyfiltered>
-        <i>{{ $t('meetings.nodataFiltered') }}</i>
+        <i>{{ $t('meetings.no_data_filtered') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -61,22 +61,22 @@
       <!-- A custom formatted header cell for field 'name' -->
       <template #head(room.listener_count)>
         <i v-b-tooltip.hover
-           :title="$t('meetings.listenerCount')"
+           :title="$t('meetings.listener_count')"
            class="fa-solid fa-headphones"></i>
       </template>
       <template #head(room.voice_participant_count)>
         <i v-b-tooltip.hover
-           :title="$t('meetings.voiceParticipantCount')"
+           :title="$t('meetings.voice_participant_count')"
            class="fa-solid fa-microphone"></i>
       </template>
       <template #head(room.video_count)>
         <i v-b-tooltip.hover
-           :title="$t('meetings.videoCount')"
+           :title="$t('meetings.video_count')"
            class="fa-solid fa-video"></i>
       </template>
       <template #head(room.participant_count)>
         <i v-b-tooltip.hover
-           :title="$t('meetings.participantCount')"
+           :title="$t('meetings.participant_count')"
            class="fa-solid fa-users"></i>
       </template>
 
@@ -123,7 +123,7 @@
         <b-button
           v-b-tooltip.hover
           v-tooltip-hide-click
-          :title="$t('meetings.viewRoom', { name: data.item.room.name })"
+          :title="$t('meetings.view_room', { name: data.item.room.name })"
           :disabled='isBusy'
           variant='info'
           :to="{ name: 'rooms.view', params: { id: data.item.room.id } }"
@@ -159,13 +159,13 @@ export default {
     tableFields () {
       return [
         { key: 'start', label: this.$t('meetings.start'), sortable: true, thStyle: { width: '120px' } },
-        { key: 'room.name', label: this.$t('meetings.name'), sortable: false, tdClass: 'td-max-width-0-lg' },
+        { key: 'room.name', label: this.$t('rooms.name'), sortable: false, tdClass: 'td-max-width-0-lg' },
         { key: 'room.owner', label: this.$t('meetings.owner'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'server.name', label: this.$t('meetings.server'), sortable: false, tdClass: 'td-max-width-0-lg' },
-        { key: 'room.participant_count', label: this.$t('meetings.participantCount'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'room.listener_count', label: this.$t('meetings.listenerCount'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'room.voice_participant_count', label: this.$t('meetings.voiceParticipantCount'), sortable: true, thStyle: { width: '64px' } },
-        { key: 'room.video_count', label: this.$t('meetings.videoCount'), sortable: true, thStyle: { width: '64px' } },
+        { key: 'server.name', label: this.$t('app.server'), sortable: false, tdClass: 'td-max-width-0-lg' },
+        { key: 'room.participant_count', label: this.$t('meetings.participant_count'), sortable: true, thStyle: { width: '64px' } },
+        { key: 'room.listener_count', label: this.$t('meetings.listener_count'), sortable: true, thStyle: { width: '64px' } },
+        { key: 'room.voice_participant_count', label: this.$t('meetings.voice_participant_count'), sortable: true, thStyle: { width: '64px' } },
+        { key: 'room.video_count', label: this.$t('meetings.video_count'), sortable: true, thStyle: { width: '64px' } },
         { key: 'actions', label: this.$t('app.actions'), sortable: false, thStyle: { width: '100px' } }
       ];
     }

@@ -37,7 +37,7 @@ class UpdateSetting extends FormRequest
             'banner.link_text'                          => 'nullable|string|max:255',
             'banner.link_style'                         => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->filled('banner.link')), 'string', 'max:255', new EnumValue(LinkButtonStyle::class)],
             'banner.link_target'                        => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->filled('banner.link')), 'string', 'max:255', new EnumValue(LinkTarget::class)],
-            'banner.icon'                               => 'nullable|string|max:255|regex:/^fa[srldb] fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/',
+            'banner.icon'                               => ['nullable','string','max:255','regex:/^(fas|fa\\-solid) fa\\-([a-z0-9]+(?(?=\\-)\\-[a-z0-9]+)*)$/'],
             'banner.color'                              => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', new Color()],
             'banner.background'                         => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', new Color()],
             'default_presentation'                      => ['nullable', 'file', 'max:'.(intval(config('bigbluebutton.max_filesize')) * 1000), 'mimes:'.config('bigbluebutton.allowed_file_mimes')],

@@ -13,7 +13,8 @@
           aria-describedby="usernameHelpBlock"
         ></b-form-input>
 
-        <b-form-text id="usernameHelpBlock" v-html="$t('auth.ldap.usernameHelp')">
+        <b-form-text id="usernameHelpBlock">
+          {{ $t('auth.ldap.username_help') }}
         </b-form-text>
 
         <b-form-invalid-feedback v-if="errors !== null && errors.username.length > 0">

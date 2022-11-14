@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>
-      {{ $t('settings.roles.title') }}
+      {{ $t('app.roles') }}
       <can method='create' policy='RolePolicy'>
         <b-button
           class='float-right'
@@ -146,8 +146,8 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.roles.id'), sortable: true, thStyle: { width: '8%' } },
-        { key: 'name', label: this.$t('settings.roles.name'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'id', label: this.$t('app.id'), sortable: true, thStyle: { width: '8%' } },
+        { key: 'name', label: this.$t('app.model_name'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'default', label: this.$t('settings.roles.default'), sortable: true, thStyle: { width: '15%' } }
       ];
 

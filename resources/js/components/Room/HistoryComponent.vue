@@ -47,7 +47,7 @@
             :current-page='meetingsMeta.current_page'>
 
             <template v-slot:empty>
-              <i>{{ $t('meetings.noHistoricalData') }}</i>
+              <i>{{ $t('meetings.no_historical_data') }}</i>
             </template>
 
             <template v-slot:table-busy>
@@ -68,7 +68,7 @@
               <b-button
                 v-b-tooltip.hover
                 v-tooltip-hide-click
-                :title="$t('meetings.viewMeetingStats')"
+                :title="$t('meetings.view_meeting_stats')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.statistical"
                 variant='info'
@@ -79,7 +79,7 @@
               <b-button
                 v-b-tooltip.hover
                 v-tooltip-hide-click
-                :title="$t('meetings.viewMeetingAttendance')"
+                :title="$t('meetings.attendance.view')"
                 :disabled='meetingsLoading || statsLoading || attendanceLoading'
                 v-if="data.item.attendance && data.item.end != null"
                 variant='info'
@@ -101,9 +101,9 @@
 
           <div v-if="settings('attendance.enabled') || settings('statistics.meetings.enabled')" id="retentionPeriodInfo">
             <hr>
-            <b>{{ $t('meetings.retentionPeriod') }}</b><br>
-            <span v-if="settings('statistics.meetings.enabled')">{{ $t('meetings.stats.retentionPeriod', {'days': settings('statistics.meetings.retention_period')}) }}</span><br>
-            <span v-if="settings('attendance.enabled')">{{ $t('meetings.attendance.retentionPeriod', {'days': settings('attendance.retention_period')}) }}</span><br>
+            <b>{{ $t('meetings.retention_period') }}</b><br>
+            <span v-if="settings('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': settings('statistics.meetings.retention_period')}) }}</span><br>
+            <span v-if="settings('attendance.enabled')">{{ $t('meetings.attendance.retention_period', {'days': settings('attendance.retention_period')}) }}</span><br>
           </div>
         </div>
       </div>
@@ -111,11 +111,11 @@
       <!-- Statistics modal -->
       <b-modal :static="modalStatic" size="xl" hide-footer id="statsModal">
         <template #modal-title>
-          <h5 v-if="statsMeeting">{{ $t('meetings.stats.modalTitle',{room: room.name }) }}
+          <h5 v-if="statsMeeting">{{ $t('meetings.stats.modal_title',{room: room.name }) }}
           <br><small>{{ $d(new Date(statsMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ statsMeeting.end == null ? $t('meetings.now') : $d(new Date(statsMeeting.end),'datetimeShort') }}</small>
           </h5>
         </template>
-        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.stats.noBreakoutSupport')}}</b-alert>
+        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.stats.no_breakout_support')}}</b-alert>
 
         <line-chart v-if="statsMeeting" :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
       </b-modal>
@@ -123,13 +123,13 @@
       <b-modal :static="modalStatic" size="xl" hide-footer id="attendanceModal" title-tag="div" title-class="w-100">
         <template #modal-title >
           <div class="d-flex justify-content-between align-items-center">
-            <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modalTitle',{room: room.name}) }}
+            <h5 v-if="attendanceMeeting">{{ $t('meetings.attendance.modal_title',{room: room.name}) }}
               <br><small>{{ $d(new Date(attendanceMeeting.start),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(attendanceMeeting.end),'datetimeShort') }}</small>
             </h5>
             <div v-if="attendanceMeeting"><b-button target="_blank" :href="'/download/attendance/'+attendanceMeeting.id" ><i class="fa-solid fa-file-excel"></i> {{ $t('meetings.attendance.download') }}</b-button></div>
           </div>
         </template>
-        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.attendance.noBreakoutSupport')}}</b-alert>
+        <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.attendance.no_breakout_support')}}</b-alert>
 
         <b-table
           id='attendance-table'
@@ -153,11 +153,11 @@
           </template>
 
           <template v-slot:cell(duration)="data">
-            {{ $t('meetings.attendance.durationMinute',{duration: data.item.duration}) }}
+            {{ $t('meetings.attendance.duration_minute',{duration: data.item.duration}) }}
           </template>
 
           <template v-slot:cell(sessions)="data">
-            <p v-for="session in data.item.sessions" :key="session.id" >{{ $d(new Date(session.join),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(session.leave),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.durationMinute',{duration: session.duration})}}<raw-text>)</raw-text></p>
+            <p v-for="session in data.item.sessions" :key="session.id" >{{ $d(new Date(session.join),'datetimeShort') }} <raw-text>-</raw-text> {{ $d(new Date(session.leave),'datetimeShort') }} <raw-text>(</raw-text>{{ $t('meetings.attendance.duration_minute',{duration: session.duration})}}<raw-text>)</raw-text></p>
           </template>
         </b-table>
         <b-pagination
@@ -331,12 +331,12 @@ export default {
       return [
         {
           key: 'name',
-          label: this.$t('meetings.attendance.name'),
+          label: this.$t('app.user_name'),
           sortable: true
         },
         {
           key: 'email',
-          label: this.$t('meetings.attendance.email'),
+          label: this.$t('app.email'),
           sortable: true
         },
         {

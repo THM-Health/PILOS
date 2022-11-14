@@ -12,7 +12,7 @@
               :disabled="loading"
               variant="secondary"
             >
-              <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.becomeMember') }}
+              <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-plus"></i> {{ $t('rooms.become_member') }}
             </b-button>
             </can>
             <!-- If user is member, allow user to end the membership -->
@@ -23,22 +23,22 @@
               :disabled="loading"
               variant="danger"
             >
-              <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.endMembership.button') }}
+              <b-spinner small v-if="loading"></b-spinner> <i v-else class="fa-solid fa-user-minus"></i> {{ $t('rooms.end_membership.button') }}
             </b-button>
 
             <b-modal
               v-if="room.authenticated && isAuthenticated"
               :static='modalStatic'
-              :title="$t('rooms.endMembership.title')"
+              :title="$t('rooms.end_membership.title')"
               ok-variant="danger"
               cancel-variant="secondary"
-              :ok-title="$t('rooms.endMembership.yes')"
-              :cancel-title="$t('rooms.endMembership.no')"
+              :ok-title="$t('rooms.end_membership.yes')"
+              :cancel-title="$t('rooms.end_membership.no')"
               @ok="leaveMembership"
               id="leave-membership-modal"
               ref="leave-membership-modal"
             >
-              {{ $t('rooms.endMembership.message') }}
+              {{ $t('rooms.end_membership.message') }}
             </b-modal>
 
             <!-- Reload general room settings/details -->
@@ -84,7 +84,7 @@
       <div class="row pt-2" v-if="room.authenticated && room.can_start && room.room_type_invalid">
         <div class="col-lg-12 col-12">
           <b-alert show variant="warning" ref="roomTypeInvalidAlert">
-            {{ $t('rooms.roomTypeInvalidAlert', { roomTypeName: room.type.name }) }}
+            {{ $t('rooms.room_type_invalid_alert', { roomTypeName: room.type.name }) }}
           </b-alert>
         </div>
       </div>
@@ -98,12 +98,12 @@
           <!-- Show invitation text/link to moderators and room owners -->
           <b-col order="2" order-md="1" col cols="12" md="8" lg="6" v-if="viewInvitation">
             <div class="jumbotron p-4" >
-              <h5>{{ $t('rooms.accessForParticipants') }}</h5>
+              <h5>{{ $t('rooms.access_for_participants') }}</h5>
               <b-button
                 class="float-right"
                 v-clipboard="() => invitationText"
                 v-b-tooltip.hover
-                :title="$t('rooms.copyAccessForParticipants')"
+                :title="$t('rooms.copy_access_for_participants')"
                 variant="light"
               >
                 <i class="fa-solid fa-copy"></i>
@@ -115,9 +115,9 @@
             <b-row>
               <!-- Ask guests for their first and lastname -->
               <b-col col cols="12" md="6" v-if="!isAuthenticated">
-                <b-form-group id="guest-name-group" :label="$t('rooms.firstAndLastname')" :state="fieldState('name')">
+                <b-form-group id="guest-name-group" :label="$t('rooms.first_and_lastname')" :state="fieldState('name')">
                   <b-input-group>
-                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholderName')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
+                    <b-form-input ref="guestName" v-model="name" :placeholder="$t('rooms.placeholder_name')" :disabled="!!token" :state="fieldState('name')"></b-form-input>
                   </b-input-group>
                   <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
                 </b-form-group>
@@ -126,13 +126,13 @@
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
 
                 <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
-                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recordingAttendanceInfo') }}
+                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_attendance_info') }}
                   <b-form-checkbox
                     v-model="recordAttendanceAgreement"
                     :value="true"
                     :unchecked-value="false"
                   >
-                    {{ $t('rooms.recordingAttendanceAccept')}}
+                    {{ $t('rooms.recording_attendance_accept')}}
                   </b-form-checkbox>
                 </b-alert>
 
@@ -166,7 +166,7 @@
                     <div class="mb-3">
                       <b-spinner></b-spinner>
                     </div>
-                    {{ $t('rooms.notRunning') }}
+                    {{ $t('rooms.not_running') }}
                   </div>
                 </template>
 
@@ -203,11 +203,11 @@
       </template>
       <!-- Ask for room access code -->
       <div v-else>
-        <b-alert show>{{ $t('rooms.requireAccessCode') }}</b-alert>
+        <b-alert show>{{ $t('rooms.require_access_code') }}</b-alert>
         <b-input-group>
           <b-form-input
             :state="accessCodeValid"
-            :placeholder="$t('rooms.placeholderAccessCode')"
+            :placeholder="$t('rooms.access_code')"
             v-mask="'999-999-999'"
             v-model="accessCodeInput"
             v-on:keyup.enter="login"
@@ -231,14 +231,14 @@
       <template v-if="token !== null">
         <!-- Show message that room can only be used by logged in users -->
         <b-alert show variant="danger">
-          <i class="fa-solid fa-unlink"></i> {{ $t('rooms.invalidPersonalLink') }}
+          <i class="fa-solid fa-unlink"></i> {{ $t('rooms.invalid_personal_link') }}
         </b-alert>
       </template>
       <!-- room is only for logged in users -->
       <template v-else>
         <!-- Show message that room can only be used by logged in users -->
         <b-alert show>
-          <i class="fa-solid fa-exclamation-circle"></i> {{ $t('rooms.onlyUsedByAuthenticatedUsers') }}
+          <i class="fa-solid fa-exclamation-circle"></i> {{ $t('rooms.only_used_by_authenticated_users') }}
         </b-alert>
         <b-button-group>
           <!-- Reload page, in case the room settings changed -->
@@ -246,7 +246,7 @@
             v-on:click="reload"
             :disabled="loading"
           >
-            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-sync"></i> {{$t('rooms.tryAgain')}}
+            <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-sync"></i> {{$t('rooms.try_again')}}
           </b-button>
           <!-- Redirect the login the access room -->
           <b-button
@@ -321,7 +321,7 @@ export default {
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
     if (to.params.token && store.getters['session/isAuthenticated']) {
-      Vue.prototype.flashMessage.info(i18n.t('app.flash.guestsOnly'));
+      Vue.prototype.flashMessage.info(i18n.t('app.flash.guests_only'));
       return next('/');
     }
 
@@ -450,7 +450,7 @@ export default {
       // Reset access code (not the form input) to load the general room details again
       this.accessCode = null;
       // Show error message
-      this.flashMessage.error(this.$t('rooms.flash.accessCodeInvalid'));
+      this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
       this.reload();
     },
 
@@ -460,7 +460,7 @@ export default {
     handleInvalidToken: function () {
       // Show error message
       this.room = null;
-      this.flashMessage.error(this.$t('rooms.flash.tokenInvalid'));
+      this.flashMessage.error(this.$t('rooms.flash.token_invalid'));
       // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
       clearInterval(this.reloadInterval);
     },
@@ -583,7 +583,7 @@ export default {
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.startForbidden'));
+              this.flashMessage.error(this.$t('rooms.flash.start_forbidden'));
               // Disable room start button and reload the room settings, as there was obviously
               // a different understanding of the users permission in this room
               this.room.can_start = false;
@@ -712,7 +712,7 @@ export default {
               // set the access code input invalid
               this.accessCodeValid = false;
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.accessCodeInvalid'));
+              this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
               return;
             }
 

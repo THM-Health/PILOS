@@ -63,9 +63,9 @@ describe('Footer Component', () => {
     // test if text and | is shown and if correct links are inserted
     const links = footer.findAll('a');
     expect(links.length).toBe(2);
-    expect(links.at(0).text()).toBe('app.footer.legalNotice');
+    expect(links.at(0).text()).toBe('app.footer.legal_notice');
     expect(links.at(0).attributes('href')).toBe('https://legal.org');
-    expect(links.at(1).text()).toBe('app.footer.privacyPolicy');
+    expect(links.at(1).text()).toBe('app.footer.privacy_policy');
     expect(links.at(1).attributes('href')).toBe('https://privacy.org');
     expect(view.findComponent(RawText).exists()).toBeTruthy();
   });
@@ -91,7 +91,7 @@ describe('Footer Component', () => {
     // test if text and no | is shown and if correct links is inserted
     const links = footer.findAll('a');
     expect(links.length).toBe(1);
-    expect(links.at(0).text()).toBe('app.footer.legalNotice');
+    expect(links.at(0).text()).toBe('app.footer.legal_notice');
     expect(links.at(0).attributes('href')).toBe('https://legal.org');
     expect(view.findComponent(RawText).exists()).toBeFalsy();
   });
@@ -117,7 +117,7 @@ describe('Footer Component', () => {
     // test if text and no | is shown and if correct links is inserted
     const links = footer.findAll('a');
     expect(links.length).toBe(1);
-    expect(links.at(0).text()).toBe('app.footer.privacyPolicy');
+    expect(links.at(0).text()).toBe('app.footer.privacy_policy');
     expect(links.at(0).attributes('href')).toBe('https://privacy.org');
     expect(view.findComponent(RawText).exists()).toBeFalsy();
   });

@@ -2,7 +2,7 @@
   <b-nav-item-dropdown right
     toggle-class="text-primary nav-icon-item">
     <template v-slot:button-content>
-      <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.selectLocale') }}</span>
+      <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.select_locale') }}</span>
     </template>
     <b-dropdown-item
       v-for="(value, key) in locales"
@@ -54,9 +54,7 @@ export default {
         await loadLanguageAsync(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.flashMessage.error({
-            message: error.response.data.errors.locale.join(' ')
-          });
+          this.flashMessage.error(error.response.data.errors.locale.join(' '));
         } else {
           this.$store.commit('loadingFinished');
           Base.error(error, this.$root, error.message);

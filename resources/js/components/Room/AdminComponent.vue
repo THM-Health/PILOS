@@ -27,7 +27,7 @@
             <!-- Statistics tab -->
             <b-tab>
               <template v-slot:title>
-                <i class="fa-solid fa-history"></i> {{ $t('rooms.meetingHistory.title') }}
+                <i class="fa-solid fa-history"></i> {{ $t('rooms.meeting_history.title') }}
               </template>
               <history-component :room="room"></history-component>
             </b-tab>

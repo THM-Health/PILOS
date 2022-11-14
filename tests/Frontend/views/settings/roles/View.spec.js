@@ -56,11 +56,11 @@ describe('RolesView', () => {
         permissions: [
           {
             id: 1,
-            name: 'tests.test1'
+            name: 'tests.testA'
           },
           {
             id: 10,
-            name: 'tests.test10'
+            name: 'tests.testJ'
           }
         ]
       }
@@ -151,7 +151,7 @@ describe('RolesView', () => {
           if (key === 'settings.roles.edit') {
             return `${key} ${values.name}`;
           }
-          if (key === 'settings.roles.roomLimit.default') {
+          if (key === 'settings.roles.room_limit.default') {
             return `${key} ${values.value}`;
           }
           return key;
@@ -180,21 +180,21 @@ describe('RolesView', () => {
     const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
 
     view.findAllComponents(BFormRadio).wrappers.forEach(radio => {
-      if (radio.text().startsWith('settings.roles.roomLimit.default')) {
+      if (radio.text().startsWith('settings.roles.room_limit.default')) {
         roomLimitDefaultRadio = radio;
-      } else if (radio.text().startsWith('settings.roles.roomLimit.unlimited')) {
+      } else if (radio.text().startsWith('settings.roles.room_limit.unlimited')) {
         roomLimitUnlimitedRadio = radio;
       } else {
         roomLimitCustomRadio = radio;
       }
     });
 
-    expect(roomLimitDefaultRadio.text()).toContain('settings.roles.roomlimit.unlimited');
+    expect(roomLimitDefaultRadio.text()).toContain('settings.roles.room_limit.unlimited');
     expect(roomLimitDefaultRadio.vm.isChecked).toBe(true);
     expect(roomLimitUnlimitedRadio.vm.isChecked).toBe(false);
     expect(roomLimitCustomRadio.vm.isChecked).toBe(false);
     permissionsCxs.forEach(checkbox => {
-      expect(checkbox.element.parentElement.parentElement.children[0].children[0].innerHTML).toBe(`app.permissions.tests.test${checkbox.props('value')}`);
+      expect(checkbox.element.parentElement.parentElement.children[0].children[0].innerHTML).toBe(`app.permissions.tests.test_${checkbox.props('value')}`);
     });
     expect(permissionsCxs[0].vm.isChecked).toBe(true);
     expect(permissionsCxs[9].vm.isChecked).toBe(true);
@@ -252,7 +252,7 @@ describe('RolesView', () => {
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
     expect(view.html()).toContain('app.reload');
-    expect(view.html()).toContain('settings.roles.noOptions');
+    expect(view.html()).toContain('settings.roles.no_options');
     const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
     expect(saveButton.wrappers.length).toBe(1);
 
@@ -274,7 +274,7 @@ describe('RolesView', () => {
           if (key === 'settings.roles.edit') {
             return `${key} ${values.name}`;
           }
-          if (key === 'settings.roles.roomLimit.default') {
+          if (key === 'settings.roles.room_limit.default') {
             return `${key} ${values.value}`;
           }
           return key;
@@ -312,7 +312,7 @@ describe('RolesView', () => {
           if (key === 'settings.roles.edit') {
             return `${key} ${values.name}`;
           }
-          if (key === 'settings.roles.roomLimit.default') {
+          if (key === 'settings.roles.room_limit.default') {
             return `${key} ${values.value}`;
           }
           return key;
@@ -333,7 +333,7 @@ describe('RolesView', () => {
     let roomLimitCustomRadio;
 
     view.findAllComponents(BFormRadio).wrappers.forEach(radio => {
-      if (radio.text().startsWith('settings.roles.roomLimit.custom')) {
+      if (radio.text().startsWith('settings.roles.room_limit.custom')) {
         roomLimitCustomRadio = radio;
       }
     });
@@ -402,7 +402,7 @@ describe('RolesView', () => {
           if (key === 'settings.roles.edit') {
             return `${key} ${values.name}`;
           }
-          if (key === 'settings.roles.roomLimit.default') {
+          if (key === 'settings.roles.room_limit.default') {
             return `${key} ${values.value}`;
           }
           return key;
@@ -468,7 +468,7 @@ describe('RolesView', () => {
           if (key === 'settings.roles.edit') {
             return `${key} ${values.name}`;
           }
-          if (key === 'settings.roles.roomLimit.default') {
+          if (key === 'settings.roles.room_limit.default') {
             return `${key} ${values.value}`;
           }
           return key;
@@ -544,7 +544,7 @@ describe('RolesView', () => {
     expect(spy).toBeCalledTimes(1);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
     expect(view.html()).toContain('app.reload');
-    expect(view.html()).toContain('settings.roles.noOptions');
+    expect(view.html()).toContain('settings.roles.no_options');
     const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
     expect(saveButton.wrappers.length).toBe(1);
 
@@ -689,7 +689,7 @@ describe('RolesView', () => {
           if (key === 'settings.roles.edit') {
             return `${key} ${values.name}`;
           }
-          if (key === 'settings.roles.roomLimit.default') {
+          if (key === 'settings.roles.room_limit.default') {
             return `${key} ${values.value}`;
           }
           return key;

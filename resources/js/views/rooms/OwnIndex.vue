@@ -5,17 +5,17 @@
           <b-input-group>
             <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
-              <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+              <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
       </b-row>
-      <h2>{{ $t('rooms.myRooms') }}</h2>
+      <h2>{{ $t('rooms.my_rooms') }}</h2>
       <b-overlay :show="loadingOwn" >
         <div id="ownRooms" v-if="ownRooms">
-          <b-badge v-if="showLimit">{{ $t('rooms.roomLimit',{has:ownRooms.meta.total_no_filter,max:currentUser.room_limit}) }}</b-badge><br>
-          <em v-if="ownRooms.meta.total_no_filter===0">{{ $t('rooms.noRoomsAvailable') }}</em>
-          <em v-else-if="!ownRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
+          <b-badge v-if="showLimit">{{ $t('rooms.room_limit',{has:ownRooms.meta.total_no_filter,max:currentUser.room_limit}) }}</b-badge><br>
+          <em v-if="ownRooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
+          <em v-else-if="!ownRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
               <room-component :id="room.id" :name="room.name" :type="room.type" :running="room.running"></room-component>
@@ -37,11 +37,11 @@
         </div>
       </b-overlay>
       <hr>
-      <h2>{{ $t('rooms.sharedRooms') }}</h2>
+      <h2>{{ $t('rooms.shared_rooms') }}</h2>
       <b-overlay :show="loadingShared" >
         <div id="sharedRooms" v-if="sharedRooms">
-          <em v-if="sharedRooms.meta.total_no_filter===0">{{ $t('rooms.noRoomsAvailable') }}</em>
-          <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.noRoomsAvailableSearch') }}</em>
+          <em v-if="sharedRooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
+          <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
               <room-component :id="room.id" :name="room.name" v-bind:shared="true" :running="room.running" :shared-by="room.owner" :type="room.type"></room-component>

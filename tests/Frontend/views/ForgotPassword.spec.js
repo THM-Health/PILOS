@@ -109,7 +109,7 @@ describe('ForgotPassword', () => {
     expect(routerSpy).toBeCalledWith({ name: 'home' });
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({ title: 'Success!' });
+    expect(flashMessageSpy).toBeCalledWith('Success!');
 
     view.destroy();
   });

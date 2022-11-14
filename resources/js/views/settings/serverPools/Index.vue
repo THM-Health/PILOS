@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <h3>
-          {{ $t('settings.serverPools.title') }}
+          {{ $t('app.server_pools') }}
 
           <can method='create' policy='ServerPoolPolicy'>
             <b-button
@@ -12,7 +12,7 @@
               v-tooltip-hide-click
               variant='success'
               ref="newServerPool"
-              :title="$t('settings.serverPools.new')"
+              :title="$t('settings.server_pools.new')"
               :to="{ name: 'settings.server_pools.view', params: { id: 'new' } }"
             ><i class="fa-solid fa-plus"></i></b-button>
           </can>
@@ -47,11 +47,11 @@
       :current-page='currentPage'>
 
       <template v-slot:empty>
-        <i>{{ $t('settings.serverPools.nodata') }}</i>
+        <i>{{ $t('settings.server_pools.no_data') }}</i>
       </template>
 
       <template v-slot:emptyfiltered>
-        <i>{{ $t('settings.serverPools.nodataFiltered') }}</i>
+        <i>{{ $t('settings.server_pools.no_data_filtered') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -66,7 +66,7 @@
             <b-button
               v-b-tooltip.hover.bottom
               v-tooltip-hide-click
-              :title="$t('settings.serverPools.view', { name: data.item.name })"
+              :title="$t('settings.server_pools.view', { name: data.item.name })"
               :disabled='isBusy'
               variant='info'
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id }, query: { view: '1' } }"
@@ -78,7 +78,7 @@
             <b-button
               v-b-tooltip.hover.bottom
               v-tooltip-hide-click
-              :title="$t('settings.serverPools.edit', { name: data.item.name })"
+              :title="$t('settings.server_pools.edit', { name: data.item.name })"
               :disabled='isBusy'
               variant='secondary'
               :to="{ name: 'settings.server_pools.view', params: { id: data.item.id } }"
@@ -90,7 +90,7 @@
             <b-button
               v-b-tooltip.hover.bottom
               v-tooltip-hide-click
-              :title="$t('settings.serverPools.delete.item', { name: data.item.name })"
+              :title="$t('settings.server_pools.delete.item', { name: data.item.name })"
               :disabled='isBusy'
               variant='danger'
               @click='showServerPoolModal(data.item)'>
@@ -127,17 +127,17 @@
       :hide-header-close="deleting"
     >
       <template v-slot:modal-title>
-        {{ $t('settings.serverPools.delete.title') }}
+        {{ $t('settings.server_pools.delete.title') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="deleting"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="serverPoolToDelete">
-        {{ $t('settings.serverPools.delete.confirm', { name:serverPoolToDelete.name }) }}
+        {{ $t('settings.server_pools.delete.confirm', { name:serverPoolToDelete.name }) }}
       </span>
 
       <div v-if="deleteFailedRoomTypes">
-        <b-alert :show="true" variant="danger">{{ $t('settings.serverPools.delete.failed') }}
+        <b-alert :show="true" variant="danger">{{ $t('settings.server_pools.delete.failed') }}
           <ul>
             <li v-for="roomType in deleteFailedRoomTypes" :key="roomType.id">
               {{ roomType.description }}
@@ -175,9 +175,9 @@ export default {
   computed: {
     tableFields () {
       const fields = [
-        { key: 'id', label: this.$t('settings.serverPools.id'), sortable: true },
-        { key: 'name', label: this.$t('settings.serverPools.name'), sortable: true },
-        { key: 'servers_count', label: this.$t('settings.serverPools.serverCount'), sortable: true }
+        { key: 'id', label: this.$t('app.id'), sortable: true },
+        { key: 'name', label: this.$t('app.model_name'), sortable: true },
+        { key: 'servers_count', label: this.$t('settings.server_pools.server_count'), sortable: true }
       ];
 
       if (this.actionColumnVisible) {

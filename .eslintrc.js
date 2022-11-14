@@ -21,6 +21,12 @@ module.exports = {
     ecmaVersion: 11,
     sourceType: 'module'
   },
+  overrides: [
+    {
+      files: ['*.json'],
+      extends: ['plugin:@intlify/vue-i18n/base']
+    }
+  ],
   plugins: [
     'vue',
     '@intlify/vue-i18n',
@@ -31,10 +37,23 @@ module.exports = {
     '@intlify/vue-i18n/no-raw-text': ['error', {
       ignoreNodes: ['raw-text']
     }],
-    '@intlify/vue-i18n/no-v-html': 'warn',
+    '@intlify/vue-i18n/no-missing-keys-in-other-locales': 'error',
+    '@intlify/vue-i18n/key-format-style': ['warn', 'snake_case', {
+      splitByDots: true
+    }],
+    '@intlify/vue-i18n/no-v-html': 'error',
     semi: ['error', 'always'],
     'vue/valid-v-slot': ['error', {
       allowModifiers: true
     }]
+  },
+  settings: {
+    'vue-i18n': {
+      localeDir: {
+        pattern: './lang/*.json',
+        localeKey: 'file'
+      },
+      messageSyntaxVersion: '^8.26.8'
+    }
   }
 };

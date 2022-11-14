@@ -67,23 +67,23 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
     {
         return [
             [
-                __('meetings.attendance.export.roomName'),
+                __('rooms.name'),
                 $this->meeting->room->name,
             ],
             [
-                __('meetings.attendance.export.start'),
+                __('meetings.start'),
                 $this->meeting->start->setTimezone($this->timezone)->format('d.m.Y H:i:s'),
             ],
             [
-                __('meetings.attendance.export.end'),
+                __('meetings.end'),
                 $this->meeting->end->setTimezone($this->timezone)->format('d.m.Y H:i:s'),
             ],
             [],
             [
-                __('meetings.attendance.export.name'),
-                __('meetings.attendance.export.email'),
-                __('meetings.attendance.export.duration'),
-                __('meetings.attendance.export.sessions'),
+                __('app.user_name'),
+                __('app.email'),
+                __('meetings.attendance.duration'),
+                __('meetings.attendance.sessions'),
         ]];
     }
 
@@ -97,14 +97,14 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Wit
         // build content for each session row
         $sessions = [];
         foreach ($row['sessions'] as $session) {
-            array_push($sessions, $session['join']->setTimezone($this->timezone)->format('d.m.Y H:i:s').' -  '.$session['leave']->setTimezone($this->timezone)->format('d.m.Y H:i:s').' ('.__('meetings.attendance.export.durationMinute', ['duration' => $session['duration']]).')');
+            array_push($sessions, $session['join']->setTimezone($this->timezone)->format('d.m.Y H:i:s').' -  '.$session['leave']->setTimezone($this->timezone)->format('d.m.Y H:i:s').' ('.__('meetings.attendance.duration_minute', ['duration' => $session['duration']]).')');
         }
 
         // build row content
         return [
             $row['name'],
             $row['email'],
-            __('meetings.attendance.export.durationMinute', ['duration' => $row['duration']]),
+            __('meetings.attendance.duration_minute', ['duration' => $row['duration']]),
             implode(PHP_EOL, $sessions),
         ];
     }

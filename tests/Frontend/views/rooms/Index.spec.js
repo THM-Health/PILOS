@@ -128,14 +128,14 @@ describe('Room Index', () => {
 
     // user without view all permissions
     await view.vm.$nextTick();
-    expect(view.findAll('h2').at(0).text()).toEqual('rooms.findRooms');
+    expect(view.findAll('h2').at(0).text()).toEqual('rooms.find_rooms');
 
     // user with view all permission
     const newUser = _.cloneDeep(exampleUser);
     newUser.permissions = ['rooms.viewAll'];
     PermissionService.setCurrentUser(newUser);
     await view.vm.$nextTick();
-    expect(view.findAll('h2').at(0).text()).toEqual('rooms.allRooms');
+    expect(view.findAll('h2').at(0).text()).toEqual('rooms.all_rooms');
 
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
@@ -460,7 +460,7 @@ describe('Room Index', () => {
     // check if room list is empty and noRoomsAvailable message is shown
     await view.vm.$nextTick();
     expect(view.findAllComponents(BListGroupItem).length).toEqual(0);
-    expect(view.find('em').text()).toEqual('rooms.noRoomsAvailable');
+    expect(view.find('em').text()).toEqual('rooms.no_rooms_available');
 
     PermissionService.setCurrentUser(oldUser);
     view.destroy();

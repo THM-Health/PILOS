@@ -38,7 +38,7 @@
             >
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.firstname')"
+                :label="$t('app.firstname')"
                 label-for='firstname'
                 :state='fieldState("firstname")'
               >
@@ -53,7 +53,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.lastname')"
+                :label="$t('app.lastname')"
                 label-for='lastname'
                 :state='fieldState("lastname")'
               >
@@ -110,7 +110,7 @@
                     <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
 
                     <b-button class="my-1 my-lg-0" variant='secondary' :disabled="isBusy || modelLoadingError" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fa-solid fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
-                    <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('settings.users.image.cancel') }}</b-button>
+                    <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('app.cancel') }}</b-button>
                     <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy || modelLoadingError" @click="image_deleted = true" variant="danger"><i class="fa-solid fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
                     <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fa-solid fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
 
@@ -153,7 +153,7 @@
                   ok-variant="success"
                   :ok-title="$t('settings.users.image.save')"
                   cancel-variant="secondary"
-                  :cancel-title="$t('settings.users.image.cancel')"
+                  :cancel-title="$t('app.cancel')"
                 >
                   <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" :alt="$t('settings.users.image.title')"></VueCropper>
                 </b-modal>
@@ -172,7 +172,7 @@
                   :disabled="isBusy || modelLoadingError || config.type === 'view'"
                 >
                   <template v-slot:first>
-                    <b-form-select-option :value="null" disabled>{{ $t('settings.users.select_locale') }}</b-form-select-option>
+                    <b-form-select-option :value="null" disabled>{{ $t('app.select_locale') }}</b-form-select-option>
                   </template>
                 </b-form-select>
                 <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
@@ -208,7 +208,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.roles')"
+                :label="$t('app.roles')"
                 label-for='roles'
                 :state='fieldState("roles", true)'
               >
@@ -238,7 +238,7 @@
                       <h5 class='d-inline mr-1 mb-1'>
                         <b-badge variant='secondary'>
                           {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
-                          <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
+                          <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.remove_role')"></i></span>
                         </b-badge>
                       </h5>
                     </template>
@@ -247,13 +247,13 @@
                         :disabled='rolesLoading || currentPage === 1'
                         variant='outline-secondary'
                         @click='loadRoles(Math.max(1, currentPage - 1))'>
-                        <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                        <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
                       </b-button>
                       <b-button
                         :disabled='rolesLoading || !hasNextPage'
                         variant='outline-secondary'
                         @click='loadRoles(currentPage + 1)'>
-                        <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                        <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
                       </b-button>
                     </template>
                   </multiselect>
@@ -272,7 +272,7 @@
             <hr>
             <b-form-group
               label-cols-lg="12"
-              :label="$t('settings.users.password')"
+              :label="$t('auth.password')"
               label-size="lg"
               label-class="font-weight-bold pt-0"
               class="mb-0"
@@ -299,7 +299,7 @@
               <b-form-group
                 v-if="!generate_password"
                 label-cols-sm='3'
-                :label="$t('settings.users.password')"
+                :label="$t('auth.password')"
                 label-for='password'
                 :state='fieldState("password")'
               >
@@ -315,7 +315,7 @@
               <b-form-group
                 v-if="!generate_password"
                 label-cols-sm='3'
-                :label="$t('settings.users.password_confirmation')"
+                :label="$t('auth.password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
               >
@@ -592,7 +592,7 @@ export default {
       const file = e.target.files[0];
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         this.resetFileUpload();
-        this.flashMessage.error(this.$t('settings.users.image.invalidMime'));
+        this.flashMessage.error(this.$t('settings.users.image.invalid_mime'));
         return;
       }
       this.$bvModal.show('modal-image-upload');

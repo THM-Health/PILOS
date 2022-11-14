@@ -577,7 +577,7 @@ class RoomStatisticTest extends TestCase
             ->assertSuccessful();
 
         // Validate headers
-        $response->assertHeader('content-disposition', 'attachment; filename='.__('meetings.attendance.export.filename').'.xlsx');
+        $response->assertHeader('content-disposition', 'attachment; filename='.__('meetings.attendance.filename').'.xlsx');
         $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
         // Get file from download response and parse file back to array
@@ -589,50 +589,50 @@ class RoomStatisticTest extends TestCase
             [
                 [
                     [
-                        __('meetings.attendance.export.roomName'),
+                        __('rooms.name'),
                         $meeting->room->name,
                         null,
                         null
                     ],
                     [
-                        __('meetings.attendance.export.start'),
+                        __('meetings.start'),
                         '01.01.2020 08:12:45',
                         null,
                         null
                     ],
                     [
-                        __('meetings.attendance.export.end'),
+                        __('meetings.end'),
                         '01.01.2020 08:35:23',
                         null,
                         null
                     ],
                     [null,null,null,null],
                     [
-                        __('meetings.attendance.export.name'),
-                        __('meetings.attendance.export.email'),
-                        __('meetings.attendance.export.duration'),
-                        __('meetings.attendance.export.sessions')],
+                        __('app.user_name'),
+                        __('app.email'),
+                        __('meetings.attendance.duration'),
+                        __('meetings.attendance.sessions')],
                     [
                         'Bertha Luff',
                         null,
-                        __('meetings.attendance.export.durationMinute', ['duration' => 16]),
-                        '01.01.2020 08:15:11 -  01.01.2020 08:32:09 ('.__('meetings.attendance.export.durationMinute', ['duration' => 16]).')'
+                        __('meetings.attendance.duration_minute', ['duration' => 16]),
+                        '01.01.2020 08:15:11 -  01.01.2020 08:32:09 ('.__('meetings.attendance.duration_minute', ['duration' => 16]).')'
                     ],
                     [
                         'Gregory Dumas',
                         'g.dumas@example.net',
-                        __('meetings.attendance.export.durationMinute', ['duration' => 22]),
-                        '01.01.2020 08:12:45 -  01.01.2020 08:35:23 ('.__('meetings.attendance.export.durationMinute', ['duration' => 22]).')'],
+                        __('meetings.attendance.duration_minute', ['duration' => 22]),
+                        '01.01.2020 08:12:45 -  01.01.2020 08:35:23 ('.__('meetings.attendance.duration_minute', ['duration' => 22]).')'],
                     [
                         'Mable Torres',
                         'm.torres@example.net',
-                        __('meetings.attendance.export.durationMinute', ['duration' => 20]),
-                        '01.01.2020 08:14:15 -  01.01.2020 08:30:40 ('.__('meetings.attendance.export.durationMinute', ['duration' => 16]).")\n01.01.2020 08:31:07 -  01.01.2020 08:35:23 (".__('meetings.attendance.export.durationMinute', ['duration' => 4]).')'],
+                        __('meetings.attendance.duration_minute', ['duration' => 20]),
+                        '01.01.2020 08:14:15 -  01.01.2020 08:30:40 ('.__('meetings.attendance.duration_minute', ['duration' => 16]).")\n01.01.2020 08:31:07 -  01.01.2020 08:35:23 (".__('meetings.attendance.duration_minute', ['duration' => 4]).')'],
                     [
                         'Marie Walker',
                         null,
-                        __('meetings.attendance.export.durationMinute', ['duration' => 13]),
-                        '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.export.durationMinute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.export.durationMinute', ['duration' => 11]).')']
+                        __('meetings.attendance.duration_minute', ['duration' => 13]),
+                        '01.01.2020 08:13:11 -  01.01.2020 08:15:51 ('.__('meetings.attendance.duration_minute', ['duration' => 2]).")\n01.01.2020 08:17:23 -  01.01.2020 08:29:05 (".__('meetings.attendance.duration_minute', ['duration' => 11]).')']
                 ]
             ],
             $array

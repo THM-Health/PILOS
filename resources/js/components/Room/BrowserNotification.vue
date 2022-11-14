@@ -71,7 +71,7 @@ export default {
     noSupportHandler: function (showToast = false) {
       this.notificationEnabled = false;
       this.notificationSupport = false;
-      if (showToast) { this.flashMessage.error(this.$t('rooms.notification.browserSupport')); }
+      if (showToast) { this.flashMessage.error(this.$t('rooms.notification.browser_support')); }
     },
 
     /**

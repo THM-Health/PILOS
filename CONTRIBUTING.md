@@ -13,6 +13,7 @@ Checkout the section [Report a bug](#report-a-bug) if you found a bug, or you on
   * [Testing](#testing)
   * [Submit changes](#submit-changes)
 * [Styleguide](#styleguide)
+* [Localization](#localization)
 
 ## Code of conduct
 
@@ -138,7 +139,7 @@ at all, then the PR will be merged into the main branch of this repository.
 
 ## Styleguide
 The backend uses the php framework Laravel and therefore it follows the
-[Laravel coding style guide](https://laravel.com/docs/7.x/contributions#coding-style). To apply the code style to your
+[Laravel coding style guide](https://laravel.com/docs/9.x/contributions#coding-style). To apply the code style to your
 implemented code you can run the command `sail composer run fix-cs`.
 The frontend style gets checked by eslint. The style can be fixed by running the command `sail npm run fix-cs`. For best
 practices checkout the [vue style guide](https://vuejs.org/v2/style-guide/).
@@ -157,3 +158,30 @@ Additionally, to the style guides the following things should apply to the chang
 * Don't implement multiple issue solutions in one branch
 * Use short and meaningful branch names with the issue number and a short description in the imperative mood
 * Commit messages should also use the imperative mood and be as short as possible (checkout also [this](https://chris.beams.io/posts/git-commit/#limit-50) blogpost)
+
+## Localization
+
+If you implement a new feature, please also add the translation for the new or changed strings.
+The translation files are located in the `lang` folder and named by the language code e.g. `en.json`.
+Please note: The translation files are used by the frontend and the backend.
+Laravel only supports flat / one-level-deep translation files, so nested objects are not supported.
+
+### General language changes
+If you want to change the translation of an existing string, please contribute to our [POEditor](https://poeditor.com/join/project/UGpZY4JAnz) project.
+We will update the translation files with the next release.
+
+### Available and default languages
+You can change the available languages and the default language in the `.env` file with the keys `MIX_AVAILABLE_LOCALES` and `MIX_DEFAULT_LOCALE`.
+
+### Customize locales
+#### Frontend
+To customize the locales put a JavaScript file in the folder `resources/custom/js/lang` which makes the wanted adjustments, for example:
+```javascript
+import i18n from '../../../js/i18n'
+
+i18n.mergeLocaleMessage('en', {
+  "auth.ldap.usernameHelp": "Test"
+})
+```
+#### Backend
+Currently, the backend does not support customizing the locales.

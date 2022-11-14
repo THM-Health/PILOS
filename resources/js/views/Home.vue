@@ -5,9 +5,9 @@
         <div class="col-md-12 col-sm-12 text-center">
           <img class="logo" v-if="settings('logo')" :src="settings('logo')">
           <h1 id="main-text" class="mb-4">{{ $t('home.title') }}</h1>
-          <p class="lead col-sm-12" v-html="$t('home.subtitle')"></p>
-          <p class="lead col-sm-12" v-html="$t('home.description')"></p>
-          <p class="lead col-sm-12" v-html=" $t('home.descriptionExtended')"></p>
+          <p class="lead col-sm-12">{{ $t('home.subtitle') }}</p>
+          <p class="lead col-sm-12">{{ $t('home.description') }}</p>
+          <p class="lead col-sm-12">{{ $t('home.description_extended') }}</p>
         </div>
       </div>
     </div>
