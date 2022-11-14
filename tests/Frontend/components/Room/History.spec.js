@@ -161,7 +161,7 @@ describe('History', () => {
     table = view.findComponent(BTbody);
     rows = table.findAll('tr');
     expect(rows.length).toBe(1);
-    expect(rows.at(0).text()).toContain('meetings.noHistoricalData');
+    expect(rows.at(0).text()).toContain('meetings.no_historical_data');
 
     view.destroy();
   });
@@ -247,8 +247,8 @@ describe('History', () => {
 
     const retentionPeriodInfo = view.find('#retentionPeriodInfo');
     expect(retentionPeriodInfo.exists()).toBeTruthy();
-    expect(retentionPeriodInfo.text()).toContain('meetings.stats.retentionPeriod');
-    expect(retentionPeriodInfo.text()).toContain('meetings.attendance.retentionPeriod');
+    expect(retentionPeriodInfo.text()).toContain('meetings.stats.retention_period');
+    expect(retentionPeriodInfo.text()).toContain('meetings.attendance.retention_period');
 
     view.destroy();
   });

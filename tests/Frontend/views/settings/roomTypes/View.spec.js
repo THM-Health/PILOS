@@ -110,7 +110,7 @@ describe('RoomTypeView', () => {
     const view = mount(View, {
       localVue,
       mocks: {
-        $t: (key, values) => key === 'settings.roomTypes.view' ? `${key} ${values.name}` : key
+        $t: (key, values) => key === 'settings.room_types.view' ? `${key} ${values.name}` : key
       },
       propsData: {
         id: 1,
@@ -119,7 +119,7 @@ describe('RoomTypeView', () => {
     });
 
     await waitMoxios();
-    expect(view.html()).toContain('settings.roomTypes.view Meeting');
+    expect(view.html()).toContain('settings.room_types.view Meeting');
     view.destroy();
   });
 
@@ -127,7 +127,7 @@ describe('RoomTypeView', () => {
     const view = mount(View, {
       localVue,
       mocks: {
-        $t: (key, values) => key === 'settings.roomTypes.edit' ? `${key} ${values.name}` : key
+        $t: (key, values) => key === 'settings.room_types.edit' ? `${key} ${values.name}` : key
       },
       propsData: {
         viewOnly: false,
@@ -137,7 +137,7 @@ describe('RoomTypeView', () => {
     });
 
     await waitMoxios();
-    expect(view.html()).toContain('settings.roomTypes.edit Meeting');
+    expect(view.html()).toContain('settings.room_types.edit Meeting');
     view.destroy();
   });
 
@@ -147,7 +147,7 @@ describe('RoomTypeView', () => {
     const view = mount(View, {
       localVue,
       mocks: {
-        $t: (key, values) => key === 'settings.roomTypes.edit' ? `${key} ${values.name}` : key
+        $t: (key, values) => key === 'settings.room_types.edit' ? `${key} ${values.name}` : key
       },
       propsData: {
         viewOnly: false,

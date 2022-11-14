@@ -325,7 +325,7 @@ describe('UsersIndex', () => {
       status: 200
     });
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.passwordResetSuccess');
+    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.password_reset_success');
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
   });

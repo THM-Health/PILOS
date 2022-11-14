@@ -238,7 +238,7 @@
                       <h5 class='d-inline mr-1 mb-1'>
                         <b-badge variant='secondary'>
                           {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
-                          <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.removeRole')"></i></span>
+                          <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.remove_role')"></i></span>
                         </b-badge>
                       </h5>
                     </template>
@@ -247,13 +247,13 @@
                         :disabled='rolesLoading || currentPage === 1'
                         variant='outline-secondary'
                         @click='loadRoles(Math.max(1, currentPage - 1))'>
-                        <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                        <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
                       </b-button>
                       <b-button
                         :disabled='rolesLoading || !hasNextPage'
                         variant='outline-secondary'
                         @click='loadRoles(currentPage + 1)'>
-                        <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                        <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
                       </b-button>
                     </template>
                   </multiselect>
@@ -592,7 +592,7 @@ export default {
       const file = e.target.files[0];
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         this.resetFileUpload();
-        this.flashMessage.error(this.$t('settings.users.image.invalidMime'));
+        this.flashMessage.error(this.$t('settings.users.image.invalid_mime'));
         return;
       }
       this.$bvModal.show('modal-image-upload');

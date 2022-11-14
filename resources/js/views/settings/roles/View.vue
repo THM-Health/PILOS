@@ -37,15 +37,15 @@
             <template v-slot:modal-title>
               <i class="fa-solid fa-circle-info"></i> {{ $t('app.room_limit') }}
             </template>
-            <p>{{ $t('settings.roles.roomLimit.helpModal.info') }}</p>
+            <p>{{ $t('settings.roles.room_limit.help_modal.info') }}</p>
 
-            <strong>{{ $t('settings.roles.roomLimit.helpModal.examples') }}</strong>
+            <strong>{{ $t('settings.roles.room_limit.help_modal.examples') }}</strong>
             <table class="table">
               <thead>
               <tr>
-                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</th>
-                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleA') }}</th>
-                <th scope="col">{{ $t('settings.roles.roomLimit.helpModal.roleB') }}</th>
+                <th scope="col">{{ $t('settings.roles.room_limit.help_modal.system_default') }}</th>
+                <th scope="col">{{ $t('settings.roles.room_limit.help_modal.role_a') }}</th>
+                <th scope="col">{{ $t('settings.roles.room_limit.help_modal.role_b') }}</th>
                 <th scope="col">{{ $t('app.room_limit') }}</th>
               </tr>
               </thead>
@@ -76,25 +76,25 @@
               </tr>
               <tr>
                 <td><raw-text>5</raw-text></td>
-                <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
+                <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
                 <td><raw-text>2</raw-text></td>
                 <td><raw-text>5</raw-text></td>
               </tr>
               <tr>
                 <td><raw-text>5</raw-text></td>
-                <td>{{ $t('settings.roles.roomLimit.helpModal.systemDefault') }}</td>
+                <td>{{ $t('settings.roles.room_limit.help_modal.system_default') }}</td>
                 <td><raw-text>10</raw-text></td>
                 <td><raw-text>10</raw-text></td>
               </tr>
               <tr>
                 <td><raw-text>5</raw-text></td>
-                <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
+                <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
                 <td><raw-text>2</raw-text></td>
-                <td>{{ $t('settings.roles.roomLimit.unlimited') }}</td>
+                <td>{{ $t('settings.roles.room_limit.unlimited') }}</td>
               </tr>
               </tbody>
             </table>
-            <p>{{ $t('settings.roles.roomLimit.helpModal.note') }}</p>
+            <p>{{ $t('settings.roles.room_limit.help_modal.note') }}</p>
           </b-modal>
 
           <b-form-group
@@ -131,16 +131,16 @@
           >
             <b-row v-if='!isBusy && Object.keys(permissions).length > 0'>
               <b-col cols="8">
-                <b>{{ $t('settings.roles.permissionName') }}</b>
+                <b>{{ $t('settings.roles.permission_name') }}</b>
               </b-col>
               <b-col cols="2">
-                <b>{{ $t('settings.roles.permissionExplicit') }}</b>
+                <b>{{ $t('settings.roles.permission_explicit') }}</b>
               </b-col>
               <b-col cols="2">
-                <b>{{ $t('settings.roles.permissionIncluded') }}
+                <b>{{ $t('settings.roles.permission_included') }}
                   <i class="fa-solid fa-circle-info"
                     v-b-tooltip.hover
-                    :title="$t('settings.roles.permissionIncludedHelp')"
+                    :title="$t('settings.roles.permission_included_help')"
                   ></i></b>
               </b-col>
               <b-col cols="12">
@@ -176,13 +176,13 @@
                       v-if="includedPermissions.includes(permission.id)"
                       class="fa-solid fa-check-circle text-success"
                       v-b-tooltip.hover
-                      :title="$t('settings.roles.hasIncludedPermission',{'name':$t(`app.permissions.${permission.name}`)})"
+                      :title="$t('settings.roles.has_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                     ></i>
                     <i
                       v-else
                       class="fa-solid fa-minus-circle text-danger"
                       v-b-tooltip.hover
-                      :title="$t('settings.roles.hasNotIncludedPermission',{'name':$t(`app.permissions.${permission.name}`)})"
+                      :title="$t('settings.roles.has_not_included_permission',{'name':$t(`app.permissions.${permission.name}`)})"
                     ></i>
                   </b-col>
 
@@ -193,7 +193,7 @@
             </b-row>
 
             <div class="ml-3" v-if="!isBusy && Object.keys(permissions).length === 0">
-              {{ $t('settings.roles.noOptions') }}
+              {{ $t('settings.roles.no_options') }}
             </div>
 
             <template slot="invalid-feedback"><div v-html="fieldError('permissions', true)"></div></template>
@@ -287,14 +287,14 @@ export default {
     roomLimitModeOptions () {
       return [
         {
-          text: this.$t('settings.roles.roomLimit.default', {
+          text: this.$t('settings.roles.room_limit.default', {
             value: parseInt(this.settings('room_limit'), 10) === -1
-              ? this.$t('settings.roles.roomLimit.unlimited').toLowerCase() : this.settings('room_limit')
+              ? this.$t('settings.roles.room_limit.unlimited').toLowerCase() : this.settings('room_limit')
           }),
           value: 'default'
         },
-        { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
-        { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' }
+        { text: this.$t('settings.roles.room_limit.unlimited'), value: 'unlimited' },
+        { text: this.$t('settings.roles.room_limit.custom'), value: 'custom' }
       ];
     },
 
@@ -375,6 +375,8 @@ export default {
       Base.call('permissions').then(response => {
         this.permissions = {};
         response.data.data.forEach(permission => {
+          permission.name = permission.name.split('.').map(fragment => _.snakeCase(fragment)).join('.');
+
           const group = permission.name.split('.')[0];
 
           if (!this.permissions[group]) {

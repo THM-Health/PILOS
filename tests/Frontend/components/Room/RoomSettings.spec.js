@@ -166,7 +166,7 @@ describe('RoomSettings', () => {
     expect(radios.at(3).element.checked).toBeTruthy();
     expect(radios.at(4).element.checked).toBeFalsy();
     expect(checkboxes.at(3).element.checked).toBeTruthy();
-    expect(checkboxes.at(3).element.parentElement.outerHTML).toContain('rooms.settings.participants.recordAttendance');
+    expect(checkboxes.at(3).element.parentElement.outerHTML).toContain('rooms.settings.participants.record_attendance');
 
     // permissions
     expect(checkboxes.at(4).element.checked).toBeFalsy();
@@ -850,7 +850,7 @@ describe('RoomSettings', () => {
 
     // check if the checkbox with the record attendance is missing
     const checkboxes = view.findAll('input[type="checkbox"]');
-    expect(checkboxes.at(3).element.parentElement.outerHTML).not.toContain('rooms.settings.participants.recordAttendance');
+    expect(checkboxes.at(3).element.parentElement.outerHTML).not.toContain('rooms.settings.participants.record_attendance');
 
     // search for save button
     const saveButton = view.findAllComponents(BButton).at(5);

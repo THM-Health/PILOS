@@ -3,11 +3,11 @@
     <b-row class="mb-3">
       <b-col md="9">
         <can method='viewAll' policy='RoomPolicy'>
-          <h2>{{ $t('rooms.allRooms') }}</h2>
+          <h2>{{ $t('rooms.all_rooms') }}</h2>
         </can>
         <cannot method='viewAll' policy='RoomPolicy'>
-          <h2>{{ $t('rooms.findRooms') }}</h2>
-          <p>{{ $t('rooms.findRoomsInfo')}}</p>
+          <h2>{{ $t('rooms.find_rooms') }}</h2>
+          <p>{{ $t('rooms.find_rooms_info')}}</p>
         </cannot>
 
       </b-col>
@@ -69,7 +69,7 @@
             </div>
           </template>
 
-          <em v-if="!isBusy && !loadingError && !rooms.length">{{ $t('rooms.noRoomsAvailable') }}</em>
+          <em v-if="!isBusy && !loadingError && !rooms.length">{{ $t('rooms.no_rooms_available') }}</em>
 
           <b-list-group>
             <b-list-group-item button :disabled="openRoom" v-for="room in rooms" :key="room.id" @click="open(room)" class="flex-column align-items-start">

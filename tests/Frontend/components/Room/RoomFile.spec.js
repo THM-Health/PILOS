@@ -413,7 +413,7 @@ describe('RoomFile', () => {
 
     await view.vm.$nextTick();
 
-    expect(view.findComponent(BFormInvalidFeedback).text()).toBe('app.validation.tooLarge');
+    expect(view.findComponent(BFormInvalidFeedback).text()).toBe('app.validation.too_large');
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
@@ -797,7 +797,7 @@ describe('RoomFile', () => {
     });
     // check file missing error message and remove from file list
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.fileGone');
+    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.file_gone');
 
     // find last file in the list, open modal and confirm delete
     fileTable = view.findComponent(BTbody);
@@ -936,7 +936,7 @@ describe('RoomFile', () => {
 
     view.vm.$nextTick();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.fileForbidden');
+    expect(flashMessageSpy).toBeCalledWith('rooms.flash.file_forbidden');
     expect(removeFile).toBeCalledWith({ id: 1, filename: 'File1.pdf', uploaded: '2020-09-21T07:08:00.000000Z' });
 
     // Test 404
@@ -951,7 +951,7 @@ describe('RoomFile', () => {
     });
     view.vm.$nextTick();
     expect(flashMessageSpy).toBeCalledTimes(2);
-    expect(flashMessageSpy).lastCalledWith('rooms.flash.fileGone');
+    expect(flashMessageSpy).lastCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test 500
@@ -1119,7 +1119,7 @@ describe('RoomFile', () => {
 
     view.vm.$nextTick();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.fileGone');
+    expect(flashMessageSpy).toBeCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test unknown error

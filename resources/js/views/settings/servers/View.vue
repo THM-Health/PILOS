@@ -51,7 +51,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.servers.baseUrl')"
+            :label="$t('settings.servers.base_url')"
             label-for='base_url'
             :state='fieldState("base_url")'
           >
@@ -67,13 +67,13 @@
             <b-input-group>
               <b-form-input id='salt' :type='hideSalt ? "password": "text"' v-model='model.salt' :state='fieldState("salt")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
               <b-input-group-append>
-                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-tooltip-hide-click v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.showSalt') : $t('settings.servers.hideSalt')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
+                <b-button @click="hideSalt = !hideSalt" :disabled='isBusy || modelLoadingError' v-tooltip-hide-click v-b-tooltip.hover :title="hideSalt ? $t('settings.servers.show_salt') : $t('settings.servers.hide_salt')" variant="secondary"><i class="fa-solid fa-eye" v-if="hideSalt"></i><i class="fa-solid fa-eye-slash" v-else></i></b-button>
               </b-input-group-append>
             </b-input-group>
             <template slot='invalid-feedback'><div v-html="fieldError('salt')"></div></template>
           </b-form-group>
           <b-form-group
-            :description="$t('settings.servers.strengthDescription')"
+            :description="$t('settings.servers.strength_description')"
             label-cols-sm='4'
             :label="$t('settings.servers.strength')"
             label-for='strength'
@@ -89,7 +89,7 @@
             :label="$t('settings.servers.disabled')"
             label-for='disabled'
             :state='fieldState("disabled")'
-            :description="$t('settings.servers.disabledDescription')"
+            :description="$t('settings.servers.disabled_description')"
           >
             <b-form-checkbox id="disabled" v-model="model.disabled" name="check-button" switch  class="align-items-center d-flex mb-3"  :disabled='isBusy || modelLoadingError || viewOnly'>
             </b-form-checkbox>
@@ -106,10 +106,10 @@
               <b-input-group-append>
                 <b-button :disabled='isBusy || modelLoadingError || checking'
                           variant='info'
-                          @click="testConnection()"><i class="fa-solid fa-link"></i> {{ $t('settings.servers.testConnection') }}</b-button>
+                          @click="testConnection()"><i class="fa-solid fa-link"></i> {{ $t('settings.servers.test_connection') }}</b-button>
               </b-input-group-append>
             </b-input-group>
-            <b-form-text v-if="offlineReason"> {{ $t('settings.servers.offlineReason.'+offlineReason) }}</b-form-text>
+            <b-form-text v-if="offlineReason"> {{ $t('settings.servers.offline_reason.'+offlineReason) }}</b-form-text>
           </b-form-group>
           <hr>
           <b-row class='my-1'>
@@ -139,7 +139,7 @@
       <b-container ref="currentUsage" fluid class="mt-5" v-if="!modelLoadingError && viewOnly && !model.disabled && model.id!==null">
         <b-row class='my-1'>
           <b-col sm='12'>
-            <h4>{{ $t('settings.servers.currentUsage')}}
+            <h4>{{ $t('settings.servers.current_usage')}}
             </h4>
             <hr>
           </b-col>
@@ -147,30 +147,30 @@
 
         <b-form-group
           label-cols-sm='4'
-          :label="$t('settings.servers.meetingCount')"
+          :label="$t('settings.servers.meeting_count')"
           label-for='meetingCount'
-          :description="$t('settings.servers.meetingDescription')"
+          :description="$t('settings.servers.meeting_description')"
         >
           <b-form-input id='meetingCount' type='text' v-model='model.meeting_count' :disabled='true'></b-form-input>
         </b-form-group>
         <b-form-group
           label-cols-sm='4'
-          :label="$t('settings.servers.ownMeetingCount')"
+          :label="$t('settings.servers.own_meeting_count')"
           label-for='ownMeetingCount'
-          :description="$t('settings.servers.ownMeetingDescription')"
+          :description="$t('settings.servers.own_meeting_description')"
         >
           <b-form-input id='ownMeetingCount' type='text' v-model='model.own_meeting_count' :disabled='true'></b-form-input>
         </b-form-group>
         <b-form-group
           label-cols-sm='4'
-          :label="$t('settings.servers.participantCount')"
+          :label="$t('settings.servers.participant_count')"
           label-for='participantCount'
         >
           <b-form-input id='participantCount' type='text' v-model='model.participant_count' :disabled='true'></b-form-input>
         </b-form-group>
         <b-form-group
           label-cols-sm='4'
-          :label="$t('settings.servers.videoCount')"
+          :label="$t('settings.servers.video_count')"
           label-for='videoCount'
         >
           <b-form-input id='videoCount' type='text' v-model='model.video_count' :disabled='true'></b-form-input>
@@ -181,12 +181,12 @@
           label-cols-sm='4'
           :label="$t('settings.servers.panic')"
           label-for='panic'
-          :description="$t('settings.servers.panicDescription')"
+          :description="$t('settings.servers.panic_description')"
         >
           <b-button :disabled='isBusy || modelLoadingError || checking || panicking'
                     id="panic"
                     variant='danger'
-                    @click="panic()"><i class="fa-solid fa-exclamation-triangle"></i> {{ $t('settings.servers.panicServer') }}</b-button>
+                    @click="panic()"><i class="fa-solid fa-exclamation-triangle"></i> {{ $t('settings.servers.panic_server') }}</b-button>
         </b-form-group>
         </can>
 

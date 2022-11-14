@@ -353,7 +353,7 @@ describe('Create new rooms', () => {
     });
 
     expect(flashMessageErrorSpy).toBeCalledTimes(1);
-    expect(flashMessageErrorSpy).toBeCalledWith('rooms.flash.noNewRoom');
+    expect(flashMessageErrorSpy).toBeCalledWith('rooms.flash.no_new_room');
 
     view.destroy();
   });

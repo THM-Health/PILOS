@@ -334,8 +334,8 @@ describe('RoomMembers', () => {
     expect(userOptions.length).toBe(4);
     expect(userOptions.at(0).text()).toBe('Laura RiveraLauraWRivera@domain.tld');
     expect(userOptions.at(1).text()).toBe('Laura WalterLauraMWalter@domain.tld');
-    expect(userOptions.at(2).text()).toBe('rooms.members.modals.add.noResult');
-    expect(userOptions.at(3).text()).toBe('rooms.members.modals.add.noOptions');
+    expect(userOptions.at(2).text()).toBe('rooms.members.modals.add.no_result');
+    expect(userOptions.at(3).text()).toBe('rooms.members.modals.add.no_options');
 
     expect(userOptions.at(0).find('span').classes()).toContain('multiselect__option--disabled');
     expect(userOptions.at(1).find('span').classes()).not.toContain('multiselect__option--disabled');

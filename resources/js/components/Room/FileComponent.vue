@@ -4,15 +4,15 @@
       <h4 v-if="showTitle">{{ $t('rooms.files.title') }}</h4>
 
       <b-alert show v-if="requireAgreement && files.files && files.files.length>0" >
-        <strong>{{ $t('rooms.files.termsOfUse.title')}}</strong><br>
-        {{ $t('rooms.files.termsOfUse.content')}}
+        <strong>{{ $t('rooms.files.terms_of_use.title')}}</strong><br>
+        {{ $t('rooms.files.terms_of_use.content')}}
         <hr>
         <b-form-checkbox
           v-model="downloadAgreement"
           :value="true"
           :unchecked-value="false"
         >
-          {{ $t('rooms.files.termsOfUse.accept')}}
+          {{ $t('rooms.files.terms_of_use.accept')}}
         </b-form-checkbox>
       </b-alert>
 
@@ -308,7 +308,7 @@ export default {
             // Forbidden, not allowed to download this file
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
+              this.flashMessage.error(this.$t('rooms.flash.file_forbidden'));
               this.removeFile(file);
               return;
             }
@@ -316,7 +316,7 @@ export default {
             // File gone
             if (error.response.status === env.HTTP_NOT_FOUND) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+              this.flashMessage.error(this.$t('rooms.flash.file_gone'));
               // Remove file from list
               this.removeFile(file);
               return;
@@ -353,7 +353,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+          this.flashMessage.error(this.$t('rooms.flash.file_gone'));
           // Remove file from list
           this.removeFile(this.deleteFile);
           return;
@@ -391,7 +391,7 @@ export default {
       }).catch((error) => {
         if (error.response) {
           if (error.response.status === env.HTTP_PAYLOAD_TOO_LARGE) {
-            this.errors = { file: [this.$t('app.validation.tooLarge')] };
+            this.errors = { file: [this.$t('app.validation.too_large')] };
             return;
           }
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
@@ -455,7 +455,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+          this.flashMessage.error(this.$t('rooms.flash.file_gone'));
           // Remove file from list
           this.removeFile(file);
           return;
@@ -488,7 +488,7 @@ export default {
           },
           {
             key: 'uploaded',
-            label: this.$t('rooms.files.uploadedAt'),
+            label: this.$t('rooms.files.uploaded_at'),
             sortable: true
           },
           {
@@ -506,7 +506,7 @@ export default {
         },
         {
           key: 'uploaded',
-          label: this.$t('rooms.files.uploadedAt'),
+          label: this.$t('rooms.files.uploaded_at'),
           sortable: true
         },
         {
@@ -516,7 +516,7 @@ export default {
         },
         {
           key: 'use_in_meeting',
-          label: this.$t('rooms.files.useInNextMeeting'),
+          label: this.$t('rooms.files.use_in_next_meeting'),
           sortable: true
         },
         {

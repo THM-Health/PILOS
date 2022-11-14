@@ -47,11 +47,11 @@
       :current-page='currentPage'>
 
       <template v-slot:empty>
-        <i>{{ $t('settings.servers.nodata') }}</i>
+        <i>{{ $t('settings.servers.no_data') }}</i>
       </template>
 
       <template v-slot:emptyfiltered>
-        <i>{{ $t('settings.servers.nodataFiltered') }}</i>
+        <i>{{ $t('settings.servers.no_data_filtered') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -146,7 +146,7 @@
 
     <b-alert show>
       <i class="fa-solid fa-info-circle"></i>
-      {{ $t('settings.servers.usageInfo') }}
+      {{ $t('settings.servers.usage_info') }}
       <br><br>
       <b-button
         v-b-tooltip.hover
@@ -216,9 +216,9 @@ export default {
         { key: 'name', label: this.$t('app.model_name'), sortable: true, tdClass: 'td-max-width-0-lg' },
         { key: 'status', label: this.$t('settings.servers.status'), sortable: true, thStyle: { width: '10%' } },
         { key: 'version', label: this.$t('settings.servers.version'), sortable: true, thStyle: { width: '10%' } },
-        { key: 'meeting_count', label: this.$t('settings.servers.meetingCount'), sortable: true, thStyle: { width: '15%' } },
-        { key: 'participant_count', label: this.$t('settings.servers.participantCount'), sortable: true, thStyle: { width: '15%' } },
-        { key: 'video_count', label: this.$t('settings.servers.videoCount'), sortable: true, thStyle: { width: '15%' } }
+        { key: 'meeting_count', label: this.$t('settings.servers.meeting_count'), sortable: true, thStyle: { width: '15%' } },
+        { key: 'participant_count', label: this.$t('settings.servers.participant_count'), sortable: true, thStyle: { width: '15%' } },
+        { key: 'video_count', label: this.$t('settings.servers.video_count'), sortable: true, thStyle: { width: '15%' } }
       ];
 
       if (this.actionColumnVisible) {

@@ -418,8 +418,8 @@ describe('Own Room Index', () => {
     // check if message shows users that the user has rooms, but none that match the search query
     let sectionOwnRooms = view.find('#ownRooms');
     let sectionSharedRooms = view.find('#sharedRooms');
-    expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
-    expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailableSearch');
+    expect(sectionOwnRooms.find('em').text()).toBe('rooms.no_rooms_available_search');
+    expect(sectionSharedRooms.find('em').text()).toBe('rooms.no_rooms_available_search');
 
     // check empty list message for no user rooms
     searchField = view.findComponent({ ref: 'search' });
@@ -464,8 +464,8 @@ describe('Own Room Index', () => {
 
     sectionOwnRooms = view.find('#ownRooms');
     sectionSharedRooms = view.find('#sharedRooms');
-    expect(sectionOwnRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
-    expect(sectionSharedRooms.find('em').text()).toBe('rooms.noRoomsAvailable');
+    expect(sectionOwnRooms.find('em').text()).toBe('rooms.no_rooms_available');
+    expect(sectionSharedRooms.find('em').text()).toBe('rooms.no_rooms_available');
 
     view.destroy();
   });
@@ -506,7 +506,7 @@ describe('Own Room Index', () => {
 
     await view.vm.$nextTick();
     expect(view.findComponent(BBadge).exists()).toBeTruthy();
-    expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
+    expect(view.findComponent(BBadge).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
 
     // Enter search query
     const searchField = view.findComponent({ ref: 'search' });
@@ -550,7 +550,7 @@ describe('Own Room Index', () => {
     // Check if room count is not based on items on the current page or the total results,
     // but all rooms of the user, independent of the search query
     expect(view.findComponent(BBadge).exists()).toBeTruthy();
-    expect(view.findComponent(BBadge).text()).toBe('rooms.roomLimit:{"has":1,"max":2}');
+    expect(view.findComponent(BBadge).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
 
     store.commit('session/setCurrentUser', exampleUser);
     view.destroy();

@@ -74,7 +74,7 @@
                 @click="showEditMemberModal(data.item)"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
-                :title="$t('rooms.members.editUser')"
+                :title="$t('rooms.members.edit_user')"
               >
                 <i class="fa-solid fa-user-edit"></i>
               </b-button>
@@ -85,7 +85,7 @@
                 @click="showRemoveMemberModal(data.item)"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
-                :title="$t('rooms.members.removeUser')"
+                :title="$t('rooms.members.remove_user')"
               >
                 <i class="fa-solid fa-trash"></i>
               </b-button>
@@ -130,7 +130,7 @@
               @click="showBulkEditMemberModal"
               v-b-tooltip.hover
               ref="bulk-edit-members-button"
-              :title="$t('rooms.members.bulkEditUser',{numberOfSelectedUsers: selectedMembers.length})"
+              :title="$t('rooms.members.bulk_edit_user',{numberOfSelectedUsers: selectedMembers.length})"
             >
               <i class="fas fa-users-cog"></i>
             </b-button>
@@ -141,7 +141,7 @@
               @click="showBulkRemoveMemberModal"
               v-b-tooltip.hover
               ref="bulk-remove-members-button"
-              :title="$t('rooms.members.bulkRemoveUser',{numberOfSelectedUsers: selectedMembers.length})"
+              :title="$t('rooms.members.bulk_remove_user',{numberOfSelectedUsers: selectedMembers.length})"
             >
               <i class="fas fa-users-slash"></i>
             </b-button>
@@ -202,7 +202,7 @@
     >
       <template v-slot:modal-title>
         <span>
-        {{ $t('rooms.members.modals.edit.titleBulk', {numberOfSelectedUsers: selectedMembers.length}) }}
+        {{ $t('rooms.members.modals.edit.title_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
           </span>
       </template>
       <template v-slot:modal-ok>
@@ -268,13 +268,13 @@
       :hide-header-close="isLoadingAction"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.members.modals.remove.titleBulk', {numberOfSelectedUsers: selectedMembers.length}) }}
+        {{ $t('rooms.members.modals.remove.title_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span>
-        {{ $t('rooms.members.modals.remove.confirmBulk', {numberOfSelectedUsers: selectedMembers.length}) }}
+        {{ $t('rooms.members.modals.remove.confirm_bulk', {numberOfSelectedUsers: selectedMembers.length}) }}
       </span>
 
       <b-form-invalid-feedback :force-show="true"><div v-html="fieldError('users',true)"></div></b-form-invalid-feedback>
@@ -322,8 +322,8 @@
                      :show-no-results="true"
                      :showLabels="false"
                      @search-change="asyncFind">
-          <template slot="noResult">{{ $t('rooms.members.modals.add.noResult') }}</template>
-          <template slot="noOptions">{{ $t('rooms.members.modals.add.noOptions') }}</template>
+          <template slot="noResult">{{ $t('rooms.members.modals.add.no_result') }}</template>
+          <template slot="noOptions">{{ $t('rooms.members.modals.add.no_options') }}</template>
           <template slot="option" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}<br><small>{{ props.option.email }}</small></template>
           <template slot="singleLabel" slot-scope="props">{{ props.option.firstname }} {{ props.option.lastname }}</template>
         </multiselect>
@@ -704,11 +704,11 @@ export default {
     },
     // return error message for user, local or server-side
     userValidationError: function () {
-      return this.fieldState('user') === false ? this.fieldError('user') : this.$t('rooms.members.modals.add.selectUser');
+      return this.fieldState('user') === false ? this.fieldError('user') : this.$t('rooms.members.modals.add.select_user');
     },
     // return error message for role, local or server-side
     roleValidationError: function () {
-      return this.fieldState('role') === false ? this.fieldError('role') : this.$t('rooms.members.modals.add.selectRole');
+      return this.fieldState('role') === false ? this.fieldError('role') : this.$t('rooms.members.modals.add.select_role');
     },
 
     // member tables headings

@@ -1168,7 +1168,7 @@ describe('UsersView', () => {
     view.vm.onFileSelect(eventError);
     await view.vm.$nextTick();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.image.invalidMime');
+    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.image.invalid_mime');
     expect(modal.vm.$data.isVisible).toBeFalsy();
 
     const event = {

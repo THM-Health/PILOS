@@ -583,7 +583,7 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
     expect(view.findAllComponents(BFormText).length).toBe(3);
-    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.connection');
 
     // check for invalid salt
     await view.findAllComponents(BButton).at(1).trigger('click');
@@ -600,7 +600,7 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
     expect(view.findAllComponents(BFormText).length).toBe(3);
-    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.salt');
 
     // check for valid connection
     await view.findAllComponents(BButton).at(1).trigger('click');

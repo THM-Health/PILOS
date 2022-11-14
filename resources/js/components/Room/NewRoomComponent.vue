@@ -112,7 +112,7 @@ export default {
           }
           // permission denied
           if (error.response.status === env.HTTP_FORBIDDEN) {
-            this.flashMessage.error(this.$t('rooms.flash.noNewRoom'));
+            this.flashMessage.error(this.$t('rooms.flash.no_new_room'));
             this.$bvModal.hide('new-room');
             store.dispatch('session/getCurrentUser');
             return;

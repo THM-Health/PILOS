@@ -269,7 +269,7 @@ export default {
      */
     copyPersonalizedRoomLink (token) {
       this.$clipboard(this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
-      this.flashMessage.info(this.$t('rooms.tokens.roomLinkCopied', { firstname: token.firstname, lastname: token.lastname }));
+      this.flashMessage.info(this.$t('rooms.tokens.room_link_copied', { firstname: token.firstname, lastname: token.lastname }));
     },
 
     /**
@@ -388,7 +388,7 @@ export default {
       },
       {
         key: 'last_usage',
-        label: this.$t('rooms.tokens.lastUsage'),
+        label: this.$t('rooms.tokens.last_usage'),
         sortable: true
       },
       {

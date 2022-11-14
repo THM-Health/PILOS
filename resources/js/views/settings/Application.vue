@@ -48,9 +48,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="help-url-input"
-              :description="$t('settings.application.helpUrl.description')"
+              :description="$t('settings.application.help_url.description')"
               :state='fieldState("help_url")'
-              :label="$t('settings.application.helpUrl.title')"
+              :label="$t('settings.application.help_url.title')"
             >
               <b-form-input id="help-url-input"
                             v-model="settings.help_url"
@@ -73,9 +73,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="legal-notice-url-input"
-              :description="$t('settings.application.legalNoticeUrl.description')"
+              :description="$t('settings.application.legal_notice_url.description')"
               :state='fieldState("legal_notice_url")'
-              :label="$t('settings.application.legalNoticeUrl.title')"
+              :label="$t('settings.application.legal_notice_url.title')"
             >
               <b-form-input id="legal-notice-url-input"
                             v-model="settings.legal_notice_url"
@@ -96,9 +96,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="privacy-policy-url-input"
-              :description="$t('settings.application.privacyPolicyUrl.description')"
+              :description="$t('settings.application.privacy_policy_url.description')"
               :state='fieldState("privacy_policy_url")'
-              :label="$t('settings.application.privacyPolicyUrl.title')"
+              :label="$t('settings.application.privacy_policy_url.title')"
             >
               <b-form-input id="privacy-policy-url-input"
                             v-model="settings.privacy_policy_url"
@@ -137,7 +137,7 @@
               </b-img>
             </b-col>
             <b-col sm="6" lg="9">
-              <b-form-text v-if="!uploadFaviconFile">{{ $t('settings.application.favicon.urlTitle') }}</b-form-text>
+              <b-form-text v-if="!uploadFaviconFile">{{ $t('settings.application.favicon.url_title') }}</b-form-text>
               <b-form-input
                 id="application-favicon-input"
                 v-if="!uploadFaviconFile"
@@ -149,14 +149,14 @@
                 :state='fieldState("favicon")'
               >
               </b-form-input>
-              <b-form-text v-if="!viewOnly">{{ $t('settings.application.favicon.uploadTitle') }}</b-form-text>
+              <b-form-text v-if="!viewOnly">{{ $t('settings.application.favicon.upload_title') }}</b-form-text>
               <b-input-group v-if="!viewOnly">
                 <b-form-file
                   id="application-favicon-form-file"
                   :state='fieldState("favicon_file")'
                   :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
-                  :placeholder="$t('settings.application.favicon.selectFile')"
+                  :placeholder="$t('settings.application.favicon.select_file')"
                   v-model="uploadFaviconFile"
                   accept="image/x-icon"
                 >
@@ -199,7 +199,7 @@
               </b-img>
             </b-col>
             <b-col sm="6" lg="9">
-              <b-form-text v-if="!uploadLogoFile">{{ $t('settings.application.logo.urlTitle') }}</b-form-text>
+              <b-form-text v-if="!uploadLogoFile">{{ $t('settings.application.logo.url_title') }}</b-form-text>
               <b-form-input
                 id="application-logo-input"
                 v-if="!uploadLogoFile"
@@ -211,14 +211,14 @@
                 :state='fieldState("logo")'
               >
               </b-form-input>
-              <b-form-text v-if="!viewOnly">{{ $t('settings.application.logo.uploadTitle') }}</b-form-text>
+              <b-form-text v-if="!viewOnly">{{ $t('settings.application.logo.upload_title') }}</b-form-text>
               <b-input-group v-if="!viewOnly">
                 <b-form-file
                   id="application-logo-form-file"
                   :state='fieldState("logo_file")'
                   :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
-                  :placeholder="$t('settings.application.logo.selectFile')"
+                  :placeholder="$t('settings.application.logo.select_file')"
                   v-model="uploadLogoFile"
                   accept="image/jpeg, image/png, image/gif, image/svg+xml"
                 >
@@ -245,9 +245,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-pagination-page-size-input"
-              :description="$t('settings.application.paginationPageSize.description')"
+              :description="$t('settings.application.pagination_page_size.description')"
               :state='fieldState("pagination_page_size")'
-              :label="$t('settings.application.paginationPageSize.title')"
+              :label="$t('settings.application.pagination_page_size.title')"
             >
               <b-form-input id="application-pagination-page-size-input"
                             v-model="settings.pagination_page_size"
@@ -272,9 +272,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-pagination-own-room-page-size-input"
-              :description="$t('settings.application.ownRoomsPaginationPageSize.description')"
+              :description="$t('settings.application.own_rooms_pagination_page_size.description')"
               :state='fieldState("own_rooms_pagination_page_size")'
-              :label="$t('settings.application.ownRoomsPaginationPageSize.title')"
+              :label="$t('settings.application.own_rooms_pagination_page_size.title')"
             >
               <b-form-input id="application-pagination-own-room-page-size-input"
                             v-model="settings.own_rooms_pagination_page_size"
@@ -298,7 +298,7 @@
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
-              :label="$t('settings.application.defaultTimezone')"
+              :label="$t('settings.application.default_timezone')"
               label-for='timezone'
               :state='fieldState("default_timezone")'
             >
@@ -311,7 +311,7 @@
                   :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
                 >
                   <template v-slot:first>
-                    <b-form-select-option :value="null" disabled>{{ $t('settings.application.defaultTimezone') }}</b-form-select-option>
+                    <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
                   </template>
                 </b-form-select>
                 <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
@@ -377,7 +377,7 @@
               <b-form-group
                 label-for='banner-title-input'
                 :state='fieldState("banner.title")'
-                :label="$t('settings.application.banner.bannerTitle')"
+                :label="$t('settings.application.banner.banner_title')"
               >
                 <b-form-input
                   id='banner-title-input'
@@ -396,7 +396,7 @@
               <b-form-group
                 label-for='banner-icon-input'
                 :state='fieldState("banner.icon")'
-                :description="$t('settings.application.banner.iconDescription')"
+                :description="$t('settings.application.banner.icon_description')"
                 :label="$t('settings.application.banner.icon')"
               >
                 <b-form-input
@@ -493,7 +493,7 @@
                 >
                   <template #first>
                     <b-form-select-option :value='null' disabled>
-                      {{ $t('settings.application.banner.selectLinkStyle') }}
+                      {{ $t('settings.application.banner.select_link_style') }}
                     </b-form-select-option>
                   </template>
                 </b-form-select>
@@ -518,7 +518,7 @@
                 >
                   <template #first>
                     <b-form-select-option :value='null' disabled>
-                      {{ $t('settings.application.banner.selectLinkTarget') }}
+                      {{ $t('settings.application.banner.select_link_target') }}
                     </b-form-select-option>
                   </template>
                 </b-form-select>
@@ -546,7 +546,7 @@
                   :swatches='colorSwatches'
                   v-model='settings.banner.color'
                   inline></v-swatches>
-                <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+                <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                 <b-form-input
                   id='banner-color-input'
                   type='text'
@@ -573,7 +573,7 @@
                   :swatches='backgroundSwatches'
                   v-model='settings.banner.background'
                   inline></v-swatches>
-                <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+                <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
                 <b-form-input
                   id='banner-background-input'
                   type='text'
@@ -606,9 +606,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-limit-input"
-              :description="$t('settings.application.roomLimit.description')"
+              :description="$t('settings.application.room_limit.description')"
               :state='fieldState("room_limit")'
-              :label="$t('settings.application.roomLimit.title')"
+              :label="$t('settings.application.room_limit.title')"
             >
               <b-form-radio-group
                 class='mb-2'
@@ -644,9 +644,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
-              :description="$t('settings.application.roomTokenExpiration.description')"
+              :description="$t('settings.application.room_token_expiration.description')"
               :state='fieldState("room_token_expiration")'
-              :label="$t('settings.application.roomTokenExpiration.title')"
+              :label="$t('settings.application.room_token_expiration.title')"
             >
               <b-form-select
                 v-model="settings.room_token_expiration"
@@ -693,9 +693,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
-              :description="$t('settings.application.room_auto_delete.deadlinePeriod.description')"
+              :description="$t('settings.application.room_auto_delete.deadline_period.description')"
               :state='fieldState("room_auto_delete.deadline_period")'
-              :label="$t('settings.application.room_auto_delete.deadlinePeriod.title')"
+              :label="$t('settings.application.room_auto_delete.deadline_period.title')"
             >
               <b-form-select
                 v-model="settings.room_auto_delete.deadline_period"
@@ -719,9 +719,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
-              :description="$t('settings.application.room_auto_delete.inactivePeriod.description')"
+              :description="$t('settings.application.room_auto_delete.inactive_period.description')"
               :state='fieldState("room_auto_delete.inactive_period")'
-              :label="$t('settings.application.room_auto_delete.inactivePeriod.title')"
+              :label="$t('settings.application.room_auto_delete.inactive_period.title')"
             >
               <b-form-select
                 v-model="settings.room_auto_delete.inactive_period"
@@ -743,9 +743,9 @@
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-room-token-expiration"
-              :description="$t('settings.application.room_auto_delete.neverUsedPeriod.description')"
+              :description="$t('settings.application.room_auto_delete.never_used_period.description')"
               :state='fieldState("room_auto_delete.never_used_period")'
-              :label="$t('settings.application.room_auto_delete.neverUsedPeriod.title')"
+              :label="$t('settings.application.room_auto_delete.never_used_period.title')"
             >
               <b-form-select
                 v-model="settings.room_auto_delete.never_used_period"
@@ -771,7 +771,7 @@
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
-              :label="$t('settings.application.userSettings')"
+              :label="$t('settings.application.user_settings')"
               :state='fieldState("password_self_reset_enabled")'
             >
               <b-form-checkbox
@@ -780,7 +780,7 @@
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.passwordSelfResetEnabled') }}
+                {{ $t('settings.application.password_self_reset_enabled') }}
               </b-form-checkbox>
 
               <template slot='invalid-feedback'>
@@ -790,14 +790,14 @@
           </b-col>
         </b-row>
 
-        <h4>{{ $t('settings.application.attendanceAndStatisticsTitle') }}</h4>
+        <h4>{{ $t('settings.application.attendance_and_statistics_title') }}</h4>
         <hr>
         <b-row cols='12'>
           <b-col md='6'>
             <b-form-group
               label-class="font-weight-bold"
               :state='fieldState("statistics.servers.enabled")'
-              :label="$t('settings.application.statistics.servers.enabledTitle')"
+              :label="$t('settings.application.statistics.servers.enabled_title')"
               ref='statistics-servers-enabled-form-group'
             >
                 <b-form-checkbox
@@ -818,7 +818,7 @@
             <b-form-group
               label-class="font-weight-bold"
               :state='fieldState("statistics.servers.retention_period")'
-              :label="$t('settings.application.statistics.servers.retentionPeriodTitle')"
+              :label="$t('settings.application.statistics.servers.retention_period_title')"
               ref='statistics-servers-retention-form-group'
             >
               <b-form-input
@@ -844,7 +844,7 @@
             <b-form-group
               label-class="font-weight-bold"
               :state='fieldState("statistics.meetings.enabled")'
-              :label="$t('settings.application.statistics.meetings.enabledTitle')"
+              :label="$t('settings.application.statistics.meetings.enabled_title')"
               ref='statistics-meetings-enabled-form-group'
             >
               <b-form-checkbox
@@ -865,7 +865,7 @@
             <b-form-group
               label-class="font-weight-bold"
               :state='fieldState("statistics.meetings.retention_period")'
-              :label="$t('settings.application.statistics.meetings.retentionPeriodTitle')"
+              :label="$t('settings.application.statistics.meetings.retention_period_title')"
               ref='statistics-meetings-retention-form-group'
             >
               <b-form-input
@@ -891,7 +891,7 @@
             <b-form-group
               label-class="font-weight-bold"
               :state='fieldState("attendance.enabled")'
-              :label="$t('settings.application.attendance.enabledTitle')"
+              :label="$t('settings.application.attendance.enabled_title')"
               ref='attendance-enabled-form-group'
             >
               <b-form-checkbox
@@ -912,7 +912,7 @@
             <b-form-group
               label-class="font-weight-bold"
               :state='fieldState("attendance.retention_period")'
-              :label="$t('settings.application.attendance.retentionPeriodTitle')"
+              :label="$t('settings.application.attendance.retention_period_title')"
               ref='attendance-retention-form-group'
             >
               <b-form-input
@@ -960,7 +960,7 @@
               </b-img>
             </b-col>
             <b-col sm="6" lg="9">
-              <b-form-text v-if="!uploadBBBLogoFile">{{ $t('settings.application.bbb.logo.urlTitle') }}</b-form-text>
+              <b-form-text v-if="!uploadBBBLogoFile">{{ $t('settings.application.bbb.logo.url_title') }}</b-form-text>
               <b-input-group class="my-2" v-if="!uploadBBBLogoFile">
               <b-form-input
                 id="bbb-logo-input"
@@ -995,14 +995,14 @@
                 </b-button>
               </template>
               </b-input-group>
-              <b-form-text v-if="!viewOnly && !bbb_logo_deleted">{{ $t('settings.application.bbb.logo.uploadTitle') }}</b-form-text>
+              <b-form-text v-if="!viewOnly && !bbb_logo_deleted">{{ $t('settings.application.bbb.logo.upload_title') }}</b-form-text>
               <b-input-group v-if="!viewOnly && !bbb_logo_deleted">
                 <b-form-file
                   id="bbb-logo-form-file"
                   :state='fieldState("bbb.logo_file")'
                   :disabled="isBusy || viewOnly || !loaded"
                   :browse-text="$t('app.browse')"
-                  :placeholder="$t('settings.application.bbb.logo.selectFile')"
+                  :placeholder="$t('settings.application.bbb.logo.select_file')"
                   v-model="uploadBBBLogoFile"
                   accept="image/jpeg, image/png, image/gif, image/svg+xml"
                 >
@@ -1086,7 +1086,7 @@
         <b-form-group
             label-class="font-weight-bold"
             class="mb-4"
-            :label="$t('settings.application.defaultPresentation')"
+            :label="$t('settings.application.default_presentation')"
             label-for='default_presentation'
             :state='fieldState("default_presentation")'
           >
@@ -1096,7 +1096,7 @@
                 id='default_presentation'
                 :state="fieldState('default_presentation')"
                 :browse-text="$t('app.browse')"
-                :placeholder="$t('settings.application.defaultPresentation')"
+                :placeholder="$t('settings.application.default_presentation')"
                 v-model="default_presentation"
               >
               </b-form-file>
@@ -1431,8 +1431,8 @@ export default {
      */
     roomLimitModeOptions () {
       return [
-        { text: this.$t('settings.roles.roomLimit.unlimited'), value: 'unlimited' },
-        { text: this.$t('settings.roles.roomLimit.custom'), value: 'custom' }
+        { text: this.$t('settings.roles.room_limit.unlimited'), value: 'unlimited' },
+        { text: this.$t('settings.roles.room_limit.custom'), value: 'custom' }
       ];
     },
 
@@ -1441,12 +1441,12 @@ export default {
      */
     roomTokenExpirationOptions () {
       return [
-        { value: 1440, text: this.$t('settings.application.oneDay') },
-        { value: 10080, text: this.$t('settings.application.oneWeek') },
-        { value: 43200, text: this.$t('settings.application.oneMonth') },
-        { value: 129600, text: this.$t('settings.application.threeMonth') },
-        { value: 262800, text: this.$t('settings.application.sixMonth') },
-        { value: 525600, text: this.$t('settings.application.oneYear') },
+        { value: 1440, text: this.$t('settings.application.one_day') },
+        { value: 10080, text: this.$t('settings.application.one_week') },
+        { value: 43200, text: this.$t('settings.application.one_month') },
+        { value: 129600, text: this.$t('settings.application.three_month') },
+        { value: 262800, text: this.$t('settings.application.six_month') },
+        { value: 525600, text: this.$t('settings.application.one_year') },
         { value: -1, text: this.$t('settings.application.unlimited') }
       ];
     },
@@ -1456,13 +1456,13 @@ export default {
      */
     roomDeleteNotificationOptions () {
       return [
-        { value: 7, text: this.$t('settings.application.oneWeek') },
-        { value: 14, text: this.$t('settings.application.twoWeeks') },
-        { value: 30, text: this.$t('settings.application.oneMonth') },
-        { value: 90, text: this.$t('settings.application.threeMonth') },
-        { value: 180, text: this.$t('settings.application.sixMonth') },
-        { value: 365, text: this.$t('settings.application.oneYear') },
-        { value: 730, text: this.$t('settings.application.twoYears') },
+        { value: 7, text: this.$t('settings.application.one_week') },
+        { value: 14, text: this.$t('settings.application.two_weeks') },
+        { value: 30, text: this.$t('settings.application.one_month') },
+        { value: 90, text: this.$t('settings.application.three_month') },
+        { value: 180, text: this.$t('settings.application.six_month') },
+        { value: 365, text: this.$t('settings.application.one_year') },
+        { value: 730, text: this.$t('settings.application.two_years') },
         { value: -1, text: this.$t('settings.application.never') }
       ];
     },
@@ -1471,9 +1471,9 @@ export default {
      */
     roomDeleteDeadlineOptions () {
       return [
-        { value: 7, text: this.$t('settings.application.oneWeek') },
-        { value: 14, text: this.$t('settings.application.twoWeeks') },
-        { value: 30, text: this.$t('settings.application.oneMonth') }
+        { value: 7, text: this.$t('settings.application.one_week') },
+        { value: 14, text: this.$t('settings.application.two_weeks') },
+        { value: 30, text: this.$t('settings.application.one_month') }
       ];
     }
 

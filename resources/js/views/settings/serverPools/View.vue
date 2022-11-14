@@ -1,9 +1,9 @@
 <template>
   <div>
     <h3>
-      {{ id === 'new' ? $t('settings.serverPools.new') : (
-        viewOnly ? $t('settings.serverPools.view', { name : model.name })
-          : $t('settings.serverPools.edit', { name: model.name })
+      {{ id === 'new' ? $t('settings.server_pools.new') : (
+        viewOnly ? $t('settings.server_pools.view', { name : model.name })
+          : $t('settings.server_pools.edit', { name: model.name })
       ) }}
     </h3>
     <hr>
@@ -50,7 +50,7 @@
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.serverPools.select_servers')"
+                :placeholder="$t('settings.server_pools.select_servers')"
                 ref="servers-multiselect"
                 v-model='model.servers'
                 track-by='id'
@@ -74,7 +74,7 @@
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='secondary'>
                       {{ option.name }}
-                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.serverPools.removeServer')"></i></span>
+                      <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.server_pools.remove_server')"></i></span>
                     </b-badge>
                   </h5>
                 </template>
@@ -83,13 +83,13 @@
                     :disabled='serversLoading || currentPage === 1'
                     variant='outline-secondary'
                     @click='loadServers(Math.max(1, currentPage - 1))'>
-                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
                   </b-button>
                   <b-button
                     :disabled='serversLoading || !hasNextPage'
                     variant='outline-secondary'
                     @click='loadServers(currentPage + 1)'>
-                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
                   </b-button>
                 </template>
               </multiselect>
