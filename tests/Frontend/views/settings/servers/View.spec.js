@@ -583,7 +583,7 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
     expect(view.findAllComponents(BFormText).length).toBe(3);
-    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.connection');
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.connection');
 
     // check for invalid salt
     await view.findAllComponents(BButton).at(1).trigger('click');
@@ -600,7 +600,7 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
     expect(view.findAllComponents(BFormText).length).toBe(3);
-    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offlineReason.salt');
+    expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.salt');
 
     // check for valid connection
     await view.findAllComponents(BButton).at(1).trigger('click');
@@ -718,11 +718,7 @@ describe('ServerView', () => {
 
   it('panic button calls api and gets disabled while running', async () => {
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      success (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { success: flashMessageSpy };
 
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
@@ -763,10 +759,10 @@ describe('ServerView', () => {
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({
-      title: 'settings.servers.panicFlash.title',
-      message: 'settings.servers.panicFlash.message:{"total":5,"success":3}'
-    });
+    expect(flashMessageSpy).toBeCalledWith(
+      'settings.servers.panic.flash.title',
+      'settings.servers.panic.flash.description:{"total":5,"success":3}'
+    );
 
     // check reload of server data
     await waitMoxios();

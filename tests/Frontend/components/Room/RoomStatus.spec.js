@@ -17,7 +17,7 @@ describe('RoomStatus', () => {
     });
 
     const status = view.find('div');
-    expect(status.attributes('title')).toBe('rooms.status.notRunning');
+    expect(status.attributes('title')).toBe('rooms.status.not_running');
     expect(status.classes()).toEqual(['room-status']);
   });
   it('offline status', async () => {
@@ -33,7 +33,7 @@ describe('RoomStatus', () => {
     });
 
     const status = view.find('div');
-    expect(status.attributes('title')).toBe('rooms.status.notRunning');
+    expect(status.attributes('title')).toBe('rooms.status.not_running');
     expect(status.classes()).toEqual(['room-status']);
   });
   it('online status', async () => {
@@ -70,7 +70,7 @@ describe('RoomStatus', () => {
 
     await view.setProps({ running: false });
     await view.vm.$nextTick();
-    expect(status.attributes('title')).toBe('rooms.status.notRunning');
+    expect(status.attributes('title')).toBe('rooms.status.not_running');
     expect(status.classes()).toEqual(['room-status']);
 
     await view.setProps({ running: true });

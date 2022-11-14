@@ -108,7 +108,7 @@ describe('Room Token', () => {
     let rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
     expect(rows[0].at(0).text()).toBe('John');
     expect(rows[0].at(1).text()).toBe('Doe');
-    expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.participant');
+    expect(rows[0].at(2).text()).toBe('rooms.roles.participant');
     expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
     expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
 
@@ -200,11 +200,7 @@ describe('Room Token', () => {
     const clipboardSpy = jest.fn();
 
     const flashMessageSpy = jest.fn();
-    const flashMessage = {
-      info (param) {
-        flashMessageSpy(param);
-      }
-    };
+    const flashMessage = { info: flashMessageSpy };
 
     const view = mount(TokensComponent, {
       localVue,
@@ -246,7 +242,7 @@ describe('Room Token', () => {
     expect(clipboardSpy).toBeCalledWith('https://domain.tld/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({ message: 'rooms.tokens.roomLinkCopied:{"firstname":"John","lastname":"Doe"}' });
+    expect(flashMessageSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
     view.destroy();
   });
@@ -313,7 +309,7 @@ describe('Room Token', () => {
 
     const modal = view.findComponent({ ref: 'delete-token-modal' });
     expect(modal.find('.modal').element.style.display).toEqual('block');
-    expect(modal.find('.modal-body').text()).toContain('rooms.tokens.modals.delete.confirm:{"firstname":"John","lastname":"Doe"}');
+    expect(modal.find('.modal-body').text()).toContain('rooms.tokens.confirm_delete:{"firstname":"John","lastname":"Doe"}');
 
     const confirmButton = modal.findAllComponents(BButton).at(1);
     expect(confirmButton.text()).toBe('app.yes');
@@ -362,7 +358,7 @@ describe('Room Token', () => {
     const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
     expect(rows[0].at(0).text()).toBe('Max');
     expect(rows[0].at(1).text()).toBe('Mustermann');
-    expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.moderator');
+    expect(rows[0].at(2).text()).toBe('rooms.roles.moderator');
     expect(rows[0].at(3).text()).toBe('10/03/2021, 19:24');
     expect(rows[0].at(4).text()).toBe('10/20/2021, 11:17');
     expect(rows.length).toBe(1);
@@ -434,7 +430,7 @@ describe('Room Token', () => {
 
     const modal = view.findComponent({ ref: 'delete-token-modal' });
     expect(modal.find('.modal').element.style.display).toEqual('block');
-    expect(modal.find('.modal-body').text()).toContain('rooms.tokens.modals.delete.confirm:{"firstname":"John","lastname":"Doe"}');
+    expect(modal.find('.modal-body').text()).toContain('rooms.tokens.confirm_delete:{"firstname":"John","lastname":"Doe"}');
 
     const confirmButton = modal.findAllComponents(BButton).at(1);
     expect(confirmButton.text()).toBe('app.yes');
@@ -496,7 +492,7 @@ describe('Room Token', () => {
     const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
     expect(rows[0].at(0).text()).toBe('John');
     expect(rows[0].at(1).text()).toBe('Doe');
-    expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.participant');
+    expect(rows[0].at(2).text()).toBe('rooms.roles.participant');
     expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
     expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
     expect(rows.length).toBe(2);
@@ -678,7 +674,7 @@ describe('Room Token', () => {
     const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
     expect(rows[0].at(0).text()).toBe('Richard');
     expect(rows[0].at(1).text()).toBe('Roe');
-    expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.moderator');
+    expect(rows[0].at(2).text()).toBe('rooms.roles.moderator');
     expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
     expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
     expect(rows.length).toBe(2);
@@ -835,7 +831,7 @@ describe('Room Token', () => {
     const rows = table.findAll('tr').wrappers.map(row => row.findAll('td'));
     expect(rows[0].at(0).text()).toBe('Richard');
     expect(rows[0].at(1).text()).toBe('Roe');
-    expect(rows[0].at(2).text()).toBe('rooms.tokens.roles.moderator');
+    expect(rows[0].at(2).text()).toBe('rooms.roles.moderator');
     expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
     expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
     expect(rows.length).toBe(1);

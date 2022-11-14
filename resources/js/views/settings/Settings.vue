@@ -5,7 +5,7 @@
       v-if="$route.name!=='settings'"
       variant='secondary'
       v-b-tooltip
-      :title="$t('settings.homeButton')"
+      :title="$t('settings.home_button')"
       :to="{ name: 'settings'}"
     ><i class='fa-solid fa-arrow-left'></i></b-button> {{ $t('settings.title') }}</h2>
     <hr>

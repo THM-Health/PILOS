@@ -32,7 +32,7 @@
 
         <b-form-text id="passwordHelpBlock">
           <router-link to="/forgot_password" v-if="settings('password_self_reset_enabled')">
-            {{ $t('auth.forgotPassword') }}
+            {{ $t('auth.forgot_password') }}
           </router-link>
         </b-form-text>
 

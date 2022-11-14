@@ -22,7 +22,7 @@ We **don't** recommend using the `latest` tag for production, as breaking change
 - fully qualified hostname
 - valid SSL certificate (HTTPS)
 - reverse proxy, e.g. apache or nginx
-- docker and docker-compose 
+- Docker and [Compose plugin](https://docs.docker.com/compose/install/linux/)
 
 ### Installing PILOS
 Create a directory for the data and config of PILOS
@@ -94,12 +94,12 @@ location / {
 ### Starting
 To start the application and database run:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 You can monitor the startup with:
 ```bash
-docker-compose logs -f
+docker compose logs -f
 ```
 
 **Notice:** If you modify the `.env` file you need to restart the container.
@@ -107,7 +107,7 @@ docker-compose logs -f
 ### Admin user
 The first admin user can be created by running the following command:
 ```bash
-docker-compose exec --user www-data app php artisan users:create:admin
+docker compose exec --user www-data app php artisan users:create:admin
 ```
 
 ### LDAP
@@ -116,7 +116,7 @@ For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.
 
 You can configure the LDAP login in the .env file and check if the LDAP configuration is correct, by using the following artisan command:
 ```bash
-docker-compose exec --user www-data app php artisan ldap:test
+docker compose exec --user www-data app php artisan ldap:test
 ```
 
 ### Customization
@@ -125,11 +125,12 @@ You can customize the theme by copying the default theme.
 ```bash
 docker compose cp app:/var/www/html/resources/sass/theme/default/. ./resources/sass/theme/custom
 ```
+
 You can edit the theme in the folder `resources/sass/theme/custom`.
-Next you need to change set the `MIX_THEME` option in the `.env` file to `default`.
+Next you need to change set the `MIX_THEME` option in the `.env` file to `custom`.
 You can either restart the container or recompile the frontend with:
 ```bash
-docker-compose exec --user www-data app npm run prod
+docker compose exec --user www-data app npm run prod
 ```
 
 #### Start page
@@ -140,7 +141,7 @@ docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/cust
 ```
 You can edit the vue component in `resources/custom/js/views/Home.vue` and either restart the container or recompile the frontend with:
 ```bash
-docker-compose exec --user www-data app npm run prod
+docker compose exec --user www-data app npm run prod
 ```
 
 #### Language files, footer and more

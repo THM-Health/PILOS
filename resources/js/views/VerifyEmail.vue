@@ -2,7 +2,7 @@
   <b-container class="mt-3 mb-5">
     <b-card class="p-3 border bg-white">
       <h3>
-        {{ $t('app.verifyEmail.title') }}
+        {{ $t('app.verify_email.title') }}
       </h3>
       <hr>
       <div v-if="loading" class="text-center my-5">
@@ -10,12 +10,12 @@
       </div>
       <div v-else >
         <div v-if="success">
-          <b-alert variant="success" show><i class="fa-solid fa-envelope-circle-check"></i> {{ $t('app.verifyEmail.success') }}</b-alert>
+          <b-alert variant="success" show><i class="fa-solid fa-envelope-circle-check"></i> {{ $t('app.verify_email.success') }}</b-alert>
         </div>
         <div v-else>
-          <b-alert v-if="error === env.HTTP_TOO_MANY_REQUESTS" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.tooMany') }}</b-alert>
-          <b-alert v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.invalid') }}</b-alert>
-          <b-alert v-else  variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verifyEmail.fail') }}</b-alert>
+          <b-alert v-if="error === env.HTTP_TOO_MANY_REQUESTS" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.too_many') }}</b-alert>
+          <b-alert v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.invalid') }}</b-alert>
+          <b-alert v-else  variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.fail') }}</b-alert>
         </div>
       </div>
     </b-card>

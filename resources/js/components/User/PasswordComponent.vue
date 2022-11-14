@@ -3,7 +3,7 @@
     <b-form @submit="changePassword">
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.authentication.change_password.current_password')"
+        :label="$t('auth.current_password')"
         label-for='current_password'
         :state='fieldState("password")'
         v-if="isOwnUser"
@@ -20,7 +20,7 @@
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.authentication.change_password.new_password')"
+        :label="$t('auth.new_password')"
         label-for='new_password'
         :state='fieldState("password")'
       >
@@ -36,7 +36,7 @@
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.authentication.change_password.new_password_confirmation')"
+        :label="$t('auth.new_password_confirmation')"
         label-for='new_password_confirmation'
         :state='fieldState("password_confirmation")'
       >
@@ -55,7 +55,7 @@
         variant='success'
         type='submit'
       >
-        <i class='fa-solid fa-save'></i> {{ $t('settings.users.authentication.change_password.save') }}
+        <i class='fa-solid fa-save'></i> {{ $t('auth.change_password') }}
       </b-button>
     </b-form>
   </div>
@@ -108,7 +108,7 @@ export default {
       })
         .then(response => {
           this.$emit('updateUser', response.data.data);
-          this.flashMessage.success(this.$t('settings.users.authentication.change_password.success'));
+          this.flashMessage.success(this.$t('auth.flash.password_changed'));
         })
         .catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {

@@ -3,7 +3,7 @@
     <b-tabs v-if="!isBusy && user" fill nav-wrapper-class="mb-3">
       <b-tab lazy>
         <template #title>
-          <i class="fa-solid fa-user"></i> {{ $t('settings.users.tabs.profile') }}
+          <i class="fa-solid fa-user"></i> {{ $t('settings.users.base_data') }}
         </template>
         <profile-component
           :user="user"
@@ -15,7 +15,7 @@
       </b-tab>
       <b-tab lazy>
         <template #title>
-          <i class="fa-solid fa-envelope"></i> {{ $t('settings.users.tabs.email') }}
+          <i class="fa-solid fa-envelope"></i> {{ $t('app.email') }}
         </template>
         <email-settings-component
           :user="user"
@@ -26,7 +26,7 @@
       </b-tab>
       <b-tab lazy>
         <template #title>
-          <i class="fa-solid fa-user-shield"></i> {{ $t('settings.users.tabs.authentication') }}
+          <i class="fa-solid fa-user-shield"></i> {{ $t('app.security') }}
         </template>
         <authentication-settings-component
           :user="user"
@@ -38,7 +38,7 @@
       </b-tab>
       <b-tab lazy>
         <template #title>
-          <i class="fa-solid fa-user-gear"></i> {{ $t('settings.users.tabs.other_settings') }}
+          <i class="fa-solid fa-user-gear"></i> {{ $t('settings.users.other_settings') }}
         </template>
         <other-settings-component
           :user="user"

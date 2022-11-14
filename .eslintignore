@@ -4,10 +4,14 @@
 /resources/custom
 /storage/*.key
 /vendor
+/coverage
 .env
 .env.backup
 .phpunit.result.cache
 npm-debug.log
 yarn-error.log
 .idea
+package-lock.json
+composer.json
+package.json
 /public

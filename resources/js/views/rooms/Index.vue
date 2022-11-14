@@ -3,11 +3,11 @@
     <b-row class="mb-3">
       <b-col md="9">
         <can method='viewAll' policy='RoomPolicy'>
-          <h2>{{ $t('rooms.allRooms') }}</h2>
+          <h2>{{ $t('rooms.all_rooms') }}</h2>
         </can>
         <cannot method='viewAll' policy='RoomPolicy'>
-          <h2>{{ $t('rooms.findRooms') }}</h2>
-          <p>{{ $t('rooms.findRoomsInfo')}}</p>
+          <h2>{{ $t('rooms.find_rooms') }}</h2>
+          <p>{{ $t('rooms.find_rooms_info')}}</p>
         </cannot>
 
       </b-col>
@@ -15,7 +15,7 @@
         <b-input-group>
           <b-form-input @change="loadRooms" :disabled="isBusy || loadingError" ref="search" :placeholder="$t('app.search')" v-model="filter"></b-form-input>
           <b-input-group-append>
-            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.toSearch')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+            <b-button @click="loadRooms" :disabled="isBusy || loadingError" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
           </b-input-group-append>
         </b-input-group>
       </b-col>
@@ -25,7 +25,7 @@
     <b-row class="mb-3">
       <b-col lg="3" order="2" order-lg="1">
         <h4>{{ $t('rooms.filter.title') }}</h4>
-        <h5>{{ $t('rooms.filter.roomTypes') }}</h5>
+        <h5>{{ $t('app.room_types') }}</h5>
         <div style="position: relative; min-height: 40px">
           <b-overlay :no-center="true" :show="roomTypesBusy || roomTypesLoadingError" >
             <template #overlay>
@@ -69,7 +69,7 @@
             </div>
           </template>
 
-          <em v-if="!isBusy && !loadingError && !rooms.length">{{ $t('rooms.noRoomsAvailable') }}</em>
+          <em v-if="!isBusy && !loadingError && !rooms.length">{{ $t('rooms.no_rooms_available') }}</em>
 
           <b-list-group>
             <b-list-group-item button :disabled="openRoom" v-for="room in rooms" :key="room.id" @click="open(room)" class="flex-column align-items-start">

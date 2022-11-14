@@ -545,7 +545,7 @@ describe('ServerPoolsIndex', () => {
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     const roomTypeErrorMessage = view.findComponent(BAlert);
     expect(roomTypeErrorMessage.exists()).toBeTruthy();
-    expect(roomTypeErrorMessage.text()).toContain('settings.serverPools.delete.failed');
+    expect(roomTypeErrorMessage.text()).toContain('settings.server_pools.delete.failed');
     const roomTypeList = view.findComponent(BModal).find('ul');
     expect(roomTypeList.exists()).toBeTruthy();
     const roomTypes = roomTypeList.findAll('li');
@@ -654,7 +654,7 @@ describe('ServerPoolsIndex', () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.create'] });
     await view.vm.$nextTick();
 
-    expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.serverPools.new');
+    expect(view.findComponent({ ref: 'newServerPool' }).html()).toContain('settings.server_pools.new');
     view.destroy();
   });
 });

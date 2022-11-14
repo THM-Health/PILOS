@@ -4,7 +4,7 @@
       <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
         <b-card no-body bg-variant="light">
           <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-primary">
-            <b-tab :title="$t('auth.ldap.tabTitle')" v-if="settings('ldap')" >
+            <b-tab :title="$t('auth.ldap.tab_title')" v-if="settings('ldap')" >
               <ldap-login-component
                 id="ldap"
                 :title="$t('auth.ldap.title')"
@@ -16,14 +16,14 @@
                 :errors="errors.ldap"
               ></ldap-login-component>
             </b-tab>
-            <b-tab :title="$t('auth.email.tabTitle')">
+            <b-tab :title="$t('auth.email.tab_title')">
               <email-login-component
                 id="default"
                 :title="$t('auth.email.title')"
                 @submit="handleLogin"
                 :submit-label="$t('auth.login')"
                 :password-label="$t('auth.password')"
-                :email-label="$t('auth.email.email')"
+                :email-label="$t('app.email')"
                 :loading="loading"
                 :errors="errors.default"
               ></email-login-component>

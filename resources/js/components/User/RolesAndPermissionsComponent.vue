@@ -3,7 +3,7 @@
     <b-form @submit="save">
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.authentication.roles_and_perm.roles')"
+        :label="$t('app.roles')"
         label-for='roles'
         :state='fieldState("roles", true)'
       >

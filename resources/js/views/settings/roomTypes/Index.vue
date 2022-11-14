@@ -1,14 +1,14 @@
 <template>
   <div>
     <h3>
-      {{ $t('settings.roomTypes.title') }}
+      {{ $t('app.room_types') }}
       <can method='create' policy='RoomTypePolicy'>
         <b-button
           class='float-right'
           v-b-tooltip.hover
           v-tooltip-hide-click
           variant='success'
-          :title="$t('settings.roomTypes.new')"
+          :title="$t('settings.room_types.new')"
           :to="{ name: 'settings.room_types.view', params: { id: 'new' } }"
         ><i class="fa-solid fa-plus"></i></b-button>
       </can>
@@ -29,7 +29,7 @@
     >
 
       <template v-slot:empty>
-        <i>{{ $t('settings.roomTypes.nodata') }}</i>
+        <i>{{ $t('settings.room_types.no_data') }}</i>
       </template>
 
       <template v-slot:table-busy>
@@ -54,7 +54,7 @@
           <b-button
             v-b-tooltip.hover
             v-tooltip-hide-click
-            :title="$t('settings.roomTypes.view', { name: data.item.description })"
+            :title="$t('settings.room_types.view', { name: data.item.description })"
             :disabled='isBusy'
             variant='info'
             :to="{ name: 'settings.room_types.view', params: { id: data.item.id }, query: { view: '1' } }"
@@ -66,7 +66,7 @@
           <b-button
             v-b-tooltip.hover
             v-tooltip-hide-click
-            :title="$t('settings.roomTypes.edit', { name: data.item.description })"
+            :title="$t('settings.room_types.edit', { name: data.item.description })"
             :disabled='isBusy'
             variant='secondary'
             :to="{ name: 'settings.room_types.view', params: { id: data.item.id } }"
@@ -78,7 +78,7 @@
           <b-button
             v-b-tooltip.hover
             v-tooltip-hide-click
-            :title="$t('settings.roomTypes.delete.item', { id: data.item.description })"
+            :title="$t('settings.room_types.delete.item', { id: data.item.description })"
             :disabled='isBusy'
             variant='danger'
             @click='showDeleteModal(data.item)'>
@@ -113,16 +113,16 @@
       :hide-header-close="isBusy"
     >
       <template v-slot:modal-title>
-        {{ $t('settings.roomTypes.delete.title') }}
+        {{ $t('settings.room_types.delete.title') }}
       </template>
       <template v-slot:modal-ok>
         <b-spinner small v-if="isBusy"></b-spinner>  {{ $t('app.yes') }}
       </template>
       <span v-if="roomTypeToDelete">
-        {{ $t('settings.roomTypes.delete.confirm', { name: roomTypeToDelete.description }) }}
+        {{ $t('settings.room_types.delete.confirm', { name: roomTypeToDelete.description }) }}
       </span>
       <hr>
-      <b-form-group v-if="roomTypeToDelete" label-for="replacement-room-type" :description="$t('settings.roomTypes.delete.replacementInfo')" :state="fieldState('replacement_room_type')" :label="$t('settings.roomTypes.delete.replacement')">
+      <b-form-group v-if="roomTypeToDelete" label-for="replacement-room-type" :description="$t('settings.room_types.delete.replacement_info')" :state="fieldState('replacement_room_type')" :label="$t('settings.room_types.delete.replacement')">
         <b-form-select id="replacement-room-type" :disabled="isBusy" :state="fieldState('replacement_room_type')" v-model.number="replacement" :options="roomTypeSelect"></b-form-select>
         <template slot='invalid-feedback'><div v-html="fieldError('replacement_room_type')"></div></template>
       </b-form-group>
@@ -249,8 +249,8 @@ export default {
 
     tableFields () {
       const fields = [
-        { key: 'description', label: this.$t('settings.roomTypes.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
-        { key: 'short', label: this.$t('settings.roomTypes.icon'), sortable: true, thStyle: { width: '10%' } }
+        { key: 'description', label: this.$t('app.description'), sortable: true, tdClass: 'td-max-width-0-lg' },
+        { key: 'short', label: this.$t('settings.room_types.icon'), sortable: true, thStyle: { width: '10%' } }
       ];
 
       if (this.actionColumnVisible) {
@@ -267,7 +267,7 @@ export default {
     roomTypeSelect () {
       const noReplacement = {};
       noReplacement.value = null;
-      noReplacement.text = this.$t('settings.roomTypes.delete.noReplacement');
+      noReplacement.text = this.$t('settings.room_types.delete.no_replacement');
 
       if (this.roomTypes) {
         const list = this.roomTypes.filter((roomtype) => {

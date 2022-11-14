@@ -23,7 +23,7 @@
           >
             <b-form-group
               label-cols-sm='3'
-              :label="$t('settings.users.firstname')"
+              :label="$t('app.firstname')"
               label-for='firstname'
               :state='fieldState("firstname")'
             >
@@ -39,7 +39,7 @@
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
-              :label="$t('settings.users.lastname')"
+              :label="$t('app.lastname')"
               label-for='lastname'
               :state='fieldState("lastname")'
             >
@@ -55,7 +55,7 @@
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
-              :label="$t('settings.users.email.email')"
+              :label="$t('app.email')"
               label-for='email'
               :state='fieldState("email")'
             >
@@ -105,7 +105,7 @@
             </b-form-group>
             <b-form-group
               label-cols-sm='3'
-              :label="$t('settings.users.authentication.roles_and_perm.roles')"
+              :label="$t('app.roles')"
               label-for='roles'
               :state='fieldState("roles", true)'
             >
@@ -148,7 +148,7 @@
             <b-form-group
               v-if="!generate_password"
               label-cols-sm='3'
-              :label="$t('settings.users.new_password')"
+              :label="$t('auth.new_password')"
               label-for='new_password'
               :state='fieldState("new_password")'
             >
@@ -180,7 +180,7 @@
             <b-form-group
               v-if="!generate_password"
               label-cols-sm='3'
-              :label="$t('settings.users.new_password_confirmation')"
+              :label="$t('auth.new_password_confirmation')"
               label-for='new_password_confirmation'
               :state='fieldState("password_confirmation")'
             >

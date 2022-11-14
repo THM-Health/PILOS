@@ -108,12 +108,12 @@ describe('Room', () => {
     next(view.vm);
 
     await view.vm.$nextTick();
-    expect(view.html()).toContain('rooms.onlyUsedByAuthenticatedUsers');
+    expect(view.html()).toContain('rooms.only_used_by_authenticated_users');
 
     const tryAgain = view.findAllComponents(BButton).at(0);
     const login = view.findAllComponents(BButton).at(1);
 
-    expect(tryAgain.html()).toContain('rooms.tryAgain');
+    expect(tryAgain.html()).toContain('rooms.try_again');
     expect(login.html()).toContain('rooms.login');
 
     await tryAgain.trigger('click');
@@ -266,7 +266,7 @@ describe('Room', () => {
     // check if error message for invalid personal link is shown
     const alert = view.findComponent(BAlert);
     expect(alert.exists()).toBeTruthy();
-    expect(alert.text()).toBe('rooms.invalidPersonalLink');
+    expect(alert.text()).toBe('rooms.invalid_personal_link');
 
     expect(view.vm.$data.reloadInterval).toBeNull();
 
@@ -309,7 +309,7 @@ describe('Room', () => {
     expect(next).toBe('/');
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('app.flash.guestsOnly');
+    expect(flashMessageSpy).toBeCalledWith('app.flash.guests_only');
 
     Vue.prototype.flashMessage = undefined;
     view.destroy();
@@ -401,7 +401,7 @@ describe('Room', () => {
     });
 
     await view.vm.$nextTick();
-    expect(view.html()).toContain('rooms.requireAccessCode');
+    expect(view.html()).toContain('rooms.require_access_code');
     view.destroy();
   });
 
@@ -756,7 +756,7 @@ describe('Room', () => {
     expect(view.vm.$data.accessCodeValid).toBeFalsy();
     expect(view.vm.$data.accessCode).toBeNull();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.accessCodeInvalid');
+    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.access_code_invalid');
     expect(reload).toBeCalledTimes(1);
 
     view.destroy();
@@ -787,7 +787,7 @@ describe('Room', () => {
     view.vm.handleInvalidToken();
     expect(view.vm.$data.room).toBeNull();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.tokenInvalid');
+    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.token_invalid');
     expect(view.vm.$data.reloadInterval).toBeNull();
     view.destroy();
   });
@@ -830,7 +830,7 @@ describe('Room', () => {
     // load room view
     await view.vm.$nextTick();
     // check if require access code is shown
-    expect(view.html()).toContain('rooms.requireAccessCode');
+    expect(view.html()).toContain('rooms.require_access_code');
 
     // reinstall moxios to disable stub
     moxios.uninstall();
@@ -856,7 +856,7 @@ describe('Room', () => {
     expect(view.vm.$data.accessCodeValid).toBeFalsy();
     expect(view.vm.$data.accessCode).toBeNull();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.accessCodeInvalid');
+    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.access_code_invalid');
 
     // check if room is reloaded without access code
     await waitMoxios();
@@ -896,7 +896,7 @@ describe('Room', () => {
     const handleInvalidToken = jest.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation();
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
     const flashMessageSpy = jest.fn();
-    const flashMessage = { error (param) { flashMessageSpy(param); } };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
       localVue,
@@ -1760,7 +1760,7 @@ describe('Room', () => {
     const baseError = jest.spyOn(Base, 'error').mockImplementation();
 
     const flashMessageSpy = jest.fn();
-    const flashMessage = { error (param) { flashMessageSpy(param); } };
+    const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
       localVue,
@@ -1904,7 +1904,7 @@ describe('Room', () => {
     });
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.startForbidden');
+    expect(flashMessageSpy).toBeCalledWith('rooms.flash.start_forbidden');
 
     expect(view.findComponent({ ref: 'startMeeting' }).exists()).toBeFalsy();
 
@@ -2153,7 +2153,7 @@ describe('Room', () => {
 
     // Find the confirm button and click it
     const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
-    expect(leaveConfirmButton.text()).toBe('rooms.endMembership.yes');
+    expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
 
     await waitModalHidden(view, () => {
       leaveConfirmButton.trigger('click');

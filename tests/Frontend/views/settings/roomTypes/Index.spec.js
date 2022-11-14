@@ -530,7 +530,7 @@ describe('RoomTypesIndex', () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.create'] });
     await view.vm.$nextTick();
 
-    expect(view.findComponent(BButton).html()).toContain('settings.roomTypes.new');
+    expect(view.findComponent(BButton).html()).toContain('settings.room_types.new');
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
   });

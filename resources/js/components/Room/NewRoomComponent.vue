@@ -12,7 +12,7 @@
       :busy="isLoadingAction || roomTypeSelectBusy"
       ok-variant="success"
       :ok-title="$t('rooms.create.ok')"
-      :cancel-title="$t('rooms.create.cancel')"
+      :cancel-title="$t('app.cancel')"
       :static="modalStatic"
       :ok-disabled="roomTypeSelectLoadingError"
       @ok="handleOk"
@@ -33,7 +33,7 @@
         <template slot='invalid-feedback'><div v-html="fieldError('room_type')"></div></template>
       </b-form-group>
       <!-- Room name -->
-      <b-form-group :state="fieldState('name')" :label="$t('rooms.settings.general.roomName')">
+      <b-form-group :state="fieldState('name')" :label="$t('rooms.name')">
         <b-input-group>
           <b-form-input
             :disabled="isLoadingAction"
@@ -112,7 +112,7 @@ export default {
           }
           // permission denied
           if (error.response.status === env.HTTP_FORBIDDEN) {
-            this.flashMessage.error(this.$t('rooms.flash.noNewRoom'));
+            this.flashMessage.error(this.$t('rooms.flash.no_new_room'));
             this.$bvModal.hide('new-room');
             store.dispatch('session/getCurrentUser');
             return;

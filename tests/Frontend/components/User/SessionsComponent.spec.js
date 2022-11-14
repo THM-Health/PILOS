@@ -100,7 +100,7 @@ describe('SessionsComponent', () => {
     // check if button is enabled after request and success message is shown
     expect(endSessionButton.attributes('disabled')).toBeUndefined();
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.logoutAllOthers');
+    expect(flashMessageSpy).toBeCalledWith('auth.flash.logout_all_others');
 
     // check if sessions are reloaded
     await waitMoxios();

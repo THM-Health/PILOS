@@ -8,7 +8,8 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     'standard',
-    'plugin:jest/recommended'
+    'plugin:jest/recommended',
+    'plugin:jsonc/base'
   ],
   globals: {
     Atomics: 'readonly',
@@ -21,20 +22,45 @@ module.exports = {
     ecmaVersion: 11,
     sourceType: 'module'
   },
+  overrides: [
+    {
+      files: ['*.json'],
+      parser: 'jsonc-eslint-parser'
+    }
+  ],
   plugins: [
     'vue',
     '@intlify/vue-i18n',
     'jest'
   ],
   rules: {
+    'jsonc/sort-keys': ['error',
+      {
+        pathPattern: '^$',
+        order: { type: 'asc' }
+      }
+    ],
     '@intlify/vue-i18n/no-html-messages': 'error',
     '@intlify/vue-i18n/no-raw-text': ['error', {
       ignoreNodes: ['raw-text']
     }],
-    '@intlify/vue-i18n/no-v-html': 'warn',
+    '@intlify/vue-i18n/no-missing-keys-in-other-locales': 'error',
+    '@intlify/vue-i18n/key-format-style': ['warn', 'snake_case', {
+      splitByDots: true
+    }],
+    '@intlify/vue-i18n/no-v-html': 'error',
     semi: ['error', 'always'],
     'vue/valid-v-slot': ['error', {
       allowModifiers: true
     }]
+  },
+  settings: {
+    'vue-i18n': {
+      localeDir: {
+        pattern: './lang/*.json',
+        localeKey: 'file'
+      },
+      messageSyntaxVersion: '^8.26.8'
+    }
   }
 };

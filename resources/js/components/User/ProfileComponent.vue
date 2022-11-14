@@ -5,7 +5,7 @@
       <b-form @submit="save">
         <b-form-group
           label-cols-sm='3'
-          :label="$t('settings.users.firstname')"
+          :label="$t('app.firstname')"
           label-for='firstname'
           :state='fieldState("firstname")'
         >
@@ -21,7 +21,7 @@
         </b-form-group>
         <b-form-group
           label-cols-sm='3'
-          :label="$t('settings.users.lastname')"
+          :label="$t('app.lastname')"
           label-for='lastname'
           :state='fieldState("lastname")'
         >
@@ -260,7 +260,7 @@ export default {
       const file = e.target.files[0];
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         this.resetFileUpload();
-        this.flashMessage.error(this.$t('settings.users.image.invalidMime'));
+        this.flashMessage.error(this.$t('settings.users.image.invalid_mime'));
         return;
       }
       this.$bvModal.show('modal-image-upload');

@@ -1,9 +1,9 @@
 <template>
   <div>
     <h3>
-      {{ id === 'new' ? $t('settings.roomTypes.new') : (
-        viewOnly ? $t('settings.roomTypes.view', { name: model.description })
-          : $t('settings.roomTypes.edit', { name: model.description })
+      {{ id === 'new' ? $t('settings.room_types.new') : (
+        viewOnly ? $t('settings.room_types.view', { name: model.description })
+          : $t('settings.room_types.edit', { name: model.description })
       ) }}
     </h3>
     <hr>
@@ -24,7 +24,7 @@
         <b-container fluid>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.description')"
+            :label="$t('app.description')"
             label-for='description'
             :state='fieldState("description")'
           >
@@ -33,7 +33,7 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.short')"
+            :label="$t('settings.room_types.short')"
             label-for='short'
             :state='fieldState("short")'
           >
@@ -43,12 +43,12 @@
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.color')"
+            :label="$t('settings.room_types.color')"
             label-for='color'
             :state='fieldState("color")'
           >
             <v-swatches class="my-2" :disabled='isBusy || modelLoadingError || viewOnly' :swatches="swatches" v-model="model.color" inline></v-swatches>
-            <b-form-text>{{ $t('settings.roomTypes.customColor') }}</b-form-text>
+            <b-form-text>{{ $t('settings.room_types.custom_color') }}</b-form-text>
             <b-form-input id='color' type='text' v-model='model.color' :state='fieldState("color")' :disabled='isBusy || modelLoadingError || viewOnly'></b-form-input>
 
             <template slot='invalid-feedback'><div v-html="fieldError('color')"></div></template>
@@ -56,15 +56,15 @@
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.preview')"
+            :label="$t('settings.room_types.preview')"
           >
             <div class="room-icon" :style="{ 'background-color': model.color}">{{ model.short }}</div>
           </b-form-group>
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.allowListing')"
-            :description="$t('settings.roomTypes.allowListingDescription')"
+            :label="$t('settings.room_types.allow_listing')"
+            :description="$t('settings.room_types.allow_listing_description')"
             label-for='allow_listing'
             :state='fieldState("allow_listing")'
           >
@@ -74,14 +74,14 @@
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.serverPool')"
+            :label="$t('app.server_pool')"
             label-for='server_pool'
             :state='fieldState("server_pool")'
-            :description="$t('settings.roomTypes.serverPoolDescription')"
+            :description="$t('settings.room_types.server_pool_description')"
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.roomTypes.selectServerPool')"
+                :placeholder="$t('settings.room_types.select_server_pool')"
                 ref="server-pool-multiselect"
                 v-model='model.server_pool'
                 track-by='id'
@@ -100,19 +100,19 @@
                 :loading='serverPoolsLoading'
                 :allowEmpty='false'
                 :class="{ 'is-invalid': fieldState('server_pool'), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.serverPools.nodata') }}</template>
+                <template slot='noOptions'>{{ $t('settings.server_pools.no_data') }}</template>
                 <template slot='afterList'>
                   <b-button
                     :disabled='serverPoolsLoading || currentPage === 1'
                     variant='outline-secondary'
                     @click='loadServerPools(Math.max(1, currentPage - 1))'>
-                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
                   </b-button>
                   <b-button
                     :disabled='serverPoolsLoading || !hasNextPage'
                     variant='outline-secondary'
                     @click='loadServerPools(currentPage + 1)'>
-                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
                   </b-button>
                 </template>
               </multiselect>
@@ -129,8 +129,8 @@
 
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.restrict')"
-            :description="$t('settings.roomTypes.restrictDescription')"
+            :label="$t('settings.room_types.restrict')"
+            :description="$t('settings.room_types.restrict_description')"
             label-for='restrict'
             :state='fieldState("restrict")'
           >
@@ -139,14 +139,14 @@
           </b-form-group>
           <b-form-group
             label-cols-sm='4'
-            :label="$t('settings.roomTypes.roles')"
+            :label="$t('app.roles')"
             label-for='roles'
             :state='fieldState("roles", true)'
             v-if='model.restrict'
           >
             <b-input-group>
               <multiselect
-                :placeholder="$t('settings.roomTypes.selectRoles')"
+                :placeholder="$t('settings.room_types.select_roles')"
                 ref="roles-multiselect"
                 v-model='model.roles'
                 track-by='id'
@@ -179,13 +179,13 @@
                     :disabled='rolesLoading || currentRolePage === 1'
                     variant='outline-secondary'
                     @click='loadRoles(Math.max(1, currentRolePage - 1))'>
-                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+                    <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
                   </b-button>
                   <b-button
                     :disabled='rolesLoading || !hasNextRolePage'
                     variant='outline-secondary'
                     @click='loadRoles(currentRolePage + 1)'>
-                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+                    <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
                   </b-button>
                 </template>
               </multiselect>

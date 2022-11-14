@@ -448,7 +448,7 @@ describe('Browser Notification', () => {
     expect(view.findComponent(BButton).exists()).toBeFalsy();
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.browserSupport');
+    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.browser_support');
 
     view.destroy();
     delete window.Notification;

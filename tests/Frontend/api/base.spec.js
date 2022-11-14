@@ -63,12 +63,8 @@ describe('base', () => {
       const flashMessageErrorSpy = jest.fn();
       const flashMessageInfoSpy = jest.fn();
       const flashMessage = {
-        info (param) {
-          flashMessageInfoSpy(param);
-        },
-        error (param) {
-          flashMessageErrorSpy(param);
-        }
+        info: flashMessageInfoSpy,
+        error: flashMessageErrorSpy
       };
 
       const router = new VueRouter();
@@ -117,7 +113,7 @@ describe('base', () => {
       error = { response: { data: { message: 'Guests only.' }, status: 420, statusText: 'Guests only' }, message: 'Request failed with status code 420' };
       Base.error(error, vm, error.message);
       expect(flashMessageInfoSpy).toBeCalledTimes(1);
-      expect(flashMessageInfoSpy).toBeCalledWith('app.flash.guestsOnly');
+      expect(flashMessageInfoSpy).toBeCalledWith('app.flash.guests_only');
       expect(routerSpy).toBeCalledTimes(1);
       expect(routerSpy).toBeCalledWith({ name: 'home' });
       jest.clearAllMocks();
@@ -126,7 +122,7 @@ describe('base', () => {
       error = { response: { data: { message: '' }, status: 413, statusText: 'Payload Too Large' }, message: 'Request failed with status code 413' };
       Base.error(error, vm, error.message);
       expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.tooLarge');
+      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.too_large');
       jest.clearAllMocks();
 
       // 503 errors
@@ -143,28 +139,26 @@ describe('base', () => {
       error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
       expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith({
-        contentClass: 'flash_small_title flex-column-reverse d-flex',
-        message: 'app.flash.serverError.message:{"message":"syntax error"}',
-        title: 'app.flash.serverError.title:{"statusCode":500}'
-      });
+      expect(flashMessageErrorSpy).toBeCalledWith(
+        'app.flash.server_error.message:{"message":"syntax error"}',
+        'app.flash.server_error.error_code:{"statusCode":500}'
+      );
       jest.clearAllMocks();
 
       // other server errors without message
       error = { response: { data: { message: '' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
       expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith({
-        contentClass: 'flash_small_title flex-column-reverse d-flex',
-        message: 'app.flash.serverError.emptyMessage',
-        title: 'app.flash.serverError.title:{"statusCode":500}'
-      });
+      expect(flashMessageErrorSpy).toBeCalledWith(
+        'app.flash.server_error.empty_message',
+        'app.flash.server_error.error_code:{"statusCode":500}'
+      );
       jest.clearAllMocks();
 
       // other non server error
       Base.error(new Error(JSON.stringify({ testProp1: 'testValue1', testProp2: 'testValue2' })), vm, 'infoText');
       expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.clientError');
+      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.client_error');
       expect(consoleErrorStub).toBeCalledTimes(1);
       expect(consoleErrorStub).toBeCalledWith('Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
     });

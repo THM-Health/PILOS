@@ -150,7 +150,7 @@ describe('PasswordReset', () => {
     await store.state.session.runningPromise;
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({ title: 'Success!' });
+    expect(flashMessageSpy).toBeCalledWith('Success!');
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'home' });

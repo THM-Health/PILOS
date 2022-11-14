@@ -2,7 +2,7 @@
   <div
     v-bind:class="{running: running}"
     v-b-tooltip.hover
-    :title="running ? $t('rooms.status.running') : $t('rooms.status.notRunning')"
+    :title="running ? $t('rooms.status.running') : $t('rooms.status.not_running')"
     class="room-status"
   >
   </div>

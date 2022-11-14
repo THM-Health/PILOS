@@ -118,7 +118,7 @@ describe('LocaleSelector', () => {
     expect(activeItems.at(0).text()).toBe('Russian');
 
     expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith({ message: 'Test' });
+    expect(flashMessageSpy).toBeCalledWith('Test');
 
     wrapper.destroy();
   });

@@ -4,11 +4,11 @@
       <div class='col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3'>
         <b-card no-body bg-variant='light'>
           <div class='m-3'>
-            <h5>{{ welcome ? $t('auth.inputNewPasswordNewUser') : $t('auth.inputNewPassword') }}</h5>
+            <h5>{{ welcome ? $t('auth.input_new_password_new_user') : $t('auth.input_new_password') }}</h5>
             <b-form @submit.prevent="submit">
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.new_password')"
+                :label="$t('auth.new_password')"
                 label-for='password'
                 :state='fieldState("password")'
               >
@@ -25,7 +25,7 @@
               </b-form-group>
               <b-form-group
                 label-cols-sm='3'
-                :label="$t('settings.users.new_password_confirmation')"
+                :label="$t('auth.new_password_confirmation')"
                 label-for='password_confirmation'
                 :state='fieldState("password_confirmation")'
               >
@@ -55,7 +55,7 @@
 
               <b-button type='submit' variant='primary' :disabled="loading" block>
                 <b-spinner v-if="loading" small></b-spinner>
-                {{ welcome ? $t('auth.setPassword') : $t('auth.changePassword') }}
+                {{ welcome ? $t('auth.set_password') : $t('auth.change_password') }}
               </b-button>
             </b-form>
           </div>
@@ -123,9 +123,7 @@ export default {
       try {
         const response = await Base.call('password/reset', config, true);
 
-        this.flashMessage.success({
-          title: response.data.message
-        });
+        this.flashMessage.success(response.data.message);
 
         await this.$store.dispatch('session/getCurrentUser');
 

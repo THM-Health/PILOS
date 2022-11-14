@@ -35,6 +35,6 @@ class MeetingController extends Controller
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
         }
 
-        return Excel::download(new AttendanceExport($meeting, \Auth::user()->timezone), __('meetings.attendance.export.filename').'.xlsx');
+        return Excel::download(new AttendanceExport($meeting, \Auth::user()->timezone), __('meetings.attendance.filename').'.xlsx');
     }
 }

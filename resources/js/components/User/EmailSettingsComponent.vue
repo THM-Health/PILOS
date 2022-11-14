@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h4>{{ $t('settings.users.email.title') }}</h4>
+    <h4>{{ $t('app.email') }}</h4>
     <b-form @submit="save">
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.email.current_password')"
+        :label="$t('auth.current_password')"
         label-for='current_password'
         :state='fieldState("password")'
         v-if="edit && isOwnUser && canUpdateAttributes"
@@ -21,7 +21,7 @@
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.email.email')"
+        :label="$t('app.email')"
         label-for='email'
         :state='fieldState("email")'
       >
@@ -37,7 +37,7 @@
 
         <div v-if="validationRequiredEmail">
           <b-alert variant="success" show dismissible class="mt-3">
-            {{ $t('settings.users.email.validation_required', {email: validationRequiredEmail}) }}
+            {{ $t('auth.send_email_confirm_mail', {email: validationRequiredEmail}) }}
           </b-alert>
         </div>
       </b-form-group>
@@ -47,7 +47,7 @@
         variant='success'
         type='submit'
       >
-        <i class='fa-solid fa-save'></i> {{ $t('settings.users.email.save') }}
+        <i class='fa-solid fa-save'></i> {{ $t('auth.change_email') }}
       </b-button>
     </b-form>
   </div>
@@ -123,7 +123,7 @@ export default {
           } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
           } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
-            this.flashMessage.error(this.$t('settings.users.email.throttle'));
+            this.flashMessage.error(this.$t('auth.throttle_email'));
           } else {
             Base.error(error, this.$root, error.message);
           }

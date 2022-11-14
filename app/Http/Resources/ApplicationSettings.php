@@ -82,6 +82,8 @@ class ApplicationSettings extends JsonResource
             ]),
             'default_presentation' => $this->when(!empty(setting('default_presentation')), setting('default_presentation')),
             'help_url'             => setting('help_url'),
+            'legal_notice_url'     => setting('legal_notice_url'),
+            'privacy_policy_url'   => setting('privacy_policy_url'),
             'statistics'           => [
                 $this->mergeWhen($this->allSettings, [
                     'servers' => [
