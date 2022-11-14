@@ -33,7 +33,7 @@
             <template slot='invalid-feedback'><div v-html="fieldError('name')"></div></template>
           </b-form-group>
 
-          <b-modal id="modal-help-roomlimit" :hide-footer="true">
+          <b-modal id="modal-help-roomlimit" size="lg" :hide-footer="true">
             <template v-slot:modal-title>
               <i class="fa-solid fa-circle-info"></i> {{ $t('app.room_limit') }}
             </template>
