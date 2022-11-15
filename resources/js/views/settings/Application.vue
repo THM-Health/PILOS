@@ -1349,6 +1349,7 @@ export default {
           this.$store.dispatch('session/getSettings');
           this.errors = {};
           this.uploadLogoFile = null;
+          this.uploadFaviconFile = null;
           this.default_presentation = null;
           this.default_presentation_deleted = false;
           this.uploadBBBLogoFile = null;
