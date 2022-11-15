@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Inconsistent naming convention for localization strings ([#288], [#287])
 - Error on logout if room member list is shown ([#280], [#281])
 - Support for different Font Awesome syntax ([#287])
-- Error on displaying favicon after uploading on application settings ([#285],[#289])
+- Error displaying the favicon after uploading in the application settings ([#285],[#289])
 
 ## [v2.0.0-alpha.3] - 2022-10-28
 ### Added
