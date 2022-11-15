@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Inconsistent naming convention for localization strings ([#288], [#287])
 - Error on logout if room member list is shown ([#280], [#281])
 - Support for different Font Awesome syntax ([#287])
+- Error on displaying favicon after uploading on application settings ([#285],[#289])
 
 ## [v2.0.0-alpha.3] - 2022-10-28
 ### Added
@@ -392,8 +393,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
 [#284]: https://github.com/THM-Health/PILOS/issues/284
+[#285]: https://github.com/THM-Health/PILOS/issues/285
 [#287]: https://github.com/THM-Health/PILOS/pull/287
 [#288]: https://github.com/THM-Health/PILOS/issues/288
+[#289]: https://github.com/THM-Health/PILOS/pull/289
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.3...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
