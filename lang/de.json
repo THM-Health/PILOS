@@ -212,7 +212,7 @@
     "mail.room_expires.delete": "Sollten Sie den Raum nicht mehr benötigen, können Sie diesen auch selbständig löschen.",
     "mail.room_expires.expire": "Wenn Sie nichts weiter tun, wird der Raum am :date automatisch gelöscht.",
     "mail.room_expires.inactivity": "Ihr Raum \":name\" wurde am :date erstellt, die letzte Nutzung liegt jedoch schon :days Tage zurück.",
-    "mail.room_expires.intro": "um Serverressourcen    zu sparen, werden nicht genutzte Räume automatisch gelöscht.",
+    "mail.room_expires.intro": "um Serverressourcen zu sparen, werden nicht genutzte Räume automatisch gelöscht.",
     "mail.room_expires.keep": "Möchten Sie den Raum weiterhin nutzen, starten Sie den Raum bitte vor Ablauf der Frist.",
     "mail.room_expires.no_meeting": "Ihr Raum \":name\" wurde am :date erstellt, jedoch noch nie gestartet.",
     "mail.room_expires.open": "Raum anzeigen",
