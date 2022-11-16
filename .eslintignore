@@ -15,3 +15,4 @@ package-lock.json
 composer.json
 package.json
 /public
+/db
