@@ -8,7 +8,8 @@ module.exports = {
   extends: [
     'plugin:vue/essential',
     'standard',
-    'plugin:jest/recommended'
+    'plugin:jest/recommended',
+    'plugin:jsonc/base'
   ],
   globals: {
     Atomics: 'readonly',
@@ -24,7 +25,7 @@ module.exports = {
   overrides: [
     {
       files: ['*.json'],
-      extends: ['plugin:@intlify/vue-i18n/base']
+      parser: 'jsonc-eslint-parser'
     }
   ],
   plugins: [
@@ -33,6 +34,12 @@ module.exports = {
     'jest'
   ],
   rules: {
+    'jsonc/sort-keys': ['error',
+      {
+        pathPattern: '^$',
+        order: { type: 'asc' }
+      }
+    ],
     '@intlify/vue-i18n/no-html-messages': 'error',
     '@intlify/vue-i18n/no-raw-text': ['error', {
       ignoreNodes: ['raw-text']

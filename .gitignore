@@ -19,3 +19,4 @@ yarn-error.log
 /public/images
 .nyc_output
 coverage
+/db
