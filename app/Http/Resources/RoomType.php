@@ -6,7 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RoomType extends JsonResource
 {
-
     /**
      * @var bool Indicates whether the server pool should be included or not.
      */

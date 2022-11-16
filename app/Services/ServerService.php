@@ -177,7 +177,6 @@ class ServerService
                 $serverStat->meeting_count           = 0;
 
                 foreach ($bbbMeetings as $bbbMeeting) {
-
                     // Get usage for archival server statistics
                     if (!$bbbMeeting->isBreakout()) {
                         // exclude breakout room to prevent users to be counted twice:

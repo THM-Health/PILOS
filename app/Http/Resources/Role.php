@@ -6,7 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class Role extends JsonResource
 {
-
     /**
      * @var bool Indicates whether user permissions should be included or not.
      */

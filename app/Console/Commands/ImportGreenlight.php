@@ -99,10 +99,8 @@ class ImportGreenlight extends Command
         $failed = [];
 
         foreach ($users as $user) {
-
             // import greenlight users
             if ($user->provider == 'greenlight') {
-
                 // check if user with this email exists
                 $dbUser = User::where('email', $user->email)->where('authenticator', 'users')->first();
                 if ($dbUser != null) {
@@ -136,7 +134,6 @@ class ImportGreenlight extends Command
             }
             // import ldap users
             elseif ($user->provider == 'ldap') {
-
                 // check if user with this username exists
                 $dbUser = User::where('username', $user->username)->first();
                 if ($dbUser != null) {

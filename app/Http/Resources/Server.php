@@ -6,7 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class Server extends JsonResource
 {
-
     /**
      * @var bool Indicates whether the api credentials should be included or not.
      */
