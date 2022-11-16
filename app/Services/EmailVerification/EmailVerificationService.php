@@ -50,7 +50,7 @@ class EmailVerificationService
             return false;
         }
 
-        return $this->user->verifyEmails()->where('created_at', '>=', Carbon::now()->subMinutes($throttle))->exists();
+        return $this->user->verifyEmails()->where('created_at', '>=', Carbon::now()->subSeconds($throttle))->exists();
     }
 
     public function processVerification(string $token, string $email): bool

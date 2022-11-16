@@ -605,7 +605,7 @@ class UserTest extends TestCase
     public function testChangeEmail()
     {
         Notification::fake();
-        config(['auth.email_change.throttle' => 5]);
+        config(['auth.email_change.throttle' => 250]);
         config(['auth.email_change.expire' => 60]);
 
         $password           = $this->faker->password;

@@ -133,14 +133,14 @@ return [
     | The expire time is the number of minutes that the verification token should be
     | considered valid.
     |
-    | The throttle time is the number of minutes that a user must wait before requesting
+    | The throttle time is the number of seconds that a user must wait before requesting
     | another verification token. If throttle is set to 0, throttling is disabled.
     |
     */
 
     'email_change' => [
         'expire' => env('EMAIL_CHANGE_EXPIRE', 60),
-        'throttle' => env('EMAIL_CHANGE_THROTTLE', 5),
+        'throttle' => env('EMAIL_CHANGE_THROTTLE', 250),
     ],
 
     /*
