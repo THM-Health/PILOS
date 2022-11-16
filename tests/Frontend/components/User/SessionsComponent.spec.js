@@ -68,7 +68,7 @@ describe('SessionsComponent', () => {
     expect(selects.length).toEqual(2);
 
     expect(selects.at(0).find('h5').text()).toBe('Windows');
-    expect(selects.at(0).find('span').text()).toBe('settings.users.authentication.sessions.current');
+    expect(selects.at(0).find('span').text()).toBe('auth.sessions.current');
     expect(selects.at(0).findAll('p').at(0).text()).toContain('Chrome');
     expect(selects.at(0).findAll('p').at(1).text()).toContain('10.9.1.2');
 
@@ -79,7 +79,7 @@ describe('SessionsComponent', () => {
 
     // Check end session button
     const endSessionButton = view.findComponent(BButton);
-    expect(endSessionButton.text()).toBe('settings.users.authentication.sessions.logout_all');
+    expect(endSessionButton.text()).toBe('auth.sessions.logout_all');
     expect(endSessionButton.attributes('disabled')).toBeUndefined();
     await endSessionButton.trigger('click');
 
