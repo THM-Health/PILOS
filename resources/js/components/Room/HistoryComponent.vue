@@ -178,7 +178,7 @@
 import Base from '../../api/base';
 import LineChart from './../../charts/LineChart';
 import { mapGetters } from 'vuex';
-import RawText from '../RawText';
+import RawText from '../RawText.vue';
 import env from '../../env';
 
 export default {

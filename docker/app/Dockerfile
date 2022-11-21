@@ -74,5 +74,6 @@ RUN composer install
 USER root
 
 EXPOSE 80
+EXPOSE 5173
 
 ENTRYPOINT ["entrypoint"]

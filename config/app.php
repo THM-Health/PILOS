@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Facade;
 
 $available_locales = array_diff(scandir(base_path('lang')), array('..', '.'));
-$locales_env = env('MIX_AVAILABLE_LOCALES','en,de');
+$locales_env = env('VITE_AVAILABLE_LOCALES','en,de');
 $available_locales = $locales_env !== null ? preg_split('/,/', $locales_env) : $available_locales;
 
 return [
@@ -20,6 +20,8 @@ return [
     */
 
     'name' => env('APP_NAME', 'PILOS'),
+
+    'theme' => env('VITE_THEME', 'default'),
 
     /*
     |--------------------------------------------------------------------------
@@ -86,7 +88,7 @@ return [
     |
     */
 
-    'locale' => env('MIX_DEFAULT_LOCALE', 'en'),
+    'locale' => env('VITE_DEFAULT_LOCALE', 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -99,7 +101,7 @@ return [
     |
     */
 
-    'fallback_locale' => env('MIX_DEFAULT_LOCALE', 'en'),
+    'fallback_locale' => env('VITE_DEFAULT_LOCALE', 'en'),
 
     /*
     |--------------------------------------------------------------------------

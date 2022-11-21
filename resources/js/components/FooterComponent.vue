@@ -17,7 +17,7 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
-import RawText from './RawText';
+import RawText from './RawText.vue';
 export default {
   components: { RawText },
   computed: {

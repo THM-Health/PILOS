@@ -222,7 +222,7 @@
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 
 export default {
   components: { Can },

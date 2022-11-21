@@ -133,12 +133,12 @@
 
 <script>
 import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
 import ActionsColumn from '../../../mixins/ActionsColumn';
 import { mapGetters } from 'vuex';
-import TextTruncate from '../../../components/TextTruncate';
+import TextTruncate from '../../../components/TextTruncate.vue';
 
 export default {
   mixins: [FieldErrors, ActionsColumn],

@@ -152,7 +152,7 @@
 
 <script>
 import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 import ActionsColumn from '../../../mixins/ActionsColumn';
 import env from '../../../env';
 

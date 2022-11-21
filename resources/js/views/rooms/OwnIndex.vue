@@ -64,7 +64,7 @@
 
 import RoomComponent from '../../components/Room/RoomComponent.vue';
 import NewRoomComponent from '../../components/Room/NewRoomComponent.vue';
-import Can from '../../components/Permissions/Can';
+import Can from '../../components/Permissions/Can.vue';
 import Base from '../../api/base';
 import { mapState } from 'vuex';
 import store from '../../store';

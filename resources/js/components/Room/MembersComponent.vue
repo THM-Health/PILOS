@@ -353,7 +353,7 @@ import _ from 'lodash';
 import { mapGetters, mapState } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
-import Can from '../Permissions/Can';
+import Can from '../Permissions/Can.vue';
 import PermissionService from '../../services/PermissionService';
 
 export default {

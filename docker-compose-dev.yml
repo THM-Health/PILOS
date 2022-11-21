@@ -8,6 +8,7 @@ services:
         image: pilos/pilos:latest
         ports:
           - '${APP_PORT:-80}:80'
+          - '5173:5173'
         environment:
           ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
         volumes:

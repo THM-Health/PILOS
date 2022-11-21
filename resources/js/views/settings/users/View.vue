@@ -467,7 +467,7 @@ export default {
     availableLocales: {
       type: Array,
       default: function () {
-        return process.env.MIX_AVAILABLE_LOCALES.split(',');
+        return import.meta.env.VITE_AVAILABLE_LOCALES.split(',');
       }
     }
   },
@@ -544,7 +544,7 @@ export default {
       this.model.authenticator = 'users';
       this.canEditRoles = true;
       this.canUpdateAttributes = true;
-      this.model.user_locale = process.env.MIX_DEFAULT_LOCALE;
+      this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
       this.model.timezone = this.$store.getters['session/settings']('default_timezone');
     }
   },

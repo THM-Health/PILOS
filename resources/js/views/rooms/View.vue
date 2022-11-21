@@ -265,18 +265,18 @@
 import { mapGetters } from 'vuex';
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
-import RoomAdmin from '../../components/Room/AdminComponent';
+import RoomAdmin from '../../components/Room/AdminComponent.vue';
 import env from './../../env.js';
-import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
-import Can from '../../components/Permissions/Can';
-import Cannot from '../../components/Permissions/Cannot';
-import FileComponent from '../../components/Room/FileComponent';
+import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
+import Can from '../../components/Permissions/Can.vue';
+import Cannot from '../../components/Permissions/Cannot.vue';
+import FileComponent from '../../components/Room/FileComponent.vue';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
 import store from '../../store';
 import Vue from 'vue';
 import i18n from '../../i18n';
-import BrowserNotification from '../../components/Room/BrowserNotification';
+import BrowserNotification from '../../components/Room/BrowserNotification.vue';
 
 export default {
   directives: {

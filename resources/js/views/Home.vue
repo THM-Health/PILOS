@@ -19,7 +19,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import Features from 'components/Features';
+import Features from '@/components/Features.vue';
 export default {
   components: { Features },
   computed: {

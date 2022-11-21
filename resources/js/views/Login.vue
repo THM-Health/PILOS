@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import EmailLoginComponent from '../components/Login/EmailLoginComponent';
-import LdapLoginComponent from '../components/Login/LdapLoginComponent';
+import EmailLoginComponent from '../components/Login/EmailLoginComponent.vue';
+import LdapLoginComponent from '../components/Login/LdapLoginComponent.vue';
 import env from '../env';
 import Base from '../api/base';
 import { mapGetters } from 'vuex';

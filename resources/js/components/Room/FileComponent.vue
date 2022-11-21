@@ -191,7 +191,7 @@
 </template>
 <script>
 import Base from '../../api/base';
-import Can from '../Permissions/Can';
+import Can from '../Permissions/Can.vue';
 import PermissionService from '../../services/PermissionService';
 import { mapGetters } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';

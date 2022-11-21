@@ -227,11 +227,11 @@
 <script>
 import Base from '../../api/base';
 import { mapGetters } from 'vuex';
-import Can from '../Permissions/Can';
+import Can from '../Permissions/Can.vue';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import _ from 'lodash';
-import RawText from '../RawText';
+import RawText from '../RawText.vue';
 
 export default {
   mixins: [FieldErrors],
