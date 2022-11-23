@@ -11,12 +11,9 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, localVue } from '../../helper';
 import _ from 'lodash';
 
-const localVue = createLocalVue();
-
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -435,7 +432,7 @@ describe('RoomSettings', () => {
   it('load settings error', async () => {
     PermissionService.setCurrentUser(exampleUser);
 
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
@@ -571,7 +568,7 @@ describe('RoomSettings', () => {
   });
 
   it('save settings', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
     PermissionService.setCurrentUser(exampleUser);
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,

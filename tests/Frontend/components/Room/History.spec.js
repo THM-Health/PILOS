@@ -8,15 +8,13 @@ import HistoryComponent from '../../../../resources/js/components/Room/HistoryCo
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -254,7 +252,7 @@ describe('History', () => {
   });
 
   it('meetings table loading error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(HistoryComponent, {
       localVue,

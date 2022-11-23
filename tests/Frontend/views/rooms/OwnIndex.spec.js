@@ -1,17 +1,15 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
+import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
 import BootstrapVue, { BBadge, BCard } from 'bootstrap-vue';
 import moxios from 'moxios';
-import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
+import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
 import VueRouter from 'vue-router';
-import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
+import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import _ from 'lodash';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
@@ -192,7 +190,7 @@ describe('Own Room Index', () => {
 
   it('click on room in list', async () => {
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => Promise.resolve());
 
     const exampleRoomListEntry = {
       id: 'abc-def-123',

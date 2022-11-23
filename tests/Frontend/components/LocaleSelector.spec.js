@@ -1,13 +1,10 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import LocaleSelector from '../../../resources/js/components/LocaleSelector';
+import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
 import store from '../../../resources/js/store';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios } from '../helper';
-
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
+import { waitMoxios, localVue } from '../helper';
 
 describe('LocaleSelector', () => {
   beforeEach(() => {
@@ -80,7 +77,7 @@ describe('LocaleSelector', () => {
 
   it('shows an corresponding error message and doesn\'t change the language on 422', async () => {
     store.commit('session/setCurrentLocale', 'ru');
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const wrapper = mount(LocaleSelector, {
@@ -124,7 +121,7 @@ describe('LocaleSelector', () => {
   });
 
   it('calls global error handler on other errors than 422 and finishes loading', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {

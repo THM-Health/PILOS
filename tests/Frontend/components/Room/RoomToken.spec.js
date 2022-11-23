@@ -4,15 +4,16 @@ import BootstrapVue, {
   BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
-import TokensComponent from '../../../../resources/js/components/Room/TokensComponent';
+import { vi } from 'vitest';
+import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import RoomView from '../../../../resources/js/views/rooms/View';
+import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
 const routerMock = new VueRouter({
   mode: 'abstract',
@@ -23,13 +24,10 @@ const routerMock = new VueRouter({
   }]
 });
 
-const localVue = createLocalVue();
-
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 localVue.use(VueRouter);
@@ -74,7 +72,7 @@ describe('Room Token', () => {
   });
 
   it('load tokens', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(TokensComponent, {
       localVue,
@@ -197,9 +195,9 @@ describe('Room Token', () => {
   });
 
   it('copy to clipboard', async () => {
-    const clipboardSpy = jest.fn();
+    const clipboardSpy = vi.fn();
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { info: flashMessageSpy };
 
     const view = mount(TokensComponent, {
@@ -367,7 +365,7 @@ describe('Room Token', () => {
   });
 
   it('delete token error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(TokensComponent, {
       localVue,
@@ -683,7 +681,7 @@ describe('Room Token', () => {
   });
 
   it('add token', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(TokensComponent, {
       localVue,

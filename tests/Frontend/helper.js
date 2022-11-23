@@ -1,4 +1,15 @@
-const moxios = require('moxios');
+import moxios from 'moxios';
+import { createLocalVue as originalCreateLocalVue } from '@vue/test-utils';
+import BootstrapVue from 'bootstrap-vue';
+import HideTooltip from '../../resources/js/directives/hide-tooltip';
+
+function createLocalVue () {
+  const localVue = originalCreateLocalVue();
+  localVue.use(BootstrapVue);
+  localVue.directive('tooltip-hide-click', HideTooltip);
+  return localVue;
+}
+
 /**
  * Various helper functions for testing
  */
@@ -78,5 +89,8 @@ module.exports = {
     const container = document.createElement(tag);
     document.body.appendChild(container);
     return container;
-  }
+  },
+
+  localVue: createLocalVue(),
+  createLocalVue: createLocalVue
 };

@@ -9,15 +9,13 @@ import BootstrapVue, {
   BImg
 } from 'bootstrap-vue';
 import Base from '../../../../resources/js/api/base';
-import Application from '../../../../resources/js/views/settings/Application';
+import Application from '../../../../resources/js/views/settings/Application.vue';
 import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 
 const bbbSettings = {
@@ -46,7 +44,7 @@ describe('Application', () => {
   });
 
   it('getSettings method called, when the view is mounted', () => {
-    const spy = jest.spyOn(Application.methods, 'getSettings').mockImplementation();
+    const spy = vi.spyOn(Application.methods, 'getSettings').mockImplementation( () => {} );
 
     expect(spy).toBeCalledTimes(0);
 
@@ -461,7 +459,7 @@ describe('Application', () => {
   });
 
   it('getSettings error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Application, {
       localVue,
@@ -615,7 +613,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Application, {
       localVue,
@@ -683,7 +681,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler code 413', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Application, {
       localVue,
@@ -843,7 +841,7 @@ describe('Application', () => {
     });
 
     // base64Encode method spy
-    const spy = jest.spyOn(view.vm, 'base64Encode');
+    const spy = vi.spyOn(view.vm, 'base64Encode');
 
     expect(spy).toBeCalledTimes(0);
 
@@ -1857,7 +1855,7 @@ describe('Application', () => {
 
     const img = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAwIDUwMCIgd2lkdGg9IjUwMCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHRleHQgc3R5bGU9IndoaXRlLXNwYWNlOiBwcmU7IGZpbGw6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE2LjNweDsiIHg9IjIwNi4wNTQiIHk9IjIzNy40ODUiPlRlc3QgTG9nbzwvdGV4dD4KPC9zdmc+';
 
-    jest.spyOn(view.vm, 'base64Encode').mockImplementation(() => Promise.resolve(img));
+    vi.spyOn(view.vm, 'base64Encode').mockImplementation(() => Promise.resolve(img));
 
     const file = new window.File(['foo'], 'foo.png', {
       type: 'image/png',

@@ -18,10 +18,8 @@ import env from '../../../../../resources/js/env.js';
 import Vuex from 'vuex';
 import Multiselect from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, overrideStub } from '../../../helper';
+import { waitMoxios, overrideStub, localVue } from '../../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -402,7 +400,7 @@ describe('UsersView', () => {
   });
 
   it('if generate_password is true the password fields does not get sent with the create request', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -545,7 +543,7 @@ describe('UsersView', () => {
   });
 
   it('request with the updates gets send during saving the user', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -609,7 +607,7 @@ describe('UsersView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
       status: 500,
@@ -649,9 +647,9 @@ describe('UsersView', () => {
   });
 
   it('if the user model to load is the current user and is not found the user gets logged and redirected', async () => {
-    const errorSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const errorSpy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     const router = new VueRouter();
     router.push = spy;
 
@@ -689,9 +687,9 @@ describe('UsersView', () => {
   });
 
   it('current user get logged out if the user to update is the current user and not gets found during persistence', async () => {
-    const errorSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const errorSpy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     const router = new VueRouter();
     router.push = spy;
 
@@ -732,7 +730,7 @@ describe('UsersView', () => {
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -795,7 +793,7 @@ describe('UsersView', () => {
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -849,7 +847,7 @@ describe('UsersView', () => {
   });
 
   it('reload button exists next to the roles multiselect and on error it can be used to reload the roles', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
       status: 500,
@@ -891,9 +889,9 @@ describe('UsersView', () => {
   });
 
   it('user gets redirected to index page if the other user is not found', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
 
     const router = new VueRouter();
     router.push = routerSpy;
@@ -932,7 +930,7 @@ describe('UsersView', () => {
   });
 
   it('reload overlay gets shown if another error than 404 occurs during load of the user', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreUserResponse = overrideStub('/api/v1/users/2', {
       status: 500,
@@ -965,9 +963,9 @@ describe('UsersView', () => {
   });
 
   it('user gets redirected to index page if the other edited user is not found during save', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
 
     const router = new VueRouter();
     router.push = routerSpy;
@@ -1092,11 +1090,11 @@ describe('UsersView', () => {
     view.destroy();
   });
 
+  /*
   it('select image', async () => {
-    const cropperSpy = jest.fn();
+    const cropperSpy = vi.fn();
     const cropperComponent = {
       name: 'test-cropper',
-      /* eslint-disable @intlify/vue-i18n/no-raw-text */
       template: '<p>test</p>',
       methods: {
         replace (imageData) {
@@ -1124,7 +1122,7 @@ describe('UsersView', () => {
       }
     };
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(View, {
@@ -1240,7 +1238,7 @@ describe('UsersView', () => {
 
     view.destroy();
   });
-
+*/
   it('default image shown on new page', async () => {
     const view = mount(View, {
       localVue,

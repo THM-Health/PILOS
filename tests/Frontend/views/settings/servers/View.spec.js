@@ -1,4 +1,4 @@
-import View from '../../../../../resources/js/views/settings/servers/View';
+import View from '../../../../../resources/js/views/settings/servers/View.vue';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
@@ -13,10 +13,8 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer, localVue } from '../../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -92,7 +90,7 @@ describe('ServerView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreServerResponse = overrideStub('/api/v1/servers/1', {
       status: 500,
@@ -135,11 +133,11 @@ describe('ServerView', () => {
   });
 
   it('error handler gets called and redirected if a 404 error occurs during load of data', async () => {
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreServerResponse = overrideStub('/api/v1/servers/1', {
       status: 404,
@@ -172,11 +170,11 @@ describe('ServerView', () => {
   });
 
   it('error handler gets called and redirected if a 404 error occurs during save of data', async () => {
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,
@@ -212,7 +210,7 @@ describe('ServerView', () => {
   });
 
   it('error handler gets called if an error occurs during update', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,
@@ -245,7 +243,7 @@ describe('ServerView', () => {
   });
 
   it('back button causes a back navigation without persistence', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -274,7 +272,7 @@ describe('ServerView', () => {
   });
 
   it('request with updates get send during saving the server', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -352,7 +350,7 @@ describe('ServerView', () => {
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -545,7 +543,7 @@ describe('ServerView', () => {
   });
 
   it('update connection status', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,
@@ -717,10 +715,10 @@ describe('ServerView', () => {
   });
 
   it('panic button calls api and gets disabled while running', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,

@@ -12,11 +12,8 @@ import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -582,7 +579,7 @@ describe('RoomMembersBulk', () => {
 
   it('bulk edit with errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
     const view = mount(MembersComponent, {
       localVue,
       mocks: {

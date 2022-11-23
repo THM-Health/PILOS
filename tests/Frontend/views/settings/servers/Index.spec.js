@@ -1,4 +1,4 @@
-import Index from '../../../../../resources/js/views/settings/servers/Index';
+import Index from '../../../../../resources/js/views/settings/servers/Index.vue';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
@@ -13,10 +13,8 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
-import { waitMoxios, createContainer } from '../../../helper';
+import { waitMoxios, createContainer, localVue } from '../../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 
 const defaultResponse = {
@@ -299,7 +297,7 @@ describe('ServersIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Index, {
       localVue,
@@ -502,7 +500,7 @@ describe('ServersIndex', () => {
   });
 
   it('server delete 404 handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
@@ -638,7 +636,7 @@ describe('ServersIndex', () => {
   });
 
   it('server delete error handler called', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {

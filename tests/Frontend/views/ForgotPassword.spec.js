@@ -1,15 +1,13 @@
 import Vuex from 'vuex';
 import store from '../../../resources/js/store';
-import ForgotPassword from '../../../resources/js/views/ForgotPassword';
+import ForgotPassword from '../../../resources/js/views/ForgotPassword.vue';
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios } from '../helper';
+import { waitMoxios, localVue } from '../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -51,7 +49,7 @@ describe('ForgotPassword', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(ForgotPassword, {
       localVue,
@@ -77,9 +75,9 @@ describe('ForgotPassword', () => {
 
   it('submit redirects to home page withe a success message on success', async () => {
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
 
     const view = mount(ForgotPassword, {

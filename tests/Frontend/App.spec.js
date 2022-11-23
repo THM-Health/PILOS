@@ -1,13 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import App from '../../resources/js/views/App';
+import App from '../../resources/js/views/App.vue';
 import Vuex from 'vuex';
 import BootstrapVue, { BNavItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
-import Vue from 'vue';
+import { nextTick } from 'vue';
+import HideTooltip from '../../resources/js/directives/hide-tooltip';
+import { localVue } from './helper';
 
-const localVue = createLocalVue();
 localVue.use(Vuex);
-localVue.use(BootstrapVue);
 
 const currentUser = {
   firstname: 'Darth',
@@ -65,7 +65,7 @@ describe('App', () => {
     // Check with permissions
     currentUser.permissions = ['settings.manage'];
     PermissionService.setCurrentUser(currentUser);
-    await Vue.nextTick();
+    await nextTick();
     expect(view.findAllComponents(BNavItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(1);

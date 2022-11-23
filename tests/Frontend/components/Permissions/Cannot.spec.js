@@ -1,7 +1,6 @@
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { mount, shallowMount } from '@vue/test-utils';
-import Cannot from '../../../../resources/js/components/Permissions/Cannot';
-import Vue from 'vue';
+import Cannot from '../../../../resources/js/components/Permissions/Cannot.vue';
 import { createContainer } from '../../helper';
 
 const testComponent = {
@@ -25,7 +24,7 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await Vue.nextTick();
+    await nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
     wrapper.destroy();
@@ -46,7 +45,7 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await Vue.nextTick();
+    await nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
     wrapper.destroy();
@@ -68,11 +67,11 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await Vue.nextTick();
+    await nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
     PermissionService.setCurrentUser({ permissions: ['bar'] });
-    await Vue.nextTick();
+    await nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
     wrapper.destroy();
@@ -83,7 +82,7 @@ describe('Cannot', () => {
   it('describes from `currentUserChangedEvent` after destroy', async () => {
     PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
     const oldUser = PermissionService.currentUser;
-    const spy = jest.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation();
+    const spy = vi.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation( () => {} );
 
     const wrapper = shallowMount(Cannot, {
       propsData: {
@@ -96,17 +95,17 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await Vue.nextTick();
+    await nextTick();
     spy.mockClear();
     PermissionService.setCurrentUser({ permissions: ['foo'] });
 
-    await Vue.nextTick();
+    await nextTick();
     wrapper.destroy();
 
-    await Vue.nextTick();
+    await nextTick();
     PermissionService.setCurrentUser({ permissions: ['qux'] });
 
-    await Vue.nextTick();
+    await nextTick();
     expect(spy).toBeCalledTimes(1);
 
     wrapper.destroy();
@@ -128,7 +127,7 @@ describe('Cannot', () => {
 
     const wrapper = mount(parentStub);
 
-    await Vue.nextTick();
+    await nextTick();
     expect(wrapper.element.children.length).toBe(1);
     expect(wrapper.element.children[0]).toBeInstanceOf(HTMLParagraphElement);
 

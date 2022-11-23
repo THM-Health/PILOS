@@ -1,14 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import FooterComponent from '../../../resources/js/components/FooterComponent';
+import FooterComponent from '../../../resources/js/components/FooterComponent.vue';
 import moxios from 'moxios';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
-import RawText from '../../../resources/js/components/RawText';
+import RawText from '../../../resources/js/components/RawText.vue';
+import { localVue } from '../helper.js';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 

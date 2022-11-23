@@ -1,18 +1,16 @@
 import { mount, createLocalVue } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
-import Login from '../../../resources/js/views/Login';
+import Login from '../../../resources/js/views/Login.vue';
 import store from '../../../resources/js/store';
-import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent';
-import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent';
+import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent.vue';
+import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import { waitMoxios } from '../helper';
+import { waitMoxios, localVue } from '../helper';
 
-const localVue = createLocalVue();
 localVue.use(VueRouter);
-localVue.use(BootstrapVue);
 
 describe('Login', () => {
   beforeEach(() => {
@@ -120,12 +118,12 @@ describe('Login', () => {
   });
 
   it('redirect if query set', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/foo?redirect=%2Fredirect_path');
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
 
     const view = mount(Login, {
       localVue,
@@ -179,11 +177,11 @@ describe('Login', () => {
   });
 
   it('redirect to room overview if redirect query not set', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
 
     const router = new VueRouter({ mode: 'abstract' });
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
 
     const view = mount(Login, {
       localVue,
@@ -341,7 +339,7 @@ describe('Login', () => {
   });
 
   it('other api errors gets thrown and handled by the global error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Login, {
       localVue,

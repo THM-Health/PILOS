@@ -3,13 +3,10 @@ import BootstrapVue from 'bootstrap-vue';
 import moxios from 'moxios';
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
-import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent';
+import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent.vue';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -74,7 +71,7 @@ describe('Delete room', () => {
     });
 
     const bvModalEvt = {
-      preventDefault: jest.fn()
+      preventDefault: vi.fn()
     };
 
     component.vm.deleteRoom(bvModalEvt);
@@ -93,7 +90,7 @@ describe('Delete room', () => {
   });
 
   it('failed delete room not found', async () => {
-    const flashMessageSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const flashMessageSpy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const component = mount(DeleteRoomComponent, {
       localVue,
@@ -109,7 +106,7 @@ describe('Delete room', () => {
     });
 
     const bvModalEvt = {
-      preventDefault: jest.fn()
+      preventDefault: vi.fn()
     };
 
     component.vm.deleteRoom(bvModalEvt);

@@ -3,28 +3,28 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
 import EventBus from '../../../resources/js/services/EventBus';
-import Vue from 'vue';
+import {nextTick} from "vue";
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {
     it('fires an event if the current user gets set and passes the newly set user as parameter', async () => {
       const oldUser = PermissionService.currentUser;
       const newUser = { permissions: ['foo', 'bar'] };
-      const handleUserChanged = jest.fn();
+      const handleUserChanged = vi.fn();
 
       EventBus.$on('currentUserChangedEvent', handleUserChanged);
       PermissionService.setCurrentUser(newUser);
-      await Vue.nextTick();
+      await nextTick();
 
       expect(handleUserChanged).toBeCalledTimes(1);
       expect(handleUserChanged).toBeCalledWith(newUser);
 
       EventBus.$off('currentUserChangedEvent', handleUserChanged);
 
-      const spy = jest.fn();
+      const spy = vi.fn();
       EventBus.$on('currentUserChangedEvent', spy);
       PermissionService.setCurrentUser(newUser, false);
-      await Vue.nextTick();
+      await nextTick();
 
       expect(spy).toBeCalledTimes(0);
 

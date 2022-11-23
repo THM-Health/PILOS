@@ -2,13 +2,10 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import Index from '../../../../../resources/js/views/settings/users/Index';
+import Index from '../../../../../resources/js/views/settings/users/Index.vue';
 import Base from '../../../../../resources/js/api/base';
 import Multiselect from 'vue-multiselect';
-import { waitMoxios, overrideStub, createContainer } from '../../../helper';
-
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
+import { waitMoxios, overrideStub, createContainer, localVue } from '../../../helper';
 
 describe('UsersIndex', () => {
   beforeEach(() => {
@@ -120,7 +117,7 @@ describe('UsersIndex', () => {
   });
 
   it('reset password button only shown if the user has the permission and it handles errors as expected', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const oldUser = PermissionService.currentUser;
 
@@ -235,7 +232,7 @@ describe('UsersIndex', () => {
   });
 
   it('reset password works as expected', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
     const oldUser = PermissionService.currentUser;
 
@@ -402,7 +399,7 @@ describe('UsersIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Index, {
       localVue,
@@ -815,7 +812,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {

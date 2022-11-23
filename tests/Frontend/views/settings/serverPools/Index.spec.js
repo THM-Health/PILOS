@@ -1,4 +1,4 @@
-import Index from '../../../../../resources/js/views/settings/serverPools/Index';
+import Index from '../../../../../resources/js/views/settings/serverPools/Index.vue';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
@@ -12,10 +12,8 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
 import Vuex from 'vuex';
-import { waitMoxios, createContainer } from '../../../helper';
+import { waitMoxios, createContainer, localVue } from '../../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 
 const defaultResponse = {
@@ -213,7 +211,7 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(Index, {
       localVue,
@@ -377,7 +375,7 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('server pool delete 404 handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
@@ -556,7 +554,7 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('server pool delete error handler called', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {

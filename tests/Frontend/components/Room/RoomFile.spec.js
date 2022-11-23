@@ -7,11 +7,8 @@ import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 
@@ -483,7 +480,7 @@ describe('RoomFile', () => {
 
   it('upload file other errors', async () => {
     const oldUser = PermissionService.currentUser;
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
@@ -635,8 +632,8 @@ describe('RoomFile', () => {
 
   it('delete file', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const flashMessageSpy = jest.fn();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(FileComponent, {
@@ -829,10 +826,10 @@ describe('RoomFile', () => {
   });
 
   it('download file', async () => {
-    const openStub = jest.spyOn(window, 'open').mockImplementation();
-    const removeFile = jest.spyOn(FileComponent.methods, 'removeFile').mockImplementation();
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const flashMessageSpy = jest.fn();
+    const openStub = vi.spyOn(window, 'open').mockImplementation( () => {} );
+    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(FileComponent, {
@@ -1048,9 +1045,9 @@ describe('RoomFile', () => {
   });
 
   it('change file setting', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const removeFile = jest.spyOn(FileComponent.methods, 'removeFile').mockImplementation();
-    const flashMessageSpy = jest.fn();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation( () => {} );
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(FileComponent, {

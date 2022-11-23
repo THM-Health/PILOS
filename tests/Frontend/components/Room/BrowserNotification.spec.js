@@ -1,13 +1,11 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
-import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification';
+import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification.vue';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import { createContainer } from '../../helper';
+import { createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
@@ -89,8 +87,8 @@ describe('Browser Notification', () => {
   });
 
   it('show enable button if permission is missing', async () => {
-    const constructorSpy = jest.fn();
-    const closeSpy = jest.fn();
+    const constructorSpy = vi.fn();
+    const closeSpy = vi.fn();
 
     const NotificationFake = class {
       constructor () {
@@ -214,7 +212,7 @@ describe('Browser Notification', () => {
       static permission = 'denied';
     };
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     window.Notification = global.Notification = NotificationFake;
@@ -246,7 +244,7 @@ describe('Browser Notification', () => {
     delete global.Notification;
   });
   it('enable notifications wih default permission, but granted on request', async () => {
-    const constructorSpy = jest.fn();
+    const constructorSpy = vi.fn();
 
     const NotificationFake = class {
       constructor () {
@@ -292,7 +290,7 @@ describe('Browser Notification', () => {
   }
   );
   it('enable notifications wih default permission, but denied on request', async () => {
-    const constructorSpy = jest.fn();
+    const constructorSpy = vi.fn();
     const NotificationFake = class {
       constructor () {
         constructorSpy();
@@ -311,7 +309,7 @@ describe('Browser Notification', () => {
 
     window.Notification = global.Notification = NotificationFake;
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(BrowserNotification, {
@@ -345,10 +343,10 @@ describe('Browser Notification', () => {
   });
 
   it('change status from not running to running', async () => {
-    const constructorSpy = jest.fn();
-    const closeSpy = jest.fn();
-    const focusSpy = jest.fn();
-    jest.useFakeTimers().setSystemTime(new Date('2017-01-01'));
+    const constructorSpy = vi.fn();
+    const closeSpy = vi.fn();
+    const focusSpy = vi.fn();
+    vi.useFakeTimers().setSystemTime(new Date('2017-01-01'));
 
     const NotificationFake = class {
       constructor (title, options = {}) {
@@ -410,10 +408,10 @@ describe('Browser Notification', () => {
     delete global.Notification;
     delete window.focus;
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
   it('change status from not running to running with error', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const NotificationFake = class {

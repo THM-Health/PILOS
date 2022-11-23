@@ -1,4 +1,4 @@
-import View from '../../../../../resources/js/views/settings/roomTypes/View';
+import View from '../../../../../resources/js/views/settings/roomTypes/View.vue';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
@@ -15,10 +15,8 @@ import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
 import Multiselect from 'vue-multiselect';
-import { waitMoxios, overrideStub } from '../../../helper';
+import { waitMoxios, overrideStub, localVue } from '../../../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -142,7 +140,7 @@ describe('RoomTypeView', () => {
   });
 
   it('server pools get loaded, pagination and error handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,
@@ -285,7 +283,7 @@ describe('RoomTypeView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
       status: 500,
@@ -327,11 +325,11 @@ describe('RoomTypeView', () => {
   });
 
   it('error handler gets called and redirected if a 404 error occurs during load of data', async () => {
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
       status: 404,
@@ -363,11 +361,11 @@ describe('RoomTypeView', () => {
   });
 
   it('error handler gets called and redirected if a 404 error occurs during save of data', async () => {
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,
@@ -402,7 +400,7 @@ describe('RoomTypeView', () => {
   });
 
   it('error handler gets called if an error occurs during update', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(View, {
       localVue,
@@ -433,7 +431,7 @@ describe('RoomTypeView', () => {
   });
 
   it('back button causes a back navigation without persistence', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -461,7 +459,7 @@ describe('RoomTypeView', () => {
   });
 
   it('request with updates get send during saving the room type', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -530,7 +528,7 @@ describe('RoomTypeView', () => {
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -586,7 +584,7 @@ describe('RoomTypeView', () => {
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;

@@ -1,12 +1,8 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import Vue from 'vue';
-import TextTruncate from '../../../resources/js/components/TextTruncate';
+import TextTruncate from '../../../resources/js/components/TextTruncate.vue';
 import BootstrapVue from 'bootstrap-vue';
-import { createContainer } from '../helper';
-
-const localVue = createLocalVue();
-
-localVue.use(BootstrapVue);
+import { createContainer, localVue } from '../helper';
+import {nextTick} from 'vue';
 
 describe('TextTruncate', () => {
   it('show hide tooltip', async () => {
@@ -23,7 +19,7 @@ describe('TextTruncate', () => {
       attachTo: createContainer()
     });
 
-    await Vue.nextTick();
+    await nextTick();
     const div = view.find('div');
 
     // Stub offsetWidth and scrollWidth
@@ -38,7 +34,7 @@ describe('TextTruncate', () => {
     offsetWidth = 100;
     scrollWidth = 100;
     await window.dispatchEvent(new Event('resize'));
-    await Vue.nextTick();
+    await nextTick();
     expect(div.attributes('disabled')).toBe('disabled');
     expect(div.attributes('title')).toBeUndefined();
     expect(div.attributes('data-original-title')).toBeUndefined();

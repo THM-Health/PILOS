@@ -265,7 +265,7 @@ describe('Router', () => {
     });
 
     it('for role update view calls error handler returns false on error in request', async () => {
-      const spy = jest.spyOn(Base, 'error').mockImplementation();
+      const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
       moxios.wait(function () {
         const request = moxios.requests.mostRecent();

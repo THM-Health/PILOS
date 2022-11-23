@@ -1,14 +1,14 @@
 import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
+import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
 import BootstrapVue, { BFormInput, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
-import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
+import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, localVue } from '../../helper';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 
@@ -39,8 +39,6 @@ const store = new Vuex.Store({
   }
 });
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(Vuex);
 
@@ -260,7 +258,7 @@ describe('Create new rooms', () => {
 
   it('submit valid', async () => {
     const router = new VueRouter();
-    const spy = jest.spyOn(router, 'push').mockImplementation();
+    const spy = vi.spyOn(router, 'push').mockImplementation( () => {} );
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -307,7 +305,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit forbidden', async () => {
-    const flashMessageErrorSpy = jest.fn();
+    const flashMessageErrorSpy = vi.fn();
     const flashMessage = {
       error (param) {
         flashMessageErrorSpy(param);
@@ -359,7 +357,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit reached room limit', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,

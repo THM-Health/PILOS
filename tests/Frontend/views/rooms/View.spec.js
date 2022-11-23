@@ -2,23 +2,20 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
-import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
+import AdminComponent from '../../../../resources/js/components/Room/AdminComponent.vue';
 import Clipboard from 'v-clipboard';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import Vue from 'vue';
+import {nextTick} from 'vue';
 import _ from 'lodash';
 import env from '../../../../resources/js/env';
 
 import storeOrg from '../../../../resources/js/store';
 import i18n from '../../../../resources/js/i18n';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
-const localVue = createLocalVue();
-
-localVue.use(BootstrapVue);
 localVue.use(Clipboard);
 localVue.use(Vuex);
 localVue.use(VueRouter);
@@ -86,7 +83,7 @@ describe('Room', () => {
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/rooms/knz-6ah-anr');
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
 
     const view = mount(RoomView, {
       localVue,
@@ -130,13 +127,14 @@ describe('Room', () => {
   });
 
   it('room token', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { info: flashMessageSpy };
 
     const router = new VueRouter();
-    jest.spyOn(router, 'push').mockImplementation();
+    vi.spyOn(router, 'push').mockImplementation( () => {} );
 
-    Vue.prototype.flashMessage = flashMessage;
+    // TODO
+    //Vue.prototype.flashMessage = flashMessage;
 
     await store.commit('session/setCurrentUser', { currentUser: null });
 
@@ -210,15 +208,16 @@ describe('Room', () => {
   });
 
   it('room token invalid', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { info: flashMessageSpy };
 
     const router = new VueRouter();
-    jest.spyOn(router, 'push').mockImplementation();
+    vi.spyOn(router, 'push').mockImplementation( () => {} );
 
     await store.commit('session/setCurrentUser', { currentUser: null });
 
-    Vue.prototype.flashMessage = flashMessage;
+    //// TODO
+    //Vue.prototype.flashMessage = flashMessage;
 
     store.commit('session/setCurrentUser', { currentUser: null });
 
@@ -274,16 +273,17 @@ describe('Room', () => {
   });
 
   it('room token as authenticated user', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { info: flashMessageSpy };
 
     const router = new VueRouter();
-    jest.spyOn(router, 'push').mockImplementation();
-    jest.spyOn(i18n, 't').mockImplementation((key) => key);
+    vi.spyOn(router, 'push').mockImplementation( () => {} );
+    vi.spyOn(i18n, 't').mockImplementation((key) => key);
 
     await storeOrg.commit('session/setCurrentUser', { currentUser: exampleUser });
 
-    Vue.prototype.flashMessage = flashMessage;
+    // TODO
+    //Vue.prototype.flashMessage = flashMessage;
 
     const view = mount(RoomView, {
       localVue,
@@ -311,7 +311,8 @@ describe('Room', () => {
     expect(flashMessageSpy).toBeCalledTimes(1);
     expect(flashMessageSpy).toBeCalledWith('app.flash.guests_only');
 
-    Vue.prototype.flashMessage = undefined;
+    // TODO
+    //Vue.prototype.flashMessage = undefined;
     view.destroy();
   });
 
@@ -641,18 +642,18 @@ describe('Room', () => {
     newUser.permissions = ['rooms.viewAll'];
     store.commit('session/setCurrentUser', { currentUser: newUser });
 
-    await Vue.nextTick();
+    await nextTick();
     expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
 
     view.destroy();
   });
 
   it('reload', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
-    const handleInvalidCode = jest.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation();
-    const handleGuestsNotAllowed = jest.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation();
-    const handleInvalidToken = jest.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation();
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
 
     const view = mount(RoomView, {
       localVue,
@@ -732,8 +733,8 @@ describe('Room', () => {
   });
 
   it('handle invalid code', async () => {
-    const reload = jest.spyOn(RoomView.methods, 'reload').mockImplementation();
-    const flashMessageSpy = jest.fn();
+    const reload = vi.spyOn(RoomView.methods, 'reload').mockImplementation( () => {} );
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
@@ -763,7 +764,7 @@ describe('Room', () => {
   });
 
   it('handle invalid token', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
@@ -793,7 +794,7 @@ describe('Room', () => {
   });
 
   it('handle empty code', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
@@ -891,11 +892,11 @@ describe('Room', () => {
   });
 
   it('handle file list errors', async () => {
-    const handleInvalidCode = jest.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation();
-    const handleGuestsNotAllowed = jest.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation();
-    const handleInvalidToken = jest.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation();
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const flashMessageSpy = jest.fn();
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
@@ -1352,10 +1353,10 @@ describe('Room', () => {
   });
 
   it('join meeting errors', async () => {
-    const handleInvalidCode = jest.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation();
-    const handleGuestsNotAllowed = jest.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation();
-    const handleInvalidToken = jest.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation();
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(RoomView, {
       localVue,
@@ -1743,11 +1744,11 @@ describe('Room', () => {
   });
 
   it('start meeting errors', async () => {
-    const handleInvalidCode = jest.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation();
-    const handleGuestsNotAllowed = jest.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation();
-    const handleInvalidToken = jest.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation();
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
 
-    const fileComponentReloadSpy = jest.fn();
+    const fileComponentReloadSpy = vi.fn();
     const fileComponent = {
       name: 'test-component',
       // eslint-disable @intlify/vue-i18n/no-raw-text
@@ -1757,9 +1758,9 @@ describe('Room', () => {
       }
     };
 
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const view = mount(RoomView, {
@@ -2337,7 +2338,7 @@ describe('Room', () => {
 
     await view.vm.$nextTick();
     // use fixed random value for testing only
-    jest.spyOn(Math, 'random').mockReturnValue(0.4);
+    vi.spyOn(Math, 'random').mockReturnValue(0.4);
 
     // check for pos. integer
     await store.commit('session/setSettings', { room_refresh_rate: 10 });

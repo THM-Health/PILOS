@@ -3,13 +3,11 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import PasswordReset from '../../../resources/js/views/PasswordReset';
+import PasswordReset from '../../../resources/js/views/PasswordReset.vue';
 import Base from '../../../resources/js/api/base';
 import env from '../../../resources/js/env';
-import { waitMoxios } from '../helper';
+import { waitMoxios, localVue } from '../helper';
 
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -23,7 +21,7 @@ describe('PasswordReset', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
 
     const view = mount(PasswordReset, {
       localVue,
@@ -66,9 +64,9 @@ describe('PasswordReset', () => {
 
   it('submit loads the current user after login and changes the application language to the corresponding one', async () => {
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
 
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
 
     let res;

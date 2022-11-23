@@ -1,11 +1,6 @@
 import { createLocalVue, createWrapper, mount } from '@vue/test-utils';
-import { createContainer } from '../helper';
+import { createContainer, localVue } from '../helper';
 import BootstrapVue, { BButton } from 'bootstrap-vue';
-import HideTooltip from '../../../resources/js/directives/hide-tooltip';
-
-const localVue = createLocalVue();
-localVue.use(BootstrapVue);
-localVue.directive('tooltip-hide-click', HideTooltip);
 
 const testComponent = {
   name: 'test-component',
@@ -79,8 +74,8 @@ describe('HideTooltip', () => {
     let buttons = wrapper.findAllComponents(BButton);
 
     // Spy on button with and without directive
-    const spy1 = jest.fn();
-    const spy2 = jest.fn();
+    const spy1 = vi.fn();
+    const spy2 = vi.fn();
     wrapper.findAllComponents(BButton).at(0).element.removeEventListener = spy1;
     wrapper.findAllComponents(BButton).at(1).element.removeEventListener = spy2;
 

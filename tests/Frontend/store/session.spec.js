@@ -13,7 +13,7 @@ describe('store/session', () => {
   });
 
   it('getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property', async () => {
-    const commit = jest.fn();
+    const commit = vi.fn();
 
     moxios.stubRequest('/api/v1/settings', {
       status: 200,
@@ -30,7 +30,7 @@ describe('store/session', () => {
     const messagesEN = require('../../../lang/en.json');
     importLanguage('en', messagesEN);
 
-    const commit = jest.fn();
+    const commit = vi.fn();
 
     const user = {
       id: 1,
