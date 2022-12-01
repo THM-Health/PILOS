@@ -8,6 +8,11 @@ export default ({ mode }) => {
 
   return defineConfig({
     test: {
+      coverage: {
+        provider: 'istanbul',
+        include: ['resources/js/**/*.{js,vue}'],
+        all: true
+      },
       globals: true,
       restoreMocks: true,
       environment: 'jsdom',
