@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Error in docker-compose-dev.yml leads to deletion of the database in the development environment ([#294], [#295])
 
 ## [v2.0.0-alpha.4] - 2022-11-15
 ### Changed
@@ -399,6 +401,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#287]: https://github.com/THM-Health/PILOS/pull/287
 [#288]: https://github.com/THM-Health/PILOS/issues/288
 [#289]: https://github.com/THM-Health/PILOS/pull/289
+[#294]: https://github.com/THM-Health/PILOS/issues/294
+[#295]: https://github.com/THM-Health/PILOS/pull/295
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
