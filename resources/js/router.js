@@ -393,7 +393,7 @@ export function beforeEachRoute (router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
 
-  const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
+  const locale = document.documentElement.lang || process.env.MIX_DEFAULT_LOCALE;
   const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
 
   loading.setLoading();
