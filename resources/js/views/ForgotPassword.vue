@@ -38,7 +38,7 @@
 <script>
 import FieldErrors from '../mixins/FieldErrors';
 import Base from '../api/base';
-import {useSettingsStore} from "../stores/settings";
+import { useSettingsStore } from '../stores/settings';
 
 export default {
   mixins: [FieldErrors],
