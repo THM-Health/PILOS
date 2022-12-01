@@ -216,9 +216,6 @@ describe('Room', () => {
 
     await store.commit('session/setCurrentUser', { currentUser: null });
 
-    //// TODO
-    //Vue.prototype.flashMessage = flashMessage;
-
     store.commit('session/setCurrentUser', { currentUser: null });
 
     const view = mount(RoomView, {
@@ -273,17 +270,12 @@ describe('Room', () => {
   });
 
   it('room token as authenticated user', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { info: flashMessageSpy };
 
     const router = new VueRouter();
     vi.spyOn(router, 'push').mockImplementation( () => {} );
     vi.spyOn(i18n, 't').mockImplementation((key) => key);
 
     await storeOrg.commit('session/setCurrentUser', { currentUser: exampleUser });
-
-    // TODO
-    //Vue.prototype.flashMessage = flashMessage;
 
     const view = mount(RoomView, {
       localVue,
@@ -306,13 +298,9 @@ describe('Room', () => {
 
     // wait for promise to be resolved (room data is loaded)
     const next = await promise;
-    expect(next).toBe('/');
+    expect(next instanceof Error).toBeTruthy();
+    expect(next.response.status).toBe(env.HTTP_GUESTS_ONLY);
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('app.flash.guests_only');
-
-    // TODO
-    //Vue.prototype.flashMessage = undefined;
     view.destroy();
   });
 

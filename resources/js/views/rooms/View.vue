@@ -272,8 +272,6 @@ import Cannot from '../../components/Permissions/Cannot.vue';
 import FileComponent from '../../components/Room/FileComponent.vue';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
-import Vue from 'vue';
-import i18n from '../../i18n';
 import BrowserNotification from '../../components/Room/BrowserNotification.vue';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
@@ -323,8 +321,9 @@ export default {
   beforeRouteEnter (to, from, next) {
     const auth = useAuthStore();
     if (to.params.token && auth.isAuthenticated) {
-      Vue.prototype.flashMessage.info(i18n.t('app.flash.guests_only'));
-      return next('/');
+      const error = new Error();
+      error.response = { status: env.HTTP_GUESTS_ONLY };
+      return next(error);
     }
 
     let config;
