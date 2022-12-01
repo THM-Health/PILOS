@@ -252,10 +252,14 @@ describe('UsersView', () => {
   });
 
   it('the configured locales should be selectable in the corresponding select', async () => {
-    View.__set__('LocaleMap', {
-      de: 'German',
-      en: 'English',
-      ru: 'Russian'
+    vi.mock('@/lang/LocaleMap', () => {
+      return {
+        default: {
+          de: 'German',
+          en: 'English',
+          ru: 'Russian'
+        }
+      };
     });
 
     const view = mount(View, {
@@ -279,7 +283,6 @@ describe('UsersView', () => {
     expect(select.vm.value).toEqual('en');
     expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
 
-    View.__ResetDependency__('LocaleMap');
     view.destroy();
   });
 

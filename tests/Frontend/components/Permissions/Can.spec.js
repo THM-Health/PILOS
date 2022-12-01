@@ -12,7 +12,13 @@ const testComponent = {
 
 describe('Can', () => {
   it('hides the content if the necessary permission isn\'t available', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => false }
+        }
+      };
+    });
 
     const wrapper = shallowMount(Can, {
       propsData: {
@@ -29,11 +35,16 @@ describe('Can', () => {
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
     wrapper.destroy();
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('shows the content if the necessary permission is available', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => true }
+        }
+      };
+    });
 
     const wrapper = shallowMount(Can, {
       propsData: {
@@ -50,11 +61,16 @@ describe('Can', () => {
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
     wrapper.destroy();
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('updates state on changes of the current user of the permission service', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') }
+        }
+      };
+    });
     const oldUser = PermissionService.currentUser;
 
     const wrapper = shallowMount(Can, {
@@ -77,11 +93,16 @@ describe('Can', () => {
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('describes from `currentUserChangedEvent` after destroy', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => true }
+        }
+      };
+    });
     const oldUser = PermissionService.currentUser;
     const spy = vi.spyOn(Can.methods, 'evaluatePermissions').mockImplementation( () => {} );
 
@@ -111,11 +132,16 @@ describe('Can', () => {
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('component does not generate an extra html tag', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => true }
+        }
+      };
+    });
     const oldUser = PermissionService.currentUser;
 
     const parentStub = {
@@ -135,6 +161,5 @@ describe('Can', () => {
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
-    PermissionService.__ResetDependency__('Policies');
   });
 });

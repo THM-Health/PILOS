@@ -20,7 +20,6 @@
         "axe-core": "^4.3.5",
         "axios": "^0.21.2",
         "babel-core": "^7.0.0-bridge.0",
-        "babel-plugin-rewire": "^1.2.0",
         "bootstrap": "^4.6.1",
         "browser-sync": "^2.27.7",
         "browser-sync-webpack-plugin": "^2.3.0",

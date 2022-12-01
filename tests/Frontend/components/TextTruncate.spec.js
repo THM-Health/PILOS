@@ -19,7 +19,7 @@ describe('TextTruncate', () => {
       attachTo: createContainer()
     });
 
-    await nextTick();
+    await view.vm.$nextTick();
     const div = view.find('div');
 
     // Stub offsetWidth and scrollWidth
@@ -34,7 +34,7 @@ describe('TextTruncate', () => {
     offsetWidth = 100;
     scrollWidth = 100;
     await window.dispatchEvent(new Event('resize'));
-    await nextTick();
+    await view.vm.$nextTick();
     expect(div.attributes('disabled')).toBe('disabled');
     expect(div.attributes('title')).toBeUndefined();
     expect(div.attributes('data-original-title')).toBeUndefined();
@@ -44,7 +44,7 @@ describe('TextTruncate', () => {
     offsetWidth = 100;
     scrollWidth = 200;
     await window.dispatchEvent(new Event('resize'));
-    await Vue.nextTick();
+    await view.vm.$nextTick();
 
     expect(div.attributes('disabled')).toBeUndefined();
     expect(div.attributes('title')).toBe(content);
@@ -53,7 +53,7 @@ describe('TextTruncate', () => {
 
     // Test mouseover
     await div.trigger('mouseenter');
-    await Vue.nextTick();
+    await view.vm.$nextTick();
     expect(div.attributes('title')).toBe('');
     expect(div.attributes('data-original-title')).toBe(content);
     expect(div.text()).toBe(content);

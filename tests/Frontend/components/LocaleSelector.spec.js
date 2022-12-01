@@ -1,23 +1,29 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
-import store from '../../../resources/js/store';
+import store, {storeConfig} from '../../../resources/js/store';
+import { waitMoxios, localVue } from '../helper';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios, localVue } from '../helper';
+import Vuex from 'vuex';
+localVue.use(Vuex);
 
 describe('LocaleSelector', () => {
   beforeEach(() => {
-    LocaleSelector.__Rewire__('LocaleMap', {
-      de: 'German',
-      en: 'English',
-      ru: 'Russian'
+    vi.mock('@/lang/LocaleMap', () => {
+      return {
+        default: {
+          de: 'German',
+          en: 'English',
+          ru: 'Russian'
+        }
+      };
     });
+
     moxios.install();
   });
 
   afterEach(() => {
-    LocaleSelector.__ResetDependency__('LocaleMap');
     moxios.uninstall();
   });
 
@@ -114,14 +120,14 @@ describe('LocaleSelector', () => {
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('Russian');
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('Test');
+    expect(flashMessageSpy).toHaveBeenCalledTimes(1);
+    expect(flashMessageSpy).toHaveBeenCalledWith('Test');
 
     wrapper.destroy();
   });
 
   it('calls global error handler on other errors than 422 and finishes loading', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {
@@ -159,7 +165,7 @@ describe('LocaleSelector', () => {
     expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
     expect(store.state.loadingCounter).toEqual(0);
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     wrapper.destroy();
   });

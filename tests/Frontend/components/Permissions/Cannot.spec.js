@@ -11,7 +11,13 @@ const testComponent = {
 
 describe('Cannot', () => {
   it('hides the content if the necessary permission is available', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => true }
+        }
+      };
+    });
 
     const wrapper = shallowMount(Cannot, {
       propsData: {
@@ -24,15 +30,20 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
     wrapper.destroy();
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('shows the content if the necessary permission isn\'t available', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => false }
+        }
+      };
+    });
 
     const wrapper = shallowMount(Cannot, {
       propsData: {
@@ -45,15 +56,20 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
     wrapper.destroy();
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('updates state on changes of the current user of the permission service', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') }
+        }
+      };
+    });
     const oldUser = PermissionService.currentUser;
 
     const wrapper = shallowMount(Cannot, {
@@ -67,7 +83,7 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
     PermissionService.setCurrentUser({ permissions: ['bar'] });
@@ -76,11 +92,16 @@ describe('Cannot', () => {
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('describes from `currentUserChangedEvent` after destroy', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => true }
+        }
+      };
+    });
     const oldUser = PermissionService.currentUser;
     const spy = vi.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation( () => {} );
 
@@ -95,26 +116,31 @@ describe('Cannot', () => {
       attachTo: createContainer()
     });
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     spy.mockClear();
     PermissionService.setCurrentUser({ permissions: ['foo'] });
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     wrapper.destroy();
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     PermissionService.setCurrentUser({ permissions: ['qux'] });
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     expect(spy).toBeCalledTimes(1);
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
-    PermissionService.__ResetDependency__('Policies');
   });
 
   it('component does not generate an extra html tag', async () => {
-    PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => false } });
+    vi.mock('@/policies/index.js', () => {
+      return {
+        default: {
+          TestPolicy: { test: () => false }
+        }
+      };
+    });
     const oldUser = PermissionService.currentUser;
 
     const parentStub = {
@@ -127,12 +153,11 @@ describe('Cannot', () => {
 
     const wrapper = mount(parentStub);
 
-    await nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.element.children.length).toBe(1);
     expect(wrapper.element.children[0]).toBeInstanceOf(HTMLParagraphElement);
 
     wrapper.destroy();
     PermissionService.setCurrentUser(oldUser);
-    PermissionService.__ResetDependency__('Policies');
   });
 });
