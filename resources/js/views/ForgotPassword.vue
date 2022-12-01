@@ -36,9 +36,9 @@
 </template>
 
 <script>
-import store from '../store';
 import FieldErrors from '../mixins/FieldErrors';
 import Base from '../api/base';
+import {useSettingsStore} from "../stores/settings";
 
 export default {
   mixins: [FieldErrors],
@@ -56,7 +56,9 @@ export default {
    * otherwise the user gets redirected to a 404 route.
    */
   beforeRouteEnter (to, from, next) {
-    if (!store.getters['session/settings']('password_self_reset_enabled')) {
+    const settings = useSettingsStore();
+
+    if (!settings.getSetting('password_self_reset_enabled')) {
       next('/404');
     } else {
       next();

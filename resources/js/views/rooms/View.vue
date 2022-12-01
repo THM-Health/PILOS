@@ -262,7 +262,6 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex';
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
 import RoomAdmin from '../../components/Room/AdminComponent';
@@ -273,10 +272,12 @@ import Cannot from '../../components/Permissions/Cannot';
 import FileComponent from '../../components/Room/FileComponent';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
-import store from '../../store';
 import Vue from 'vue';
 import i18n from '../../i18n';
-import BrowserNotification from '../../components/Room/BrowserNotification';
+import BrowserNotification from '../../components/Room/BrowserNotification.vue';
+import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   directives: {
@@ -320,7 +321,8 @@ export default {
   },
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
-    if (to.params.token && store.getters['session/isAuthenticated']) {
+    const auth = useAuthStore();
+    if (to.params.token && auth.isAuthenticated) {
       Vue.prototype.flashMessage.info(i18n.t('app.flash.guests_only'));
       return next('/');
     }
@@ -386,7 +388,7 @@ export default {
      * @returns {number} random refresh internal in seconds
      */
     getRandomRefreshInterval: function () {
-      const base = Math.abs(this.settings('room_refresh_rate'));
+      const base = Math.abs(this.getSetting('room_refresh_rate'));
       // 15% range to scatter the values around the base refresh rate
       const percentageRange = 0.15;
       const absoluteRange = base * percentageRange;
@@ -429,6 +431,8 @@ export default {
       Base.error(error, this.$root);
     },
 
+    ...mapActions(useAuthStore, ['setCurrentUser']),
+
     /**
      * Reset room access code and details
      */
@@ -438,7 +442,7 @@ export default {
       this.accessCode = null;
       // Set current user to null, as the user is not logged in
 
-      this.$store.commit('session/setCurrentUser', { currentUser: null });
+      this.setCurrentUser(null);
     },
 
     /**
@@ -501,7 +505,7 @@ export default {
 
           // Update current user, if logged in/out in another tab or session expired
           // to have the can/cannot component use the correct state
-          this.$store.commit('session/setCurrentUser', { currentUser: this.room.current_user });
+          this.setCurrentUser(this.room.current_user);
         })
         .catch((error) => {
           if (error.response) {
@@ -754,17 +758,15 @@ export default {
   },
   computed: {
 
-    ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated',
-      settings: 'session/settings'
-    }),
+    ...mapState(useAuthStore, ['isAuthenticated']),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     /**
      * Build invitation message
      */
     invitationText: function () {
-      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.settings('name') }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
+      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.getSetting('name') }) + '\n';
+      message += this.$t('rooms.invitation.link', { link: this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.access_code) {
         message += '\n' + this.$t('rooms.invitation.code', {

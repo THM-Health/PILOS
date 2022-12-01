@@ -31,7 +31,7 @@
         ></b-form-input>
 
         <b-form-text id="passwordHelpBlock">
-          <router-link to="/forgot_password" v-if="settings('password_self_reset_enabled')">
+          <router-link to="/forgot_password" v-if="getSetting('password_self_reset_enabled')">
             {{ $t('auth.forgot_password') }}
           </router-link>
         </b-form-text>
@@ -52,7 +52,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   props: [
@@ -65,9 +67,7 @@ export default {
     'emailLabel'
   ],
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    })
+    ...mapState(useSettingsStore, ['getSetting'])
   },
   data () {
     return {

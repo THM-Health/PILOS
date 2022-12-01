@@ -1,21 +1,23 @@
 import { BootstrapVue } from 'bootstrap-vue';
 import Vue from 'vue';
-import store from './store';
-import App from './views/App';
-import router from './router';
+import { createPinia, PiniaVuePlugin } from 'pinia';
+import App from './views/App.vue';
+import createRouter from './router';
 import i18n from './i18n';
 import VueFlashMessage from '@smartweb/vue-flash-message';
 import FlashMessage from './plugins/FlashMessage';
 import Clipboard from 'v-clipboard';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
+import axios from 'axios';
+import VueRouter from 'vue-router';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
  * to our Laravel back-end. This library automatically handles sending the
  * CSRF token as a header based on the value of the "XSRF" token cookie.
  */
-window.axios = require('axios');
+window.axios = axios;
 window.axios.defaults.withCredentials = true;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
@@ -42,10 +44,16 @@ Vue.config.errorHandler = Base.error;
 
 Vue.directive('tooltip-hide-click', HideTooltip);
 
+Vue.use(PiniaVuePlugin);
+const pinia = createPinia();
+
+Vue.use(VueRouter);
+const router = createRouter();
+
 export default new Vue({
   el: '#app',
   components: { App },
+  pinia,
   router,
-  store,
   i18n
 });

@@ -36,7 +36,7 @@
         <!-- table with all room members -->
         <b-table
           :current-page="currentPage"
-          :per-page="settings('pagination_page_size')"
+          :per-page="getSetting('pagination_page_size')"
           :fields="tableFields"
           :items="members"
           v-model="displayedMembers"
@@ -117,7 +117,7 @@
             <b-pagination
               v-model="currentPage"
               :total-rows="members.length"
-              :per-page="settings('pagination_page_size')"
+              :per-page="getSetting('pagination_page_size')"
             ></b-pagination>
           </b-col>
         </b-row>
@@ -350,11 +350,13 @@
 import Base from '../../api/base';
 import Multiselect from 'vue-multiselect';
 import _ from 'lodash';
-import { mapGetters, mapState } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import Can from '../Permissions/Can';
 import PermissionService from '../../services/PermissionService';
+import { mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -680,12 +682,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
-    ...mapState({
-      currentUser: state => state.session.currentUser
-    }),
+
+    ...mapState(useAuthStore, ['currentUser']),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     // amount of members that can be selected on the current page (user cannot select himself)
     selectableMembers: function () {

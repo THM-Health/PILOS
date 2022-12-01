@@ -249,10 +249,11 @@
 <script>
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
-import { mapGetters } from 'vuex';
 import env from '../../../env';
 import RawText from '../../../components/RawText';
 import _ from 'lodash';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -277,9 +278,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     /**
      * Options for the room limit mode radio button group.
@@ -288,8 +287,8 @@ export default {
       return [
         {
           text: this.$t('settings.roles.room_limit.default', {
-            value: parseInt(this.settings('room_limit'), 10) === -1
-              ? this.$t('settings.roles.room_limit.unlimited').toLowerCase() : this.settings('room_limit')
+            value: parseInt(this.getSetting('room_limit'), 10) === -1
+              ? this.$t('settings.roles.room_limit.unlimited').toLowerCase() : this.getSetting('room_limit')
           }),
           value: 'default'
         },
