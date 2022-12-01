@@ -16,7 +16,7 @@ import VueRouter from 'vue-router';
 import _ from 'lodash';
 import env from '../../../../../resources/js/env.js';
 import Vuex from 'vuex';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
 import { waitMoxios, overrideStub, localVue } from '../../../helper';
 

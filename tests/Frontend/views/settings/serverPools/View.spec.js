@@ -1,7 +1,7 @@
 import View from '../../../../../resources/js/views/settings/serverPools/View.vue';
 import { createLocalVue, mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import moxios from 'moxios';
 import BootstrapVue, {
 

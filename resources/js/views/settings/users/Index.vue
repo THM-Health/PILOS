@@ -268,7 +268,7 @@ import ActionsColumn from '../../../mixins/ActionsColumn';
 import Can from '../../../components/Permissions/Can.vue';
 import Base from '../../../api/base';
 import TextTruncate from '../../../components/TextTruncate.vue';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 
 export default {
   components: { TextTruncate, Can, Multiselect },

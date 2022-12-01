@@ -408,7 +408,7 @@
 import FieldErrors from '../../../mixins/FieldErrors';
 import Base from '../../../api/base';
 import LocaleMap from '../../../lang/LocaleMap';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import EventBus from '../../../services/EventBus';
 import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';

@@ -4,7 +4,7 @@ import moxios from 'moxios';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import Index from '../../../../../resources/js/views/settings/users/Index.vue';
 import Base from '../../../../../resources/js/api/base';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import { waitMoxios, overrideStub, createContainer, localVue } from '../../../helper';
 
 describe('UsersIndex', () => {
