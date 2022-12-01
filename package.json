@@ -61,6 +61,7 @@
         "awesome-mask": "^1.1.1",
         "bootstrap-vue": "^2.15.0",
         "chart.js": "^2.9.4",
+        "pinia": "^2.0.27",
         "ua-parser-js": "^1.0.2",
         "v-clipboard": "^2.2.3",
         "vue-chartjs": "^3.5.1",
@@ -69,8 +70,7 @@
         "vue-i18n": "^8.26.8",
         "vue-multiselect": "^2.1.6",
         "vue-router": "^3.2.0",
-        "vue-swatches": "^2.1.0",
-        "vuex": "^3.4.0"
+        "vue-swatches": "^2.1.0"
     },
     "engines": {
         "node": "^10.12.0 || >=12.0.0"

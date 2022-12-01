@@ -8,7 +8,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   name: 'BrowserNotification',
@@ -27,9 +29,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    })
+    ...mapState(useSettingsStore, ['getSetting'])
   },
 
   mounted () {
@@ -80,7 +80,7 @@ export default {
     sendNotification: function () {
       const options = {
         body: this.$t('rooms.notification.body', { time: this.$d(new Date(), 'time') }),
-        icon: this.settings('favicon')
+        icon: this.getSetting('favicon')
       };
       try {
         this.notification = new Notification(this.name, options);

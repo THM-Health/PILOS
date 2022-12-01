@@ -9,22 +9,22 @@
     </b-overlay>
     <div v-if="loadingCounter == 0">
       <banner
-        :background="settings('banner.background')"
-        :color="settings('banner.color')"
-        :enabled="settings('banner.enabled')"
-        :icon="settings('banner.icon')"
-        :link="settings('banner.link')"
-        :message="settings('banner.message')"
-        :title="settings('banner.title')"
-        :link-style="settings('banner.link_style')"
-        :link-text="settings('banner.link_text')"
-        :link-target="settings('banner.link_target')"
+        :background="getSetting('banner.background')"
+        :color="getSetting('banner.color')"
+        :enabled="getSetting('banner.enabled')"
+        :icon="getSetting('banner.icon')"
+        :link="getSetting('banner.link')"
+        :message="getSetting('banner.message')"
+        :title="getSetting('banner.title')"
+        :link-style="getSetting('banner.link_style')"
+        :link-text="getSetting('banner.link_text')"
+        :link-target="getSetting('banner.link_target')"
       ></banner>
       <b-navbar class="mainnav" toggleable="lg" type="light" variant="white">
         <b-container>
           <h1>
             <b-navbar-brand :to="{ name: 'home' }">
-              <img style="height: 2rem;" v-if="settings('logo')" :src="settings('logo')" alt="Logo">
+              <img style="height: 2rem;" v-if="getSetting('logo')" :src="getSetting('logo')" alt="Logo">
             </b-navbar-brand>
           </h1>
 
@@ -68,10 +68,10 @@
 
                 <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
-              <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-primary nav-icon-item' target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')" right>
+              <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-primary nav-icon-item' target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')" right>
                 <i class="fa-solid fa-circle-question"></i>
               </b-nav-item>
-              <b-nav-item class="d-block d-lg-none" target="_blank" :href="settings('help_url')" v-if="!!settings('help_url')">
+              <b-nav-item class="d-block d-lg-none" target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')">
                 {{$t('app.help')}}
               </b-nav-item>
               <locale-selector :available-locales="availableLocales"></locale-selector>
@@ -91,25 +91,22 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
 import LocaleSelector from '../components/LocaleSelector.vue';
 import FooterComponent from '@/components/FooterComponent.vue';
 import Can from '../components/Permissions/Can.vue';
 import Cannot from '../components/Permissions/Cannot.vue';
 import Banner from '../components/Banner.vue';
+import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '../stores/auth';
+import { useLoadingStore } from '../stores/loading';
+import { useSettingsStore } from '../stores/settings';
 
 export default {
   components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },
   computed: {
-    ...mapState({
-      currentUser: state => state.session.currentUser,
-      application: state => state.session.application,
-      loadingCounter: state => state.loadingCounter
-    }),
-    ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated',
-      settings: 'session/settings'
-    })
+    ...mapState(useAuthStore, ['currentUser', 'isAuthenticated']),
+    ...mapState(useSettingsStore, ['getSetting']),
+    ...mapState(useLoadingStore, ['loadingCounter'])
   },
   data () {
     return {
@@ -117,8 +114,11 @@ export default {
     };
   },
   methods: {
+
+    ...mapActions(useAuthStore, { logoutSession: 'logout' }),
+
     async logout () {
-      await this.$store.dispatch('session/logout');
+      await this.logoutSession();
       this.flashMessage.success(this.$t('auth.flash.logout'));
       if (this.$router.currentRoute.name !== 'home') {
         await this.$router.push({ name: 'home' });

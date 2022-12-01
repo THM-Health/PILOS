@@ -4,9 +4,7 @@ import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
 import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
 import RoomView from './views/rooms/View.vue';
-import store from './store';
 import Home from '@/views/Home.vue';
-import Vue from 'vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings.vue';
 import RolesIndex from './views/settings/roles/Index.vue';
@@ -25,8 +23,8 @@ import MeetingsIndex from './views/meetings/Index.vue';
 import PasswordReset from './views/PasswordReset.vue';
 import Base from './api/base';
 import ForgotPassword from './views/ForgotPassword.vue';
-
-Vue.use(VueRouter);
+import { useAuthStore } from './stores/auth';
+import { useLoadingStore } from './stores/loading';
 
 export const routes = [
   {
@@ -41,7 +39,6 @@ export const routes = [
     props: () => {
       return {
         config: {
-          id: store.state.session.currentUser ? store.state.session.currentUser.id : 0,
           type: 'profile'
         }
       };
@@ -121,7 +118,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'UserPolicy')
+              PermissionService.can('viewAny', 'UserPolicy')
           )
         }
       },
@@ -146,18 +143,18 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'UserPolicy')
+                  PermissionService.can('create', 'UserPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', { model_name: 'User', id })
+                  PermissionService.can('view', { model_name: 'User', id })
               );
             }
 
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', { model_name: 'User', id })
+                PermissionService.can('update', { model_name: 'User', id })
             );
           }
         }
@@ -170,7 +167,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'RolePolicy')
+              PermissionService.can('viewAny', 'RolePolicy')
           )
         }
       },
@@ -193,18 +190,18 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'RolePolicy')
+                  PermissionService.can('create', 'RolePolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'RolePolicy')
+                  PermissionService.can('view', 'RolePolicy')
               );
             }
 
             return Base.call(`roles/${id}`).then((response) => {
               return PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', response.data.data);
+                  PermissionService.can('update', response.data.data);
             }).catch((response) => {
               Base.error(response, vm, response.message);
               return false;
@@ -220,7 +217,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'ApplicationSettingPolicy')
+              PermissionService.can('viewAny', 'ApplicationSettingPolicy')
           )
         }
       },
@@ -254,18 +251,18 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'RoomTypePolicy')
+                  PermissionService.can('create', 'RoomTypePolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'RoomTypePolicy')
+                  PermissionService.can('view', 'RoomTypePolicy')
               );
             }
 
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', 'RoomTypePolicy')
+                PermissionService.can('update', 'RoomTypePolicy')
             );
           }
         }
@@ -278,7 +275,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'ServerPolicy')
+              PermissionService.can('viewAny', 'ServerPolicy')
           )
         }
       },
@@ -301,17 +298,17 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'ServerPolicy')
+                  PermissionService.can('create', 'ServerPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'ServerPolicy')
+                  PermissionService.can('view', 'ServerPolicy')
               );
             }
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', 'ServerPolicy')
+                PermissionService.can('update', 'ServerPolicy')
             );
           }
         }
@@ -324,7 +321,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'ServerPoolPolicy')
+              PermissionService.can('viewAny', 'ServerPoolPolicy')
           )
         }
       },
@@ -347,17 +344,17 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'ServerPoolPolicy')
+                  PermissionService.can('create', 'ServerPoolPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'ServerPoolPolicy')
+                  PermissionService.can('view', 'ServerPoolPolicy')
               );
             }
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', 'ServerPoolPolicy')
+                PermissionService.can('update', 'ServerPoolPolicy')
             );
           }
         }
@@ -374,11 +371,6 @@ export const routes = [
     redirect: '/404'
   }
 ];
-
-const router = new VueRouter({
-  mode: 'history',
-  routes
-});
 
 /**
  * Callback that gets called before a route gets entered.
@@ -397,23 +389,26 @@ const router = new VueRouter({
  * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
  * be redirected to the home route with a error messsage.
  */
-export function beforeEachRoute (router, store, to, from, next) {
-  const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
-  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
+export function beforeEachRoute (router, to, from, next) {
+  const auth = useAuthStore();
+  const loading = useLoadingStore();
 
-  store.commit('loading');
+  const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
+  const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
+
+  loading.setLoading();
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
       record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
     ));
   }).then((recordsPermissions) => {
-    store.commit('loadingFinished');
-    if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
+    loading.setLoadingFinished();
+    if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }
       });
-    } else if (to.matched.some(record => record.meta.guestsOnly) && store.getters['session/isAuthenticated']) {
+    } else if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
       router.app.$root.flashMessage.error(router.app.$t('app.flash.guests_only'));
       next({ name: 'home' });
     } else if (!recordsPermissions.every(permission => permission)) {
@@ -425,10 +420,17 @@ export function beforeEachRoute (router, store, to, from, next) {
   });
 }
 
-router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
+export default function () {
+  const router = new VueRouter({
+    mode: 'history',
+    routes
+  });
 
-router.onError(error => {
-  Base.error(error, router.app.$root);
-});
+  router.beforeEach((to, from, next) => beforeEachRoute(router, to, from, next));
 
-export default router;
+  router.onError(error => {
+    Base.error(error, router.app.$root);
+  });
+
+  return router;
+}

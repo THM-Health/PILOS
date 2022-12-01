@@ -49,11 +49,12 @@
 </template>
 <script>
 import Base from '../../api/base';
-import store from '../../store';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from './../../env.js';
 import RoomTypeSelect from '../RoomType/RoomTypeSelect.vue';
 import _ from 'lodash';
+import { mapActions } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
 
 export default {
   components: { RoomTypeSelect },
@@ -86,6 +87,8 @@ export default {
       this.room = { room_type: null };
     },
 
+    ...mapActions(useAuthStore, ['getCurrentUser']),
+
     handleSubmit () {
       this.isLoadingAction = true;
 
@@ -114,7 +117,7 @@ export default {
           if (error.response.status === env.HTTP_FORBIDDEN) {
             this.flashMessage.error(this.$t('rooms.flash.no_new_room'));
             this.$bvModal.hide('new-room');
-            store.dispatch('session/getCurrentUser');
+            this.getCurrentUser();
             return;
           }
           // room limit exceeded

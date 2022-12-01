@@ -7,7 +7,7 @@
       v-bind:is="config.type === 'profile' ? 'b-card' : 'div'"
       v-bind:class="{ 'p-3': config.type === 'profile', border: config.type === 'profile', 'bg-white': config.type === 'profile' }">
       <h3>
-        {{ config.id === 'new' ? $t('settings.users.new') : (
+        {{ id === 'new' ? $t('settings.users.new') : (
           config.type === 'profile' ? $t('app.profile') :
             $t(`settings.users.${config.type}`, { firstname: model.firstname, lastname: model.lastname })
         ) }}
@@ -279,7 +279,7 @@
               v-if="model.authenticator === 'users' && config.type !== 'view'"
             >
               <b-form-group
-                v-if="config.id === 'new'"
+                v-if="id === 'new'"
                 label-cols-sm='3'
                 :label="$t('settings.users.generate_password')"
                 label-for='generate_password'
@@ -415,6 +415,10 @@ import env from '../../../env';
 import { loadLanguageAsync } from '../../../i18n';
 import VueCropper from 'vue-cropperjs';
 import 'cropperjs/dist/cropper.css';
+import { mapActions, mapState } from 'pinia';
+import { useLocaleStore } from '../../../stores/locale';
+import { useSettingsStore } from '../../../stores/settings';
+import { useAuthStore } from '../../../stores/auth';
 
 export default {
   mixins: [FieldErrors],
@@ -435,7 +439,10 @@ export default {
             text: LocaleMap[key]
           };
         });
-    }
+    },
+
+    ...mapState(useSettingsStore, ['getSetting']),
+    ...mapState(useLocaleStore, ['currentLocale'])
   },
 
   props: {
@@ -446,15 +453,14 @@ export default {
         return {};
       },
       validator ({ id, type }) {
-        if (['string', 'number'].indexOf(typeof id) === -1) {
-          return false;
-        }
         if (typeof type !== 'string' || ['view', 'edit', 'profile'].indexOf(type) === -1) {
           return false;
         }
-        if (type === 'profile' && (!PermissionService.currentUser || PermissionService.currentUser.id !== id)) {
+
+        if (type !== 'profile' && ['string', 'number'].indexOf(typeof id) === -1) {
           return false;
         }
+
         return !(id === 'new' && type !== 'edit');
       }
     },
@@ -475,6 +481,7 @@ export default {
   data () {
     return {
       isBusy: false,
+      id: null,
       model: {
         firstname: null,
         lastname: null,
@@ -529,27 +536,37 @@ export default {
     EventBus.$on('currentUserChangedEvent', this.togglePermissionFlags);
     this.loadTimezones();
 
-    if (this.config.id === 'new' || (
+    if (this.config.type === 'profile') {
+      this.id = PermissionService.currentUser.id;
+    } else {
+      this.id = this.config.id;
+    }
+
+    if (this.id === 'new' || (
       PermissionService.can('editUserRole', {
-        id: this.config.id,
+        id: this.id,
         model_name: 'User'
       }) && this.config.type === 'edit')
     ) {
       this.loadRoles();
     }
 
-    if (this.config.id !== 'new') {
+    if (this.id !== 'new') {
       this.loadUserModel();
     } else {
       this.model.authenticator = 'users';
       this.canEditRoles = true;
       this.canUpdateAttributes = true;
       this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
-      this.model.timezone = this.$store.getters['session/settings']('default_timezone');
+      this.model.timezone = this.getSetting('default_timezone');
     }
   },
 
   methods: {
+
+    ...mapActions(useLocaleStore, ['setCurrentLocale']),
+    ...mapActions(useAuthStore, ['logout', 'getCurrentUser']),
+
     /**
      * Reset other previously uploaded images
      */
@@ -607,7 +624,7 @@ export default {
     loadUserModel () {
       this.isBusy = true;
 
-      this.modelLoadPromise = Base.call(`users/${this.config.id}`).then(response => {
+      this.modelLoadPromise = Base.call(`users/${this.id}`).then(response => {
         this.modelLoadingError = false;
         this.model = response.data.data;
         this.model.roles.forEach(role => {
@@ -615,8 +632,8 @@ export default {
         });
         this.togglePermissionFlags();
       }).catch(error => {
-        if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$store.dispatch('session/logout').then(() => {
+        if (PermissionService.currentUser && this.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.logout().then(() => {
             this.$router.push({ name: 'home' });
           });
         } else if (error.response && error.response.status === env.HTTP_NOT_FOUND) {
@@ -708,7 +725,7 @@ export default {
 
       formData.append('updated_at', this.model.updated_at);
 
-      if (this.config.id === 'new') {
+      if (this.id === 'new') {
         formData.append('generate_password', this.generate_password ? 1 : 0);
       }
       if (!this.generate_password && this.model.password != null) {
@@ -723,23 +740,23 @@ export default {
         formData.append('image', '');
       }
 
-      formData.append('_method', this.config.id === 'new' ? 'POST' : 'PUT');
+      formData.append('_method', this.id === 'new' ? 'POST' : 'PUT');
 
       const config = {
         method: 'POST',
         data: formData
       };
 
-      Base.call(this.config.id === 'new' ? 'users' : `users/${this.config.id}`, config).then(response => {
+      Base.call(this.id === 'new' ? 'users' : `users/${this.id}`, config).then(response => {
         this.errors = {};
-        const localeChanged = this.$store.state.session.currentLocale !== this.model.user_locale;
+        const localeChanged = this.currentLocale !== this.model.user_locale;
 
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
-        if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id) {
-          return this.$store.dispatch('session/getCurrentUser').then(() => {
+        if (PermissionService.currentUser && this.id === PermissionService.currentUser.id) {
+          return this.getCurrentUser().then(() => {
             if (localeChanged) {
               return loadLanguageAsync(this.model.user_locale).then(() => {
-                this.$store.commit('session/setCurrentLocale', this.model.user_locale);
+                this.setCurrentLocale(this.model.user_locale);
                 return response;
               });
             }
@@ -767,8 +784,8 @@ export default {
         }
       }).catch(error => {
         // If the user wasn't found and it is the current user log him out!
-        if (PermissionService.currentUser && this.config.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
-          this.$store.dispatch('session/logout').then(() => {
+        if (PermissionService.currentUser && this.id === PermissionService.currentUser.id && error.response && error.response.status === env.HTTP_NOT_FOUND) {
+          this.logout().then(() => {
             this.$router.push({ name: 'home' });
           });
           Base.error(error, this.$root, error.message);

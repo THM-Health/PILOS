@@ -99,11 +99,11 @@
             :disabled='meetingsLoading || meetingsLoadingError'
           ></b-pagination>
 
-          <div v-if="settings('attendance.enabled') || settings('statistics.meetings.enabled')" id="retentionPeriodInfo">
+          <div v-if="getSetting('attendance.enabled') || getSetting('statistics.meetings.enabled')" id="retentionPeriodInfo">
             <hr>
             <b>{{ $t('meetings.retention_period') }}</b><br>
-            <span v-if="settings('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': settings('statistics.meetings.retention_period')}) }}</span><br>
-            <span v-if="settings('attendance.enabled')">{{ $t('meetings.attendance.retention_period', {'days': settings('attendance.retention_period')}) }}</span><br>
+            <span v-if="getSetting('statistics.meetings.enabled')">{{ $t('meetings.stats.retention_period', {'days': getSetting('statistics.meetings.retention_period')}) }}</span><br>
+            <span v-if="getSetting('attendance.enabled')">{{ $t('meetings.attendance.retention_period', {'days': getSetting('attendance.retention_period')}) }}</span><br>
           </div>
         </div>
       </div>
@@ -134,7 +134,7 @@
         <b-table
           id='attendance-table'
           :current-page="attendanceCurrentPage"
-          :per-page="settings('pagination_page_size')"
+          :per-page="getSetting('pagination_page_size')"
           :fields="attendanceTableFields"
           sort-by="name"
           v-if="attendance"
@@ -161,10 +161,10 @@
           </template>
         </b-table>
         <b-pagination
-          v-if="attendance.length>settings('pagination_page_size')"
+          v-if="attendance.length>getSetting('pagination_page_size')"
           v-model="attendanceCurrentPage"
           :total-rows="attendance.length"
-          :per-page="settings('pagination_page_size')"
+          :per-page="getSetting('pagination_page_size')"
           aria-controls='attendance-table'
           align='center'
         ></b-pagination>
@@ -177,9 +177,10 @@
 <script>
 import Base from '../../api/base';
 import LineChart from './../../charts/LineChart';
-import { mapGetters } from 'vuex';
 import RawText from '../RawText.vue';
 import env from '../../env';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   components: { RawText, LineChart },
@@ -308,9 +309,7 @@ export default {
   },
   computed: {
 
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     // table fields of meetings table
     meetingsTableFields () {
@@ -319,7 +318,7 @@ export default {
         { key: 'end', label: this.$t('meetings.end'), sortable: false }
       ];
 
-      if (this.settings('attendance.enabled') || this.settings('statistics.meetings.enabled')) {
+      if (this.getSetting('attendance.enabled') || this.getSetting('statistics.meetings.enabled')) {
         table.push({ key: 'actions', label: this.$t('app.actions'), sortable: false, thClass: 'action-column' });
       }
 

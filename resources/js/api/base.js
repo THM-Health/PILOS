@@ -1,5 +1,6 @@
 import axios from 'axios';
 import env from '../env';
+import { useAuthStore } from '../stores/auth';
 
 export default {
   /**
@@ -32,13 +33,15 @@ export default {
    * @param info Some additional error information
    */
   error (error, vm, info) {
+    const auth = useAuthStore();
+
     const responseStatus = error.response !== undefined ? error.response.status : undefined;
     const errorMessage = error.response && error.response.data ? error.response.data.message : undefined;
 
     if (responseStatus === env.HTTP_UNAUTHORIZED) { // 401 => unauthorized, redirect and show error messages as flash!
-      if (vm.$store.getters['session/isAuthenticated']) {
+      if (auth.isAuthenticated) {
         vm.flashMessage.info(vm.$t('app.flash.unauthenticated'));
-        vm.$store.commit('session/setCurrentUser', { currentUser: null, emit: false });
+        auth.setCurrentUser(null, false);
         vm.$router.replace({ name: 'login', query: { redirect: vm.$router.currentRoute.path } });
       }
     } else if (responseStatus === env.HTTP_FORBIDDEN && errorMessage === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
