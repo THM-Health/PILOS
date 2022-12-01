@@ -6,7 +6,7 @@ import BootstrapVue, {
 import moxios from 'moxios';
 import { vi } from 'vitest';
 import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
@@ -28,7 +28,7 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -205,7 +205,7 @@ describe('Room Token', () => {
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        $clipboard: clipboardSpy,
+        $copyText: clipboardSpy,
         flashMessage: flashMessage
       },
       propsData: {

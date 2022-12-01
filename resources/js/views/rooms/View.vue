@@ -101,7 +101,7 @@
               <h5>{{ $t('rooms.access_for_participants') }}</h5>
               <b-button
                 class="float-right"
-                v-clipboard="() => invitationText"
+                v-clipboard:copy="invitationText"
                 v-b-tooltip.hover
                 :title="$t('rooms.copy_access_for_participants')"
                 variant="light"

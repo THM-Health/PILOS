@@ -3,7 +3,7 @@ import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminComponent from '../../../../resources/js/components/Room/AdminComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
@@ -16,7 +16,7 @@ import storeOrg from '../../../../resources/js/store';
 import i18n from '../../../../resources/js/i18n';
 import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(Vuex);
 localVue.use(VueRouter);
 

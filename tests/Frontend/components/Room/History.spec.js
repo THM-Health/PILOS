@@ -5,7 +5,7 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import { waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
@@ -15,7 +15,7 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(Vuex);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };

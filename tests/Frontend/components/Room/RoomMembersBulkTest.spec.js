@@ -8,13 +8,13 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
 
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(Vuex);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };

@@ -1,13 +1,13 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import moxios from 'moxios';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Vuex from 'vuex';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent.vue';
 import Base from '../../../../resources/js/api/base';
 import { waitMoxios, createContainer, localVue } from '../../helper';
 
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(Vuex);
 
 const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_guest: false, is_moderator: false, can_start: true, running: false, access_code: 123456789, files: [] };

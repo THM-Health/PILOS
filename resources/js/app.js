@@ -6,7 +6,7 @@ import createRouter from './router';
 import i18n from './i18n';
 import VueFlashMessage from '@smartweb/vue-flash-message';
 import FlashMessage from './plugins/FlashMessage';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
@@ -21,7 +21,7 @@ window.axios = axios;
 window.axios.defaults.withCredentials = true;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-Vue.use(Clipboard);
+Vue.use(VueClipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
 
