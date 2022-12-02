@@ -1,7 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import LocaleSelector from '../../../resources/js/components/LocaleSelector';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
-import store from '../../../resources/js/store';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
 import { waitMoxios } from '../helper';

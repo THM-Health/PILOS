@@ -5,48 +5,26 @@ import moxios from 'moxios';
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent';
 import VueRouter from 'vue-router';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
-import _ from 'lodash';
-import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { useAuthStore } from '../../../../resources/js/stores/auth';
+import _ from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      },
-      mutations: {
-        setCurrentUser (state, currentUser) {
-          PermissionService.setCurrentUser(currentUser);
-          state.currentUser = currentUser;
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { auth: { currentUser: exampleUser } };
 
 describe('Own Room Index', () => {
   beforeEach(() => {
     moxios.install();
+    PermissionService.currentUser = exampleUser;
   });
 
   afterEach(() => {
@@ -155,7 +133,7 @@ describe('Own Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -222,7 +200,7 @@ describe('Own Room Index', () => {
         name: exampleRoomListEntry.name,
         type: exampleRoomListEntry.type
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -249,18 +227,17 @@ describe('Own Room Index', () => {
       response: exampleRoomTypeResponse
     });
 
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.room_limit = 2;
-    store.commit('session/setCurrentUser', newUser);
-
     const view = mount(RoomList, {
       localVue,
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
+
+    const authStore = useAuthStore();
+    authStore.currentUser.room_limit = 2;
 
     await waitMoxios();
     await view.vm.$nextTick();
@@ -333,7 +310,6 @@ describe('Own Room Index', () => {
     newRoomComponent = view.findComponent(NewRoomComponent);
     expect(newRoomComponent.exists()).toBeFalsy();
 
-    store.commit('session/setCurrentUser', exampleUser);
     view.destroy();
   });
 
@@ -356,7 +332,7 @@ describe('Own Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
 
@@ -489,9 +465,11 @@ describe('Own Room Index', () => {
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState) }),
       attachTo: createContainer()
     });
+
+    const authStore = useAuthStore();
 
     await waitMoxios();
     await view.vm.$nextTick();
@@ -500,9 +478,7 @@ describe('Own Room Index', () => {
     expect(view.findComponent(BBadge).exists()).toBeFalsy();
 
     // Show room count for users with limit
-    const newUser = _.cloneDeep(exampleUser);
-    newUser.room_limit = 2;
-    store.commit('session/setCurrentUser', newUser);
+    authStore.currentUser.room_limit = 2;
 
     await view.vm.$nextTick();
     expect(view.findComponent(BBadge).exists()).toBeTruthy();
@@ -552,7 +528,6 @@ describe('Own Room Index', () => {
     expect(view.findComponent(BBadge).exists()).toBeTruthy();
     expect(view.findComponent(BBadge).text()).toBe('rooms.room_limit:{"has":1,"max":2}');
 
-    store.commit('session/setCurrentUser', exampleUser);
     view.destroy();
   });
 });
