@@ -6,43 +6,18 @@ import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomCo
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser ({ state }) { }
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      },
-      mutations: {
-        setCurrentUser (state, currentUser) {
-          PermissionService.setCurrentUser(currentUser);
-          state.currentUser = currentUser;
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { auth: { currentUser: exampleUser } };
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 describe('Create new rooms', () => {
   beforeEach(() => {
@@ -149,7 +124,7 @@ describe('Create new rooms', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -189,14 +164,19 @@ describe('Create new rooms', () => {
     const newUser = _.cloneDeep(exampleUser);
     newUser.permissions.push('rooms.create');
     newUser.room_limit = 1;
-    store.commit('session/setCurrentUser', newUser);
 
     const view = mount(RoomList, {
       localVue,
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({
+        initialState: {
+          auth: {
+            currentUser: newUser
+          }
+        }
+      }),
       attachTo: createContainer()
     });
 
@@ -276,7 +256,7 @@ describe('Create new rooms', () => {
       propsData: {
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -328,7 +308,7 @@ describe('Create new rooms', () => {
       propsData: {
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -374,8 +354,7 @@ describe('Create new rooms', () => {
       propsData: {
         modalStatic: true
       },
-      store,
-      Base,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -421,7 +400,7 @@ describe('Create new rooms', () => {
       propsData: {
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -462,7 +441,7 @@ describe('Create new rooms', () => {
       propsData: {
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -519,7 +498,7 @@ describe('Create new rooms', () => {
         roomTypes: roomTypes,
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
