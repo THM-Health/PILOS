@@ -3,43 +3,23 @@ import BootstrapVue, { BButton, BFormFile, BFormInvalidFeedback, BModal, BTbody 
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
 import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
 import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
 
 describe('RoomFile', () => {
   beforeEach(() => {
@@ -60,7 +40,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -100,7 +80,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -125,7 +105,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -149,7 +129,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -178,7 +158,7 @@ describe('RoomFile', () => {
         room: ownerRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -205,7 +185,7 @@ describe('RoomFile', () => {
         room: coOwnerRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -238,7 +218,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -272,7 +252,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -307,7 +287,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -378,7 +358,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -435,7 +415,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -498,7 +478,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -553,7 +533,7 @@ describe('RoomFile', () => {
         showTitle: true,
         emitErrors: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -585,7 +565,7 @@ describe('RoomFile', () => {
         room: ownerRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -651,7 +631,7 @@ describe('RoomFile', () => {
         showTitle: true,
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer(),
       stubs: {
         transition: false
@@ -858,7 +838,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     // Test valid download
@@ -995,7 +975,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     // Test valid request header
@@ -1033,7 +1013,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     // Test valid request header
@@ -1079,7 +1059,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 

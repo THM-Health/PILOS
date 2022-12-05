@@ -17,6 +17,7 @@
         "@babel/eslint-parser": "^7.16.5",
         "@babel/plugin-proposal-class-properties": "^7.16.7",
         "@intlify/eslint-plugin-vue-i18n": "^2.0.0",
+        "@pinia/testing": "^0.0.14",
         "@vue/test-utils": "^1.3.0",
         "@vue/vue2-jest": "^28.0.1",
         "axe-core": "^4.3.5",
@@ -50,10 +51,10 @@
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.49.0",
         "sass-loader": "^8.0.0",
-        "vue": "^2.6.14",
+        "vue": "^2.7.14",
         "vue-axe": "^2.4.4",
         "vue-loader": "^15.9.7",
-        "vue-template-compiler": "^2.6.14",
+        "vue-template-compiler": "^2.7.14",
         "webpack": "^5.68.0"
     },
     "dependencies": {
@@ -62,6 +63,7 @@
         "awesome-mask": "^1.1.1",
         "bootstrap-vue": "^2.15.0",
         "chart.js": "^2.9.4",
+        "pinia": "^2.0.27",
         "ua-parser-js": "^1.0.2",
         "v-clipboard": "^2.2.3",
         "vue-chartjs": "^3.5.1",
@@ -70,8 +72,7 @@
         "vue-i18n": "^8.26.8",
         "vue-multiselect": "^2.1.6",
         "vue-router": "^3.2.0",
-        "vue-swatches": "^2.1.0",
-        "vuex": "^3.4.0"
+        "vue-swatches": "^2.1.0"
     },
     "engines": {
         "node": "^10.12.0 || >=12.0.0"

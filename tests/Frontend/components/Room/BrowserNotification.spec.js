@@ -3,24 +3,15 @@ import BootstrapVue, { BAlert, BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
 import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import { createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { useSettingsStore } from '../../../../resources/js/stores/settings';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-localVue.use(Vuex);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'favicon' ? 'favicon.ico' : null
-      }
-    }
-  }
-});
+localVue.use(PiniaVuePlugin);
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -384,8 +375,10 @@ describe('Browser Notification', () => {
         name: 'test'
       },
       attachTo: createContainer(),
-      store
+      pinia: createTestingPinia()
     });
+
+    useSettingsStore().settings = { favicon: 'favicon.ico' };
 
     await view.vm.$nextTick();
     await view.findComponent(BButton).trigger('click');
@@ -437,8 +430,7 @@ describe('Browser Notification', () => {
         running: false,
         name: 'test'
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await view.vm.$nextTick();

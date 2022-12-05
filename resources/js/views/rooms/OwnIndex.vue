@@ -66,8 +66,8 @@ import RoomComponent from '../../components/Room/RoomComponent.vue';
 import NewRoomComponent from '../../components/Room/NewRoomComponent.vue';
 import Can from '../../components/Permissions/Can';
 import Base from '../../api/base';
-import { mapState } from 'vuex';
-import store from '../../store';
+import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
 
 export default {
   components: {
@@ -76,9 +76,9 @@ export default {
     Can
   },
   computed: {
-    ...mapState({
-      currentUser: state => state.session.currentUser
-    }),
+
+    ...mapState(useAuthStore, ['currentUser']),
+
     showLimit: function () {
       return this.currentUser && this.currentUser.room_limit !== -1 && this.ownRooms !== null;
     },
@@ -90,9 +90,12 @@ export default {
     this.reload();
   },
   methods: {
+
+    ...mapActions(useAuthStore, ['getCurrentUser']),
+
     // Handle event from new room component that the limit was reached
     onReachLimit () {
-      store.dispatch('session/getCurrentUser');
+      this.getCurrentUser();
       this.loadOwnRooms();
     },
     // Load all required resources

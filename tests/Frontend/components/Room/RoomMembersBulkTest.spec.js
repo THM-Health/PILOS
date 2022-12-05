@@ -9,41 +9,23 @@ import BootstrapVue, {
 import moxios from 'moxios';
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
 import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { auth: { currentUser: exampleUser } };
 
 describe('RoomMembersBulk', () => {
   beforeEach(() => {
@@ -68,7 +50,7 @@ describe('RoomMembersBulk', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -133,7 +115,7 @@ describe('RoomMembersBulk', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -200,7 +182,7 @@ describe('RoomMembersBulk', () => {
       propsData: {
         room: coOwnerRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -256,7 +238,7 @@ describe('RoomMembersBulk', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -446,7 +428,7 @@ describe('RoomMembersBulk', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -488,7 +470,7 @@ describe('RoomMembersBulk', () => {
     expect(view.vm.$data.selectedMembers.length).toBe(1);
 
     // button check
-    const bulkRemoveButton = view.findComponent({ ref: 'bulk-remove-members-button' });
+    let bulkRemoveButton = view.findComponent({ ref: 'bulk-remove-members-button' });
     expect(bulkRemoveButton.attributes('title')).toBe('rooms.members.bulk_remove_user');
 
     await waitModalShown(view, () => {
@@ -539,6 +521,7 @@ describe('RoomMembersBulk', () => {
     expect(view.vm.$data.selectedMembers.length).toBe(2);
 
     // button check
+    bulkRemoveButton = view.findComponent({ ref: 'bulk-remove-members-button' });
     expect(bulkRemoveButton.attributes('title')).toBe('rooms.members.bulk_remove_user');
 
     await waitModalShown(view, () => {
@@ -596,7 +579,7 @@ describe('RoomMembersBulk', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 

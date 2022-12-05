@@ -2,6 +2,8 @@ import Base from '../../../resources/js/api/base';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import { waitMoxios } from '../helper';
+import { createTestingPinia } from '@pinia/testing';
+import { useAuthStore } from '../../../resources/js/stores/auth';
 
 let consoleErrorStub;
 
@@ -71,16 +73,12 @@ describe('base', () => {
       const routerSpy = jest.spyOn(router, 'replace').mockImplementation();
       jest.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
 
-      const storeCommitSpy = jest.fn();
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        commit: storeCommitSpy
-      };
+      const pinia = createTestingPinia();
+      const auth = useAuthStore();
+      auth.currentUser = { id: 1 };
 
       const vm = {
-        $store: store,
+        $pinia: pinia,
         $router: router,
         flashMessage: flashMessage,
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
@@ -97,8 +95,8 @@ describe('base', () => {
       expect(flashMessageInfoSpy).toBeCalledTimes(1);
       expect(flashMessageInfoSpy).toBeCalledWith('app.flash.unauthenticated');
 
-      expect(storeCommitSpy).toBeCalledTimes(1);
-      expect(storeCommitSpy).toBeCalledWith('session/setCurrentUser', { currentUser: null, emit: false });
+      expect(auth.setCurrentUser).toBeCalledTimes(1);
+      expect(auth.setCurrentUser).toBeCalledWith(null, false);
 
       jest.clearAllMocks();
 

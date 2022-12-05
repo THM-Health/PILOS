@@ -1,5 +1,3 @@
-import Vuex from 'vuex';
-import store from '../../../resources/js/store';
 import ForgotPassword from '../../../resources/js/views/ForgotPassword';
 import { createLocalVue, mount } from '@vue/test-utils';
 import moxios from 'moxios';
@@ -7,10 +5,12 @@ import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../resources/js/api/base';
 import { waitMoxios } from '../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 describe('ForgotPassword', () => {
@@ -23,8 +23,7 @@ describe('ForgotPassword', () => {
   });
 
   it('before route enter redirects to the 404 page if the self reset is disabled', async () => {
-    const oldState = store.state['session/settings'];
-    store.commit('session/setSettings', { password_self_reset_enabled: false });
+    createTestingPinia({ initialState: { settings: { settings: { password_self_reset_enabled: false } } } });
 
     const to = await new Promise((resolve) => {
       ForgotPassword.beforeRouteEnter({}, {}, (to) => {
@@ -33,12 +32,10 @@ describe('ForgotPassword', () => {
     });
 
     expect(to).toBe('/404');
-    store.commit('session/setSettings', oldState);
   });
 
   it('before route enter continues to the view if the self reset is enabled', async () => {
-    const oldState = store.state['session/settings'];
-    store.commit('session/setSettings', { password_self_reset_enabled: true });
+    createTestingPinia({ initialState: { settings: { settings: { password_self_reset_enabled: true } } } });
 
     const to = await new Promise((resolve) => {
       ForgotPassword.beforeRouteEnter({}, {}, (to) => {
@@ -47,7 +44,6 @@ describe('ForgotPassword', () => {
     });
 
     expect(to).toBe(undefined);
-    store.commit('session/setSettings', oldState);
   });
 
   it('submit handles errors correctly', async () => {

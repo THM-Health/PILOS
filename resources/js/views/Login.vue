@@ -4,7 +4,7 @@
       <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
         <b-card no-body bg-variant="light">
           <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-primary">
-            <b-tab :title="$t('auth.ldap.tab_title')" v-if="settings('ldap')" >
+            <b-tab :title="$t('auth.ldap.tab_title')" v-if="getSetting('ldap')" >
               <ldap-login-component
                 id="ldap"
                 :title="$t('auth.ldap.title')"
@@ -40,7 +40,9 @@ import EmailLoginComponent from '../components/Login/EmailLoginComponent';
 import LdapLoginComponent from '../components/Login/LdapLoginComponent';
 import env from '../env';
 import Base from '../api/base';
-import { mapGetters } from 'vuex';
+import { mapState, mapActions } from 'pinia';
+import { useSettingsStore } from '../stores/settings';
+import { useAuthStore } from '../stores/auth';
 
 export default {
   components: {
@@ -57,11 +59,13 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    })
+
+    ...mapState(useSettingsStore, ['getSetting'])
   },
   methods: {
+
+    ...mapActions(useAuthStore, ['login']),
+
     /**
      * Handle login request
      * @param data Credentials with username/email and password
@@ -72,7 +76,7 @@ export default {
       try {
         this.errors[id] = null;
         this.loading = true;
-        await this.$store.dispatch('session/login', { credentials: data, method: id });
+        await this.login(data, id);
         this.flashMessage.success(this.$t('auth.flash.login'));
         // check if user should be redirected back after login
         if (this.$route.query.redirect !== undefined) {
