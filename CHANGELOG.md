@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Error in docker-compose-dev.yml leads to deletion of the database in the development environment ([#294], [#295])
 
+### Changed
+- Frontend vue state management, replace vuex with pinia ([#293],[#292])
+
 ## [v2.0.0-alpha.4] - 2022-11-15
 ### Changed
 - **Breaking:** Combine backend and frontend localization into single json file ([#284], [#287])
@@ -403,6 +406,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#289]: https://github.com/THM-Health/PILOS/pull/289
 [#294]: https://github.com/THM-Health/PILOS/issues/294
 [#295]: https://github.com/THM-Health/PILOS/pull/295
+[#292]: https://github.com/THM-Health/PILOS/pull/292
+[#293]: https://github.com/THM-Health/PILOS/issues/293
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
