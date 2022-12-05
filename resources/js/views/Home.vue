@@ -20,7 +20,7 @@
 <script>
 import Features from '@/components/Features.vue';
 import { mapState } from 'pinia';
-import {useSettingsStore} from '../stores/settings';
+import { useSettingsStore } from '../stores/settings';
 export default {
   components: { Features },
   computed: {

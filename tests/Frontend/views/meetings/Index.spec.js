@@ -7,11 +7,11 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import { waitMoxios, overrideStub, createContainer, localVue } from '../../helper';
 
-localVue.use(Vuex);
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 
 const defaultResponse = {
@@ -67,47 +67,25 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-const currentUser = {
+const exampleUser = {
   firstname: 'Darth',
   lastname: 'Vader',
   permissions: []
 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      state: {
-        currentUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
-
-let oldUser;
-
 describe('MeetingsIndex', () => {
   beforeEach(() => {
     moxios.install();
-    oldUser = PermissionService.currentUser;
+    PermissionService.setCurrentUser(exampleUser);
   });
 
   afterEach(() => {
     moxios.uninstall();
-    PermissionService.setCurrentUser(oldUser);
   });
 
   it('list of meetings with pagination gets displayed', async () => {
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock
@@ -266,7 +244,6 @@ describe('MeetingsIndex', () => {
 
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock
@@ -305,14 +282,12 @@ describe('MeetingsIndex', () => {
     expect(view.findComponent(BButton).attributes('disabled')).toBeUndefined();
 
     restoreMeetingsResponse();
-    PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
   it('search', async () => {
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock
@@ -380,7 +355,6 @@ describe('MeetingsIndex', () => {
   it('sort', async () => {
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock

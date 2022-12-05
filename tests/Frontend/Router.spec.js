@@ -2,6 +2,9 @@ import { beforeEachRoute, routes } from '../../resources/js/router';
 import PermissionService from '../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import Base from '../../resources/js/api/base';
+import { createTestingPinia } from '@pinia/testing';
+import { useLoadingStore } from '../../resources/js/stores/loading';
+import { useAuthStore } from '../../resources/js/stores/auth';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
@@ -23,6 +26,8 @@ const accessPermittedServerPoolView = routes.filter(route => route.path === '/se
 
 const propsPasswordReset = routes.filter(route => route.path === '/reset_password')[0].props;
 
+const currentUser = { id: 1, firstname: 'Darth', lastname: 'Vader' };
+
 describe('Router', () => {
   beforeEach(() => {
     moxios.install();
@@ -36,15 +41,9 @@ describe('Router', () => {
     it('beforeEachRoute calls next if there is no permission checks or required authentication', async () => {
       const router = {};
 
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        state: {
-          initialized: true
-        },
-        commit: () => {}
-      };
+      createTestingPinia();
+      const loading = useLoadingStore();
+      loading.initialized = true;
 
       const to = {
         matched: [{ path: '/', meta: {} }]
@@ -53,7 +52,7 @@ describe('Router', () => {
       let nextCalled = false;
 
       await new Promise((resolve) => {
-        beforeEachRoute(router, store, to, undefined, () => {
+        beforeEachRoute(router, to, undefined, () => {
           nextCalled = true;
           resolve();
         });
@@ -74,15 +73,11 @@ describe('Router', () => {
         }
       };
 
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        state: {
-          initialized: true
-        },
-        commit: () => {}
-      };
+      createTestingPinia();
+      const loading = useLoadingStore();
+      loading.initialized = true;
+      const auth = useAuthStore();
+      auth.currentUser = currentUser;
 
       const to = {
         matched: [{
@@ -94,7 +89,7 @@ describe('Router', () => {
       };
 
       await new Promise((resolve) => {
-        beforeEachRoute(router, store, to, undefined, (args) => {
+        beforeEachRoute(router, to, undefined, (args) => {
           expect(args.name).toBe('home');
           resolve();
         });
@@ -104,15 +99,9 @@ describe('Router', () => {
     it('beforeEachRoute calls next with login path if the user is not authenticated even if permission check accidentally returns true', async () => {
       const router = {};
 
-      const store = {
-        getters: {
-          'session/isAuthenticated': false
-        },
-        state: {
-          initialized: true
-        },
-        commit: () => {}
-      };
+      createTestingPinia();
+      const loading = useLoadingStore();
+      loading.initialized = true;
 
       const to = {
         matched: [{
@@ -125,7 +114,7 @@ describe('Router', () => {
       };
 
       await new Promise((resolve) => {
-        beforeEachRoute(router, store, to, undefined, (args) => {
+        beforeEachRoute(router, to, undefined, (args) => {
           expect(args.name).toBe('login');
           resolve();
         });
@@ -146,15 +135,11 @@ describe('Router', () => {
         }
       };
 
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        state: {
-          initialized: true
-        },
-        commit: () => {}
-      };
+      createTestingPinia();
+      const loading = useLoadingStore();
+      loading.initialized = true;
+      const auth = useAuthStore();
+      auth.currentUser = currentUser;
 
       const to = {
         matched: [{
@@ -167,7 +152,7 @@ describe('Router', () => {
       };
 
       await new Promise((resolve) => {
-        beforeEachRoute(router, store, to, { matched: [] }, (args) => {
+        beforeEachRoute(router, to, { matched: [] }, (args) => {
           expect(args).toBe('/');
           expect(errors).toHaveLength(1);
           expect(errors[0]).toBe('app.flash.unauthorized');
@@ -176,7 +161,7 @@ describe('Router', () => {
       });
 
       await new Promise((resolve) => {
-        beforeEachRoute(router, store, to, { matched: [{ path: '/foo' }] }, (args) => {
+        beforeEachRoute(router, to, { matched: [{ path: '/foo' }] }, (args) => {
           expect(args).toBe(false);
           expect(errors).toHaveLength(2);
           expect(errors[1]).toBe('app.flash.unauthorized');

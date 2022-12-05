@@ -15,15 +15,19 @@ import PermissionService from '../../../../../resources/js/services/PermissionSe
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import env from '../../../../../resources/js/env.js';
-import Vuex from 'vuex';
 import { Multiselect } from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, localVue } from '../../../helper';
+import { waitMoxios, overrideStub } from '../../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { useLocaleStore } from '../../../../../resources/js/stores/locale';
+import { useAuthStore } from '../../../../../resources/js/stores/auth';
 
-localVue.use(Vuex);
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
-let store;
 let oldUser;
 let rolesResponse1;
 
@@ -90,6 +94,7 @@ const ownUserResponse = {
     room_limit: -1,
     image: 'http://domain.tld/storage/profile_images/abc.jpg',
     updated_at: '2020-01-01T01:00:00.000000Z',
+    permissions: [],
     roles: [{
       id: 1,
       name: 'Test 1',
@@ -101,6 +106,8 @@ const ownUserResponse = {
     }]
   }
 };
+
+const initialState = { locale: { currentLocale: 'en' } };
 
 describe('UsersView', () => {
   beforeEach(() => {
@@ -149,47 +156,6 @@ describe('UsersView', () => {
       status: 200,
       response: _.cloneDeep(ldapUserResponse)
     });
-
-    let res;
-    const promise = new Promise((resolve) => {
-      res = resolve;
-    });
-
-    store = new Vuex.Store({
-      modules: {
-        session: {
-          namespaced: true,
-          mutations: {
-            setCurrentLocale (state, currentLocale) {
-              state.currentLocale = currentLocale;
-              res();
-            },
-            increaseCallCount (state, name) {
-              state[name] += 1;
-            }
-          },
-          getters: {
-            settings: () => (setting) => null
-          },
-          state: () => ({
-            currentLocale: 'en',
-            logoutCount: 0,
-            getCurrentUserCount: 0,
-            runningPromise: promise
-          }),
-          actions: {
-            async getCurrentUser ({ commit }) {
-              await Promise.resolve();
-              commit('increaseCallCount', 'getCurrentUserCount');
-            },
-            async logout ({ commit }) {
-              await Promise.resolve();
-              commit('increaseCallCount', 'logoutCount');
-            }
-          }
-        }
-      }
-    });
   });
 
   afterEach(() => {
@@ -200,7 +166,7 @@ describe('UsersView', () => {
   it('user name in title gets shown for detail view', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key, values) => ['settings.users.view', 'settings.users.edit'].includes(key) ? `${key} ${values.firstname} ${values.lastname}` : key,
         $te: () => false
@@ -221,7 +187,7 @@ describe('UsersView', () => {
   it('user name in title gets shown for update view', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key, values) => ['settings.users.view', 'settings.users.edit'].includes(key) ? `${key} ${values.firstname} ${values.lastname}` : key,
         $te: () => false
@@ -245,10 +211,6 @@ describe('UsersView', () => {
     expect(View.props.config.validator({ type: '1' })).toBe(false);
     expect(View.props.config.validator({ type: 'edit' })).toBe(false);
     expect(View.props.config.validator({ id: 1, type: 'edit' })).toBe(true);
-    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(true);
-    expect(View.props.config.validator({ id: 2, type: 'profile' })).toBe(false);
-    PermissionService.setCurrentUser(null);
-    expect(View.props.config.validator({ id: 1, type: 'profile' })).toBe(false);
   });
 
   it('the configured locales should be selectable in the corresponding select', async () => {
@@ -264,7 +226,7 @@ describe('UsersView', () => {
 
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -289,7 +251,7 @@ describe('UsersView', () => {
   it('roles can not be modified for the own user', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -310,7 +272,7 @@ describe('UsersView', () => {
   it('automatic assigned roles can not be deselected', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -334,7 +296,7 @@ describe('UsersView', () => {
   it('input fields gets disabled when viewing the user in view only mode', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -369,7 +331,7 @@ describe('UsersView', () => {
   it('all inputs fields shown and enabled on new page', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -420,7 +382,7 @@ describe('UsersView', () => {
           type: 'edit'
         }
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
 
@@ -455,7 +417,7 @@ describe('UsersView', () => {
   it('specific fields gets disabled for not database users', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -490,7 +452,7 @@ describe('UsersView', () => {
   it('back button is not shown on the profile page of an user', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -513,7 +475,7 @@ describe('UsersView', () => {
   it('persisted data gets loaded and shown', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false
@@ -563,9 +525,11 @@ describe('UsersView', () => {
           type: 'edit'
         }
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
+
+    const localeStore = useLocaleStore();
 
     await waitMoxios();
     const inputs = view.findAllComponents(BFormInput);
@@ -579,11 +543,15 @@ describe('UsersView', () => {
     view.vm.model.roles.push(rolesResponse1.data[2]);
     await view.vm.$nextTick();
 
+    moxios.uninstall();
+    moxios.install();
     view.findComponent(BForm).trigger('submit');
 
     await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    let request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/users/1');
+    expect(request.config.method).toBe('post');
+    expect(request.config.data.get('_method')).toBe('PUT');
     expect(request.config.data.get('firstname')).toBe('Max');
     expect(request.config.data.get('lastname')).toBe('Mustermann');
     expect(request.config.data.get('email')).toBe('max@mustermann.de');
@@ -595,17 +563,50 @@ describe('UsersView', () => {
     expect(request.config.data.get('user_locale')).toBe('de');
     expect(request.config.data.has('generate_password')).toBeFalsy();
 
-    const restoreUserResponse = overrideStub('/api/v1/users/2', {
+    await request.respondWith({
       status: 204
     });
 
     await waitMoxios();
-    await store.state.session.runningPromise;
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/currentUser');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          authenticator: 'users',
+          email: 'max@mustermann.de',
+          username: 'dva',
+          firstname: 'Max',
+          lastname: 'Mustermann',
+          user_locale: 'de',
+          model_name: 'User',
+          room_limit: -1,
+          image: 'http://domain.tld/storage/profile_images/abc.jpg',
+          updated_at: '2020-01-01T01:00:00.000000Z',
+          roles: [{
+            id: 1,
+            name: 'Test 1',
+            automatic: true
+          }, {
+            id: 2,
+            name: 'Test 2',
+            automatic: false
+          }, {
+            id: 3,
+            name: 'Test 3',
+            automatic: false
+          }],
+          permissions: []
+        }
+      }
+    });
+
     // check that the application locale gets changed
-    expect(store.state.session.currentLocale).toBe('de');
+    expect(localeStore.currentLocale).toBe('de');
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith({ name: 'settings.users' });
-    restoreUserResponse();
     view.destroy();
   });
 
@@ -637,7 +638,7 @@ describe('UsersView', () => {
           type: 'edit'
         }
       },
-      store
+      pinia: createTestingPinia({ initialState, stubActions: false })
     });
 
     await waitMoxios();
@@ -675,12 +676,17 @@ describe('UsersView', () => {
           type: 'edit'
         }
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
 
     await waitMoxios();
-    expect(store.state.session.logoutCount).toBe(1);
+    const request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/logout');
+    await request.respondWith({
+      status: 204
+    });
+
     expect(errorSpy).toBeCalledTimes(1);
 
     expect(spy).toBeCalledTimes(1);
@@ -708,10 +714,10 @@ describe('UsersView', () => {
           type: 'edit'
         }
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
-
+    useAuthStore();
     await waitMoxios();
     const restoreUserResponse = overrideStub('/api/v1/users/1', {
       status: env.HTTP_NOT_FOUND,
@@ -723,7 +729,12 @@ describe('UsersView', () => {
     view.findComponent(BForm).trigger('submit');
 
     await waitMoxios();
-    expect(store.state.session.logoutCount).toBe(1);
+    const request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/logout');
+    await request.respondWith({
+      status: 204
+    });
+
     expect(errorSpy).toBeCalledTimes(1);
 
     expect(spy).toBeCalledTimes(1);
@@ -751,7 +762,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
 
@@ -782,10 +793,11 @@ describe('UsersView', () => {
       }
     });
 
+    moxios.requests.reset();
     staleModelModal.vm.$refs['ok-button'].click();
 
     await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    const request = moxios.requests.at(0);
 
     expect(request.config.data.get('updated_at')).toBe(newModel.updated_at);
     expect(request.config.data.get('firstname')).toBe('Darth');
@@ -814,7 +826,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
 
@@ -872,7 +884,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store
+      pinia: createTestingPinia({ initialState, stubActions: false })
     });
 
     await waitMoxios();
@@ -919,7 +931,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
 
@@ -955,7 +967,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store
+      pinia: createTestingPinia({ initialState, stubActions: false })
     });
 
     await waitMoxios();
@@ -986,7 +998,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       router
     });
 
@@ -1022,7 +1034,7 @@ describe('UsersView', () => {
           type: 'profile'
         }
       },
-      store
+      pinia: createTestingPinia({ initialState, stubActions: false })
     });
 
     await waitMoxios();
@@ -1046,16 +1058,25 @@ describe('UsersView', () => {
     await undoButton.trigger('click');
     expect(image.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
 
+    moxios.requests.reset();
     view.findComponent(BForm).trigger('submit');
 
     await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    let request = moxios.requests.at(0);
+    expect(request.url).toBe('/api/v1/users/1');
     expect(request.config.data.has('image')).toBeFalsy();
-
     await request.respondWith({
       status: 200,
       response: ownUserResponse
     });
+
+    request = moxios.requests.at(1);
+    expect(request.url).toBe('/api/v1/currentUser');
+    await request.respondWith({
+      status: 200,
+      response: ownUserResponse
+    });
+
     await view.vm.$nextTick();
 
     buttons = view.findAllComponents(BButton);
@@ -1071,6 +1092,7 @@ describe('UsersView', () => {
     buttons = view.findAllComponents(BButton);
     expect(buttons.length).toBe(4);
 
+    moxios.requests.reset();
     view.findComponent(BForm).trigger('submit');
 
     const response = _.cloneDeep(ownUserResponse);
@@ -1081,8 +1103,16 @@ describe('UsersView', () => {
     });
 
     await waitMoxios();
-    request = moxios.requests.mostRecent();
+    request = moxios.requests.at(0);
     expect(request.config.data.get('image')).toBe('');
+
+    request = moxios.requests.at(1);
+    expect(request.url).toBe('/api/v1/currentUser');
+    await request.respondWith({
+      status: 200,
+      response: ownUserResponse
+    });
+
     await view.vm.$nextTick();
 
     buttons = view.findAllComponents(BButton);
@@ -1142,7 +1172,7 @@ describe('UsersView', () => {
         },
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       stubs: {
         VueCropper: cropperComponent
       }
@@ -1232,9 +1262,10 @@ describe('UsersView', () => {
     expect(modal.vm.$data.isVisible).toBeFalsy();
 
     // submit form to send cropped image to server
+    moxios.requests.reset();
     view.findComponent(BForm).trigger('submit');
     await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    const request = moxios.requests.at(0);
     // check if blob is sent to server
     expect(request.config.data.get('image') instanceof Blob).toBeTruthy();
     expect(request.config.data.get('image').type).toBe('image/jpeg');
@@ -1245,7 +1276,7 @@ describe('UsersView', () => {
   it('default image shown on new page', async () => {
     const view = mount(View, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState, stubActions: false }),
       mocks: {
         $t: (key) => key,
         $te: () => false

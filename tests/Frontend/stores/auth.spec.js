@@ -1,11 +1,14 @@
-import Session from '../../../resources/js/store/modules/session';
 import moxios from 'moxios';
 import i18n, { importLanguage } from '../../../resources/js/i18n';
 import { overrideStub } from '../helper';
+import { createPinia, setActivePinia } from 'pinia';
+import { useAuthStore } from '../../../resources/js/stores/auth';
+import PermissionService from '../../../resources/js/services/PermissionService';
 
-describe('store/session', () => {
+describe('Auth Store', () => {
   beforeEach(() => {
     moxios.install();
+    setActivePinia(createPinia());
   });
 
   afterEach(() => {
@@ -28,9 +31,7 @@ describe('store/session', () => {
 
   it('getCurrentUser and set i18n timezone', async () => {
     const messagesEN = require('../../../lang/en.json');
-    importLanguage('en', messagesEN);
 
-    const commit = vi.fn();
 
     const user = {
       id: 1,
@@ -53,10 +54,12 @@ describe('store/session', () => {
       }
     });
 
-    await Session.actions.getCurrentUser({ commit });
+    const auth = useAuthStore();
+    await auth.getCurrentUser();
 
-    expect(commit).toBeCalledTimes(1);
-    expect(commit).toBeCalledWith('setCurrentUser', { currentUser: user });
+    expect(auth.currentUser).toEqual(user);
+    expect(PermissionServiceSpy).toBeCalledTimes(1);
+    expect(PermissionServiceSpy).toBeCalledWith(user, true);
 
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/13/2021, 05:09');
 
@@ -68,10 +71,11 @@ describe('store/session', () => {
       }
     });
 
-    await Session.actions.getCurrentUser({ commit });
+    await auth.getCurrentUser();
 
-    expect(commit).toBeCalledTimes(2);
-    expect(commit).toHaveBeenLastCalledWith('setCurrentUser', { currentUser: user });
+    expect(auth.currentUser).toEqual(user);
+    expect(PermissionServiceSpy).toBeCalledTimes(2);
+    expect(PermissionServiceSpy).toBeCalledWith(user, true);
 
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/12/2021, 19:09');
     restoreCurrentUserResponse();

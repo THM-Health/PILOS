@@ -10,7 +10,7 @@ import VueClipboard from 'vue-clipboard2';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
-import VueRouter from "vue-router";
+import VueRouter from 'vue-router';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests

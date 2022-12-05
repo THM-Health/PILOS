@@ -1,34 +1,15 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import FooterComponent from '../../../resources/js/components/FooterComponent.vue';
 import moxios from 'moxios';
-import _ from 'lodash';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import { BootstrapVue } from 'bootstrap-vue';
 import RawText from '../../../resources/js/components/RawText.vue';
-import { localVue } from '../helper.js';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { useSettingsStore } from '../../../resources/js/stores/settings';
 
 localVue.use(VueRouter);
-localVue.use(Vuex);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      state: { settings: null },
-      getters: {
-        settings: (state) => (setting) => {
-          return _.isEmpty(state.settings) ? undefined : _.get(state.settings, setting);
-        }
-      },
-      mutations: {
-        setSettings (state, settings) {
-          state.settings = settings;
-        }
-      }
-    }
-  }
-});
+localVue.use(PiniaVuePlugin);
 
 describe('Footer Component', () => {
   beforeEach(() => {
@@ -37,23 +18,24 @@ describe('Footer Component', () => {
 
   afterEach(() => {
     moxios.uninstall();
-    return store.commit('session/setSettings', { });
   });
 
   it('footer test with two urls', async () => {
     const view = mount(FooterComponent, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: (key) => key
       }
     });
 
-    // set URLs for testing
-    await store.commit('session/setSettings', {
+    const settings = useSettingsStore();
+    settings.settings = {
       legal_notice_url: 'https://legal.org',
       privacy_policy_url: 'https://privacy.org'
-    });
+    };
+
+    await view.vm.$nextTick();
 
     // test if footer exists
     const footer = view.findComponent({ ref: 'url_footer' });
@@ -72,16 +54,19 @@ describe('Footer Component', () => {
   it('footer test with only legal notice', async () => {
     const view = mount(FooterComponent, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: (key) => key
       }
     });
 
     // set URLs for testing
-    await store.commit('session/setSettings', {
+    const settings = useSettingsStore();
+    settings.settings = {
       legal_notice_url: 'https://legal.org'
-    });
+    };
+
+    await view.vm.$nextTick();
 
     // test if footer exists
     const footer = view.findComponent({ ref: 'url_footer' });
@@ -98,16 +83,19 @@ describe('Footer Component', () => {
   it('footer test with only privacy policy', async () => {
     const view = mount(FooterComponent, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: (key) => key
       }
     });
 
     // set URLs for testing
-    await store.commit('session/setSettings', {
+    const settings = useSettingsStore();
+    settings.settings = {
       privacy_policy_url: 'https://privacy.org'
-    });
+    };
+
+    await view.vm.$nextTick();
 
     // test if footer exists
     const footer = view.findComponent({ ref: 'url_footer' });
@@ -124,7 +112,7 @@ describe('Footer Component', () => {
   it('footer test with no urls', function () {
     const view = mount(FooterComponent, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: (key) => key
       }

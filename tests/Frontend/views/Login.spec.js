@@ -2,15 +2,18 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
 import Login from '../../../resources/js/views/Login.vue';
-import store from '../../../resources/js/store';
 import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent.vue';
 import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import { waitMoxios, localVue } from '../helper';
+import { waitMoxios } from '../helper';
+import { createTestingPinia } from '@pinia/testing';
+import { PiniaVuePlugin } from 'pinia';
 
 localVue.use(VueRouter);
+localVue.use(BootstrapVue);
+localVue.use(PiniaVuePlugin);
 
 describe('Login', () => {
   beforeEach(() => {
@@ -22,11 +25,9 @@ describe('Login', () => {
   });
 
   it('correct data gets sent on ldap login', async () => {
-    const oldState = store.state['session/settings'];
-    store.commit('session/setSettings', { ldap: true });
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { ldap: true } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -57,17 +58,13 @@ describe('Login', () => {
     const data = JSON.parse(request.config.data);
     expect(data.username).toBe('user');
     expect(data.password).toBe('password');
-    store.commit('session/setSettings', oldState);
     view.destroy();
   });
 
   it('hide ldap login if disabled', () => {
-    const oldState = store.state['session/settings'];
-    store.commit('session/setSettings', { ldap: false });
-
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { ldap: false } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -75,14 +72,13 @@ describe('Login', () => {
 
     const ldapLoginComponent = view.findComponent(LdapLoginComponent);
     expect(ldapLoginComponent.exists()).toBeFalsy();
-    store.commit('session/setSettings', oldState);
     view.destroy();
   });
 
   it('correct data gets sent on email login', async () => {
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -127,7 +123,7 @@ describe('Login', () => {
 
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
         flashMessage: flashMessage
@@ -185,7 +181,7 @@ describe('Login', () => {
 
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
         flashMessage: flashMessage
@@ -236,7 +232,7 @@ describe('Login', () => {
   it('unprocessable entity errors gets displayed for the corresponding fields', async () => {
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -289,7 +285,7 @@ describe('Login', () => {
   it('error for too many login requests gets displayed', async () => {
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -343,7 +339,7 @@ describe('Login', () => {
 
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }

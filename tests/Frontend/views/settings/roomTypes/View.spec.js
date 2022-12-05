@@ -9,27 +9,15 @@ import BootstrapVue, {
   BButton, BForm, BFormInvalidFeedback, BModal
 } from 'bootstrap-vue';
 import VSwatches from 'vue-swatches';
-import Vuex from 'vuex';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
 import { Multiselect } from 'vue-multiselect';
-import { waitMoxios, overrideStub, localVue } from '../../../helper';
-
-localVue.use(Vuex);
+import { waitMoxios, overrideStub } from '../../../helper';
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'room_limit' ? -1 : null
-      }
-    }
-  }
-});
 
 let oldUser;
 
@@ -130,8 +118,7 @@ describe('RoomTypeView', () => {
       propsData: {
         viewOnly: false,
         id: '1'
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -150,8 +137,7 @@ describe('RoomTypeView', () => {
       propsData: {
         viewOnly: false,
         id: '1'
-      },
-      store
+      }
     });
 
     const multiSelect = view.findComponent(Multiselect);
@@ -271,8 +257,7 @@ describe('RoomTypeView', () => {
       propsData: {
         viewOnly: true,
         id: '1'
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -300,8 +285,7 @@ describe('RoomTypeView', () => {
       propsData: {
         viewOnly: false,
         id: '1'
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -347,7 +331,6 @@ describe('RoomTypeView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router
     });
 
@@ -376,7 +359,6 @@ describe('RoomTypeView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router
     });
 
@@ -410,8 +392,7 @@ describe('RoomTypeView', () => {
       propsData: {
         viewOnly: false,
         id: '1'
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -445,7 +426,6 @@ describe('RoomTypeView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router
     });
 
@@ -473,7 +453,6 @@ describe('RoomTypeView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router
     });
 
@@ -543,7 +522,6 @@ describe('RoomTypeView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       router
     });
 
@@ -599,7 +577,6 @@ describe('RoomTypeView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       router
     });
 

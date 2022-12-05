@@ -7,13 +7,14 @@ import moxios from 'moxios';
 import { vi } from 'vitest';
 import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
 import VueClipboard from 'vue-clipboard2';
-import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer, localVue } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const routerMock = new VueRouter({
   mode: 'abstract',
@@ -28,44 +29,19 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+localVue.use(BootstrapVue);
 localVue.use(VueClipboard);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: (state) => !_.isEmpty(state.currentUser),
-        settings: () => (setting) => setting === 'base_url' ? 'https://domain.tld' : null
-      },
-      mutations: {
-        setCurrentUser (state, { currentUser, emit = true }) {
-          state.currentUser = currentUser;
-          PermissionService.setCurrentUser(state.currentUser, emit);
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { settings: { settings: { base_url: 'https://domain.tld' } } };
 
 describe('Room Token', () => {
   beforeEach(() => {
     moxios.install();
-    store.commit('session/setCurrentUser', { currentUser: exampleUser });
+    PermissionService.setCurrentUser(exampleUser);
   });
   afterEach(() => {
     moxios.uninstall();
@@ -83,7 +59,7 @@ describe('Room Token', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -212,7 +188,7 @@ describe('Room Token', () => {
         room: exampleRoom
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -260,7 +236,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -381,7 +357,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -513,7 +489,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -697,7 +673,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 

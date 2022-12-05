@@ -12,10 +12,10 @@ import BootstrapVue, {
   BFormInput
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import Vuex from 'vuex';
-import { waitMoxios, createContainer, localVue } from '../../../helper';
+import { waitMoxios, createContainer } from '../../../helper';
 
-localVue.use(Vuex);
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 
 const defaultResponse = {
   data: [
@@ -101,17 +101,6 @@ const defaultResponse = {
   }
 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'pagination_page_size' ? 15 : null
-      }
-    }
-  }
-});
-
 let oldUser;
 
 describe('ServersIndex', () => {
@@ -133,7 +122,6 @@ describe('ServersIndex', () => {
       mocks: {
         $t: key => key
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -193,7 +181,6 @@ describe('ServersIndex', () => {
       propsData: {
         searchDebounce: 0
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -273,8 +260,7 @@ describe('ServersIndex', () => {
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await waitMoxios();
@@ -304,8 +290,7 @@ describe('ServersIndex', () => {
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await waitMoxios();
@@ -339,8 +324,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -381,8 +365,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -517,8 +500,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -652,8 +634,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -701,8 +682,7 @@ describe('ServersIndex', () => {
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await waitMoxios();
@@ -746,8 +726,7 @@ describe('ServersIndex', () => {
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     // During normal load the usage should not be updated

@@ -10,32 +10,23 @@ import BootstrapVue, {
   BForm,
   BFormInvalidFeedback, BButton, BModal, BFormRadio
 } from 'bootstrap-vue';
-import Vuex from 'vuex';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer, localVue } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
-localVue.use(Vuex);
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'room_limit' ? -1 : null
-      }
-    }
-  }
-});
-
-let oldUser;
+const initialState = { settings: { settings: { room_limit: -1 } } };
 
 describe('RolesView', () => {
   beforeEach(() => {
-    oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['roles.view', 'roles.create', 'roles.update', 'settings.manage'] });
     moxios.install();
 
@@ -75,7 +66,6 @@ describe('RolesView', () => {
   });
 
   afterEach(() => {
-    PermissionService.setCurrentUser(oldUser);
     moxios.uninstall();
   });
 
@@ -90,7 +80,7 @@ describe('RolesView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -110,7 +100,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -130,7 +120,7 @@ describe('RolesView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -160,7 +150,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -241,7 +231,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -283,7 +273,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -321,7 +311,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -412,7 +402,7 @@ describe('RolesView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -478,7 +468,7 @@ describe('RolesView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -534,7 +524,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -575,7 +565,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -609,7 +599,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -642,7 +632,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -698,7 +688,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 

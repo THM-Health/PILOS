@@ -9,26 +9,15 @@ import BootstrapVue, {
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal
 } from 'bootstrap-vue';
-import Vuex from 'vuex';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
 import { waitMoxios, overrideStub, createContainer, localVue } from '../../../helper';
 
-localVue.use(Vuex);
+const localVue = createLocalVue();
+localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'room_limit' ? -1 : null
-      }
-    }
-  }
-});
 
 let oldUser;
 
@@ -157,7 +146,6 @@ describe('ServerPoolView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -186,7 +174,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -233,7 +220,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -263,7 +249,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -299,7 +284,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -335,7 +319,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -364,7 +347,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -431,7 +413,6 @@ describe('ServerPoolView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -483,7 +464,6 @@ describe('ServerPoolView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -529,8 +509,7 @@ describe('ServerPoolView', () => {
       propsData: {
         viewOnly: false,
         id: '1'
-      },
-      store
+      }
     });
 
     const multiSelect = view.findComponent(Multiselect);

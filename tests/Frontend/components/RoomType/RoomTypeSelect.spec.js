@@ -1,44 +1,15 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
-import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect.vue';
-import { waitMoxios, overrideStub, createContainer, localVue } from '../../helper';
-
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
+import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 localVue.use(VueRouter);
-localVue.use(Vuex);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser ({ state }) { }
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      },
-      mutations: {
-        setCurrentUser (state, currentUser) {
-          PermissionService.setCurrentUser(currentUser);
-          state.currentUser = currentUser;
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+localVue.use(PiniaVuePlugin);
 
 describe('RoomType Select', () => {
   beforeEach(() => {
@@ -72,7 +43,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -97,7 +68,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -129,7 +100,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 10, short: 'VL', description: 'Test', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -154,7 +125,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -196,7 +167,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -235,7 +206,7 @@ describe('RoomType Select', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 

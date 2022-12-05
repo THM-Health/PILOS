@@ -11,43 +11,17 @@ import BootstrapVue, {
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
-import Vuex from 'vuex';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer, localVue } from '../../helper';
+import { waitMoxios, overrideStub, createContainer } from '../../helper';
 import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 localVue.use(VueRouter);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      },
-      mutations: {
-        setCurrentUser (state, currentUser) {
-          PermissionService.setCurrentUser(currentUser);
-          state.currentUser = currentUser;
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
 
 describe('Room Index', () => {
   beforeEach(() => {
@@ -120,7 +94,6 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -151,7 +124,7 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       router,
       attachTo: createContainer()
     });
@@ -244,7 +217,7 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -309,7 +282,7 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -356,7 +329,7 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -476,7 +449,7 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -504,7 +477,7 @@ describe('Room Index', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 

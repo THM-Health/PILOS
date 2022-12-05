@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import base from '../api/base';
-import {useAuthStore} from './auth';
+import { useAuthStore } from './auth';
 
 export const useLocaleStore = defineStore('locale', {
   state: () => {
