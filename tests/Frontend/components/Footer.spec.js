@@ -1,7 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import FooterComponent from '../../../resources/js/components/FooterComponent';
 import moxios from 'moxios';
-import _ from 'lodash';
 import VueRouter from 'vue-router';
 import { BootstrapVue } from 'bootstrap-vue';
 import RawText from '../../../resources/js/components/RawText';

@@ -4,7 +4,6 @@ import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminComponent from '../../../../resources/js/components/Room/AdminComponent';
 import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
@@ -12,15 +11,18 @@ import Vue from 'vue';
 import _ from 'lodash';
 import env from '../../../../resources/js/env';
 
-import storeOrg from '../../../../resources/js/store';
 import i18n from '../../../../resources/js/i18n';
 import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { useAuthStore } from '../../../../resources/js/stores/auth';
+import { useSettingsStore } from '../../../../resources/js/stores/settings';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
 localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 const routerMock = new VueRouter({
@@ -34,42 +36,11 @@ const routerMock = new VueRouter({
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser,
-        settings: {
-          room_refresh_rate: 30
-        }
-      },
-      getters: {
-        isAuthenticated: (state) => !_.isEmpty(state.currentUser),
-        settings: (state) => (setting) => _.isEmpty(state.settings) ? undefined : _.get(state.settings, setting)
-      },
-      mutations: {
-        setCurrentUser (state, { currentUser, emit = true }) {
-          state.currentUser = currentUser;
-          PermissionService.setCurrentUser(state.currentUser, emit);
-        },
-        setSettings (state, settings) {
-          state.settings = settings;
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { auth: { currentUser: exampleUser }, settings: { settings: { room_refresh_rate: 30 } } };
 
 describe('Room', () => {
   beforeEach(() => {
-    store.commit('session/setCurrentUser', { currentUser: exampleUser });
+    PermissionService.setCurrentUser(exampleUser);
     moxios.install();
   });
   afterEach(() => {
@@ -93,7 +64,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
       attachTo: createContainer()
     });
@@ -138,17 +109,18 @@ describe('Room', () => {
 
     Vue.prototype.flashMessage = flashMessage;
 
-    await store.commit('session/setCurrentUser', { currentUser: null });
-
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
       attachTo: createContainer()
     });
+
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     const to = {
       params: {
@@ -216,21 +188,20 @@ describe('Room', () => {
     const router = new VueRouter();
     jest.spyOn(router, 'push').mockImplementation();
 
-    await store.commit('session/setCurrentUser', { currentUser: null });
-
     Vue.prototype.flashMessage = flashMessage;
-
-    store.commit('session/setCurrentUser', { currentUser: null });
 
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
       attachTo: createContainer()
     });
+
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     const to = {
       params: {
@@ -281,8 +252,6 @@ describe('Room', () => {
     jest.spyOn(router, 'push').mockImplementation();
     jest.spyOn(i18n, 't').mockImplementation((key) => key);
 
-    await storeOrg.commit('session/setCurrentUser', { currentUser: exampleUser });
-
     Vue.prototype.flashMessage = flashMessage;
 
     const view = mount(RoomView, {
@@ -290,7 +259,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
       attachTo: createContainer()
     });
@@ -321,7 +290,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer()
     });
 
@@ -363,7 +332,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer()
     });
 
@@ -389,7 +358,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       router: routerMock,
       data () {
@@ -406,13 +375,12 @@ describe('Room', () => {
   });
 
   it('room details auth. guest', async () => {
-    store.commit('session/setCurrentUser', { currentUser: null });
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
       data () {
@@ -436,6 +404,9 @@ describe('Room', () => {
         };
       }
     });
+
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     await view.vm.$nextTick();
     expect(view.html()).toContain('Meeting One');
@@ -462,7 +433,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
       data () {
@@ -508,7 +479,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
       data () {
@@ -557,7 +528,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
       data () {
@@ -605,7 +576,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
       data () {
@@ -630,6 +601,7 @@ describe('Room', () => {
         };
       }
     });
+    const authStore = useAuthStore();
 
     await view.vm.$nextTick();
     expect(view.html()).toContain('Meeting One');
@@ -639,7 +611,7 @@ describe('Room', () => {
 
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.viewAll'];
-    store.commit('session/setCurrentUser', { currentUser: newUser });
+    authStore.setCurrentUser(newUser);
 
     await Vue.nextTick();
     expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
@@ -662,7 +634,7 @@ describe('Room', () => {
       stubs: {
         'room-admin': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
       data () {
@@ -748,7 +720,7 @@ describe('Room', () => {
           accessCode: 123456789
         };
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer()
     });
 
@@ -780,7 +752,7 @@ describe('Room', () => {
           token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
         };
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer()
     });
 
@@ -802,7 +774,7 @@ describe('Room', () => {
         $t: (key) => key,
         flashMessage: flashMessage
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -905,7 +877,7 @@ describe('Room', () => {
         flashMessage: flashMessage
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer()
     });
 
@@ -941,7 +913,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1014,7 +986,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1068,8 +1040,6 @@ describe('Room', () => {
   });
 
   it('join running meeting guests', async () => {
-    store.commit('session/setCurrentUser', { currentUser: null });
-
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1082,7 +1052,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1106,6 +1076,9 @@ describe('Room', () => {
         };
       }
     });
+
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
@@ -1172,8 +1145,6 @@ describe('Room', () => {
   });
 
   it('join running meeting guests with access token', async () => {
-    store.commit('session/setCurrentUser', { currentUser: null });
-
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1186,7 +1157,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1211,6 +1182,8 @@ describe('Room', () => {
         };
       }
     });
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
@@ -1279,8 +1252,6 @@ describe('Room', () => {
   });
 
   it('join running meeting token', async () => {
-    store.commit('session/setCurrentUser', { currentUser: null });
-
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1293,7 +1264,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1320,6 +1291,8 @@ describe('Room', () => {
         };
       }
     });
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     await view.vm.$nextTick();
     const joinButton = view.findComponent({ ref: 'joinMeeting' });
@@ -1365,7 +1338,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1513,7 +1486,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1585,7 +1558,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1639,8 +1612,6 @@ describe('Room', () => {
   });
 
   it('start meeting guests', async () => {
-    store.commit('session/setCurrentUser', { currentUser: null });
-
     const oldWindow = window.location;
     delete window.location;
     window.location = null;
@@ -1653,7 +1624,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1677,6 +1648,8 @@ describe('Room', () => {
         };
       }
     });
+    const authStore = useAuthStore();
+    authStore.setCurrentUser(null);
 
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
@@ -1771,7 +1744,7 @@ describe('Room', () => {
       stubs: {
         'file-component': fileComponent
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -1953,7 +1926,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -2027,7 +2000,7 @@ describe('Room', () => {
       stubs: {
         'file-component': true
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       data () {
         return {
@@ -2104,7 +2077,7 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
@@ -2238,7 +2211,7 @@ describe('Room', () => {
           room_id: 'cba-fed-234'
         };
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer()
     });
@@ -2274,10 +2247,12 @@ describe('Room', () => {
       }
     });
 
+    const authStore = useAuthStore();
+
     await view.vm.$nextTick();
     expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
 
-    expect(store.getters['session/isAuthenticated']).toBeFalsy();
+    expect(authStore.isAuthenticated).toBeFalsy();
 
     await reloadButton.trigger('click');
     await waitMoxios();
@@ -2303,7 +2278,7 @@ describe('Room', () => {
       }
     });
 
-    expect(store.getters['session/isAuthenticated']).toBeTruthy();
+    expect(authStore.isAuthenticated).toBeTruthy();
     expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
 
     await reloadButton.trigger('click');
@@ -2314,7 +2289,7 @@ describe('Room', () => {
     });
 
     expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
-    expect(store.getters['session/isAuthenticated']).toBeFalsy();
+    expect(authStore.isAuthenticated).toBeFalsy();
     view.destroy();
   });
 
@@ -2330,29 +2305,30 @@ describe('Room', () => {
           room_id: 'cba-fed-234'
         };
       },
-      store,
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer()
     });
+    const settingsStore = useSettingsStore();
 
     await view.vm.$nextTick();
     // use fixed random value for testing only
     jest.spyOn(Math, 'random').mockReturnValue(0.4);
 
     // check for pos. integer
-    await store.commit('session/setSettings', { room_refresh_rate: 10 });
+    settingsStore.settings.room_refresh_rate = 10;
     expect(view.vm.getRandomRefreshInterval()).toBe(9.7);
 
     // check for zero
-    await store.commit('session/setSettings', { room_refresh_rate: 0 });
+    settingsStore.settings.room_refresh_rate = 0;
     expect(view.vm.getRandomRefreshInterval()).toBe(0);
 
     // check for neg. integer
-    await store.commit('session/setSettings', { room_refresh_rate: -20 });
+    settingsStore.settings.room_refresh_rate = -20;
     expect(view.vm.getRandomRefreshInterval()).toBe(19.4);
 
     // check for float
-    await store.commit('session/setSettings', { room_refresh_rate: 4.2 });
+    settingsStore.settings.room_refresh_rate = 4.2;
     expect(view.vm.getRandomRefreshInterval()).toBe(4.074);
 
     view.destroy();

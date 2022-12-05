@@ -1,7 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
-import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect';

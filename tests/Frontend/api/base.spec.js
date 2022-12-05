@@ -2,8 +2,8 @@ import Base from '../../../resources/js/api/base';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import { waitMoxios } from '../helper';
-import {createTestingPinia} from "@pinia/testing";
-import {useAuthStore} from "../../../resources/js/stores/auth";
+import { createTestingPinia } from '@pinia/testing';
+import { useAuthStore } from '../../../resources/js/stores/auth';
 
 let consoleErrorStub;
 
@@ -73,14 +73,6 @@ describe('base', () => {
       const routerSpy = jest.spyOn(router, 'replace').mockImplementation();
       jest.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
 
-      const storeCommitSpy = jest.fn();
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        commit: storeCommitSpy
-      };
-
       const pinia = createTestingPinia();
       const auth = useAuthStore();
       auth.currentUser = { id: 1 };
@@ -102,7 +94,6 @@ describe('base', () => {
 
       expect(flashMessageInfoSpy).toBeCalledTimes(1);
       expect(flashMessageInfoSpy).toBeCalledWith('app.flash.unauthenticated');
-
 
       expect(auth.setCurrentUser).toBeCalledTimes(1);
       expect(auth.setCurrentUser).toBeCalledWith(null, false);

@@ -4,9 +4,13 @@ import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
 import { waitMoxios } from '../helper';
+import { createTestingPinia } from '@pinia/testing';
+import { PiniaVuePlugin } from 'pinia';
+import { useLoadingStore } from '../../../resources/js/stores/loading';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
+localVue.use(PiniaVuePlugin);
 
 describe('LocaleSelector', () => {
   beforeEach(() => {
@@ -45,7 +49,7 @@ describe('LocaleSelector', () => {
       propsData: {
         availableLocales: ['de', 'ru']
       },
-      store
+      pinia: createTestingPinia()
     });
 
     const dropdownItems = wrapper.findAllComponents(BDropdownItem);
@@ -58,7 +62,6 @@ describe('LocaleSelector', () => {
   });
 
   it('the `currentLocale` should be active in the dropdown', async () => {
-    store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
@@ -67,7 +70,7 @@ describe('LocaleSelector', () => {
       propsData: {
         availableLocales: ['de', 'ru']
       },
-      store
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } } })
     });
 
     const activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
@@ -78,7 +81,6 @@ describe('LocaleSelector', () => {
   });
 
   it('shows an corresponding error message and doesn\'t change the language on 422', async () => {
-    store.commit('session/setCurrentLocale', 'ru');
     const flashMessageSpy = jest.fn();
     const flashMessage = { error: flashMessageSpy };
 
@@ -91,8 +93,9 @@ describe('LocaleSelector', () => {
       propsData: {
         availableLocales: ['de', 'ru']
       },
-      store
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
+
     moxios.stubRequest('/api/v1/setLocale', {
       status: 422,
       response: {
@@ -125,7 +128,6 @@ describe('LocaleSelector', () => {
   it('calls global error handler on other errors than 422 and finishes loading', async () => {
     const spy = jest.spyOn(Base, 'error').mockImplementation();
 
-    store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
@@ -134,14 +136,17 @@ describe('LocaleSelector', () => {
       propsData: {
         availableLocales: ['de', 'ru']
       },
-      store
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
+
     moxios.stubRequest('/api/v1/setLocale', {
       status: 500,
       response: {
         message: 'Test'
       }
     });
+
+    const loadingStore = useLoadingStore();
 
     const items = wrapper.findAllComponents(BDropdownItem);
     let activeItems = items.filter(item => item.props().active);
@@ -151,7 +156,7 @@ describe('LocaleSelector', () => {
 
     items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    expect(store.state.loadingCounter).toEqual(1);
+    expect(loadingStore.loadingCounter).toEqual(1);
 
     await waitMoxios();
 
@@ -159,7 +164,7 @@ describe('LocaleSelector', () => {
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('Russian');
     expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
-    expect(store.state.loadingCounter).toEqual(0);
+    expect(loadingStore.loadingCounter).toEqual(0);
 
     expect(spy).toBeCalledTimes(1);
 
@@ -167,7 +172,6 @@ describe('LocaleSelector', () => {
   });
 
   it('changes to the selected language successfully', async () => {
-    store.commit('session/setCurrentLocale', 'ru');
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
@@ -176,8 +180,9 @@ describe('LocaleSelector', () => {
       propsData: {
         availableLocales: ['de', 'ru']
       },
-      store
+      pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
+
     moxios.stubRequest('/api/v1/setLocale', {
       status: 200
     });

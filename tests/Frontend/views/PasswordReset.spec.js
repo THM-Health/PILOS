@@ -8,7 +8,7 @@ import env from '../../../resources/js/env';
 import { waitMoxios } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import {useLocaleStore} from '../../../resources/js/stores/locale';
+import { useLocaleStore } from '../../../resources/js/stores/locale';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -80,7 +80,7 @@ describe('PasswordReset', () => {
         flashMessage: flashMessage
       },
       router,
-      pinia: createTestingPinia( { stubActions: false}),
+      pinia: createTestingPinia({ stubActions: false }),
       propsData: {
         email: 'foo@bar.com',
         token: 'Test123'

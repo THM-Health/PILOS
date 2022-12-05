@@ -10,15 +10,16 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import Base from '../../../../resources/js/api/base';
 import Application from '../../../../resources/js/views/settings/Application';
-import Vuex from 'vuex';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
 import { waitMoxios, createContainer } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 const bbbSettings = {
   file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
@@ -187,21 +188,9 @@ describe('Application', () => {
   });
 
   it('update room_token_expiration', async () => {
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -322,21 +311,9 @@ describe('Application', () => {
   });
 
   it('updateSettings method works properly with response data room_limit is -1', async () => {
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -487,21 +464,9 @@ describe('Application', () => {
   });
 
   it('updateSettings sends null values and booleans correctly to the backend', async () => {
-    const store = new Vuex.Store({
-      modules: {
-        session: {
-          actions: {
-            getSettings () {
-            }
-          },
-          namespaced: true
-        }
-      }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -876,21 +841,9 @@ describe('Application', () => {
   it('disable edit button if user does not have permission', () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -907,21 +860,9 @@ describe('Application', () => {
   it('delete default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -974,21 +915,9 @@ describe('Application', () => {
   it('delete default presentation button is visible if the view is not in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1041,21 +970,9 @@ describe('Application', () => {
   it('delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1118,21 +1035,9 @@ describe('Application', () => {
   it('revert default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1185,21 +1090,9 @@ describe('Application', () => {
   it('revert default presentation button is not visible if there is no new default presentation', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1262,21 +1155,9 @@ describe('Application', () => {
   it('view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1338,21 +1219,9 @@ describe('Application', () => {
   it('if no new default presentation was uploaded the attribute does not get send with the request', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1413,21 +1282,9 @@ describe('Application', () => {
   it('if the default presentation was deleted the attribute gets send as null value the request', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1490,21 +1347,9 @@ describe('Application', () => {
   it('if a new default presentation was uploaded the file gets send', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1574,21 +1419,9 @@ describe('Application', () => {
   it('bbb style', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1834,21 +1667,9 @@ describe('Application', () => {
   it('bbb logo', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -2105,21 +1926,9 @@ describe('Application', () => {
   it('bbb logo delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -2257,21 +2066,9 @@ describe('Application', () => {
   it('custom urls', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },

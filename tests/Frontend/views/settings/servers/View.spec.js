@@ -8,7 +8,6 @@ import BootstrapVue, {
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal, BFormRating, BFormCheckbox, BFormText
 } from 'bootstrap-vue';
-import Vuex from 'vuex';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
@@ -17,19 +16,7 @@ import { waitMoxios, overrideStub, createContainer } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
 localVue.use(VueRouter);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'room_limit' ? -1 : null
-      }
-    }
-  }
-});
 
 let oldUser;
 
@@ -80,7 +67,6 @@ describe('ServerView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -110,7 +96,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -157,7 +142,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -187,7 +171,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -223,7 +206,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -259,7 +241,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -288,7 +269,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -367,7 +347,6 @@ describe('ServerView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -419,7 +398,6 @@ describe('ServerView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -464,7 +442,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -556,7 +533,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -648,7 +624,6 @@ describe('ServerView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -703,7 +678,6 @@ describe('ServerView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -732,7 +706,6 @@ describe('ServerView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 

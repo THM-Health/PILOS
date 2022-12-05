@@ -23,7 +23,7 @@ describe('ForgotPassword', () => {
   });
 
   it('before route enter redirects to the 404 page if the self reset is disabled', async () => {
-    createTestingPinia({initialState: { settings: { settings: { password_self_reset_enabled: false } } } });
+    createTestingPinia({ initialState: { settings: { settings: { password_self_reset_enabled: false } } } });
 
     const to = await new Promise((resolve) => {
       ForgotPassword.beforeRouteEnter({}, {}, (to) => {
@@ -35,7 +35,7 @@ describe('ForgotPassword', () => {
   });
 
   it('before route enter continues to the view if the self reset is enabled', async () => {
-    createTestingPinia({initialState: { settings: { settings: { password_self_reset_enabled: true } } } });
+    createTestingPinia({ initialState: { settings: { settings: { password_self_reset_enabled: true } } } });
 
     const to = await new Promise((resolve) => {
       ForgotPassword.beforeRouteEnter({}, {}, (to) => {
