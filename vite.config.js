@@ -27,6 +27,11 @@ export default ({ mode }) => {
       ]),
       vue()
     ],
+    server: {
+      hmr: {
+        host: 'localhost',
+      }
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './resources/js'),
