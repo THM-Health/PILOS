@@ -1,11 +1,11 @@
 import moxios from 'moxios';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import PasswordReset from '../../../resources/js/views/PasswordReset.vue';
 import Base from '../../../resources/js/api/base';
 import env from '../../../resources/js/env';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useLocaleStore } from '../../../resources/js/stores/locale';

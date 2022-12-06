@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BForm,
@@ -17,7 +17,7 @@ import _ from 'lodash';
 import env from '../../../../../resources/js/env.js';
 import { Multiselect } from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, overrideStub } from '../../../helper';
+import { waitMoxios, overrideStub, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useLocaleStore } from '../../../../../resources/js/stores/locale';

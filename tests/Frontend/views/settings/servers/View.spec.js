@@ -1,5 +1,5 @@
 import View from '../../../../../resources/js/views/settings/servers/View.vue';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -12,7 +12,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer, localVue } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

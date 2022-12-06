@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
   BButton,
@@ -13,7 +13,7 @@ import Application from '../../../../resources/js/views/settings/Application.vue
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -1678,7 +1678,16 @@ describe('Application', () => {
 
     const img = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAwIDUwMCIgd2lkdGg9IjUwMCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHRleHQgc3R5bGU9IndoaXRlLXNwYWNlOiBwcmU7IGZpbGw6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE2LjNweDsiIHg9IjIwNi4wNTQiIHk9IjIzNy40ODUiPlRlc3QgTG9nbzwvdGV4dD4KPC9zdmc+';
 
-    vi.spyOn(view.vm, 'base64Encode').mockImplementation(() => Promise.resolve(img));
+    let resolvePromise;
+    let base64EncodedPromise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+    });
+    vi.spyOn(view.vm, 'base64Encode').mockImplementationOnce(() => {
+      return new Promise((resolve) => {
+        resolve(img);
+        resolvePromise();
+      });
+    });
 
     const file = new window.File(['foo'], 'foo.png', {
       type: 'image/png',
@@ -1725,7 +1734,7 @@ describe('Application', () => {
       }
     });
 
-    // check no buttons if no style uploaded
+    // check no buttons if no logo uploaded
     const formGroup = view.findComponent({ ref: 'bbb-logo-form-group' });
     expect(formGroup.findComponent(BFormInput).exists()).toBeTruthy();
     expect(formGroup.findComponent(BFormInput).element.value).toBe('');
@@ -1736,6 +1745,7 @@ describe('Application', () => {
     await view.setData({
       uploadBBBLogoFile: file
     });
+    await base64EncodedPromise;
     await view.vm.$nextTick();
 
     expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
@@ -1861,9 +1871,21 @@ describe('Application', () => {
     expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
 
     // set file and save
+
+    base64EncodedPromise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+    });
+    vi.spyOn(view.vm, 'base64Encode').mockImplementationOnce(() => {
+      return new Promise((resolve) => {
+        resolve(img);
+        resolvePromise();
+      });
+    });
+
     await view.setData({
       uploadBBBLogoFile: file
     });
+    await base64EncodedPromise;
     await view.vm.$nextTick();
 
     expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();

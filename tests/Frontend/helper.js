@@ -2,6 +2,7 @@ import moxios from 'moxios';
 import { createLocalVue as originalCreateLocalVue } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import HideTooltip from '../../resources/js/directives/hide-tooltip';
+import Vue from "vue";
 
 function createLocalVue () {
   const localVue = originalCreateLocalVue();

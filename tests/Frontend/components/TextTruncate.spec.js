@@ -1,8 +1,6 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import TextTruncate from '../../../resources/js/components/TextTruncate.vue';
-import BootstrapVue from 'bootstrap-vue';
 import { createContainer, localVue } from '../helper';
-import {nextTick} from 'vue';
 
 describe('TextTruncate', () => {
   it('show hide tooltip', async () => {

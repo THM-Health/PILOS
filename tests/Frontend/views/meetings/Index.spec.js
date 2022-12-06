@@ -1,5 +1,5 @@
 import Index from '../../../../resources/js/views/meetings/Index.vue';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
   BTr,
@@ -8,7 +8,7 @@ import BootstrapVue, {
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer, localVue } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

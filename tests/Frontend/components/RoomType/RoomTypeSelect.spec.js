@@ -1,13 +1,14 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect.vue';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
+const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 

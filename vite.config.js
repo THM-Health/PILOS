@@ -30,7 +30,7 @@ export default ({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './resources/js'),
-        vue: 'vue/dist/vue.esm.js'
+        vue$: 'vue/dist/vue.esm.js'
       }
     }
   });

@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
 import BootstrapVue, { BFormInput, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
@@ -7,13 +7,14 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import {waitMoxios, overrideStub, createContainer, createLocalVue} from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 const initialState = { auth: { currentUser: exampleUser } };
 
+const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 

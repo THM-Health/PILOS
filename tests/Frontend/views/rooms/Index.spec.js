@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import BootstrapVue, {
   BButton,
@@ -13,11 +13,12 @@ import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import {waitMoxios, overrideStub, createContainer, createLocalVue} from '../../helper';
 import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
+const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 

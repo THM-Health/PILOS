@@ -1,9 +1,9 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios } from '../helper';
+import {createLocalVue, waitMoxios} from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { useLoadingStore } from '../../../resources/js/stores/loading';
@@ -85,7 +85,7 @@ describe('LocaleSelector', () => {
   });
 
   it('shows an corresponding error message and doesn\'t change the language on 422', async () => {
-    const flashMessageSpy = jest.fn();
+    const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
     const wrapper = mount(LocaleSelector, {

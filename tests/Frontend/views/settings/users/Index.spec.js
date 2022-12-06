@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue';
 import moxios from 'moxios';
 import PermissionService from '../../../../../resources/js/services/PermissionService';

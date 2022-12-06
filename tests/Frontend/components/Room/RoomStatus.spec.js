@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { createContainer, localVue } from '../../helper';
 import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
 import BootstrapVue from 'bootstrap-vue';

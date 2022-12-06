@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BTbody
@@ -7,7 +7,7 @@ import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, waitMoxios, createContainer } from '../../helper';
+import {waitModalShown, waitMoxios, createContainer, createLocalVue} from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -16,6 +16,7 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);

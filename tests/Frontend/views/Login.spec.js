@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
 import Login from '../../../resources/js/views/Login.vue';
@@ -7,10 +7,11 @@ import LdapLoginComponent from '../../../resources/js/components/Login/LdapLogin
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 
+const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(BootstrapVue);
 localVue.use(PiniaVuePlugin);

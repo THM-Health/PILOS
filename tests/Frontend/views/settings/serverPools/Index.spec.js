@@ -1,5 +1,5 @@
 import Index from '../../../../../resources/js/views/settings/serverPools/Index.vue';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -11,7 +11,7 @@ import BootstrapVue, {
   BFormInput, BAlert
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, createContainer } from '../../../helper';
+import {waitMoxios, createContainer, createLocalVue} from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);

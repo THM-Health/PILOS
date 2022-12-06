@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
@@ -12,7 +12,7 @@ import _ from 'lodash';
 import env from '../../../../resources/js/env';
 
 import i18n from '../../../../resources/js/i18n';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../../../resources/js/stores/auth';

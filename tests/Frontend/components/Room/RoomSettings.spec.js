@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BFormInput,
@@ -10,7 +10,7 @@ import SettingsComponent from '../../../../resources/js/components/Room/Settings
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 

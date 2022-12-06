@@ -1,10 +1,10 @@
 import ForgotPassword from '../../../resources/js/views/ForgotPassword.vue';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 

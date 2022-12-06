@@ -10,18 +10,24 @@ const testComponent = {
 };
 
 describe('Cannot', () => {
-  it('hides the content if the necessary permission is available', async () => {
-    vi.mock('@/policies/index.js', () => {
+  afterEach(() => {
+    vi.mock('@/policies/index', () => {
       return {
         default: {
-          TestPolicy: { test: () => true }
+          TestPolicy: {
+            testFalse: () => false,
+            testTrue: () => true,
+            testUser: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar')
+          }
         }
       };
     });
+  })
 
+  it('hides the content if the necessary permission is available', async () => {
     const wrapper = shallowMount(Cannot, {
       propsData: {
-        method: 'test',
+        method: 'testTrue',
         policy: { model_name: 'Test' }
       },
       slots: {
@@ -37,17 +43,9 @@ describe('Cannot', () => {
   });
 
   it('shows the content if the necessary permission isn\'t available', async () => {
-    vi.mock('@/policies/index.js', () => {
-      return {
-        default: {
-          TestPolicy: { test: () => false }
-        }
-      };
-    });
-
     const wrapper = shallowMount(Cannot, {
       propsData: {
-        method: 'test',
+        method: 'testFalse',
         policy: { model_name: 'Test' }
       },
       slots: {
@@ -63,18 +61,11 @@ describe('Cannot', () => {
   });
 
   it('updates state on changes of the current user of the permission service', async () => {
-    vi.mock('@/policies/index.js', () => {
-      return {
-        default: {
-          TestPolicy: { test: (ps) => ps.currentUser && ps.currentUser.permissions && ps.currentUser.permissions.includes('bar') }
-        }
-      };
-    });
     const oldUser = PermissionService.currentUser;
 
     const wrapper = shallowMount(Cannot, {
       propsData: {
-        method: 'test',
+        method: 'testUser',
         policy: { model_name: 'Test' }
       },
       slots: {
@@ -87,7 +78,7 @@ describe('Cannot', () => {
     expect(wrapper.findComponent(testComponent).exists()).toBe(true);
 
     PermissionService.setCurrentUser({ permissions: ['bar'] });
-    await nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(testComponent).exists()).toBe(false);
 
     wrapper.destroy();
@@ -95,19 +86,12 @@ describe('Cannot', () => {
   });
 
   it('describes from `currentUserChangedEvent` after destroy', async () => {
-    vi.mock('@/policies/index.js', () => {
-      return {
-        default: {
-          TestPolicy: { test: () => true }
-        }
-      };
-    });
     const oldUser = PermissionService.currentUser;
     const spy = vi.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation( () => {} );
 
     const wrapper = shallowMount(Cannot, {
       propsData: {
-        method: 'test',
+        method: 'testTrue',
         policy: { model_name: 'Test' }
       },
       slots: {
@@ -134,18 +118,11 @@ describe('Cannot', () => {
   });
 
   it('component does not generate an extra html tag', async () => {
-    vi.mock('@/policies/index.js', () => {
-      return {
-        default: {
-          TestPolicy: { test: () => false }
-        }
-      };
-    });
     const oldUser = PermissionService.currentUser;
 
     const parentStub = {
       name: 'parentStub',
-      template: '<div><cannot method="test" policy="TestPolicy">A<test-component>Test</test-component></cannot></div>',
+      template: '<div><cannot method="testFalse" policy="TestPolicy">A<test-component>Test</test-component></cannot></div>',
       components: {
         Cannot, testComponent
       }

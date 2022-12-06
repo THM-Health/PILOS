@@ -1,5 +1,5 @@
 import Index from '../../../../../resources/js/views/settings/roomTypes/Index.vue';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -12,7 +12,7 @@ import BootstrapVue, {
   BFormSelect
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, createContainer } from '../../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 

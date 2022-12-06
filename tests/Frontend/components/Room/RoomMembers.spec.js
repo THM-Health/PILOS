@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormFile, BFormRadio, BTbody, BTr } from 'bootstrap-vue';
 import moxios from 'moxios';
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
@@ -6,7 +6,7 @@ import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 

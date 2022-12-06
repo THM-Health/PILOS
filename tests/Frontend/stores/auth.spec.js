@@ -1,5 +1,5 @@
 import moxios from 'moxios';
-import i18n, { importLanguage } from '../../../resources/js/i18n';
+import i18n from '../../../resources/js/i18n';
 import { overrideStub } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
@@ -15,23 +15,12 @@ describe('Auth Store', () => {
     moxios.uninstall();
   });
 
-  it('getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property', async () => {
-    const commit = vi.fn();
-
-    moxios.stubRequest('/api/v1/settings', {
-      status: 200,
-      response: { data: { foo: 'bar' } }
-    });
-
-    await Session.actions.getSettings({ commit });
-
-    expect(commit).toBeCalledTimes(1);
-    expect(commit).toBeCalledWith('setSettings', { foo: 'bar' });
-  });
-
   it('getCurrentUser and set i18n timezone', async () => {
-    const messagesEN = require('../../../lang/en.json');
 
+    const messagesEn = await import('../../../lang/en.json');
+    i18n.setLocaleMessage('en', messagesEn);
+
+    const PermissionServiceSpy = vi.spyOn(PermissionService, 'setCurrentUser').mockImplementation();
 
     const user = {
       id: 1,
