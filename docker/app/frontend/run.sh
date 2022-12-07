@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Setup vars
-MD5FILE=/usr/local/etc/laravel-mix/hash
+MD5FILE=/usr/local/etc/frontend/hash
 PREVIOUSMD5=""
 
 # If there was a previous hash get it if not create the file for later
@@ -24,8 +24,8 @@ done
 if [ "$MD5" != "$PREVIOUSMD5" ]; then
   echo "Frontend hash changed"
   echo "Rebuild frontend"
-  # Run run prod
-  npm run prod
+  # Run run build
+  npm run build
   # Put new hash in the file for next time
   echo "$MD5" > "$MD5FILE"
   echo "Saved new hash"

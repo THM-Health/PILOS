@@ -7,7 +7,6 @@ import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import {nextTick} from 'vue';
 import _ from 'lodash';
 import env from '../../../../resources/js/env';
 
@@ -607,7 +606,7 @@ describe('Room', () => {
     newUser.permissions = ['rooms.viewAll'];
     authStore.setCurrentUser(newUser);
 
-    await nextTick();
+    await view.vm.$nextTick();
     expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
 
     view.destroy();

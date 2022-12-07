@@ -1,10 +1,39 @@
 import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue2';
-const path = require('path');
+import * as fs from "fs";
+import * as path from "path";
 
 export default ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+
+  /**
+   * Create aliases for the paths we use in our app
+   * Slightly different behaviour in testing mode
+   */
+  function getAlias() {
+    const alias = {
+      '@': path.resolve(__dirname, './resources/js')
+    }
+
+    if (!process.env.VITEST) {
+      alias.vue = 'vue/dist/vue.esm.js';
+    }
+    else {
+      alias.vue$ = 'vue/dist/vue.esm.js';
+    }
+    return alias;
+  }
+
+  function getSslConfig() {
+    if(process.env.VITE_SSL) {
+      return {
+        key: fs.readFileSync(process.env.VITE_SSL_KEY),
+        cert: fs.readFileSync(process.env.VITE_SSL_CERT),
+      }
+    }
+    return false;
+  }
 
   return defineConfig({
     test: {
@@ -14,6 +43,7 @@ export default ({ mode }) => {
         all: true
       },
       globals: true,
+      open: false,
       restoreMocks: true,
       environment: 'jsdom',
       environmentOptions: { url: 'http://localhost' },
@@ -28,15 +58,14 @@ export default ({ mode }) => {
       vue()
     ],
     server: {
+      https: getSslConfig(),
+      host: true,
       hmr: {
-        host: 'localhost',
+        host: process.env.VITE_HOST || 'localhost',
       }
     },
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './resources/js'),
-        vue$: 'vue/dist/vue.esm.js'
-      }
+      alias: getAlias()
     }
   });
 };

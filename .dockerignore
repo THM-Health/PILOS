@@ -15,5 +15,6 @@ tests
 .phpunit.result.cache
 .styleci.yml
 docs
+ssl
 jest.config.js
 phpunit.xml

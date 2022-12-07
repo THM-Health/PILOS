@@ -16,7 +16,7 @@ function changePermissions() {
 
 function buildFrontend() {
     echo "Building frontend"
-	gosu www-data /usr/local/etc/laravel-mix/run.sh
+	gosu www-data /usr/local/etc/frontend/run.sh
 }
 
 function migrateDatabase() {

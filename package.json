@@ -5,7 +5,9 @@
         "build": "vite build",
         "lint": "eslint --ext .js,.vue,.json .",
         "fix-cs": "eslint --ext .js,.vue,.json . --fix",
-        "test": "vitest",
+        "test": "vitest run",
+        "test:watch": "vitest watch",
+        "test:ui": "vitest --ui",
         "coverage": "vitest run --coverage"
     },
     "devDependencies": {

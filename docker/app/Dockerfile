@@ -31,7 +31,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Enable PHP modules
-RUN a2enmod rewrite headers alias proxy proxy_fcgi
+RUN a2enmod rewrite headers alias proxy proxy_fcgi ssl
 
 # Copy start script
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
@@ -41,16 +41,17 @@ RUN chmod +x /usr/local/bin/entrypoint
 COPY ./docker/app/scheduler /usr/local/etc/scheduler
 RUN chmod +x /usr/local/etc/scheduler/run.sh
 
-# Copy larave mix wrapper script
-COPY ./docker/app/laravel-mix /usr/local/etc/laravel-mix
-RUN chmod +x /usr/local/etc/laravel-mix/run.sh
-RUN chown www-data:www-data /usr/local/etc/laravel-mix/
+# Copy frontend wrapper script
+COPY ./docker/app/frontend /usr/local/etc/frontend
+RUN chmod +x /usr/local/etc/frontend/run.sh
+RUN chown www-data:www-data /usr/local/etc/frontend/
 
 # Copy supervisor config
 COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
 
 # Copy apache default site conf
-COPY ./docker/app/apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+COPY ./docker/app/apache/sites-enabled /etc/apache2/sites-enabled
+COPY ./docker/app/apache/sites-common /etc/apache2/sites-common
 
 # Copy php config files
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
@@ -74,6 +75,6 @@ RUN composer install
 USER root
 
 EXPOSE 80
-EXPOSE 5173
+EXPOSE 443
 
 ENTRYPOINT ["entrypoint"]
