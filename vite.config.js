@@ -53,7 +53,7 @@ export default ({ mode }) => {
     plugins: [
       laravel([
         'resources/js/app.js',
-        'resources/sass/theme/' + process.env.VITE_THEME + '/app.scss'
+        'resources/sass/theme/' + (process.env.VITE_THEME || 'default' )+ '/app.scss'
       ]),
       vue()
     ],
