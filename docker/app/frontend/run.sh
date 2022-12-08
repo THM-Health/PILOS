@@ -11,8 +11,8 @@ else
   "touch" "$MD5FILE"
 fi
 
-# Get hash of the build relevant MIX_ env variables
-MD5=$(printenv | grep MIX_ | md5sum | awk '{ print $1 }')
+# Get hash of the build relevant VITE_ env variables
+MD5=$(printenv | grep VITE_ | md5sum | awk '{ print $1 }')
 
 # Get hash for every frontend file
 for DIR in "./resources"
