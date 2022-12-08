@@ -41,6 +41,11 @@ Next you should set an alias for sail.
 alias sail='[ -f sail ] && bash sail || bash ./sail'
 ```
 
+We also need to create a .env file by copying the default .env.example file.
+```bash
+cp .env.example .env
+```
+
 You can start the application with: `sail up -d` 
 To adjust the port of the webserver, change APP_PORT in the .env file.
 
@@ -51,7 +56,7 @@ sail npm install
 ```
 
 ### Adjust config
-Copy the `.env.example` to `.env` and make your necessary adjustments.
+In the `.env` file you can make your necessary adjustments.
 
 Also, it is necessary to generate a new application key with the following command:
 ```bash
@@ -69,7 +74,7 @@ sail artisan db:seed
 
 ### PHPMyAdmin
 To adjust the port of PHPMyAdmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
-By default PHPMyAdmin is servered at http://localhost:8080
+By default, PHPMyAdmin is served at http://localhost:8080
 
 ### Admin user
 To create a new admin user run the artisan command for admin user creation (see README.md).
@@ -94,7 +99,7 @@ For testing functionality of the application which requires a running BigBlueBut
 
 ### Finish Setup
 Checkout the installation guide in the [readme](README.md) for additional steps needed to finish the setup. Instead of
-running `sail npm run production` you must run in the dev environment `sail npm run dev`. For the development you can use any
+running `sail npm run build` you must run in the dev environment `sail npm run dev`. For the development you can use any
 editor of your choice but please do not check in any configuration files for your editor. In this case you may want to
 extend the `.gitignore` with yours editor config files.
 
