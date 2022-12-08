@@ -25,7 +25,7 @@ export default ({ mode }) => {
   }
 
   function getSslConfig () {
-    if (process.env.VITE_SSL) {
+    if (process.env.VITE_SSL === 'true') {
       return {
         key: fs.readFileSync(process.env.VITE_SSL_KEY),
         cert: fs.readFileSync(process.env.VITE_SSL_CERT)
