@@ -37,7 +37,7 @@ RUN chown www-data:www-data /var/www/
 
 
 RUN usermod -u $WWWUSER www-data
-RUN groupmod -g $WWWGROUP www-data
+RUN groupmod -o -g $WWWGROUP www-data
 
 # Enable PHP modules
 RUN a2enmod rewrite headers alias proxy proxy_fcgi ssl
