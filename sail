@@ -120,6 +120,8 @@ fi
 # Define environment variables...
 export APP_SERVICE=${APP_SERVICE:-"app"}
 export SAIL_FILES=${SAIL_FILES:-"docker-compose-dev.yml"}
+export WWWUSER=${WWWUSER:-$(id -u)}
+export WWWGROUP=${WWWGROUP:-$(id -g)}
 
 # Function that outputs Sail is not running...
 function sail_is_not_running {

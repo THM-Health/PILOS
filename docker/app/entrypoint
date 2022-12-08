@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-if [ ! -z "$WWWUSER" ]; then
-    usermod -u $WWWUSER www-data
-fi
-
 function changePermissions() {
     echo "Changing permissions"
     chown -R :www-data /var/www/html/storage/app

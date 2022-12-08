@@ -4,6 +4,8 @@ LABEL maintainer="Samuel Weirich"
 LABEL description="Development container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
 ARG NODE_VERSION=16
+ARG WWWGROUP=33
+ARG WWWUSER=33
 
 WORKDIR /var/www/html
 
@@ -29,6 +31,13 @@ RUN apt-get update \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN usermod -d /var/www www-data
+RUN chown www-data:www-data /var/www/
+
+
+RUN usermod -u $WWWUSER www-data
+RUN groupmod -g $WWWGROUP www-data
 
 # Enable PHP modules
 RUN a2enmod rewrite headers alias proxy proxy_fcgi ssl
@@ -59,10 +68,6 @@ COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
 
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
-
-# Create npm cache folder
-RUN mkdir /var/www/.npm
-RUN chown www-data:www-data /var/www/.npm
 
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
