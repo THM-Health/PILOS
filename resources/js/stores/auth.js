@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import auth from '../api/auth';
-import i18n, { loadLanguageAsync, setTimeZone } from '../i18n';
+import { loadLanguageAsync, setTimeZone } from '../i18n';
 import PermissionService from '../services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', {
       }
       // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
       setTimeZone(currentUser == null ? undefined : currentUser.timezone);
-      
+
       this.setCurrentUser(currentUser);
     },
 

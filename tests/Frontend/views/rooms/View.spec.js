@@ -56,7 +56,7 @@ describe('Room', () => {
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/rooms/knz-6ah-anr');
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(RoomView, {
       localVue,
@@ -100,14 +100,8 @@ describe('Room', () => {
   });
 
   it('room token', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { info: flashMessageSpy };
-
     const router = new VueRouter();
-    vi.spyOn(router, 'push').mockImplementation( () => {} );
-
-    // TODO
-    //Vue.prototype.flashMessage = flashMessage;
+    vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(RoomView, {
       localVue,
@@ -182,12 +176,8 @@ describe('Room', () => {
   });
 
   it('room token invalid', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { info: flashMessageSpy };
-
     const router = new VueRouter();
-    vi.spyOn(router, 'push').mockImplementation( () => {} );
-
+    vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(RoomView, {
       localVue,
@@ -244,11 +234,9 @@ describe('Room', () => {
   });
 
   it('room token as authenticated user', async () => {
-
     const router = new VueRouter();
-    vi.spyOn(router, 'push').mockImplementation( () => {} );
+    vi.spyOn(router, 'push').mockImplementation(() => {});
     vi.spyOn(i18n, 't').mockImplementation((key) => key);
-
 
     const view = mount(RoomView, {
       localVue,
@@ -613,11 +601,11 @@ describe('Room', () => {
   });
 
   it('reload', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
-    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
-    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
 
     const view = mount(RoomView, {
       localVue,
@@ -697,7 +685,7 @@ describe('Room', () => {
   });
 
   it('handle invalid code', async () => {
-    const reload = vi.spyOn(RoomView.methods, 'reload').mockImplementation( () => {} );
+    const reload = vi.spyOn(RoomView.methods, 'reload').mockImplementation(() => {});
     const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
@@ -856,10 +844,10 @@ describe('Room', () => {
   });
 
   it('handle file list errors', async () => {
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
-    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
-    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
@@ -1318,10 +1306,10 @@ describe('Room', () => {
   });
 
   it('join meeting errors', async () => {
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
-    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
-    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(RoomView, {
       localVue,
@@ -1709,9 +1697,9 @@ describe('Room', () => {
   });
 
   it('start meeting errors', async () => {
-    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation( () => {} );
-    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation( () => {} );
-    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation( () => {} );
+    const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
+    const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
+    const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
 
     const fileComponentReloadSpy = vi.fn();
     const fileComponent = {
@@ -1723,7 +1711,7 @@ describe('Room', () => {
       }
     };
 
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };

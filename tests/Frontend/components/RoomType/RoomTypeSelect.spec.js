@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
+import { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
@@ -158,7 +158,7 @@ describe('RoomType Select', () => {
       }
     });
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(RoomTypeSelect, {
       localVue,
@@ -195,7 +195,7 @@ describe('RoomType Select', () => {
   });
 
   it('reload room types', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,

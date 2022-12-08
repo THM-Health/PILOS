@@ -156,7 +156,7 @@ describe('ServerPoolView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
       status: 500,
@@ -202,7 +202,7 @@ describe('ServerPoolView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
       status: 404,
@@ -238,7 +238,7 @@ describe('ServerPoolView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -273,7 +273,7 @@ describe('ServerPoolView', () => {
   });
 
   it('error handler gets called if an error occurs during update', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -499,7 +499,7 @@ describe('ServerPoolView', () => {
   });
 
   it('server get loaded, pagination and error handling', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,

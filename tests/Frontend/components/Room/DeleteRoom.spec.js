@@ -90,7 +90,7 @@ describe('Delete room', () => {
   });
 
   it('failed delete room not found', async () => {
-    const flashMessageSpy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const flashMessageSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const component = mount(DeleteRoomComponent, {
       localVue,

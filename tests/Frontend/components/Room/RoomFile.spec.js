@@ -463,7 +463,7 @@ describe('RoomFile', () => {
 
   it('upload file other errors', async () => {
     const oldUser = PermissionService.currentUser;
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
@@ -615,7 +615,7 @@ describe('RoomFile', () => {
 
   it('delete file', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
@@ -809,9 +809,9 @@ describe('RoomFile', () => {
   });
 
   it('download file', async () => {
-    const openStub = vi.spyOn(window, 'open').mockImplementation( () => {} );
-    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation( () => {} );
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const openStub = vi.spyOn(window, 'open').mockImplementation(() => {});
+    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 
@@ -1028,8 +1028,8 @@ describe('RoomFile', () => {
   });
 
   it('change file setting', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
-    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
     const flashMessageSpy = vi.fn();
     const flashMessage = { error: flashMessageSpy };
 

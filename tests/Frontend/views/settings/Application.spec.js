@@ -47,7 +47,7 @@ describe('Application', () => {
   });
 
   it('getSettings method called, when the view is mounted', () => {
-    const spy = vi.spyOn(Application.methods, 'getSettings').mockImplementation( () => {} );
+    const spy = vi.spyOn(Application.methods, 'getSettings').mockImplementation(() => {});
 
     expect(spy).toBeCalledTimes(0);
 
@@ -438,7 +438,7 @@ describe('Application', () => {
   });
 
   it('getSettings error handler', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
       localVue,
@@ -580,7 +580,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
       localVue,
@@ -648,7 +648,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler code 413', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
       localVue,

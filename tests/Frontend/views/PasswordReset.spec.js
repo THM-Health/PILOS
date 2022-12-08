@@ -25,7 +25,7 @@ describe('PasswordReset', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(PasswordReset, {
       localVue,
@@ -68,7 +68,7 @@ describe('PasswordReset', () => {
 
   it('submit loads the current user after login and changes the application language to the corresponding one', async () => {
     const router = new VueRouter();
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };

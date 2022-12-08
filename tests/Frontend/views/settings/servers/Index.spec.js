@@ -283,7 +283,7 @@ describe('ServersIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Index, {
       localVue,
@@ -483,7 +483,7 @@ describe('ServersIndex', () => {
   });
 
   it('server delete 404 handling', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
@@ -618,7 +618,7 @@ describe('ServersIndex', () => {
   });
 
   it('server delete error handler called', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
     const response = {

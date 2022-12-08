@@ -565,7 +565,7 @@ describe('RoomMembersBulk', () => {
 
   it('bulk edit with errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {

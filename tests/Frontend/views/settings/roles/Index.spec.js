@@ -2,9 +2,11 @@ import Index from '../../../../../resources/js/views/settings/roles/Index.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
-import BootstrapVue, { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
-import { waitMoxios, createContainer, localVue } from '../../../helper';
+import { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
+import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
 import Base from '../../../../../resources/js/api/base';
+
+const localVue = createLocalVue();
 
 describe('RolesIndex', () => {
   beforeEach(() => {
@@ -147,7 +149,7 @@ describe('RolesIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Index, {
       localVue,

@@ -78,7 +78,7 @@ describe('ServerView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreServerResponse = overrideStub('/api/v1/servers/1', {
       status: 500,
@@ -124,7 +124,7 @@ describe('ServerView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreServerResponse = overrideStub('/api/v1/servers/1', {
       status: 404,
@@ -160,7 +160,7 @@ describe('ServerView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -195,7 +195,7 @@ describe('ServerView', () => {
   });
 
   it('error handler gets called if an error occurs during update', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -522,7 +522,7 @@ describe('ServerView', () => {
   });
 
   it('update connection status', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -694,7 +694,7 @@ describe('ServerView', () => {
     const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,

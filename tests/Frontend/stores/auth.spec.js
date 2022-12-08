@@ -16,7 +16,6 @@ describe('Auth Store', () => {
   });
 
   it('getCurrentUser and set i18n timezone', async () => {
-
     const messagesEn = await import('../../../lang/en.json');
     i18n.setLocaleMessage('en', messagesEn);
 

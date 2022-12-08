@@ -7,10 +7,9 @@ import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
-import {waitModalShown, waitMoxios, createContainer, createLocalVue} from '../../helper';
+import { waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -228,7 +227,7 @@ describe('History', () => {
   });
 
   it('meetings table loading error', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(HistoryComponent, {
       localVue,

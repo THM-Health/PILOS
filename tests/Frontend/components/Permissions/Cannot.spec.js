@@ -22,7 +22,7 @@ describe('Cannot', () => {
         }
       };
     });
-  })
+  });
 
   it('hides the content if the necessary permission is available', async () => {
     const wrapper = shallowMount(Cannot, {
@@ -87,7 +87,7 @@ describe('Cannot', () => {
 
   it('describes from `currentUserChangedEvent` after destroy', async () => {
     const oldUser = PermissionService.currentUser;
-    const spy = vi.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation( () => {} );
+    const spy = vi.spyOn(Cannot.methods, 'evaluatePermissions').mockImplementation(() => {});
 
     const wrapper = shallowMount(Cannot, {
       propsData: {

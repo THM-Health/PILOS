@@ -3,7 +3,7 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
 import EventBus from '../../../resources/js/services/EventBus';
-import {nextTick} from "vue";
+import { nextTick } from 'vue';
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {

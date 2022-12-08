@@ -127,7 +127,7 @@ describe('RoomTypeView', () => {
   });
 
   it('server pools get loaded, pagination and error handling', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -268,7 +268,7 @@ describe('RoomTypeView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
       status: 500,
@@ -313,7 +313,7 @@ describe('RoomTypeView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
       status: 404,
@@ -348,7 +348,7 @@ describe('RoomTypeView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -382,7 +382,7 @@ describe('RoomTypeView', () => {
   });
 
   it('error handler gets called if an error occurs during update', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,

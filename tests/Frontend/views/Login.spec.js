@@ -120,7 +120,7 @@ describe('Login', () => {
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/foo?redirect=%2Fredirect_path');
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
@@ -178,7 +178,7 @@ describe('Login', () => {
     const flashMessage = { success: flashMessageSpy };
 
     const router = new VueRouter({ mode: 'abstract' });
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
@@ -336,7 +336,7 @@ describe('Login', () => {
   });
 
   it('other api errors gets thrown and handled by the global error handler', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,

@@ -3,13 +3,13 @@ module.exports = {
     browser: true,
     es6: true,
     jquery: true,
-    'jest/globals': true
+    'vitest-globals/env': true
   },
   extends: [
     'plugin:vue/essential',
     'standard',
-    'plugin:jest/recommended',
-    'plugin:jsonc/base'
+    'plugin:jsonc/base',
+    'plugin:vitest-globals/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -30,8 +30,7 @@ module.exports = {
   ],
   plugins: [
     'vue',
-    '@intlify/vue-i18n',
-    'jest'
+    '@intlify/vue-i18n'
   ],
   rules: {
     'jsonc/sort-keys': ['error',

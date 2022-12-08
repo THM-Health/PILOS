@@ -12,7 +12,7 @@ import VueRouter from 'vue-router';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import {waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue} from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -49,7 +49,7 @@ describe('Room Token', () => {
   });
 
   it('load tokens', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -342,7 +342,7 @@ describe('Room Token', () => {
   });
 
   it('delete token error', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -658,7 +658,7 @@ describe('Room Token', () => {
   });
 
   it('add token', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,

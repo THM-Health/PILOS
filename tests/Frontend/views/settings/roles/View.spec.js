@@ -206,7 +206,7 @@ describe('RolesView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
       status: 500,
@@ -505,7 +505,7 @@ describe('RolesView', () => {
   });
 
   it('reload overlay gets shown if an error occurs during load of permissions', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
       status: 500,
@@ -541,7 +541,7 @@ describe('RolesView', () => {
   });
 
   it('user gets redirected to index page if the role is not found', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const routerSpy = vi.fn();
 
@@ -580,7 +580,7 @@ describe('RolesView', () => {
   });
 
   it('reload overlay gets shown if another error than 404 occurs during load of the role', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
       status: 500,
@@ -615,7 +615,7 @@ describe('RolesView', () => {
   });
 
   it('user gets redirected to index page if the role is not found during save', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const routerSpy = vi.fn();
 

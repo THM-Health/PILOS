@@ -1,6 +1,8 @@
 import { createWrapper, mount } from '@vue/test-utils';
-import { createContainer, localVue } from '../helper';
-import BootstrapVue, { BButton } from 'bootstrap-vue';
+import { createContainer, createLocalVue } from '../helper';
+import { BButton } from 'bootstrap-vue';
+
+const localVue = createLocalVue();
 
 const testComponent = {
   name: 'test-component',

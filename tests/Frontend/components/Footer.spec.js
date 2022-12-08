@@ -6,7 +6,7 @@ import RawText from '../../../resources/js/components/RawText.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useSettingsStore } from '../../../resources/js/stores/settings';
-import { createLocalVue } from "../helper";
+import { createLocalVue } from '../helper';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);

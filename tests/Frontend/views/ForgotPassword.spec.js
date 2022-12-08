@@ -47,7 +47,7 @@ describe('ForgotPassword', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(ForgotPassword, {
       localVue,
@@ -73,7 +73,7 @@ describe('ForgotPassword', () => {
 
   it('submit redirects to home page withe a success message on success', async () => {
     const router = new VueRouter();
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation( () => {} );
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const flashMessageSpy = vi.fn();
     const flashMessage = { success: flashMessageSpy };

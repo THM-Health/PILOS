@@ -211,7 +211,7 @@ describe('RoomMembers', () => {
   });
 
   it('error emitted on members load', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(MembersComponent, {
       localVue,
@@ -404,7 +404,7 @@ describe('RoomMembers', () => {
 
   it('add new member errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -626,7 +626,7 @@ describe('RoomMembers', () => {
 
   it('edit member error gone', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -812,7 +812,7 @@ describe('RoomMembers', () => {
 
   it('delete members, already gone', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -906,7 +906,7 @@ describe('RoomMembers', () => {
 
   it('delete members error', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {

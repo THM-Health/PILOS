@@ -3,7 +3,7 @@ import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue'
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
-import {createLocalVue, waitMoxios} from '../helper';
+import { createLocalVue, waitMoxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { useLoadingStore } from '../../../resources/js/stores/loading';

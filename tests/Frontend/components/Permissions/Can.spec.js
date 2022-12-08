@@ -1,7 +1,7 @@
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { shallowMount, mount } from '@vue/test-utils';
 import Can from '../../../../resources/js/components/Permissions/Can.vue';
-import {createContainer, createLocalVue } from '../../helper';
+import { createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 
@@ -12,7 +12,6 @@ const testComponent = {
 };
 
 describe('Can', () => {
-
   afterEach(() => {
     vi.mock('@/policies/index', () => {
       return {
@@ -25,7 +24,7 @@ describe('Can', () => {
         }
       };
     });
-  })
+  });
 
   it('hides the content if the necessary permission isn\'t available', async () => {
     const wrapper = shallowMount(Can, {
@@ -92,7 +91,7 @@ describe('Can', () => {
 
   it('describes from `currentUserChangedEvent` after destroy', async () => {
     const oldUser = PermissionService.currentUser;
-    const spy = vi.spyOn(Can.methods, 'evaluatePermissions').mockImplementation( () => {} );
+    const spy = vi.spyOn(Can.methods, 'evaluatePermissions').mockImplementation(() => {});
 
     const wrapper = shallowMount(Can, {
       propsData: {

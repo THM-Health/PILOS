@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/Index.vue';
-import BootstrapVue, {
+import {
   BButton,
   BCol, BFormInput,
   BListGroupItem,
@@ -13,7 +13,7 @@ import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import {waitMoxios, overrideStub, createContainer, createLocalVue} from '../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -199,7 +199,7 @@ describe('Room Index', () => {
   it('error loading rooms', async () => {
     const oldUser = PermissionService.currentUser;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for room load
     moxios.stubRequest('/api/v1/rooms?page=1', {
@@ -264,7 +264,7 @@ describe('Room Index', () => {
   it('error loading room types', async () => {
     const oldUser = PermissionService.currentUser;
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for room type load
     moxios.stubRequest('/api/v1/rooms?page=1', {

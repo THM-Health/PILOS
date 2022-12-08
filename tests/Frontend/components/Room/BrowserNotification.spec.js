@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert, BButton } from 'bootstrap-vue';
+import { BAlert, BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
 import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification.vue';
 import VueRouter from 'vue-router';
-import {createContainer, createLocalVue} from '../../helper';
+import { createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { useSettingsStore } from '../../../../resources/js/stores/settings';
 import { createTestingPinia } from '@pinia/testing';

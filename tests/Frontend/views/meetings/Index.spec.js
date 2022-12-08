@@ -232,7 +232,7 @@ describe('MeetingsIndex', () => {
   });
 
   it('errors during load', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for meetings load
     moxios.stubRequest('/api/v1/meetings?page=1', {

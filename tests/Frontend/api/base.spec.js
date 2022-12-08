@@ -10,7 +10,7 @@ let consoleErrorStub;
 describe('base', () => {
   beforeEach(() => {
     moxios.install();
-    consoleErrorStub = vi.spyOn(console, 'error').mockImplementation( () => {} );
+    consoleErrorStub = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -70,7 +70,7 @@ describe('base', () => {
       };
 
       const router = new VueRouter();
-      const routerSpy = vi.spyOn(router, 'replace').mockImplementation( () => {} );
+      const routerSpy = vi.spyOn(router, 'replace').mockImplementation(() => {});
       vi.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
 
       const pinia = createTestingPinia();
@@ -174,7 +174,7 @@ describe('base', () => {
       });
 
     it('`setLocale` calls `call` with the corresponding locale', async () => {
-      const spy = vi.spyOn(Base, 'call').mockImplementation( () => {} );
+      const spy = vi.spyOn(Base, 'call').mockImplementation(() => {});
 
       await Base.setLocale('de');
       expect(spy).toBeCalledTimes(1);

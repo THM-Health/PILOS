@@ -1,7 +1,7 @@
 import ActionsColumn from '../../../resources/js/mixins/ActionsColumn';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../resources/js/services/PermissionService';
-import {nextTick} from "vue";
+import { nextTick } from 'vue';
 
 describe('ActionsColumn', () => {
   it('show and hides the actions column depending on the users `actionsPermissions`', async () => {

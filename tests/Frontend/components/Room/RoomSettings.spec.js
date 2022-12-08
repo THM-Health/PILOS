@@ -407,7 +407,7 @@ describe('RoomSettings', () => {
   it('load settings error', async () => {
     PermissionService.setCurrentUser(exampleUser);
 
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
@@ -543,7 +543,7 @@ describe('RoomSettings', () => {
   });
 
   it('save settings', async () => {
-    const baseError = vi.spyOn(Base, 'error').mockImplementation( () => {} );
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser(exampleUser);
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,

@@ -65,7 +65,6 @@ export function loadLanguageAsync (lang) {
   }
 
   if (import.meta.env.MODE !== 'test') {
-
     return new Promise((resolve, reject) => {
       import(`../../lang/${lang}.json`).then((messages) => {
         importLanguage(lang, messages);

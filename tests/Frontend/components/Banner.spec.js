@@ -1,6 +1,6 @@
 import Banner from '../../../resources/js/components/Banner.vue';
 import { mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert } from 'bootstrap-vue';
+import { BAlert } from 'bootstrap-vue';
 import { createLocalVue } from '../helper.js';
 
 const localVue = createLocalVue();
