@@ -114,7 +114,7 @@ jobs:
             - name: Execute frontend code style check via eslint
               run: npm run lint
             - name: Execute frontend tests
-              run: npm run cover -- --max-workers=2
+              run: npm run cover
             - name: Upload coverage
               uses: codecov/codecov-action@v3
             - name: Upload npm logs
