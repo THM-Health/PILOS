@@ -36,8 +36,8 @@ Vue.use(FlashMessage, {
 
 // Add accessibility check tools for development
 if (import.meta.env.VITE_ENABLE_AXE && import.meta.env.MODE === 'development') {
-  const VueAxe = require('vue-axe').default;
-  Vue.use(VueAxe);
+  const VueAxe = await import('vue-axe');
+  Vue.use(VueAxe.default);
 }
 
 Vue.config.errorHandler = Base.error;
