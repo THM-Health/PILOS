@@ -26,7 +26,9 @@ jobs:
         php-versions: ['8.1']
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
     - name: Verify MariaDB connection
       env:
         PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -83,6 +85,9 @@ jobs:
         bash <(curl -s https://codecov.io/bash)
     - name: Upload coverage
       uses: codecov/codecov-action@v3
+      with:
+        override_commit: $GITHUB_SHA
+
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()
