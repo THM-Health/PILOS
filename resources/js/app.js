@@ -4,7 +4,7 @@ import { createPinia, PiniaVuePlugin } from 'pinia';
 import App from './views/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import VueFlashMessage from '@smartweb/vue-flash-message';
+import VueFlashMessage from '@smartweb/vue-flash-message/build/vue-flash-msg.umd.js';
 import FlashMessage from './plugins/FlashMessage';
 import VueClipboard from 'vue-clipboard2';
 import Base from './api/base';
