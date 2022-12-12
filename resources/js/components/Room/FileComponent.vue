@@ -309,7 +309,7 @@ export default {
             // Forbidden, not allowed to download this file
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.file_forbidden'));
+              this.toastError(this.$t('rooms.flash.file_forbidden'));
               this.removeFile(file);
               return;
             }
@@ -317,7 +317,7 @@ export default {
             // File gone
             if (error.response.status === env.HTTP_NOT_FOUND) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.file_gone'));
+              this.toastError(this.$t('rooms.flash.file_gone'));
               // Remove file from list
               this.removeFile(file);
               return;
@@ -354,7 +354,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.file_gone'));
+          this.toastError(this.$t('rooms.flash.file_gone'));
           // Remove file from list
           this.removeFile(this.deleteFile);
           return;
@@ -456,7 +456,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.file_gone'));
+          this.toastError(this.$t('rooms.flash.file_gone'));
           // Remove file from list
           this.removeFile(file);
           return;

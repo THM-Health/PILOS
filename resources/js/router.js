@@ -409,10 +409,10 @@ export function beforeEachRoute (router, to, from, next) {
         query: { redirect: to.fullPath }
       });
     } else if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.guests_only'));
+      router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
       next({ name: 'home' });
     } else if (!recordsPermissions.every(permission => permission)) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
+      router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
       next(from.matched.length !== 0 ? false : '/');
     } else {
       next();

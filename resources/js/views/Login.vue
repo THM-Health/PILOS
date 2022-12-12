@@ -77,7 +77,7 @@ export default {
         this.errors[id] = null;
         this.loading = true;
         await this.login(data, id);
-        this.flashMessage.success(this.$t('auth.flash.login'));
+        this.toastSuccess(this.$t('auth.flash.login'));
         // check if user should be redirected back after login
         if (this.$route.query.redirect !== undefined) {
           await this.$router.push(this.$route.query.redirect);

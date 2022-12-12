@@ -4,8 +4,7 @@ import { createPinia, PiniaVuePlugin } from 'pinia';
 import App from './views/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import VueFlashMessage from '@smartweb/vue-flash-message/build/vue-flash-msg.umd.js';
-import FlashMessage from './plugins/FlashMessage';
+import Toast from './mixins/Toast';
 import VueClipboard from 'vue-clipboard2';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
@@ -25,20 +24,13 @@ Vue.use(VueClipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
 
-Vue.use(VueFlashMessage, {
-  name: 'vueFlashMessage',
-  strategy: 'multiple'
-});
-Vue.use(FlashMessage, {
-  name: 'flashMessage',
-  vueFlashMessageName: 'vueFlashMessage'
-});
+Vue.mixin(Toast);
 
 // Add accessibility check tools for development
-if (import.meta.env.VITE_ENABLE_AXE && import.meta.env.MODE === 'development') {
-  const VueAxe = await import('vue-axe');
-  Vue.use(VueAxe.default);
-}
+// if (import.meta.env.VITE_ENABLE_AXE && import.meta.env.MODE === 'development') {
+//  const VueAxe = await import('vue-axe');
+//  Vue.use(VueAxe.default);
+// }
 
 Vue.config.errorHandler = Base.error;
 

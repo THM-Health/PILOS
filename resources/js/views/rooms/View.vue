@@ -453,7 +453,7 @@ export default {
       // Reset access code (not the form input) to load the general room details again
       this.accessCode = null;
       // Show error message
-      this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
+      this.toastError(this.$t('rooms.flash.access_code_invalid'));
       this.reload();
     },
 
@@ -463,7 +463,7 @@ export default {
     handleInvalidToken: function () {
       // Show error message
       this.room = null;
-      this.flashMessage.error(this.$t('rooms.flash.token_invalid'));
+      this.toastError(this.$t('rooms.flash.token_invalid'));
       // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
       clearInterval(this.reloadInterval);
     },
@@ -586,7 +586,7 @@ export default {
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.start_forbidden'));
+              this.toastError(this.$t('rooms.flash.start_forbidden'));
               // Disable room start button and reload the room settings, as there was obviously
               // a different understanding of the users permission in this room
               this.room.can_start = false;
@@ -715,7 +715,7 @@ export default {
               // set the access code input invalid
               this.accessCodeValid = false;
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
+              this.toastError(this.$t('rooms.flash.access_code_invalid'));
               return;
             }
 

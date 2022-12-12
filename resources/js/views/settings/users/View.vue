@@ -609,7 +609,7 @@ export default {
       const file = e.target.files[0];
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         this.resetFileUpload();
-        this.flashMessage.error(this.$t('settings.users.image.invalid_mime'));
+        this.toastError(this.$t('settings.users.image.invalid_mime'));
         return;
       }
       this.$bvModal.show('modal-image-upload');

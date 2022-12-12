@@ -81,7 +81,6 @@
       </b-navbar>
 
       <main>
-        <FlashMessage position="right top"/>
         <router-view></router-view>
       </main>
 
@@ -119,7 +118,7 @@ export default {
 
     async logout () {
       await this.logoutSession();
-      this.flashMessage.success(this.$t('auth.flash.logout'));
+      this.toastSuccess(this.$t('auth.flash.logout'));
       if (this.$router.currentRoute.name !== 'home') {
         await this.$router.push({ name: 'home' });
       }
