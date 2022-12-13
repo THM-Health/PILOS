@@ -691,8 +691,7 @@ describe('ServerView', () => {
   });
 
   it('panic button calls api and gets disabled while running', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
@@ -700,7 +699,7 @@ describe('ServerView', () => {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       propsData: {
         viewOnly: true,
@@ -731,10 +730,10 @@ describe('ServerView', () => {
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith(
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith(
+      'settings.servers.panic.flash.description:{"total":5,"success":3}',
       'settings.servers.panic.flash.title',
-      'settings.servers.panic.flash.description:{"total":5,"success":3}'
     );
 
     // check reload of server data

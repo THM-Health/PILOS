@@ -234,8 +234,7 @@ describe('UsersIndex', () => {
   });
 
   it('reset password works as expected', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({
@@ -294,7 +293,7 @@ describe('UsersIndex', () => {
       mocks: {
         $t: key => key,
         $te: (key) => key === 'app.roles.admin',
-        flashMessage
+        toastSuccess: toastSuccessSpy
       },
       attachTo: createContainer(),
       propsData: {
@@ -323,8 +322,8 @@ describe('UsersIndex', () => {
     await request.respondWith({
       status: 200
     });
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.password_reset_success');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy.mock.calls[0][0]).toEqual('settings.users.password_reset_success');
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
   });

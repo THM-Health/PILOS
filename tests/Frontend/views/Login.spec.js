@@ -115,8 +115,7 @@ describe('Login', () => {
   });
 
   it('redirect if query set', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/foo?redirect=%2Fredirect_path');
@@ -127,7 +126,7 @@ describe('Login', () => {
       pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -164,8 +163,8 @@ describe('Login', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith('/redirect_path');
@@ -174,8 +173,7 @@ describe('Login', () => {
   });
 
   it('redirect to room overview if redirect query not set', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
@@ -185,7 +183,7 @@ describe('Login', () => {
       pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -222,8 +220,8 @@ describe('Login', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
 

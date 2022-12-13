@@ -204,8 +204,7 @@ describe('Browser Notification', () => {
       static permission = 'denied';
     };
 
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     window.Notification = global.Notification = NotificationFake;
 
@@ -213,7 +212,7 @@ describe('Browser Notification', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         running: false,
@@ -228,8 +227,8 @@ describe('Browser Notification', () => {
     await view.findComponent(BButton).trigger('click');
     expect(view.findComponent(BButton).exists()).toBeTruthy();
     expect(view.findComponent(BAlert).exists()).toBeFalsy();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
 
     view.destroy();
     delete window.Notification;
@@ -301,14 +300,13 @@ describe('Browser Notification', () => {
 
     window.Notification = global.Notification = NotificationFake;
 
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const view = mount(BrowserNotification, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         running: false,
@@ -326,8 +324,8 @@ describe('Browser Notification', () => {
     expect(view.findComponent(BButton).exists()).toBeTruthy();
     expect(view.findComponent(BAlert).exists()).toBeFalsy();
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
 
     view.destroy();
     delete window.Notification;
@@ -405,8 +403,7 @@ describe('Browser Notification', () => {
     vi.useRealTimers();
   });
   it('change status from not running to running with error', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const NotificationFake = class {
       constructor (title, options = {}) {
@@ -423,7 +420,7 @@ describe('Browser Notification', () => {
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         running: false,
@@ -438,8 +435,8 @@ describe('Browser Notification', () => {
 
     expect(view.findComponent(BButton).exists()).toBeFalsy();
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.browser_support');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('rooms.notification.browser_support');
 
     view.destroy();
     delete window.Notification;

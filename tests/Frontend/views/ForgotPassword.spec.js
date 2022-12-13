@@ -75,14 +75,13 @@ describe('ForgotPassword', () => {
     const router = new VueRouter();
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const view = mount(ForgotPassword, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -104,8 +103,8 @@ describe('ForgotPassword', () => {
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'home' });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('Success!');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('Success!');
 
     view.destroy();
   });

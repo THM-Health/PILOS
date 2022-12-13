@@ -85,14 +85,13 @@ describe('LocaleSelector', () => {
   });
 
   it('shows an corresponding error message and doesn\'t change the language on 422', async () => {
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         availableLocales: ['de', 'ru']
@@ -123,8 +122,8 @@ describe('LocaleSelector', () => {
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('Russian');
 
-    expect(flashMessageSpy).toHaveBeenCalledTimes(1);
-    expect(flashMessageSpy).toHaveBeenCalledWith('Test');
+    expect(toastErrorSpy).toHaveBeenCalledTimes(1);
+    expect(toastErrorSpy).toHaveBeenCalledWith('Test');
 
     wrapper.destroy();
   });

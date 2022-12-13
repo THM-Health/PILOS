@@ -1155,15 +1155,15 @@ describe('UsersView', () => {
       }
     };
 
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+
+    const toastErrorSpy = vi.fn();
 
     const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
         $te: () => false,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         config: {
@@ -1198,8 +1198,8 @@ describe('UsersView', () => {
       // check if error is shown on invalid image type and modal is not shown
     view.vm.onFileSelect(eventError);
     await view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.image.invalid_mime');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('settings.users.image.invalid_mime');
     expect(modal.vm.$data.isVisible).toBeFalsy();
 
     const event = {

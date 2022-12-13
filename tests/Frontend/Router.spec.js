@@ -66,9 +66,7 @@ describe('Router', () => {
         app: {
           $t: (key) => key,
           $root: {
-            flashMessage: {
-              error: () => {}
-            }
+            toastError: () => {}
           }
         }
       };
@@ -128,9 +126,7 @@ describe('Router', () => {
         app: {
           $t: (key) => key,
           $root: {
-            flashMessage: {
-              error: (error) => errors.push(error)
-            }
+            toastError: (error) => errors.push(error)
           }
         }
       };

@@ -286,12 +286,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit forbidden', async () => {
-    const flashMessageErrorSpy = vi.fn();
-    const flashMessage = {
-      error (param) {
-        flashMessageErrorSpy(param);
-      }
-    };
+    const toastErrorSpy = vi.fn();
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -302,7 +297,7 @@ describe('Create new rooms', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         modalStatic: true
@@ -331,8 +326,8 @@ describe('Create new rooms', () => {
       status: 403
     });
 
-    expect(flashMessageErrorSpy).toBeCalledTimes(1);
-    expect(flashMessageErrorSpy).toBeCalledWith('rooms.flash.no_new_room');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy).toBeCalledWith('rooms.flash.no_new_room');
 
     view.destroy();
   });

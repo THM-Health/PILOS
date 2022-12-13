@@ -90,7 +90,7 @@ describe('Delete room', () => {
   });
 
   it('failed delete room not found', async () => {
-    const flashMessageSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const component = mount(DeleteRoomComponent, {
       localVue,
@@ -119,7 +119,7 @@ describe('Delete room', () => {
     });
 
     await component.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0].response.status).toBe(404);
+    expect(baseErrorSpy).toBeCalledTimes(1);
+    expect(baseErrorSpy.mock.calls[0][0].response.status).toBe(404);
   });
 });

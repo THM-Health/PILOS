@@ -1,43 +1,26 @@
 import { mount } from '@vue/test-utils';
-import FlashMessage from '@/plugins/FlashMessage';
 import { createLocalVue } from '../helper';
+import Toast from '../../../resources/js/mixins/Toast';
 
 const localVue = createLocalVue();
+localVue.mixin(Toast);
 
-// Spy vueFlashMessage component
-const vueFlashMessage = {
-  success: vi.fn(),
-  error: vi.fn(),
-  warning: vi.fn(),
-  info: vi.fn()
-};
-
-// Mock vueFlashMessage plugin
-localVue.use((Vue, options) => {
-  Vue.prototype.vueFlashMessage = vueFlashMessage;
-});
-
-localVue.use(FlashMessage, {
-  name: 'flashMessage',
-  vueFlashMessageName: 'vueFlashMessage'
-});
-
-describe('FlashMessage', () => {
-  it('call flash message with title only', async () => {
+describe('Toast', () => {
+  it('call toast message with message only', async () => {
     const testComponent = {
       name: 'test-component',
       methods: {
         success: function () {
-          this.flashMessage.success('success-text');
+          this.toastSuccess('success-text');
         },
         warning: function () {
-          this.flashMessage.warning('warning-text');
+          this.toastWarning('warning-text');
         },
         error: function () {
-          this.flashMessage.error('error-text');
+          this.toastError('error-text');
         },
         info: function () {
-          this.flashMessage.info('info-text');
+          this.toastInfo('info-text');
         }
       },
       /* eslint-disable @intlify/vue-i18n/no-raw-text */
@@ -53,29 +36,35 @@ describe('FlashMessage', () => {
       localVue
     });
 
+    const spy = vi.spyOn(wrapper.vm.$root.$bvToast, 'toast').mockImplementation();
+
     // Trigger success
     await wrapper.findComponent({ ref: 'success-bn' }).trigger('click');
-    expect(vueFlashMessage.success).toHaveBeenCalledWith({ title: 'success-text', message: undefined });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('success-text', { title: null, variant: 'success' });
 
     // Trigger warning
     await wrapper.findComponent({ ref: 'warning-bn' }).trigger('click');
-    expect(vueFlashMessage.warning).toHaveBeenCalledWith({ title: 'warning-text', message: undefined });
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith('warning-text', { title: null, variant: 'warning' });
 
     // Trigger error
     await wrapper.findComponent({ ref: 'error-bn' }).trigger('click');
-    expect(vueFlashMessage.error).toHaveBeenCalledWith({ title: 'error-text', message: undefined });
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(spy).toHaveBeenCalledWith('error-text', { title: null, variant: 'danger' });
 
     // Trigger info
     await wrapper.findComponent({ ref: 'info-bn' }).trigger('click');
-    expect(vueFlashMessage.info).toHaveBeenCalledWith({ title: 'info-text', message: undefined });
+    expect(spy).toHaveBeenCalledTimes(4);
+    expect(spy).toHaveBeenCalledWith('info-text', { title: null, variant: 'info' });
   });
 
-  it('call flash message with description', async () => {
+  it('call flash message with title', async () => {
     const testComponent = {
       name: 'test-component',
       methods: {
         error: function () {
-          this.flashMessage.error('error-text', 'error-description');
+          this.toastError('error-text', 'error-title');
         }
       },
       /* eslint-disable @intlify/vue-i18n/no-raw-text */
@@ -88,8 +77,11 @@ describe('FlashMessage', () => {
       localVue
     });
 
+    const spy = vi.spyOn(wrapper.vm.$root.$bvToast, 'toast').mockImplementation();
+
     // Trigger error
     await wrapper.findComponent({ ref: 'error-bn' }).trigger('click');
-    expect(vueFlashMessage.error).toHaveBeenCalledWith({ title: 'error-text', message: 'error-description' });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('error-text', { title: 'error-title', variant: 'danger' });
   });
 });

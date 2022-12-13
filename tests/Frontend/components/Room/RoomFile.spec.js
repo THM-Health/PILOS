@@ -616,15 +616,14 @@ describe('RoomFile', () => {
   it('delete file', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         room: ownerRoom,
@@ -776,8 +775,8 @@ describe('RoomFile', () => {
       });
     });
     // check file missing error message and remove from file list
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.file_gone');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toBe('rooms.flash.file_gone');
 
     // find last file in the list, open modal and confirm delete
     fileTable = view.findComponent(BTbody);
@@ -812,15 +811,14 @@ describe('RoomFile', () => {
     const openStub = vi.spyOn(window, 'open').mockImplementation(() => {});
     const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         room: exampleRoom
@@ -915,8 +913,8 @@ describe('RoomFile', () => {
     });
 
     view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.file_forbidden');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy).toBeCalledWith('rooms.flash.file_forbidden');
     expect(removeFile).toBeCalledWith({ id: 1, filename: 'File1.pdf', uploaded: '2020-09-21T07:08:00.000000Z' });
 
     // Test 404
@@ -930,8 +928,8 @@ describe('RoomFile', () => {
       }
     });
     view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(2);
-    expect(flashMessageSpy).lastCalledWith('rooms.flash.file_gone');
+    expect(toastErrorSpy).toBeCalledTimes(2);
+    expect(toastErrorSpy).lastCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test 500
@@ -1030,15 +1028,14 @@ describe('RoomFile', () => {
   it('change file setting', async () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         room: exampleRoom
@@ -1098,8 +1095,8 @@ describe('RoomFile', () => {
     });
 
     view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.file_gone');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy).toBeCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test unknown error

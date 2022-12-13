@@ -174,8 +174,7 @@ describe('Room Token', () => {
   it('copy to clipboard', async () => {
     const clipboardSpy = vi.fn();
 
-    const flashMessageSpy = vi.fn();
-    const flashMessage = { info: flashMessageSpy };
+    const toastInfoSpy = vi.fn();
 
     const view = mount(TokensComponent, {
       localVue,
@@ -183,7 +182,7 @@ describe('Room Token', () => {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
         $copyText: clipboardSpy,
-        flashMessage: flashMessage
+        toastInfo: toastInfoSpy
       },
       propsData: {
         room: exampleRoom
@@ -216,8 +215,8 @@ describe('Room Token', () => {
     expect(clipboardSpy).toBeCalledTimes(1);
     expect(clipboardSpy).toBeCalledWith('https://domain.tld/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
+    expect(toastInfoSpy).toBeCalledTimes(1);
+    expect(toastInfoSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
     view.destroy();
   });

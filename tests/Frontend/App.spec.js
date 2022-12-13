@@ -29,7 +29,6 @@ describe('App', () => {
         $t: (key) => key
       },
       stubs: {
-        FlashMessage: true,
         RouterView: true,
         LocaleSelector: true
       },
