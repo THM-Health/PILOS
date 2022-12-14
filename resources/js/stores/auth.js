@@ -41,12 +41,12 @@ export const useAuthStore = defineStore('auth', {
 
     async logout () {
       const loading = useLoadingStore();
-      loading.loading = true;
+      loading.setLoading();
       await auth.logout();
       this.setCurrentUser(null, false);
       // reset timezone of i18n to use local system timezone
       setTimeZone(undefined);
-      loading.loadingFinished = true;
+      loading.setLoadingFinished();
     },
 
     setCurrentUser (currentUser, emit = true) {
