@@ -37,8 +37,8 @@ export default ({ mode }) => {
     }
 
     return {
-      key: fs.readFileSync(process.env.VITE_SSL_KEY),
-      cert: fs.readFileSync(process.env.VITE_SSL_CERT)
+      key: fs.readFileSync('ssl/privkey.pem'),
+      cert: fs.readFileSync('ssl/fullchain.pem')
     };
   }
   return defineConfig({

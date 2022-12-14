@@ -16,5 +16,4 @@ tests
 .styleci.yml
 docs
 ssl
-jest.config.js
 phpunit.xml
