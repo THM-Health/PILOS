@@ -1,13 +1,13 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/OwnIndex';
-import BootstrapVue, { BFormInput, BFormSelect } from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
+import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
+import { BFormInput, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
-import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent';
+import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -15,7 +15,6 @@ const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', p
 const initialState = { auth: { currentUser: exampleUser } };
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 
@@ -240,7 +239,7 @@ describe('Create new rooms', () => {
 
   it('submit valid', async () => {
     const router = new VueRouter();
-    const spy = jest.spyOn(router, 'push').mockImplementation();
+    const spy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -287,12 +286,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit forbidden', async () => {
-    const flashMessageErrorSpy = jest.fn();
-    const flashMessage = {
-      error (param) {
-        flashMessageErrorSpy(param);
-      }
-    };
+    const toastErrorSpy = vi.fn();
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -303,7 +297,7 @@ describe('Create new rooms', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         modalStatic: true
@@ -332,14 +326,14 @@ describe('Create new rooms', () => {
       status: 403
     });
 
-    expect(flashMessageErrorSpy).toBeCalledTimes(1);
-    expect(flashMessageErrorSpy).toBeCalledWith('rooms.flash.no_new_room');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy).toBeCalledWith('rooms.flash.no_new_room');
 
     view.destroy();
   });
 
   it('submit reached room limit', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,

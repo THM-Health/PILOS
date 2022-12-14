@@ -16,3 +16,4 @@ composer.json
 package.json
 /public
 /db
+/ssl

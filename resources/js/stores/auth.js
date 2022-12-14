@@ -35,6 +35,7 @@ export const useAuthStore = defineStore('auth', {
       }
       // set timezone of i18n, if user not logged in use undefined to set timezone to local system timezone
       setTimeZone(currentUser == null ? undefined : currentUser.timezone);
+
       this.setCurrentUser(currentUser);
     },
 

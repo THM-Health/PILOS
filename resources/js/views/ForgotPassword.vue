@@ -79,7 +79,7 @@ export default {
       };
 
       Base.call('password/email', config, true).then(response => {
-        this.flashMessage.success(response.data.message);
+        this.toastSuccess(response.data.message);
         this.$router.push({ name: 'home' });
       }).catch(error => {
         Base.error(error, this.$root, error.message);

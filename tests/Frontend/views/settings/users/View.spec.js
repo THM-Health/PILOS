@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BForm,
@@ -15,13 +15,14 @@ import PermissionService from '../../../../../resources/js/services/PermissionSe
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import env from '../../../../../resources/js/env.js';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, overrideStub } from '../../../helper';
+import { waitMoxios, overrideStub, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useLocaleStore } from '../../../../../resources/js/stores/locale';
 import { useAuthStore } from '../../../../../resources/js/stores/auth';
+import { createCanvas, Image } from 'canvas';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -214,10 +215,14 @@ describe('UsersView', () => {
   });
 
   it('the configured locales should be selectable in the corresponding select', async () => {
-    View.__set__('LocaleMap', {
-      de: 'German',
-      en: 'English',
-      ru: 'Russian'
+    vi.mock('@/lang/LocaleMap', () => {
+      return {
+        default: {
+          de: 'German',
+          en: 'English',
+          ru: 'Russian'
+        }
+      };
     });
 
     const view = mount(View, {
@@ -241,7 +246,6 @@ describe('UsersView', () => {
     expect(select.vm.value).toEqual('en');
     expect(select.findAllComponents(BFormSelectOption).wrappers.length).toEqual(4);
 
-    View.__ResetDependency__('LocaleMap');
     view.destroy();
   });
 
@@ -362,7 +366,7 @@ describe('UsersView', () => {
   });
 
   it('if generate_password is true the password fields does not get sent with the create request', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -505,7 +509,7 @@ describe('UsersView', () => {
   });
 
   it('request with the updates gets send during saving the user', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -608,7 +612,7 @@ describe('UsersView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
       status: 500,
@@ -648,9 +652,9 @@ describe('UsersView', () => {
   });
 
   it('if the user model to load is the current user and is not found the user gets logged and redirected', async () => {
-    const errorSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const errorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     const router = new VueRouter();
     router.push = spy;
 
@@ -693,9 +697,9 @@ describe('UsersView', () => {
   });
 
   it('current user get logged out if the user to update is the current user and not gets found during persistence', async () => {
-    const errorSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const errorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const spy = jest.fn();
+    const spy = vi.fn();
     const router = new VueRouter();
     router.push = spy;
 
@@ -741,7 +745,7 @@ describe('UsersView', () => {
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -805,7 +809,7 @@ describe('UsersView', () => {
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -859,7 +863,7 @@ describe('UsersView', () => {
   });
 
   it('reload button exists next to the roles multiselect and on error it can be used to reload the roles', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRolesResponse = overrideStub('/api/v1/roles?page=1', {
       status: 500,
@@ -901,9 +905,9 @@ describe('UsersView', () => {
   });
 
   it('user gets redirected to index page if the other user is not found', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
 
     const router = new VueRouter();
     router.push = routerSpy;
@@ -942,7 +946,7 @@ describe('UsersView', () => {
   });
 
   it('reload overlay gets shown if another error than 404 occurs during load of the user', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreUserResponse = overrideStub('/api/v1/users/2', {
       status: 500,
@@ -975,9 +979,9 @@ describe('UsersView', () => {
   });
 
   it('user gets redirected to index page if the other edited user is not found during save', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
 
     const router = new VueRouter();
     router.push = routerSpy;
@@ -1121,10 +1125,31 @@ describe('UsersView', () => {
   });
 
   it('select image', async () => {
-    const cropperSpy = jest.fn();
+    /**
+     * Mock canvas toBlob function
+     */
+    HTMLCanvasElement.prototype.toBlob = vi.fn(function (callback, type) {
+      // Create new node-canvas instance from the properties of the HTMLCanvasElement
+      const canvas = createCanvas(this.width, this.height);
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        // Draw the image to the canvas
+        ctx.drawImage(img, 0, 0, this.width, this.height);
+        // Convert the canvas to a buffer (non-standard API by node-canvas, alternative to toBlob)
+        const buffer = canvas.toBuffer(type);
+        // Create a new Blob from the buffer
+        const blob = new Blob(buffer, { type });
+        callback(blob);
+      };
+      img.onerror = err => { throw err; };
+      // Copy the image contents of the HTMLCanvasElement to the node-canvas instance
+      img.src = this.toDataURL();
+    });
+
+    const cropperSpy = vi.fn();
     const cropperComponent = {
       name: 'test-cropper',
-      /* eslint-disable @intlify/vue-i18n/no-raw-text */
       template: '<p>test</p>',
       methods: {
         replace (imageData) {
@@ -1152,15 +1177,14 @@ describe('UsersView', () => {
       }
     };
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const view = mount(View, {
       localVue,
       mocks: {
         $t: (key) => key,
         $te: () => false,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         config: {
@@ -1192,11 +1216,12 @@ describe('UsersView', () => {
         ]
       }
     };
-      // check if error is shown on invalid image type and modal is not shown
+
+    // check if error is shown on invalid image type and modal is not shown
     view.vm.onFileSelect(eventError);
     await view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('settings.users.image.invalid_mime');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('settings.users.image.invalid_mime');
     expect(modal.vm.$data.isVisible).toBeFalsy();
 
     const event = {
@@ -1208,16 +1233,17 @@ describe('UsersView', () => {
     };
 
     const imageUpload = 'data:image/png;base64,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';
-    global.FileReader = class {
-      readAsDataURL () {
-        this.onload({
-          target: {
-            result: imageUpload
-          }
-        });
-      }
-    };
+
+    vi.spyOn(FileReader.prototype, 'readAsDataURL').mockImplementation(function () {
+      this.onload({
+        target: {
+          result: imageUpload
+        }
+      });
+    });
+
     // check for valid image type, check modal for copper is open and cropper gets the image data
+
     view.vm.onFileSelect(event);
     await view.vm.$nextTick();
     expect(modal.vm.$data.isVisible).toBeTruthy();

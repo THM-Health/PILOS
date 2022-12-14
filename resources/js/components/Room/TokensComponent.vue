@@ -269,8 +269,8 @@ export default {
      * Copies the room link for the personalized token to the users clipboard.
      */
     copyPersonalizedRoomLink (token) {
-      this.$clipboard(this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
-      this.flashMessage.info(this.$t('rooms.tokens.room_link_copied', { firstname: token.firstname, lastname: token.lastname }));
+      this.$copyText(this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
+      this.toastInfo(this.$t('rooms.tokens.room_link_copied', { firstname: token.firstname, lastname: token.lastname }));
     },
 
     /**

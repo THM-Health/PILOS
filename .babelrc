@@ -6,7 +6,6 @@
                     "@babel/preset-env"
                 ]
             ],
-            "plugins": ["rewire"],
             "retainLines": true
         }
     }

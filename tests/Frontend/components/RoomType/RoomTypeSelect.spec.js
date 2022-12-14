@@ -1,15 +1,14 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
+import { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import RoomTypeSelect from '../../../../resources/js/components/RoomType/RoomTypeSelect.vue';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 
@@ -159,7 +158,7 @@ describe('RoomType Select', () => {
       }
     });
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(RoomTypeSelect, {
       localVue,
@@ -196,7 +195,7 @@ describe('RoomType Select', () => {
   });
 
   it('reload room types', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,

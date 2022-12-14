@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import Features from 'components/Features';
+import Features from '@/components/Features.vue';
 import { mapState } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 export default {

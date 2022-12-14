@@ -1,5 +1,5 @@
-import Index from '../../../../../resources/js/views/settings/roomTypes/Index';
-import { createLocalVue, mount } from '@vue/test-utils';
+import Index from '../../../../../resources/js/views/settings/roomTypes/Index.vue';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -12,7 +12,7 @@ import BootstrapVue, {
   BFormSelect
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, createContainer } from '../../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -118,7 +118,7 @@ describe('RoomTypesIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Index, {
       localVue,
@@ -323,7 +323,7 @@ describe('RoomTypesIndex', () => {
   });
 
   it('room types delete 404 handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const oldUser = PermissionService.currentUser;
 
@@ -425,7 +425,7 @@ describe('RoomTypesIndex', () => {
 
   it('room types delete error handler called', async () => {
     const oldUser = PermissionService.currentUser;
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
 
     const response = {

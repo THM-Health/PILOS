@@ -1,9 +1,9 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import LocaleSelector from '../../../resources/js/components/LocaleSelector';
+import { mount } from '@vue/test-utils';
+import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
 import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios } from '../helper';
+import { createLocalVue, waitMoxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { useLoadingStore } from '../../../resources/js/stores/loading';
@@ -14,16 +14,20 @@ localVue.use(PiniaVuePlugin);
 
 describe('LocaleSelector', () => {
   beforeEach(() => {
-    LocaleSelector.__Rewire__('LocaleMap', {
-      de: 'German',
-      en: 'English',
-      ru: 'Russian'
+    vi.mock('@/lang/LocaleMap', () => {
+      return {
+        default: {
+          de: 'German',
+          en: 'English',
+          ru: 'Russian'
+        }
+      };
     });
+
     moxios.install();
   });
 
   afterEach(() => {
-    LocaleSelector.__ResetDependency__('LocaleMap');
     moxios.uninstall();
   });
 
@@ -81,14 +85,13 @@ describe('LocaleSelector', () => {
   });
 
   it('shows an corresponding error message and doesn\'t change the language on 422', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         availableLocales: ['de', 'ru']
@@ -119,14 +122,14 @@ describe('LocaleSelector', () => {
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('Russian');
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('Test');
+    expect(toastErrorSpy).toHaveBeenCalledTimes(1);
+    expect(toastErrorSpy).toHaveBeenCalledWith('Test');
 
     wrapper.destroy();
   });
 
   it('calls global error handler on other errors than 422 and finishes loading', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const wrapper = mount(LocaleSelector, {
       localVue,
@@ -166,7 +169,7 @@ describe('LocaleSelector', () => {
     expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
     expect(loadingStore.loadingCounter).toEqual(0);
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     wrapper.destroy();
   });

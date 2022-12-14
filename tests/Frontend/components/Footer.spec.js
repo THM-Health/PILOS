@@ -1,15 +1,14 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import FooterComponent from '../../../resources/js/components/FooterComponent';
+import { mount } from '@vue/test-utils';
+import FooterComponent from '../../../resources/js/components/FooterComponent.vue';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
-import { BootstrapVue } from 'bootstrap-vue';
-import RawText from '../../../resources/js/components/RawText';
+import RawText from '../../../resources/js/components/RawText.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useSettingsStore } from '../../../resources/js/stores/settings';
+import { createLocalVue } from '../helper';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 

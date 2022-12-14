@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import RoomStatusComponent from './RoomStatusComponent';
+import RoomStatusComponent from './RoomStatusComponent.vue';
 export default {
   components: { RoomStatusComponent },
   data () {

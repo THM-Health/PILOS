@@ -1,10 +1,11 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import App from '../../resources/js/views/App';
+import { mount } from '@vue/test-utils';
+import App from '../../resources/js/views/App.vue';
 import BootstrapVue, { BNavItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../resources/js/stores/auth';
+import { createLocalVue } from './helper';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -28,7 +29,6 @@ describe('App', () => {
         $t: (key) => key
       },
       stubs: {
-        FlashMessage: true,
         RouterView: true,
         LocaleSelector: true
       },

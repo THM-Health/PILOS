@@ -101,7 +101,7 @@
               <h5>{{ $t('rooms.access_for_participants') }}</h5>
               <b-button
                 class="float-right"
-                v-clipboard="() => invitationText"
+                v-clipboard:copy="invitationText"
                 v-b-tooltip.hover
                 :title="$t('rooms.copy_access_for_participants')"
                 variant="light"
@@ -264,16 +264,14 @@
 <script>
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
-import RoomAdmin from '../../components/Room/AdminComponent';
+import RoomAdmin from '../../components/Room/AdminComponent.vue';
 import env from './../../env.js';
-import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
-import Can from '../../components/Permissions/Can';
-import Cannot from '../../components/Permissions/Cannot';
-import FileComponent from '../../components/Room/FileComponent';
+import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
+import Can from '../../components/Permissions/Can.vue';
+import Cannot from '../../components/Permissions/Cannot.vue';
+import FileComponent from '../../components/Room/FileComponent.vue';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
-import Vue from 'vue';
-import i18n from '../../i18n';
 import BrowserNotification from '../../components/Room/BrowserNotification.vue';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
@@ -323,8 +321,9 @@ export default {
   beforeRouteEnter (to, from, next) {
     const auth = useAuthStore();
     if (to.params.token && auth.isAuthenticated) {
-      Vue.prototype.flashMessage.info(i18n.t('app.flash.guests_only'));
-      return next('/');
+      const error = new Error();
+      error.response = { status: env.HTTP_GUESTS_ONLY };
+      return next(error);
     }
 
     let config;
@@ -454,7 +453,7 @@ export default {
       // Reset access code (not the form input) to load the general room details again
       this.accessCode = null;
       // Show error message
-      this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
+      this.toastError(this.$t('rooms.flash.access_code_invalid'));
       this.reload();
     },
 
@@ -464,7 +463,7 @@ export default {
     handleInvalidToken: function () {
       // Show error message
       this.room = null;
-      this.flashMessage.error(this.$t('rooms.flash.token_invalid'));
+      this.toastError(this.$t('rooms.flash.token_invalid'));
       // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
       clearInterval(this.reloadInterval);
     },
@@ -587,7 +586,7 @@ export default {
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.start_forbidden'));
+              this.toastError(this.$t('rooms.flash.start_forbidden'));
               // Disable room start button and reload the room settings, as there was obviously
               // a different understanding of the users permission in this room
               this.room.can_start = false;
@@ -716,7 +715,7 @@ export default {
               // set the access code input invalid
               this.accessCodeValid = false;
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
+              this.toastError(this.$t('rooms.flash.access_code_invalid'));
               return;
             }
 

@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BFormInput,
@@ -7,17 +7,17 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import SettingsComponent from '../../../../resources/js/components/Room/SettingsComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
@@ -407,7 +407,7 @@ describe('RoomSettings', () => {
   it('load settings error', async () => {
     PermissionService.setCurrentUser(exampleUser);
 
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
@@ -543,7 +543,7 @@ describe('RoomSettings', () => {
   });
 
   it('save settings', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser(exampleUser);
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,

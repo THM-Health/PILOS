@@ -148,8 +148,8 @@
 
 <script>
 import Base from '../../api/base';
-import RawText from '../../components/RawText';
-import TextTruncate from '../../components/TextTruncate';
+import RawText from '../../components/RawText.vue';
+import TextTruncate from '../../components/TextTruncate.vue';
 
 export default {
   components: { TextTruncate, RawText },

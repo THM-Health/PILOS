@@ -1,10 +1,10 @@
-import ForgotPassword from '../../../resources/js/views/ForgotPassword';
-import { createLocalVue, mount } from '@vue/test-utils';
+import ForgotPassword from '../../../resources/js/views/ForgotPassword.vue';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -47,7 +47,7 @@ describe('ForgotPassword', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(ForgotPassword, {
       localVue,
@@ -73,16 +73,15 @@ describe('ForgotPassword', () => {
 
   it('submit redirects to home page withe a success message on success', async () => {
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const view = mount(ForgotPassword, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -104,8 +103,8 @@ describe('ForgotPassword', () => {
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'home' });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('Success!');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('Success!');
 
     view.destroy();
   });

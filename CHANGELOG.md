@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Error in docker-compose-dev.yml leads to deletion of the database in the development environment ([#294], [#295])
+- Error in docker container causing wrong permissions on windows ([#296])
+- Broken code coverage ([#278],[#296])
 
 ### Changed
+- **Breaking:** Env prefix from MIX_ to VITE_ ([#296])
 - Frontend vue state management, replace vuex with pinia ([#293],[#292])
+- Frontend build tool, replace laravel mix with vite ([#297],[#296])
+- Frontend testing framework, replace jest with vitest ([#298],[#296])
+- Replace FlashMessages with bootstrap vue toast ([#296])
+- Replace v-clipboard with vue-clipboard2 ([#296])
 
 ## [v2.0.0-alpha.4] - 2022-11-15
 ### Changed
@@ -397,6 +404,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#273]: https://github.com/THM-Health/PILOS/pull/273
 [#275]: https://github.com/THM-Health/PILOS/issues/275
 [#276]: https://github.com/THM-Health/PILOS/pull/276
+[#278]: https://github.com/THM-Health/PILOS/issues/278
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
 [#284]: https://github.com/THM-Health/PILOS/issues/284
@@ -408,6 +416,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#295]: https://github.com/THM-Health/PILOS/pull/295
 [#292]: https://github.com/THM-Health/PILOS/pull/292
 [#293]: https://github.com/THM-Health/PILOS/issues/293
+[#296]: https://github.com/THM-Health/PILOS/pull/296
+[#297]: https://github.com/THM-Health/PILOS/issues/297
+[#298]: https://github.com/THM-Health/PILOS/issues/298
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

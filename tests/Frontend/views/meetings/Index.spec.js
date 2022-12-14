@@ -1,5 +1,5 @@
-import Index from '../../../../resources/js/views/meetings/Index';
-import { createLocalVue, mount } from '@vue/test-utils';
+import Index from '../../../../resources/js/views/meetings/Index.vue';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
   BTr,
@@ -8,7 +8,7 @@ import BootstrapVue, {
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -232,7 +232,7 @@ describe('MeetingsIndex', () => {
   });
 
   it('errors during load', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for meetings load
     moxios.stubRequest('/api/v1/meetings?page=1', {

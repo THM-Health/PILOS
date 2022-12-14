@@ -188,10 +188,10 @@
 
 <script>
 import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 import ActionsColumn from '../../../mixins/ActionsColumn';
-import RawText from '../../../components/RawText';
-import TextTruncate from '../../../components/TextTruncate';
+import RawText from '../../../components/RawText.vue';
+import TextTruncate from '../../../components/TextTruncate.vue';
 
 export default {
   components: { TextTruncate, Can, RawText },

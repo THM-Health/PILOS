@@ -1,11 +1,11 @@
 import moxios from 'moxios';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
-import PasswordReset from '../../../resources/js/views/PasswordReset';
+import PasswordReset from '../../../resources/js/views/PasswordReset.vue';
 import Base from '../../../resources/js/api/base';
 import env from '../../../resources/js/env';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useLocaleStore } from '../../../resources/js/stores/locale';
@@ -25,7 +25,7 @@ describe('PasswordReset', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(PasswordReset, {
       localVue,
@@ -68,16 +68,15 @@ describe('PasswordReset', () => {
 
   it('submit loads the current user after login and changes the application language to the corresponding one', async () => {
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const view = mount(PasswordReset, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router,
       pinia: createTestingPinia({ stubActions: false }),
@@ -113,8 +112,8 @@ describe('PasswordReset', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('Success!');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('Success!');
 
     await waitMoxios();
     request = moxios.requests.mostRecent();

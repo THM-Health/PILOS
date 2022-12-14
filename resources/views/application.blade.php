@@ -10,11 +10,7 @@
     <title>{{ setting('name') }}</title>
 
     <!-- Scripts -->
-    <script src="{{ mix('js/app.js') }}" defer></script>
-
-
-    <!-- Styles -->
-    <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+    @vite(['resources/js/app.js', 'resources/sass/theme/'.config('app.theme').'/app.scss'])
 </head>
 <body>
     <div id='app'>

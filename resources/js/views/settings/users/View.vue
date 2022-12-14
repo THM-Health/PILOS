@@ -408,7 +408,7 @@
 import FieldErrors from '../../../mixins/FieldErrors';
 import Base from '../../../api/base';
 import LocaleMap from '../../../lang/LocaleMap';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import EventBus from '../../../services/EventBus';
 import PermissionService from '../../../services/PermissionService';
 import env from '../../../env';
@@ -473,7 +473,7 @@ export default {
     availableLocales: {
       type: Array,
       default: function () {
-        return process.env.MIX_AVAILABLE_LOCALES.split(',');
+        return import.meta.env.VITE_AVAILABLE_LOCALES.split(',');
       }
     }
   },
@@ -557,7 +557,7 @@ export default {
       this.model.authenticator = 'users';
       this.canEditRoles = true;
       this.canUpdateAttributes = true;
-      this.model.user_locale = process.env.MIX_DEFAULT_LOCALE;
+      this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
       this.model.timezone = this.getSetting('default_timezone');
     }
   },
@@ -609,7 +609,7 @@ export default {
       const file = e.target.files[0];
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         this.resetFileUpload();
-        this.flashMessage.error(this.$t('settings.users.image.invalid_mime'));
+        this.toastError(this.$t('settings.users.image.invalid_mime'));
         return;
       }
       this.$bvModal.show('modal-image-upload');

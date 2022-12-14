@@ -1,13 +1,13 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
-import Login from '../../../resources/js/views/Login';
-import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent';
-import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent';
+import Login from '../../../resources/js/views/Login.vue';
+import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent.vue';
+import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 
@@ -115,19 +115,18 @@ describe('Login', () => {
   });
 
   it('redirect if query set', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/foo?redirect=%2Fredirect_path');
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
       pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -164,8 +163,8 @@ describe('Login', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith('/redirect_path');
@@ -174,18 +173,17 @@ describe('Login', () => {
   });
 
   it('redirect to room overview if redirect query not set', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
       pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -222,8 +220,8 @@ describe('Login', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
 
@@ -336,7 +334,7 @@ describe('Login', () => {
   });
 
   it('other api errors gets thrown and handled by the global error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,

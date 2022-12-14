@@ -40,26 +40,26 @@ export default {
 
     if (responseStatus === env.HTTP_UNAUTHORIZED) { // 401 => unauthorized, redirect and show error messages as flash!
       if (auth.isAuthenticated) {
-        vm.flashMessage.info(vm.$t('app.flash.unauthenticated'));
+        vm.toastInfo(vm.$t('app.flash.unauthenticated'));
         auth.setCurrentUser(null, false);
         vm.$router.replace({ name: 'login', query: { redirect: vm.$router.currentRoute.path } });
       }
     } else if (responseStatus === env.HTTP_FORBIDDEN && errorMessage === 'This action is unauthorized.') { // 403 => unauthorized, show error messages as flash!
-      vm.flashMessage.error(vm.$t('app.flash.unauthorized'));
+      vm.toastError(vm.$t('app.flash.unauthorized'));
     } else if (responseStatus === env.HTTP_GUESTS_ONLY) { // 420 => only for guests, redirect to home route
-      vm.flashMessage.info(vm.$t('app.flash.guests_only'));
+      vm.toastInfo(vm.$t('app.flash.guests_only'));
       vm.$router.replace({ name: 'home' });
     } else if (responseStatus === env.HTTP_PAYLOAD_TOO_LARGE) { // 413 => payload to large
-      vm.flashMessage.error(vm.$t('app.flash.too_large'));
+      vm.toastError(vm.$t('app.flash.too_large'));
     } else if (responseStatus === env.HTTP_SERVICE_UNAVAILABLE) { // 503 => maintenance mode
       window.location.reload();
     } else if (responseStatus !== undefined) { // Another error on server
-      vm.flashMessage.error(
+      vm.toastError(
         errorMessage ? vm.$t('app.flash.server_error.message', { message: errorMessage }) : vm.$t('app.flash.server_error.empty_message'),
         vm.$t('app.flash.server_error.error_code', { statusCode: responseStatus })
       );
     } else {
-      vm.flashMessage.error(vm.$t('app.flash.client_error'));
+      vm.toastError(vm.$t('app.flash.client_error'));
       console.error(`Error: ${error.toString()}\nInfo: ${info}`);
     }
   },

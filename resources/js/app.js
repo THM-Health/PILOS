@@ -4,9 +4,8 @@ import { createPinia, PiniaVuePlugin } from 'pinia';
 import App from './views/App.vue';
 import createRouter from './router';
 import i18n from './i18n';
-import VueFlashMessage from '@smartweb/vue-flash-message';
-import FlashMessage from './plugins/FlashMessage';
-import Clipboard from 'v-clipboard';
+import Toast from './mixins/Toast';
+import VueClipboard from 'vue-clipboard2';
 import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
@@ -21,23 +20,16 @@ window.axios = axios;
 window.axios.defaults.withCredentials = true;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-Vue.use(Clipboard);
+Vue.use(VueClipboard);
 // Install BootstrapVue
 Vue.use(BootstrapVue);
 
-Vue.use(VueFlashMessage, {
-  name: 'vueFlashMessage',
-  strategy: 'multiple'
-});
-Vue.use(FlashMessage, {
-  name: 'flashMessage',
-  vueFlashMessageName: 'vueFlashMessage'
-});
+Vue.mixin(Toast);
 
 // Add accessibility check tools for development
-if (process.env.ENABLE_AXE && process.env.NODE_ENV === 'development') {
-  const VueAxe = require('vue-axe').default;
-  Vue.use(VueAxe);
+if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
+  const VueAxe = await import('vue-axe');
+  Vue.use(VueAxe.default);
 }
 
 Vue.config.errorHandler = Base.error;

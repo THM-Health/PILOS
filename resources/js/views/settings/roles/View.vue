@@ -250,7 +250,7 @@
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
-import RawText from '../../../components/RawText';
+import RawText from '../../../components/RawText.vue';
 import _ from 'lodash';
 import { mapState } from 'pinia';
 import { useSettingsStore } from '../../../stores/settings';

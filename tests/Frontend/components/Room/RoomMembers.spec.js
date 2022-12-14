@@ -1,19 +1,19 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormFile, BFormRadio, BTbody, BTr } from 'bootstrap-vue';
 import moxios from 'moxios';
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
@@ -211,7 +211,7 @@ describe('RoomMembers', () => {
   });
 
   it('error emitted on members load', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(MembersComponent, {
       localVue,
@@ -404,7 +404,7 @@ describe('RoomMembers', () => {
 
   it('add new member errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -626,7 +626,7 @@ describe('RoomMembers', () => {
 
   it('edit member error gone', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -812,7 +812,7 @@ describe('RoomMembers', () => {
 
   it('delete members, already gone', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -906,7 +906,7 @@ describe('RoomMembers', () => {
 
   it('delete members error', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {

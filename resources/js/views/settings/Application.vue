@@ -1165,7 +1165,7 @@ import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import PermissionService from '../../services/PermissionService';
-import Banner from '../../components/Banner';
+import Banner from '../../components/Banner.vue';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
 import { mapActions } from 'pinia';

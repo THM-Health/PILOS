@@ -1,28 +1,28 @@
 import VueRouter from 'vue-router';
-import Login from './views/Login';
-import NotFound from './views/NotFound';
-import RoomsIndex from './views/rooms/Index';
-import RoomsOwnIndex from './views/rooms/OwnIndex';
-import RoomView from './views/rooms/View';
-import Home from 'views/Home';
+import Login from './views/Login.vue';
+import NotFound from './views/NotFound.vue';
+import RoomsIndex from './views/rooms/Index.vue';
+import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
+import RoomView from './views/rooms/View.vue';
+import Home from '@/views/Home.vue';
 import PermissionService from './services/PermissionService';
-import Settings from './views/settings/Settings';
-import RolesIndex from './views/settings/roles/Index';
-import RolesView from './views/settings/roles/View';
-import RoomTypesIndex from './views/settings/roomTypes/Index';
-import RoomTypesView from './views/settings/roomTypes/View';
-import UsersIndex from './views/settings/users/Index';
-import UsersView from './views/settings/users/View';
-import Application from './views/settings/Application';
-import SettingsHome from './views/settings/SettingsHome';
-import ServersIndex from './views/settings/servers/Index';
-import ServersView from './views/settings/servers/View';
-import ServerPoolsIndex from './views/settings/serverPools/Index';
-import ServerPoolsView from './views/settings/serverPools/View';
-import MeetingsIndex from './views/meetings/Index';
-import PasswordReset from './views/PasswordReset';
+import Settings from './views/settings/Settings.vue';
+import RolesIndex from './views/settings/roles/Index.vue';
+import RolesView from './views/settings/roles/View.vue';
+import RoomTypesIndex from './views/settings/roomTypes/Index.vue';
+import RoomTypesView from './views/settings/roomTypes/View.vue';
+import UsersIndex from './views/settings/users/Index.vue';
+import UsersView from './views/settings/users/View.vue';
+import Application from './views/settings/Application.vue';
+import SettingsHome from './views/settings/SettingsHome.vue';
+import ServersIndex from './views/settings/servers/Index.vue';
+import ServersView from './views/settings/servers/View.vue';
+import ServerPoolsIndex from './views/settings/serverPools/Index.vue';
+import ServerPoolsView from './views/settings/serverPools/View.vue';
+import MeetingsIndex from './views/meetings/Index.vue';
+import PasswordReset from './views/PasswordReset.vue';
 import Base from './api/base';
-import ForgotPassword from './views/ForgotPassword';
+import ForgotPassword from './views/ForgotPassword.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
 
@@ -393,7 +393,7 @@ export function beforeEachRoute (router, to, from, next) {
   const auth = useAuthStore();
   const loading = useLoadingStore();
 
-  const locale = document.documentElement.lang || process.env.MIX_DEFAULT_LOCALE;
+  const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
   const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
 
   loading.setLoading();
@@ -409,10 +409,10 @@ export function beforeEachRoute (router, to, from, next) {
         query: { redirect: to.fullPath }
       });
     } else if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.guests_only'));
+      router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
       next({ name: 'home' });
     } else if (!recordsPermissions.every(permission => permission)) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
+      router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
       next(from.matched.length !== 0 ? false : '/');
     } else {
       next();

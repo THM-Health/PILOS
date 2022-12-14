@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BFormInvalidFeedback,
   BFormRadio,
@@ -8,17 +8,17 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
-import Clipboard from 'v-clipboard';
+import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
@@ -565,7 +565,7 @@ describe('RoomMembersBulk', () => {
 
   it('bulk edit with errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const view = mount(MembersComponent, {
       localVue,
       mocks: {

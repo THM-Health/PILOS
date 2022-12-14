@@ -66,9 +66,7 @@ describe('Router', () => {
         app: {
           $t: (key) => key,
           $root: {
-            flashMessage: {
-              error: () => {}
-            }
+            toastError: () => {}
           }
         }
       };
@@ -128,9 +126,7 @@ describe('Router', () => {
         app: {
           $t: (key) => key,
           $root: {
-            flashMessage: {
-              error: (error) => errors.push(error)
-            }
+            toastError: (error) => errors.push(error)
           }
         }
       };
@@ -250,7 +246,7 @@ describe('Router', () => {
     });
 
     it('for role update view calls error handler returns false on error in request', async () => {
-      const spy = jest.spyOn(Base, 'error').mockImplementation();
+      const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
       moxios.wait(function () {
         const request = moxios.requests.mostRecent();

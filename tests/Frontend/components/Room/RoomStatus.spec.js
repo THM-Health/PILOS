@@ -1,10 +1,8 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import { createContainer } from '../../helper';
-import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent';
-import BootstrapVue from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
+import { createContainer, createLocalVue } from '../../helper';
+import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
 describe('RoomStatus', () => {
   it('empty status', async () => {

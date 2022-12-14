@@ -406,7 +406,7 @@
 import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
-import RoomTypeSelect from '../RoomType/RoomTypeSelect';
+import RoomTypeSelect from '../RoomType/RoomTypeSelect.vue';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
 import { mapState } from 'pinia';

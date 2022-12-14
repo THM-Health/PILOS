@@ -4,6 +4,8 @@ LABEL maintainer="Samuel Weirich"
 LABEL description="Development container for PILOS, compatible with laravel sail; heavily inspired by offical image"
 
 ARG NODE_VERSION=16
+ARG WWWGROUP=33
+ARG WWWUSER=33
 
 WORKDIR /var/www/html
 
@@ -30,8 +32,15 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+RUN usermod -d /var/www www-data
+RUN chown www-data:www-data /var/www/
+
+
+RUN usermod -u $WWWUSER www-data
+RUN groupmod -o -g $WWWGROUP www-data
+
 # Enable PHP modules
-RUN a2enmod rewrite headers alias proxy proxy_fcgi
+RUN a2enmod rewrite headers alias proxy proxy_fcgi ssl
 
 # Copy start script
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
@@ -41,16 +50,17 @@ RUN chmod +x /usr/local/bin/entrypoint
 COPY ./docker/app/scheduler /usr/local/etc/scheduler
 RUN chmod +x /usr/local/etc/scheduler/run.sh
 
-# Copy larave mix wrapper script
-COPY ./docker/app/laravel-mix /usr/local/etc/laravel-mix
-RUN chmod +x /usr/local/etc/laravel-mix/run.sh
-RUN chown www-data:www-data /usr/local/etc/laravel-mix/
+# Copy frontend wrapper script
+COPY ./docker/app/frontend /usr/local/etc/frontend
+RUN chmod +x /usr/local/etc/frontend/run.sh
+RUN chown www-data:www-data /usr/local/etc/frontend/
 
 # Copy supervisor config
 COPY ./docker/app/supervisord/ /etc/supervisor/conf.d
 
 # Copy apache default site conf
-COPY ./docker/app/apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+COPY ./docker/app/apache/sites-enabled /etc/apache2/sites-enabled
+COPY ./docker/app/apache/sites-common /etc/apache2/sites-common
 
 # Copy php config files
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
@@ -58,10 +68,6 @@ COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
 
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
-
-# Create npm cache folder
-RUN mkdir /var/www/.npm
-RUN chown www-data:www-data /var/www/.npm
 
 # Copy application files
 COPY --chown=www-data:www-data ./ /var/www/html
@@ -74,5 +80,6 @@ RUN composer install
 USER root
 
 EXPOSE 80
+EXPOSE 443
 
 ENTRYPOINT ["entrypoint"]

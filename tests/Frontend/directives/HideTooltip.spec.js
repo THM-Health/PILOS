@@ -1,11 +1,8 @@
-import { createLocalVue, createWrapper, mount } from '@vue/test-utils';
-import { createContainer } from '../helper';
-import BootstrapVue, { BButton } from 'bootstrap-vue';
-import HideTooltip from '../../../resources/js/directives/hide-tooltip';
+import { createWrapper, mount } from '@vue/test-utils';
+import { createContainer, createLocalVue } from '../helper';
+import { BButton } from 'bootstrap-vue';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
-localVue.directive('tooltip-hide-click', HideTooltip);
 
 const testComponent = {
   name: 'test-component',
@@ -26,22 +23,6 @@ const testComponent = {
 };
 
 describe('HideTooltip', () => {
-  it('adding random id', async () => {
-    const wrapper = mount(testComponent, {
-      localVue,
-      attachTo: createContainer()
-    });
-
-    const buttons = wrapper.findAllComponents(BButton);
-
-    expect(buttons.at(0).attributes('id')).toBeUndefined();
-    expect(buttons.at(1).attributes('id')).toBe('randid-1');
-    expect(buttons.at(2).attributes('id')).toBe('randid-2');
-    expect(buttons.at(3).attributes('id')).toBe('demo');
-
-    wrapper.destroy();
-  });
-
   it('trigger click', async () => {
     const wrapper = mount(testComponent, {
       localVue,
@@ -79,8 +60,8 @@ describe('HideTooltip', () => {
     let buttons = wrapper.findAllComponents(BButton);
 
     // Spy on button with and without directive
-    const spy1 = jest.fn();
-    const spy2 = jest.fn();
+    const spy1 = vi.fn();
+    const spy2 = vi.fn();
     wrapper.findAllComponents(BButton).at(0).element.removeEventListener = spy1;
     wrapper.findAllComponents(BButton).at(1).element.removeEventListener = spy2;
 
@@ -94,6 +75,25 @@ describe('HideTooltip', () => {
 
     // check if button with directive has one more removeEventListener call
     expect(spy2).toBeCalledTimes(spy1.mock.calls.length + 1);
+
+    wrapper.destroy();
+  });
+
+  it('adding random id', async () => {
+    const wrapper = mount(testComponent, {
+      localVue,
+      attachTo: createContainer()
+    });
+
+    const buttons = wrapper.findAllComponents(BButton);
+
+    expect(buttons.at(0).attributes('id')).toBeUndefined();
+    const id1 = buttons.at(1).attributes('id');
+    const id2 = buttons.at(2).attributes('id');
+    expect(id1).toContain('randid-');
+    expect(id2).toContain('randid-');
+    expect(id1).not.toBe(id2);
+    expect(buttons.at(3).attributes('id')).toBe('demo');
 
     wrapper.destroy();
   });

@@ -1,9 +1,9 @@
-import Banner from '../../../resources/js/components/Banner';
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert } from 'bootstrap-vue';
+import Banner from '../../../resources/js/components/Banner.vue';
+import { mount } from '@vue/test-utils';
+import { BAlert } from 'bootstrap-vue';
+import { createLocalVue } from '../helper.js';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
 describe('Banner', () => {
   it('alert gets shown only if the enabled flag was provided and is not falsy', async () => {

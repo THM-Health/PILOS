@@ -1,17 +1,18 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton, BFormInput, BFormRadio,
   BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
-import TokensComponent from '../../../../resources/js/components/Room/TokensComponent';
-import Clipboard from 'v-clipboard';
+import { vi } from 'vitest';
+import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
+import VueClipboard from 'vue-clipboard2';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import RoomView from '../../../../resources/js/views/rooms/View';
+import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -24,14 +25,13 @@ const routerMock = new VueRouter({
   }]
 });
 
-const localVue = createLocalVue();
-
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
+localVue.use(VueClipboard);
 localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
@@ -49,7 +49,7 @@ describe('Room Token', () => {
   });
 
   it('load tokens', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -172,18 +172,17 @@ describe('Room Token', () => {
   });
 
   it('copy to clipboard', async () => {
-    const clipboardSpy = jest.fn();
+    const clipboardSpy = vi.fn();
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { info: flashMessageSpy };
+    const toastInfoSpy = vi.fn();
 
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        $clipboard: clipboardSpy,
-        flashMessage: flashMessage
+        $copyText: clipboardSpy,
+        toastInfo: toastInfoSpy
       },
       propsData: {
         room: exampleRoom
@@ -216,8 +215,8 @@ describe('Room Token', () => {
     expect(clipboardSpy).toBeCalledTimes(1);
     expect(clipboardSpy).toBeCalledWith('https://domain.tld/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
+    expect(toastInfoSpy).toBeCalledTimes(1);
+    expect(toastInfoSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
     view.destroy();
   });
@@ -342,7 +341,7 @@ describe('Room Token', () => {
   });
 
   it('delete token error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -658,7 +657,7 @@ describe('Room Token', () => {
   });
 
   it('add token', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,

@@ -348,11 +348,11 @@
 </template>
 <script>
 import Base from '../../api/base';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
-import Can from '../Permissions/Can';
+import Can from '../Permissions/Can.vue';
 import PermissionService from '../../services/PermissionService';
 import { mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';

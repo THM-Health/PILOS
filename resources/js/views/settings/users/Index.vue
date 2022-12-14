@@ -265,10 +265,10 @@
 
 <script>
 import ActionsColumn from '../../../mixins/ActionsColumn';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 import Base from '../../../api/base';
-import TextTruncate from '../../../components/TextTruncate';
-import Multiselect from 'vue-multiselect';
+import TextTruncate from '../../../components/TextTruncate.vue';
+import { Multiselect } from 'vue-multiselect';
 
 export default {
   components: { TextTruncate, Can, Multiselect },
@@ -470,7 +470,7 @@ export default {
       };
 
       Base.call(`users/${this.userToResetPassword.id}/resetPassword`, config).then(() => {
-        this.flashMessage.success(this.$t('settings.users.password_reset_success', { mail: this.userToResetPassword.email }));
+        this.toastSuccess(this.$t('settings.users.password_reset_success', { mail: this.userToResetPassword.email }));
       }).catch(error => {
         Base.error(error, this.$root, error.message);
       }).finally(() => {

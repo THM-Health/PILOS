@@ -1,5 +1,5 @@
 import moxios from 'moxios';
-import i18n, { importLanguage } from '../../../resources/js/i18n';
+import i18n from '../../../resources/js/i18n';
 import { overrideStub } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
@@ -16,11 +16,10 @@ describe('Auth Store', () => {
   });
 
   it('getCurrentUser and set i18n timezone', async () => {
-    const messagesEN = require('../../../lang/en.json');
+    const messagesEn = await import('../../../lang/en.json');
+    i18n.setLocaleMessage('en', messagesEn);
 
-    const PermissionServiceSpy = jest.spyOn(PermissionService, 'setCurrentUser').mockImplementation();
-
-    importLanguage('en', messagesEN);
+    const PermissionServiceSpy = vi.spyOn(PermissionService, 'setCurrentUser').mockImplementation();
 
     const user = {
       id: 1,
