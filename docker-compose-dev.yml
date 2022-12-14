@@ -53,6 +53,7 @@ services:
         PMA_HOST: db
         PMA_USER: "${DB_USERNAME}"
         PMA_PASSWORD: "${DB_PASSWORD}"
+        UPLOAD_LIMIT: 2G
     openldap:
       image: osixia/openldap
       environment:
