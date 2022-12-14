@@ -59,7 +59,6 @@ export default {
         vm.$t('app.flash.server_error.error_code', { statusCode: responseStatus })
       );
     } else {
-      //console.error(error);
       vm.toastError(vm.$t('app.flash.client_error'));
       console.error(`Error: ${error.toString()}\nInfo: ${info}`);
     }

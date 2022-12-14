@@ -4,8 +4,11 @@ import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneS
 import { createContainer, waitMoxios, createLocalVue } from '../../helper';
 import moxios from 'moxios';
 import Base from '../../../../resources/js/api/base';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
+localVue.use(PiniaVuePlugin);
 
 describe('TimezoneSelect', () => {
   beforeEach(() => {
@@ -18,6 +21,7 @@ describe('TimezoneSelect', () => {
 
   it('check v-model and props', async () => {
     const view = mount(TimezoneSelect, {
+      pinia: createTestingPinia(),
       localVue,
       mocks: {
         $t: key => key
@@ -108,9 +112,10 @@ describe('TimezoneSelect', () => {
   });
 
   it('loading error', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TimezoneSelect, {
+      pinia: createTestingPinia(),
       localVue,
       mocks: {
         $t: key => key

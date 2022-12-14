@@ -168,9 +168,9 @@ import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
 import LocaleSelect from '../Inputs/LocaleSelect.vue';
 import TimezoneSelect from '../Inputs/TimezoneSelect.vue';
-import {useLocaleStore} from "../../stores/locale";
-import {useAuthStore} from "../../stores/auth";
-import {mapActions} from "pinia";
+import { useLocaleStore } from '../../stores/locale';
+import { useAuthStore } from '../../stores/auth';
+import { mapActions } from 'pinia';
 
 export default {
   name: 'ProfileComponent',

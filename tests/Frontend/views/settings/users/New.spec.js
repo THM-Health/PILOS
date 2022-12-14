@@ -8,9 +8,11 @@ import LocaleSelect from '../../../../../resources/js/components/Inputs/LocaleSe
 import RoleSelect from '../../../../../resources/js/components/Inputs/RoleSelect.vue';
 import { createContainer, waitMoxios, createLocalVue } from '../../../helper';
 import Base from '../../../../../resources/js/api/base';
-import {createTestingPinia} from "@pinia/testing";
+import { createTestingPinia } from '@pinia/testing';
+import { PiniaVuePlugin } from 'pinia';
 
 const localVue = createLocalVue();
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 describe('NewUserView', () => {
@@ -25,7 +27,7 @@ describe('NewUserView', () => {
   it('submit form', async () => {
     // Create fake router
     const router = new VueRouter();
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     // Set global defaults
     import.meta.env.VITE_DEFAULT_LOCALE = 'en';
@@ -159,7 +161,7 @@ describe('NewUserView', () => {
     // Set global defaults
     import.meta.env.VITE_DEFAULT_LOCALE = 'en';
 
-    const spy = vi.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(New, {
       pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin' } } } }),

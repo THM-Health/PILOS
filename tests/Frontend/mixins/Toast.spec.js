@@ -36,7 +36,7 @@ describe('Toast', () => {
       localVue
     });
 
-    const spy = vi.spyOn(wrapper.vm.$root.$bvToast, 'toast').mockImplementation();
+    const spy = vi.spyOn(wrapper.vm.$root.$bvToast, 'toast').mockImplementation(() => {});
 
     // Trigger success
     await wrapper.findComponent({ ref: 'success-bn' }).trigger('click');
@@ -77,7 +77,7 @@ describe('Toast', () => {
       localVue
     });
 
-    const spy = vi.spyOn(wrapper.vm.$root.$bvToast, 'toast').mockImplementation();
+    const spy = vi.spyOn(wrapper.vm.$root.$bvToast, 'toast').mockImplementation(() => {});
 
     // Trigger error
     await wrapper.findComponent({ ref: 'error-bn' }).trigger('click');

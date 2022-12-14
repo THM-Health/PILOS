@@ -130,7 +130,7 @@ describe('SessionsComponent', () => {
   });
 
   it('loading error', async () => {
-    const spy = vi.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(SessionsComponent, {
       localVue,
