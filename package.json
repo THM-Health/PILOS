@@ -58,7 +58,6 @@
         "bootstrap-vue": "^2.15.0",
         "chart.js": "^2.9.4",
         "pinia": "^2.0.27",
-        "ua-parser-js": "^1.0.2",
         "vue-chartjs": "^3.5.1",
         "vue-clipboard2": "^0.3.3",
         "vue-cropperjs": "^4.2.0",
