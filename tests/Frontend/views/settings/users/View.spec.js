@@ -1125,7 +1125,6 @@ describe('UsersView', () => {
   });
 
   it('select image', async () => {
-
     /**
      * Mock canvas toBlob function
      */
@@ -1177,7 +1176,6 @@ describe('UsersView', () => {
         }
       }
     };
-
 
     const toastErrorSpy = vi.fn();
 

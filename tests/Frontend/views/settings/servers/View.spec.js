@@ -733,7 +733,7 @@ describe('ServerView', () => {
     expect(toastSuccessSpy).toBeCalledTimes(1);
     expect(toastSuccessSpy).toBeCalledWith(
       'settings.servers.panic.flash.description:{"total":5,"success":3}',
-      'settings.servers.panic.flash.title',
+      'settings.servers.panic.flash.title'
     );
 
     // check reload of server data
