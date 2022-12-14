@@ -159,7 +159,7 @@ import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
 
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
 
 export default {

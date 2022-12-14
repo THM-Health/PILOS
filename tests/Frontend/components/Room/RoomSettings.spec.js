@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BFormInput,
@@ -7,18 +7,18 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import SettingsComponent from '../../../../resources/js/components/Room/SettingsComponent.vue';
-import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
+import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, createContainer } from '../../helper';
-import _ from 'lodash';
+import { waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(VueClipboard);
+localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const adminUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.manage'], model_name: 'User', room_limit: -1 };
@@ -35,35 +35,7 @@ const exampleRoomTypeResponse = {
   ]
 };
 
-const settings = {
-  attendance: {
-    enabled: true
-  },
-  bbb: {
-    welcome_message_limit: 250
-  }
-};
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => _.get(settings, setting)
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { settings: { settings: { attendance: { enabled: true }, bbb: { welcome_message_limit: 250 } } } };
 
 describe('RoomSettings', () => {
   beforeEach(() => {
@@ -88,7 +60,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -205,7 +177,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: ownerRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -291,7 +263,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: coOwnerRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -369,7 +341,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -435,7 +407,7 @@ describe('RoomSettings', () => {
   it('load settings error', async () => {
     PermissionService.setCurrentUser(exampleUser);
 
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
@@ -450,7 +422,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: ownerRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -571,7 +543,7 @@ describe('RoomSettings', () => {
   });
 
   it('save settings', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser(exampleUser);
     moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
       status: 200,
@@ -586,7 +558,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: ownerRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -755,37 +727,6 @@ describe('RoomSettings', () => {
   });
 
   it('load and save settings with attendance logging globally disabled', async () => {
-    const settings = {
-      attendance: {
-        enabled: false
-      },
-      bbb: {
-        welcome_message_limit: 250
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules: {
-        session: {
-          namespaced: true,
-          actions: {
-            getCurrentUser () {
-            }
-          },
-          state: {
-            currentUser: exampleUser
-          },
-          getters: {
-            isAuthenticated: () => true,
-            settings: () => (setting) => _.get(settings, setting)
-          }
-        }
-      },
-      state: {
-        loadingCounter: 0
-      }
-    });
-
     PermissionService.setCurrentUser(exampleUser);
     moxios.stubRequest(`/api/v1/roomTypes?filter=${ownerRoom.id}`, {
       status: 200,
@@ -800,7 +741,7 @@ describe('RoomSettings', () => {
       propsData: {
         room: ownerRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { attendance: { enabled: false }, bbb: { welcome_message_limit: 250 } } } } }),
       attachTo: createContainer()
     });
 

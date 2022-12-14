@@ -1,12 +1,11 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BListGroupItem, BSpinner } from 'bootstrap-vue';
-import { createContainer, waitMoxios } from '../../helper';
-import SessionsComponent from '../../../../resources/js/components/User/SessionsComponent';
+import { mount } from '@vue/test-utils';
+import { BButton, BListGroupItem, BSpinner } from 'bootstrap-vue';
+import { createContainer, waitMoxios, createLocalVue } from '../../helper';
+import SessionsComponent from '../../../../resources/js/components/User/SessionsComponent.vue';
 import moxios from 'moxios';
 import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -22,15 +21,14 @@ describe('SessionsComponent', () => {
   });
 
   it('list of sessions and logout other sessions', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const view = mount(SessionsComponent, {
       localVue,
       mocks: {
         $t: key => key,
         $d: i18nDateMock,
-        flashMessage
+        toastSuccess: toastSuccessSpy
       },
       attachTo: createContainer()
     });
@@ -99,8 +97,8 @@ describe('SessionsComponent', () => {
 
     // check if button is enabled after request and success message is shown
     expect(endSessionButton.attributes('disabled')).toBeUndefined();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.logout_all_others');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.logout_all_others');
 
     // check if sessions are reloaded
     await waitMoxios();
@@ -132,7 +130,7 @@ describe('SessionsComponent', () => {
   });
 
   it('loading error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(SessionsComponent, {
       localVue,

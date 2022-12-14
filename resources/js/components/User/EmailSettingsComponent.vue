@@ -123,7 +123,7 @@ export default {
           } else if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             this.errors = error.response.data.errors;
           } else if (error.response.status === env.HTTP_EMAIL_CHANGE_THROTTLE) {
-            this.flashMessage.error(this.$t('auth.throttle_email'));
+            this.toastError(this.$t('auth.throttle_email'));
           } else {
             Base.error(error, this.$root, error.message);
           }

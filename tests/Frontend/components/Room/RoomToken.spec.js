@@ -1,18 +1,20 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton, BFormInput, BFormRadio,
   BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
-import TokensComponent from '../../../../resources/js/components/Room/TokensComponent';
-import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
+import { vi } from 'vitest';
+import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
+import VueClipboard from 'vue-clipboard2';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import RoomView from '../../../../resources/js/views/rooms/View';
+import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const routerMock = new VueRouter({
   mode: 'abstract',
@@ -23,58 +25,31 @@ const routerMock = new VueRouter({
   }]
 });
 
-const localVue = createLocalVue();
-
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(VueClipboard);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: (state) => !_.isEmpty(state.currentUser),
-        settings: () => (setting) => setting === 'base_url' ? 'https://domain.tld' : null
-      },
-      mutations: {
-        setCurrentUser (state, { currentUser, emit = true }) {
-          state.currentUser = currentUser;
-          PermissionService.setCurrentUser(state.currentUser, emit);
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { settings: { settings: { base_url: 'https://domain.tld' } } };
 
 describe('Room Token', () => {
   beforeEach(() => {
     moxios.install();
-    store.commit('session/setCurrentUser', { currentUser: exampleUser });
+    PermissionService.setCurrentUser(exampleUser);
   });
   afterEach(() => {
     moxios.uninstall();
   });
 
   it('load tokens', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -85,7 +60,7 @@ describe('Room Token', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -197,24 +172,23 @@ describe('Room Token', () => {
   });
 
   it('copy to clipboard', async () => {
-    const clipboardSpy = jest.fn();
+    const clipboardSpy = vi.fn();
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { info: flashMessageSpy };
+    const toastInfoSpy = vi.fn();
 
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        $clipboard: clipboardSpy,
-        flashMessage: flashMessage
+        $copyText: clipboardSpy,
+        toastInfo: toastInfoSpy
       },
       propsData: {
         room: exampleRoom
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -241,8 +215,8 @@ describe('Room Token', () => {
     expect(clipboardSpy).toBeCalledTimes(1);
     expect(clipboardSpy).toBeCalledWith('https://domain.tld/rooms/123-456-789/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
+    expect(toastInfoSpy).toBeCalledTimes(1);
+    expect(toastInfoSpy).toBeCalledWith('rooms.tokens.room_link_copied:{"firstname":"John","lastname":"Doe"}');
 
     view.destroy();
   });
@@ -262,7 +236,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -367,7 +341,7 @@ describe('Room Token', () => {
   });
 
   it('delete token error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -383,7 +357,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -515,7 +489,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -683,7 +657,7 @@ describe('Room Token', () => {
   });
 
   it('add token', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(TokensComponent, {
       localVue,
@@ -699,7 +673,7 @@ describe('Room Token', () => {
         transition: false
       },
       router: routerMock,
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 

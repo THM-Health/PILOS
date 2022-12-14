@@ -1,48 +1,27 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
   BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
-import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
+import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, waitMoxios, createContainer } from '../../helper';
-
-const localVue = createLocalVue();
+import { waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(VueClipboard);
+localVue.use(PiniaVuePlugin);
 
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => setting === 'attendance.enabled' ? true : setting === 'statistics.meetings.enabled' ? true : null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+const initialState = { settings: { settings: { attendance: { enabled: true }, statistics: { meetings: { enabled: true } } } } };
 
 describe('History', () => {
   beforeEach(() => {
@@ -53,27 +32,6 @@ describe('History', () => {
   });
 
   it('load meetings', async () => {
-    const store = new Vuex.Store({
-      modules: {
-        session: {
-          namespaced: true,
-          actions: {
-            getCurrentUser () {}
-          },
-          state: {
-            currentUser: exampleUser
-          },
-          getters: {
-            isAuthenticated: () => true,
-            settings: () => (setting) => setting === 'attendance.enabled' ? false : setting === 'statistics.meetings.enabled' ? false : null
-          }
-        }
-      },
-      state: {
-        loadingCounter: 0
-      }
-    });
-
     const view = mount(HistoryComponent, {
       localVue,
       mocks: {
@@ -83,7 +41,22 @@ describe('History', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({
+        initialState: {
+          settings: {
+            settings: {
+              attendance: {
+                enabled: false
+              },
+              statistics: {
+                meetings: {
+                  enabled: false
+                }
+              }
+            }
+          }
+        }
+      }),
       attachTo: createContainer()
     });
 
@@ -176,7 +149,7 @@ describe('History', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState: initialState }),
       attachTo: createContainer()
     });
 
@@ -254,7 +227,7 @@ describe('History', () => {
   });
 
   it('meetings table loading error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(HistoryComponent, {
       localVue,
@@ -265,7 +238,7 @@ describe('History', () => {
       propsData: {
         room: exampleRoom
       },
-      store,
+      pinia: createTestingPinia({ initialState: initialState }),
       attachTo: createContainer()
     });
 
@@ -335,7 +308,7 @@ describe('History', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState: initialState }),
       attachTo: createContainer()
     });
 
@@ -439,7 +412,7 @@ describe('History', () => {
       stubs: {
         transition: false
       },
-      store,
+      pinia: createTestingPinia({ initialState: initialState }),
       attachTo: createContainer()
     });
 

@@ -110,7 +110,7 @@ export default {
 
       Base.call('sessions', { method: 'DELETE' })
         .then(() => {
-          this.flashMessage.success(this.$t('auth.flash.logout_all_others'));
+          this.toastSuccess(this.$t('auth.flash.logout_all_others'));
           this.getSessions();
         })
         .catch(error => {

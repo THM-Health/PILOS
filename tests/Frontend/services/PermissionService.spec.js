@@ -3,28 +3,28 @@ import ParameterMissingError from '../../../resources/js/errors/ParameterMissing
 import WrongTypeError from '../../../resources/js/errors/WrongTypeError';
 import PolicyDoesNotExistsError from '../../../resources/js/errors/PolicyDoesNotExistsError';
 import EventBus from '../../../resources/js/services/EventBus';
-import Vue from 'vue';
+import { nextTick } from 'vue';
 
 describe('PermissionService', () => {
   describe('setCurrentUser', () => {
     it('fires an event if the current user gets set and passes the newly set user as parameter', async () => {
       const oldUser = PermissionService.currentUser;
       const newUser = { permissions: ['foo', 'bar'] };
-      const handleUserChanged = jest.fn();
+      const handleUserChanged = vi.fn();
 
       EventBus.$on('currentUserChangedEvent', handleUserChanged);
       PermissionService.setCurrentUser(newUser);
-      await Vue.nextTick();
+      await nextTick();
 
       expect(handleUserChanged).toBeCalledTimes(1);
       expect(handleUserChanged).toBeCalledWith(newUser);
 
       EventBus.$off('currentUserChangedEvent', handleUserChanged);
 
-      const spy = jest.fn();
+      const spy = vi.fn();
       EventBus.$on('currentUserChangedEvent', spy);
       PermissionService.setCurrentUser(newUser, false);
-      await Vue.nextTick();
+      await nextTick();
 
       expect(spy).toBeCalledTimes(0);
 
@@ -40,16 +40,26 @@ describe('PermissionService', () => {
       });
 
       it('throws an error if the policy or its method doesn\'t exists', () => {
-        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+        vi.mock('@/policies/index.js', () => {
+          return {
+            default: {
+              TestPolicy: { test: () => true }
+            }
+          };
+        });
         expect(() => PermissionService.can('test', 'test')).toThrow(new PolicyDoesNotExistsError('test', 'test'));
         expect(() => PermissionService.can('testA', 'TestPolicy')).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
-        PermissionService.__ResetDependency__('Policies');
       });
 
       it('returns the boolean value returned by the policy method', () => {
-        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+        vi.mock('@/policies/index.js', () => {
+          return {
+            default: {
+              TestPolicy: { test: () => true }
+            }
+          };
+        });
         expect(PermissionService.can('test', 'TestPolicy')).toEqual(true);
-        PermissionService.__ResetDependency__('Policies');
       });
     });
 
@@ -64,25 +74,40 @@ describe('PermissionService', () => {
       });
 
       it('throws an error if the policy for the object or its method doesn\'t exists', () => {
-        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+        vi.mock('@/policies/index.js', () => {
+          return {
+            default: {
+              TestPolicy: { test: () => true }
+            }
+          };
+        });
         expect(() => PermissionService.can('test', { model_name: 'test' })).toThrow(new PolicyDoesNotExistsError('testPolicy', 'test'));
         expect(() => PermissionService.can('testA', { model_name: 'Test' })).toThrow(new PolicyDoesNotExistsError('TestPolicy', 'testA'));
-        PermissionService.__ResetDependency__('Policies');
       });
 
       it('returns the boolean value returned by the policy method', () => {
-        PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+        vi.mock('@/policies/index.js', () => {
+          return {
+            default: {
+              TestPolicy: { test: () => true }
+            }
+          };
+        });
         expect(PermissionService.can('test', { model_name: 'Test' })).toEqual(true);
-        PermissionService.__ResetDependency__('Policies');
       });
     });
   });
 
   describe('cannot', () => {
     it('returns the inverted boolean value of the can method and passes all arguments to it', () => {
-      PermissionService.__Rewire__('Policies', { TestPolicy: { test: () => true } });
+      vi.mock('@/policies/index.js', () => {
+        return {
+          default: {
+            TestPolicy: { test: () => true }
+          }
+        };
+      });
       expect(PermissionService.cannot('test', 'TestPolicy')).toEqual(false);
-      PermissionService.__ResetDependency__('Policies');
     });
   });
 });

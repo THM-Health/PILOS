@@ -34,7 +34,7 @@
           </b-form-file>
           <b-form-invalid-feedback :state="fieldState('file')" v-html="fieldError('file')"></b-form-invalid-feedback>
 
-          <b-form-text>{{ $t('rooms.files.formats',{formats: settings('bbb.file_mimes')}) }}<br>{{ $t('rooms.files.size',{size: settings('bbb.max_filesize')}) }}</b-form-text>
+          <b-form-text>{{ $t('rooms.files.formats',{formats: getSetting('bbb.file_mimes')}) }}<br>{{ $t('rooms.files.size',{size: getSetting('bbb.max_filesize')}) }}</b-form-text>
 
         </can>
       </div>
@@ -57,7 +57,7 @@
       <!-- Display files -->
       <b-table
         :current-page="currentPage"
-        :per-page="settings('pagination_page_size')"
+        :per-page="getSetting('pagination_page_size')"
         :fields="filefields"
         sort-by="uploaded"
         :sort-desc="true"
@@ -154,10 +154,10 @@
       <b-row v-if="files.files">
         <b-col cols="12" class="my-1">
           <b-pagination
-            v-if="files.files.length>settings('pagination_page_size')"
+            v-if="files.files.length>getSetting('pagination_page_size')"
             v-model="currentPage"
             :total-rows="files.files.length"
-            :per-page="settings('pagination_page_size')"
+            :per-page="getSetting('pagination_page_size')"
           ></b-pagination>
         </b-col>
       </b-row>
@@ -191,11 +191,12 @@
 </template>
 <script>
 import Base from '../../api/base';
-import Can from '../Permissions/Can';
+import Can from '../Permissions/Can.vue';
 import PermissionService from '../../services/PermissionService';
-import { mapGetters } from 'vuex';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from './../../env.js';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
 
@@ -308,7 +309,7 @@ export default {
             // Forbidden, not allowed to download this file
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.file_forbidden'));
+              this.toastError(this.$t('rooms.flash.file_forbidden'));
               this.removeFile(file);
               return;
             }
@@ -316,7 +317,7 @@ export default {
             // File gone
             if (error.response.status === env.HTTP_NOT_FOUND) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.file_gone'));
+              this.toastError(this.$t('rooms.flash.file_gone'));
               // Remove file from list
               this.removeFile(file);
               return;
@@ -353,7 +354,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.file_gone'));
+          this.toastError(this.$t('rooms.flash.file_gone'));
           // Remove file from list
           this.removeFile(this.deleteFile);
           return;
@@ -455,7 +456,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.file_gone'));
+          this.toastError(this.$t('rooms.flash.file_gone'));
           // Remove file from list
           this.removeFile(file);
           return;
@@ -468,9 +469,7 @@ export default {
   },
   computed: {
 
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     // compute if the download buttons should be disabled
     disableDownload () {

@@ -38,11 +38,27 @@ composer install --ignore-platform-reqs
 
 Next you should set an alias for sail.
 ```bash
-alias sail='[ -f sail ] && bash sail || bash ./sail'
+alias sail='bash ./sail'
+```
+
+We also need to create a .env file by copying the default .env.example file.
+```bash
+cp .env.example .env
 ```
 
 You can start the application with: `sail up -d` 
 To adjust the port of the webserver, change APP_PORT in the .env file.
+
+### SSL (optional)
+In case you want to use SSL, you need a domain name and a valid SSL certificate.
+Place the certificate as `fullchain.pem` and the key as `privkey.pem` in the `ssl` directory (create if not exists).
+Then you need to set the following environment variables in the .env file:
+```bash
+APP_URL=https://your-domain.com
+VITE_SSL=true
+VITE_HOST=your-domain.com
+```
+The docker container will detect the certificate and key on the next start and use them for the webserver.
 
 ### Install dependencies
 ```bash
@@ -51,7 +67,7 @@ sail npm install
 ```
 
 ### Adjust config
-Copy the `.env.example` to `.env` and make your necessary adjustments.
+In the `.env` file you can make your necessary adjustments.
 
 Also, it is necessary to generate a new application key with the following command:
 ```bash
@@ -69,7 +85,7 @@ sail artisan db:seed
 
 ### PHPMyAdmin
 To adjust the port of PHPMyAdmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
-By default PHPMyAdmin is servered at http://localhost:8080
+By default, PHPMyAdmin is served at http://localhost:8080
 
 ### Admin user
 To create a new admin user run the artisan command for admin user creation (see README.md).
@@ -94,7 +110,7 @@ For testing functionality of the application which requires a running BigBlueBut
 
 ### Finish Setup
 Checkout the installation guide in the [readme](README.md) for additional steps needed to finish the setup. Instead of
-running `sail npm run production` you must run in the dev environment `sail npm run dev`. For the development you can use any
+running `sail npm run build` you must run in the dev environment `sail npm run dev`. For the development you can use any
 editor of your choice but please do not check in any configuration files for your editor. In this case you may want to
 extend the `.gitignore` with yours editor config files.
 
@@ -124,12 +140,22 @@ A new development shouldn't decrease the code testing coverage. Everything in th
 appropriate unit and feature tests, depending on the case. In case of bugfixes a test, that fails in the appropriate
 case should be implemented, to make regression tests possible for further changes in the application. For the backend the
 api can be tested by using feature tests and other functions just with unit tests. For more information about tests
-checkout the [Laravel testing guides](https://laravel.com/docs/7.x/testing). The frontend implemented in vue, and the
-tests gets executed by the test framework jest. The api responses can be stubbed by using the
-[moxios](https://github.com/axios/moxios) framework. In case of api changes, the stubbed responses also should be
-changed. For more information about writing tests for the frontend, consider the vue test utils
-[documentation](https://vue-test-utils.vuejs.org/) and the
-[Vue Testing Handbook](https://lmiller1990.github.io/vue-testing-handbook/#what-is-this-guide).
+checkout the [Laravel testing guides](https://laravel.com/docs/9.x/testing).
+
+#### Frontend
+The frontend implemented in vue, and the tests gets executed by the test framework vitest.
+The api responses can be stubbed by using the [moxios](https://github.com/axios/moxios) framework.
+In case of api changes, the stubbed responses also should be changed. For more information about writing tests for the frontend, consider the vue test utils [documentation](https://vue-test-utils.vuejs.org/) and the [Vue Testing Handbook](https://lmiller1990.github.io/vue-testing-handbook/#what-is-this-guide).
+
+To run the frontend tests, execute the following command:
+```bash
+sail npm run test
+```
+You can also run the tests with an integrated web-UI:
+```bash
+sail npm run test:ui
+```
+
 
 ### Submit changes
 After implementing the new feature or bugfix you must create a new pull request to the original repository by using the
@@ -171,7 +197,7 @@ If you want to change the translation of an existing string, please contribute t
 We will update the translation files with the next release.
 
 ### Available and default languages
-You can change the available languages and the default language in the `.env` file with the keys `MIX_AVAILABLE_LOCALES` and `MIX_DEFAULT_LOCALE`.
+You can change the available languages and the default language in the `.env` file with the keys `VITE_AVAILABLE_LOCALES` and `VITE_DEFAULT_LOCALE`.
 
 ### Customize locales
 #### Frontend

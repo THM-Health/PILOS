@@ -1,19 +1,16 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BForm, BFormInput } from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
+import { BButton, BForm, BFormInput } from 'bootstrap-vue';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
-import store from '../../../../../resources/js/store';
-import Vuex from 'vuex';
 import New from '../../../../../resources/js/views/settings/users/New.vue';
-import TimezoneSelect from '../../../../../resources/js/components/Inputs/TimezoneSelect';
-import LocaleSelect from '../../../../../resources/js/components/Inputs/LocaleSelect';
-import RoleSelect from '../../../../../resources/js/components/Inputs/RoleSelect';
-import { createContainer, waitMoxios } from '../../../helper';
+import TimezoneSelect from '../../../../../resources/js/components/Inputs/TimezoneSelect.vue';
+import LocaleSelect from '../../../../../resources/js/components/Inputs/LocaleSelect.vue';
+import RoleSelect from '../../../../../resources/js/components/Inputs/RoleSelect.vue';
+import { createContainer, waitMoxios, createLocalVue } from '../../../helper';
 import Base from '../../../../../resources/js/api/base';
+import {createTestingPinia} from "@pinia/testing";
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
-localVue.use(Vuex);
 localVue.use(VueRouter);
 
 describe('NewUserView', () => {
@@ -28,14 +25,13 @@ describe('NewUserView', () => {
   it('submit form', async () => {
     // Create fake router
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation();
 
     // Set global defaults
-    await store.commit('session/setSettings', { default_timezone: 'Europe/Berlin' });
-    process.env.MIX_DEFAULT_LOCALE = 'en';
+    import.meta.env.VITE_DEFAULT_LOCALE = 'en';
 
     const view = mount(New, {
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin' } } } }),
       localVue,
       router,
       mocks: {
@@ -161,13 +157,12 @@ describe('NewUserView', () => {
 
   it('submit form errors', async () => {
     // Set global defaults
-    await store.commit('session/setSettings', { default_timezone: 'Europe/Berlin' });
-    process.env.MIX_DEFAULT_LOCALE = 'en';
+    import.meta.env.VITE_DEFAULT_LOCALE = 'en';
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(New, {
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { default_timezone: 'Europe/Berlin' } } } }),
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
@@ -256,7 +251,7 @@ describe('NewUserView', () => {
 
   it('handle component events', async () => {
     const view = mount(New, {
-      store,
+      pinia: createTestingPinia(),
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')

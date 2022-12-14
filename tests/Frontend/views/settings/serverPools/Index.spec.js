@@ -1,5 +1,5 @@
-import Index from '../../../../../resources/js/views/settings/serverPools/Index';
-import { createLocalVue, mount } from '@vue/test-utils';
+import Index from '../../../../../resources/js/views/settings/serverPools/Index.vue';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -11,12 +11,10 @@ import BootstrapVue, {
   BFormInput, BAlert
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import Vuex from 'vuex';
-import { waitMoxios, createContainer } from '../../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
 
 const defaultResponse = {
   data: [
@@ -54,17 +52,6 @@ const defaultResponse = {
   }
 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'pagination_page_size' ? 15 : null
-      }
-    }
-  }
-});
-
 let oldUser;
 
 describe('ServerPoolsIndex', () => {
@@ -86,7 +73,6 @@ describe('ServerPoolsIndex', () => {
       mocks: {
         $t: key => key
       },
-      store,
       attachTo: createContainer()
     });
     await waitMoxios();
@@ -116,7 +102,6 @@ describe('ServerPoolsIndex', () => {
       propsData: {
         searchDebounce: 0
       },
-      store,
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -189,8 +174,7 @@ describe('ServerPoolsIndex', () => {
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await waitMoxios();
@@ -213,15 +197,14 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Index, {
       localVue,
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await waitMoxios();
@@ -255,8 +238,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -297,8 +279,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -377,7 +358,7 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('server pool delete 404 handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
@@ -394,8 +375,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -489,8 +469,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -556,7 +535,7 @@ describe('ServerPoolsIndex', () => {
   });
 
   it('server pool delete error handler called', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'serverPools.delete'] });
 
     const response = {
@@ -572,8 +551,7 @@ describe('ServerPoolsIndex', () => {
       attachTo: createContainer(),
       propsData: {
         modalStatic: true
-      },
-      store
+      }
     });
 
     await waitMoxios();
@@ -621,8 +599,7 @@ describe('ServerPoolsIndex', () => {
       mocks: {
         $t: key => key
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await waitMoxios();

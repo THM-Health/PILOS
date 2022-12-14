@@ -1,16 +1,18 @@
 import moxios from 'moxios';
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
-import Vuex from 'vuex';
 import VueRouter from 'vue-router';
-import PasswordReset from '../../../resources/js/views/PasswordReset';
+import PasswordReset from '../../../resources/js/views/PasswordReset.vue';
 import Base from '../../../resources/js/api/base';
 import env from '../../../resources/js/env';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { useLocaleStore } from '../../../resources/js/stores/locale';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 describe('PasswordReset', () => {
@@ -23,7 +25,7 @@ describe('PasswordReset', () => {
   });
 
   it('submit handles errors correctly', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(PasswordReset, {
       localVue,
@@ -66,63 +68,25 @@ describe('PasswordReset', () => {
 
   it('submit loads the current user after login and changes the application language to the corresponding one', async () => {
     const router = new VueRouter();
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
-
-    let res;
-    const promise = new Promise((resolve) => {
-      res = resolve;
-    });
-
-    const store = new Vuex.Store({
-      modules: {
-        session: {
-          namespaced: true,
-          mutations: {
-            setCurrentLocale (state, currentLocale) {
-              state.currentLocale = currentLocale;
-              res();
-            },
-            setCurrentUser (state, currentUser) {
-              state.currentUser = currentUser;
-              res();
-            },
-            increaseCallCount (state, name) {
-              state[name] += 1;
-            }
-          },
-          state: () => ({
-            currentLocale: 'en',
-            currentUser: { user_locale: 'en' },
-            getCurrentUserCount: 0,
-            runningPromise: promise
-          }),
-          actions: {
-            async getCurrentUser ({ commit }) {
-              await Promise.resolve();
-              commit('increaseCallCount', 'getCurrentUserCount');
-              commit('setCurrentUser', { user_locale: 'de' });
-            }
-          }
-        }
-      }
-    });
+    const toastSuccessSpy = vi.fn();
 
     const view = mount(PasswordReset, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       propsData: {
         email: 'foo@bar.com',
         token: 'Test123'
       }
     });
+
+    const localeStore = useLocaleStore();
 
     const inputs = view.findAllComponents(BFormInput);
     await inputs.at(0).setValue('Test123');
@@ -134,7 +98,7 @@ describe('PasswordReset', () => {
       status: 200
     });
     await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    let request = moxios.requests.mostRecent();
     const data = JSON.parse(request.config.data);
     expect(data.email).toBe('foo@bar.com');
     expect(data.token).toBe('Test123');
@@ -147,15 +111,35 @@ describe('PasswordReset', () => {
         message: 'Success!'
       }
     });
-    await store.state.session.runningPromise;
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('Success!');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('Success!');
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.url).toBe('/api/v1/currentUser');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: {
+          id: 1,
+          authenticator: 'ldap',
+          email: 'john.doe@domain.tld',
+          username: 'user',
+          firstname: 'John',
+          lastname: 'Doe',
+          user_locale: 'de',
+          permissions: [],
+          model_name: 'User',
+          room_limit: -1
+        }
+      }
+    });
+
+    expect(localeStore.currentLocale).toEqual('de');
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'home' });
-
-    expect(store.state.session.currentLocale).toEqual('de');
 
     view.destroy();
   });

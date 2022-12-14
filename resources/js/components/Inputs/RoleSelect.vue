@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import Base from '../../api/base';
 
 export default {

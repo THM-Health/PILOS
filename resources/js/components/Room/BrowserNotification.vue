@@ -8,7 +8,9 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   name: 'BrowserNotification',
@@ -27,9 +29,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    })
+    ...mapState(useSettingsStore, ['getSetting'])
   },
 
   mounted () {
@@ -71,7 +71,7 @@ export default {
     noSupportHandler: function (showToast = false) {
       this.notificationEnabled = false;
       this.notificationSupport = false;
-      if (showToast) { this.flashMessage.error(this.$t('rooms.notification.browser_support')); }
+      if (showToast) { this.toastError(this.$t('rooms.notification.browser_support')); }
     },
 
     /**
@@ -80,7 +80,7 @@ export default {
     sendNotification: function () {
       const options = {
         body: this.$t('rooms.notification.body', { time: this.$d(new Date(), 'time') }),
-        icon: this.settings('favicon')
+        icon: this.getSetting('favicon')
       };
       try {
         this.notification = new Notification(this.name, options);
@@ -108,7 +108,7 @@ export default {
         // if permission denied disable notification and show error message
       } else if (Notification.permission === 'denied') {
         this.notificationEnabled = false;
-        this.flashMessage.error(this.$t('rooms.notification.denied'));
+        this.toastError(this.$t('rooms.notification.denied'));
 
         // if no permission decision was made yet, request permission
       } else {
@@ -120,7 +120,7 @@ export default {
             // permission denied, disable notification and show error message
           } else {
             this.notificationEnabled = false;
-            this.flashMessage.error(this.$t('rooms.notification.denied'));
+            this.toastError(this.$t('rooms.notification.denied'));
           }
         });
       }

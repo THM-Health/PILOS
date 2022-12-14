@@ -1,17 +1,14 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import moxios from 'moxios';
-import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
-import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent';
+import VueClipboard from 'vue-clipboard2';
+import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent.vue';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
-
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(VueClipboard);
 
 const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_guest: false, is_moderator: false, can_start: true, running: false, access_code: 123456789, files: [] };
 
@@ -74,7 +71,7 @@ describe('Delete room', () => {
     });
 
     const bvModalEvt = {
-      preventDefault: jest.fn()
+      preventDefault: vi.fn()
     };
 
     component.vm.deleteRoom(bvModalEvt);
@@ -93,7 +90,7 @@ describe('Delete room', () => {
   });
 
   it('failed delete room not found', async () => {
-    const flashMessageSpy = jest.spyOn(Base, 'error').mockImplementation();
+    const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const component = mount(DeleteRoomComponent, {
       localVue,
@@ -109,7 +106,7 @@ describe('Delete room', () => {
     });
 
     const bvModalEvt = {
-      preventDefault: jest.fn()
+      preventDefault: vi.fn()
     };
 
     component.vm.deleteRoom(bvModalEvt);
@@ -122,7 +119,7 @@ describe('Delete room', () => {
     });
 
     await component.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0].response.status).toBe(404);
+    expect(baseErrorSpy).toBeCalledTimes(1);
+    expect(baseErrorSpy.mock.calls[0][0].response.status).toBe(404);
   });
 });

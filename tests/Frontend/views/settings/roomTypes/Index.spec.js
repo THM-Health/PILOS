@@ -1,5 +1,5 @@
-import Index from '../../../../../resources/js/views/settings/roomTypes/Index';
-import { createLocalVue, mount } from '@vue/test-utils';
+import Index from '../../../../../resources/js/views/settings/roomTypes/Index.vue';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -12,23 +12,15 @@ import BootstrapVue, {
   BFormSelect
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import Vuex from 'vuex';
-import { waitMoxios, createContainer } from '../../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'pagination_page_size' ? 5 : null
-      }
-    }
-  }
-});
+const initialState = { settings: { settings: { pagination_page_size: 5 } } };
 
 describe('RoomTypesIndex', () => {
   beforeEach(() => {
@@ -49,7 +41,7 @@ describe('RoomTypesIndex', () => {
       mocks: {
         $t: key => key
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -103,7 +95,7 @@ describe('RoomTypesIndex', () => {
         $t: key => key
       },
       attachTo: createContainer(),
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();
@@ -126,7 +118,7 @@ describe('RoomTypesIndex', () => {
   });
 
   it('error handler gets called if an error occurs during loading of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Index, {
       localVue,
@@ -134,7 +126,7 @@ describe('RoomTypesIndex', () => {
         $t: key => key
       },
       attachTo: createContainer(),
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();
@@ -179,7 +171,7 @@ describe('RoomTypesIndex', () => {
       propsData: {
         modalStatic: true
       },
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();
@@ -241,7 +233,7 @@ describe('RoomTypesIndex', () => {
       propsData: {
         modalStatic: true
       },
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();
@@ -331,7 +323,7 @@ describe('RoomTypesIndex', () => {
   });
 
   it('room types delete 404 handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const oldUser = PermissionService.currentUser;
 
@@ -368,7 +360,7 @@ describe('RoomTypesIndex', () => {
       propsData: {
         modalStatic: true
       },
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();
@@ -433,7 +425,7 @@ describe('RoomTypesIndex', () => {
 
   it('room types delete error handler called', async () => {
     const oldUser = PermissionService.currentUser;
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
 
     const response = {
@@ -460,7 +452,7 @@ describe('RoomTypesIndex', () => {
       propsData: {
         modalStatic: true
       },
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();
@@ -513,7 +505,7 @@ describe('RoomTypesIndex', () => {
         $t: key => key
       },
       attachTo: createContainer(),
-      store
+      pinia: createTestingPinia({ initialState })
     });
 
     await waitMoxios();

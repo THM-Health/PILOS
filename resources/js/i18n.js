@@ -4,10 +4,9 @@ import VueI18n from 'vue-i18n';
 import dateTimeFormats from './lang/date-time-formats';
 import _ from 'lodash';
 
-const defaultLocale = process.env.MIX_DEFAULT_LOCALE;
+const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
 
 const messages = {};
-messages[defaultLocale] = require(`../../lang/${process.env.MIX_DEFAULT_LOCALE}.json`);
 
 Vue.use(VueI18n);
 
@@ -30,11 +29,11 @@ const i18n = new VueI18n({
   dateTimeFormats,
   locale: defaultLocale,
   fallbackLocale: defaultLocale,
-  availableLocales: process.env.MIX_AVAILABLE_LOCALES.split(','),
+  availableLocales: import.meta.env.VITE_AVAILABLE_LOCALES.split(','),
   messages
 });
 
-const loadedLanguages = [defaultLocale];
+const loadedLanguages = [];
 
 export default i18n;
 
@@ -61,17 +60,16 @@ function setI18nLanguage (lang) {
 }
 
 export function loadLanguageAsync (lang) {
-  if (i18n.locale === lang || loadedLanguages.includes(lang)) {
+  if (loadedLanguages.includes(lang)) {
     return Promise.resolve(setI18nLanguage(lang));
   }
 
-  if (process.env.NODE_ENV !== 'test') {
-    return import(
-      /* webpackChunkName: "js/lang/[request]" */
-      /* webpackInclude: /\.js/ */
-      `../../lang/${lang}.json`
-    ).then(messages => {
-      return Promise.resolve(importLanguage(lang, messages));
+  if (import.meta.env.MODE !== 'test') {
+    return new Promise((resolve, reject) => {
+      import(`../../lang/${lang}.json`).then((messages) => {
+        importLanguage(lang, messages);
+        resolve();
+      });
     });
   } else {
     return Promise.resolve(setI18nLanguage(lang));

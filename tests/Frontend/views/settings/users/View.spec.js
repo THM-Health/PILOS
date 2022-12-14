@@ -3,12 +3,12 @@ import BootstrapVue from 'bootstrap-vue';
 import View from '../../../../../resources/js/views/settings/users/View.vue';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
-import Vuex from 'vuex';
-import ViewEditComponent from '../../../../../resources/js/components/User/ViewEditComponent';
+import ViewEditComponent from '../../../../../resources/js/components/User/ViewEditComponent.vue';
+import { PiniaVuePlugin } from 'pinia';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 const user = {

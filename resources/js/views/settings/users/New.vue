@@ -212,10 +212,12 @@
 import FieldErrors from '../../../mixins/FieldErrors';
 import Base from '../../../api/base';
 import env from '../../../env';
-import RoleSelect from '../../../components/Inputs/RoleSelect';
+import RoleSelect from '../../../components/Inputs/RoleSelect.vue';
 import 'cropperjs/dist/cropper.css';
-import LocaleSelect from '../../../components/Inputs/LocaleSelect';
-import TimezoneSelect from '../../../components/Inputs/TimezoneSelect';
+import LocaleSelect from '../../../components/Inputs/LocaleSelect.vue';
+import TimezoneSelect from '../../../components/Inputs/TimezoneSelect.vue';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -249,8 +251,12 @@ export default {
    * of the current user gets changed.
    */
   mounted () {
-    this.model.user_locale = process.env.MIX_DEFAULT_LOCALE;
-    this.model.timezone = this.$store.getters['session/settings']('default_timezone');
+    this.model.user_locale = import.meta.env.VITE_DEFAULT_LOCALE;
+    this.model.timezone = this.getSetting('default_timezone');
+  },
+
+  computed: {
+    ...mapState(useSettingsStore, ['getSetting'])
   },
 
   methods: {

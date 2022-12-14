@@ -1,45 +1,25 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormFile, BFormInvalidFeedback, BModal, BTbody } from 'bootstrap-vue';
 import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
-import Clipboard from 'v-clipboard';
-import Vuex from 'vuex';
+import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer } from '../../helper';
+import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
-localVue.use(Clipboard);
-localVue.use(Vuex);
+localVue.use(VueClipboard);
+localVue.use(PiniaVuePlugin);
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: ['rooms.create'], model_name: 'User', room_limit: -1 };
 const ownerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
 const coOwnerRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: true, is_moderator: false, can_start: false, running: false };
 const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false };
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser () {}
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
 
 describe('RoomFile', () => {
   beforeEach(() => {
@@ -60,7 +40,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -100,7 +80,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -125,7 +105,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -149,7 +129,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -178,7 +158,7 @@ describe('RoomFile', () => {
         room: ownerRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -205,7 +185,7 @@ describe('RoomFile', () => {
         room: coOwnerRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -238,7 +218,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -272,7 +252,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     await view.vm.$nextTick();
@@ -307,7 +287,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -378,7 +358,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -435,7 +415,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -483,7 +463,7 @@ describe('RoomFile', () => {
 
   it('upload file other errors', async () => {
     const oldUser = PermissionService.currentUser;
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
@@ -498,7 +478,7 @@ describe('RoomFile', () => {
         room: exampleRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -553,7 +533,7 @@ describe('RoomFile', () => {
         showTitle: true,
         emitErrors: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -585,7 +565,7 @@ describe('RoomFile', () => {
         room: ownerRoom,
         showTitle: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -635,23 +615,22 @@ describe('RoomFile', () => {
 
   it('delete file', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const toastErrorSpy = vi.fn();
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         room: ownerRoom,
         showTitle: true,
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer(),
       stubs: {
         transition: false
@@ -796,8 +775,8 @@ describe('RoomFile', () => {
       });
     });
     // check file missing error message and remove from file list
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toBe('rooms.flash.file_gone');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toBe('rooms.flash.file_gone');
 
     // find last file in the list, open modal and confirm delete
     fileTable = view.findComponent(BTbody);
@@ -829,18 +808,17 @@ describe('RoomFile', () => {
   });
 
   it('download file', async () => {
-    const openStub = jest.spyOn(window, 'open').mockImplementation();
-    const removeFile = jest.spyOn(FileComponent.methods, 'removeFile').mockImplementation();
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const openStub = vi.spyOn(window, 'open').mockImplementation(() => {});
+    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const toastErrorSpy = vi.fn();
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         room: exampleRoom
@@ -858,7 +836,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     // Test valid download
@@ -935,8 +913,8 @@ describe('RoomFile', () => {
     });
 
     view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.file_forbidden');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy).toBeCalledWith('rooms.flash.file_forbidden');
     expect(removeFile).toBeCalledWith({ id: 1, filename: 'File1.pdf', uploaded: '2020-09-21T07:08:00.000000Z' });
 
     // Test 404
@@ -950,8 +928,8 @@ describe('RoomFile', () => {
       }
     });
     view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(2);
-    expect(flashMessageSpy).lastCalledWith('rooms.flash.file_gone');
+    expect(toastErrorSpy).toBeCalledTimes(2);
+    expect(toastErrorSpy).lastCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test 500
@@ -995,7 +973,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     // Test valid request header
@@ -1033,7 +1011,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
     // Test valid request header
@@ -1048,17 +1026,16 @@ describe('RoomFile', () => {
   });
 
   it('change file setting', async () => {
-    const baseError = jest.spyOn(Base, 'error').mockImplementation();
-    const removeFile = jest.spyOn(FileComponent.methods, 'removeFile').mockImplementation();
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
+    const toastErrorSpy = vi.fn();
 
     const view = mount(FileComponent, {
       localVue,
       mocks: {
         $t: (key) => key,
         $d: (date, format) => date.toDateString(),
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         room: exampleRoom
@@ -1079,7 +1056,7 @@ describe('RoomFile', () => {
           }
         };
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -1118,8 +1095,8 @@ describe('RoomFile', () => {
     });
 
     view.vm.$nextTick();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('rooms.flash.file_gone');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy).toBeCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test unknown error

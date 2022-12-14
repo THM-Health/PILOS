@@ -33,7 +33,7 @@
         <div class="col-12">
           <b-table
             :current-page="currentPage"
-            :per-page="settings('pagination_page_size')"
+            :per-page="getSetting('pagination_page_size')"
             :fields="tableFields"
             :items="tokens"
             hover
@@ -112,10 +112,10 @@
           <b-row>
             <b-col cols="12" class="my-1">
               <b-pagination
-                v-if="tokens.length>settings('pagination_page_size')"
+                v-if="tokens.length>getSetting('pagination_page_size')"
                 v-model="currentPage"
                 :total-rows="tokens.length"
-                :per-page="settings('pagination_page_size')"
+                :per-page="getSetting('pagination_page_size')"
               ></b-pagination>
             </b-col>
           </b-row>
@@ -226,12 +226,13 @@
 
 <script>
 import Base from '../../api/base';
-import { mapGetters } from 'vuex';
-import Can from '../Permissions/Can';
+import Can from '../Permissions/Can.vue';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import _ from 'lodash';
-import RawText from '../RawText';
+import RawText from '../RawText.vue';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -268,8 +269,8 @@ export default {
      * Copies the room link for the personalized token to the users clipboard.
      */
     copyPersonalizedRoomLink (token) {
-      this.$clipboard(this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
-      this.flashMessage.info(this.$t('rooms.tokens.room_link_copied', { firstname: token.firstname, lastname: token.lastname }));
+      this.$copyText(this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id, token: token.token } }).route.fullPath);
+      this.toastInfo(this.$t('rooms.tokens.room_link_copied', { firstname: token.firstname, lastname: token.lastname }));
     },
 
     /**
@@ -368,9 +369,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
+
+    ...mapState(useSettingsStore, ['getSetting']),
 
     tableFields () {
       return [{

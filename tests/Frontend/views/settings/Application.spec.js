@@ -1,4 +1,4 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
   BButton,
@@ -9,16 +9,17 @@ import BootstrapVue, {
   BImg
 } from 'bootstrap-vue';
 import Base from '../../../../resources/js/api/base';
-import Application from '../../../../resources/js/views/settings/Application';
-import Vuex from 'vuex';
+import Application from '../../../../resources/js/views/settings/Application.vue';
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
-import { waitMoxios, createContainer } from '../../helper';
+import { waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 
 const bbbSettings = {
   file_mimes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,rtf,odt,ods,odp,odg,odc,odi,jpg,jpeg,png',
@@ -46,7 +47,7 @@ describe('Application', () => {
   });
 
   it('getSettings method called, when the view is mounted', () => {
-    const spy = jest.spyOn(Application.methods, 'getSettings').mockImplementation();
+    const spy = vi.spyOn(Application.methods, 'getSettings').mockImplementation(() => {});
 
     expect(spy).toBeCalledTimes(0);
 
@@ -187,21 +188,9 @@ describe('Application', () => {
   });
 
   it('update room_token_expiration', async () => {
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -322,21 +311,9 @@ describe('Application', () => {
   });
 
   it('updateSettings method works properly with response data room_limit is -1', async () => {
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -461,7 +438,7 @@ describe('Application', () => {
   });
 
   it('getSettings error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
       localVue,
@@ -487,21 +464,9 @@ describe('Application', () => {
   });
 
   it('updateSettings sends null values and booleans correctly to the backend', async () => {
-    const store = new Vuex.Store({
-      modules: {
-        session: {
-          actions: {
-            getSettings () {
-            }
-          },
-          namespaced: true
-        }
-      }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -615,7 +580,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
       localVue,
@@ -683,7 +648,7 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler code 413', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
       localVue,
@@ -843,7 +808,7 @@ describe('Application', () => {
     });
 
     // base64Encode method spy
-    const spy = jest.spyOn(view.vm, 'base64Encode');
+    const spy = vi.spyOn(view.vm, 'base64Encode');
 
     expect(spy).toBeCalledTimes(0);
 
@@ -876,21 +841,9 @@ describe('Application', () => {
   it('disable edit button if user does not have permission', () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -907,21 +860,9 @@ describe('Application', () => {
   it('delete default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -974,21 +915,9 @@ describe('Application', () => {
   it('delete default presentation button is visible if the view is not in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1041,21 +970,9 @@ describe('Application', () => {
   it('delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1118,21 +1035,9 @@ describe('Application', () => {
   it('revert default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1185,21 +1090,9 @@ describe('Application', () => {
   it('revert default presentation button is not visible if there is no new default presentation', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1262,21 +1155,9 @@ describe('Application', () => {
   it('view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1338,21 +1219,9 @@ describe('Application', () => {
   it('if no new default presentation was uploaded the attribute does not get send with the request', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1413,21 +1282,9 @@ describe('Application', () => {
   it('if the default presentation was deleted the attribute gets send as null value the request', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1490,21 +1347,9 @@ describe('Application', () => {
   it('if a new default presentation was uploaded the file gets send', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-          {
-            session: { actions, namespaced: true }
-          }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1574,21 +1419,9 @@ describe('Application', () => {
   it('bbb style', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1834,21 +1667,9 @@ describe('Application', () => {
   it('bbb logo', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -1857,7 +1678,16 @@ describe('Application', () => {
 
     const img = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSIwIDAgNTAwIDUwMCIgd2lkdGg9IjUwMCIgaGVpZ2h0PSI1MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHRleHQgc3R5bGU9IndoaXRlLXNwYWNlOiBwcmU7IGZpbGw6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOyBmb250LXNpemU6IDE2LjNweDsiIHg9IjIwNi4wNTQiIHk9IjIzNy40ODUiPlRlc3QgTG9nbzwvdGV4dD4KPC9zdmc+';
 
-    jest.spyOn(view.vm, 'base64Encode').mockImplementation(() => Promise.resolve(img));
+    let resolvePromise;
+    let base64EncodedPromise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+    });
+    vi.spyOn(view.vm, 'base64Encode').mockImplementationOnce(() => {
+      return new Promise((resolve) => {
+        resolve(img);
+        resolvePromise();
+      });
+    });
 
     const file = new window.File(['foo'], 'foo.png', {
       type: 'image/png',
@@ -1904,7 +1734,7 @@ describe('Application', () => {
       }
     });
 
-    // check no buttons if no style uploaded
+    // check no buttons if no logo uploaded
     const formGroup = view.findComponent({ ref: 'bbb-logo-form-group' });
     expect(formGroup.findComponent(BFormInput).exists()).toBeTruthy();
     expect(formGroup.findComponent(BFormInput).element.value).toBe('');
@@ -1915,6 +1745,7 @@ describe('Application', () => {
     await view.setData({
       uploadBBBLogoFile: file
     });
+    await base64EncodedPromise;
     await view.vm.$nextTick();
 
     expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
@@ -2040,9 +1871,21 @@ describe('Application', () => {
     expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
 
     // set file and save
+
+    base64EncodedPromise = new Promise((resolve, reject) => {
+      resolvePromise = resolve;
+    });
+    vi.spyOn(view.vm, 'base64Encode').mockImplementationOnce(() => {
+      return new Promise((resolve) => {
+        resolve(img);
+        resolvePromise();
+      });
+    });
+
     await view.setData({
       uploadBBBLogoFile: file
     });
+    await base64EncodedPromise;
     await view.vm.$nextTick();
 
     expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
@@ -2105,21 +1948,9 @@ describe('Application', () => {
   it('bbb logo delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
@@ -2257,21 +2088,9 @@ describe('Application', () => {
   it('custom urls', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
-    const actions = {
-      getSettings () {
-      }
-    };
-
-    const store = new Vuex.Store({
-      modules:
-        {
-          session: { actions, namespaced: true }
-        }
-    });
-
     const view = mount(Application, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },

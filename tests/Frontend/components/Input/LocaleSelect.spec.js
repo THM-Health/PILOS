@@ -1,10 +1,9 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BFormSelect } from 'bootstrap-vue';
-import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect';
-import { createContainer } from '../../helper';
+import { mount } from '@vue/test-utils';
+import { BFormSelect } from 'bootstrap-vue';
+import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect.vue';
+import { createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
 describe('LocaleSelect', () => {
   it('check v-model and props', async () => {

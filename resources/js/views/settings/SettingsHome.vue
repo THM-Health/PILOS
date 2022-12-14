@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import Can from '../../components/Permissions/Can';
+import Can from '../../components/Permissions/Can.vue';
 export default {
   components: { Can }
 };

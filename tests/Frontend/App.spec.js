@@ -1,12 +1,14 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import App from '../../resources/js/views/App';
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils';
+import App from '../../resources/js/views/App.vue';
 import BootstrapVue, { BNavItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
-import Vue from 'vue';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { useAuthStore } from '../../resources/js/stores/auth';
+import { createLocalVue } from './helper';
 
 const localVue = createLocalVue();
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(BootstrapVue);
 
 const currentUser = {
@@ -15,24 +17,6 @@ const currentUser = {
   permissions: []
 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      state: {
-        currentUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
-
 describe('App', () => {
   it('settings menu item gets only shown if the user has permissions to manage settings', async () => {
     const oldUser = PermissionService.currentUser;
@@ -40,12 +24,11 @@ describe('App', () => {
 
     const view = mount(App, {
       localVue,
-      store,
+      pinia: createTestingPinia(),
       mocks: {
         $t: (key) => key
       },
       stubs: {
-        FlashMessage: true,
         RouterView: true,
         LocaleSelector: true
       },
@@ -56,6 +39,9 @@ describe('App', () => {
       }
     });
 
+    const authStore = useAuthStore();
+    authStore.currentUser = currentUser;
+
     // Check without permissions
     await view.vm.$nextTick();
     expect(view.findAllComponents(BNavItem).filter((w) => {
@@ -65,7 +51,7 @@ describe('App', () => {
     // Check with permissions
     currentUser.permissions = ['settings.manage'];
     PermissionService.setCurrentUser(currentUser);
-    await Vue.nextTick();
+    await view.vm.$nextTick();
     expect(view.findAllComponents(BNavItem).filter((w) => {
       return w.text() === 'settings.title';
     }).length).toBe(1);
@@ -73,6 +59,5 @@ describe('App', () => {
     // Cleanup
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
-  }
-  );
+  });
 });

@@ -30,11 +30,12 @@
 </template>
 
 <script>
-import SessionsComponent from './SessionsComponent';
+import SessionsComponent from './SessionsComponent.vue';
 import PermissionService from '../../services/PermissionService';
-import PasswordComponent from './PasswordComponent';
-import RolesAndPermissionsComponent from './RolesAndPermissionsComponent';
-import { mapGetters } from 'vuex';
+import PasswordComponent from './PasswordComponent.vue';
+import RolesAndPermissionsComponent from './RolesAndPermissionsComponent.vue';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   name: 'AuthenticationSettingsComponent',
@@ -50,15 +51,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
+    computed: {
+      ...mapState(useSettingsStore, ['getSetting'])
+    },
 
     isOwnUser () {
       return PermissionService.currentUser.id === this.user.id;
     },
     canChangePassword () {
-      return !this.isOwnUser || this.settings('password_self_reset_enabled');
+      return !this.isOwnUser || this.getSetting('password_self_reset_enabled');
     }
   },
   methods: {

@@ -1,18 +1,20 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
-import Login from '../../../resources/js/views/Login';
-import store from '../../../resources/js/store';
-import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent';
-import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent';
+import Login from '../../../resources/js/views/Login.vue';
+import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent.vue';
+import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import { waitMoxios } from '../helper';
+import { waitMoxios, createLocalVue } from '../helper';
+import { createTestingPinia } from '@pinia/testing';
+import { PiniaVuePlugin } from 'pinia';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
 localVue.use(BootstrapVue);
+localVue.use(PiniaVuePlugin);
 
 describe('Login', () => {
   beforeEach(() => {
@@ -24,11 +26,9 @@ describe('Login', () => {
   });
 
   it('correct data gets sent on ldap login', async () => {
-    const oldState = store.state['session/settings'];
-    store.commit('session/setSettings', { ldap: true });
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { ldap: true } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -59,17 +59,13 @@ describe('Login', () => {
     const data = JSON.parse(request.config.data);
     expect(data.username).toBe('user');
     expect(data.password).toBe('password');
-    store.commit('session/setSettings', oldState);
     view.destroy();
   });
 
   it('hide ldap login if disabled', () => {
-    const oldState = store.state['session/settings'];
-    store.commit('session/setSettings', { ldap: false });
-
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { ldap: false } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -77,14 +73,13 @@ describe('Login', () => {
 
     const ldapLoginComponent = view.findComponent(LdapLoginComponent);
     expect(ldapLoginComponent.exists()).toBeFalsy();
-    store.commit('session/setSettings', oldState);
     view.destroy();
   });
 
   it('correct data gets sent on email login', async () => {
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -120,19 +115,18 @@ describe('Login', () => {
   });
 
   it('redirect if query set', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/foo?redirect=%2Fredirect_path');
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -169,8 +163,8 @@ describe('Login', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith('/redirect_path');
@@ -179,18 +173,17 @@ describe('Login', () => {
   });
 
   it('redirect to room overview if redirect query not set', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { success: flashMessageSpy };
+    const toastSuccessSpy = vi.fn();
 
     const router = new VueRouter({ mode: 'abstract' });
-    const routerSpy = jest.spyOn(router, 'push').mockImplementation();
+    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastSuccess: toastSuccessSpy
       },
       router
     });
@@ -227,8 +220,8 @@ describe('Login', () => {
       }
     });
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy).toBeCalledWith('auth.flash.login');
+    expect(toastSuccessSpy).toBeCalledTimes(1);
+    expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
 
@@ -238,7 +231,7 @@ describe('Login', () => {
   it('unprocessable entity errors gets displayed for the corresponding fields', async () => {
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -291,7 +284,7 @@ describe('Login', () => {
   it('error for too many login requests gets displayed', async () => {
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -341,11 +334,11 @@ describe('Login', () => {
   });
 
   it('other api errors gets thrown and handled by the global error handler', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Login, {
       localVue,
-      store,
+      pinia: createTestingPinia({ stubActions: false }),
       mocks: {
         $t: (key) => key
       }

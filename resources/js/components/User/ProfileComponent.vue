@@ -166,8 +166,11 @@ import env from '../../env';
 import { loadLanguageAsync } from '../../i18n';
 import VueCropper from 'vue-cropperjs';
 import _ from 'lodash';
-import LocaleSelect from '../Inputs/LocaleSelect';
-import TimezoneSelect from '../Inputs/TimezoneSelect';
+import LocaleSelect from '../Inputs/LocaleSelect.vue';
+import TimezoneSelect from '../Inputs/TimezoneSelect.vue';
+import {useLocaleStore} from "../../stores/locale";
+import {useAuthStore} from "../../stores/auth";
+import {mapActions} from "pinia";
 
 export default {
   name: 'ProfileComponent',
@@ -218,6 +221,10 @@ export default {
   },
 
   methods: {
+
+    ...mapActions(useLocaleStore, ['setCurrentLocale']),
+    ...mapActions(useAuthStore, ['logout', 'getCurrentUser']),
+
     /**
      * Reset other previously uploaded images
      */
@@ -260,7 +267,7 @@ export default {
       const file = e.target.files[0];
       if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
         this.resetFileUpload();
-        this.flashMessage.error(this.$t('settings.users.image.invalid_mime'));
+        this.toastError(this.$t('settings.users.image.invalid_mime'));
         return;
       }
       this.$bvModal.show('modal-image-upload');
@@ -307,14 +314,14 @@ export default {
         method: 'POST',
         data: formData
       }).then(response => {
-        const localeChanged = this.$store.state.session.currentLocale !== this.model.user_locale;
+        const localeChanged = this.currentLocale !== this.model.user_locale;
 
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
         if (PermissionService.currentUser && this.model.id === PermissionService.currentUser.id) {
-          return this.$store.dispatch('session/getCurrentUser').then(() => {
+          return this.getCurrentUser().then(() => {
             if (localeChanged) {
               return loadLanguageAsync(this.model.user_locale).then(() => {
-                this.$store.commit('session/setCurrentLocale', this.model.user_locale);
+                this.setCurrentLocale(this.model.user_locale);
                 return response;
               });
             }

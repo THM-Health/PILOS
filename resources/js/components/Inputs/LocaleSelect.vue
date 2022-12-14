@@ -46,7 +46,7 @@ export default {
      * The available locales that the user can select from.
      */
     locales () {
-      const availableLocales = process.env.MIX_AVAILABLE_LOCALES.split(',');
+      const availableLocales = import.meta.env.VITE_AVAILABLE_LOCALES.split(',')
 
       return Object.keys(LocaleMap)
         .filter(key => availableLocales.includes(key))

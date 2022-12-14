@@ -1,12 +1,11 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormSelect, BInputGroupAppend } from 'bootstrap-vue';
-import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneSelect';
-import { createContainer, waitMoxios } from '../../helper';
+import { mount } from '@vue/test-utils';
+import { BButton, BFormSelect, BInputGroupAppend } from 'bootstrap-vue';
+import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneSelect.vue';
+import { createContainer, waitMoxios, createLocalVue } from '../../helper';
 import moxios from 'moxios';
 import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
 describe('TimezoneSelect', () => {
   beforeEach(() => {
@@ -109,7 +108,7 @@ describe('TimezoneSelect', () => {
   });
 
   it('loading error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(TimezoneSelect, {
       localVue,

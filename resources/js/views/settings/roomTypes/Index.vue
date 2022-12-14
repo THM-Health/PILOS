@@ -23,7 +23,7 @@
       :busy.sync='isBusy'
       :fields="tableFields"
       :items='roomTypes'
-      :per-page='settings("pagination_page_size")'
+      :per-page='getSetting("pagination_page_size")'
       :current-page="currentPage"
       id='roomTypes-table'
     >
@@ -92,7 +92,7 @@
     <b-pagination
       v-model='currentPage'
       :total-rows='roomTypes.length'
-      :per-page='settings("pagination_page_size")'
+      :per-page='getSetting("pagination_page_size")'
       aria-controls='roomTypes-table'
       align='center'
       :disabled='isBusy'
@@ -133,12 +133,13 @@
 
 <script>
 import Base from '../../../api/base';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
 import ActionsColumn from '../../../mixins/ActionsColumn';
-import { mapGetters } from 'vuex';
-import TextTruncate from '../../../components/TextTruncate';
+import TextTruncate from '../../../components/TextTruncate.vue';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../../stores/settings';
 
 export default {
   mixins: [FieldErrors, ActionsColumn],
@@ -243,9 +244,7 @@ export default {
 
   computed: {
 
-    ...mapGetters({
-      settings: 'session/settings'
-    }),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     tableFields () {
       const fields = [

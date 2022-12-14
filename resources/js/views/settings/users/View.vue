@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import ViewEditComponent from '../../../components/User/ViewEditComponent';
+import ViewEditComponent from '../../../components/User/ViewEditComponent.vue';
 
 export default {
   components: {

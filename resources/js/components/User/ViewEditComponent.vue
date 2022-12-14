@@ -74,10 +74,10 @@
 <script>
 import FieldErrors from '../../mixins/FieldErrors';
 import 'cropperjs/dist/cropper.css';
-import AuthenticationSettingsComponent from './AuthenticationSettingsComponent';
-import OtherSettingsComponent from './OtherSettingsComponent';
-import EmailSettingsComponent from './EmailSettingsComponent';
-import ProfileComponent from './ProfileComponent';
+import AuthenticationSettingsComponent from './AuthenticationSettingsComponent.vue';
+import OtherSettingsComponent from './OtherSettingsComponent.vue';
+import EmailSettingsComponent from './EmailSettingsComponent.vue';
+import ProfileComponent from './ProfileComponent.vue';
 import Base from '../../api/base';
 import env from '../../env';
 

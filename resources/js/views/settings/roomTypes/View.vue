@@ -251,11 +251,10 @@
 <script>
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
-import { mapGetters } from 'vuex';
 import env from '../../../env';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import _ from 'lodash';
 
 export default {
@@ -279,13 +278,6 @@ export default {
       type: Boolean,
       default: false
     }
-  },
-
-  computed: {
-    ...mapGetters({
-      settings: 'session/settings'
-    })
-
   },
 
   data () {

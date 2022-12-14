@@ -1,46 +1,16 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BFormSelect } from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
+import { BButton, BFormSelect } from 'bootstrap-vue';
 import moxios from 'moxios';
-import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import RoomTypeSelect from '../../../../resources/js/components/Inputs/RoomTypeSelect';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
-
-const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
+import RoomTypeSelect from '../../../../resources/js/components/Inputs/RoomTypeSelect.vue';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-localVue.use(Vuex);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      actions: {
-        getCurrentUser ({ state }) { }
-      },
-      state: {
-        currentUser: exampleUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      },
-      mutations: {
-        setCurrentUser (state, currentUser) {
-          PermissionService.setCurrentUser(currentUser);
-          state.currentUser = currentUser;
-        }
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
+localVue.use(PiniaVuePlugin);
 
 describe('RoomType Select', () => {
   beforeEach(() => {
@@ -74,7 +44,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -99,7 +69,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -131,7 +101,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 10, short: 'VL', description: 'Test', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -156,7 +126,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -188,7 +158,7 @@ describe('RoomType Select', () => {
       }
     });
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(RoomTypeSelect, {
       localVue,
@@ -198,7 +168,7 @@ describe('RoomType Select', () => {
       propsData: {
         value: { id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' }
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 
@@ -225,7 +195,7 @@ describe('RoomType Select', () => {
   });
 
   it('reload room types', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     moxios.stubRequest('/api/v1/roomTypes?filter=own', {
       status: 200,
@@ -237,7 +207,7 @@ describe('RoomType Select', () => {
       mocks: {
         $t: (key) => key
       },
-      store,
+      pinia: createTestingPinia(),
       attachTo: createContainer()
     });
 

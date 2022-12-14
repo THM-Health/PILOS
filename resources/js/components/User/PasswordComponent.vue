@@ -108,7 +108,7 @@ export default {
       })
         .then(response => {
           this.$emit('updateUser', response.data.data);
-          this.flashMessage.success(this.$t('auth.flash.password_changed'));
+          this.toastSuccess(this.$t('auth.flash.password_changed'));
         })
         .catch(error => {
           if (error.response && error.response.status === env.HTTP_NOT_FOUND) {

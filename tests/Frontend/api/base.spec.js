@@ -2,13 +2,15 @@ import Base from '../../../resources/js/api/base';
 import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import { waitMoxios } from '../helper';
+import { createTestingPinia } from '@pinia/testing';
+import { useAuthStore } from '../../../resources/js/stores/auth';
 
 let consoleErrorStub;
 
 describe('base', () => {
   beforeEach(() => {
     moxios.install();
-    consoleErrorStub = jest.spyOn(console, 'error').mockImplementation();
+    consoleErrorStub = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -22,7 +24,7 @@ describe('base', () => {
         responseText: 'Test'
       });
 
-      const spy = jest.spyOn(Base, 'getCsrfCookie').mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(Base, 'getCsrfCookie').mockImplementation(() => Promise.resolve());
 
       await Base.call('test', {}, true);
 
@@ -60,29 +62,22 @@ describe('base', () => {
     });
 
     it('base error handling', async () => {
-      const flashMessageErrorSpy = jest.fn();
-      const flashMessageInfoSpy = jest.fn();
-      const flashMessage = {
-        info: flashMessageInfoSpy,
-        error: flashMessageErrorSpy
-      };
+      const toastErrorSpy = vi.fn();
+      const toastInfoSpy = vi.fn();
 
       const router = new VueRouter();
-      const routerSpy = jest.spyOn(router, 'replace').mockImplementation();
-      jest.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
+      const routerSpy = vi.spyOn(router, 'replace').mockImplementation(() => {});
+      vi.spyOn(router, 'currentRoute', 'get').mockReturnValue({ path: '/test' });
 
-      const storeCommitSpy = jest.fn();
-      const store = {
-        getters: {
-          'session/isAuthenticated': true
-        },
-        commit: storeCommitSpy
-      };
+      const pinia = createTestingPinia();
+      const auth = useAuthStore();
+      auth.currentUser = { id: 1 };
 
       const vm = {
-        $store: store,
+        $pinia: pinia,
         $router: router,
-        flashMessage: flashMessage,
+        toastInfo: toastInfoSpy,
+        toastError: toastErrorSpy,
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
 
       };
@@ -94,40 +89,40 @@ describe('base', () => {
       expect(routerSpy).toBeCalledTimes(1);
       expect(routerSpy).toBeCalledWith({ name: 'login', query: { redirect: '/test' } });
 
-      expect(flashMessageInfoSpy).toBeCalledTimes(1);
-      expect(flashMessageInfoSpy).toBeCalledWith('app.flash.unauthenticated');
+      expect(toastInfoSpy).toBeCalledTimes(1);
+      expect(toastInfoSpy).toBeCalledWith('app.flash.unauthenticated');
 
-      expect(storeCommitSpy).toBeCalledTimes(1);
-      expect(storeCommitSpy).toBeCalledWith('session/setCurrentUser', { currentUser: null, emit: false });
+      expect(auth.setCurrentUser).toBeCalledTimes(1);
+      expect(auth.setCurrentUser).toBeCalledWith(null, false);
 
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // 403 errors
       error = { response: { data: { message: 'This action is unauthorized.' }, status: 403, statusText: 'Forbidden' }, message: 'Request failed with status code 403' };
       Base.error(error, vm, error.message);
-      expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.unauthorized');
-      jest.clearAllMocks();
+      expect(toastErrorSpy).toBeCalledTimes(1);
+      expect(toastErrorSpy).toBeCalledWith('app.flash.unauthorized');
+      vi.clearAllMocks();
 
       // 420 errors
       error = { response: { data: { message: 'Guests only.' }, status: 420, statusText: 'Guests only' }, message: 'Request failed with status code 420' };
       Base.error(error, vm, error.message);
-      expect(flashMessageInfoSpy).toBeCalledTimes(1);
-      expect(flashMessageInfoSpy).toBeCalledWith('app.flash.guests_only');
+      expect(toastInfoSpy).toBeCalledTimes(1);
+      expect(toastInfoSpy).toBeCalledWith('app.flash.guests_only');
       expect(routerSpy).toBeCalledTimes(1);
       expect(routerSpy).toBeCalledWith({ name: 'home' });
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // 413 errors
       error = { response: { data: { message: '' }, status: 413, statusText: 'Payload Too Large' }, message: 'Request failed with status code 413' };
       Base.error(error, vm, error.message);
-      expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.too_large');
-      jest.clearAllMocks();
+      expect(toastErrorSpy).toBeCalledTimes(1);
+      expect(toastErrorSpy).toBeCalledWith('app.flash.too_large');
+      vi.clearAllMocks();
 
       // 503 errors
       const oldWindow = window.location;
-      const reloadStub = jest.fn();
+      const reloadStub = vi.fn();
       delete window.location;
       window.location = { reload: reloadStub };
       error = { response: { data: { message: '' }, status: 503, statusText: 'Service Unavailable' }, message: 'Request failed with status code 503' };
@@ -138,27 +133,27 @@ describe('base', () => {
       // other server errors with message
       error = { response: { data: { message: 'syntax error' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
-      expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith(
+      expect(toastErrorSpy).toBeCalledTimes(1);
+      expect(toastErrorSpy).toBeCalledWith(
         'app.flash.server_error.message:{"message":"syntax error"}',
         'app.flash.server_error.error_code:{"statusCode":500}'
       );
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // other server errors without message
       error = { response: { data: { message: '' }, status: 500, statusText: 'Internal Server Error' }, message: 'Request failed with status code 500' };
       Base.error(error, vm, error.message);
-      expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith(
+      expect(toastErrorSpy).toBeCalledTimes(1);
+      expect(toastErrorSpy).toBeCalledWith(
         'app.flash.server_error.empty_message',
         'app.flash.server_error.error_code:{"statusCode":500}'
       );
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // other non server error
       Base.error(new Error(JSON.stringify({ testProp1: 'testValue1', testProp2: 'testValue2' })), vm, 'infoText');
-      expect(flashMessageErrorSpy).toBeCalledTimes(1);
-      expect(flashMessageErrorSpy).toBeCalledWith('app.flash.client_error');
+      expect(toastErrorSpy).toBeCalledTimes(1);
+      expect(toastErrorSpy).toBeCalledWith('app.flash.client_error');
       expect(consoleErrorStub).toBeCalledTimes(1);
       expect(consoleErrorStub).toBeCalledWith('Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
     });
@@ -176,7 +171,7 @@ describe('base', () => {
       });
 
     it('`setLocale` calls `call` with the corresponding locale', async () => {
-      const spy = jest.spyOn(Base, 'call').mockImplementation();
+      const spy = vi.spyOn(Base, 'call').mockImplementation(() => {});
 
       await Base.setLocale('de');
       expect(spy).toBeCalledTimes(1);

@@ -1,7 +1,7 @@
-import View from '../../../../../resources/js/views/settings/serverPools/View';
-import { createLocalVue, mount } from '@vue/test-utils';
+import View from '../../../../../resources/js/views/settings/serverPools/View.vue';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import Multiselect from 'vue-multiselect';
+import { Multiselect } from 'vue-multiselect';
 import moxios from 'moxios';
 import BootstrapVue, {
 
@@ -9,28 +9,15 @@ import BootstrapVue, {
   BOverlay,
   BButton, BForm, BFormInvalidFeedback, BModal
 } from 'bootstrap-vue';
-import Vuex from 'vuex';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
 localVue.use(VueRouter);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'room_limit' ? -1 : null
-      }
-    }
-  }
-});
 
 let oldUser;
 
@@ -159,7 +146,6 @@ describe('ServerPoolView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -170,7 +156,7 @@ describe('ServerPoolView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
       status: 500,
@@ -188,7 +174,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -213,11 +198,11 @@ describe('ServerPoolView', () => {
   });
 
   it('error handler gets called and redirected if a 404 error occurs during load of data', async () => {
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
       status: 404,
@@ -235,7 +220,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -250,11 +234,11 @@ describe('ServerPoolView', () => {
   });
 
   it('error handler gets called and redirected if a 404 error occurs during save of data', async () => {
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -265,7 +249,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -290,7 +273,7 @@ describe('ServerPoolView', () => {
   });
 
   it('error handler gets called if an error occurs during update', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -301,7 +284,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -323,7 +305,7 @@ describe('ServerPoolView', () => {
   });
 
   it('back button causes a back navigation without persistence', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -337,7 +319,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -352,7 +333,7 @@ describe('ServerPoolView', () => {
   });
 
   it('request with updates get send during saving the server', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -366,7 +347,6 @@ describe('ServerPoolView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -418,7 +398,7 @@ describe('ServerPoolView', () => {
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -433,7 +413,6 @@ describe('ServerPoolView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       router,
       attachTo: createContainer()
     });
@@ -485,7 +464,6 @@ describe('ServerPoolView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
       attachTo: createContainer()
     });
 
@@ -521,7 +499,7 @@ describe('ServerPoolView', () => {
   });
 
   it('server get loaded, pagination and error handling', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(View, {
       localVue,
@@ -531,8 +509,7 @@ describe('ServerPoolView', () => {
       propsData: {
         viewOnly: false,
         id: '1'
-      },
-      store
+      }
     });
 
     const multiSelect = view.findComponent(Multiselect);

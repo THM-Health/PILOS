@@ -222,7 +222,7 @@
 import Base from '../../../api/base';
 import FieldErrors from '../../../mixins/FieldErrors';
 import env from '../../../env';
-import Can from '../../../components/Permissions/Can';
+import Can from '../../../components/Permissions/Can.vue';
 
 export default {
   components: { Can },
@@ -289,7 +289,7 @@ export default {
 
       Base.call(`servers/${this.id}/panic`).then(response => {
         if (response.status === 200) {
-          this.flashMessage.success(this.$t('settings.servers.panic.flash.title'), this.$t('settings.servers.panic.flash.description', { total: response.data.total, success: response.data.success }));
+          this.toastSuccess(this.$t('settings.servers.panic.flash.description', { total: response.data.total, success: response.data.success }), this.$t('settings.servers.panic.flash.title'));
           this.load();
         }
       }).catch(error => {

@@ -1156,10 +1156,12 @@ import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
 import PermissionService from '../../services/PermissionService';
-import Banner from '../../components/Banner';
+import Banner from '../../components/Banner.vue';
 import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
-import TimezoneSelect from '../../components/Inputs/TimezoneSelect';
+import { mapActions } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
+import TimezoneSelect from '../../components/Inputs/TimezoneSelect.vue';
 
 export default {
   components: { Banner, TimezoneSelect, VSwatches },
@@ -1205,6 +1207,11 @@ export default {
     };
   },
   methods: {
+
+    ...mapActions(useSettingsStore, {
+      getGlobalSettings: 'getSettings'
+    }),
+
     /**
      * Handle get settings data
      */
@@ -1320,7 +1327,7 @@ export default {
           }
         })
         .then(response => {
-          this.$store.dispatch('session/getSettings');
+          this.getGlobalSettings();
           this.errors = {};
           this.uploadLogoFile = null;
           this.uploadFaviconFile = null;

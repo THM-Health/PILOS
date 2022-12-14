@@ -101,7 +101,7 @@
               <h5>{{ $t('rooms.access_for_participants') }}</h5>
               <b-button
                 class="float-right"
-                v-clipboard="() => invitationText"
+                v-clipboard:copy="invitationText"
                 v-b-tooltip.hover
                 :title="$t('rooms.copy_access_for_participants')"
                 variant="light"
@@ -262,21 +262,20 @@
   </div>
 </template>
 <script>
-import { mapGetters } from 'vuex';
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
-import RoomAdmin from '../../components/Room/AdminComponent';
+import RoomAdmin from '../../components/Room/AdminComponent.vue';
 import env from './../../env.js';
-import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent';
-import Can from '../../components/Permissions/Can';
-import Cannot from '../../components/Permissions/Cannot';
-import FileComponent from '../../components/Room/FileComponent';
+import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
+import Can from '../../components/Permissions/Can.vue';
+import Cannot from '../../components/Permissions/Cannot.vue';
+import FileComponent from '../../components/Room/FileComponent.vue';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
-import store from '../../store';
-import Vue from 'vue';
-import i18n from '../../i18n';
-import BrowserNotification from '../../components/Room/BrowserNotification';
+import BrowserNotification from '../../components/Room/BrowserNotification.vue';
+import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   directives: {
@@ -320,9 +319,11 @@ export default {
   },
   // Component not loaded yet
   beforeRouteEnter (to, from, next) {
-    if (to.params.token && store.getters['session/isAuthenticated']) {
-      Vue.prototype.flashMessage.info(i18n.t('app.flash.guests_only'));
-      return next('/');
+    const auth = useAuthStore();
+    if (to.params.token && auth.isAuthenticated) {
+      const error = new Error();
+      error.response = { status: env.HTTP_GUESTS_ONLY };
+      return next(error);
     }
 
     let config;
@@ -386,7 +387,7 @@ export default {
      * @returns {number} random refresh internal in seconds
      */
     getRandomRefreshInterval: function () {
-      const base = Math.abs(this.settings('room_refresh_rate'));
+      const base = Math.abs(this.getSetting('room_refresh_rate'));
       // 15% range to scatter the values around the base refresh rate
       const percentageRange = 0.15;
       const absoluteRange = base * percentageRange;
@@ -429,6 +430,8 @@ export default {
       Base.error(error, this.$root);
     },
 
+    ...mapActions(useAuthStore, ['setCurrentUser']),
+
     /**
      * Reset room access code and details
      */
@@ -438,7 +441,7 @@ export default {
       this.accessCode = null;
       // Set current user to null, as the user is not logged in
 
-      this.$store.commit('session/setCurrentUser', { currentUser: null });
+      this.setCurrentUser(null);
     },
 
     /**
@@ -450,7 +453,7 @@ export default {
       // Reset access code (not the form input) to load the general room details again
       this.accessCode = null;
       // Show error message
-      this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
+      this.toastError(this.$t('rooms.flash.access_code_invalid'));
       this.reload();
     },
 
@@ -460,7 +463,7 @@ export default {
     handleInvalidToken: function () {
       // Show error message
       this.room = null;
-      this.flashMessage.error(this.$t('rooms.flash.token_invalid'));
+      this.toastError(this.$t('rooms.flash.token_invalid'));
       // Disable auto reload as this error is permanent and the removal of the room link cannot be undone
       clearInterval(this.reloadInterval);
     },
@@ -501,7 +504,7 @@ export default {
 
           // Update current user, if logged in/out in another tab or session expired
           // to have the can/cannot component use the correct state
-          this.$store.commit('session/setCurrentUser', { currentUser: this.room.current_user });
+          this.setCurrentUser(this.room.current_user);
         })
         .catch((error) => {
           if (error.response) {
@@ -583,7 +586,7 @@ export default {
             // Forbidden, use can't start the room
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.start_forbidden'));
+              this.toastError(this.$t('rooms.flash.start_forbidden'));
               // Disable room start button and reload the room settings, as there was obviously
               // a different understanding of the users permission in this room
               this.room.can_start = false;
@@ -712,7 +715,7 @@ export default {
               // set the access code input invalid
               this.accessCodeValid = false;
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.access_code_invalid'));
+              this.toastError(this.$t('rooms.flash.access_code_invalid'));
               return;
             }
 
@@ -754,17 +757,15 @@ export default {
   },
   computed: {
 
-    ...mapGetters({
-      isAuthenticated: 'session/isAuthenticated',
-      settings: 'session/settings'
-    }),
+    ...mapState(useAuthStore, ['isAuthenticated']),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     /**
      * Build invitation message
      */
     invitationText: function () {
-      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.settings('name') }) + '\n';
-      message += this.$t('rooms.invitation.link', { link: this.settings('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
+      let message = this.$t('rooms.invitation.room', { roomname: this.room.name, platform: this.getSetting('name') }) + '\n';
+      message += this.$t('rooms.invitation.link', { link: this.getSetting('base_url') + this.$router.resolve({ name: 'rooms.view', params: { id: this.room.id } }).route.fullPath });
       // If room has access code, include access code in the message
       if (this.room.access_code) {
         message += '\n' + this.$t('rooms.invitation.code', {

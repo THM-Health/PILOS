@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import ViewEditComponent from '../components/User/ViewEditComponent';
+import ViewEditComponent from '../components/User/ViewEditComponent.vue';
 import PermissionService from '../services/PermissionService';
 
 export default {

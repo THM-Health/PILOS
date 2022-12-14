@@ -258,7 +258,7 @@
             </b-form-group>
 
             <!-- Checkbox record attendance of users and guests -->
-            <b-form-group :state="fieldState('record_attendance')" v-if="globalSettings('attendance.enabled')">
+            <b-form-group :state="fieldState('record_attendance')" v-if="getGlobalSetting('attendance.enabled')">
               <b-form-checkbox
                 :disabled="disabled"
                 :state="fieldState('record_attendance')"
@@ -407,10 +407,11 @@
 import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
-import RoomTypeSelect from '../Inputs/RoomTypeSelect';
+import RoomTypeSelect from '../Inputs/RoomTypeSelect.vue';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
-import { mapGetters } from 'vuex';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -492,8 +493,8 @@ export default {
   },
   computed: {
 
-    ...mapGetters({
-      globalSettings: 'session/settings'
+    ...mapState(useSettingsStore, {
+      getGlobalSetting: 'getSetting'
     }),
 
     /**
@@ -511,7 +512,7 @@ export default {
       const char = this.settings.welcome
         ? this.settings.welcome.length
         : 0;
-      return char + ' / ' + this.globalSettings('bbb.welcome_message_limit');
+      return char + ' / ' + this.getGlobalSetting('bbb.welcome_message_limit');
     }
   },
   created () {

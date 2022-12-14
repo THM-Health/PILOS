@@ -1,5 +1,5 @@
-import View from '../../../../../resources/js/views/settings/roles/View';
-import { createLocalVue, mount } from '@vue/test-utils';
+import View from '../../../../../resources/js/views/settings/roles/View.vue';
+import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import moxios from 'moxios';
 import BootstrapVue, {
@@ -10,34 +10,23 @@ import BootstrapVue, {
   BForm,
   BFormInvalidFeedback, BButton, BModal, BFormRadio
 } from 'bootstrap-vue';
-import Vuex from 'vuex';
 import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer } from '../../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
+localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'room_limit' ? -1 : null
-      }
-    }
-  }
-});
-
-let oldUser;
+const initialState = { settings: { settings: { room_limit: -1 } } };
 
 describe('RolesView', () => {
   beforeEach(() => {
-    oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['roles.view', 'roles.create', 'roles.update', 'settings.manage'] });
     moxios.install();
 
@@ -77,7 +66,6 @@ describe('RolesView', () => {
   });
 
   afterEach(() => {
-    PermissionService.setCurrentUser(oldUser);
     moxios.uninstall();
   });
 
@@ -92,7 +80,7 @@ describe('RolesView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -112,7 +100,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -132,7 +120,7 @@ describe('RolesView', () => {
         viewOnly: true,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -162,7 +150,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -218,7 +206,7 @@ describe('RolesView', () => {
   });
 
   it('error handler gets called if an error occurs during load of data', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
       status: 500,
@@ -243,7 +231,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -262,7 +250,7 @@ describe('RolesView', () => {
   });
 
   it('back button causes a back navigation without persistence', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -285,7 +273,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -300,7 +288,7 @@ describe('RolesView', () => {
   });
 
   it('request with updates get send during saving the role', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -323,7 +311,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -390,7 +378,7 @@ describe('RolesView', () => {
   });
 
   it('modal gets shown for stale errors and a overwrite can be forced', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -414,7 +402,7 @@ describe('RolesView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -456,7 +444,7 @@ describe('RolesView', () => {
   });
 
   it('modal gets shown for stale errors and the new model can be applied to current form', async () => {
-    const spy = jest.fn();
+    const spy = vi.fn();
 
     const router = new VueRouter();
     router.push = spy;
@@ -480,7 +468,7 @@ describe('RolesView', () => {
         id: '1',
         modalStatic: true
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -517,7 +505,7 @@ describe('RolesView', () => {
   });
 
   it('reload overlay gets shown if an error occurs during load of permissions', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
       status: 500,
@@ -536,7 +524,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -553,9 +541,9 @@ describe('RolesView', () => {
   });
 
   it('user gets redirected to index page if the role is not found', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
 
     const router = new VueRouter();
     router.push = routerSpy;
@@ -577,7 +565,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -592,7 +580,7 @@ describe('RolesView', () => {
   });
 
   it('reload overlay gets shown if another error than 404 occurs during load of the role', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
       status: 500,
@@ -611,7 +599,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -627,9 +615,9 @@ describe('RolesView', () => {
   });
 
   it('user gets redirected to index page if the role is not found during save', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const routerSpy = jest.fn();
+    const routerSpy = vi.fn();
 
     const router = new VueRouter();
     router.push = routerSpy;
@@ -644,7 +632,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       router,
       attachTo: createContainer()
     });
@@ -700,7 +688,7 @@ describe('RolesView', () => {
         viewOnly: false,
         id: '1'
       },
-      store,
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 

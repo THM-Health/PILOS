@@ -5,7 +5,7 @@ function changePermissions() {
     chown -R :www-data /var/www/html/storage/app
     chown -R :www-data /var/www/html/storage/logs
     chown -R :www-data /var/www/html/resources/custom
-    chown -R :www-data /var/www/html/resources/sass/theme/custom 
+    chown -R :www-data /var/www/html/resources/sass/theme/custom
     find /var/www/html/storage/ -type f -exec chmod 664 {} \;
     find /var/www/html/storage/ -type d -exec chmod 775 {} \;
     find /var/www/html/resources/custom/ -type f -exec chmod 664 {} \;
@@ -16,7 +16,7 @@ function changePermissions() {
 
 function buildFrontend() {
     echo "Building frontend"
-	gosu www-data /usr/local/etc/laravel-mix/run.sh
+	gosu www-data /usr/local/etc/frontend/run.sh
 }
 
 function migrateDatabase() {

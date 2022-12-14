@@ -1,5 +1,5 @@
-import Index from '../../../../resources/js/views/meetings/Index';
-import { createLocalVue, mount } from '@vue/test-utils';
+import Index from '../../../../resources/js/views/meetings/Index.vue';
+import { mount } from '@vue/test-utils';
 import moxios from 'moxios';
 import BootstrapVue, {
   BTr,
@@ -7,13 +7,11 @@ import BootstrapVue, {
 } from 'bootstrap-vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer } from '../../helper';
+import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(Vuex);
 localVue.use(VueRouter);
 
 const defaultResponse = {
@@ -69,47 +67,25 @@ const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-const currentUser = {
+const exampleUser = {
   firstname: 'Darth',
   lastname: 'Vader',
   permissions: []
 };
 
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      state: {
-        currentUser
-      },
-      getters: {
-        isAuthenticated: () => true,
-        settings: () => (setting) => null
-      }
-    }
-  },
-  state: {
-    loadingCounter: 0
-  }
-});
-
-let oldUser;
-
 describe('MeetingsIndex', () => {
   beforeEach(() => {
     moxios.install();
-    oldUser = PermissionService.currentUser;
+    PermissionService.setCurrentUser(exampleUser);
   });
 
   afterEach(() => {
     moxios.uninstall();
-    PermissionService.setCurrentUser(oldUser);
   });
 
   it('list of meetings with pagination gets displayed', async () => {
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock
@@ -256,7 +232,7 @@ describe('MeetingsIndex', () => {
   });
 
   it('errors during load', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for meetings load
     moxios.stubRequest('/api/v1/meetings?page=1', {
@@ -268,7 +244,6 @@ describe('MeetingsIndex', () => {
 
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock
@@ -307,14 +282,12 @@ describe('MeetingsIndex', () => {
     expect(view.findComponent(BButton).attributes('disabled')).toBeUndefined();
 
     restoreMeetingsResponse();
-    PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
   it('search', async () => {
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock
@@ -382,7 +355,6 @@ describe('MeetingsIndex', () => {
   it('sort', async () => {
     const view = mount(Index, {
       localVue,
-      store,
       mocks: {
         $t: key => key,
         $d: i18nDateMock

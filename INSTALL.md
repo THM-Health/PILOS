@@ -127,10 +127,10 @@ docker compose cp app:/var/www/html/resources/sass/theme/default/. ./resources/s
 ```
 
 You can edit the theme in the folder `resources/sass/theme/custom`.
-Next you need to change set the `MIX_THEME` option in the `.env` file to `custom`.
+Next you need to change set the `VITE_THEME` option in the `.env` file to `custom`.
 You can either restart the container or recompile the frontend with:
 ```bash
-docker compose exec --user www-data app npm run prod
+docker compose exec --user www-data app npm run build
 ```
 
 #### Start page
@@ -141,7 +141,7 @@ docker compose cp app:/var/www/html/resources/js/views/Home.vue ./resources/cust
 ```
 You can edit the vue component in `resources/custom/js/views/Home.vue` and either restart the container or recompile the frontend with:
 ```bash
-docker compose exec --user www-data app npm run prod
+docker compose exec --user www-data app npm run build
 ```
 
 #### Language files, footer and more
@@ -184,7 +184,7 @@ If you want to adjust the frontend, please checkout this [page](https://github.c
 Finally, build the frontend using the following npm command:
 ```bash
 npm install
-npm run production
+npm run build
 ```
 
 **Note:** If you have issues installing node-canvas, your architecture is not supported and you have to compile it yourself. Please have a look at https://github.com/Automattic/node-canvas#compiling

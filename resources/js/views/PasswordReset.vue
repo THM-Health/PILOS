@@ -70,6 +70,9 @@ import FieldErrors from '../mixins/FieldErrors';
 import Base from '../api/base';
 import env from '../env';
 import { loadLanguageAsync } from '../i18n';
+import { mapActions, mapState } from 'pinia';
+import { useAuthStore } from '../stores/auth';
+import { useLocaleStore } from '../stores/locale';
 
 export default {
   mixins: [FieldErrors],
@@ -99,7 +102,16 @@ export default {
       password_confirmation: null
     };
   },
+
+  computed: {
+    ...mapState(useAuthStore, ['currentUser'])
+  },
+
   methods: {
+
+    ...mapActions(useAuthStore, ['getCurrentUser']),
+    ...mapActions(useLocaleStore, ['setCurrentLocale']),
+
     /**
      * Sends a request with a new password to set for the given email through the query parameters
      * in the url. If an error occurs a flash message will be shown. Otherwise if the reset is
@@ -123,13 +135,13 @@ export default {
       try {
         const response = await Base.call('password/reset', config, true);
 
-        this.flashMessage.success(response.data.message);
+        this.toastSuccess(response.data.message);
 
-        await this.$store.dispatch('session/getCurrentUser');
+        await this.getCurrentUser();
 
-        if (this.$store.state.session.currentUser.user_locale !== null) {
-          await loadLanguageAsync(this.$store.state.session.currentUser.user_locale);
-          this.$store.commit('session/setCurrentLocale', this.$store.state.session.currentUser.user_locale);
+        if (this.currentUser.user_locale !== null) {
+          await loadLanguageAsync(this.currentUser.user_locale);
+          this.setCurrentLocale(this.currentUser.user_locale);
         }
 
         await this.$router.push({ name: 'home' });

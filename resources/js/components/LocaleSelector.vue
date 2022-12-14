@@ -16,10 +16,12 @@
 
 <script>
 import { loadLanguageAsync } from '../i18n';
-import { mapState } from 'vuex';
 import env from './../env.js';
 import LocaleMap from '../lang/LocaleMap';
 import Base from '../api/base';
+import { mapActions, mapState } from 'pinia';
+import { useLocaleStore } from '../stores/locale';
+import { useLoadingStore } from '../stores/loading';
 
 export default {
   props: {
@@ -42,25 +44,27 @@ export default {
         }, {});
     },
 
-    ...mapState({
-      currentLocale: state => state.session.currentLocale
-    })
+    ...mapState(useLocaleStore, ['currentLocale'])
   },
   methods: {
+
+    ...mapActions(useLocaleStore, ['setLocale']),
+    ...mapActions(useLoadingStore, ['setLoading', 'setLoadingFinished']),
+
     async changeLocale (locale) {
-      this.$store.commit('loading');
+      this.setLoading();
       try {
-        await this.$store.dispatch('session/setLocale', { locale });
+        await this.setLocale(locale);
         await loadLanguageAsync(locale);
       } catch (error) {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
-          this.flashMessage.error(error.response.data.errors.locale.join(' '));
+          this.toastError(error.response.data.errors.locale.join(' '));
         } else {
-          this.$store.commit('loadingFinished');
+          this.setLoadingFinished();
           Base.error(error, this.$root, error.message);
         }
       } finally {
-        this.$store.commit('loadingFinished');
+        this.setLoadingFinished();
       }
     }
   }

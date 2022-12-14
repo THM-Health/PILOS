@@ -1,13 +1,12 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BButton, BInputGroupAppend } from 'bootstrap-vue';
-import { createContainer, waitMoxios } from '../../helper';
-import Multiselect from 'vue-multiselect';
+import { mount } from '@vue/test-utils';
+import { BButton, BInputGroupAppend } from 'bootstrap-vue';
+import { createContainer, waitMoxios, createLocalVue } from '../../helper';
+import { Multiselect } from 'vue-multiselect';
 import moxios from 'moxios';
 import Base from '../../../../resources/js/api/base';
-import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect';
+import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect.vue';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 
 describe('RoleSelect', () => {
   beforeEach(() => {
@@ -219,7 +218,7 @@ describe('RoleSelect', () => {
   });
 
   it('loading error', async () => {
-    const spy = jest.spyOn(Base, 'error').mockImplementation();
+    const spy = vi.spyOn(Base, 'error').mockImplementation();
 
     const view = mount(RoleSelect, {
       localVue,

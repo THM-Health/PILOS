@@ -1,26 +1,16 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import BootstrapVue, { BAlert, BButton } from 'bootstrap-vue';
+import { mount } from '@vue/test-utils';
+import { BAlert, BButton } from 'bootstrap-vue';
 import moxios from 'moxios';
-import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification';
+import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification.vue';
 import VueRouter from 'vue-router';
-import Vuex from 'vuex';
-import { createContainer } from '../../helper';
+import { createContainer, createLocalVue } from '../../helper';
+import { PiniaVuePlugin } from 'pinia';
+import { useSettingsStore } from '../../../../resources/js/stores/settings';
+import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(VueRouter);
-localVue.use(Vuex);
-
-const store = new Vuex.Store({
-  modules: {
-    session: {
-      namespaced: true,
-      getters: {
-        settings: () => (setting) => setting === 'favicon' ? 'favicon.ico' : null
-      }
-    }
-  }
-});
+localVue.use(PiniaVuePlugin);
 
 const i18nDateMock = (date, format) => {
   return new Date(date).toLocaleString('en-US', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -89,8 +79,8 @@ describe('Browser Notification', () => {
   });
 
   it('show enable button if permission is missing', async () => {
-    const constructorSpy = jest.fn();
-    const closeSpy = jest.fn();
+    const constructorSpy = vi.fn();
+    const closeSpy = vi.fn();
 
     const NotificationFake = class {
       constructor () {
@@ -214,8 +204,7 @@ describe('Browser Notification', () => {
       static permission = 'denied';
     };
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     window.Notification = global.Notification = NotificationFake;
 
@@ -223,7 +212,7 @@ describe('Browser Notification', () => {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         running: false,
@@ -238,15 +227,15 @@ describe('Browser Notification', () => {
     await view.findComponent(BButton).trigger('click');
     expect(view.findComponent(BButton).exists()).toBeTruthy();
     expect(view.findComponent(BAlert).exists()).toBeFalsy();
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
 
     view.destroy();
     delete window.Notification;
     delete global.Notification;
   });
   it('enable notifications wih default permission, but granted on request', async () => {
-    const constructorSpy = jest.fn();
+    const constructorSpy = vi.fn();
 
     const NotificationFake = class {
       constructor () {
@@ -292,7 +281,7 @@ describe('Browser Notification', () => {
   }
   );
   it('enable notifications wih default permission, but denied on request', async () => {
-    const constructorSpy = jest.fn();
+    const constructorSpy = vi.fn();
     const NotificationFake = class {
       constructor () {
         constructorSpy();
@@ -311,14 +300,13 @@ describe('Browser Notification', () => {
 
     window.Notification = global.Notification = NotificationFake;
 
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const view = mount(BrowserNotification, {
       localVue,
       mocks: {
         $t: (key) => key,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         running: false,
@@ -336,8 +324,8 @@ describe('Browser Notification', () => {
     expect(view.findComponent(BButton).exists()).toBeTruthy();
     expect(view.findComponent(BAlert).exists()).toBeFalsy();
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('rooms.notification.denied');
 
     view.destroy();
     delete window.Notification;
@@ -345,10 +333,10 @@ describe('Browser Notification', () => {
   });
 
   it('change status from not running to running', async () => {
-    const constructorSpy = jest.fn();
-    const closeSpy = jest.fn();
-    const focusSpy = jest.fn();
-    jest.useFakeTimers().setSystemTime(new Date('2017-01-01'));
+    const constructorSpy = vi.fn();
+    const closeSpy = vi.fn();
+    const focusSpy = vi.fn();
+    vi.useFakeTimers().setSystemTime(new Date('2017-01-01'));
 
     const NotificationFake = class {
       constructor (title, options = {}) {
@@ -384,8 +372,10 @@ describe('Browser Notification', () => {
         name: 'test'
       },
       attachTo: createContainer(),
-      store
+      pinia: createTestingPinia()
     });
+
+    useSettingsStore().settings = { favicon: 'favicon.ico' };
 
     await view.vm.$nextTick();
     await view.findComponent(BButton).trigger('click');
@@ -410,11 +400,10 @@ describe('Browser Notification', () => {
     delete global.Notification;
     delete window.focus;
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
   it('change status from not running to running with error', async () => {
-    const flashMessageSpy = jest.fn();
-    const flashMessage = { error: flashMessageSpy };
+    const toastErrorSpy = vi.fn();
 
     const NotificationFake = class {
       constructor (title, options = {}) {
@@ -431,14 +420,13 @@ describe('Browser Notification', () => {
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
         $d: i18nDateMock,
-        flashMessage: flashMessage
+        toastError: toastErrorSpy
       },
       propsData: {
         running: false,
         name: 'test'
       },
-      attachTo: createContainer(),
-      store
+      attachTo: createContainer()
     });
 
     await view.vm.$nextTick();
@@ -447,8 +435,8 @@ describe('Browser Notification', () => {
 
     expect(view.findComponent(BButton).exists()).toBeFalsy();
 
-    expect(flashMessageSpy).toBeCalledTimes(1);
-    expect(flashMessageSpy.mock.calls[0][0]).toEqual('rooms.notification.browser_support');
+    expect(toastErrorSpy).toBeCalledTimes(1);
+    expect(toastErrorSpy.mock.calls[0][0]).toEqual('rooms.notification.browser_support');
 
     view.destroy();
     delete window.Notification;

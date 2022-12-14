@@ -1,35 +1,33 @@
 import VueRouter from 'vue-router';
-import Login from './views/Login';
-import NotFound from './views/NotFound';
-import RoomsIndex from './views/rooms/Index';
-import RoomsOwnIndex from './views/rooms/OwnIndex';
-import RoomView from './views/rooms/View';
-import store from './store';
-import Home from 'views/Home';
-import Vue from 'vue';
+import Login from './views/Login.vue';
+import NotFound from './views/NotFound.vue';
+import RoomsIndex from './views/rooms/Index.vue';
+import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
+import RoomView from './views/rooms/View.vue';
+import Home from '@/views/Home.vue';
 import PermissionService from './services/PermissionService';
-import Settings from './views/settings/Settings';
-import RolesIndex from './views/settings/roles/Index';
-import RolesView from './views/settings/roles/View';
-import RoomTypesIndex from './views/settings/roomTypes/Index';
-import RoomTypesView from './views/settings/roomTypes/View';
-import UsersIndex from './views/settings/users/Index';
-import UsersView from './views/settings/users/View';
-import NewUser from './views/settings/users/New';
-import Application from './views/settings/Application';
-import SettingsHome from './views/settings/SettingsHome';
-import ServersIndex from './views/settings/servers/Index';
-import ServersView from './views/settings/servers/View';
-import ServerPoolsIndex from './views/settings/serverPools/Index';
-import ServerPoolsView from './views/settings/serverPools/View';
-import MeetingsIndex from './views/meetings/Index';
-import PasswordReset from './views/PasswordReset';
+import Settings from './views/settings/Settings.vue';
+import RolesIndex from './views/settings/roles/Index.vue';
+import RolesView from './views/settings/roles/View.vue';
+import RoomTypesIndex from './views/settings/roomTypes/Index.vue';
+import RoomTypesView from './views/settings/roomTypes/View.vue';
+import UsersIndex from './views/settings/users/Index.vue';
+import UsersView from './views/settings/users/View.vue';
+import NewUser from './views/settings/users/New.vue';
+import Application from './views/settings/Application.vue';
+import SettingsHome from './views/settings/SettingsHome.vue';
+import ServersIndex from './views/settings/servers/Index.vue';
+import ServersView from './views/settings/servers/View.vue';
+import ServerPoolsIndex from './views/settings/serverPools/Index.vue';
+import ServerPoolsView from './views/settings/serverPools/View.vue';
+import MeetingsIndex from './views/meetings/Index.vue';
+import PasswordReset from './views/PasswordReset.vue';
 import Base from './api/base';
-import ForgotPassword from './views/ForgotPassword';
-import VerifyEmail from './views/VerifyEmail';
-import Profile from './views/Profile';
-
-Vue.use(VueRouter);
+import ForgotPassword from './views/ForgotPassword.vue';
+import VerifyEmail from './views/VerifyEmail.vue';
+import Profile from './views/Profile.vue';
+import { useAuthStore } from './stores/auth';
+import { useLoadingStore } from './stores/loading';
 
 export const routes = [
   {
@@ -169,7 +167,7 @@ export const routes = [
 
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', { model_name: 'User', id })
+                PermissionService.can('update', { model_name: 'User', id })
             );
           }
         }
@@ -182,7 +180,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'RolePolicy')
+              PermissionService.can('viewAny', 'RolePolicy')
           )
         }
       },
@@ -205,18 +203,18 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'RolePolicy')
+                  PermissionService.can('create', 'RolePolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'RolePolicy')
+                  PermissionService.can('view', 'RolePolicy')
               );
             }
 
             return Base.call(`roles/${id}`).then((response) => {
               return PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('update', response.data.data);
+                  PermissionService.can('update', response.data.data);
             }).catch((response) => {
               Base.error(response, vm, response.message);
               return false;
@@ -232,7 +230,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'ApplicationSettingPolicy')
+              PermissionService.can('viewAny', 'ApplicationSettingPolicy')
           )
         }
       },
@@ -266,18 +264,18 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'RoomTypePolicy')
+                  PermissionService.can('create', 'RoomTypePolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'RoomTypePolicy')
+                  PermissionService.can('view', 'RoomTypePolicy')
               );
             }
 
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', 'RoomTypePolicy')
+                PermissionService.can('update', 'RoomTypePolicy')
             );
           }
         }
@@ -290,7 +288,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'ServerPolicy')
+              PermissionService.can('viewAny', 'ServerPolicy')
           )
         }
       },
@@ -313,17 +311,17 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'ServerPolicy')
+                  PermissionService.can('create', 'ServerPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'ServerPolicy')
+                  PermissionService.can('view', 'ServerPolicy')
               );
             }
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', 'ServerPolicy')
+                PermissionService.can('update', 'ServerPolicy')
             );
           }
         }
@@ -336,7 +334,7 @@ export const routes = [
           requiresAuth: true,
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
-            PermissionService.can('viewAny', 'ServerPoolPolicy')
+              PermissionService.can('viewAny', 'ServerPoolPolicy')
           )
         }
       },
@@ -359,17 +357,17 @@ export const routes = [
             if (id === 'new') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('create', 'ServerPoolPolicy')
+                  PermissionService.can('create', 'ServerPoolPolicy')
               );
             } else if (view === '1') {
               return Promise.resolve(
                 PermissionService.can('manage', 'SettingPolicy') &&
-                PermissionService.can('view', 'ServerPoolPolicy')
+                  PermissionService.can('view', 'ServerPoolPolicy')
               );
             }
             return Promise.resolve(
               PermissionService.can('manage', 'SettingPolicy') &&
-              PermissionService.can('update', 'ServerPoolPolicy')
+                PermissionService.can('update', 'ServerPoolPolicy')
             );
           }
         }
@@ -386,11 +384,6 @@ export const routes = [
     redirect: '/404'
   }
 ];
-
-const router = new VueRouter({
-  mode: 'history',
-  routes
-});
 
 /**
  * Callback that gets called before a route gets entered.
@@ -409,27 +402,30 @@ const router = new VueRouter({
  * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
  * be redirected to the home route with a error messsage.
  */
-export function beforeEachRoute (router, store, to, from, next) {
-  const locale = document.documentElement.lang || process.env.MIX_DEFAULT_LOCALE;
-  const initializationPromise = !store.state.initialized ? store.dispatch('initialize', { locale }) : Promise.resolve();
+export function beforeEachRoute (router, to, from, next) {
+  const auth = useAuthStore();
+  const loading = useLoadingStore();
 
-  store.commit('loading');
+  const locale = document.documentElement.lang || import.meta.env.VITE_DEFAULT_LOCALE;
+  const initializationPromise = !loading.initialized ? loading.initialize(locale) : Promise.resolve();
+
+  loading.setLoading();
   initializationPromise.then(() => {
     return Promise.all(to.matched.map((record) =>
       record.meta.accessPermitted ? record.meta.accessPermitted(to.params, to.query, router.app) : Promise.resolve(true)
     ));
   }).then((recordsPermissions) => {
-    store.commit('loadingFinished');
-    if (to.matched.some(record => record.meta.requiresAuth) && !store.getters['session/isAuthenticated']) {
+    loading.setLoadingFinished();
+    if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }
       });
-    } else if (to.matched.some(record => record.meta.guestsOnly) && store.getters['session/isAuthenticated']) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.guests_only'));
+    } else if (to.matched.some(record => record.meta.guestsOnly) && auth.isAuthenticated) {
+      router.app.$root.toastError(router.app.$t('app.flash.guests_only'));
       next({ name: 'home' });
     } else if (!recordsPermissions.every(permission => permission)) {
-      router.app.$root.flashMessage.error(router.app.$t('app.flash.unauthorized'));
+      router.app.$root.toastError(router.app.$t('app.flash.unauthorized'));
       next(from.matched.length !== 0 ? false : '/');
     } else {
       next();
@@ -437,10 +433,17 @@ export function beforeEachRoute (router, store, to, from, next) {
   });
 }
 
-router.beforeEach((to, from, next) => beforeEachRoute(router, store, to, from, next));
+export default function () {
+  const router = new VueRouter({
+    mode: 'history',
+    routes
+  });
 
-router.onError(error => {
-  Base.error(error, router.app.$root);
-});
+  router.beforeEach((to, from, next) => beforeEachRoute(router, to, from, next));
 
-export default router;
+  router.onError(error => {
+    Base.error(error, router.app.$root);
+  });
+
+  return router;
+}

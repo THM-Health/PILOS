@@ -38,7 +38,7 @@ import PermissionService from '../../services/PermissionService';
 import Base from '../../api/base';
 import env from '../../env';
 import _ from 'lodash';
-import RoleSelect from '../Inputs/RoleSelect';
+import RoleSelect from '../Inputs/RoleSelect.vue';
 
 export default {
   name: 'RolesAndPermissionsComponent',

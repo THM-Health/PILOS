@@ -104,10 +104,10 @@
 
 <script>
 import Base from '../../api/base';
-import Can from '../../components/Permissions/Can';
-import Cannot from '../../components/Permissions/Cannot';
+import Can from '../../components/Permissions/Can.vue';
+import Cannot from '../../components/Permissions/Cannot.vue';
 import PermissionService from '../../services/PermissionService';
-import RoomStatusComponent from '../../components/Room/RoomStatusComponent';
+import RoomStatusComponent from '../../components/Room/RoomStatusComponent.vue';
 
 export default {
   components: { RoomStatusComponent, Can, Cannot },

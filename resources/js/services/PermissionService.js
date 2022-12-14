@@ -101,7 +101,7 @@ class PermissionService {
    * @return boolean Indicating whether the action is permitted or not.
    */
   can (method, policy) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.MODE !== 'production') {
       if (typeof policy !== 'string' && typeof policy !== 'object') {
         throw new WrongTypeError('policy', 'string or object');
       }
@@ -116,7 +116,7 @@ class PermissionService {
     }
 
     if (typeof policy === 'string') {
-      if (process.env.NODE_ENV !== 'production' && (
+      if (import.meta.env.MODE !== 'production' && (
         !Object.prototype.hasOwnProperty.call(Policies, policy) ||
         !Object.prototype.hasOwnProperty.call(Policies[policy], method)
       )) {
@@ -127,7 +127,7 @@ class PermissionService {
     }
 
     const policyName = `${policy.model_name}Policy`;
-    if (process.env.NODE_ENV !== 'production' && (
+    if (import.meta.env.MODE !== 'production' && (
       !Object.prototype.hasOwnProperty.call(Policies, policyName) ||
       !Object.prototype.hasOwnProperty.call(Policies[policyName], method)
     )) {

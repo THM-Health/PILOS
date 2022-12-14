@@ -45,11 +45,11 @@
   </div>
 </template>
 <script>
-import SettingsComponent from './SettingsComponent';
-import MembersComponent from './MembersComponent';
-import FileComponent from './FileComponent';
-import HistoryComponent from './HistoryComponent';
-import TokensComponent from './TokensComponent';
+import SettingsComponent from './SettingsComponent.vue';
+import MembersComponent from './MembersComponent.vue';
+import FileComponent from './FileComponent.vue';
+import HistoryComponent from './HistoryComponent.vue';
+import TokensComponent from './TokensComponent.vue';
 
 export default {
 
