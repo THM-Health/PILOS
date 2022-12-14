@@ -5,7 +5,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export default ({ mode }) => {
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+  const ENV_PREFIX = ['VITE_', 'VITEST_'];
+
+  process.env = { ...process.env, ...loadEnv(mode, process.cwd(), ENV_PREFIX) };
+
+  const VITE_HMR_HOST = process.env.VITE_HOST || 'localhost';
+  const VITE_PORT = parseInt(process.env.VITE_PORT || 5173);
+  const VITEST_UI_PORT = parseInt(process.env.VITEST_UI_PORT || 5174);
+  const THEME = process.env.VITE_THEME || 'default';
 
   /**
    * Create aliases for the paths we use in our app
@@ -25,15 +32,15 @@ export default ({ mode }) => {
   }
 
   function getSslConfig () {
-    if (process.env.VITE_SSL === 'true') {
-      return {
-        key: fs.readFileSync(process.env.VITE_SSL_KEY),
-        cert: fs.readFileSync(process.env.VITE_SSL_CERT)
-      };
+    if (process.env.VITEST || process.env.VITE_SSL !== 'true') {
+      return false;
     }
-    return false;
-  }
 
+    return {
+      key: fs.readFileSync(process.env.VITE_SSL_KEY),
+      cert: fs.readFileSync(process.env.VITE_SSL_CERT)
+    };
+  }
   return defineConfig({
     test: {
       coverage: {
@@ -41,6 +48,7 @@ export default ({ mode }) => {
         include: ['resources/js/**/*.{js,vue}'],
         all: true
       },
+      api: VITEST_UI_PORT,
       globals: true,
       open: false,
       restoreMocks: true,
@@ -52,15 +60,17 @@ export default ({ mode }) => {
     plugins: [
       laravel([
         'resources/js/app.js',
-        'resources/sass/theme/' + (process.env.VITE_THEME || 'default') + '/app.scss'
+        'resources/sass/theme/' + THEME + '/app.scss'
       ]),
       vue()
     ],
     server: {
       https: getSslConfig(),
       host: true,
+      port: VITE_PORT,
+      strictPort: true,
       hmr: {
-        host: process.env.VITE_HOST || 'localhost'
+        host: VITE_HMR_HOST
       }
     },
     resolve: {
