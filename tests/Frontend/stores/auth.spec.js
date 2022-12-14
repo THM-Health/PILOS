@@ -1,9 +1,10 @@
 import moxios from 'moxios';
 import i18n from '../../../resources/js/i18n';
-import { overrideStub } from '../helper';
+import { overrideStub, waitMoxios } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
 import PermissionService from '../../../resources/js/services/PermissionService';
+import { useLoadingStore } from '../../../resources/js/stores/loading';
 
 describe('Auth Store', () => {
   beforeEach(() => {
@@ -67,5 +68,38 @@ describe('Auth Store', () => {
 
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/12/2021, 19:09');
     restoreCurrentUserResponse();
+  });
+
+  it('logout', async () => {
+    const auth = useAuthStore();
+    const loading = useLoadingStore();
+    auth.currentUser = {
+      id: 1,
+      authenticator: 'ldap',
+      email: 'john.doe@domain.tld',
+      username: 'user',
+      firstname: 'John',
+      lastname: 'Doe',
+      user_locale: 'en',
+      permissions: [],
+      model_name: 'User',
+      room_limit: -1,
+      timezone: 'Australia/Sydney'
+    };
+
+    auth.logout();
+    expect(loading.loadingCounter).toBe(1);
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/logout');
+
+    await request.respondWith({
+      status: 204
+    });
+
+    expect(auth.currentUser).toBeNull();
+    expect(loading.loadingCounter).toBe(0);
   });
 });
