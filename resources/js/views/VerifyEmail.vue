@@ -13,9 +13,8 @@
           <b-alert variant="success" show><i class="fa-solid fa-envelope-circle-check"></i> {{ $t('app.verify_email.success') }}</b-alert>
         </div>
         <div v-else>
-          <b-alert v-if="error === env.HTTP_TOO_MANY_REQUESTS" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.too_many') }}</b-alert>
-          <b-alert v-else-if="error === env.HTTP_UNPROCESSABLE_ENTITY" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.invalid') }}</b-alert>
-          <b-alert v-else  variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.fail') }}</b-alert>
+          <b-alert v-if="error === env.HTTP_UNPROCESSABLE_ENTITY" variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.invalid') }}</b-alert>
+          <b-alert v-else variant="danger" show><i class="fa-solid fa-triangle-exclamation"></i> {{ $t('app.verify_email.fail') }}</b-alert>
         </div>
       </div>
     </b-card>
@@ -66,6 +65,9 @@ export default {
         .catch((error) => {
           if (error.response) {
             this.error = error.response.status;
+            if (error.response.status !== env.HTTP_UNPROCESSABLE_ENTITY) {
+              Base.error(error, this.$root, error.message);
+            }
           }
           this.success = false;
         }).finally(() => {
