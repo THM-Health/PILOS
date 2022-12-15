@@ -57,6 +57,8 @@ describe('Toast', () => {
     await wrapper.findComponent({ ref: 'info-bn' }).trigger('click');
     expect(spy).toHaveBeenCalledTimes(4);
     expect(spy).toHaveBeenCalledWith('info-text', { title: null, variant: 'info' });
+
+    wrapper.destroy();
   });
 
   it('call flash message with title', async () => {
@@ -83,5 +85,7 @@ describe('Toast', () => {
     await wrapper.findComponent({ ref: 'error-bn' }).trigger('click');
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith('error-text', { title: 'error-title', variant: 'danger' });
+
+    wrapper.destroy();
   });
 });

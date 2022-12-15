@@ -62,10 +62,11 @@
 </template>
 
 <script>
-import PermissionService from '../../services/PermissionService';
 import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from '../../env';
+import { mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
 
 export default {
   name: 'PasswordComponent',
@@ -86,8 +87,11 @@ export default {
     }
   },
   computed: {
+
+    ...mapState(useAuthStore, ['currentUser']),
+
     isOwnUser () {
-      return PermissionService.currentUser.id === this.user.id;
+      return this.currentUser.id === this.user.id;
     }
   },
   methods: {

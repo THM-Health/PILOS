@@ -11,7 +11,7 @@
           id='roles'
           v-model='model.roles'
           :invalid='fieldState("roles", true)'
-          :disabled="isBusy || !edit || !canEditRoles"
+          :disabled="isBusy || viewOnly || !canEditRoles"
           :disabled-roles="disabledRoles"
           @loadingError="(value) => this.rolesLoadingError = value"
           @busy="(value) => this.rolesLoading = value"
@@ -24,7 +24,7 @@
         :disabled='isBusy || rolesLoadingError || rolesLoading'
         variant='success'
         type='submit'
-        v-if="edit && canEditRoles"
+        v-if="!viewOnly && canEditRoles"
       >
         <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
       </b-button>
@@ -44,9 +44,9 @@ export default {
   name: 'RolesAndPermissionsComponent',
   components: { RoleSelect },
   props: {
-    edit: {
+    viewOnly: {
       type: Boolean,
-      required: true
+      default: false
     },
     user: {
       type: Object,

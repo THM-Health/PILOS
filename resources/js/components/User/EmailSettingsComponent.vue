@@ -2,23 +2,25 @@
   <div>
     <h4>{{ $t('app.email') }}</h4>
     <b-form @submit="save">
-      <b-form-group
-        label-cols-sm='3'
-        :label="$t('auth.current_password')"
-        label-for='current_password'
-        :state='fieldState("password")'
-        v-if="edit && isOwnUser && canUpdateAttributes"
-      >
-        <b-form-input
-          id='current_password'
-          type='password'
-          required
-          v-model='current_password'
-          :state='fieldState("current_password")'
-          :disabled="isBusy"
-        ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
-      </b-form-group>
+      <can method='updateAttributes' :policy='user'>
+        <b-form-group
+          label-cols-sm='3'
+          :label="$t('auth.current_password')"
+          label-for='current_password'
+          :state='fieldState("password")'
+          v-if="!viewOnly && isOwnUser"
+        >
+          <b-form-input
+            id='current_password'
+            type='password'
+            required
+            v-model='current_password'
+            :state='fieldState("current_password")'
+            :disabled="isBusy"
+          ></b-form-input>
+          <template slot='invalid-feedback'><div v-html="fieldError('current_password')"></div></template>
+        </b-form-group>
+      </can>
       <b-form-group
         label-cols-sm='3'
         :label="$t('app.email')"
@@ -31,7 +33,7 @@
           v-model='email'
           required
           :state='fieldState("email")'
-          :disabled="isBusy || !edit || !canUpdateAttributes"
+          :disabled="isBusy || viewOnly || !canUpdateAttributes"
         ></b-form-input>
         <template slot='invalid-feedback'><div v-html="fieldError('email')"></div></template>
 
@@ -41,14 +43,16 @@
           </b-alert>
         </div>
       </b-form-group>
-      <b-button
-        :disabled='isBusy || email === this.user.email'
-        v-if="edit && canUpdateAttributes"
-        variant='success'
-        type='submit'
-      >
-        <i class='fa-solid fa-save'></i> {{ $t('auth.change_email') }}
-      </b-button>
+      <can method='updateAttributes' :policy='user'>
+        <b-button
+          :disabled='isBusy || email === user.email'
+          v-if="!viewOnly"
+          variant='success'
+          type='submit'
+        >
+          <i class='fa-solid fa-save'></i> {{ $t('auth.change_email') }}
+        </b-button>
+      </can>
     </b-form>
   </div>
 </template>
@@ -58,9 +62,13 @@ import FieldErrors from '../../mixins/FieldErrors';
 import Base from '../../api/base';
 import env from '../../env';
 import PermissionService from '../../services/PermissionService';
+import { mapState } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
+import Can from '../Permissions/Can.vue';
 
 export default {
   name: 'EmailSettingsComponent',
+  components: { Can },
   mixins: [FieldErrors],
   data () {
     return {
@@ -68,8 +76,7 @@ export default {
       email: '',
       isBusy: false,
       validationRequiredEmail: null,
-      errors: {},
-      canUpdateAttributes: false
+      errors: {}
     };
   },
   props: {
@@ -77,20 +84,26 @@ export default {
       type: Object,
       required: true
     },
-    edit: {
+    viewOnly: {
       type: Boolean,
-      required: true
+      default: false
     }
   },
   computed: {
+
+    ...mapState(useAuthStore, ['currentUser']),
+
+    canUpdateAttributes () {
+      return PermissionService.can('updateAttributes', this.user);
+    },
+
     isOwnUser () {
-      return PermissionService.currentUser.id === this.user.id;
+      return this.currentUser.id === this.user.id;
     }
   },
   mounted () {
     this.email = this.user.email;
     this.validationRequiredEmail = null;
-    this.canUpdateAttributes = PermissionService.can('updateAttributes', this.user);
   },
   methods: {
     save: function (evt) {

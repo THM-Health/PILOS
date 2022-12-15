@@ -22,6 +22,7 @@ describe('SessionsComponent', () => {
 
   it('list of sessions and logout other sessions', async () => {
     const toastSuccessSpy = vi.fn();
+    const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(SessionsComponent, {
       localVue,
@@ -88,7 +89,6 @@ describe('SessionsComponent', () => {
 
     // check if button is disabled during request
     expect(endSessionButton.attributes('disabled')).toBe('disabled');
-
     await request.respondWith({
       status: 204
     });
@@ -125,6 +125,26 @@ describe('SessionsComponent', () => {
     // Check session list
     selects = view.findAllComponents(BListGroupItem);
     expect(selects.length).toEqual(1);
+
+    // Check end session button
+    expect(endSessionButton.text()).toBe('auth.sessions.logout_all');
+    expect(endSessionButton.attributes('disabled')).toBeUndefined();
+    await endSessionButton.trigger('click');
+
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('delete');
+    expect(request.config.url).toEqual('/api/v1/sessions');
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Internal Server Error'
+      }
+    });
+
+    await view.vm.$nextTick();
+    expect(baseErrorSpy).toBeCalledTimes(1);
+    expect(baseErrorSpy.mock.calls[0][0].response.status).toBe(500);
 
     view.destroy();
   });

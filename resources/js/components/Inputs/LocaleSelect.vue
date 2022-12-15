@@ -9,7 +9,7 @@
     :disabled="disabled"
   >
     <template v-slot:first>
-      <b-form-select-option :value="null" disabled>{{ $t('settings.users.select_locale') }}</b-form-select-option>
+      <b-form-select-option :value="null" disabled>{{ $t('app.select_locale') }}</b-form-select-option>
     </template>
   </b-form-select>
 </template>

@@ -43,6 +43,7 @@ module.exports = {
     '@intlify/vue-i18n/no-raw-text': ['error', {
       ignoreNodes: ['raw-text']
     }],
+    '@intlify/vue-i18n/no-missing-keys': 'error',
     '@intlify/vue-i18n/no-missing-keys-in-other-locales': 'error',
     '@intlify/vue-i18n/key-format-style': ['warn', 'snake_case', {
       splitByDots: true

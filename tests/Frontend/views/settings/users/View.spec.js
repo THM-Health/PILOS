@@ -1,13 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import BootstrapVue from 'bootstrap-vue';
+import { shallowMount } from '@vue/test-utils';
 import View from '../../../../../resources/js/views/settings/users/View.vue';
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import ViewEditComponent from '../../../../../resources/js/components/User/ViewEditComponent.vue';
 import { PiniaVuePlugin } from 'pinia';
+import { createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
-localVue.use(BootstrapVue);
 localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 

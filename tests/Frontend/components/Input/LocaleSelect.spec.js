@@ -30,7 +30,7 @@ describe('LocaleSelect', () => {
     const options = select.findAll('option');
     expect(options.length).toBe(3);
     expect(options.at(0).element.value).toBe('');
-    expect(options.at(0).text()).toBe('settings.users.select_locale');
+    expect(options.at(0).text()).toBe('app.select_locale');
     expect(options.at(0).attributes('disabled')).toBeTruthy();
 
     expect(options.at(1).element.value).toBe('de');

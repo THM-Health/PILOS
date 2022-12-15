@@ -15,7 +15,7 @@
             required
             v-model='model.firstname'
             :state='fieldState("firstname")'
-            :disabled="isBusy || !edit || !canUpdateAttributes"
+            :disabled="isBusy || viewOnly || !canUpdateAttributes"
           ></b-form-input>
           <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
         </b-form-group>
@@ -31,7 +31,7 @@
             type='text'
             v-model='model.lastname'
             :state='fieldState("lastname")'
-            :disabled="isBusy || !edit || !canUpdateAttributes"
+            :disabled="isBusy || viewOnly || !canUpdateAttributes"
           ></b-form-input>
           <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
         </b-form-group>
@@ -59,17 +59,17 @@
           :label="$t('settings.users.image.title')"
         >
           <b-row>
-            <b-col sm="12" lg="9" v-if="edit">
+            <b-col sm="12" lg="9" v-if="!viewOnly">
               <input ref="ProfileImage" id="profile-image" type="file" style="display: none;" accept="image/png, image/jpeg"  @change="onFileSelect" />
 
               <b-button class="my-1 my-lg-0" variant='secondary' :disabled="isBusy" @click="resetFileUpload(); $refs.ProfileImage.click()"  v-if="!image_deleted"><i class="fa-solid fa-upload"></i> {{ $t('settings.users.image.upload')}}</b-button>
-              <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('settings.users.image.cancel') }}</b-button>
+              <b-button class="my-1 my-lg-0" variant='danger' v-if="croppedImage" @click="resetFileUpload"><i class="fa-solid fa-times"></i> {{ $t('app.cancel') }}</b-button>
               <b-button class="my-1 my-lg-0" v-if="!image_deleted && !croppedImage && model.image" :disabled="isBusy" @click="image_deleted = true" variant="danger"><i class="fa-solid fa-trash"></i> {{ $t('settings.users.image.delete') }}</b-button>
               <b-button class="my-1 my-lg-0" v-if="image_deleted" @click="image_deleted = false" variant="secondary"><i class="fa-solid fa-undo"></i> {{ $t('settings.users.image.undo_delete') }}</b-button>
 
             </b-col>
 
-            <b-col sm="12" lg="3" class="text-left" v-bind:class="{'text-lg-right': edit}">
+            <b-col sm="12" lg="3" class="text-left" v-bind:class="{'text-lg-right': !viewOnly}">
               <b-img
                 v-if="(croppedImage!==null || model.image!==null) && !image_deleted"
                 :src="croppedImage ? croppedImage : model.image"
@@ -106,7 +106,7 @@
             ok-variant="success"
             :ok-title="$t('settings.users.image.save')"
             cancel-variant="secondary"
-            :cancel-title="$t('settings.users.image.cancel')"
+            :cancel-title="$t('app.cancel')"
           >
             <VueCropper v-show="selectedFile" :autoCropArea="1" :aspectRatio="1" :viewMode="1" ref="cropper" :src="selectedFile" :alt="$t('settings.users.image.title')"></VueCropper>
           </b-modal>
@@ -122,7 +122,7 @@
             required
             v-model="model.user_locale"
             :state='fieldState("user_locale")'
-            :disabled="isBusy || !edit"
+            :disabled="isBusy || viewOnly"
           ></locale-select>
           <template slot='invalid-feedback'><div v-html="fieldError('user_locale')"></div></template>
         </b-form-group>
@@ -137,7 +137,7 @@
             required
             v-model="model.timezone"
             :state='fieldState("timezone")'
-            :disabled="isBusy || !edit"
+            :disabled="isBusy || viewOnly"
             @loadingError="(value) => this.timezonesLoadingError = value"
             @busy="(value) => this.timezonesLoading = value"
             :placeholder="$t('settings.users.timezone')"
@@ -150,7 +150,7 @@
           :disabled='isBusy || timezonesLoading || timezonesLoadingError || imageToBlobLoading'
           variant='success'
           type='submit'
-          v-if="edit"
+          v-if="!viewOnly"
         >
           <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
         </b-button>
@@ -170,15 +170,15 @@ import LocaleSelect from '../Inputs/LocaleSelect.vue';
 import TimezoneSelect from '../Inputs/TimezoneSelect.vue';
 import { useLocaleStore } from '../../stores/locale';
 import { useAuthStore } from '../../stores/auth';
-import { mapActions } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 
 export default {
   name: 'ProfileComponent',
   components: { LocaleSelect, TimezoneSelect, VueCropper },
   props: {
-    edit: {
+    viewOnly: {
       type: Boolean,
-      required: true
+      default: false
     },
     user: {
       type: Object,
@@ -218,6 +218,10 @@ export default {
   mounted () {
     this.model = _.cloneDeep(this.user);
     this.canUpdateAttributes = PermissionService.can('updateAttributes', this.model);
+  },
+
+  computed: {
+    ...mapState(useAuthStore, ['currentUser'])
   },
 
   methods: {
@@ -317,7 +321,7 @@ export default {
         const localeChanged = this.currentLocale !== this.model.user_locale;
 
         // if the updated user is the current user, then renew also the currentUser by calling getCurrentUser of the store
-        if (PermissionService.currentUser && this.model.id === PermissionService.currentUser.id) {
+        if (this.currentUser && this.model.id === this.currentUser.id) {
           return this.getCurrentUser().then(() => {
             if (localeChanged) {
               return loadLanguageAsync(this.model.user_locale).then(() => {

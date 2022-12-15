@@ -310,7 +310,7 @@
                 :disabled="isBusy || viewOnly || !loaded"
                 @loadingError="(value) => this.timezonesLoadingError = value"
                 @busy="(value) => this.timezonesLoading = value"
-                :placeholder="$t('settings.application.defaultTimezone')"
+                :placeholder="$t('settings.application.default_timezone')"
               >
               </timezone-select>
               <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>

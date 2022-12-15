@@ -7,7 +7,7 @@
         </template>
         <profile-component
           :user="user"
-          :edit="!viewOnly"
+          :view-only="viewOnly"
           @updateUser="updateUser"
           @staleError="handleStaleError"
           @notFoundError="handleNotFoundError"
@@ -19,7 +19,7 @@
         </template>
         <email-settings-component
           :user="user"
-          :edit="!viewOnly"
+          :view-only="viewOnly"
           @updateUser="updateUser"
           @notFoundError="handleNotFoundError"
         ></email-settings-component>
@@ -30,7 +30,7 @@
         </template>
         <authentication-settings-component
           :user="user"
-          :edit="!viewOnly"
+          :view-only="viewOnly"
           @updateUser="updateUser"
           @staleError="handleStaleError"
           @notFoundError="handleNotFoundError"
@@ -42,7 +42,7 @@
         </template>
         <other-settings-component
           :user="user"
-          :edit="!viewOnly"
+          :view-only="viewOnly"
           @updateUser="updateUser"
           @staleError="handleStaleError"
           @notFoundError="handleNotFoundError"
@@ -103,7 +103,7 @@ export default {
     },
     viewOnly: {
       type: Boolean,
-      required: true
+      default: false
     },
     modalStatic: {
       type: Boolean,

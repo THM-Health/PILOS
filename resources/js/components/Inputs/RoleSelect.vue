@@ -35,13 +35,13 @@
           :disabled='loading || currentPage === 1'
           variant='outline-secondary'
           @click='loadRoles(Math.max(1, currentPage - 1))'>
-          <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previousPage') }}
+          <i class='fa-solid fa-arrow-left'></i> {{ $t('app.previous_page') }}
         </b-button>
         <b-button
           :disabled='loading || !hasNextPage'
           variant='outline-secondary'
           @click='loadRoles(currentPage + 1)'>
-          <i class='fa-solid fa-arrow-right'></i> {{ $t('app.nextPage') }}
+          <i class='fa-solid fa-arrow-right'></i> {{ $t('app.next_page') }}
         </b-button>
       </template>
     </multiselect>

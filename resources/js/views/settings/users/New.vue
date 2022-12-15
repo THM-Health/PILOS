@@ -123,7 +123,7 @@
           <hr>
           <b-form-group
             label-cols-lg="12"
-            :label="$t('settings.users.password')"
+            :label="$t('auth.password')"
             label-size="lg"
             label-class="font-weight-bold pt-0"
             class="mb-0"

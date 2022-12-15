@@ -6,23 +6,29 @@
       </h3>
       <hr>
 
-      <view-edit-component :id="user.id" :modal-static="false" :view-only="false"></view-edit-component>
+      <b-overlay :show="!currentUser">
+        <template #overlay>
+          <div class="text-center">
+            <b-spinner></b-spinner>
+          </div>
+        </template>
+        <view-edit-component v-if="currentUser" :id="currentUser.id"></view-edit-component>
+      </b-overlay>
     </b-card>
   </b-container>
 </template>
 
 <script>
 import ViewEditComponent from '../components/User/ViewEditComponent.vue';
-import PermissionService from '../services/PermissionService';
+import { useAuthStore } from '../stores/auth';
+import { mapState } from 'pinia';
 
 export default {
   components: {
     ViewEditComponent
   },
   computed: {
-    user () {
-      return PermissionService.currentUser;
-    }
+    ...mapState(useAuthStore, ['currentUser'])
   }
 };
 

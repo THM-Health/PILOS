@@ -4,14 +4,14 @@
       <h4>{{ $t('settings.users.roles_and_permissions') }}</h4>
       <roles-and-permissions-component
         :user="user"
-        :edit="edit"
+        :view-only="viewOnly"
         @updateUser="updateUser"
         @staleError="handleStaleError"
         @notFoundError="handleNotFoundError"
       ></roles-and-permissions-component>
     </div>
 
-    <div v-if="edit && user.authenticator === 'users' && canChangePassword" class="mt-3">
+    <div v-if="!viewOnly && user.authenticator === 'users' && canChangePassword" class="mt-3">
       <hr>
       <h4>{{ $t('auth.change_password') }}</h4>
       <password-component
@@ -24,18 +24,18 @@
     <div v-if="isOwnUser" class="mt-3">
       <hr>
       <h4>{{ $t('auth.sessions.active') }}</h4>
-      <sessions-component :user="user"></sessions-component>
+      <sessions-component/>
     </div>
   </div>
 </template>
 
 <script>
 import SessionsComponent from './SessionsComponent.vue';
-import PermissionService from '../../services/PermissionService';
 import PasswordComponent from './PasswordComponent.vue';
 import RolesAndPermissionsComponent from './RolesAndPermissionsComponent.vue';
 import { mapState } from 'pinia';
 import { useSettingsStore } from '../../stores/settings';
+import { useAuthStore } from '../../stores/auth';
 
 export default {
   name: 'AuthenticationSettingsComponent',
@@ -45,18 +45,17 @@ export default {
       type: Object,
       required: true
     },
-    edit: {
+    viewOnly: {
       type: Boolean,
-      required: true
+      default: false
     }
   },
   computed: {
-    computed: {
-      ...mapState(useSettingsStore, ['getSetting'])
-    },
+    ...mapState(useAuthStore, ['currentUser']),
+    ...mapState(useSettingsStore, ['getSetting']),
 
     isOwnUser () {
-      return PermissionService.currentUser.id === this.user.id;
+      return this.currentUser?.id === this.user.id;
     },
     canChangePassword () {
       return !this.isOwnUser || this.getSetting('password_self_reset_enabled');

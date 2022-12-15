@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h4>{{ $t('settings.users.other_settings.bbb.title') }}</h4>
+    <h4>{{ $t('settings.users.other_settings.bbb') }}</h4>
     <b-form @submit="save">
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.other_settings.bbb.skip_check_audio')"
+        :label="$t('settings.users.other_settings.skip_check_audio')"
         label-for='bbb_skip_check_audio'
         :state="fieldState('bbb_skip_check_audio')"
         class="align-items-center d-flex"
@@ -13,7 +13,7 @@
           id='bbb_skip_check_audio'
           v-model='model.bbb_skip_check_audio'
           :state="fieldState('bbb_skip_check_audio')"
-          :disabled="isBusy || !edit"
+          :disabled="isBusy || viewOnly"
           switch
         ></b-form-checkbox>
         <template slot='invalid-feedback'><div v-html="fieldError('bbb_skip_check_audio')"></div></template>
@@ -23,7 +23,7 @@
         :disabled='isBusy'
         variant='success'
         type='submit'
-        v-if="edit"
+        v-if="!viewOnly"
       >
         <i class='fa-solid fa-save'></i> {{ $t('app.save') }}
       </b-button>
@@ -45,7 +45,7 @@ export default {
       type: Object,
       required: true
     },
-    edit: {
+    viewOnly: {
       type: Boolean,
       default: false
     }
