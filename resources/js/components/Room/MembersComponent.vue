@@ -15,6 +15,10 @@
           >
             <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.add_user') }}
           </b-button>
+
+            <!-- Bulk Import -->
+          <bulk-import-members-component :room-id="room.id"></bulk-import-members-component>
+
           </can>
 
           <!-- Reload members list -->
@@ -357,10 +361,11 @@ import PermissionService from '../../services/PermissionService';
 import { mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
+import BulkImportMembersComponent from "./BulkImportMembersComponent.vue";
 
 export default {
   mixins: [FieldErrors],
-  components: { Multiselect, Can },
+  components: {BulkImportMembersComponent, Multiselect, Can },
 
   props: {
     room: Object, // room object
