@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
 import { useLocaleStore } from '../../../../resources/js/stores/locale';
 import i18n from '../../../../resources/js/i18n';
+import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
 localVue.use(PiniaVuePlugin);
@@ -378,6 +379,10 @@ describe('ProfileComponent', () => {
       }
     });
 
+    // Check if changes are emitted
+    expect(wrapper.emitted('updateUser')[0][0]).toBe(userAfterChanges);
+    // Update user prop
+    await wrapper.setProps({ user: userAfterChanges });
     await wrapper.vm.$nextTick();
 
     // Check button and input enabled after request and have correct values
@@ -387,6 +392,217 @@ describe('ProfileComponent', () => {
 
     expect(inputs.at(0).props('value')).toBe('Max');
     expect(inputs.at(1).props('value')).toBe('Mustermann');
+
+    wrapper.destroy();
+  });
+
+  it('delete image', async () => {
+    PermissionService.setCurrentUser(adminUser);
+
+    const userWithImage = { ...user, image: 'http://domain.tld/storage/profile_images/abc.jpg' };
+    const wrapper = mount(ProfileComponent, {
+      pinia: createTestingPinia(),
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      propsData: {
+        user: userWithImage,
+        modalStatic: false,
+        viewOnly: false
+      },
+      stubs: {
+        VueCropper: true,
+        'timezone-select': true,
+        'locale-select': true
+      },
+      attachTo: createContainer()
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Check if image is shown
+    const img = wrapper.findComponent(BImg);
+    expect(img.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
+
+    // Check if buttons to upload new image and delete image are shown
+    let buttons = wrapper.findAllComponents(BButton);
+    expect(buttons.length).toBe(3);
+    expect(buttons.at(0).text()).toBe('settings.users.image.upload');
+    expect(buttons.at(1).text()).toBe('settings.users.image.delete');
+
+    // Delete image, check if default image is shown
+    await buttons.at(1).trigger('click');
+    expect(img.attributes('src')).toBe('/images/default_profile.png');
+
+    // Check if undo button is shown
+    buttons = wrapper.findAllComponents(BButton);
+    expect(buttons.length).toBe(2);
+    expect(buttons.at(0).text()).toBe('settings.users.image.undo_delete');
+
+    // Trigger undo, check if image is shown again
+    await buttons.at(0).trigger('click');
+    expect(img.attributes('src')).toBe('http://domain.tld/storage/profile_images/abc.jpg');
+
+    // Delete image again, check if default image is shown
+    buttons = wrapper.findAllComponents(BButton);
+    expect(buttons.length).toBe(3);
+    expect(buttons.at(1).text()).toBe('settings.users.image.delete');
+    await buttons.at(1).trigger('click');
+    expect(img.attributes('src')).toBe('/images/default_profile.png');
+
+    // Save changes (delete image on server)
+    buttons = wrapper.findAllComponents(BButton);
+    expect(buttons.length).toBe(2);
+    expect(buttons.at(1).text()).toBe('app.save');
+
+    await buttons.at(1).trigger('click');
+
+    await waitMoxios();
+    const request = moxios.requests.mostRecent();
+    expect(request.config.method).toBe('post');
+    expect(request.config.url).toBe('/api/v1/users/2');
+    expect(request.config.data.get('image')).toBe('');
+    expect(request.config.data.get('_method')).toBe('PUT');
+
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: user
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Check if event is emitted and update prop
+    expect(wrapper.emitted('updateUser')[0][0]).toBe(user);
+    await wrapper.setProps({ user: user });
+    await wrapper.vm.$nextTick();
+
+    // Check if image is removed
+    expect(img.attributes('src')).toBe('/images/default_profile.png');
+
+    // Check if only upload and save button are shown (no delete or undo button)
+    buttons = wrapper.findAllComponents(BButton);
+    expect(buttons.length).toBe(2);
+    expect(buttons.at(0).text()).toBe('settings.users.image.upload');
+    expect(buttons.at(1).text()).toBe('app.save');
+
+    wrapper.destroy();
+  });
+
+  it('error on submit', async () => {
+    PermissionService.setCurrentUser(adminUser);
+    const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    const wrapper = mount(ProfileComponent, {
+      pinia: createTestingPinia(),
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      propsData: {
+        user: user,
+        modalStatic: false,
+        viewOnly: false
+      },
+      stubs: {
+        VueCropper: true,
+        'timezone-select': true,
+        'locale-select': true
+      },
+      attachTo: createContainer()
+    });
+
+    await wrapper.vm.$nextTick();
+
+    const buttons = wrapper.findAllComponents(BButton);
+    expect(buttons.at(1).text()).toBe('app.save');
+
+    // --- Check 404 error ---
+
+    await buttons.at(1).trigger('click');
+    await waitMoxios();
+    let request = moxios.requests.mostRecent();
+    await request.respondWith({
+      status: 404,
+      response: {
+        message: 'User not found'
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Check if error is emitted
+    expect(wrapper.emitted().notFoundError).toBeTruthy();
+
+    // --- Check 428 error ---
+
+    await buttons.at(1).trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    const response = {
+      error: 428,
+      message: 'test',
+      new_model: { ...user, firstname: 'Max' }
+    };
+
+    await request.respondWith({
+      status: 428,
+      response: response
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Check if error is emitted
+    expect(wrapper.emitted().staleError).toBeTruthy();
+    expect(wrapper.emitted().staleError[0]).toEqual([response]);
+
+    // --- Check form validation error ---
+
+    await buttons.at(1).trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+    // Respond with errors
+    await request.respondWith({
+      status: 422,
+      response: {
+        errors: {
+          firstname: ['The Firstname field is required.'],
+          lastname: ['The Lastname field is required.']
+        }
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Check if errors are shown
+    const fields = wrapper.findAllComponents(BFormInput);
+    expect(fields.at(0).props('state')).toBe(false);
+    expect(fields.at(1).props('state')).toBe(false);
+
+    // --- Check other errors ---
+
+    await buttons.at(1).trigger('click');
+    await waitMoxios();
+    request = moxios.requests.mostRecent();
+
+    // Reset form validation error shown on next request
+    expect(fields.at(0).props('state')).toBeNull();
+    expect(fields.at(1).props('state')).toBeNull();
+
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Internal server error'
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    // Check if error handler is called
+    expect(baseErrorSpy).toBeCalledTimes(1);
+    expect(baseErrorSpy.mock.calls[0][0].response.status).toBe(500);
 
     wrapper.destroy();
   });
