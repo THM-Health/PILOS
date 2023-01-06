@@ -5,7 +5,7 @@
         label-cols-sm='3'
         :label="$t('auth.current_password')"
         label-for='current_password'
-        :state='fieldState("password")'
+        :state='fieldState("current_password")'
         v-if="isOwnUser"
       >
         <b-form-input
@@ -22,7 +22,7 @@
         label-cols-sm='3'
         :label="$t('auth.new_password')"
         label-for='new_password'
-        :state='fieldState("password")'
+        :state='fieldState("new_password")'
       >
         <b-form-input
           id='new_password'
@@ -38,7 +38,7 @@
         label-cols-sm='3'
         :label="$t('auth.new_password_confirmation')"
         label-for='new_password_confirmation'
-        :state='fieldState("password_confirmation")'
+        :state='fieldState("new_password_confirmation")'
       >
         <b-form-input
           id='new_password_confirmation'
@@ -102,13 +102,19 @@ export default {
 
       this.isBusy = true;
       this.errors = {};
+
+      const data = {
+        new_password: this.new_password,
+        new_password_confirmation: this.new_password_confirmation
+      };
+
+      if (this.isOwnUser) {
+        data.current_password = this.current_password;
+      }
+
       Base.call('users/' + this.user.id + '/password', {
         method: 'PUT',
-        data: {
-          current_password: this.current_password,
-          new_password: this.new_password,
-          new_password_confirmation: this.new_password_confirmation
-        }
+        data
       })
         .then(response => {
           this.$emit('updateUser', response.data.data);
