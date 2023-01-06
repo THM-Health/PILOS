@@ -45,7 +45,7 @@
       </b-form-group>
       <can method='updateAttributes' :policy='user'>
         <b-button
-          :disabled='isBusy || email === user.email'
+          :disabled='isBusy'
           v-if="!viewOnly"
           variant='success'
           type='submit'
@@ -76,6 +76,7 @@ export default {
       email: '',
       isBusy: false,
       validationRequiredEmail: null,
+      canUpdateAttributes: false,
       errors: {}
     };
   },
@@ -93,10 +94,6 @@ export default {
 
     ...mapState(useAuthStore, ['currentUser']),
 
-    canUpdateAttributes () {
-      return PermissionService.can('updateAttributes', this.user);
-    },
-
     isOwnUser () {
       return this.currentUser.id === this.user.id;
     }
@@ -104,6 +101,7 @@ export default {
   mounted () {
     this.email = this.user.email;
     this.validationRequiredEmail = null;
+    this.canUpdateAttributes = PermissionService.can('updateAttributes', this.user);
   },
   methods: {
     save: function (evt) {
@@ -114,16 +112,22 @@ export default {
       this.isBusy = true;
       this.errors = {};
       this.validationRequiredEmail = null;
+
+      const data = {
+        email: this.email
+      };
+
+      if (this.isOwnUser) {
+        data.current_password = this.current_password;
+      }
+
       Base.call(`users/${this.user.id}/email`, {
         method: 'PUT',
-        data: {
-          current_password: this.current_password,
-          email: this.email
-        }
+        data
       })
         .then(response => {
-          if (response.status === 200 && response.status === 204) {
-            this.$emit('userUpdated', response.data.data);
+          if (response.status === 200) {
+            this.$emit('updateUser', response.data.data);
           }
           if (response.status === 202) {
             this.validationRequiredEmail = this.email;

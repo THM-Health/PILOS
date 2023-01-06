@@ -536,7 +536,7 @@ describe('ProfileComponent', () => {
     // Check if error is emitted
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
-    // --- Check 428 error ---
+    // --- Check stale error ---
 
     await buttons.at(1).trigger('click');
     await waitMoxios();
