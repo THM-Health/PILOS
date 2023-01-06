@@ -33,7 +33,7 @@ const adminUser = {
   permissions: ['users.update']
 };
 
-describe('ProfileComponent', () => {
+describe('EmailSettingsComponent', () => {
   beforeEach(() => {
     moxios.install();
   });

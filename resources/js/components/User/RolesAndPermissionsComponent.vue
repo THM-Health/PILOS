@@ -10,7 +10,7 @@
         <role-select
           id='roles'
           v-model='model.roles'
-          :invalid='fieldState("roles", true)'
+          :invalid='fieldState("roles", true) === false'
           :disabled="isBusy || viewOnly || !canEditRoles"
           :disabled-roles="disabledRoles"
           @loadingError="(value) => this.rolesLoadingError = value"
@@ -102,6 +102,7 @@ export default {
         evt.preventDefault();
       }
       this.isBusy = true;
+      this.errors = {};
 
       Base.call('users/' + this.model.id, {
         method: 'put',

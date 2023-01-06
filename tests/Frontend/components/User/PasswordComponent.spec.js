@@ -33,7 +33,7 @@ const adminUser = {
   permissions: ['users.update']
 };
 
-describe('ProfileComponent', () => {
+describe('PasswordComponent', () => {
   beforeEach(() => {
     moxios.install();
   });

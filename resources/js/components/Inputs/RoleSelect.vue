@@ -19,7 +19,7 @@
       :id="id"
       :loading='loading'
       :allowEmpty='false'
-      :class="{ 'invalid': invalid, 'multiselect-form-control': true }">
+      :class="{ 'is-invalid': invalid, 'multiselect-form-control': true }">
       <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
       <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
       <template slot='tag' slot-scope='{ option, remove }'>

@@ -22,7 +22,7 @@ const user = {
   permissions: []
 };
 
-describe('ProfileComponent', () => {
+describe('OtherSettingComponent', () => {
   beforeEach(() => {
     moxios.install();
   });

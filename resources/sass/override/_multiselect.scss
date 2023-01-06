@@ -21,6 +21,13 @@
     @include border-radius($input-border-radius, 0);
     @include box-shadow($input-box-shadow);
 
+    &.is-invalid {
+        background-position: right $input-height-inner center;
+        .multiselect__tags {
+            margin-right: $input-height-inner-half;
+        }
+    }
+
     .multiselect__tags {
         border: none;
         padding: 6px 40px 6px 10px;
