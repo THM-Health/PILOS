@@ -130,9 +130,9 @@ describe('RoleSelect', () => {
     expect(select.props('id')).toBe('roles');
 
     // check state prop
-    expect(select.classes('invalid')).toBe(false);
+    expect(select.classes('is-invalid')).toBe(false);
     await view.setProps({ invalid: true });
-    expect(select.classes('invalid')).toBe(true);
+    expect(select.classes('is-invalid')).toBe(true);
 
     view.destroy();
   });
