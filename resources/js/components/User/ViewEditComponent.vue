@@ -1,6 +1,18 @@
 <template>
-  <div>
-    <b-tabs v-if="!isBusy && user" fill nav-wrapper-class="mb-3">
+  <div class="p-3">
+    <b-overlay :show="isBusy || loadingError">
+      <template #overlay>
+        <div class="text-center">
+          <b-spinner v-if="isBusy" ></b-spinner>
+          <b-button
+            v-else
+            @click="loadUser()"
+          >
+            <i class="fa-solid fa-sync"></i> {{ $t('app.reload') }}
+          </b-button>
+        </div>
+      </template>
+      <b-tabs v-if="!isBusy && user" fill nav-wrapper-class="mb-3">
       <b-tab lazy>
         <template #title>
           <i class="fa-solid fa-user"></i> {{ $t('settings.users.base_data') }}
@@ -49,7 +61,7 @@
         ></other-settings-component>
       </b-tab>
     </b-tabs>
-
+    </b-overlay>
     <b-modal
       :static='modalStatic'
       :busy='isBusy'
@@ -93,6 +105,7 @@ export default {
     return {
       user: null,
       isBusy: false,
+      loadingError: false,
       staleError: {}
     };
   },
@@ -146,6 +159,7 @@ export default {
       this.isBusy = true;
 
       Base.call('users/' + this.id).then(response => {
+        this.loadingError = false;
         this.user = response.data.data;
         this.user.roles.forEach(role => {
           role.$isDisabled = role.automatic;
@@ -156,6 +170,7 @@ export default {
           this.$router.push({ name: 'settings.users' });
         }
 
+        this.loadingError = true;
         Base.error(error, this.$root, error.message);
       }).finally(() => {
         this.isBusy = false;

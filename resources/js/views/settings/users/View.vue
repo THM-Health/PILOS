@@ -23,10 +23,10 @@ export default {
   },
   computed: {
     firstname: function () {
-      return this.user?.firstname;
+      return this.user ? this.user.firstname : '';
     },
     lastname: function () {
-      return this.user?.lastname;
+      return this.user ? this.user.lastname : '';
     }
   },
   methods: {
