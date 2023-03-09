@@ -49,7 +49,7 @@ describe('UsersView', () => {
     const component = view.findComponent(ViewEditComponent);
 
     // Test without user
-    expect(view.find('h3').text()).toBe('settings.users.edit:{}');
+    expect(view.find('h3').text()).toBe('settings.users.edit:{"firstname":"","lastname":""}');
 
     // Trigger event to update user object
     await component.vm.$emit('updateUser', _.clone(user));
@@ -65,7 +65,7 @@ describe('UsersView', () => {
     await view.vm.$nextTick();
 
     // Test without user
-    expect(view.find('h3').text()).toBe('settings.users.view:{}');
+    expect(view.find('h3').text()).toBe('settings.users.view:{"firstname":"","lastname":""}');
 
     // Trigger event to update user object
     await component.vm.$emit('updateUser', _.clone(user));
