@@ -15,6 +15,7 @@ services:
           - '${VITEST_UI_PORT:-5174}:${VITEST_UI_PORT:-5174}'
         environment:
           ENABLE_XDEBUG: '${ENABLE_XDEBUG:-no}'
+          TRUSTED_PROXIES: "*"
         volumes:
           - './:/var/www/html/'
           - './ssl:/local/certs/'

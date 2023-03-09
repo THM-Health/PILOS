@@ -76,15 +76,22 @@ You will need to set up a reverse proxy that routes the traffic to this applicat
 **Apache**
 ```apacheconf
 ProxyPreserveHost On
+
 ProxyPass "/"  "http://127.0.0.1:5000/"
 ProxyPassReverse "/"  "http://127.0.0.1:5000/"
+
+RequestHeader set X-Forwarded-Proto "https"
+RequestHeader set X-Forwarded-Port "443"
 ```
+
+You may need to adjust the X-Forwarded-Proto and X-Forwarded-Port settings, depending on your environment.
 
 **Nginx**
 ```nginx
 location / {
   proxy_pass          http://127.0.0.1:5000;
   proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Port  $server_port
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
   proxy_http_version  1.1;
