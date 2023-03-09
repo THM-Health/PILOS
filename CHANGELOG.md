@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Broken default image assets ([#307],[#308])
+- Inconsistent backend route names ([#279],[#309])
 
 ## [v2.0.0-alpha.5] - 2023-03-09
 ### Added
@@ -420,6 +421,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#276]: https://github.com/THM-Health/PILOS/pull/276
 [#277]: https://github.com/THM-Health/PILOS/pull/277
 [#278]: https://github.com/THM-Health/PILOS/issues/278
+[#279]: https://github.com/THM-Health/PILOS/issues/279
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
 [#284]: https://github.com/THM-Health/PILOS/issues/284
@@ -439,6 +441,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#306]: https://github.com/THM-Health/PILOS/pull/306
 [#307]: https://github.com/THM-Health/PILOS/issues/307
 [#308]: https://github.com/THM-Health/PILOS/pull/308
+[#309]: https://github.com/THM-Health/PILOS/pull/309
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
