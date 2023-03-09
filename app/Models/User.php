@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
+use App\Notifications\PasswordReset;
 use App\Traits\AddsModelNameTrait;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Storage;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
 
@@ -73,6 +77,17 @@ class User extends Authenticatable
     public function getImageUrlAttribute()
     {
         return $this->image != null ? Storage::disk('public')->url($this->image) : null;
+    }
+
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @param  Notification $notification
+     * @return array
+     */
+    public function routeNotificationForMail(Notification $notification): array
+    {
+        return [$this->email => $this->fullname];
     }
 
     /**
@@ -228,5 +243,35 @@ class User extends Authenticatable
             })
             ->where('role_user.user_id', '=', $this->id)
             ->exists();
+    }
+
+    public function sessions()
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    public function verifyEmails()
+    {
+        return $this->hasMany(VerifyEmail::class);
+    }
+
+    public function preferredLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
+     * Send a password reset notification to the user.
+     *
+     * @param  string $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $reset = DB::table('password_resets')
+            ->where('email', '=', $this->email)
+            ->first();
+
+        $this->notify(new PasswordReset($token, Carbon::parse($reset->created_at)));
     }
 }

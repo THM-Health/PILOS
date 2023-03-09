@@ -4,8 +4,12 @@
         .btn-#{$name} {
             color: $color;
         }
+        .btn-#{$name}.disabled {
+            color: $color;
+        }
         .btn-#{$name}:hover {
             color: $color;
         }
+
     }
 }

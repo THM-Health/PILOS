@@ -26,6 +26,7 @@
 <script>
 import Base from '../../api/base';
 export default {
+  name: 'RoomTypeSelect',
   props: {
     value: Object,
     state: Boolean,

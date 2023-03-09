@@ -4,6 +4,7 @@ use App\Http\Controllers\api\v1\ApplicationController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
+use App\Http\Controllers\api\v1\auth\VerificationController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
 use App\Http\Controllers\api\v1\RoleController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\api\v1\RoomMemberController;
 use App\Http\Controllers\api\v1\RoomTypeController;
 use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
+use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\UserController;
 use \App\Http\Controllers\api\v1\RoomTokenController;
 use Illuminate\Support\Facades\Route;
@@ -55,8 +57,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     // TODO: Implement or remove this completely
     // Route::post('register', 'RegisterController@register');
-    // Route::post('email/resend', 'VerificationController@resend');
-    // Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
 
     Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if:password_self_reset_enabled', 'guest', 'throttle:password_email']);
 
@@ -106,7 +106,20 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('users/search', [UserController::class,'search'])->name('users.search');
         Route::apiResource('users', UserController::class);
+
+        // User profile changes
+        // If editing own profile current password is required, this middleware should prevent brute forcing of the current password
+        Route::middleware('throttle:current_password')->group(function () {
+            Route::put('users/{user}/email', [UserController::class,'changeEmail'])->name('users.email.change')->middleware('can:updateAttributes,user');
+            Route::put('users/{user}/password', [UserController::class,'changePassword'])->name('users.password.change')->middleware('can:changePassword,user');
+        });
+        Route::post('email/verify', [VerificationController::class,'verify'])->name('email.verify')->middleware('throttle:verify_email');
+
         Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware('can:resetPassword,user');
+
+
+        Route::get('sessions', [SessionController::class,'index'])->name('sessions.index');
+        Route::delete('sessions', [SessionController::class,'destroy'])->name('sessions.delete');
 
         Route::post('servers/check', [ServerController::class,'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
         Route::get('servers/{server}/panic', [ServerController::class,'panic'])->name('servers.panic')->middleware('can:update,server');
@@ -120,7 +133,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/meetings', [RoomController::class,'meetings'])->name('rooms.meetings');
 
         Route::get('getTimezones', function () {
-            return response()->json([ 'timezones' => timezone_identifiers_list() ]);
+            return response()->json([ 'data' => timezone_identifiers_list() ]);
         });
     });
 

@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+- Confirmation for password and email change ([#277],[#304])
+- Email notification on password and email change ([#277],[#304])
+- Management of logged in sessions ([#277],[#304])
+
 ### Fixed
 - Error in docker-compose-dev.yml leads to deletion of the database in the development environment ([#294], [#295])
 - Error in docker container causing wrong permissions on windows ([#296])
@@ -17,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frontend testing framework, replace jest with vitest ([#298],[#296])
 - Replace FlashMessages with bootstrap vue toast ([#296])
 - Replace v-clipboard with vue-clipboard2 ([#296])
+- Refactored view/edit of single user ([#277],[#304])
 
 ## [v2.0.0-alpha.4] - 2022-11-15
 ### Changed

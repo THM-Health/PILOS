@@ -20,7 +20,7 @@ describe('Auth Store', () => {
     const messagesEn = await import('../../../lang/en.json');
     i18n.setLocaleMessage('en', messagesEn);
 
-    const PermissionServiceSpy = vi.spyOn(PermissionService, 'setCurrentUser').mockImplementation();
+    const PermissionServiceSpy = vi.spyOn(PermissionService, 'setCurrentUser').mockImplementation(() => {});
 
     const user = {
       id: 1,

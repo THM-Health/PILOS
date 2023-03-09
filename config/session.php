@@ -18,7 +18,8 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
+    // Enforced to support lookup of current sessions
+    'driver' => 'database',
 
     /*
     |--------------------------------------------------------------------------
