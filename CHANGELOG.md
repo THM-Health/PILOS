@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frontend testing framework, replace jest with vitest ([#298],[#296])
 - Replace FlashMessages with bootstrap vue toast ([#296])
 - Replace v-clipboard with vue-clipboard2 ([#296])
+- Refactored view/edit of single user ([#277],[#304])
 
 ## [v2.0.0-alpha.4] - 2022-11-15
 ### Changed
