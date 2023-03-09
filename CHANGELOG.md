@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support to customize trusted proxies ([#305],[#306])
 
+### Fixed
+- Broken default image assets ([#307],[#308])
+
 ## [v2.0.0-alpha.5] - 2023-03-09
 ### Added
 - Confirmation for password and email change ([#277],[#304])
@@ -433,7 +436,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#298]: https://github.com/THM-Health/PILOS/issues/298
 [#304]: https://github.com/THM-Health/PILOS/issues/304
 [#305]: https://github.com/THM-Health/PILOS/issues/305
-[#306]: https://github.com/THM-Health/PILOS/issues/306
+[#306]: https://github.com/THM-Health/PILOS/pull/306
+[#307]: https://github.com/THM-Health/PILOS/issues/307
+[#308]: https://github.com/THM-Health/PILOS/pull/308
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

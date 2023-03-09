@@ -11,12 +11,8 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-/public/js
-/public/css
 /public/build
-/public/mix-manifest.json
 /public/fonts
-/public/images
 .nyc_output
 coverage
 /db
