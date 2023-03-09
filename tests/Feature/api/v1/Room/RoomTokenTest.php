@@ -298,35 +298,35 @@ class RoomTokenTest extends TestCase
         ]);
 
         // Delete as guest
-        $this->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertUnauthorized();
 
         // Delete as guest with moderator token
         $this->withHeaders(['Token' => $moderatorToken->token])
-            ->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+            ->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertUnauthorized();
 
         // Delete as moderator
         $this->room->members()->sync([$this->user->id =>['role' => RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertForbidden();
 
         // Delete as co-owner
         $this->room->members()->sync([$this->user->id => ['role' => RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertSuccessful();
 
         // Delete not existing
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertNotFound();
 
         // Delete as owner
         $token = RoomToken::factory()->create([
             'room_id' => $this->room
         ]);
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertSuccessful();
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertNotFound();
 
         // Delete with viewAllPermission
@@ -340,9 +340,9 @@ class RoomTokenTest extends TestCase
         $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.update', ['room' => $otherRoom, 'token' => $token]))
             ->assertNotFound();
 
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertSuccessful();
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.remove', ['room' => $this->room, 'token' => $token]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.tokens.destroy', ['room' => $this->room, 'token' => $token]))
             ->assertNotFound();
     }
 }

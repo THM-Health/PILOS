@@ -97,10 +97,10 @@ class SessionTest extends TestCase
         $this->assertCount(1, $this->otherUser->sessions);
 
         // Try unauthenticated request
-        $this->getJson(route('api.v1.sessions.delete'))->assertUnauthorized();
+        $this->getJson(route('api.v1.sessions.destroy'))->assertUnauthorized();
 
         // Try authenticated request
-        $this->actingAs($this->user)->deleteJson(route('api.v1.sessions.delete'))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.sessions.destroy'))
             ->assertNoContent();
 
         // Refresh models
