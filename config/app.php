@@ -23,6 +23,8 @@ return [
 
     'theme' => env('VITE_THEME', 'default'),
 
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
