@@ -411,6 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#273]: https://github.com/THM-Health/PILOS/pull/273
 [#275]: https://github.com/THM-Health/PILOS/issues/275
 [#276]: https://github.com/THM-Health/PILOS/pull/276
+[#277]: https://github.com/THM-Health/PILOS/pull/277
 [#278]: https://github.com/THM-Health/PILOS/issues/278
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
@@ -426,6 +427,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#296]: https://github.com/THM-Health/PILOS/pull/296
 [#297]: https://github.com/THM-Health/PILOS/issues/297
 [#298]: https://github.com/THM-Health/PILOS/issues/298
+[#304]: https://github.com/THM-Health/PILOS/issues/304
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
