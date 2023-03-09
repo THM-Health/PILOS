@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.0-alpha.5] - 2023-03-09
 ### Added
 - Confirmation for password and email change ([#277],[#304])
 - Email notification on password and email change ([#277],[#304])
@@ -429,7 +430,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#298]: https://github.com/THM-Health/PILOS/issues/298
 [#304]: https://github.com/THM-Health/PILOS/issues/304
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.4...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -451,3 +452,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-alpha.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.2
 [v2.0.0-alpha.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.3
 [v2.0.0-alpha.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.4
+[v2.0.0-alpha.5]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.5
