@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.0-RC.1] - 2023-03-09
 ### Added
 - Support to customize trusted proxies ([#305],[#306])
 - Content-Security-Policy  ([#315],[#317])
@@ -455,7 +456,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#317]: https://github.com/THM-Health/PILOS/pull/317
 [#316]: https://github.com/THM-Health/PILOS/pull/316
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -478,3 +479,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-alpha.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.3
 [v2.0.0-alpha.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.4
 [v2.0.0-alpha.5]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.5
+[v2.0.0-RC.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.1
+
