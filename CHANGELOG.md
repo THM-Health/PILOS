@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Broken default image assets ([#307],[#308])
 - Inconsistent backend route names ([#279],[#309])
+- Override welcome page, feature component and footer with custom code ([#310],[#311])
 
 ## [v2.0.0-alpha.5] - 2023-03-09
 ### Added
@@ -442,6 +443,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#307]: https://github.com/THM-Health/PILOS/issues/307
 [#308]: https://github.com/THM-Health/PILOS/pull/308
 [#309]: https://github.com/THM-Health/PILOS/pull/309
+[#310]: https://github.com/THM-Health/PILOS/issues/310
+[#311]: https://github.com/THM-Health/PILOS/pull/311
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
