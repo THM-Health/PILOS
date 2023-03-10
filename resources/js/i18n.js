@@ -33,6 +33,8 @@ const i18n = new VueI18n({
   messages
 });
 
+const overrideLocales = import.meta.glob(['../custom/lang/*.json']);
+
 const loadedLanguages = [];
 
 export default i18n;
@@ -68,6 +70,15 @@ export function loadLanguageAsync (lang) {
     return new Promise((resolve, reject) => {
       import(`../../lang/${lang}.json`).then((messages) => {
         importLanguage(lang, messages);
+
+        for (const path in overrideLocales) {
+          if (path.endsWith(`/${lang}.json`)) {
+            overrideLocales[path]().then((mod) => {
+              i18n.mergeLocaleMessage(lang, mod.default);
+            });
+          }
+        }
+
         resolve();
       });
     });
