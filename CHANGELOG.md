@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Inconsistent backend route names ([#279],[#309])
 - Override welcome page, feature component and footer with custom code ([#310],[#311])
 - Override locales ([#312],[#313])
+- **Breaking:** Override default logo and favicon ([#314],[#316])
 
 ## [v2.0.0-alpha.5] - 2023-03-09
 ### Added
@@ -449,8 +450,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#311]: https://github.com/THM-Health/PILOS/pull/311
 [#312]: https://github.com/THM-Health/PILOS/issues/312
 [#313]: https://github.com/THM-Health/PILOS/pull/313
+[#314]: https://github.com/THM-Health/PILOS/issues/314
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#317]: https://github.com/THM-Health/PILOS/pull/317
+[#316]: https://github.com/THM-Health/PILOS/pull/316
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

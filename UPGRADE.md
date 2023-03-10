@@ -35,3 +35,21 @@ In v2 the default theme and color are not based on the [corporate design](https:
 2. Recompile the frontend with: `npm run build`
 
 
+## Changed .env variables
+Many .env variables for theming have been added and the prefix changed from `MIX_` to `VITE_`. Please have a look in the `.env.example` and adjust your `.env` file accordingly.
+
+## Locales
+Custom locales are now json files in the `resources/custom/lang` folder.
+
+Example for a custom german locale (`resources/custom/lang/de.json`):
+```json
+{
+  "auth.ldap.username_help": "Test"
+}
+```
+
+## Images
+The path for custom images changed from `resources/custom/images` to `public/images/custom`.
+To customize the images of the applications (logo and favicon) put the custom images under the path `public/images/custom` and adjust your .env file to the the new path, e.g. `DEFAULT_LOGO=/images/custom/logo.svg`.
+
+Note: If you have already startet the application (no fresh database), the logo and favicon path must be changed in the admin UI.
