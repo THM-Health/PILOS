@@ -40,8 +40,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
-            'loggedin:ldap,users',
-            \App\Http\Middleware\AddContentSecurityPolicyHeaders::class,
+            'loggedin:ldap,users'
         ],
 
         'api' => [
@@ -74,5 +73,6 @@ class Kernel extends HttpKernel
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
         'check.stale'           => EnsureModelNotStale::class,
         'enable_if'             => RouteEnableIf::class,
+        'csp'                   => \App\Http\Middleware\AddContentSecurityPolicyHeaders::class,
     ];
 }
