@@ -22,7 +22,7 @@
 import { mapState } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 
-const Features = Object.values(import.meta.glob(['../../custom/js/components/Features.vue', '@/components/Features.vue']))[0];
+const Features = Object.values(import.meta.glob(['../../custom/js/components/Features.vue', '@/components/Features.vue'], { eager: true }))[0].default;
 
 export default {
   components: { Features },

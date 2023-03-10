@@ -28,7 +28,7 @@ import Profile from './views/Profile.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
 
-const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue']))[0];
+const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue'], { eager: true }))[0].default;
 
 export const routes = [
   {
