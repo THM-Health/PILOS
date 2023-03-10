@@ -201,13 +201,12 @@ You can change the available languages and the default language in the `.env` fi
 
 ### Customize locales
 #### Frontend
-To customize the locales put a JavaScript file in the folder `resources/custom/js/lang` which makes the wanted adjustments, for example:
-```javascript
-import i18n from '../../../js/i18n'
-
-i18n.mergeLocaleMessage('en', {
-  "auth.ldap.usernameHelp": "Test"
-})
+To customize the locales put a json file in the folder `resources/custom/lang` which makes the wanted adjustments, for example:
+`de.json`
+```json
+{
+  "auth.ldap.username_help": "Test"
+}
 ```
 #### Backend
 Currently, the backend does not support customizing the locales.
