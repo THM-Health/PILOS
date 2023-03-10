@@ -13,6 +13,7 @@ services:
           - './storage/logs:/var/www/html/storage/logs'
           - './storage/app:/var/www/html/storage/app'
           - './resources/custom:/var/www/html/resources/custom'
+          - './public/images/custom:/var/www/html/public/images/custom'
           - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
         depends_on:
           - db
