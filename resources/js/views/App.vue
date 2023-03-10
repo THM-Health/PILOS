@@ -91,7 +91,6 @@
 
 <script>
 import LocaleSelector from '../components/LocaleSelector.vue';
-import FooterComponent from '@/components/FooterComponent.vue';
 import Can from '../components/Permissions/Can.vue';
 import Cannot from '../components/Permissions/Cannot.vue';
 import Banner from '../components/Banner.vue';
@@ -99,6 +98,8 @@ import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../stores/auth';
 import { useLoadingStore } from '../stores/loading';
 import { useSettingsStore } from '../stores/settings';
+
+const FooterComponent = Object.values(import.meta.glob(['../../custom/js/components/FooterComponent.vue', '@/components/FooterComponent.vue']))[0];
 
 export default {
   components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },

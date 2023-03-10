@@ -4,7 +4,6 @@ import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
 import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
 import RoomView from './views/rooms/View.vue';
-import Home from '@/views/Home.vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings.vue';
 import RolesIndex from './views/settings/roles/Index.vue';
@@ -28,6 +27,8 @@ import VerifyEmail from './views/VerifyEmail.vue';
 import Profile from './views/Profile.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
+
+const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue']))[0];
 
 export const routes = [
   {
