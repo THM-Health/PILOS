@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Support to customize trusted proxies ([#305],[#306])
+- Content-Security-Policy  ([#315],[#317])
 
 ### Fixed
 - Broken default image assets ([#307],[#308])
@@ -448,6 +449,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#311]: https://github.com/THM-Health/PILOS/pull/311
 [#312]: https://github.com/THM-Health/PILOS/issues/312
 [#313]: https://github.com/THM-Health/PILOS/pull/313
+[#315]: https://github.com/THM-Health/PILOS/issues/315
+[#317]: https://github.com/THM-Health/PILOS/pull/317
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.5...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

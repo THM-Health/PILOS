@@ -99,7 +99,7 @@ import { useAuthStore } from '../stores/auth';
 import { useLoadingStore } from '../stores/loading';
 import { useSettingsStore } from '../stores/settings';
 
-const FooterComponent = Object.values(import.meta.glob(['../../custom/js/components/FooterComponent.vue', '@/components/FooterComponent.vue']))[0];
+const FooterComponent = Object.values(import.meta.glob(['../../custom/js/components/FooterComponent.vue', '@/components/FooterComponent.vue'], { eager: true }))[0].default;
 
 export default {
   components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },

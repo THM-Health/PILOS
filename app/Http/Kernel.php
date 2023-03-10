@@ -41,6 +41,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
             'loggedin:ldap,users',
+            \App\Http\Middleware\AddContentSecurityPolicyHeaders::class,
         ],
 
         'api' => [
