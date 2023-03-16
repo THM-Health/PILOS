@@ -11,9 +11,6 @@
         "cover": "vitest run --coverage"
     },
     "devDependencies": {
-        "@babel/core": "^7.16.10",
-        "@babel/eslint-parser": "^7.16.5",
-        "@babel/plugin-proposal-class-properties": "^7.16.7",
         "@intlify/eslint-plugin-vue-i18n": "^2.0.0",
         "@pinia/testing": "^0.0.14",
         "@vitejs/plugin-vue2": "^2.1.0",
@@ -22,7 +19,6 @@
         "@vue/test-utils": "^1.3.0",
         "axe-core": "^4.3.5",
         "axios": "^0.21.2",
-        "babel-core": "^7.0.0-bridge.0",
         "bootstrap": "^4.6.1",
         "canvas": "^2.10.2",
         "eslint": "^7.32.0",
@@ -42,12 +38,10 @@
         "popper.js": "^1.12",
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.49.0",
-        "sass-loader": "^8.0.0",
         "vite": "^3.2.4",
         "vitest": "^0.25.8",
         "vue": "^2.7.14",
         "vue-axe": "^2.4.4",
-        "vue-loader": "^15.9.7",
         "vue-template-compiler": "^2.7.14"
     },
     "dependencies": {

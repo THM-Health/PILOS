@@ -28,8 +28,7 @@ Vue.mixin(Toast);
 
 // Add accessibility check tools for development
 if (import.meta.env.VITE_ENABLE_AXE === 'true' && import.meta.env.MODE === 'development') {
-  const VueAxe = await import('vue-axe');
-  Vue.use(VueAxe.default);
+  import('vue-axe').then(({ default: VueAxe }) => Vue.use(VueAxe));
 }
 
 Vue.config.errorHandler = Base.error;

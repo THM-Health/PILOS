@@ -918,16 +918,16 @@
         },
         {
             "name": "directorytree/ldaprecord",
-            "version": "v2.20.2",
+            "version": "v2.20.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DirectoryTree/LdapRecord.git",
-                "reference": "517c6bc535fd6ef17b0848f5c93db6f84beebccf"
+                "reference": "f8cb5c9440f0bd54e9d4683c4d0bcf6c8bc40947"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/517c6bc535fd6ef17b0848f5c93db6f84beebccf",
-                "reference": "517c6bc535fd6ef17b0848f5c93db6f84beebccf",
+                "url": "https://api.github.com/repos/DirectoryTree/LdapRecord/zipball/f8cb5c9440f0bd54e9d4683c4d0bcf6c8bc40947",
+                "reference": "f8cb5c9440f0bd54e9d4683c4d0bcf6c8bc40947",
                 "shasum": ""
             },
             "require": {
@@ -988,7 +988,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-01T04:47:08+00:00"
+            "time": "2023-03-10T15:22:31+00:00"
         },
         {
             "name": "directorytree/ldaprecord-laravel",
@@ -8695,16 +8695,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.14.4",
+            "version": "v3.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "1b3d9dba63d93b8a202c31e824748218781eae6b"
+                "reference": "d48755372a113bddb99f749e34805d83f3acfe04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/1b3d9dba63d93b8a202c31e824748218781eae6b",
-                "reference": "1b3d9dba63d93b8a202c31e824748218781eae6b",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/d48755372a113bddb99f749e34805d83f3acfe04",
+                "reference": "d48755372a113bddb99f749e34805d83f3acfe04",
                 "shasum": ""
             },
             "require": {
@@ -8771,9 +8771,15 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
+            "keywords": [
+                "Static code analysis",
+                "fixer",
+                "standards",
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.14.4"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.15.1"
             },
             "funding": [
                 {
@@ -8781,7 +8787,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-02-09T21:49:13+00:00"
+            "time": "2023-03-13T23:26:30+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
