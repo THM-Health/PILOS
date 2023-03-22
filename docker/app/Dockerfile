@@ -15,7 +15,7 @@ ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update \
-    && apt-get install -y gnupg gosu curl ca-certificates zip unzip libzip-dev git supervisor libcap2-bin libpng-dev python2 \
+    && apt-get install -y gnupg gosu curl ca-certificates zip unzip pv libzip-dev git supervisor libcap2-bin libpng-dev python2 \
     && apt-get install -y apache2 libapache2-mod-xsendfile \
     && apt-get install -y default-mysql-client libpq-dev \
     && apt-get install -y libldap2-dev \
