@@ -22,7 +22,6 @@ class ImportDatabaseCommand extends Command
         $this->error = $error;
     }
 
-
     public function handle()
     {
         // Get path of sql file
@@ -47,20 +46,20 @@ class ImportDatabaseCommand extends Command
 
         // Run command and show output in realtime
         $process = Process::forever()->start($command, function (string $type, string $output) {
-            if(Str::contains($output,"ERROR")) {
+            if (Str::contains($output, 'ERROR')) {
                 $this->error($output);
                 $this->setError(true);
-            } else
+            } else {
                 echo $output;
+            }
         });
 
         $process->wait();
 
-        if($this->error){
+        if ($this->error) {
             // Show success message
             $this->error('Import failed');
-        }
-        else{
+        } else {
             // Show success message
             $this->info('Import complete');
         }
