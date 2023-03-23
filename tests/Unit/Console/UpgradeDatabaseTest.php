@@ -3,12 +3,13 @@
 namespace Tests\Unit\Console;
 
 use DB;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class UpgradeDatabaseTest extends TestCase
 {
-    use WithFaker;
+    use DatabaseTruncation, WithFaker;
 
     /**
      * Test upgrade with v1 database

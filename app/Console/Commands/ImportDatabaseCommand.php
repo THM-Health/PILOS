@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
 use Str;
@@ -13,6 +14,7 @@ class ImportDatabaseCommand extends Command
     protected $description = 'Import database dump file';
 
     protected bool $error = false;
+    protected $bar;
 
     /**
      * @param bool $error
@@ -33,30 +35,30 @@ class ImportDatabaseCommand extends Command
             return 1;
         }
 
-        $this->info('Importing database, this may take a while');
+        $this->line('Importing database, this may take a while');
 
         // Get DB credentials
-        $db = [
-            'username' => env('DB_USERNAME'),
-            'password' => env('DB_PASSWORD'),
-            'host'     => env('DB_HOST'),
-            'database' => env('DB_DATABASE')
-        ];
+        $db = DB::connection()->getConfig();
 
         // Build command with pv to show progress of import
-        $command = "pv -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']}";
+        $command = "pv -n -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']}";
+
+        $this->bar = $this->output->createProgressBar(100);
 
         // Run command and show output in realtime
         $process = Process::forever()->start($command, function (string $type, string $output) {
             if (Str::contains($output, 'ERROR')) {
+                $this->bar->clear();
                 $this->error($output);
                 $this->setError(true);
             } else {
-                echo $output;
+                $this->bar->setProgress($output);
             }
         });
 
         $process->wait();
+        $this->bar->finish();
+        $this->newLine(2);
 
         if ($this->error) {
             // Show success message

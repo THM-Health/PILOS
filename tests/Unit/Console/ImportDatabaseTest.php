@@ -3,12 +3,13 @@
 namespace Tests\Unit\Console;
 
 use DB;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ImportDatabaseTest extends TestCase
 {
-    use WithFaker;
+    use DatabaseTruncation, WithFaker;
 
     /**
      * Test importing missing file
