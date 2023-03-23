@@ -50,14 +50,12 @@ class ImportDatabaseCommand extends Command
             if (Str::contains($output, 'ERROR')) {
                 $this->bar->clear();
                 $this->error($output);
-                \Log::error($output);
                 $this->setError(true);
             } elseif (is_numeric($output)) {
                 $this->bar->setProgress($output);
             } else {
                 $this->bar->clear();
                 $this->warn($output);
-                \Log::warning($output);
             }
         });
 
