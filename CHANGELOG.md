@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v2.0.0-RC.2] - 2023-03-23
 ### Added
 - Optimization of composer and laravel in production environment ([#327])
 - Artisan command to migrate database dump file ([#322], [#325])
@@ -474,7 +476,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#327]: https://github.com/THM-Health/PILOS/pull/327
 [#328]: https://github.com/THM-Health/PILOS/pull/328
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.1...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -498,4 +500,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-alpha.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.4
 [v2.0.0-alpha.5]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.5
 [v2.0.0-RC.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.1
+[v2.0.0-RC.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.2
 
