@@ -29,6 +29,8 @@ class ImportDatabaseCommand extends Command
         // Check if file exists
         if (!$file) {
             $this->error('File not found');
+
+            return 1;
         }
 
         $this->info('Importing database, this may take a while');
@@ -59,9 +61,13 @@ class ImportDatabaseCommand extends Command
         if ($this->error) {
             // Show success message
             $this->error('Import failed');
+
+            return 1;
         } else {
             // Show success message
             $this->info('Import complete');
+
+            return 0;
         }
     }
 }
