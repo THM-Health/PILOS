@@ -16,6 +16,8 @@ class AddContentSecurityPolicyHeaders
      */
     public function handle($request, Closure $next)
     {
+        return $next($request);
+        /*
         if (Vite::isRunningHot()) {
             return $next($request);
         }
@@ -25,5 +27,6 @@ class AddContentSecurityPolicyHeaders
         return $next($request)->withHeaders([
             'Content-Security-Policy' => "script-src 'unsafe-eval' 'nonce-".Vite::cspNonce()."'; style-src 'nonce-".Vite::cspNonce()."';",
         ]);
+        */
     }
 }
