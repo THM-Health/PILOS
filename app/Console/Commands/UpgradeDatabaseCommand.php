@@ -31,11 +31,11 @@ class UpgradeDatabaseCommand extends Command
         }
 
         // Run migration of old db to have db to latest v1 version before upgrade
-        Artisan::call('migrate --path=database/migrations/v1');
+        Artisan::call('migrate --force --path=database/migrations/v1');
         $this->info('Upgraded to latest v1 database');
 
         // Run upgrade migration
-        Artisan::call('migrate --path=database/migrations/migrate-to-v2');
+        Artisan::call('migrate --force --path=database/migrations/migrate-to-v2');
         $this->info('Upgraded to v2 database');
 
         // Remove old migrations table and create new to have the same migration

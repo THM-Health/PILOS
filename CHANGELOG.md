@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Optimization of composer and laravel in production environment ([#327])
+
+### Fixed
+- Scheduler not running in production environment ([#323],[#327])
+- Database upgrade command not running in production environment ([#324],[#326])
 
 ## [v2.0.0-RC.1] - 2023-03-09
 ### Added
@@ -455,6 +461,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#315]: https://github.com/THM-Health/PILOS/issues/315
 [#317]: https://github.com/THM-Health/PILOS/pull/317
 [#316]: https://github.com/THM-Health/PILOS/pull/316
+[#323]: https://github.com/THM-Health/PILOS/issues/323
+[#324]: https://github.com/THM-Health/PILOS/issues/324
+[#326]: https://github.com/THM-Health/PILOS/pull/326
+[#327]: https://github.com/THM-Health/PILOS/pull/327
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
