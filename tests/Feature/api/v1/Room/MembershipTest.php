@@ -648,7 +648,6 @@ class MembershipTest extends TestCase
 
         // Remove yourself as co-owner
         $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id, $memberCoOwner->id ]])
-            ->dump()
             ->assertUnprocessable();
     }
 }
