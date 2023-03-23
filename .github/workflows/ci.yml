@@ -43,6 +43,10 @@ jobs:
         php-version: ${{ matrix.php-versions }}
         extensions: bcmath, ctype, fileinfo, json, mbstring, dom, ldap, pdo, tokenizer, xml, mysql, sqlite
         coverage: pcov
+    - name: Install pipe viewer tool
+      run: |
+          sudo apt-get update
+          sudo apt-get install pv
     - name: Copy .env
       run: php -r "copy('.env.ci', '.env');"
     - name: Get Composer Cache Directory

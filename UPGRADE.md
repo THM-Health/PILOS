@@ -1,5 +1,19 @@
 # Migrate from PILOS v1 to PILOS v2
 
+## Migrate from native to docker
+
+1. Create a dump of your current database with mysqldump: `mysqldump DB_NAME > db_backup.sql` (adjust DB_NAME)
+2. Install PILOS with docker (see [INSTALL.md](INSTALL.md))
+3. Adjust .env
+4. Start docker compose (docker compose up -d)
+5. Copy backup file to new docker installation directory (where the docker-compose.yml file is)
+6. Copy backup file into container: `docker compose cp ./db_backup.sql app:/var/www/html/db_backup.sql`
+7. Remove the auto. generated db: `docker compose exec --user www-data app php artisan db:wipe --force`
+9. Import the backup: `docker compose exec --user www-data app php artisan db:import db_backup.sql`
+10. Upgrade db to new version: `docker compose exec --user www-data app php artisan db:update`
+11. Install latest db migrations: `docker compose exec --user www-data app php artisan migrate`
+12. Copy all files from the directory `storage/app` of native installation to the folder `storage/app` in the new docker installation
+
 ## Database
 The database schema has changed quite a lot from v1 to v2.
 This was necessary to support PostgreSQL in the future.

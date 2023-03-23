@@ -9,6 +9,8 @@ if [ "$APP_ENV" == "production" ]; then
     done
 else
     echo "Schedule runner not starting in dev environment"
+    sleep 1
+    exit 0
 fi
 
 
