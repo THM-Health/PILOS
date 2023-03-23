@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Upgrade to Laravel 10 ([#325])
+- Update and cleanup node dependencies ([#328])
 
 ## [v2.0.0-RC.1] - 2023-03-09
 ### Added
@@ -471,6 +472,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#325]: https://github.com/THM-Health/PILOS/pull/325
 [#326]: https://github.com/THM-Health/PILOS/pull/326
 [#327]: https://github.com/THM-Health/PILOS/pull/327
+[#328]: https://github.com/THM-Health/PILOS/pull/328
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.1...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
