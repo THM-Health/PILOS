@@ -53,7 +53,7 @@ describe('EmailSettingsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()
@@ -112,7 +112,7 @@ describe('EmailSettingsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()
@@ -144,7 +144,7 @@ describe('EmailSettingsComponent', () => {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()
@@ -252,7 +252,7 @@ describe('EmailSettingsComponent', () => {
         toastError: toastErrorSpy
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()

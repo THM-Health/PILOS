@@ -76,7 +76,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -188,7 +188,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -244,7 +244,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -296,7 +296,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -334,7 +334,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -476,7 +476,7 @@ describe('ProfileComponent', () => {
 
     // Check if event is emitted and update prop
     expect(wrapper.emitted('updateUser')[0][0]).toBe(user);
-    await wrapper.setProps({ user: user });
+    await wrapper.setProps({ user });
     await wrapper.vm.$nextTick();
 
     // Check if image is removed
@@ -502,7 +502,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -549,7 +549,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response: response
+      response
     });
 
     await wrapper.vm.$nextTick();
@@ -617,7 +617,7 @@ describe('ProfileComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },

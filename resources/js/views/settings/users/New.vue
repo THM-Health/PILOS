@@ -290,7 +290,7 @@ export default {
 
       Base.call('users', {
         method: 'POST',
-        data: data
+        data
       }).then(response => {
         this.$router.push({ name: 'settings.users.view', params: { id: response.data.data.id } });
       }).catch(error => {

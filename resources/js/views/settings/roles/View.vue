@@ -288,7 +288,8 @@ export default {
         {
           text: this.$t('settings.roles.room_limit.default', {
             value: parseInt(this.getSetting('room_limit'), 10) === -1
-              ? this.$t('settings.roles.room_limit.unlimited').toLowerCase() : this.getSetting('room_limit')
+              ? this.$t('settings.roles.room_limit.unlimited').toLowerCase()
+              : this.getSetting('room_limit')
           }),
           value: 'default'
         },

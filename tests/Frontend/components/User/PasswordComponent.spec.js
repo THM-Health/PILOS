@@ -55,7 +55,7 @@ describe('PasswordComponent', () => {
         toastSuccess: toastSuccessSpy
       },
       propsData: {
-        user: user
+        user
       },
       attachTo: createContainer()
     });
@@ -120,7 +120,7 @@ describe('PasswordComponent', () => {
         toastSuccess: toastSuccessSpy
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()
@@ -190,7 +190,7 @@ describe('PasswordComponent', () => {
         toastError: toastErrorSpy
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()

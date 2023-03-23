@@ -149,7 +149,7 @@ describe('History', () => {
       propsData: {
         room: exampleRoom
       },
-      pinia: createTestingPinia({ initialState: initialState }),
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -238,7 +238,7 @@ describe('History', () => {
       propsData: {
         room: exampleRoom
       },
-      pinia: createTestingPinia({ initialState: initialState }),
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -308,7 +308,7 @@ describe('History', () => {
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({ initialState: initialState }),
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
@@ -412,7 +412,7 @@ describe('History', () => {
       stubs: {
         transition: false
       },
-      pinia: createTestingPinia({ initialState: initialState }),
+      pinia: createTestingPinia({ initialState }),
       attachTo: createContainer()
     });
 
