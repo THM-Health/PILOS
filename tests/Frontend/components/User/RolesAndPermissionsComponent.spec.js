@@ -67,7 +67,7 @@ describe('RolesAndPermissionsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       stubs: {
@@ -184,7 +184,7 @@ describe('RolesAndPermissionsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: true
       },
       stubs: {
@@ -247,7 +247,7 @@ describe('RolesAndPermissionsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       stubs: {
@@ -289,7 +289,7 @@ describe('RolesAndPermissionsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       stubs: {
@@ -333,7 +333,7 @@ describe('RolesAndPermissionsComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response: response
+      response
     });
 
     await wrapper.vm.$nextTick();

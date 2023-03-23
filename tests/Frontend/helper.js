@@ -91,5 +91,5 @@ module.exports = {
     return container;
   },
 
-  createLocalVue: createLocalVue
+  createLocalVue
 };

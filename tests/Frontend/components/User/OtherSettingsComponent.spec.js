@@ -39,7 +39,7 @@ describe('OtherSettingComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         viewOnly: false
       },
       attachTo: createContainer()
@@ -77,7 +77,7 @@ describe('OtherSettingComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -116,7 +116,7 @@ describe('OtherSettingComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -179,7 +179,7 @@ describe('OtherSettingComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user,
+        user,
         modalStatic: false,
         viewOnly: false
       },
@@ -221,7 +221,7 @@ describe('OtherSettingComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response: response
+      response
     });
 
     await wrapper.vm.$nextTick();

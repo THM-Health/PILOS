@@ -56,7 +56,7 @@ describe('AuthenticationSettingsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user
+        user
       },
       stubs: {
         'roles-and-permissions-component': true,
@@ -99,7 +99,7 @@ describe('AuthenticationSettingsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user
+        user
       },
       stubs: {
         'roles-and-permissions-component': true,
@@ -129,7 +129,7 @@ describe('AuthenticationSettingsComponent', () => {
     expect(wrapper.findComponent(PasswordComponent).exists()).toBe(false);
 
     // Change user back to normal user
-    await wrapper.setProps({ user: user });
+    await wrapper.setProps({ user });
     await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(PasswordComponent).exists()).toBe(true);
 
@@ -167,7 +167,7 @@ describe('AuthenticationSettingsComponent', () => {
         $t: key => key
       },
       propsData: {
-        user: user
+        user
       },
       stubs: {
         'roles-and-permissions-component': true,
