@@ -41,7 +41,7 @@ class ImportDatabaseCommand extends Command
         $db = DB::connection()->getConfig();
 
         // Build command with pv to show progress of import
-        $command = "pv -n -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']}";
+        $command = "pv -n -f $file | mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --port={$db['port']} --database {$db['database']}";
 
         $this->bar = $this->output->createProgressBar(100);
 
