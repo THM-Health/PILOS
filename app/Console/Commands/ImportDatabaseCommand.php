@@ -51,8 +51,11 @@ class ImportDatabaseCommand extends Command
                 $this->bar->clear();
                 $this->error($output);
                 $this->setError(true);
-            } else {
+            } elseif (is_numeric($output)) {
                 $this->bar->setProgress($output);
+            } else {
+                $this->bar->clear();
+                $this->warn($output);
             }
         });
 
