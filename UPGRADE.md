@@ -10,7 +10,7 @@
 6. Copy backup file into container: `docker compose cp ./db_backup.sql app:/var/www/html/db_backup.sql`
 7. Remove the auto. generated db: `docker compose exec --user www-data app php artisan db:wipe --force`
 9. Import the backup: `docker compose exec --user www-data app php artisan db:import db_backup.sql`
-10. Upgrade db to new version: `docker compose exec --user www-data app php artisan db:update`
+10. Upgrade db to new version: `docker compose exec --user www-data app php artisan db:upgrade`
 11. Install latest db migrations: `docker compose exec --user www-data app php artisan migrate`
 12. Copy all files from the directory `storage/app` of native installation to the folder `storage/app` in the new docker installation
 
@@ -42,11 +42,23 @@ In v2 the default theme and color are not based on the [corporate design](https:
 1. Copy the content of `resources/sass/theme/default` to `resources/sass/theme/custom`
 2. Adjust values in _variables.scss.
 3. Change the `VITE_THEME` option in the .env file to `custom`.
-4. Recompile the frontend with: `npm run build`
+4. Adjust colors in .env (`VITE_HISTORY_PARTICIPANT_COLOR`,`VITE_HISTORY_VOICES_COLOR`,`VITE_HISTORY_VIDEOS_COLOR`,`VITE_ROOM_TYPE_COLORS`,`VITE_BANNER_BACKGROUND_COLORS`,`VITE_BANNER_TEXT_COLORS`)
+5. Recompile the frontend with: `npm run build`
 
 ### v1 theme
 1. Change the `VITE_THEME` option in the .env file to `thm`.
-2. Recompile the frontend with: `npm run build`
+2. Update colors in .env
+```
+# Color of the room history chart
+VITE_HISTORY_PARTICIPANT_COLOR='#9c132e'
+VITE_HISTORY_VOICES_COLOR='#00b8e4'
+VITE_HISTORY_VIDEOS_COLOR='#f4aa00'
+# Colors for color pickers (room type and application banner)
+VITE_ROOM_TYPE_COLORS='["#4a5c66", "#80ba24", "#9c132e", "#f4aa00", "#00b8e4", "#002878"]'
+VITE_BANNER_BACKGROUND_COLORS='["#4a5c66", "#80ba24", "#9c132e", "#f4aa00", "#00b8e4", "#002878"]'
+VITE_BANNER_TEXT_COLORS='["#ffffff", "#000000"]'
+```
+3. Recompile the frontend with: `npm run build`
 
 
 ## Changed .env variables
