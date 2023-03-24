@@ -133,6 +133,7 @@
     "app.verify_email.invalid": "Der Verifizierungslink ist ungültig oder abgelaufen!",
     "app.verify_email.success": "Ihre E-Mail wurde erfolgreich verifiziert!",
     "app.verify_email.title": "E-mail verifizieren",
+    "app.version": "Version",
     "app.view": "Anzeigen",
     "app.wait": "Bitte warten...",
     "app.yes": "Ja",

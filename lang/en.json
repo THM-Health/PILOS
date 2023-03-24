@@ -133,6 +133,7 @@
     "app.verify_email.invalid": "The verification link is invalid or has expired!",
     "app.verify_email.success": "Your email address was successfully verified!",
     "app.verify_email.title": "Email verification",
+    "app.version": "Version",
     "app.view": "View",
     "app.wait": "Please wait...",
     "app.yes": "Yes",
