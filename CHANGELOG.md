@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Broken room search / all rooms layout in safari ([#329],[#330])
+
 ## [v2.0.0-RC.2] - 2023-03-23
 ### Added
 - Optimization of composer and laravel in production environment ([#327])
@@ -475,6 +478,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#326]: https://github.com/THM-Health/PILOS/pull/326
 [#327]: https://github.com/THM-Health/PILOS/pull/327
 [#328]: https://github.com/THM-Health/PILOS/pull/328
+[#329]: https://github.com/THM-Health/PILOS/issues/329
+[#330]: https://github.com/THM-Health/PILOS/pull/330
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
