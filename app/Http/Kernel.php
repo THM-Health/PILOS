@@ -73,6 +73,5 @@ class Kernel extends HttpKernel
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
         'check.stale'           => EnsureModelNotStale::class,
         'enable_if'             => RouteEnableIf::class,
-        'csp'                   => \App\Http\Middleware\AddContentSecurityPolicyHeaders::class,
     ];
 }

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Broken room search / all rooms layout in safari ([#329],[#330])
 
+### Changed
+- Revert adding Content-Security-Policy ([#315],[#317])
+
 ## [v2.0.0-RC.2] - 2023-03-23
 ### Added
 - Optimization of composer and laravel in production environment ([#327])
@@ -25,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v2.0.0-RC.1] - 2023-03-09
 ### Added
 - Support to customize trusted proxies ([#305],[#306])
-- Content-Security-Policy  ([#315],[#317])
+- Content-Security-Policy ([#315],[#317])
 
 ### Fixed
 - Broken default image assets ([#307],[#308])
