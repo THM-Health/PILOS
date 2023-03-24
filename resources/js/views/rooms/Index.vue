@@ -72,7 +72,7 @@
           <em v-if="!isBusy && !loadingError && !rooms.length">{{ $t('rooms.no_rooms_available') }}</em>
 
           <b-list-group>
-            <b-list-group-item button :disabled="openRoom" v-for="room in rooms" :key="room.id" @click="open(room)" class="flex-column align-items-start">
+            <b-list-group-item button :disabled="openRoom" v-for="room in rooms" :key="room.id" @click="open(room)">
               <div class="d-flex w-100 justify-content-between">
                 <room-status-component :running="room.running"></room-status-component>
                 <div>
