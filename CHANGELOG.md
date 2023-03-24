@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Broken room search / all rooms layout in safari ([#329],[#330])
+- Room authentication error on lang change ([#331],[#333])
 
 ### Changed
 - Revert adding Content-Security-Policy ([#315],[#317])
@@ -483,6 +484,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#328]: https://github.com/THM-Health/PILOS/pull/328
 [#329]: https://github.com/THM-Health/PILOS/issues/329
 [#330]: https://github.com/THM-Health/PILOS/pull/330
+[#331]: https://github.com/THM-Health/PILOS/issues/331
+[#333]: https://github.com/THM-Health/PILOS/pull/333
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

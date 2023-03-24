@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-overlay :show="loadingCounter > 0" z-index="10000" no-wrap>
+    <b-overlay :show="loadingCounter > 0 || overlayLoadingCounter > 0" z-index="10000" no-wrap>
       <template v-slot:overlay>
         <div class="text-center">
           <b-spinner variant="secondary"></b-spinner>
@@ -106,7 +106,7 @@ export default {
   computed: {
     ...mapState(useAuthStore, ['currentUser', 'isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),
-    ...mapState(useLoadingStore, ['loadingCounter'])
+    ...mapState(useLoadingStore, ['loadingCounter', 'overlayLoadingCounter'])
   },
   data () {
     return {
