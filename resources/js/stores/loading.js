@@ -11,9 +11,16 @@ export const useLoadingStore = defineStore('loading', {
       /**
        * Counter of running data loading processes for the entire application.
        *
-       * This counter can be used for a global overlay over the whole page.
+       * This counter can be used for a global overlay over the whole page and unmounts the whole app until finished
        */
-      loadingCounter: 0
+      loadingCounter: 0,
+
+      /**
+       * Counter of running data loading processes for the entire application.
+       *
+       * This counter can be used for a global overlay over the whole page without unmounting
+       */
+      overlayLoadingCounter: 0
     };
   },
   actions: {
@@ -37,6 +44,14 @@ export const useLoadingStore = defineStore('loading', {
 
     setLoadingFinished () {
       this.loadingCounter = Math.max(0, this.loadingCounter - 1);
+    },
+
+    setOverlayLoading () {
+      this.overlayLoadingCounter++;
+    },
+
+    setOverlayLoadingFinished () {
+      this.overlayLoadingCounter = Math.max(0, this.overlayLoadingCounter - 1);
     }
   }
 });

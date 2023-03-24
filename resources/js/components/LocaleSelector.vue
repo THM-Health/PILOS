@@ -49,10 +49,10 @@ export default {
   methods: {
 
     ...mapActions(useLocaleStore, ['setLocale']),
-    ...mapActions(useLoadingStore, ['setLoading', 'setLoadingFinished']),
+    ...mapActions(useLoadingStore, ['setOverlayLoading', 'setOverlayLoadingFinished']),
 
     async changeLocale (locale) {
-      this.setLoading();
+      this.setOverlayLoading();
       try {
         await this.setLocale(locale);
         await loadLanguageAsync(locale);
@@ -60,11 +60,11 @@ export default {
         if (error.response !== undefined && error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.toastError(error.response.data.errors.locale.join(' '));
         } else {
-          this.setLoadingFinished();
+          this.setOverlayLoadingFinished();
           Base.error(error, this.$root, error.message);
         }
       } finally {
-        this.setLoadingFinished();
+        this.setOverlayLoadingFinished();
       }
     }
   }
