@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <b-container class="border-top bg-white" fluid v-if="getSetting('legal_notice_url') || getSetting('privacy_policy_url') || getSetting('version')">
+    <b-container ref="footer_container" class="border-top bg-white" fluid v-if="getSetting('legal_notice_url') || getSetting('privacy_policy_url') || getSetting('version')">
       <b-container>
       <div class="d-flex justify-content-between">
         <div>
