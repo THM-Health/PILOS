@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Show application version in footer  ([#334],[#335])
 
 ### Fixed
 - Broken room search / all rooms layout in safari ([#329],[#330])
@@ -486,6 +488,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#330]: https://github.com/THM-Health/PILOS/pull/330
 [#331]: https://github.com/THM-Health/PILOS/issues/331
 [#333]: https://github.com/THM-Health/PILOS/pull/333
+[#334]: https://github.com/THM-Health/PILOS/issues/334
+[#335]: https://github.com/THM-Health/PILOS/pull/335
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

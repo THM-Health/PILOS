@@ -54,6 +54,7 @@ class SettingsTest extends TestCase
         setting(['room_token_expiration' => -1]);
         setting(['room_refresh_rate' => 20]);
         config(['app.url' => 'https://domain.tld']);
+        config(['app.version' => 'v1.0.0']);
 
         setting(['statistics' => [
             'meetings' => [
@@ -70,6 +71,7 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
+                    'version'                        => 'v1.0.0',
                     'base_url'                       => 'https://domain.tld',
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
@@ -123,6 +125,8 @@ class SettingsTest extends TestCase
             ],
         ]]);
 
+        config(['app.version' => null]);
+
         setting(['attendance' => [
             'enabled'           => true,
             'retention_period'  => 14
@@ -134,6 +138,7 @@ class SettingsTest extends TestCase
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
+                    'version'                        => null,
                     'logo'                           => 'testlogo.svg',
                     'pagination_page_size'           => '123',
                     'own_rooms_pagination_page_size' => '123',
