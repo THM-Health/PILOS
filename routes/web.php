@@ -1,5 +1,7 @@
 <?php
 
+use App\Auth\OIDC\OIDCController;
+use App\Auth\SAML2\Saml2Controller;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\MeetingController;
@@ -17,6 +19,18 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('download/file/{roomFile}/{filename?}', [FileController::class,'show'])->name('download.file')->middleware('signed');
 Route::get('download/attendance/{meeting}', [MeetingController::class,'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
+
+if (config('services.saml2.enabled')) {
+    Route::get('auth/saml2/redirect', [Saml2Controller::class,'redirect'])->name('auth.saml2.redirect');
+    Route::match(['get', 'post'], 'auth/saml2/callback', [Saml2Controller::class,'callback'])->name('auth.saml2.callback');
+    Route::get('/auth/saml2/metadata', [Saml2Controller::class,'metadata'])->name('auth.saml2.metadata');
+}
+
+if (config('services.oidc.enabled')) {
+    Route::get('auth/oidc/redirect', [OIDCController::class, 'redirect'])->name('auth.oidc.redirect');
+    Route::get('auth/oidc/callback', [OIDCController::class, 'callback'])->name('auth.oidc.callback');
+    Route::match(['get', 'post'],'auth/oidc/logout', [OIDCController::class, 'logout'])->name('auth.oidc.logout');
+}
 
 if (config('greenlight.compatibility')) {
     Route::prefix(config('greenlight.base'))->group(function () {

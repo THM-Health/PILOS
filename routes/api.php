@@ -1,5 +1,6 @@
 <?php
 
+use App\Auth\LDAP\LDAPController;
 use App\Http\Controllers\api\v1\ApplicationController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
@@ -11,16 +12,16 @@ use App\Http\Controllers\api\v1\RoleController;
 use App\Http\Controllers\api\v1\RoomController;
 use App\Http\Controllers\api\v1\RoomFileController;
 use App\Http\Controllers\api\v1\RoomMemberController;
+use App\Http\Controllers\api\v1\RoomTokenController;
 use App\Http\Controllers\api\v1\RoomTypeController;
 use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
 use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\UserController;
-use \App\Http\Controllers\api\v1\RoomTokenController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rule;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,8 +51,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         }
     })->name('setLocale');
 
-    Route::post('login', [LoginController::class,'usersLogin'])->name('login');
-    Route::post('login/ldap', [LoginController::class,'ldapLogin'])->name('ldapLogin');
+    Route::post('login', [LoginController::class,'login'])->name('login');
+    Route::post('login/ldap', [LDAPController::class,'login'])->name('ldapLogin');
+
+
+
     Route::post('logout', [LoginController::class,'logout'])->name('logout');
     Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['guest', 'throttle:password_reset']);
 

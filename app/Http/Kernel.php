@@ -5,6 +5,7 @@ namespace App\Http;
 use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIf;
+use App\Http\Middleware\StoreSessionLookupData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -40,7 +41,8 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
-            'loggedin:ldap,users'
+            'loggedin:ldap,users',
+            StoreSessionLookupData::class,
         ],
 
         'api' => [
@@ -49,6 +51,7 @@ class Kernel extends HttpKernel
             'loggedin:ldap,users',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
+            StoreSessionLookupData::class,
         ],
     ];
 

@@ -18,7 +18,7 @@ class NewUserRequest extends FormRequest
         return [
             'firstname'             => ['required','string','max:255'],
             'lastname'              => ['required','string','max:255'],
-            'email'                 => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where('authenticator', 'users')],
+            'email'                 => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where('authenticator', 'local')],
             'user_locale'           => ['required', 'string', Rule::in(config('app.available_locales'))],
             'timezone'              => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'roles'                 => ['required','array'],

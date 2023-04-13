@@ -35,14 +35,14 @@ class ResetPasswordController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed', new Password()]
         ]);
 
-        $user = User::where('authenticator', '=', 'users')
+        $user = User::where('authenticator', '=', 'local')
             ->where('email', '=', $request->email)
             ->first();
         $initial_password_set = $user ? $user->initial_password_set : false;
 
         $response = $this->broker($initial_password_set ? 'new_users' : 'users')
             ->reset(
-                array_merge(['authenticator' => 'users'], $this->credentials($request)),
+                array_merge(['authenticator' => 'local'], $this->credentials($request)),
                 function ($user, $password) use ($initial_password_set) {
                     $authService = new AuthenticationService($user);
                     $authService->changePassword($password);

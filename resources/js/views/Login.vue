@@ -4,7 +4,7 @@
       <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
         <b-card no-body bg-variant="light">
           <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-primary">
-            <b-tab :title="$t('auth.ldap.tab_title')" v-if="getSetting('ldap')" >
+            <b-tab :title="$t('auth.ldap.tab_title')" v-if="getSetting('auth.ldap')" >
               <ldap-login-component
                 id="ldap"
                 :title="$t('auth.ldap.title')"
@@ -15,6 +15,22 @@
                 :loading="loading"
                 :errors="errors.ldap"
               ></ldap-login-component>
+            </b-tab>
+            <b-tab :title="$t('auth.oidc.tab_title')" v-if="getSetting('auth.oidc')" >
+              <external-login-component
+                id="oidc"
+                :title="$t('auth.oidc.title')"
+                :redirect-label="$t('auth.oidc.redirect')"
+                redirect-url="/auth/oidc/redirect"
+              ></external-login-component>
+            </b-tab>
+            <b-tab :title="$t('auth.saml2.tab_title')" v-if="getSetting('auth.saml2')" >
+              <external-login-component
+                id="saml2"
+                :title="$t('auth.saml2.title')"
+                :redirect-label="$t('auth.saml2.redirect')"
+                redirect-url="/auth/saml2/redirect"
+              ></external-login-component>
             </b-tab>
             <b-tab :title="$t('auth.email.tab_title')">
               <email-login-component
@@ -43,9 +59,11 @@ import Base from '../api/base';
 import { mapState, mapActions } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useAuthStore } from '../stores/auth';
+import ExternalLoginComponent from '../components/Login/ExternalLoginComponent.vue';
 
 export default {
   components: {
+    ExternalLoginComponent,
     EmailLoginComponent,
     LdapLoginComponent
   },

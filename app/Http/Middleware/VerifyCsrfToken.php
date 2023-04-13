@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+'auth/saml2/callback',
+'auth/oidc/logout'
     ];
 }

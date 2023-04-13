@@ -15,11 +15,13 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use Illuminate\Contracts\Translation\HasLocalePreference;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use Storage;
 
-class User extends Authenticatable implements HasLocalePreference
+class User extends Authenticatable implements HasLocalePreference, LdapAuthenticatable
 {
     use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
+
 
     /**
      * The "booted" method of the model.
@@ -39,7 +41,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @var array
      */
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'username', 'guid', 'domain', 'locale', 'bbb_skip_check_audio',
+        'firstname', 'lastname', 'email', 'password', 'external_id', 'guid', 'domain', 'locale', 'bbb_skip_check_audio', 'authenticator',
         'initial_password_set', 'timezone'
     ];
 

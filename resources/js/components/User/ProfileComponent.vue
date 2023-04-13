@@ -37,19 +37,19 @@
         </b-form-group>
         <b-form-group
           label-cols-sm='3'
-          :label="$t('auth.ldap.username')"
-          label-for='username'
-          :state='fieldState("username")'
-          v-if="model.authenticator === 'ldap'"
+          :label="$t('auth.external_id')"
+          label-for='external_id'
+          :state='fieldState("external_id")'
+          v-if="model.authenticator === 'external'"
         >
           <b-form-input
-            id='username'
+            id='external_id'
             type='text'
-            v-model='model.username'
-            :state='fieldState("username")'
+            v-model='model.external_id'
+            :state='fieldState("external_id")'
             :disabled="true"
           ></b-form-input>
-          <template slot='invalid-feedback'><div v-html="fieldError('username')"></div></template>
+          <template slot='invalid-feedback'><div v-html="fieldError('external_id')"></div></template>
         </b-form-group>
         <!-- Profile image-->
         <b-form-group
