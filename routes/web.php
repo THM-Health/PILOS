@@ -1,5 +1,6 @@
 <?php
 
+use App\Auth\OIDC\OIDCController;
 use App\Auth\Shibboleth\ShibbolethController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\FileController;
@@ -28,6 +29,12 @@ Route::middleware('enable_if_config:services.shibboleth.enabled')->group(functio
     Route::get('auth/shibboleth/redirect', [ShibbolethController::class, 'redirect'])->name('auth.shibboleth.redirect');
     Route::get('auth/shibboleth/callback', [ShibbolethController::class, 'callback'])->name('auth.shibboleth.callback');
     Route::match(['get', 'post'], 'auth/shibboleth/logout', [ShibbolethController::class, 'logout'])->name('auth.shibboleth.logout');
+});
+
+Route::middleware('enable_if_config:services.oidc.enabled')->group(function () {
+    Route::get('auth/oidc/redirect', [OIDCController::class, 'redirect'])->name('auth.oidc.redirect');
+    Route::get('auth/oidc/callback', [OIDCController::class, 'callback'])->name('auth.oidc.callback');
+    Route::match(['get', 'post'], 'auth/oidc/logout', [OIDCController::class, 'logout'])->name('auth.oidc.logout');
 });
 
 if (config('greenlight.compatibility')) {

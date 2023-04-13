@@ -5,6 +5,9 @@
         <Card v-if="error">
           <template #title> {{ $t('auth.error.login_failed') }} </template>
           <template #content>
+            <Message v-if="props.error === 'invalid_configuration'" severity="error" :closable="false" >{{ $t('auth.error.invalid_configuration') }}</Message>
+            <Message v-if="props.error === 'invalid_state'" severity="error" :closable="false" >{{ $t('auth.error.invalid_state') }}</Message>
+            <Message v-if="props.error === 'network_issue'" severity="error" :closable="false" >{{ $t('auth.error.network_issue') }}</Message>
             <Message v-if="props.error === 'missing_attributes'" severity="error" :closable="false" >{{ $t('auth.error.missing_attributes') }}</Message>
             <Message v-if="props.error === 'shibboleth_session_duplicate_exception'" severity="error" :closable="false">{{ $t('auth.error.shibboleth_session_duplicate_exception') }}</Message>
           </template>

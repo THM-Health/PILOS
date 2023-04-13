@@ -11,6 +11,7 @@
               <TabList>
                 <Tab value="ldap" v-if="settingsStore.getSetting('auth.ldap')">{{ $t('auth.ldap.tab_title') }}</Tab>
                 <Tab value="shibboleth" v-if="settingsStore.getSetting('auth.shibboleth')">{{ $t('auth.shibboleth.tab_title') }}</Tab>
+                <Tab value="oidc" v-if="settingsStore.getSetting('auth.oidc')">{{ $t('auth.oidc.tab_title') }}</Tab>
                 <Tab value="local" v-if="settingsStore.getSetting('auth.local')">{{ $t('auth.email.tab_title') }}</Tab>
               </TabList>
               <TabPanels>
@@ -34,6 +35,14 @@
                     :redirect-url="shibbolethRedirectUrl"
                   />
                 </TabPanel>
+                <TabPanel value="oidc" v-if="settingsStore.getSetting('auth.oidc')">
+                  <LoginTabExternal
+                    id="oidc"
+                    :title="$t('auth.oidc.title')"
+                    :redirect-label="$t('auth.oidc.redirect')"
+                    :redirect-url="oidcRedirectUrl"
+                  />
+                </TabPanel>
                 <TabPanel value="local" v-if="settingsStore.getSetting('auth.local')">
                   <LoginTabLocal
                     id="local"
@@ -49,7 +58,6 @@
               </TabPanels>
             </Tabs>
           </template>
-
         </Card>
       </div>
     </div>
@@ -86,9 +94,16 @@ onMounted(() => {
     activeTab.value = 'ldap';
   } else if (settingsStore.getSetting('auth.shibboleth')) {
     activeTab.value = 'shibboleth';
+  } else if (settingsStore.getSetting('auth.oidc')) {
+    activeTab.value = 'oidc';
   } else {
     activeTab.value = 'local';
   }
+});
+
+const oidcRedirectUrl = computed(() => {
+  const url = '/auth/oidc/redirect';
+  return route.query.redirect ? url + '?redirect=' + encodeURIComponent(route.query.redirect) : url;
 });
 
 const shibbolethRedirectUrl = computed(() => {

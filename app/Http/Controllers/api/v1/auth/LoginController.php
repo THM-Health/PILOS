@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -64,12 +65,23 @@ class LoginController extends Controller
     {
         // Redirect url after logout
         $redirect = false;
+        $externalAuth = false;
+        $externalSignOut = false;
 
         // Logout from external authentication provider
         switch (\Auth::user()->authenticator) {
             case 'shibboleth':
                 $redirect = app(ShibbolethProvider::class)->logout(url('/logout'));
-
+                $externalAuth = 'shibboleth';
+                $externalSignOut = true;
+                break;
+            case 'oidc':
+                $externalAuth = 'oidc';
+                $url = Socialite::driver('oidc')->logout(session()->get('oidc_id_token'), url('/logout'));
+                if ($url) {
+                    $redirect = $url;
+                    $externalSignOut = true;
+                }
                 break;
         }
 
@@ -78,6 +90,8 @@ class LoginController extends Controller
 
         return response()->json([
             'redirect' => $redirect,
+            'external_auth' => $externalAuth,
+            'external_sign_out' => $externalSignOut,
         ]);
     }
 }
