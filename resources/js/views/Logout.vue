@@ -21,6 +21,12 @@
               :closable="false"
               >{{ $t("auth.session_expired") }}</Message
             >
+            <Message
+              v-if="props.message === 'oidc_incomplete'"
+              severity="warn"
+              :closable="false"
+              >{{ $t("auth.oidc.logout_incomplete") }}</Message
+            >
           </template>
           <template #footer>
             <Button
