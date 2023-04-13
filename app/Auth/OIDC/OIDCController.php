@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Auth\OIDC;
+
+use App\Auth\MissingAttributeException;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
+class OIDCController extends Controller
+{
+    public function __construct(protected OIDCProvider $provider)
+    {
+        $this->middleware('guest');
+    }
+
+    /**
+     * Redirect to the OpenID Provider for authentication with an optional redirect back to a specific URL
+     */
+    public function redirect(Request $request)
+    {
+        try {
+            return $this->provider->redirect($request->query('redirect'));
+        } catch (OpenIDConnectNetworkException $e) {
+            \Log::error($e->getMessage());
+
+            return redirect('/external_login?error=openid_connect_network_exception');
+        } catch (\Throwable $e) {
+            \Log::error($e->getMessage());
+
+            return redirect('/external_login?error=openid_connect_exception');
+        }
+    }
+
+    /**
+     * Handle Authorization Code Flow redirect back from the OpenID Provider with an Authorization Code
+     */
+    public function callback(Request $request): RedirectResponse
+    {
+        try {
+            $user = $this->provider->login($request);
+        } catch (OpenIDConnectCodeMissingException $e) {
+            \Log::error($e->getMessage());
+
+            return redirect()->route('auth.oidc.redirect');
+        } catch (MissingAttributeException $e) {
+            \Log::error($e->getMessage());
+
+            return redirect('/external_login?error=missing_attributes');
+        } catch (OpenIDConnectNetworkException $e) {
+            \Log::error($e->getMessage());
+
+            return redirect('/external_login?error=openid_connect_network_exception');
+        } catch (\Throwable $e) {
+            \Log::error($e->getMessage());
+
+            // Any other error that occurs during the login process
+            return redirect('/external_login?error=openid_connect_exception');
+        }
+
+        \Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
+
+        // Update the last login timestamp
+        $user->last_login = now();
+        $user->save();
+
+        $url = '/external_login';
+
+        if ($request->session()->has('redirect_url')) {
+            return redirect(\Uri::of($url)
+                ->withQuery(['redirect', $request->session()->get('redirect_url')])
+                ->value());
+        }
+
+        return redirect($url);
+    }
+
+    /**
+     * Handle the back-channel logout request from OpenID Provider
+     */
+    public function logout(Request $request): Response
+    {
+        return $this->provider->backChannelLogout($request);
+    }
+}

@@ -2,6 +2,7 @@
 
 namespace App\Auth\Shibboleth;
 
+use App\Auth\MissingAttributeException;
 use App\Models\SessionData;
 use Auth;
 use Cache;
@@ -78,6 +79,7 @@ class ShibbolethProvider
      *
      * @throws MissingAttributeException
      * @throws ShibbolethSessionDuplicateException
+     * @throws MissingAttributeException
      */
     public function login(Request $request)
     {

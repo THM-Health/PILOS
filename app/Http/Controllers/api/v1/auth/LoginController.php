@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1\auth;
 
+use App\Auth\OIDC\OIDCProvider;
 use App\Auth\Shibboleth\ShibbolethProvider;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -68,12 +69,19 @@ class LoginController extends Controller
     {
         // Redirect url after logout
         $redirect = false;
+        // Message to display on logout, e.g. incomplete logout
+        $message = null;
 
         // Logout from external authentication provider
         switch (\Auth::user()->authenticator) {
             case 'shibboleth':
                 $redirect = app(ShibbolethProvider::class)->logout(url('/logout'));
-
+                break;
+            case 'oidc':
+                $redirect = app(OIDCProvider::class)->logout(url('/logout'));
+                if (! $redirect) {
+                    $message = 'oidc_incomplete';
+                }
                 break;
         }
 
@@ -82,6 +90,7 @@ class LoginController extends Controller
 
         return response()->json([
             'redirect' => $redirect,
+            'message' => $message,
         ]);
     }
 }
