@@ -11,6 +11,7 @@
     "php": "^8.4",
     "ext-curl": "*",
     "ext-json": "*",
+    "ext-redis": "*",
     "ext-simplexml": "*",
     "ext-zip": "*",
     "directorytree/ldaprecord-laravel": "^3.0",
@@ -34,7 +35,7 @@
     "spatie/laravel-ignition": "^2.0",
     "spatie/laravel-settings": "^3.3",
     "symfony/var-exporter": "^7.0",
-    "ext-redis": "*"
+    "web-token/jwt-framework": "^4.0"
   },
   "require-dev": {
     "barryvdh/laravel-ide-helper": "^3.0",

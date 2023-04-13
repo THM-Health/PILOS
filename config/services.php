@@ -1,6 +1,7 @@
 <?php
 
 $shibbolethEnabled = (bool) env('SHIBBOLETH_ENABLED', false);
+$oidcEnabled = (bool) env('OIDC_ENABLED', false);
 
 return [
 
@@ -46,5 +47,19 @@ return [
         'session_expires_header' => env('SHIBBOLETH_SESSION_EXPIRES_HEADER', 'shib-session-expires'),
         'session_check_middleware_enabled' => (bool) env('SHIBBOLETH_SESSION_CHECK_ENABLED', true),
         'logout' => env('SHIBBOLETH_LOGOUT_URL', '/Shibboleth.sso/Logout'),
+    ],
+
+    'oidc' => [
+        'enabled' => $oidcEnabled,
+        'issuer' => env('OIDC_ISSUER'),
+        'client_id' => env('OIDC_CLIENT_ID'),
+        'client_secret' => env('OIDC_CLIENT_SECRET'),
+        'scopes' => explode(',', env('OIDC_SCOPES', 'profile,email')),
+        'leeway' => (int) env('OIDC_LEEWAY', 300),
+        'timeout' => (int) env('OIDC_TIMEOUT', 10),
+        'verify_peer' => (bool) env('OIDC_VERIFY_PEER', true),
+        'cache_config_max_age' => (int) env('OIDC_CACHE_CONFIG_MAX_AGE', 0),
+        'cache_jwks_max_age' => (int) env('OIDC_CACHE_JWKS_MAX_AGE', 0),
+        'mapping' => $oidcEnabled ? json_decode(file_get_contents(app_path('Auth/config/oidc_mapping.json'))) : null,
     ],
 ];
