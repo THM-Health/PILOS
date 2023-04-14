@@ -25,8 +25,11 @@ class Saml2Controller extends Controller
         $this->middleware('guest')->except(['metadata','logout','dologout']);
     }
 
-    public function redirect()
+    public function redirect(Request $request)
     {
+        if($request->get('redirect')){
+            $request->session()->put('redirect_url', $request->input('redirect'));
+        }
 
         return Socialite::driver('saml2')->redirect();
     }
@@ -61,6 +64,7 @@ class Saml2Controller extends Controller
             Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'saml2']);
         }
 
-        return redirect("/rooms/own");
+        $url = "/external_login";
+        return redirect($request->session()->has('redirect_url') ? ($url."?redirect=".urlencode($request->session()->get('redirect_url'))) : $url);
     }
 }

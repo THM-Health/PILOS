@@ -1,5 +1,6 @@
 import VueRouter from 'vue-router';
 import Login from './views/Login.vue';
+import ExternalLogin from './views/ExternalLogin.vue';
 import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
 import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
@@ -47,6 +48,12 @@ export const routes = [
     name: 'login',
     component: Login,
     meta: { guestsOnly: true }
+  },
+  {
+    path: '/external_login',
+    name: 'external_login',
+    component: ExternalLogin,
+    meta: { requiresAuth: true }
   },
   {
     path: '/reset_password',

@@ -20,9 +20,13 @@ class OIDCController extends Controller
         $this->middleware('guest');
     }
 
-    public function redirect()
+    public function redirect(Request $request)
     {
-        return Socialite::driver('oidc')->redirect();
+        if($request->get('redirect')){
+            $request->session()->put('redirect_url', $request->input('redirect'));
+        }
+
+       return Socialite::driver('oidc')->redirect();
     }
 
     public function logout(Request $request){
@@ -65,7 +69,8 @@ class OIDCController extends Controller
             Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'oidc']);
         }
 
-        return redirect("/rooms/own");
+        $url = "/external_login";
+        return redirect($request->session()->has('redirect_url') ? ($url."?redirect=".urlencode($request->session()->get('redirect_url'))) : $url);
 
     }
 }
