@@ -98,6 +98,15 @@ location / {
 }
 ```
 
+#### Trusted proxies
+You have to add your proxy to the list of trusted proxies in the `.env` file.
+```
+# Trusted proxies for reverse proxy setups
+# You can use "*" to trust all proxies that connect directly to the server
+# or you can use a comma separated list of trusted proxies, also with support for CIDR notation e.g. "192.0.0.1,10.0.0.0/8"
+TRUSTED_PROXIES=
+```
+
 ### Starting
 To start the application and database run:
 ```bash
