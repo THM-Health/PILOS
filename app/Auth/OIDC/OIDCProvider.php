@@ -52,7 +52,7 @@ class OIDCProvider extends AbstractProvider
 
         $this->redirectUrl = url($this->getConfig('redirect'));
 
-        return $config[$key];
+        return $config[$key] ?? null;
     }
 
     /**
@@ -179,5 +179,24 @@ class OIDCProvider extends AbstractProvider
         return array_merge(parent::getTokenFields($code), [
             'grant_type' => 'authorization_code'
         ]);
+    }
+
+
+    public function logout($idToken, $redirect){
+        $signout_endpoint = $this->getOIDCConfig('end_session_endpoint');
+
+      
+       if(!$signout_endpoint){
+            return false;
+        }
+
+        $signout_params = [
+            'client_id' => $this->config['client_id'],
+            'id_token_hint' => $idToken,
+            'post_logout_redirect_uri' => $redirect,
+        ];
+
+        $signout_endpoint  .= (strpos($signout_endpoint, '?') === false ? '?' : '&') . http_build_query( $signout_params, '', '&');
+        return $signout_endpoint;
     }
 }

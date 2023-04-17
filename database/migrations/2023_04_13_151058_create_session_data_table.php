@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('lookup_sessions', function (Blueprint $table) {
+        Schema::create('session_data', function (Blueprint $table) {
             $table->id();
             $table->string('key');
-            $table->string('value');
+            $table->text('value');
             $table->string('session_id');
             $table
             ->foreign('session_id')
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('lookup_sessions');
+        Schema::dropIfExists('session_data');
     }
 };

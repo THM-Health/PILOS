@@ -118,11 +118,24 @@ export default {
     ...mapActions(useAuthStore, { logoutSession: 'logout' }),
 
     async logout () {
-      await this.logoutSession();
-      this.toastSuccess(this.$t('auth.flash.logout'));
-      if (this.$router.currentRoute.name !== 'home') {
-        await this.$router.push({ name: 'home' });
+      const response = await this.logoutSession();
+
+      if (response.status !== 200) {
+        this.toastError(this.$t('auth.flash.logout_error'));
+        return;
       }
+
+      if (response.data.redirect) {
+        window.location.href = response.data.redirect;
+        return;
+      }
+
+      let incompleteWarning = null;
+      if (response.data.external_auth && !response.data.external_sign_out) {
+        incompleteWarning = response.data.external_auth;
+      }
+
+      await this.$router.push({ name: 'logout', params: { incompleteWarning } });
     }
   }
 };

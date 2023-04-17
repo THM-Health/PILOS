@@ -227,7 +227,7 @@ export default {
   methods: {
 
     ...mapActions(useLocaleStore, ['setCurrentLocale']),
-    ...mapActions(useAuthStore, ['logout', 'getCurrentUser']),
+    ...mapActions(useAuthStore, ['getCurrentUser']),
 
     /**
      * Reset other previously uploaded images

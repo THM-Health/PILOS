@@ -24,6 +24,7 @@ if (config('services.saml2.enabled')) {
     Route::get('auth/saml2/redirect', [Saml2Controller::class,'redirect'])->name('auth.saml2.redirect');
     Route::match(['get', 'post'], 'auth/saml2/callback', [Saml2Controller::class,'callback'])->name('auth.saml2.callback');
     Route::get('/auth/saml2/metadata', [Saml2Controller::class,'metadata'])->name('auth.saml2.metadata');
+    Route::match(['get', 'post'],'auth/saml2/logout', [Saml2Controller::class, 'logout'])->name('auth.saml2.logout');
 }
 
 if (config('services.oidc.enabled')) {

@@ -7,6 +7,7 @@ use App\Auth\RoleMapping;
 use App\Http\Controllers\Controller;
 use App\Models\ExternalAuthSession;
 use App\Models\LookupSession;
+use App\Models\SessionData;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -31,13 +32,12 @@ class OIDCController extends Controller
 
     public function logout(Request $request){
 
-        
         if (isset($_REQUEST['logout_token'])) {
             $logout_token = $_REQUEST['logout_token'];
 
             $claims = Socialite::driver('oidc')->getLogoutTokenClaims($logout_token);
 
-            $lookupSessions = LookupSession::where('key','oidc_sub')->where('value', $claims->sub)->get();	
+            $lookupSessions = SessionData::where('key','oidc_sub')->where('value', $claims->sub)->get();	
             foreach ($lookupSessions as $lookupSession) {
                 $lookupSession->session()->delete();
             }
@@ -46,8 +46,11 @@ class OIDCController extends Controller
 
     public function callback(Request $request)
     {
+
+        $oidc_raw_user = Socialite::driver('oidc')->user();
+
         // Create new open-id connect user
-        $oidc_user = new OIDCUser(Socialite::driver('oidc')->user());
+        $oidc_user = new OIDCUser($oidc_raw_user);
                 
         // Get eloquent user (existing or new)
         $oidc_user->createOrFindEloquentModel();
@@ -63,7 +66,12 @@ class OIDCController extends Controller
 
         Auth::login($user);
 
-        session(['lookup_data' => ['key'=>'oidc_sub', 'value' => $oidc_user->getRawAttributes()['sub']]]);
+        session(['session_data' => [
+            ['key'=>'oidc_sub', 'value' => $oidc_user->getRawAttributes()['sub']],
+        ]]); 
+        
+        session()->put('external_auth', 'oidc');
+        session()->put('oidc_id_token', $oidc_raw_user->accessTokenResponseBody['id_token']);
     
         if (config('auth.log.successful')) {
             Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'oidc']);

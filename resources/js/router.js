@@ -1,6 +1,7 @@
 import VueRouter from 'vue-router';
 import Login from './views/Login.vue';
 import ExternalLogin from './views/ExternalLogin.vue';
+import Logout from './views/Logout.vue';
 import NotFound from './views/NotFound.vue';
 import RoomsIndex from './views/rooms/Index.vue';
 import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
@@ -54,6 +55,17 @@ export const routes = [
     name: 'external_login',
     component: ExternalLogin,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/logout',
+    name: 'logout',
+    component: Logout,
+    meta: { guestsOnly: true },
+    props: route => {
+      return {
+        incompleteWarning: route.params.incompleteWarning
+      };
+    }
   },
   {
     path: '/reset_password',
