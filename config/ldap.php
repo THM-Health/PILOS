@@ -94,5 +94,5 @@ return [
 
     'login_attribute' => env('LDAP_LOGIN_ATTRIBUTE', 'uid'),
 
-    'mapping' => $ldapEnabled ? json_decode(file_get_contents(app_path('Auth/Mapping/ldap2.json'))) : null,
+    'mapping' => $ldapEnabled ? json_decode(file_get_contents(app_path('Auth/config/ldap_mapping.json'))) : null,
 ];

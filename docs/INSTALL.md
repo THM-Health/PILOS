@@ -117,14 +117,9 @@ The first admin user can be created by running the following command:
 docker compose exec --user www-data app php artisan users:create:admin
 ```
 
-### LDAP
-PILOS allows users to login with LDAP and manual user accounts.
-For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.org/) is necessary.
-
-You can configure the LDAP login in the .env file and check if the LDAP configuration is correct, by using the following artisan command:
-```bash
-docker compose exec --user www-data app php artisan ldap:test
-```
+### External authentication
+PILOS can be connected to the following external authentication systems: LDAP, OpenID-Connect and SAML 2.0
+Please have a look at our [documentation](EXTERNAL_AUTHENTICATION.MD) on how to setup external authenticators.
 
 ### Customization
 #### Theming
@@ -208,3 +203,7 @@ To log the status of all meetings and servers and to keep the database up to dat
 ```
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
+
+### External authentication
+PILOS can be connected to the following external authentication systems: LDAP, OpenID-Connect and SAML 2.0
+Please have a look at our [documentation](EXTERNAL_AUTHENTICATION.MD) on how to setup external authenticators.

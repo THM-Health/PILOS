@@ -65,11 +65,11 @@ In your IDP you should configure the following:
 
 To enable SAML 2.0, you need to add/set the following options in the  `.env` file and adjust to your needs.
 
-Place the metadata xml file (`metadata.xml`) of the IDP in the `saml2` folder.
+Place the metadata xml file (`saml2_metadata.xml`) of the IDP in the `app/Auth/config` folder.
 
 Alternatively, the metadata can also be loaded dynamically from a URL provided by the option `SAML2_METADATA_URL`. Using the `SAML2_TTL` option you can set the time in seconds how long the metadata is cached for, so that the metadata does not have to be reloaded with every request.
 
-To enable client signature and encryption, you have to set `SAML2_SIGN_ENCRYPT=true` and place your certificate (`fullchain.pem`) and private key (`privkey.pem`) in the `saml2` folder.
+To enable client signature and encryption, you have to set `SAML2_SIGN_ENCRYPT=true` and place your certificate (`saml2_fullchain.pem`) and private key (`saml2_privkey.pem`) in the `app/Auth/config` folder.
 
 ```
 # SAML 2.0 config
@@ -93,13 +93,13 @@ In your IDP you should configure the following:
 # Configure mapping
 
 For each external authenticator (LDAP, Open-ID Connect and SAML 2.0) the attribute and role mapping needs to be configured.
-The mapping is defined in a JSON file, which is stored in the directory `app/Auth/Mapping` of the pilos installation.
+The mapping is defined in a JSON file, which is stored in the directory `app/Auth/config` of the pilos installation.
 
 | Authenticator   | Filename   |
 |-----------------|------------|
-| LDAP            | ldap.json  |
-| Open-ID Connect | oidc.json  |
-| SAML 2.0        | saml2.json |
+| LDAP            | ldap_mapping.json  |
+| Open-ID Connect | oidc_mapping.json  |
+| SAML 2.0        | saml2_mapping.json |
 
 ## Attribute mapping
 

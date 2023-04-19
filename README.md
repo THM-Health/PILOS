@@ -72,7 +72,13 @@ PILOS is using [Vue.js](https://vuejs.org/) as the Frontend JavaScript Framework
 
 A BigBlueButton server is necessary to use this application. See how to set up a BigBlueButton server [here](https://docs.bigbluebutton.org/).
 
-For information on installing PILOS using Docker or native, have a look at our [Installing PILOS](INSTALL.md) documentation.
+For information on installing PILOS using Docker or native, have a look at our [Installing PILOS](docs/INSTALL.md) documentation.
+
+## Upgrade from PILOS v1
+If you have proviously used PILOS v1, follow our [Updage](docs/UPGRADE.md) instructions.
+
+## Migrate from Greenlight 2
+If you have proviously used Greenlight 2, follow our [Migration guide](docs/MIGRATE_GREENLIGHT.md).
 
 ## Stacks
 
