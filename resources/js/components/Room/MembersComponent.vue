@@ -502,7 +502,7 @@ export default {
 
       const toBeRemovedMembers = this.selectedMembers.map(user => user.id);
 
-      Base.call('rooms/' + this.room.id + '/member', {
+      Base.call('rooms/' + this.room.id + '/member/bulk', {
         method: 'delete',
         data: { users: toBeRemovedMembers }
       }).then(response => {
@@ -605,7 +605,7 @@ export default {
 
       const toBeEditedMembers = this.selectedMembers.map(user => user.id);
 
-      Base.call('rooms/' + this.room.id + '/member', {
+      Base.call('rooms/' + this.room.id + '/member/bulk', {
         method: 'put',
         data: { role: this.bulkEditRole, users: toBeEditedMembers }
       }).then(response => {

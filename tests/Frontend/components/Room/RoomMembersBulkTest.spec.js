@@ -326,7 +326,7 @@ describe('RoomMembersBulk', () => {
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toMatchObject({ role: 2 });
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -388,7 +388,7 @@ describe('RoomMembersBulk', () => {
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toMatchObject({ role: 3 });
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -493,7 +493,7 @@ describe('RoomMembersBulk', () => {
     await waitMoxios();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
 
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -545,7 +545,7 @@ describe('RoomMembersBulk', () => {
     await waitMoxios();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
 
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -649,7 +649,7 @@ describe('RoomMembersBulk', () => {
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toEqual({ role: null, users: [5] });
     await request.respondWith({
       status: 422,
@@ -683,7 +683,7 @@ describe('RoomMembersBulk', () => {
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toEqual({ role: 2, users: [5] });
     await request.respondWith({
       status: 422,
@@ -713,7 +713,7 @@ describe('RoomMembersBulk', () => {
     await view.vm.$nextTick();
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toEqual({ role: 2, users: [5] });
     await waitModalHidden(view, async () => {
       await request.respondWith({
