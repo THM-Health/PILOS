@@ -87,8 +87,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
 
         // Membership users for mass update & delete
-        Route::put('rooms/{room}/member', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
-        Route::delete('rooms/{room}/member', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
+        Route::put('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
 
         // Personalized room tokens
         Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
