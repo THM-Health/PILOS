@@ -279,46 +279,46 @@ class MembershipTest extends TestCase
         $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
 
         // Remove member as guest
-        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertUnauthorized();
 
         // Remove member as non owner
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertForbidden();
 
         // Remove member as user member
-        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertForbidden();
 
         // Remove member as moderator member
-        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertForbidden();
 
         // Remove member as co-owner member
-        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertNoContent();
         $room->members()->attach($newUser, ['role'=>RoomUserRole::USER]);
 
         // Remove with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Remove with manage rooms permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertNoContent();
         $this->role->permissions()->detach($this->managePermission);
         $room->members()->attach($newUser, ['role'=>RoomUserRole::USER]);
 
         // Remove member with invalid user
-        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>0]))
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>0]))
             ->assertNotFound();
 
         // Remove member as moderator
-        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertNoContent();
 
         // Check member list
@@ -327,7 +327,7 @@ class MembershipTest extends TestCase
             ->assertJsonMissing(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
 
         // Try to remove user again
-        $this->deleteJson(route('api.v1.rooms.member.remove', ['room'=>$room,'user'=>$newUser]))
+        $this->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
             ->assertStatus(410);
 
         // Check if user is no member
@@ -576,23 +576,23 @@ class MembershipTest extends TestCase
         $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
 
         // Remove members as guest
-        $this->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertUnauthorized();
 
         // Remove members as non owner
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertForbidden();
 
         // Remove members as user member
-        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($memberUser)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
         ->assertForbidden();
 
         // Remove members as moderator member
-        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($memberModerator)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertForbidden();
 
         // Remove members as co-owner member
-        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertNoContent();
         $room->refresh();
         $this->assertNull($room->members()->find($memberUser));
@@ -601,7 +601,7 @@ class MembershipTest extends TestCase
         $room->refresh();
 
         // Remove members as owner
-        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertNoContent();
         $room->refresh();
         $this->assertNull($room->members()->find($memberUser));
@@ -610,7 +610,7 @@ class MembershipTest extends TestCase
         $room->refresh();
 
         // Remove multiple members as owner
-        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id, $memberModerator->id  ]])
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id, $memberModerator->id  ]])
             ->assertNoContent();
         $room->refresh();
         $this->assertNull($room->members()->find($memberUser));
@@ -623,13 +623,13 @@ class MembershipTest extends TestCase
         // Remove with view all rooms permission
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // Remove with manage rooms permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id ]])
             ->assertNoContent();
         $room->refresh();
         $this->assertNull($room->members()->find($memberUser));
@@ -639,16 +639,15 @@ class MembershipTest extends TestCase
         $room->refresh();
 
         // Remove member with invalid user
-        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ 0 ]])
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ 0 ]])
             ->assertUnprocessable();
 
         // Remove user that is no member of the room
-        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $newUser->id ]])
+        $this->actingAs($owner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $newUser->id ]])
             ->assertUnprocessable();
 
         // Remove yourself as co-owner
-        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.bulkRemove', ['room'=> $room ]), ['users'=> [ $memberUser->id, $memberCoOwner->id ]])
-            ->dump()
+        $this->actingAs($memberCoOwner)->deleteJson(route('api.v1.rooms.member.bulkDestroy', ['room'=> $room ]), ['users'=> [ $memberUser->id, $memberCoOwner->id ]])
             ->assertUnprocessable();
     }
 }

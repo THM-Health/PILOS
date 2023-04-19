@@ -13,3 +13,8 @@ body {
     bottom: 0;
     width: 100%;
 }
+
+.custom-select:disabled {
+    color: $input-color;
+    opacity: 1;
+}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1\auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\Password;
+use App\Services\AuthenticationService;
 use Illuminate\Contracts\Auth\PasswordBroker;
 use Illuminate\Contracts\Auth\StatefulGuard;
 use Illuminate\Foundation\Auth\ResetsPasswords;
@@ -43,7 +44,9 @@ class ResetPasswordController extends Controller
             ->reset(
                 array_merge(['authenticator' => 'users'], $this->credentials($request)),
                 function ($user, $password) use ($initial_password_set) {
-                    $this->resetPassword($user, $password);
+                    $authService = new AuthenticationService($user);
+                    $authService->changePassword($password);
+                    $this->guard()->login($user);
 
                     if ($initial_password_set) {
                         $user->update([

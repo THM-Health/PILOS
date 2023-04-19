@@ -68,7 +68,7 @@
                 :loading='serversLoading'
                 :allowEmpty='true'
                 :class="{ 'is-invalid': fieldState('servers', true), 'multiselect-form-control': true }">
-                <template slot='noOptions'>{{ $t('settings.servers.nodata') }}</template>
+                <template slot='noOptions'>{{ $t('settings.servers.no_data') }}</template>
                 <template slot='option' slot-scope="props">{{ props.option.name }}</template>
                 <template slot='tag' slot-scope='{ option, remove }'>
                   <h5 class='d-inline mr-1 mb-1'>

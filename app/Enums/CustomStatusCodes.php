@@ -22,4 +22,5 @@ final class CustomStatusCodes extends Enum
     public const FEATURE_DISABLED             =   468;
     public const MEETING_ATTENDANCE_NOT_ENDED =   469;
     public const ATTENDANCE_AGREEMENT_MISSING =   470;
+    public const EMAIL_CHANGE_THROTTLE        =   471;
 }

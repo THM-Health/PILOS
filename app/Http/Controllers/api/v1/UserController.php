@@ -4,11 +4,16 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChangeEmailRequest;
+use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Requests\NewUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\UserSearch;
 use App\Models\User;
 use App\Notifications\UserWelcome;
+use App\Services\AuthenticationService;
+use App\Services\EmailVerification\EmailVerificationService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -82,7 +87,7 @@ class UserController extends Controller
      * @param  UserRequest  $request
      * @return UserResource
      */
-    public function store(UserRequest $request)
+    public function store(NewUserRequest $request)
     {
         $user = new User();
 
@@ -90,11 +95,10 @@ class UserController extends Controller
         $user->lastname             = $request->lastname;
         $user->email                = $request->email;
         $user->locale               = $request->user_locale;
-        $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
         $user->timezone             = $request->timezone;
 
         if (!$request->generate_password) {
-            $user->password = Hash::make($request->password);
+            $user->password = Hash::make($request->new_password);
         } else {
             $user->password             = Hash::make(bin2hex(random_bytes(32)));
             $user->initial_password_set = true;
@@ -143,19 +147,11 @@ class UserController extends Controller
     public function update(UserRequest $request, User $user)
     {
         if (Auth::user()->can('updateAttributes', $user)) {
-            $user->firstname = $request->firstname;
-            $user->lastname  = $request->lastname;
-            $user->email     = $request->email;
-
-            // TODO: email verification
-            if ($user->wasChanged('email')) {
-                $user->email_verified_at = $user->freshTimestamp();
+            if ($request->has('firstname')) {
+                $user->firstname = $request->firstname;
             }
-        }
-
-        if ($user->authenticator === 'users') {
-            if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
+            if ($request->has('lastname')) {
+                $user->lastname = $request->lastname;
             }
         }
 
@@ -177,18 +173,25 @@ class UserController extends Controller
             }
         }
 
-        $user->locale               = $request->user_locale;
-        $user->timezone             = $request->timezone;
-        $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
-        $user->touch();
+        if ($request->has('user_locale')) {
+            $user->locale = $request->user_locale;
+        }
+        if ($request->has('timezone')) {
+            $user->timezone = $request->timezone;
+        }
+        if ($request->has('bbb_skip_check_audio')) {
+            $user->bbb_skip_check_audio = $request->bbb_skip_check_audio;
+        }
+
         $user->save();
 
-        if (Auth::user()->can('editUserRole', $user)) {
+        if (Auth::user()->can('editUserRole', $user) && $request->has('roles')) {
             $user->roles()->syncWithoutDetaching($request->roles);
             $user->roles()->detach($user->roles()->wherePivot('automatic', '=', false)
                 ->whereNotIn('role_id', $request->roles)->pluck('role_id')->toArray());
         }
 
+        $user->touch();
         $user->refresh();
 
         return new UserResource($user);
@@ -216,13 +219,50 @@ class UserController extends Controller
      */
     public function resetPassword(User $user)
     {
-        $response = Password::broker('users')->sendResetLink([
-            'authenticator' => 'users',
-            'email'         => $user->email
-        ]);
+        $authService = new AuthenticationService($user);
+        $response    = $authService->sendResetLink();
 
         return response()->json([
             'message' => trans($response)
         ], $response === Password::RESET_LINK_SENT ? 200 : CustomStatusCodes::PASSWORD_RESET_FAILED);
+    }
+
+    public function changeEmail(ChangeEmailRequest $request, User $user)
+    {
+        // Email changed
+        if ($user->email != $request->email) {
+            // User is changing his own email, require verification
+            if (Auth::user()->is($user)) {
+                $emailVerificationService = new EmailVerificationService($user);
+                $success                  = $emailVerificationService->sendEmailVerificationNotification($request->email);
+                if ($success) {
+                    return response()->noContent(202);
+                } else {
+                    abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
+                }
+            }
+            // Admin is changing the email of another user, no verification required
+            else {
+                $emailVerificationService = new EmailVerificationService($user);
+                $emailVerificationService->changeEmail($request->email);
+                $user->refresh();
+
+                return new UserResource($user);
+            }
+        } else {
+            return new UserResource($user);
+        }
+    }
+
+    public function changePassword(ChangePasswordRequest $request, User $user)
+    {
+        $authService = new AuthenticationService($user);
+
+        // If user is changing his own password, keep current user session alive, invalidate all other sessions
+        $keepSession = Auth::user()->is($user) ? session()->getId() : null;
+
+        $authService->changePassword($request->new_password, $keepSession);
+
+        return new UserResource($user);
     }
 }

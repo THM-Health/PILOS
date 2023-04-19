@@ -159,7 +159,7 @@ describe('LocaleSelector', () => {
 
     items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    expect(loadingStore.loadingCounter).toEqual(1);
+    expect(loadingStore.overlayLoadingCounter).toEqual(1);
 
     await waitMoxios();
 
@@ -167,7 +167,7 @@ describe('LocaleSelector', () => {
     expect(activeItems.length).toBe(1);
     expect(activeItems.at(0).text()).toBe('Russian');
     expect(wrapper.findAllComponents(BFormInvalidFeedback).length).toBe(0);
-    expect(loadingStore.loadingCounter).toEqual(0);
+    expect(loadingStore.overlayLoadingCounter).toEqual(0);
 
     expect(spy).toHaveBeenCalledTimes(1);
 

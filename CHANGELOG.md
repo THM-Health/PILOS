@@ -5,6 +5,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [v2.0.0-RC.3] - 2023-03-27
+### Added
+- Show application version in footer  ([#334],[#335])
+
+### Fixed
+- Broken room search / all rooms layout in safari ([#329],[#330])
+- Room authentication error on lang change ([#331],[#333])
+
+### Changed
+- Revert adding Content-Security-Policy ([#315],[#317])
+
+## [v2.0.0-RC.2] - 2023-03-23
+### Added
+- Optimization of composer and laravel in production environment ([#327])
+- Artisan command to migrate database dump file ([#322], [#325])
+
+### Fixed
+- Scheduler not running in production environment ([#323],[#327])
+- Database upgrade command not running in production environment ([#324],[#326])
+
+### Changed
+- Upgrade to Laravel 10 ([#325])
+- Update and cleanup node dependencies ([#328])
+
+## [v2.0.0-RC.1] - 2023-03-09
+### Added
+- Support to customize trusted proxies ([#305],[#306])
+- Content-Security-Policy ([#315],[#317])
+
+### Fixed
+- Broken default image assets ([#307],[#308])
+- Inconsistent backend route names ([#279],[#309])
+- Override welcome page, feature component and footer with custom code ([#310],[#311])
+- Override locales ([#312],[#313])
+- **Breaking:** Override default logo and favicon ([#314],[#316])
+
+## [v2.0.0-alpha.5] - 2023-03-09
+### Added
+- Confirmation for password and email change ([#277],[#304])
+- Email notification on password and email change ([#277],[#304])
+- Management of logged in sessions ([#277],[#304])
+
 ### Fixed
 - Error in docker-compose-dev.yml leads to deletion of the database in the development environment ([#294], [#295])
 - Error in docker container causing wrong permissions on windows ([#296])
@@ -17,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frontend testing framework, replace jest with vitest ([#298],[#296])
 - Replace FlashMessages with bootstrap vue toast ([#296])
 - Replace v-clipboard with vue-clipboard2 ([#296])
+- Refactored view/edit of single user ([#277],[#304])
 
 ## [v2.0.0-alpha.4] - 2022-11-15
 ### Changed
@@ -404,7 +447,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#273]: https://github.com/THM-Health/PILOS/pull/273
 [#275]: https://github.com/THM-Health/PILOS/issues/275
 [#276]: https://github.com/THM-Health/PILOS/pull/276
+[#277]: https://github.com/THM-Health/PILOS/pull/277
 [#278]: https://github.com/THM-Health/PILOS/issues/278
+[#279]: https://github.com/THM-Health/PILOS/issues/279
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
 [#284]: https://github.com/THM-Health/PILOS/issues/284
@@ -419,8 +464,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#296]: https://github.com/THM-Health/PILOS/pull/296
 [#297]: https://github.com/THM-Health/PILOS/issues/297
 [#298]: https://github.com/THM-Health/PILOS/issues/298
+[#304]: https://github.com/THM-Health/PILOS/issues/304
+[#305]: https://github.com/THM-Health/PILOS/issues/305
+[#306]: https://github.com/THM-Health/PILOS/pull/306
+[#307]: https://github.com/THM-Health/PILOS/issues/307
+[#308]: https://github.com/THM-Health/PILOS/pull/308
+[#309]: https://github.com/THM-Health/PILOS/pull/309
+[#310]: https://github.com/THM-Health/PILOS/issues/310
+[#311]: https://github.com/THM-Health/PILOS/pull/311
+[#312]: https://github.com/THM-Health/PILOS/issues/312
+[#313]: https://github.com/THM-Health/PILOS/pull/313
+[#314]: https://github.com/THM-Health/PILOS/issues/314
+[#315]: https://github.com/THM-Health/PILOS/issues/315
+[#317]: https://github.com/THM-Health/PILOS/pull/317
+[#316]: https://github.com/THM-Health/PILOS/pull/316
+[#322]: https://github.com/THM-Health/PILOS/issues/322
+[#323]: https://github.com/THM-Health/PILOS/issues/323
+[#324]: https://github.com/THM-Health/PILOS/issues/324
+[#325]: https://github.com/THM-Health/PILOS/pull/325
+[#326]: https://github.com/THM-Health/PILOS/pull/326
+[#327]: https://github.com/THM-Health/PILOS/pull/327
+[#328]: https://github.com/THM-Health/PILOS/pull/328
+[#329]: https://github.com/THM-Health/PILOS/issues/329
+[#330]: https://github.com/THM-Health/PILOS/pull/330
+[#331]: https://github.com/THM-Health/PILOS/issues/331
+[#333]: https://github.com/THM-Health/PILOS/pull/333
+[#334]: https://github.com/THM-Health/PILOS/issues/334
+[#335]: https://github.com/THM-Health/PILOS/pull/335
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-alpha.4...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -442,3 +514,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-alpha.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.2
 [v2.0.0-alpha.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.3
 [v2.0.0-alpha.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.4
+[v2.0.0-alpha.5]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.5
+[v2.0.0-RC.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.1
+[v2.0.0-RC.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.2
+[v2.0.0-RC.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.3
+

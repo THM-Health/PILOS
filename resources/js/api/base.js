@@ -51,6 +51,8 @@ export default {
       vm.$router.replace({ name: 'home' });
     } else if (responseStatus === env.HTTP_PAYLOAD_TOO_LARGE) { // 413 => payload to large
       vm.toastError(vm.$t('app.flash.too_large'));
+    } else if (responseStatus === env.HTTP_TOO_MANY_REQUESTS) { // 429 => too many requests
+      vm.toastError(vm.$t('app.flash.too_many_requests'));
     } else if (responseStatus === env.HTTP_SERVICE_UNAVAILABLE) { // 503 => maintenance mode
       window.location.reload();
     } else if (responseStatus !== undefined) { // Another error on server

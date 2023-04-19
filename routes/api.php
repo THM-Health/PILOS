@@ -4,6 +4,7 @@ use App\Http\Controllers\api\v1\ApplicationController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
+use App\Http\Controllers\api\v1\auth\VerificationController;
 use App\Http\Controllers\api\v1\MeetingController;
 use App\Http\Controllers\api\v1\PermissionController;
 use App\Http\Controllers\api\v1\RoleController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\api\v1\RoomMemberController;
 use App\Http\Controllers\api\v1\RoomTypeController;
 use App\Http\Controllers\api\v1\ServerController;
 use App\Http\Controllers\api\v1\ServerPoolController;
+use App\Http\Controllers\api\v1\SessionController;
 use App\Http\Controllers\api\v1\UserController;
 use \App\Http\Controllers\api\v1\RoomTokenController;
 use Illuminate\Support\Facades\Route;
@@ -26,8 +28,8 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
 |
 */
 
@@ -55,8 +57,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     // TODO: Implement or remove this completely
     // Route::post('register', 'RegisterController@register');
-    // Route::post('email/resend', 'VerificationController@resend');
-    // Route::get('email/verify/{id}/{hash}', 'VerificationController@verify');
 
     Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if:password_self_reset_enabled', 'guest', 'throttle:password_email']);
 
@@ -84,29 +84,42 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/member', [RoomMemberController::class,'index'])->name('rooms.member.get')->middleware('can:viewMembers,room');
         Route::post('rooms/{room}/member', [RoomMemberController::class,'store'])->name('rooms.member.add')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/{user}', [RoomMemberController::class,'update'])->name('rooms.member.update')->middleware('can:manageMembers,room');
-        Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.remove')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member/{user}', [RoomMemberController::class,'destroy'])->name('rooms.member.destroy')->middleware('can:manageMembers,room');
 
         // Membership users for mass update & delete
         Route::put('rooms/{room}/member', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
-        Route::delete('rooms/{room}/member', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkRemove')->middleware('can:manageMembers,room');
+        Route::delete('rooms/{room}/member', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
 
         // Personalized room tokens
         Route::get('rooms/{room}/tokens', [RoomTokenController::class, 'index'])->name('rooms.tokens.get')->middleware('can:viewTokens,room');
         Route::post('rooms/{room}/tokens', [RoomTokenController::class, 'store'])->name('rooms.tokens.add')->middleware('can:manageTokens,room');
         Route::put('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'update'])->name('rooms.tokens.update')->middleware('can:manageTokens,room');
-        Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.remove')->middleware('can:manageTokens,room');
+        Route::delete('rooms/{room}/tokens/{token}', [RoomTokenController::class, 'destroy'])->name('rooms.tokens.destroy')->middleware('can:manageTokens,room');
 
         // File operations
         Route::middleware('can:manageFiles,room')->group(function () {
             Route::post('rooms/{room}/files', [RoomFileController::class,'store'])->name('rooms.files.add');
 
             Route::put('rooms/{room}/files/{file}', [RoomFileController::class,'update'])->name('rooms.files.update');
-            Route::delete('rooms/{room}/files/{file}', [RoomFileController::class,'destroy'])->name('rooms.files.remove');
+            Route::delete('rooms/{room}/files/{file}', [RoomFileController::class,'destroy'])->name('rooms.files.destroy');
         });
 
         Route::get('users/search', [UserController::class,'search'])->name('users.search');
         Route::apiResource('users', UserController::class);
+
+        // User profile changes
+        // If editing own profile current password is required, this middleware should prevent brute forcing of the current password
+        Route::middleware('throttle:current_password')->group(function () {
+            Route::put('users/{user}/email', [UserController::class,'changeEmail'])->name('users.email.change')->middleware('can:updateAttributes,user');
+            Route::put('users/{user}/password', [UserController::class,'changePassword'])->name('users.password.change')->middleware('can:changePassword,user');
+        });
+        Route::post('email/verify', [VerificationController::class,'verify'])->name('email.verify')->middleware('throttle:verify_email');
+
         Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware('can:resetPassword,user');
+
+
+        Route::get('sessions', [SessionController::class,'index'])->name('sessions.index');
+        Route::delete('sessions', [SessionController::class,'destroy'])->name('sessions.destroy');
 
         Route::post('servers/check', [ServerController::class,'check'])->name('servers.check')->middleware('can:viewAny,App\Models\Server');
         Route::get('servers/{server}/panic', [ServerController::class,'panic'])->name('servers.panic')->middleware('can:update,server');
@@ -120,7 +133,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('rooms/{room}/meetings', [RoomController::class,'meetings'])->name('rooms.meetings');
 
         Route::get('getTimezones', function () {
-            return response()->json([ 'timezones' => timezone_identifiers_list() ]);
+            return response()->json([ 'data' => timezone_identifiers_list() ]);
         });
     });
 

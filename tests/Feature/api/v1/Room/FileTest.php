@@ -407,34 +407,34 @@ class FileTest extends TestCase
         \Auth::logout();
 
         // Testing guest
-        $this->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertUnauthorized();
 
         // Testing user
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertForbidden();
 
         // Testing member
         $this->room->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertForbidden();
 
         // Testing moderator member
         $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::MODERATOR]]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertForbidden();
 
         // Remove membership roles and test with view all permission
         $this->room->members()->sync([]);
         $this->user->roles()->attach($this->role);
         $this->role->permissions()->attach($this->viewAllPermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertForbidden();
         $this->role->permissions()->detach($this->viewAllPermission);
 
         // test with manage permission
         $this->role->permissions()->attach($this->managePermission);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertSuccessful();
         $this->role->permissions()->detach($this->managePermission);
 
@@ -445,7 +445,7 @@ class FileTest extends TestCase
 
         // Testing co-owner
         $this->room->members()->sync([$this->user->id => ['role'=>RoomUserRole::CO_OWNER]]);
-        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->user)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertSuccessful();
 
         // recreate file
@@ -454,11 +454,11 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         // Testing owner
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertSuccessful();
 
         // Testing delete again
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file]))
             ->assertNotFound();
 
         // Check if file was deleted as well
@@ -530,13 +530,13 @@ class FileTest extends TestCase
         $room_file = $this->room->files()->where('filename', $this->file_valid->name)->first();
 
         // Testing for room without permission
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$other_room->id, 'file' => $room_file]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$other_room->id, 'file' => $room_file]))
             ->assertForbidden();
 
         // Testing for room with permission
         $other_room->owner()->associate($this->room->owner);
         $other_room->save();
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$other_room->id, 'file' => $room_file]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$other_room->id, 'file' => $room_file]))
             ->assertNotFound();
     }
 
@@ -669,7 +669,7 @@ class FileTest extends TestCase
         $this->assertTrue($room_file_2->use_in_meeting);
 
         // Remove current default
-        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.remove', ['room'=>$this->room->id, 'file' => $room_file_1]))
+        $this->actingAs($this->room->owner)->deleteJson(route('api.v1.rooms.files.destroy', ['room'=>$this->room->id, 'file' => $room_file_1]))
             ->assertSuccessful();
         $room_file_2->refresh();
         $this->assertTrue($room_file_2->default);

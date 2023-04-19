@@ -37,6 +37,7 @@ class ApplicationSettings extends JsonResource
     public function toArray($request)
     {
         return [
+            'version'                        => config('app.version'),
             'base_url'                       => config('app.url'),
             'name'                           => setting('name'),
             'logo'                           => setting('logo'),

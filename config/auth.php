@@ -102,7 +102,7 @@ return [
     | than one user table or model in the application and you want to have
     | separate password reset settings based on the specific user types.
     |
-    | The expire time is the number of minutes that the reset token should be
+    | The expiry time is the number of minutes that the reset token should be
     | considered valid. This security feature keeps tokens short-lived so
     | they have less time to be guessed. You may change this as needed.
     |
@@ -125,6 +125,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Changing Email
+    |--------------------------------------------------------------------------
+    |
+    | These settings control the email change feature for users with a local account (provider = users).
+    |
+    | The expire time is the number of minutes that the verification token should be
+    | considered valid.
+    |
+    | The throttle time is the number of seconds that a user must wait before requesting
+    | another verification token. If throttle is set to 0, throttling is disabled.
+    |
+    */
+
+    'email_change' => [
+        'expire' => env('EMAIL_CHANGE_EXPIRE', 60),
+        'throttle' => env('EMAIL_CHANGE_THROTTLE', 250),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Password Confirmation Timeout
     |--------------------------------------------------------------------------
     |
@@ -141,5 +161,4 @@ return [
         'failed'     => env('AUTH_LOG_FAILED', false),
         'ldap_roles' => env('AUTH_LOG_LDAP_ROLES', false),
     ]
-
 ];

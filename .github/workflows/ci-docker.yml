@@ -45,6 +45,14 @@ jobs:
             type=semver,pattern={{major}}
             type=ref,event=branch,prefix=dev-
 
+      - name: Set version to tag name
+        if: ${{ github.event_name == 'release' }}
+        run: echo "${GITHUB_REF_NAME}" > version
+
+      - name: Set version to commit short hash
+        if: ${{ github.event_name != 'release' }}
+        run: echo "${GITHUB_SHA}" | cut -c1-8 > version
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.1
         with:

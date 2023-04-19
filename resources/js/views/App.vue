@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-overlay :show="loadingCounter > 0" z-index="10000" no-wrap>
+    <b-overlay :show="loadingCounter > 0 || overlayLoadingCounter > 0" z-index="10000" no-wrap>
       <template v-slot:overlay>
         <div class="text-center">
           <b-spinner variant="secondary"></b-spinner>
@@ -91,7 +91,6 @@
 
 <script>
 import LocaleSelector from '../components/LocaleSelector.vue';
-import FooterComponent from '@/components/FooterComponent.vue';
 import Can from '../components/Permissions/Can.vue';
 import Cannot from '../components/Permissions/Cannot.vue';
 import Banner from '../components/Banner.vue';
@@ -100,12 +99,14 @@ import { useAuthStore } from '../stores/auth';
 import { useLoadingStore } from '../stores/loading';
 import { useSettingsStore } from '../stores/settings';
 
+const FooterComponent = Object.values(import.meta.glob(['../../custom/js/components/FooterComponent.vue', '@/components/FooterComponent.vue'], { eager: true }))[0].default;
+
 export default {
   components: { Banner, Can, Cannot, LocaleSelector, FooterComponent },
   computed: {
     ...mapState(useAuthStore, ['currentUser', 'isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),
-    ...mapState(useLoadingStore, ['loadingCounter'])
+    ...mapState(useLoadingStore, ['loadingCounter', 'overlayLoadingCounter'])
   },
   data () {
     return {

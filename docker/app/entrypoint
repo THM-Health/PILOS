@@ -33,6 +33,13 @@ function linkStorage() {
     gosu www-data php artisan storage:link
 }
 
+function optimize() {
+    gosu www-data composer dump-autoload -o
+    gosu www-data php artisan config:cache
+    gosu www-data php artisan route:cache
+    gosu www-data php artisan view:cache
+}
+
 if [ "$ENABLE_XDEBUG" == "yes" ]; then
     echo "Enabling xdebug"
     docker-php-ext-enable xdebug
@@ -46,6 +53,7 @@ else
         buildFrontend
         migrateDatabase
         linkStorage
+        optimize
     fi
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

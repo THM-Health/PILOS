@@ -51,7 +51,7 @@
 import Base from '../../api/base';
 import FieldErrors from '../../mixins/FieldErrors';
 import env from './../../env.js';
-import RoomTypeSelect from '../RoomType/RoomTypeSelect.vue';
+import RoomTypeSelect from '../Inputs/RoomTypeSelect.vue';
 import _ from 'lodash';
 import { mapActions } from 'pinia';
 import { useAuthStore } from '../../stores/auth';

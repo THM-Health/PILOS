@@ -3,7 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\PasswordReset;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
@@ -50,30 +50,32 @@ class ForgotPasswordTest extends TestCase
         $this->postJson(route('api.v1.password.email'), ['email' => $ldapUser->email])
             ->assertStatus(200);
         $this->assertDatabaseCount('password_resets', 0);
-        Notification::assertNotSentTo($ldapUser, ResetPassword::class);
+        Notification::assertNotSentTo($ldapUser, PasswordReset::class);
 
         $this->postJson(route('api.v1.password.email'), ['email' => $newUser->email])
             ->assertStatus(200);
         $this->assertDatabaseCount('password_resets', 0);
-        Notification::assertNotSentTo($newUser, ResetPassword::class);
+        Notification::assertNotSentTo($newUser, PasswordReset::class);
 
         $this->postJson(route('api.v1.password.email'), ['email' => $newUser->email])
             ->assertStatus(200);
         $this->assertDatabaseCount('password_resets', 0);
-        Notification::assertNotSentTo($newUser, ResetPassword::class);
+        Notification::assertNotSentTo($newUser, PasswordReset::class);
 
         $this->postJson(route('api.v1.password.email'), ['email' => $newUser->email])
             ->assertStatus(429);
         $this->assertDatabaseCount('password_resets', 0);
-        Notification::assertNotSentTo($newUser, ResetPassword::class);
+        Notification::assertNotSentTo($newUser, PasswordReset::class);
 
         $this->artisan('cache:clear')->assertExitCode(0);
         $this->postJson(route('api.v1.password.email'), ['email' => $user->email])
             ->assertStatus(200);
         $this->assertDatabaseCount('password_resets', 1);
         $old_reset = DB::table('password_resets')->first();
-        Notification::assertSentTo($user, ResetPassword::class);
 
+        Notification::assertSentTo($user, PasswordReset::class);
+
+        // Check if requesting a new reset link immediately after the first one is not possible
         Notification::fake();
         $this->postJson(route('api.v1.password.email'), ['email' => $user->email])
             ->assertStatus(200);
@@ -82,6 +84,6 @@ class ForgotPasswordTest extends TestCase
         $this->assertEquals($old_reset->email, $new_reset->email);
         $this->assertEquals($old_reset->token, $new_reset->token);
         $this->assertDatabaseCount('password_resets', 1);
-        Notification::assertNotSentTo($user, ResetPassword::class);
+        Notification::assertNotSentTo($user, PasswordReset::class);
     }
 }

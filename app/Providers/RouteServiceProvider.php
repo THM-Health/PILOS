@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
@@ -21,10 +22,8 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Define your route model bindings, pattern filters, and other route configuration.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->configureRateLimiting();
 
@@ -40,10 +39,8 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Configure the rate limiters for the application.
-     *
-     * @return void
      */
-    protected function configureRateLimiting()
+    protected function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(200)->by($request->user()?->id ?: $request->ip());
@@ -55,6 +52,22 @@ class RouteServiceProvider extends ServiceProvider
 
         RateLimiter::for('password_email', function (Request $request) {
             return Limit::perMinutes(30, 5)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Rate limit verify email requests
+        RateLimiter::for('verify_email', function (Request $request) {
+            return Limit::perMinutes(30, 5)->by($request->user()->id);
+        });
+
+        // Rate limit for changes to the current user profile, requiring to current password of the user if the user is editing himself
+        // Prevent brute force attacks on the password
+        RateLimiter::for('current_password', function (Request $request) {
+            if (\Auth::user()->is(User::find($request->route('user')))) {
+                // Limit to 5 attempts per minute and user+ip, not blocking the real user
+                return Limit::perMinute( 5)->by($request->user()->id.'|'.$request->ip());
+            }
+            // If the user is not editing himself, no rate limit (use the default rate limit, see api rate limit)
+            return Limit::none();
         });
     }
 }

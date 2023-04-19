@@ -89,7 +89,7 @@
 
           <!-- Security settings tab -->
           <b-col lg="3" md="6" cols="12">
-            <h5>{{ $t('rooms.settings.security.title') }}</h5>
+            <h5>{{ $t('app.security') }}</h5>
             <!-- Access code -->
             <b-form-group :state="fieldState('access_code')" :label="$t('rooms.access_code')">
               <b-input-group>
@@ -102,8 +102,9 @@
                     :title="$t('rooms.settings.security.generate_access_code')"
                     v-b-tooltip.hover
                     v-tooltip-hide-click
-                  ><i class="fa-solid fa-dice"></i
-                  ></b-button>
+                  >
+                    <i class="fa-solid fa-dice"></i>
+                  </b-button>
                 </b-input-group-prepend>
                 <b-form-input
                   id="settings-accessCode"
@@ -406,7 +407,7 @@
 import Base from '../../api/base';
 import env from './../../env.js';
 import FieldErrors from '../../mixins/FieldErrors';
-import RoomTypeSelect from '../RoomType/RoomTypeSelect.vue';
+import RoomTypeSelect from '../Inputs/RoomTypeSelect.vue';
 import _ from 'lodash';
 import PermissionService from '../../services/PermissionService';
 import { mapState } from 'pinia';

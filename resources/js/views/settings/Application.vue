@@ -302,27 +302,18 @@
               label-for='timezone'
               :state='fieldState("default_timezone")'
             >
-              <b-input-group>
-                <b-form-select
-                  :options='timezones'
-                  id='timezone'
-                  v-model='settings.default_timezone'
-                  :state='fieldState("default_timezone")'
-                  :disabled='isBusy || timezonesLoading || timezonesLoadingError || viewOnly || !loaded'
-                >
-                  <template v-slot:first>
-                    <b-form-select-option :value="null" disabled>{{ $t('settings.application.default_timezone') }}</b-form-select-option>
-                  </template>
-                </b-form-select>
-                <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
-                <b-input-group-append>
-                  <b-button
-                    v-if="timezonesLoadingError"
-                    @click="loadTimezones()"
-                    variant="outline-secondary"
-                  ><i class="fa-solid fa-sync"></i></b-button>
-                </b-input-group-append>
-              </b-input-group>
+              <timezone-select
+                id='timezone'
+                required
+                v-model="settings.default_timezone"
+                :state='fieldState("default_timezone")'
+                :disabled="isBusy || viewOnly || !loaded"
+                @loadingError="(value) => this.timezonesLoadingError = value"
+                @busy="(value) => this.timezonesLoading = value"
+                :placeholder="$t('settings.application.default_timezone')"
+              >
+              </timezone-select>
+              <template slot='invalid-feedback'><div v-html="fieldError('default_timezone')"></div></template>
             </b-form-group>
           </b-col>
 
@@ -1151,7 +1142,7 @@
                     variant="success"
                     type="submit"
                     v-if="!viewOnly"
-                    :disabled="isBusy || !loaded || timezonesLoadingError">
+                    :disabled="isBusy || !loaded || timezonesLoadingError || timezonesLoading">
             <span><i class="fa-solid fa-save mr-2"></i>{{ $t('app.save') }}</span>
           </b-button>
         </div>
@@ -1170,9 +1161,10 @@ import VSwatches from 'vue-swatches';
 import 'vue-swatches/dist/vue-swatches.css';
 import { mapActions } from 'pinia';
 import { useSettingsStore } from '../../stores/settings';
+import TimezoneSelect from '../../components/Inputs/TimezoneSelect.vue';
 
 export default {
-  components: { Banner, VSwatches },
+  components: { Banner, TimezoneSelect, VSwatches },
   mixins: [FieldErrors],
 
   data () {
@@ -1211,8 +1203,7 @@ export default {
       colorSwatches: env.BANNER_TEXT_COLORS,
       backgroundSwatches: env.BANNER_BACKGROUND_COLORS,
       timezonesLoading: false,
-      timezonesLoadingError: false,
-      timezones: []
+      timezonesLoadingError: false
     };
   },
   methods: {
@@ -1238,23 +1229,6 @@ export default {
         .finally(() => {
           this.isBusy = false;
         });
-    },
-
-    /**
-     * Loads the possible selectable timezones.
-     */
-    loadTimezones () {
-      this.timezonesLoading = true;
-      this.timezonesLoadingError = false;
-
-      Base.call('getTimezones').then(response => {
-        this.timezones = response.data.timezones;
-      }).catch(error => {
-        this.timezonesLoadingError = true;
-        Base.error(error, this.$root, error.message);
-      }).finally(() => {
-        this.timezonesLoading = false;
-      });
     },
 
     /**
@@ -1411,19 +1385,18 @@ export default {
     }
   },
   mounted () {
-    this.loadTimezones();
     this.getSettings();
   },
   computed: {
     linkBtnStyles () {
       return (this.settings.link_btn_styles || []).map((style) => {
-        return { value: style, text: this.$t(`app.buttonStyles.${style}`) };
+        return { value: style, text: this.$t(`app.button_styles.${style}`) };
       });
     },
 
     linkTargets () {
       return (this.settings.link_targets || []).map((target) => {
-        return { value: target, text: this.$t(`app.linkTargets.${target}`) };
+        return { value: target, text: this.$t(`app.link_targets.${target}`) };
       });
     },
 

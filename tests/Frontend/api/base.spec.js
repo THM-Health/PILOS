@@ -120,6 +120,13 @@ describe('base', () => {
       expect(toastErrorSpy).toBeCalledWith('app.flash.too_large');
       vi.clearAllMocks();
 
+      // 429 errors
+      error = { response: { data: { message: '' }, status: 429, statusText: 'Too Many Requests' }, message: 'Request failed with status code 429' };
+      Base.error(error, vm, error.message);
+      expect(toastErrorSpy).toBeCalledTimes(1);
+      expect(toastErrorSpy).toBeCalledWith('app.flash.too_many_requests');
+      vi.clearAllMocks();
+
       // 503 errors
       const oldWindow = window.location;
       const reloadStub = vi.fn();

@@ -6,6 +6,9 @@ $available_locales = array_diff(scandir(base_path('lang')), array('..', '.'));
 $locales_env = env('VITE_AVAILABLE_LOCALES','en,de');
 $available_locales = $locales_env !== null ? preg_split('/,/', $locales_env) : $available_locales;
 
+$versionFile = base_path('version');
+$version = file_exists($versionFile) ? file_get_contents($versionFile) : null;
+
 return [
 
     /*
@@ -22,6 +25,10 @@ return [
     'name' => env('APP_NAME', 'PILOS'),
 
     'theme' => env('VITE_THEME', 'default'),
+
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
+    'version' => $version,
 
     /*
     |--------------------------------------------------------------------------

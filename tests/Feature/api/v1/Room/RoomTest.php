@@ -665,7 +665,6 @@ class RoomTest extends TestCase
         self::assertNull($meeting->end);
 
         $url = (new MeetingService($meeting))->getCallbackUrl();
-        var_dump($url);
         // check with invalid salt
         $this->getJson($url.'test')
             ->assertUnauthorized();

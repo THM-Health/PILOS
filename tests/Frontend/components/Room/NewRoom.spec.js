@@ -489,7 +489,7 @@ describe('Create new rooms', () => {
         $t: (key) => key
       },
       propsData: {
-        roomTypes: roomTypes,
+        roomTypes,
         modalStatic: true
       },
       pinia: createTestingPinia({ initialState }),
