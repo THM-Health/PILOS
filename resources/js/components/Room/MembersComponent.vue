@@ -361,11 +361,11 @@ import PermissionService from '../../services/PermissionService';
 import { mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import { useSettingsStore } from '../../stores/settings';
-import BulkImportMembersComponent from "./BulkImportMembersComponent.vue";
+import BulkImportMembersComponent from './BulkImportMembersComponent.vue';
 
 export default {
   mixins: [FieldErrors],
-  components: {BulkImportMembersComponent, Multiselect, Can },
+  components: { BulkImportMembersComponent, Multiselect, Can },
 
   props: {
     room: Object, // room object
