@@ -208,12 +208,3 @@ To log the status of all meetings and servers and to keep the database up to dat
 ```
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
-
-### LDAP
-PILOS allows users to login with LDAP and manual user accounts.
-For the LDAP authentication an LDAP server e.g. [OpenLDAP](https://www.openldap.org/) is necessary.
-
-You can configure the LDAP login in the .env file and check if the LDAP configuration is correct, by using the following artisan command:
-```bash
-php artisan ldap:test
-```

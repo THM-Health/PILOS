@@ -4,6 +4,7 @@ namespace App\Auth;
 
 use App\Models\User;
 use Hash;
+use Log;
 use Str;
 
 class ExternalUser
@@ -60,6 +61,30 @@ class ExternalUser
             ]
         );
         return $this->user;
+    }
+
+    public function validate(){
+        if($this->getFirstAttributeValue('external_id') == null){
+            Log::error("External-ID attribute missing", ['attributes' => $this->getAttributes()]);
+            return false;
+        }
+
+        if($this->getFirstAttributeValue('first_name') == null){
+            Log::error("First name attribute missing", ['attributes' => $this->getAttributes()]);
+            return false;
+        }
+
+        if($this->getFirstAttributeValue('last_name') == null){
+            Log::error("Last name attribute missing", ['attributes' => $this->getAttributes()]);
+            return false;
+        }
+
+        if($this->getFirstAttributeValue('email') == null){
+            Log::error("Email attribute missing", ['attributes' => $this->getAttributes()]);
+            return false;
+        }
+
+        return true;
     }
 
     public function syncWithEloquentModel(): User

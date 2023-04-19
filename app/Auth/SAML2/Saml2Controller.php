@@ -69,6 +69,10 @@ class Saml2Controller extends Controller
 
         // Create new saml2 user
         $saml_user = new Saml2User($saml_raw_user);
+
+        if(!$saml_user->validate()){
+            return redirect('/external_login?error=missing_attributes');
+        }
         
         // Get eloquent user (existing or new)
         $saml_user->createOrFindEloquentModel();

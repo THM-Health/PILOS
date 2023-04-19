@@ -54,7 +54,11 @@ export const routes = [
     path: '/external_login',
     name: 'external_login',
     component: ExternalLogin,
-    meta: { requiresAuth: true }
+    props: route => {
+      return {
+        error: route.query.error
+      };
+    }
   },
   {
     path: '/logout',

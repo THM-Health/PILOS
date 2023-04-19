@@ -1,8 +1,10 @@
 <?php
 
+$ldapEnabled = env('LDAP_ENABLED', false);
+
 return [
 
-    'enabled'   => env('LDAP_ENABLED', false),
+    'enabled'   => $ldapEnabled,
 
     /*
     |--------------------------------------------------------------------------
@@ -92,5 +94,5 @@ return [
 
     'login_attribute' => env('LDAP_LOGIN_ATTRIBUTE', 'uid'),
 
-    'mapping' => json_decode(file_get_contents(app_path('Auth/Mapping/ldap.json'))),
+    'mapping' => $ldapEnabled ? json_decode(file_get_contents(app_path('Auth/Mapping/ldap2.json'))) : null,
 ];

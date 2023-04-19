@@ -1,5 +1,23 @@
 <?php
 
+$oidcEnabled = env('OIDC_ENABLED', false);
+$saml2Enabled = env('SAML2_ENABLED', false);
+
+$saml2MetadataUrl = env('SAML2_METADATA_URL', null);
+
+if($saml2Enabled){
+    if($saml2MetadataUrl) {
+        $saml2Metadata = $saml2MetadataUrl;
+    } else {
+        $saml2Metadata = file_get_contents(base_path('saml2/metadata.xml'));
+    }
+}
+else {
+    $saml2Metadata = null;
+}
+
+$saml2SignAndEncrypt = env('SAML2_SIGN_ENCRYPT', false);
+
 return [
 
     /*
@@ -32,24 +50,25 @@ return [
     ],
 
     'saml2' => [
-        'enabled' => true,
-        'metadata' => file_get_contents(base_path('saml2/metadata.xml')),
+        'enabled' => $saml2Enabled,
+        'metadata' => $saml2Metadata,
+        'ttl' => env('SAML2_TTL',3600),
         'sp_acs' => 'auth/saml2/callback',
         'sp_sls' => 'auth/saml2/logout',
         'sp_default_binding_method' => \LightSaml\SamlConstants::BINDING_SAML2_HTTP_POST,
-        'mapping' => json_decode(file_get_contents(app_path('Auth/Mapping/saml2.json'))),
-        'sp_certificate' => file_get_contents(base_path('ssl/fullchain.pem')),
-        'sp_private_key' => file_get_contents(base_path('ssl/privkey.pem')),
+        'mapping' => $saml2Enabled ? json_decode(file_get_contents(app_path('Auth/Mapping/saml2.json'))) : null,
+        'sp_certificate' => $saml2SignAndEncrypt ? file_get_contents(base_path('ssl/fullchain.pem')) : null,
+        'sp_private_key' => $saml2SignAndEncrypt ? file_get_contents(base_path('ssl/privkey.pem')) : null,
     ],
 
     'oidc' => [
-        'enabled' => env('OIDC_ENABLED', false),
+        'enabled' => $oidcEnabled,
         'issuer' =>  env('OIDC_ISSUER'),
         'client_id' => env('OIDC_CLIENT_ID'),
         'client_secret' => env('OIDC_CLIENT_SECRET'),
         'redirect' => 'auth/oidc/callback',
         'ttl' => env('OIDC_TTL',3600),
         'scopes' => explode(",",env('OIDC_SCOPES', 'email,profile')),
-        'mapping' => json_decode(file_get_contents(app_path('Auth/Mapping/oidc.json'))),
+        'mapping' => $oidcEnabled ? json_decode(file_get_contents(app_path('Auth/Mapping/oidc.json'))) : null,
     ]
 ];

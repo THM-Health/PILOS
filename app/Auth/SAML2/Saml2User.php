@@ -3,12 +3,18 @@
 namespace App\Auth\SAML2;
 
 use App\Auth\ExternalUser;
+use Log;
 
 class Saml2User extends ExternalUser
 {
     public function __construct(\Laravel\Socialite\Contracts\User $saml_user)
     {
         $raw_attributes = $saml_user->user;
+
+        if($raw_attributes == null){
+            Log::error('No attributes found in SAML response');
+            return;
+        }
 
         $attributeMap = config('services.saml2.mapping')->attributes;
 
