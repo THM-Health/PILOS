@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- API Routes for bulk edit and bulk delete of room members ([#337],[#338])
+
 ## [v2.0.0-RC.3] - 2023-03-27
 ### Added
 - Show application version in footer  ([#334],[#335])
@@ -491,6 +494,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#333]: https://github.com/THM-Health/PILOS/pull/333
 [#334]: https://github.com/THM-Health/PILOS/issues/334
 [#335]: https://github.com/THM-Health/PILOS/pull/335
+[#337]: https://github.com/THM-Health/PILOS/issues/337
+[#338]: https://github.com/THM-Health/PILOS/pull/338
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.2...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
