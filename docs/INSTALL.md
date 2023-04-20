@@ -91,11 +91,20 @@ You may need to adjust the X-Forwarded-Proto and X-Forwarded-Port settings, depe
 location / {
   proxy_pass          http://127.0.0.1:5000;
   proxy_set_header    Host              $host;
-  proxy_set_header    X-Forwarded-Port  $server_port
+  proxy_set_header    X-Forwarded-Port  $server_port;
   proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
   proxy_set_header    X-Forwarded-Proto $scheme;
   proxy_http_version  1.1;
 }
+```
+
+#### Trusted proxies
+You have to add your proxy to the list of trusted proxies in the `.env` file.
+```
+# Trusted proxies for reverse proxy setups
+# You can use "*" to trust all proxies that connect directly to the server
+# or you can use a comma separated list of trusted proxies, also with support for CIDR notation e.g. "192.0.0.1,10.0.0.0/8"
+TRUSTED_PROXIES=
 ```
 
 ### Starting
