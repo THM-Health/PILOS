@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Auth\LDAP;
 
 use LdapRecord\Models\Model;
 
-class LDAPUserObject extends Model {
-
+class LDAPUserObject extends Model
+{
     /**
      * The "booting" method of the model.
      *

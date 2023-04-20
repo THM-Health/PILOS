@@ -6,7 +6,6 @@ use App\Auth\ExternalUser;
 
 class OIDCUser extends ExternalUser
 {
-
     protected $raw_attributes;
 
     public function __construct(\Laravel\Socialite\Contracts\User $oidc_user)
@@ -15,18 +14,21 @@ class OIDCUser extends ExternalUser
 
         $attributeMap = config('services.oidc.mapping')->attributes;
 
-        foreach ($attributeMap as $attribute=>$oidc_attribute){
-            foreach ($this->raw_attributes as $attribute_name=>$value){
-                
-                if(strcasecmp($oidc_attribute, $attribute_name) == 0){
-                    if(is_array($value))
-                        foreach($value as $sub_value)
+        foreach ($attributeMap as $attribute=>$oidc_attribute) {
+            foreach ($this->raw_attributes as $attribute_name=>$value) {
+                if (strcasecmp($oidc_attribute, $attribute_name) == 0) {
+                    if (is_array($value)) {
+                        foreach ($value as $sub_value) {
                             $this->addAttributeValue($attribute, $sub_value);
-                    else
+                        }
+                    } else {
                         $this->addAttributeValue($attribute, $value);
+                    }
                 }
             }
         }
+
+        parent::__construct();
     }
 
     public function getRawAttributes()

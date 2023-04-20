@@ -2,7 +2,7 @@ import Base from './base';
 
 export default {
   login (credentials, method) {
-    return Base.call(method === 'ldap' ? 'login/ldap' : 'login', {
+    return Base.call('login/' + method, {
       method: 'post',
       data: credentials
     }, true);

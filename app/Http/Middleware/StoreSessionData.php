@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\LookupSession;
 use App\Models\SessionData;
 use Auth;
 use Closure;
@@ -19,19 +18,18 @@ class StoreSessionData
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::guest() && $request->session()->has('session_data')) {
-
             $dataSets = $request->session()->get('session_data');
 
-            foreach($dataSets as $dataSet){
-           
+            foreach ($dataSets as $dataSet) {
                 SessionData::updateOrCreate(
                     [
-                        'session_id' =>  $request->session()->getId(),
-                        'key' => $dataSet['key'],
-                        'value' => $dataSet['value']
-                    ]);
+                        'session_id' => $request->session()->getId(),
+                        'key'        => $dataSet['key'],
+                        'value'      => $dataSet['value']
+                    ]
+                );
             }
-                $request->session()->forget('session_data');
+            $request->session()->forget('session_data');
         }
 
         return $next($request);

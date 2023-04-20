@@ -22,7 +22,6 @@ class User extends Authenticatable implements HasLocalePreference, LdapAuthentic
 {
     use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
 
-
     /**
      * The "booted" method of the model.
      *

@@ -47,7 +47,7 @@ services:
       links:
         - db:db
       ports:
-        - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
+        - '${FORWARD_PHPMYADMIN_PORT:-8888}:80'
       environment:
         MYSQL_USERNAME: "${DB_USERNAME}"
         MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
@@ -73,6 +73,34 @@ services:
       environment:
         PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ldap-host': [{'server': []},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org', 'bind_pass': 'admin'}]}]}]"
         PHPLDAPADMIN_HTTPS: 'false'
+    postgres:
+      image: postgres
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+    keycloak:
+        image: quay.io/keycloak/keycloak:legacy
+        environment:
+          DB_VENDOR: POSTGRES
+          DB_ADDR: postgres
+          DB_DATABASE: keycloak
+          DB_USER: keycloak
+          DB_SCHEMA: public
+          DB_PASSWORD: password
+          KEYCLOAK_USER: admin
+          KEYCLOAK_PASSWORD: Pa55w0rd
+          #KEYCLOAK_LOGLEVEL: ALL
+          # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+          #JDBC_PARAMS: "ssl=true"
+        ports:
+          - 8080:8080
+        depends_on:
+          - postgres
 volumes:
   mariadb:
+    driver: local
+  postgres_data:
     driver: local

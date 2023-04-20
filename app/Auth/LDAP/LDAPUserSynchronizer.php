@@ -2,7 +2,6 @@
 
 namespace App\Auth\LDAP;
 
-use App\Auth\ExternalUserService;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
@@ -14,10 +13,10 @@ class LDAPUserSynchronizer extends UserSynchronizer
     public function run(LdapModel $object, array $data = [])
     {
         // Create new ldap user
-        $lpda_user = new LDAPUser($object);
+        $ldap_user = new LDAPUser($object);
                         
         // Get eloquent user (existing or new)
-        $user = $lpda_user->createOrFindEloquentModel();
+        $user = $ldap_user->createOrFindEloquentModel();
 
         if (! $user->exists) {
             event(new Importing($object, $user));
@@ -26,8 +25,7 @@ class LDAPUserSynchronizer extends UserSynchronizer
         event(new Synchronizing($object, $user));
 
         // Sync attributes
-        $lpda_user->syncWithEloquentModel();
-
+        $ldap_user->syncWithEloquentModel();
 
         // Note: We are not saving the user here, as the user is saved after successful authentication.
 

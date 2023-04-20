@@ -33,16 +33,16 @@
               ></external-login-component>
             </b-tab>
             <b-tab :title="$t('auth.email.tab_title')">
-              <email-login-component
-                id="default"
+              <local-login-component
+                id="local"
                 :title="$t('auth.email.title')"
                 @submit="handleLogin"
                 :submit-label="$t('auth.login')"
                 :password-label="$t('auth.password')"
                 :email-label="$t('app.email')"
                 :loading="loading"
-                :errors="errors.default"
-              ></email-login-component>
+                :errors="errors.local"
+              ></local-login-component>
             </b-tab>
           </b-tabs>
         </b-card>
@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import EmailLoginComponent from '../components/Login/EmailLoginComponent.vue';
+import LocalLoginComponent from '../components/Login/LocalLoginComponent.vue';
 import LdapLoginComponent from '../components/Login/LdapLoginComponent.vue';
 import env from '../env';
 import Base from '../api/base';
@@ -64,14 +64,14 @@ import ExternalLoginComponent from '../components/Login/ExternalLoginComponent.v
 export default {
   components: {
     ExternalLoginComponent,
-    EmailLoginComponent,
+    LocalLoginComponent,
     LdapLoginComponent
   },
   data () {
     return {
       loading: false,
       errors: {
-        default: null,
+        local: null,
         ldap: null
       }
     };
@@ -97,7 +97,7 @@ export default {
     /**
      * Handle login request
      * @param data Credentials with username/email and password
-     * @param id ID of the login methode (ldap or default)
+     * @param id ID of the login method (ldap or local)
      * @return {Promise<void>}
      */
     async handleLogin ({ data, id }) {

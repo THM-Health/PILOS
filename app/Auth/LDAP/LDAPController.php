@@ -2,6 +2,7 @@
 
 namespace App\Auth\LDAP;
 
+use App\Auth\MissingAttributeException;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -10,8 +11,9 @@ use Illuminate\Support\Facades\Log;
 
 class LDAPController extends Controller
 {
-
-    use AuthenticatesUsers;
+    use AuthenticatesUsers {
+        login as ldapLogin;
+    }
 
     public function __construct()
     {
@@ -26,7 +28,7 @@ class LDAPController extends Controller
     protected function credentials(Request $request)
     {
         return [
-            'password' => $request->get('password'),
+            'password'                     => $request->get('password'),
             config('ldap.login_attribute') => $request->get('username')
         ];
     }
@@ -34,6 +36,15 @@ class LDAPController extends Controller
     protected function guard()
     {
         return Auth::guard('ldap');
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            return $this->ldapLogin($request);
+        } catch (MissingAttributeException $e) {
+            return abort(500, __('auth.error.missing_attributes'));
+        }
     }
 
     /**

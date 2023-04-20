@@ -11,20 +11,23 @@ class Saml2User extends ExternalUser
     {
         $raw_attributes = $saml_user->user;
 
-        if($raw_attributes == null){
+        if ($raw_attributes == null) {
             Log::error('No attributes found in SAML response');
+            parent::__construct();
+
             return;
         }
 
         $attributeMap = config('services.saml2.mapping')->attributes;
 
-        foreach ($attributeMap as $attribute=>$saml_attribute){
-            foreach ($raw_attributes as $raw_attribute){
-                
-                if(strcasecmp($saml_attribute, $raw_attribute->getName()) == 0){
+        foreach ($attributeMap as $attribute=>$saml_attribute) {
+            foreach ($raw_attributes as $raw_attribute) {
+                if (strcasecmp($saml_attribute, $raw_attribute->getName()) == 0) {
                     $this->addAttributeValue($attribute, $raw_attribute->getFirstAttributeValue());
                 }
             }
         }
+
+        parent::__construct();
     }
 }

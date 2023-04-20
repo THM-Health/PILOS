@@ -7,8 +7,6 @@ use Exception;
 use GuzzleHttp\RequestOptions;
 use Http;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Laravel\Socialite\Two\InvalidStateException;
 use SocialiteProviders\Manager\OAuth2\AbstractProvider;
 use SocialiteProviders\Manager\OAuth2\User;
 use Firebase\JWT\JWK;
@@ -37,16 +35,23 @@ class OIDCProvider extends AbstractProvider
 
     protected function getOIDCConfig($key)
     {
-        $url = rtrim($this->getConfig('issuer'), '/')."/.well-known/openid-configuration";
+        $url = rtrim($this->getConfig('issuer'), '/').'/.well-known/openid-configuration';
 
         $cacheKey = 'oidc.config.'.md5($url);
-        $config = Cache::get($cacheKey);
+        $config   = Cache::get($cacheKey);
 
-        if(!$config) {
-            $response = Http::get($url);
-            $config = $response->json();
+        if (!$config) {
+            try {
+                $response = Http::get($url);
+            } catch(Exception $e) {
+                throw new NetworkIssue($e);
+            }
+
             if ($response->successful()) {
+                $config = $response->json();
                 Cache::put($cacheKey, $config, $seconds = $this->getConfig('ttl'));
+            } else {
+                throw new InvalidConfiguration();
             }
         }
 
@@ -71,12 +76,12 @@ class OIDCProvider extends AbstractProvider
     {
         try {
             // payload validation
-            $payload = explode('.', $logoutToken);
+            $payload     = explode('.', $logoutToken);
             $payloadJson = json_decode(base64_decode(str_pad(strtr($payload[1], '-_', '+/'), strlen($payload[1]) % 4, '=', STR_PAD_RIGHT)), true);
 
             $claims = JWT::decode($logoutToken, JWK::parseKeySet($this->getJWTKeys(), 'RS256'), $this->getOIDCConfig('id_token_signing_alg_values_supported'));
 
-            if($this->verifyLogoutTokenClaims($claims)){
+            if ($this->verifyLogoutTokenClaims($claims)) {
                 return $claims;
             }
         } catch (Exception $ex) {
@@ -86,7 +91,8 @@ class OIDCProvider extends AbstractProvider
         return false;
     }
 
-    private function verifyLogoutTokenClaims($claims){
+    private function verifyLogoutTokenClaims($claims)
+    {
         // Verify that the Logout Token doesn't contain a nonce Claim.
         if (isset($claims->nonce)) {
             return false;
@@ -129,7 +135,6 @@ class OIDCProvider extends AbstractProvider
 
         return true;
     }
-
 
     /**
      * {@inheritdoc}
@@ -181,22 +186,22 @@ class OIDCProvider extends AbstractProvider
         ]);
     }
 
-
-    public function logout($idToken, $redirect){
+    public function logout($idToken, $redirect)
+    {
         $signout_endpoint = $this->getOIDCConfig('end_session_endpoint');
 
-      
-       if(!$signout_endpoint){
+        if (!$signout_endpoint) {
             return false;
         }
 
         $signout_params = [
-            'client_id' => $this->config['client_id'],
-            'id_token_hint' => $idToken,
+            'client_id'                => $this->config['client_id'],
+            'id_token_hint'            => $idToken,
             'post_logout_redirect_uri' => $redirect,
         ];
 
-        $signout_endpoint  .= (strpos($signout_endpoint, '?') === false ? '?' : '&') . http_build_query( $signout_params, '', '&');
+        $signout_endpoint .= (strpos($signout_endpoint, '?') === false ? '?' : '&') . http_build_query( $signout_params, '', '&');
+
         return $signout_endpoint;
     }
 }

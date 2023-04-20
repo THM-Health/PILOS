@@ -104,8 +104,8 @@ class ApplicationSettings extends JsonResource
             'room_token_expiration' => intval(setting('room_token_expiration')),
 
             'auth' => [
-                'ldap'                  => config('ldap.enabled'),
-                'oidc'                  => config('services.oidc.enabled'),
+                'ldap'                   => config('ldap.enabled'),
+                'oidc'                   => config('services.oidc.enabled'),
                 'saml2'                  => config('services.saml2.enabled'),
             ],
             'room_refresh_rate'     => floatval(setting('room_refresh_rate')),

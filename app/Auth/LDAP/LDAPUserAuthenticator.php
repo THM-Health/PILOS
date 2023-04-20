@@ -6,7 +6,6 @@ use LdapRecord\Laravel\LdapUserAuthenticator as UserAuthenticator;
 
 class LDAPUserAuthenticator extends UserAuthenticator
 {
-
     public function __construct(array $rules = [])
     {
         parent::__construct($rules);

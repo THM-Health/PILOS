@@ -12,17 +12,20 @@ class LDAPUser extends ExternalUser
 
         $attributeMap = config('ldap.mapping')->attributes;
 
-        foreach ($attributeMap as $attribute=>$oidc_attribute){
-            foreach ($raw_attributes as $attribute_name=>$value){
-                
-                if(strcasecmp($oidc_attribute,$attribute_name) == 0){
-                    if(is_array($value))
-                        foreach($value as $sub_value)
+        foreach ($attributeMap as $attribute=>$oidc_attribute) {
+            foreach ($raw_attributes as $attribute_name=>$value) {
+                if (strcasecmp($oidc_attribute, $attribute_name) == 0) {
+                    if (is_array($value)) {
+                        foreach ($value as $sub_value) {
                             $this->addAttributeValue($attribute, $sub_value);
-                    else
+                        }
+                    } else {
                         $this->addAttributeValue($attribute, $value);
+                    }
                 }
             }
         }
+
+        parent::__construct();
     }
 }

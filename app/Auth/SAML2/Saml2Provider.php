@@ -19,16 +19,13 @@ use SocialiteProviders\Saml2\Provider;
 
 class Saml2Provider extends Provider
 {
-
-    public function logout($nameId, $redirect){
-    
-
+    public function logout($nameId, $redirect)
+    {
         $bindingType = $this->getConfig('idp_binding_method', SamlConstants::BINDING_SAML2_HTTP_REDIRECT);
 
         $identityProviderConsumerService = $this->getIdentityProviderEntityDescriptor()
             ->getFirstIdpSsoDescriptor()
             ->getFirstSingleSignOnService($bindingType);
-
 
         $logoutRequest = new LogoutRequest();
         $logoutRequest
@@ -39,13 +36,14 @@ class Saml2Provider extends Provider
             ->setNameID((new NameID())->setFormat($this->getNameIDFormat())->setValue($nameId));
 
         $reponse = $this->sendMessage($logoutRequest, $identityProviderConsumerService->getBinding());
+
         return $reponse->getTargetUrl();
     }
-
 
     public function getLogoutMessageContext()
     {
         $this->receive();
+
         return $this->messageContext;
     }
 
@@ -86,11 +84,10 @@ class Saml2Provider extends Provider
         throw new InvalidSignatureException('The signature of the assertion could not be verified');
     }
 
-
-    public function validateLogoutResponse(){
-
+    public function validateLogoutResponse()
+    {
         $logoutResponse = $this->messageContext->asLogoutResponse();
-        $status = $logoutResponse->getStatus();
+        $status         = $logoutResponse->getStatus();
 
         if (!$status->isSuccess()) {
             throw new LightSamlValidationException('Server responded with an unsuccessful status: '.$status->getStatusCode()->getValue());
@@ -99,7 +96,6 @@ class Saml2Provider extends Provider
         if ($this->getIdentityProviderEntityDescriptor()->getEntityID() !== $logoutResponse->getIssuer()->getValue()) {
             throw new LightSamlValidationException('The issuer entity id did not match the configured identity provider entity id');
         }
-
 
         $idpSsoDescriptor = $this->getIdentityProviderEntityDescriptor()->getFirstIdpSsoDescriptor();
 
@@ -155,5 +151,4 @@ class Saml2Provider extends Provider
 
         return $this->sendMessage($authnRequest, $identityProviderConsumerService->getBinding());
     }
-   
 }

@@ -7,18 +7,17 @@ use App\Models\User;
 
 class RoleMapping
 {
-
     /**
      * Maps user attributes to roles based on the provided config
      *
      * @param array $userAttributes An array of user attributes
-     * @param User $user The user the roles should be applied to
-     * @param array $roles The configuration object containing the roles and rules
+     * @param User  $user           The user the roles should be applied to
+     * @param array $roles          The configuration object containing the roles and rules
      */
-    function mapRoles(array $userAttributes, User $user, array $roles)
+    public function mapRoles(array $userAttributes, User $user, array $roles)
     {
         // Array of all roles the user should get based on the mapping config
-        $matchedRoles = array();
+        $matchedRoles = [];
 
         // Loop through the roles
         foreach ($roles as $role) {
@@ -28,10 +27,10 @@ class RoleMapping
             }
 
             // If rules are fulfilled, add to array of matched roles
-            if($this->areRulesFulfilled($role, $userAttributes))
+            if ($this->areRulesFulfilled($role, $userAttributes)) {
                 $matchedRoles[] = $role->name;
+            }
         }
-
 
         if (config('auth.log.roles')) {
             \Log::debug('Roles found for user ['.$user->external_id.'].', $matchedRoles);
@@ -45,7 +44,6 @@ class RoleMapping
             if (!empty($role)) {
                 $roleIds[$role->id] = ['automatic' => true];
             }
-
         }
 
         $user->roles()->syncWithoutDetaching($roleIds);
@@ -60,12 +58,13 @@ class RoleMapping
     private function areRulesFulfilled(mixed $role, $userAttributes): bool
     {
         // Results of checking each rule
-        $rulesFulfilled = array();
+        $rulesFulfilled = [];
 
         // Loop through the rules for this role to check if rule is fulfilled
         foreach ($role->rules as $rule) {
-            if(!isset($userAttributes[$rule->attribute])){
+            if (!isset($userAttributes[$rule->attribute])) {
                 $rulesFulfilled[] = false;
+
                 continue;
             }
 
@@ -85,12 +84,13 @@ class RoleMapping
                 return false;
             }
         }
+
         return true;
     }
 
     /**
      * @param $userAttributes
-     * @param mixed $rule
+     * @param  mixed $rule
      * @return bool
      */
     private function isRuleFulfilled($value, mixed $rule): bool
@@ -111,7 +111,7 @@ class RoleMapping
         // For arrays check all entries
 
         // Results of the regex for each entry of the value array
-        $matches = array();
+        $matches = [];
 
         // Loop through all entries and try to match the regex and save the result
         foreach ($value as $entries) {
@@ -127,7 +127,6 @@ class RoleMapping
 
             // Check if regex matches all the entries (no entry is false)
             return !in_array(false, $matches);
-
         } // Check if regex has to (not) match with any array entries
         else {
             // If the rule is negated, check if regex doesn't match on any entry (any entry is false)
@@ -139,5 +138,4 @@ class RoleMapping
             return in_array(true, $matches);
         }
     }
-
 }

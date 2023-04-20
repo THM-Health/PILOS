@@ -51,10 +51,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         }
     })->name('setLocale');
 
-    Route::post('login', [LoginController::class,'login'])->name('login');
-    Route::post('login/ldap', [LDAPController::class,'login'])->name('ldapLogin');
-
-
+    Route::post('login/local', [LoginController::class,'login'])->name('login.local');
+    Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap');
 
     Route::post('logout', [LoginController::class,'logout'])->name('logout');
     Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['guest', 'throttle:password_reset']);
