@@ -1,4 +1,4 @@
-# Migrate from PILOS v1 to PILOS v2
+# Upgrade from PILOS v1 to PILOS v2
 
 ## Migrate from native to docker
 

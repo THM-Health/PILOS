@@ -102,7 +102,7 @@ class ImportGreenlight extends Command
             // import greenlight users
             if ($user->provider == 'greenlight') {
                 // check if user with this email exists
-                $dbUser = User::where('email', $user->email)->where('authenticator', 'users')->first();
+                $dbUser = User::where('email', $user->email)->where('authenticator', 'local')->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
                     $existed++;
@@ -114,7 +114,7 @@ class ImportGreenlight extends Command
 
                 // create new user
                 $dbUser                = new User();
-                $dbUser->authenticator = 'users';
+                $dbUser->authenticator = 'local';
                 $dbUser->email         = $user->email;
                 // as greenlight doesn't split the name in first and lastname,
                 // we have to import it as firstname and ask the users or admins to correct it later if desired
@@ -135,7 +135,7 @@ class ImportGreenlight extends Command
             // import ldap users
             elseif ($user->provider == 'ldap') {
                 // check if user with this username exists
-                $dbUser = User::where('username', $user->username)->first();
+                $dbUser = User::where('external_id', $user->username)->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
                     $existed++;
@@ -148,7 +148,7 @@ class ImportGreenlight extends Command
                 $this->callSilent('ldap:import', ['provider' => 'ldap', 'user' => $user->username, '--no-interaction', '--no-log']);
 
                 // check if user is found after import
-                $dbUser = User::where('username', $user->username)->first();
+                $dbUser = User::where('external_id', $user->username)->first();
 
                 // user not found, import failed
                 if ($dbUser == null) {

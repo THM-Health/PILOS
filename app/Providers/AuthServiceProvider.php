@@ -14,6 +14,7 @@ use App\Policies\ServerPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Contracts\Foundation\Application;
 
 class AuthServiceProvider extends ServiceProvider
 {

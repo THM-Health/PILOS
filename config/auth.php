@@ -1,5 +1,8 @@
 <?php
 
+use App\Auth\LDAP\LDAPUserObject;
+use App\Models\User;
+
 return [
 
     /*
@@ -66,24 +69,14 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model'  => App\Models\User::class,
+            'model'  => User::class,
         ],
 
         'ldap' => [
             'driver'   => 'ldap',
-            'model'    => LdapRecord\Models\OpenLDAP\User::class,
+            'model'    => LDAPUserObject::class,
             'database' => [
-                'model'           => \App\Models\User::class,
-                'sync_passwords'  => false,
-                'sync_attributes' => [
-                    'firstname' => 'givenName',
-                    'lastname'  => 'sn',
-                    'email'     => 'mail',
-                    'username'  => 'uid',
-                ],
-                'sync_existing' => [
-                    'username' => 'uid',
-                ],
+                'model' => User::class,
             ],
         ],
 
@@ -159,6 +152,6 @@ return [
     'log' => [
         'successful' => env('AUTH_LOG_SUCCESSFUL', false),
         'failed'     => env('AUTH_LOG_FAILED', false),
-        'ldap_roles' => env('AUTH_LOG_LDAP_ROLES', false),
+        'roles' => env('AUTH_LOG_ROLES', false),
     ]
 ];

@@ -89,7 +89,7 @@ class UserPolicy
      */
     public function updateAttributes(User $user, User $model)
     {
-        return $model->authenticator === 'users'
+        return $model->authenticator === 'local'
             && $user->can('update', $model)
             && ($user->can('users.updateOwnAttributes') || $model->id !== $user->id);
     }
@@ -103,7 +103,7 @@ class UserPolicy
      */
     public function changePassword(User $user, User $model)
     {
-        return $model->authenticator === 'users'
+        return $model->authenticator === 'local'
             && $user->can('update', $model)
             && (setting('password_self_reset_enabled') || $model->id !== $user->id);
     }
@@ -117,7 +117,7 @@ class UserPolicy
      */
     public function resetPassword(User $user, User $model)
     {
-        return $model->authenticator === 'users'
+        return $model->authenticator === 'local'
             && $user->can('update', $model)
             && $model->id !== $user->id
             && !$model->initial_password_set;

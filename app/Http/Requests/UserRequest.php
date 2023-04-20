@@ -23,11 +23,11 @@ class UserRequest extends FormRequest
             'image'                 => ['sometimes','nullable','mimes:jpg','dimensions:width=100,height=100'],
         ];
 
-        if (!$this->user || $this->user->authenticator === 'users') {
+        if (!$this->user || $this->user->authenticator === 'local') {
             $rules['firstname'] = ['sometimes','required','string','max:255'];
             $rules['lastname']  = ['sometimes','required','string','max:255'];
             $rules['email']     = ['sometimes','required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->where(function ($query) {
-                $query          = $query->where('authenticator', '=', 'users');
+                $query          = $query->where('authenticator', '=', 'local');
 
                 if ($this->user) {
                     $query = $query->where('id', '!=', $this->user->id);
