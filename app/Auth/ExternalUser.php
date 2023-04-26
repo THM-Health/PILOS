@@ -7,7 +7,7 @@ use Hash;
 use Log;
 use Str;
 
-class ExternalUser
+abstract class ExternalUser
 {
     private array $attributes = [];
     private User $user;
@@ -28,6 +28,11 @@ class ExternalUser
     public function getFirstAttributeValue($name)
     {
         return $this->attributes[$name][0] ?? null;
+    }
+
+    public function getAttributeValues($name)
+    {
+        return $this->attributes[$name] ?? null;
     }
 
     public function __construct()

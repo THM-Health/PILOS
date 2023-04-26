@@ -25,6 +25,6 @@ class SetUserLDAPRole
 
         // Map roles
         $roleMapping = new RoleMapping();
-        $roleMapping->mapRoles($ldap_user->getAttributes(), $eloquentModel, config('ldap.mapping')->roles);
+        $roleMapping->mapRoles($ldap_user, $eloquentModel, config('ldap.mapping')->roles);
     }
 }

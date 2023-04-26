@@ -15,6 +15,9 @@ class RoleTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+
+    public const INVALID_ID = 999999999;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -84,7 +87,7 @@ class RoleTest extends TestCase
             ->assertJsonValidationErrors(['name', 'permissions.0']);
 
         $role['name']        = '**';
-        $role['permissions'] = [99];
+        $role['permissions'] = [self::INVALID_ID];
         $this->postJson(route('api.v1.roles.store', $role))
             ->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'permissions.0']);
@@ -227,7 +230,7 @@ class RoleTest extends TestCase
         $permission = Permission::firstOrCreate([ 'name' => 'roles.view' ]);
         $roleA->permissions()->attach($permission->id);
 
-        $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => 99]))
+        $this->actingAs($user)->getJson(route('api.v1.roles.show', ['role' => self::INVALID_ID]))
             ->assertNotFound();
         $this->getJson(route('api.v1.roles.show', ['role' => $roleA]))
             ->assertStatus(200)
@@ -251,7 +254,7 @@ class RoleTest extends TestCase
         $roleA->permissions()->attach($permission->id);
         $roleB->permissions()->attach($permission->id);
 
-        $this->deleteJson(route('api.v1.roles.destroy', ['role' => 99]))->assertNotFound();
+        $this->deleteJson(route('api.v1.roles.destroy', ['role' => self::INVALID_ID]))->assertNotFound();
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleA]))->assertStatus(403);
         $this->deleteJson(route('api.v1.roles.destroy', ['role' => $roleB]))
             ->assertStatus(CustomStatusCodes::ROLE_DELETE_LINKED_USERS)
