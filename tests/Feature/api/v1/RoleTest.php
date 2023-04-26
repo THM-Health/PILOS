@@ -15,7 +15,6 @@ class RoleTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-
     public const INVALID_ID = 999999999;
 
     protected function setUp(): void
