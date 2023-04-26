@@ -20,9 +20,9 @@ localVue.use(PiniaVuePlugin);
 
 const ldapUser = {
   id: 1,
-  authenticator: 'ldap',
+  authenticator: 'external',
   email: 'john@doe.com',
-  username: 'jdo',
+  external_id: 'jdo',
   firstname: 'John',
   lastname: 'Doe',
   model_name: 'User',
@@ -34,9 +34,9 @@ const ldapUser = {
 
 const user = {
   id: 2,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'john@doe.com',
-  username: null,
+  external_id: null,
   firstname: 'John',
   lastname: 'Doe',
   model_name: 'User',
@@ -48,9 +48,9 @@ const user = {
 
 const adminUser = {
   id: 3,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'admin@domin.com',
-  username: null,
+  external_id: null,
   firstname: 'Admin',
   lastname: 'User',
   model_name: 'User',
@@ -171,7 +171,7 @@ describe('ProfileComponent', () => {
 
     // Check username
     expect(inputs.length).toBe(3);
-    expect(inputs.at(2).props('id')).toBe('username');
+    expect(inputs.at(2).props('id')).toBe('external_id');
     expect(inputs.at(2).props('value')).toBe('jdo');
     expect(inputs.at(2).props('disabled')).toBeTruthy();
 

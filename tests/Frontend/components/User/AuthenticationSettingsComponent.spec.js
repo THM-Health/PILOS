@@ -16,9 +16,9 @@ localVue.use(PiniaVuePlugin);
 
 const ldapUser = {
   id: 1,
-  authenticator: 'ldap',
+  authenticator: 'external',
   email: 'john@doe.com',
-  username: 'jdo',
+  external_id: 'jdo',
   firstname: 'John',
   lastname: 'Doe',
   model_name: 'User',
@@ -27,9 +27,9 @@ const ldapUser = {
 
 const user = {
   id: 2,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'john@doe.com',
-  username: null,
+  external_id: null,
   firstname: 'John',
   lastname: 'Doe',
   model_name: 'User',
@@ -38,9 +38,9 @@ const user = {
 
 const adminUser = {
   id: 3,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'admin@domin.com',
-  username: null,
+  external_id: null,
   firstname: 'Admin',
   lastname: 'User',
   model_name: 'User',

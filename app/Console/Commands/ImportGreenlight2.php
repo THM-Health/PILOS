@@ -10,12 +10,14 @@ use App\Models\RoomType;
 use App\Models\User;
 use Config;
 use DB;
+use Hash;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Str;
 
-class ImportGreenlight extends Command
+class ImportGreenlight2 extends Command
 {
-    protected $signature = 'import:greenlight
+    protected $signature = 'import:greenlight-v2
                              {host : ip or hostname of postgres database server}
                              {port : port of postgres database server}
                              {database : greenlight database name, see greenlight .env variable DB_NAME}
@@ -95,8 +97,6 @@ class ImportGreenlight extends Command
         $existed = 0;
         // counter of users that are created
         $created = 0;
-        // list of user that could not be created, e.g. ldap import failed
-        $failed = [];
 
         foreach ($users as $user) {
             // import greenlight users
@@ -144,19 +144,21 @@ class ImportGreenlight extends Command
 
                     continue;
                 }
-                // try to import user with this username
-                $this->callSilent('ldap:import', ['provider' => 'ldap', 'user' => $user->username, '--no-interaction', '--no-log']);
 
-                // check if user is found after import
-                $dbUser = User::where('external_id', $user->username)->first();
+                // create new user
+                $dbUser                = new User();
+                $dbUser->authenticator = 'external';
+                $dbUser->email         = $user->email;
+                $dbUser->external_id   = $user->username;
+                // as greenlight doesn't split the name in first and lastname,
+                // we have to import it as firstname, should be corrected during next login
+                $dbUser->firstname     = $user->name;
+                $dbUser->lastname      = '';
+                $dbUser->password      = Hash::make(Str::random());
+                $dbUser->locale        = config('app.locale');
+                $dbUser->timezone      = setting('default_timezone');
+                $dbUser->save();
 
-                // user not found, import failed
-                if ($dbUser == null) {
-                    array_push($failed, [$user->name,$user->username]);
-                    $bar->advance();
-
-                    continue;
-                }
                 // user was successfully imported, link greenlight user id to id of new user
                 $created++;
                 $userMap[$user->id] = $dbUser->id;
@@ -168,16 +170,6 @@ class ImportGreenlight extends Command
         $this->line('');
         $this->info($created. ' created, '.$existed. ' skipped (already existed)');
 
-        // if any ldap user imports failed, show name and username
-        if (count($failed) > 0) {
-            $this->line('');
-
-            $this->error('LDAP import failed for the following ' . count($failed) . ' users:');
-            $this->table(
-                ['Name', 'Username'],
-                $failed
-            );
-        }
         $this->line('');
 
         return $userMap;

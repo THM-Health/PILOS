@@ -9,8 +9,7 @@ class LDAPUser extends ExternalUser
     public function __construct(LDAPUserObject $ldap_user)
     {
         $raw_attributes = $ldap_user->getAttributes();
-
-        $attributeMap = config('ldap.mapping')->attributes;
+        $attributeMap   = config('ldap.mapping')->attributes;
 
         foreach ($attributeMap as $attribute=>$oidc_attribute) {
             foreach ($raw_attributes as $attribute_name=>$value) {

@@ -33,7 +33,7 @@ class DeleteUnverifiedNewUsersTest extends TestCase
         User::factory()->create([
             'email'                => 'john@doe.com',
             'initial_password_set' => true,
-            'authenticator'        => 'users'
+            'authenticator'        => 'local'
         ]);
         DB::table('password_resets')
             ->insert([
@@ -46,13 +46,13 @@ class DeleteUnverifiedNewUsersTest extends TestCase
         User::factory()->create([
             'email'                => 'john@doe.com',
             'initial_password_set' => true, // accidentally set to true
-            'authenticator'        => 'ldap'
+            'authenticator'        => 'external'
         ]);
 
         // Registered user with expired password reset token
         User::factory()->create([
             'email'         => 'max@muster.de',
-            'authenticator' => 'users'
+            'authenticator' => 'local'
         ]);
         DB::table('password_resets')
             ->insert([

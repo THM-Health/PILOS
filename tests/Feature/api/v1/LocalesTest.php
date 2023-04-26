@@ -194,7 +194,7 @@ class LocalesTest extends TestCase
     {
         $fake = DirectoryEmulator::setup('default');
 
-        $ldapUser = LdapUser::create([
+        $externalUser = LdapUser::create([
             'givenName'              => $this->faker->firstName,
             'sn'                     => $this->faker->lastName,
             'cn'                     => $this->faker->name,
@@ -204,15 +204,15 @@ class LocalesTest extends TestCase
             'password'
         ]);
 
-        $fake->actingAs($ldapUser);
+        $fake->actingAs($externalUser);
 
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $ldapUser->uid[0],
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $externalUser->uid[0],
             'password' => 'secret'
         ]);
 
-        $ldapUser = User::where(['authenticator' => 'ldap'])->first();
+        $externalUser = User::where(['authenticator' => 'external'])->first();
 
-        $this->assertEquals('en', $ldapUser->locale);
+        $this->assertEquals('en', $externalUser->locale);
     }
 }

@@ -40,6 +40,10 @@ class LDAPController extends Controller
 
     public function login(Request $request)
     {
+        if (!config('ldap.enabled')) {
+            abort(404);
+        }
+
         try {
             return $this->ldapLogin($request);
         } catch (MissingAttributeException $e) {

@@ -11,7 +11,7 @@
       ></roles-and-permissions-component>
     </div>
 
-    <div v-if="!viewOnly && user.authenticator === 'users' && canChangePassword" class="mt-3">
+    <div v-if="!viewOnly && user.authenticator === 'local' && canChangePassword" class="mt-3">
       <hr>
       <h4>{{ $t('auth.change_password') }}</h4>
       <password-component
