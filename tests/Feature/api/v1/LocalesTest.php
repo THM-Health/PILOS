@@ -15,6 +15,20 @@ class LocalesTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    private $ldapMapping = '
+    {
+        "attributes": {
+          "external_id": "uid",
+          "first_name": "givenname",
+          "last_name": "sn",
+          "email": "mail",
+          "roles": "userclass",
+          "ou": "ou"
+        },
+        "roles": []
+      }
+      ';
+
     /**
      * @see TestCase::setUp()
      */
@@ -22,6 +36,7 @@ class LocalesTest extends TestCase
     {
         parent::setUp();
         Config::set('ldap.enabled', true);
+        Config::set('ldap.mapping', json_decode($this->ldapMapping));
         $this->withoutMix();
 
         config([
