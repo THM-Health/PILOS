@@ -89,33 +89,18 @@ class RoleMapping
     }
 
     /**
-     * @param $userAttributes
+     * @param  array $values
      * @param  mixed $rule
      * @return bool
      */
-    private function isRuleFulfilled($value, mixed $rule): bool
+    private function isRuleFulfilled($values, mixed $rule): bool
     {
-        // If the value is not an array, simply check if it matches the regex
-        if (!is_array($value)) {
-            // Check if value matches the regex
-            $ruleFulfilled = preg_match($rule->regex, $value);
-
-            // If the rule is negated, toggle result
-            if ($rule->not ?? false) {
-                return !$ruleFulfilled;
-            }
-
-            return $ruleFulfilled;
-        }
-
-        // For arrays check all entries
-
         // Results of the regex for each entry of the value array
         $matches = [];
 
-        // Loop through all entries and try to match the regex and save the result
-        foreach ($value as $entries) {
-            $matches[] = preg_match($rule->regex, $entries);
+        // Loop through all values and try to match the regex and save the result
+        foreach ($values as $value) {
+            $matches[] = preg_match($rule->regex, $value);
         }
 
         // Check if regex has to (not) match with all array entries

@@ -12,16 +12,6 @@ class ExternalUser
     private array $attributes = [];
     private User $user;
 
-    public function __get($name): mixed
-    {
-        return $this->properties[$name] ?? null;
-    }
-
-    public function __set($name, $value): void
-    {
-        $this->properties[$name] = $value;
-    }
-
     public function addAttributeValue($name, $value)
     {
         if (!isset($this->attributes[$name])) {
@@ -38,18 +28,6 @@ class ExternalUser
     public function getFirstAttributeValue($name)
     {
         return $this->attributes[$name][0] ?? null;
-    }
-
-    public function saveEloquentModel(): User
-    {
-        $this->user()->save();
-
-        return $this->user();
-    }
-
-    public function user(): User
-    {
-        return $this->user;
     }
 
     public function __construct()
