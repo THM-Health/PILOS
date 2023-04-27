@@ -27,8 +27,21 @@ LDAP_BASE_DN="ou=users,dc=university,dc=org"
 LDAP_TIMEOUT=5
 LDAP_SSL=false
 LDAP_TLS=false
+
 # LDAP logging debugging only
 LDAP_LOGGING=false
+
+# Attribute with GUID; OpenLDAP: 'entryuuid', AD: 'objectGUID'
+LDAP_GUID_KEY=entryuuid
+
+# Comma seperated list of the object class
+LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
+
+# Attribute by which the user should be found in the LDAP
+LDAP_LOGIN_ATTRIBUTE=uid
+
+# Log found roles for debugging
+AUTH_LOG_ROLES=true
 ```
 
 You can check if the LDAP configuration is correct, by using the following artisan command:

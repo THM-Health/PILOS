@@ -24,16 +24,22 @@ To migrate to v2 just run: `php artisan db:upgrade` or if you are using sail: `s
 ## LDAP
 LDAP is disabled by default. To enable LDAP change the `LDAP_ENABLED` option in the .env file to `true`.
 
-### Role Mapping Syntax
-The syntax for role mapping is now notated in JSON, to allow more complex role names.
+### Role and attribute mapping
 
-**Before**
+Authentication with LDAP has been fundamentally refactored.
+In the process, some .env variables were changed, added or removed. The following table provides an overview of the changes.
 
-`LDAP_ROLE_MAP='A=admin,U=user'`
+| Old .env Attribute | New .env  Attribute | Description |
+|-----------|--------|-------------|
+| LDAP_ROLE_ATTRIBUTE | *Removed* | Attribute with the users role, can be a multi value attribute, replaced with new mapping json file |
+| LDAP_ROLE_MAP | *Removed* | Map the attribute to the name of a local role, replaced with new mapping json file |
+| AUTH_LOG_LDAP_ROLES | AUTH_LOG_ROLES | Show found roles during mapping |
+| - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID' |
+| - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson) |
+| - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid) |
 
-**After**
 
-`LDAP_ROLE_MAP='{"A":"admin","U":"user"}'`
+Please have a look at the [external authentication documentation](EXTERNAL_AUTHENTICATION.md)
 
 ## Theme
 In v2 the default theme and color are not based on the [corporate design](https://www.thm.de/thmweb/) guidelines of [Technische Hochschule Mittelhessen University of Applied Sciences](https://thm.de) anymore.

@@ -112,7 +112,7 @@ class UserTest extends TestCase
             ->assertJsonFragment(['firstname' => $externalUser->firstname]);
 
         // Sorting wrong direction and field
-        $this->getJson(route('api.v1.users.index') . '?sort_by=username&sort_direction=desc')
+        $this->getJson(route('api.v1.users.index') . '?sort_by=external_id&sort_direction=desc')
             ->assertSuccessful()
             ->assertJsonCount($page_size, 'data')
             ->assertJsonMissingExact(['firstname' => $user->firstname])
