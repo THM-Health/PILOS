@@ -146,7 +146,7 @@ In this example the LDAP schema uses the common name (CN) as username and has th
             "rules": [
                 {
                     "attribute": "external_id",
-                    "regex": "/^.*/im"
+                    "regex": "/^.*/i"
                 }
             ]
         },
@@ -157,11 +157,11 @@ In this example the LDAP schema uses the common name (CN) as username and has th
             "rules": [
                 {
                     "attribute":"email",
-                    "regex":"/.*(@its\\.university\\.org)$/i"
+                    "regex":"/@its\\.university\\.org$/i"
                 },
                 {
                     "attribute": "memberof",
-                    "regex": "/^(cn=admin,ou=Groups,dc=university,dc=org)$/im"
+                    "regex": "/^cn=admin,ou=Groups,dc=university,dc=org$/im"
                 }
       ]
     }
