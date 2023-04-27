@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v2.0.0-RC.4] - 2023-04-27
 ### Changed
 - **Breaking:** LDAP attribute and role mapping ([#340])
 - API Routes for bulk edit and bulk delete of room members ([#337],[#338])
@@ -499,7 +501,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#338]: https://github.com/THM-Health/PILOS/pull/338
 [#340]: https://github.com/THM-Health/PILOS/pull/340
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.3...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.4...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -525,4 +527,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-RC.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.1
 [v2.0.0-RC.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.2
 [v2.0.0-RC.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.3
-
+[v2.0.0-RC.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.4
