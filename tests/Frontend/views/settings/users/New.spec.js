@@ -125,10 +125,10 @@ describe('NewUserView', () => {
       response: {
         data: {
           id: 123,
-          authenticator: 'users',
+          authenticator: 'local',
           image: null,
           email: 'john.doe@domain.tld',
-          username: null,
+          external_id: null,
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'de',

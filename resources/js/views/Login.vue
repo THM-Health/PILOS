@@ -4,7 +4,7 @@
       <div class="col-12 col-md-8 col-lg-6 offset-md-2 offset-lg-3">
         <b-card no-body bg-variant="light">
           <b-tabs content-class="m-3" align="center" fill active-nav-item-class="bg-primary">
-            <b-tab :title="$t('auth.ldap.tab_title')" v-if="getSetting('ldap')" >
+            <b-tab :title="$t('auth.ldap.tab_title')" v-if="getSetting('auth.ldap')" >
               <ldap-login-component
                 id="ldap"
                 :title="$t('auth.ldap.title')"
@@ -17,16 +17,16 @@
               ></ldap-login-component>
             </b-tab>
             <b-tab :title="$t('auth.email.tab_title')">
-              <email-login-component
-                id="default"
+              <local-login-component
+                id="local"
                 :title="$t('auth.email.title')"
                 @submit="handleLogin"
                 :submit-label="$t('auth.login')"
                 :password-label="$t('auth.password')"
                 :email-label="$t('app.email')"
                 :loading="loading"
-                :errors="errors.default"
-              ></email-login-component>
+                :errors="errors.local"
+              ></local-login-component>
             </b-tab>
           </b-tabs>
         </b-card>
@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import EmailLoginComponent from '../components/Login/EmailLoginComponent.vue';
+import LocalLoginComponent from '../components/Login/LocalLoginComponent.vue';
 import LdapLoginComponent from '../components/Login/LdapLoginComponent.vue';
 import env from '../env';
 import Base from '../api/base';
@@ -46,14 +46,14 @@ import { useAuthStore } from '../stores/auth';
 
 export default {
   components: {
-    EmailLoginComponent,
+    LocalLoginComponent,
     LdapLoginComponent
   },
   data () {
     return {
       loading: false,
       errors: {
-        default: null,
+        local: null,
         ldap: null
       }
     };
@@ -69,7 +69,7 @@ export default {
     /**
      * Handle login request
      * @param data Credentials with username/email and password
-     * @param id ID of the login methode (ldap or default)
+     * @param id ID of the login method (ldap or local)
      * @return {Promise<void>}
      */
     async handleLogin ({ data, id }) {

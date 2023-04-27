@@ -12,9 +12,9 @@ localVue.use(VueRouter);
 
 const user = {
   id: 2,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'john@doe.com',
-  username: 'jdo',
+  external_id: 'jdo',
   firstname: 'John',
   lastname: 'Doe',
   user_locale: 'en',

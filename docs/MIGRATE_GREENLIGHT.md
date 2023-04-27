@@ -1,4 +1,4 @@
-# Migrate from Greenlight to PILOS
+# Migrate from Greenlight v2 to PILOS
 
 PILOS provides an easy to use command to import all greenlight users (incl. ldap), rooms and shared accesses.
 
@@ -24,10 +24,8 @@ Also make sure the internal firewall of the OS and no external firewall is not b
 
 ## Running migration command
 
-Before running the command make sure your ldap configuration is valid.
-
 ```
-php artisan import:greenlight   {host : ip or hostname of postgres database server}
+php artisan import:greenlight-v2   {host : ip or hostname of postgres database server}
                                 {port : port of postgres database server}
                                 {database : greenlight database name, see greenlight .env variable DB_NAME}
                                 {username : greenlight database username, see greenlight .env variable DB_USERNAME}
@@ -37,7 +35,7 @@ php artisan import:greenlight   {host : ip or hostname of postgres database serv
 **Example**
 
 ```
-php artisan import:greenlight localhost 5432 greenlight_production postgres 12345678
+php artisan import:greenlight-v2 localhost 5432 greenlight_production postgres 12345678
 ```
 
 The command will output the process of the import and imforms about failed user, room and shared access import.

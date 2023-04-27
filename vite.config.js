@@ -53,6 +53,7 @@ export default ({ mode }) => {
       open: false,
       restoreMocks: true,
       environment: 'jsdom',
+      include: ['tests/Frontend/**/*.spec.js'],
       environmentOptions: { url: 'http://localhost' },
       threads: false,
       setupFiles: './tests/Frontend/setup.js'

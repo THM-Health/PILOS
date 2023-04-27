@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\Model;
-use LdapRecord\Models\ModelDoesNotExistException;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\TestCase;
 use TiMacDonald\Log\LogEntry;
@@ -27,9 +26,9 @@ class LdapLoginTest extends TestCase
     private $guard = 'ldap';
 
     /**
-     * @var Model|null $ldapUser The ldap user that is used in the tests.
+     * @var Model|null $externalUser The ldap user that is used in the tests.
      */
-    private $ldapUser = null;
+    private $externalUser = null;
 
     /**
      * @var string $ldapRoleName Name of the ldap role.
@@ -43,10 +42,52 @@ class LdapLoginTest extends TestCase
         'admin' => 'test'
     ];
 
-    /**
-     * @var string Attribute of ldap user that contains the ldap role.
-     */
-    private $ldapRoleAttribute = 'userclass';
+    private $ldapMapping = '
+    {
+        "attributes": {
+          "external_id": "uid",
+          "first_name": "givenname",
+          "last_name": "sn",
+          "email": "mail",
+          "roles": "userclass",
+          "ou": "ou"
+        },
+        "roles": [
+          {
+            "name": "user",
+            "disabled": false,
+            "rules": [
+              {
+                "attribute": "external_id",
+                "regex": "/^.*/im"
+              }
+            ]
+          },
+          {
+            "name": "guest",
+            "disabled": false,
+            "rules": [
+              {
+                "attribute": "email",
+                "not": true,
+                "regex": "/@university.org$/im"
+              }
+            ]
+          },
+          {
+            "name": "admin",
+            "disabled": false,
+            "all": true,
+            "rules": [
+              {
+                "attribute": "roles",
+                "regex": "/^(administrator)$/im"
+              }
+            ]
+          }
+        ]
+      }
+      ';
 
     /**
      * @see TestCase::setUp()
@@ -55,6 +96,7 @@ class LdapLoginTest extends TestCase
     {
         parent::setUp();
         Config::set('ldap.enabled', true);
+        Config::set('ldap.mapping', json_decode($this->ldapMapping));
 
         $fake = DirectoryEmulator::setup('default');
 
@@ -62,15 +104,15 @@ class LdapLoginTest extends TestCase
             'givenName'              => $this->faker->firstName,
             'sn'                     => $this->faker->lastName,
             'cn'                     => $this->faker->name,
-            'mail'                   => $this->faker->unique()->safeEmail,
+            'mail'                   => $this->faker->unique()->userName().'@university.org',
             'uid'                    => $this->faker->unique()->userName,
-            $this->ldapRoleAttribute => [$this->ldapRoleName],
+            'userclass'              => ['administrator'],
             'entryuuid'              => $this->faker->uuid,
         ]);
 
-        Role::firstOrCreate([
-            'name' => $this->roleMap[$this->ldapRoleName]
-        ]);
+        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'guest']);
+        Role::firstOrCreate(['name' => 'user']);
 
         $fake->actingAs($this->ldapUser);
     }
@@ -93,11 +135,10 @@ class LdapLoginTest extends TestCase
     public function testLoginRoute()
     {
         Config::set('ldap.enabled', false);
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
-
         $response->assertNotFound();
     }
 
@@ -109,7 +150,7 @@ class LdapLoginTest extends TestCase
     public function testLoginSuccess()
     {
         $this->assertGuest($this->guard);
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
@@ -125,7 +166,7 @@ class LdapLoginTest extends TestCase
     public function testLoginWrongCredentials()
     {
         $this->assertGuest($this->guard);
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => 'testuser',
             'password' => 'secret'
         ]);
@@ -135,87 +176,159 @@ class LdapLoginTest extends TestCase
     }
 
     /**
-     * Test that guid of user is updated if changed in ldap
-     *
-     * @return void
+     * Test attributes get mapped correctly.
      */
-    public function testLoginGuidChange()
+    public function testAttributeMapping()
     {
-        self::assertCount(0, User::all());
-        // Create new LDAP user with given uuid
-        $originalUUID = $this->faker->uuid;
-        $ldapUser     = LdapUser::create([
-            'givenName'              => $this->faker->firstName,
-            'sn'                     => $this->faker->lastName,
-            'cn'                     => $this->faker->name,
-            'mail'                   => $this->faker->unique()->safeEmail,
-            'uid'                    => $this->faker->unique()->userName,
-            $this->ldapRoleAttribute => [$this->ldapRoleName],
-            'entryuuid'              => $originalUUID,
-        ]);
-        DirectoryEmulator::setup()->actingAs($ldapUser);
-
-        // Login with this new user
-        $this->assertGuest($this->guard);
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-        $this->assertAuthenticated($this->guard);
-
-        // Check if new user with this uuid was created
-        self::assertCount(1, User::all());
-        $databaseUser = User::where('username', $ldapUser->uid[0])->where('authenticator', 'ldap')->first();
-        $this->assertNotNull($databaseUser);
-        $this->assertEquals($originalUUID, $databaseUser->guid);
-
-        // Logout user
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.logout'));
-        $response->assertNoContent();
-        $this->assertGuest();
-
-        // Remove and re-add user with the same data but different uuid
-        $newUUID     = $this->faker->uuid;
-        $newLdapUser = LdapUser::make([
-            'givenName'              => $ldapUser->givenName,
-            'sn'                     => $ldapUser->sn,
-            'cn'                     => $ldapUser->cn,
-            'mail'                   => $ldapUser->mail,
-            'uid'                    => $ldapUser->uid,
-            $this->ldapRoleAttribute => $ldapUser->{$this->ldapRoleAttribute},
-            'entryuuid'              => $newUUID,
-        ]);
-        $ldapUser->delete();
-        $newLdapUser->save();
-        DirectoryEmulator::setup()->actingAs($newLdapUser);
-
-        // Try to re-login
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $newLdapUser->uid[0],
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
 
-        // Check if login was successful
         $this->assertAuthenticated($this->guard);
-        // Check if no new user was created and existing user was updated
-        self::assertCount(1, User::all());
-        $databaseUser->refresh();
-        $this->assertEquals($newUUID, $databaseUser->guid);
+        $user = $this->getAuthenticatedUser();
+        
+        $this->assertEquals($this->ldapUser->uid[0], $user->external_id);
+        $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
+        $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
+        $this->assertEquals($this->ldapUser->mail[0], $user->email);
     }
 
     /**
-     * Test that no roles gets mapped if the roleMap config is empty.
-     *
-     * @return void
+     * Test that the correct error message is returned when the attribute mapping is incomplete.
+     */
+    public function testIncompleteAttributeMapping()
+    {
+        $newAttributeConf = json_decode($this->ldapMapping);
+        unset($newAttributeConf->attributes->first_name);
+        Config::set('ldap.mapping', $newAttributeConf);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ])
+        ->assertJsonFragment(['message' => 'Attributes for authentication are missing.'])
+        ->assertServerError();
+    }
+
+    /**
+     * Test that the correct error message is returned when trying to map a non existing ldap attribute.
+     */
+    public function testNonExistingLdapAttributeMapping()
+    {
+        $newAttributeConf                         = json_decode($this->ldapMapping);
+        $newAttributeConf->attributes->first_name = 'wrongAttribute';
+        Config::set('ldap.mapping', $newAttributeConf);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ])
+        ->assertJsonFragment(['message' => 'Attributes for authentication are missing.'])
+        ->assertServerError();
+    }
+
+    /**
+     * Test that mapping to a non existing model attribute is not failing.
+     */
+    public function testNonExistingModelAttributeMapping()
+    {
+        $newAttributeConf                            = json_decode($this->ldapMapping);
+        $newAttributeConf->attributes->new_attribute = 'givenName';
+        Config::set('ldap.mapping', $newAttributeConf);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+    }
+
+    /**
+     * Test roles get mapped correctly.
+     */
+    public function testRoleMapping()
+    {
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+
+        $roles = $user->roles()->orderBy('roles.name')->get();
+
+        $this->assertCount(2, $roles);
+        $this->assertEquals('admin', $roles[0]->name);
+        $this->assertTrue($roles[0]->pivot->automatic);
+
+        $this->assertEquals('user', $roles[1]->name);
+        $this->assertTrue($roles[0]->pivot->automatic);
+    }
+
+    /**
+     * Test roles get mapped correctly, ignoring the invalid attribute.
+     */
+    public function testRoleMappingInvalidLdapAttribute()
+    {
+        $newAttributeConf                                = json_decode($this->ldapMapping);
+        $newAttributeConf->roles[0]->rules[0]->attribute = 'notExistingAttribute';
+        Config::set('ldap.mapping', $newAttributeConf);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+
+        $roles = $user->roles;
+
+        $this->assertCount(1, $roles);
+        $this->assertEquals('admin', $roles[0]->name);
+        $this->assertTrue($roles[0]->pivot->automatic);
+    }
+
+    /**
+     * Test roles get mapped correctly, ignoring invalid roles
+     */
+    public function testRoleMappingInvalidRoles()
+    {
+        $newAttributeConf                 = json_decode($this->ldapMapping);
+        $newAttributeConf->roles[0]->name = 'notExistingRole';
+        Config::set('ldap.mapping', $newAttributeConf);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        $user->load('roles');
+
+        $roles = $user->roles;
+
+        $this->assertCount(1, $roles);
+        $this->assertEquals('admin', $roles[0]->name);
+        $this->assertTrue($roles[0]->pivot->automatic);
+    }
+
+    /**
+     * Test that no roles gets mapped if the role mapping is empty.
      */
     public function testEmptyRoleMap()
     {
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => []
-        ]);
+        $newAttributeConf        = json_decode($this->ldapMapping);
+        $newAttributeConf->roles = [];
+        Config::set('ldap.mapping', $newAttributeConf);
 
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
@@ -224,112 +337,6 @@ class LdapLoginTest extends TestCase
         $user = $this->getAuthenticatedUser();
         $user->load('roles');
         $this->assertCount(0, $user->roles);
-    }
-
-    /**
-     * Test that a role gets not assigned if the role attribute is empty on the ldap user model.
-     *
-     * @throws ModelDoesNotExistException
-     * @return void
-     */
-    public function testEmptyLdapRoleAttribute()
-    {
-        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, null);
-
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => $this->roleMap
-        ]);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $user->load('roles');
-        $this->assertCount(0, $user->roles);
-    }
-
-    /**
-     * Test that a role gets not assigned if the role attribute doesn't exists on the ldap user model.
-     *
-     * @throws ModelDoesNotExistException
-     * @return void
-     */
-    public function testNotExistingLdapRoleAttribute()
-    {
-        $this->ldapUser->deleteAttribute([ $this->ldapRoleAttribute ]);
-
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => $this->roleMap
-        ]);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $user->load('roles');
-        $this->assertCount(0, $user->roles);
-    }
-
-    /**
-     * Test that nothing happens if a ldap role is mapped to an not existing role.
-     *
-     * @return void
-     */
-    public function testNotExistingMappedRole()
-    {
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => [
-                $this->ldapRoleName => 'bar'
-            ]
-        ]);
-
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $user->load('roles');
-        $this->assertCount(0, $user->roles);
-    }
-
-    /**
-     * Test that the role gets successfully assigned to an authenticated user.
-     *
-     * @return void
-     */
-    public function testExistingMappedRole()
-    {
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => $this->roleMap
-        ]);
-        setting(['default_timezone' => 'Europe/London']);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $user->load('roles');
-        $roleNames = array_map(function ($role) {
-            return $role->name;
-        }, $user->roles->all());
-        $this->assertEquals('Europe/London', $user->timezone);
-        $this->assertCount(1, $roleNames);
-        $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
     }
 
     /**
@@ -339,21 +346,9 @@ class LdapLoginTest extends TestCase
      */
     public function testMappingOnSecondLogin()
     {
-        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapAdmin', 'ldapSuperAdmin']);
+        $this->ldapUser->updateAttribute('userclass', ['administrator']);
 
-        Role::firstOrCreate(['name' => 'admin']);
-        Role::firstOrCreate(['name' => 'user']);
-
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => [
-                'ldapAdmin'      => 'admin',
-                'ldapUser'       => 'user',
-                'ldapSuperAdmin' => 'admin'
-            ]
-        ]);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
@@ -365,8 +360,9 @@ class LdapLoginTest extends TestCase
             return $role->name;
         }, $user->roles->all());
 
-        $this->assertCount(1, $roleNames);
+        $this->assertCount(2, $roleNames);
         $this->assertContains('admin', $roleNames);
+        $this->assertContains('user', $roleNames);
 
         $this->postJson(route('api.v1.logout'));
 
@@ -374,29 +370,30 @@ class LdapLoginTest extends TestCase
 
         $user->roles()->attach(Role::firstOrCreate(['name' => 'test'])->id);
 
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
 
         $this->assertAuthenticated($this->guard);
-        $this->assertDatabaseCount('role_user', 2);
+        $this->assertDatabaseCount('role_user', 3);
         $user->load('roles');
         $roleNames = array_map(function ($role) {
             return $role->name;
         }, $user->roles->all());
 
-        $this->assertCount(2, $roleNames);
+        $this->assertCount(3, $roleNames);
         $this->assertContains('admin', $roleNames);
+        $this->assertContains('user', $roleNames);
         $this->assertContains('test', $roleNames);
 
-        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapUser']);
+        $this->ldapUser->updateAttribute('userclass', []);
 
         $this->postJson(route('api.v1.logout'));
 
         $this->assertFalse($this->isAuthenticated($this->guard));
 
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
@@ -411,65 +408,6 @@ class LdapLoginTest extends TestCase
         $this->assertCount(2, $roleNames);
         $this->assertContains('user', $roleNames);
         $this->assertContains('test', $roleNames);
-    }
-
-    public function testMultipleRolesPartiallyMapped()
-    {
-        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, [
-            $this->ldapRoleName,
-            'foo'
-        ]);
-
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => $this->roleMap
-        ]);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $user->load('roles');
-        $roleNames = array_map(function ($role) {
-            return $role->name;
-        }, $user->roles->all());
-        $this->assertCount(1, $roleNames);
-        $this->assertContains($this->roleMap[$this->ldapRoleName], $roleNames);
-    }
-
-    public function testMultipleRolesFullMapped()
-    {
-        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapAdmin', 'ldapUser', 'ldapSuperAdmin']);
-
-        Role::firstOrCreate(['name' => 'admin']);
-        Role::firstOrCreate(['name' => 'user']);
-
-        config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => [
-                'ldapAdmin'      => 'admin',
-                'ldapUser'       => 'user',
-                'ldapSuperAdmin' => 'admin'
-            ]
-        ]);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        $this->assertAuthenticated($this->guard);
-        $user = $this->getAuthenticatedUser();
-        $user->load('roles');
-        $roleNames = array_map(function ($role) {
-            return $role->name;
-        }, $user->roles->all());
-        $this->assertCount(2, $roleNames);
-        $this->assertContains('admin', $roleNames);
-        $this->assertContains('user', $roleNames);
     }
 
     /**
@@ -480,46 +418,32 @@ class LdapLoginTest extends TestCase
     public function testRoleLogging()
     {
         Log::swap(new LogFake);
-        $this->ldapUser->updateAttribute($this->ldapRoleAttribute, ['ldapAdmin', 'ldapUser', 'ldapSuperAdmin']);
 
         config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => [
-                'ldapAdmin'      => 'admin',
-                'ldapUser'       => 'user',
-                'ldapSuperAdmin' => 'admin'
-            ],
-            'auth.log.ldap_roles' => true
+            'auth.log.roles' => true
         ]);
 
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
 
         Log::assertLogged(
             fn (LogEntry $log) =>
-            $log->level === 'debug'
-            && $log->message == 'LDAP roles found for user ['.$this->ldapUser->uid[0].'].'
-            && count($log->context) == 3
-            && $log->context[0] == 'ldapAdmin'
-            && $log->context[1] == 'ldapUser'
-            && $log->context[2] == 'ldapSuperAdmin'
+                $log->level === 'debug'
+                && $log->message == 'Roles found for user ['.$this->ldapUser->uid[0].'].'
+                && count($log->context) == 2
+                && $log->context[0] == 'user'
+                && $log->context[1] == 'admin'
         );
 
         Auth::guard('ldap')->logout();
         Log::swap(new LogFake);
         config([
-            'ldap.ldapRoleAttribute' => $this->ldapRoleAttribute,
-            'ldap.roleMap'           => [
-                'ldapAdmin'      => 'admin',
-                'ldapUser'       => 'user',
-                'ldapSuperAdmin' => 'admin'
-            ],
-            'auth.log.ldap_roles' => false
+            'auth.log.roles' => false
         ]);
 
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
         ]);
@@ -529,11 +453,10 @@ class LdapLoginTest extends TestCase
         Log::assertNotLogged(
             fn (LogEntry $log) =>
                 $log->level === 'debug'
-                && $log->message == 'LDAP roles found for user ['.$this->ldapUser->uid[0].'].'
-                    && count($log->context) == 3
-                    && $log->context[0] == 'ldapAdmin'
-                    && $log->context[1] == 'ldapUser'
-                    && $log->context[2] == 'ldapSuperAdmin'
+                && $log->message == 'Roles found for user ['.$this->ldapUser->uid[0].'].'
+                && count($log->context) == 2
+                && $log->context[0] == 'user'
+                && $log->context[1] == 'admin'
         );
     }
 
@@ -544,52 +467,58 @@ class LdapLoginTest extends TestCase
      */
     public function testLogging()
     {
+        config([
+            'auth.log.roles' => false
+        ]);
+
         // test failed login with logging enabled
         Log::swap(new LogFake);
         config(['auth.log.failed' => true]);
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username'    => 'testuser',
             'password'    => 'secret'
         ]);
+
         Log::assertLogged(
             fn (LogEntry $log) =>
             $log->level === 'info'
-            && $log->message == 'User [testuser] has failed authentication.'
+            && $log->message == 'External user testuser has failed authentication.'
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['user-agent'] == 'Symfony'
-                && $log->context['authenticator'] == 'ldap'
+                && $log->context['type'] == 'ldap'
         );
 
         // test failed login with logging disabled
         config(['auth.log.failed' => false]);
         Log::swap(new LogFake);
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username'    => 'testuser',
             'password'    => 'foo'
         ]);
         Log::assertNotLogged(
             fn (LogEntry $log) =>
             $log->level === 'info'
-            && $log->message == 'User [testuser] has failed authentication.'
+            && $log->message == 'External user testuser has failed authentication.'
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['user-agent'] == 'Symfony'
-                && $log->context['authenticator'] == 'ldap'
+                && $log->context['type'] == 'ldap'
         );
 
         // test successful login with logging enabled
         Log::swap(new LogFake);
         config(['auth.log.successful' => true]);
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username'    => $this->ldapUser->uid[0],
             'password'    => 'bar'
         ]);
+
         Log::assertLogged(
             fn (LogEntry $log) =>
             $log->level == 'info'
-            && $log->message == 'User ['.$this->ldapUser->uid[0].'] has been successfully authenticated.'
+            && $log->message == 'External user '.$this->ldapUser->uid[0].' has been successfully authenticated.'
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['user-agent'] == 'Symfony'
-                && $log->context['authenticator'] == 'ldap'
+                && $log->context['type'] == 'ldap'
         );
 
         // logout user to allow new login
@@ -598,17 +527,17 @@ class LdapLoginTest extends TestCase
         // test successful login with logging disabled
         Log::swap(new LogFake);
         config(['auth.log.successful' => false]);
-        $this->from(config('app.url'))->postJson(route('api.v1.ldapLogin'), [
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username'    => $this->ldapUser->uid[0],
             'password'    => 'bar'
         ]);
         Log::assertNotLogged(
             fn (LogEntry $log) =>
             $log->level === 'info'
-            && $log->message == 'User ['.$this->ldapUser->uid[0].'] has been successfully authenticated.'
+            && $log->message == 'External user '.$this->ldapUser->uid[0].' has been successfully authenticated.'
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['user-agent'] == 'Symfony'
-                && $log->context['authenticator'] == 'ldap'
+                && $log->context['type'] == 'ldap'
         );
     }
 }

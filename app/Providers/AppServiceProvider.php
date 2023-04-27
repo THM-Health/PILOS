@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Schema;
+use App\Auth\LDAP\LDAPUserSynchronizer;
+use App\Auth\LDAP\LDAPUserAuthenticator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\ServiceProvider;
+use LdapRecord\Laravel\LdapRecord;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        LdapRecord::authenticateUsersUsing(LDAPUserAuthenticator::class);
+        LdapRecord::synchronizeUsersUsing(LDAPUserSynchronizer::class);
     }
 
     /**

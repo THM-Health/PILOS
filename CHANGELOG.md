@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- **Breaking:** LDAP attribute and role mapping ([#340])
 - API Routes for bulk edit and bulk delete of room members ([#337],[#338])
 
 ## [v2.0.0-RC.3] - 2023-03-27
@@ -496,6 +497,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#335]: https://github.com/THM-Health/PILOS/pull/335
 [#337]: https://github.com/THM-Health/PILOS/issues/337
 [#338]: https://github.com/THM-Health/PILOS/pull/338
+[#340]: https://github.com/THM-Health/PILOS/pull/340
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.3...HEAD
 [1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
