@@ -20,11 +20,17 @@ class LDAPController extends Controller
         $this->middleware('guest');
     }
 
+    /**
+     * Username field name
+     */
     public function username()
     {
         return 'username';
     }
 
+    /**
+     * Credentials passed to the Auth::attempt() method of the LDAP guard
+     */
     protected function credentials(Request $request)
     {
         return [
@@ -33,20 +39,32 @@ class LDAPController extends Controller
         ];
     }
 
+    /**
+     * The guard used for LDAP authentication
+     */
     protected function guard()
     {
         return Auth::guard('ldap');
     }
 
+    /**
+     * Process the login request
+     *
+     * @param  Request $request
+     * @return void
+     */
     public function login(Request $request)
     {
+        // Check if ldap is enabled
         if (!config('ldap.enabled')) {
             abort(404);
         }
 
         try {
+            // Run login method from AuthenticatesUsers trait
             return $this->ldapLogin($request);
         } catch (MissingAttributeException $e) {
+            // If an attribute is missing during the login process, return error
             return abort(500, __('auth.error.missing_attributes'));
         }
     }
@@ -60,6 +78,7 @@ class LDAPController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
+        // Log successful authentication if enabled
         if (config('auth.log.successful')) {
             Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'ldap']);
         }

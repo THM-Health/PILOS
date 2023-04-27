@@ -41,7 +41,8 @@ class ExternalUserTest extends TestCase
             Log::assertLogged(
                 fn (LogEntry $log) =>
                     $log->level === 'error'
-                    && $log->message == 'External-ID attribute missing'
+                    && $log->message == 'Required attribute missing'
+                    && $log->context['attribute'] == 'external_id'
             );
 
             throw $e;
@@ -68,7 +69,8 @@ class ExternalUserTest extends TestCase
             Log::assertLogged(
                 fn (LogEntry $log) =>
                     $log->level === 'error'
-                    && $log->message == 'First name attribute missing'
+                    && $log->message == 'Required attribute missing'
+                    && $log->context['attribute'] == 'first_name'
             );
 
             throw $e;
@@ -95,7 +97,8 @@ class ExternalUserTest extends TestCase
             Log::assertLogged(
                 fn (LogEntry $log) =>
                     $log->level === 'error'
-                    && $log->message == 'Last name attribute missing'
+                    && $log->message == 'Required attribute missing'
+                    && $log->context['attribute'] == 'last_name'
             );
 
             throw $e;
@@ -122,7 +125,8 @@ class ExternalUserTest extends TestCase
             Log::assertLogged(
                 fn (LogEntry $log) =>
                     $log->level === 'error'
-                    && $log->message == 'Email attribute missing'
+                    && $log->message == 'Required attribute missing'
+                    && $log->context['attribute'] == 'email'
             );
 
             throw $e;
