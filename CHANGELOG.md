@@ -6,6 +6,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.0.0] - 2023-04-28
+### Added
+- **Breaking:** Config option to disable LDAP (disabled by default) ([#236],[#237])
+- **Breaking:** Custom theme / color support for application css style (see docs/UPGRADE.md) ([#231],[#232],[#255])
+- Show application version in footer  ([#334],[#335])
+- Optimization of composer and laravel in production environment ([#327])
+- Artisan command to migrate database dump file ([#322], [#325])
+- Support to customize trusted proxies ([#305],[#306])
+- Confirmation for password and email change ([#277],[#304])
+- Email notification on password and email change ([#277],[#304])
+- Management of logged in sessions ([#277],[#304])
+- Customization options for legal notice url and privacy policy url in UI and env ([#234],[#261])
+- Bulk edit and bulk remove options for room members ([#211], [#216])
+- Improved change of base url, welcome message limit, room name limit, room refresh rate ([#243],[#244])
+- Override welcome page, feature component and footer with custom code ([#234],[#235],[#249])
+- Meeting running indicator to own rooms page and find room / all rooms list ([#253],[#258])
+- Default user role on fresh installation ([#267],[#268])
+- OpenLDAP and phpLDAPadmin to local dev environment ([#225],[#250])
+- Dockerfile for production deployment ([#262],[#266])
+
+### Changed
+- **Breaking:** LDAP attribute and role mapping ([#340])
+- **Breaking:** Env prefix from MIX_ to VITE_ ([#296])
+- **Breaking:** Combine backend and frontend localization into single json file ([#284], [#287])
+- **Breaking:** Renamed .env setting MIX_WELCOME_MESSAGE_LIMIT to WELCOME_MESSAGE_LIMIT ([#243],[#244])
+- **Breaking:** Renamed .env setting MIX_ROOM_NAME_LIMIT to ROOM_NAME_LIMIT ([#243],[#244])
+- **Breaking:** Renamed .env setting MIX_REFRESH_RATE to ROOM_REFRESH_RATE ([#243],[#244])
+- **Breaking:** API attributes and parameters naming convention ([#259],[#260])
+- **Breaking:** Drop support for PHP 7.4 and PHP 8.0 ([#226],[#227])
+- **Breaking:** Replace laravel homestead with laravel sail ([#225],[#228],[#254])
+- Look and feel of flash messages ([#287])
+- Random room polling interval ([#229],[#230])
+- Use application name in join room link ([#249])
+- API Routes for bulk edit and bulk delete of room members ([#337],[#338])
+- Upgrade to Laravel 10 ([#226],[#227], [#325])
+- Bump dependencies ([#328])
+- Frontend vue state management, replace vuex with pinia ([#293],[#292])
+- Frontend build tool, replace laravel mix with vite ([#297],[#296])
+- Frontend testing framework, replace jest with vitest ([#298],[#296])
+- Replace FlashMessages with bootstrap vue toast ([#296])
+- Replace v-clipboard with vue-clipboard2 ([#296])
+- Refactored view/edit of single user ([#277],[#304])
+- Migrate testing frameworks from mocha to jest and refactor tests ([#225],[#240])
+- Restructure/refactor code to service classes ([#248])
+
+### Fixed
+- **Breaking:** Inconsistent naming convention for localization strings ([#288], [#287])
+- **Breaking:** Database column inconsistencies ([#241],[#242])
+- Broken room search / all rooms layout in safari ([#329],[#330])
+- Room authentication error on lang change ([#331],[#333])
+- Broken default image assets ([#307],[#308])
+- Error on logout if room member list is shown ([#280], [#281])
+- Support for different Font Awesome syntax ([#287])
+- Error displaying the favicon after uploading in the application settings ([#285],[#289])
+- Error on adding new room member without selecting a user ([#216])
+- Tooltip covering view and edit button in server pool overview ([#245],[#246])
+- Tooltip not hiding ([#252],[#256])
+- Default profile image not shown on new user page ([#264],[#265])
+- Inconsistent backend route names ([#279],[#309])
+- Broken code coverage ([#278],[#296])
+
+### Removed
+- **Breaking:** Legal notice url and privacy policy url internationalisation ([#234],[#261])
+- **Breaking:** .env setting MIX_FRONTEND_BASE_URL ([#243],[#244])
+- Git hooks ([#217],[#228])
+
 ## [v2.0.0-RC.4] - 2023-04-27
 ### Changed
 - **Breaking:** LDAP attribute and role mapping ([#340])
@@ -134,7 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Tooltip covering view and edit button in server pool overview ([#245], Backport from [#246])
 
-## [1.9.4] - 2022-06-30
+## [v1.9.4] - 2022-06-30
 ### Changed
 - Update composer dependencies ([#221],[#222])
 - Update php-cs-fixer ([#221],[#222])
@@ -142,11 +208,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unify used icons ([#223],[#224])
 - Update node dependencies and fontawesome ([#223],[#224])
 
-## [1.9.3] - 2022-04-14
+## [v1.9.3] - 2022-04-14
 ### Fixed
 - Server error 500 on login, if entryUUID in ldap changed ([#212], [#213])
 
-## [1.9.2] - 2022-03-18
+## [v1.9.2] - 2022-03-18
 ### Fixed
 - Room fails to start if its name has a length of 1 ([#204], [#205])
 - Server error 500 if room type is invalid ([#205])
@@ -154,11 +220,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update node dependencies ([#195])
 
-## [1.9.1] - 2022-03-17
+## [v1.9.1] - 2022-03-17
 ### Fixed
 - Broken sorting of BBB version in server list ([#202], [#203])
 
-## [1.9.0] - 2022-03-17
+## [v1.9.0] - 2022-03-17
 ### Added 
 - Support for BBB2.4 API, disable learning dashboard and change default layout ([#190], [#191])
 - Show BBB version in server list and view ([#199], [#200])
@@ -166,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update php und node dependencies ([#191])
 
-## [1.8.0] - 2022-01-20
+## [v1.8.0] - 2022-01-20
 ### Added
 - Browser notifications on room start ([#124], [#178])
 - Automatically delete old or unused rooms with prior email notification  ([#186], [#187])
@@ -175,7 +241,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More structured layout for application settings ([#187])
 - Update php dependencies ([#187])
 
-## [1.7.0] - 2021-11-16
+## [v1.7.0] - 2021-11-16
 ### Added
 - Logo and custom css for BBB room ([#68], [#152])
 - Role filter in user list ([#161], [#174])
@@ -183,17 +249,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Missing tooltips on some buttons ([#175], [#176])
 
-## [1.6.1] - 2021-11-04
+## [v1.6.1] - 2021-11-04
 ### Fixed
 - Rooms can be started simultaneously which leads to users being in different bbb rooms ([#172])
 - Rooms can be closed directly after being created by a failed join request or cronjob, if the bbb api response is slow ([#170], [#172])
 - Unnecessary ldap requests ([#171], [#173])
 
-## [1.6.0] - 2021-11-01
+## [v1.6.0] - 2021-11-01
 ### Added
 - Personalized room tokens ([#72], [#145])
 
-## [1.5.0] - 2021-09-07
+## [v1.5.0] - 2021-09-07
 ### Added
 - Support for parallel testing ([#157], [#158])
 - Modal to confirm end of room membership ([#159], [#165])
@@ -204,11 +270,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update Laravel to v8 and bump other dependencies ([#157], [#158])
 - Allow more special chars in guest name and show invalid chars ([#162], [#163])
 
-## [1.4.1] - 2021-07-28
+## [v1.4.1] - 2021-07-28
 ### Fixed
 - Missing a slash after hostname in email template and room join url in bbb room ([#153], [#154])
 
-## [1.4.0] - 2021-07-09
+## [v1.4.0] - 2021-07-09
 ### Added
 - Room type restriction for specific roles ([#98], [#127])
 - Migration command to import users, rooms and shared access from greenlight ([#117], [#118])
@@ -222,7 +288,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Incompatible room id field for greenlight room ids ([#143], [#144])
 - Start time in the list of currently running meetings not adjusted to the user's time zone setting ([#134])
 
-## [1.3.0] - 2021-05-05
+## [v1.3.0] - 2021-05-05
 ### Added
 - Co-owner room role, permissions to view and edit all rooms (incl. memberships, files and settings) ([#110], [#116])
 
@@ -235,12 +301,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Limit the user details available through the user search ([#116])
 
-## [1.2.0] - 2021-04-09
+## [v1.2.0] - 2021-04-09
 ### Added 
 - System wide default presentation ([#119], [#120])
 - Configurable help link ([#123], [#125])
 
-## [1.1.0] - 2021-03-08
+## [v1.1.0] - 2021-03-08
 ### Added
 - Room list/search, room and room type setting to allow public room search ([#63], [#108])
 - List of running meetings ([#63], [#108])
@@ -248,7 +314,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Failing redirect to login if session expired ([#121], [#122])
 
-## [1.0.0] - 2021-03-02
+## [v1.0.0] - 2021-03-02
 ### Added
 - Authentication with LDAP and Email-Address ([#1], [#3])
 - Loading screen for loading events of the application ([#6], [#11])
@@ -501,24 +567,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#338]: https://github.com/THM-Health/PILOS/pull/338
 [#340]: https://github.com/THM-Health/PILOS/pull/340
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0-RC.4...HEAD
-[1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
-[1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
-[1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
-[1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
-[1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
-[1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
-[1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
-[1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
-[1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
-[1.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.0
-[1.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.8.0
-[1.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.0
-[1.9.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.1
-[1.9.2]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.2
-[1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
-[1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4
-[1.9.5]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.5
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0...HEAD
+[v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
+[v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
+[v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
+[v1.3.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.3.0
+[v1.4.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.0
+[v1.4.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.4.1
+[v1.5.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.5.0
+[v1.6.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.0
+[v1.6.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.6.1
+[v1.7.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.7.0
+[v1.8.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.8.0
+[v1.9.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.0
+[v1.9.1]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.1
+[v1.9.2]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.2
+[v1.9.3]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.3
+[v1.9.4]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.4
+[v1.9.5]: https://github.com/THM-Health/PILOS/releases/tag/v1.9.5
 [v2.0.0-alpha.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.1
 [v2.0.0-alpha.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.2
 [v2.0.0-alpha.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-alpha.3
@@ -528,3 +594,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-RC.2]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.2
 [v2.0.0-RC.3]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.3
 [v2.0.0-RC.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.4
+[v2.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0
