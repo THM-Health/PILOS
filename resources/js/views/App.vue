@@ -118,10 +118,12 @@ export default {
     ...mapActions(useAuthStore, { logoutSession: 'logout' }),
 
     async logout () {
+      let response;
       try {
-        const response = await this.logoutSession();
+        response = await this.logoutSession();
       } catch (error) {
         this.toastError(this.$t('auth.flash.logout_error'));
+        return;
       }
 
       if (response.data.redirect) {

@@ -83,16 +83,16 @@ class OIDCController extends Controller
         }
                 
         // Get eloquent user (existing or new)
-        $oidc_user->createOrFindEloquentModel();
+        $user = $oidc_user->createOrFindEloquentModel();
 
         // Sync attributes
         $oidc_user->syncWithEloquentModel();
 
         // Save changes (update or create)
-        $user = $oidc_user->saveEloquentModel();
+        $user->save();
 
         $roleMapping = new RoleMapping();
-        $roleMapping->mapRoles($oidc_user->getAttributes(), $user, config('services.oidc.mapping')->roles);
+        $roleMapping->mapRoles($oidc_user, $user, config('services.oidc.mapping')->roles);
 
         Auth::login($user);
 

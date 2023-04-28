@@ -101,16 +101,16 @@ class Saml2Controller extends Controller
         }
         
         // Get eloquent user (existing or new)
-        $saml_user->createOrFindEloquentModel();
+        $user = $saml_user->createOrFindEloquentModel();
 
         // Sync attributes
         $saml_user->syncWithEloquentModel();
 
         // Save changes (update or create)
-        $user = $saml_user->saveEloquentModel();
+        $user->save();
 
         $roleMapping = new RoleMapping();
-        $roleMapping->mapRoles($saml_user->getAttributes(), $user, config('services.oidc.mapping')->roles);
+        $roleMapping->mapRoles($saml_user, $user, config('services.oidc.mapping')->roles);
 
         Auth::login($user);
 
