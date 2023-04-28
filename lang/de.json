@@ -164,6 +164,7 @@
     "auth.logout_success": "Erfolgreich abgemeldet",
     "auth.login": "Anmelden",
     "auth.logout": "Abmelden",
+    "auth.logout_success": "Erfolgreich abgemeldet",
     "auth.new_password": "Neues Passwort",
     "auth.new_password_confirmation": "Neues Passwort bestätigen",
     "auth.oidc.logout_incomplete": "Achtung: Sie sind weiterhin bei OpenID Connect angemeldet.",

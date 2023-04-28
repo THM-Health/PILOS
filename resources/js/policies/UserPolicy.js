@@ -89,7 +89,7 @@ export default {
    * @return {boolean|boolean|*}
    */
   updateAttributes (permissionService, user) {
-    if (!permissionService.currentUser || user.authenticator !== 'users') {
+    if (!permissionService.currentUser || user.authenticator !== 'local') {
       return false;
     }
 
@@ -108,7 +108,7 @@ export default {
    * @return {boolean}
    */
   resetPassword (permissionService, user) {
-    if (!permissionService.currentUser || user.authenticator !== 'users') {
+    if (!permissionService.currentUser || user.authenticator !== 'local') {
       return false;
     }
 

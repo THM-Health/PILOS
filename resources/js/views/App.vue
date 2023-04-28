@@ -66,7 +66,7 @@
                 </b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
 
-                <b-dropdown-item @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
+                <b-dropdown-item ref="logout" @click="logout">{{ $t('auth.logout') }}</b-dropdown-item>
               </b-nav-item-dropdown>
               <b-nav-item class="d-none d-lg-block" v-b-tooltip.hover :title="$t('app.help')" link-classes='text-primary nav-icon-item' target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')" right>
                 <i class="fa-solid fa-circle-question"></i>
@@ -118,11 +118,10 @@ export default {
     ...mapActions(useAuthStore, { logoutSession: 'logout' }),
 
     async logout () {
-      const response = await this.logoutSession();
-
-      if (response.status !== 200) {
+      try {
+        const response = await this.logoutSession();
+      } catch (error) {
         this.toastError(this.$t('auth.flash.logout_error'));
-        return;
       }
 
       if (response.data.redirect) {

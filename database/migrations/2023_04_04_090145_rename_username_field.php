@@ -23,7 +23,7 @@ return new class extends Migration
         });
 
         User::where('authenticator', 'users')->update(['authenticator' => 'local']);
-        User::where('authenticator', 'ldap')->update(['authenticator' => 'ldap']);
+        User::where('authenticator', 'ldap')->update(['authenticator' => 'external']);
     }
 
     /**

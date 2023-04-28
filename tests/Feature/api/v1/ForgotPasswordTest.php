@@ -25,9 +25,9 @@ class ForgotPasswordTest extends TestCase
 
     public function testForgotPassword()
     {
-        $user     = User::factory()->create();
-        $ldapUser = User::factory()->create([
-            'authenticator' => 'ldap'
+        $user         = User::factory()->create();
+        $externalUser = User::factory()->create([
+            'authenticator' => 'external'
         ]);
         $newUser = User::factory()->create([
             'initial_password_set' => true
@@ -47,10 +47,10 @@ class ForgotPasswordTest extends TestCase
             ->assertJsonValidationErrors('email');
 
         Notification::fake();
-        $this->postJson(route('api.v1.password.email'), ['email' => $ldapUser->email])
+        $this->postJson(route('api.v1.password.email'), ['email' => $externalUser->email])
             ->assertStatus(200);
         $this->assertDatabaseCount('password_resets', 0);
-        Notification::assertNotSentTo($ldapUser, PasswordReset::class);
+        Notification::assertNotSentTo($externalUser, PasswordReset::class);
 
         $this->postJson(route('api.v1.password.email'), ['email' => $newUser->email])
             ->assertStatus(200);

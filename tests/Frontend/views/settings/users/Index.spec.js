@@ -41,9 +41,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -72,7 +72,7 @@ describe('UsersIndex', () => {
     expect(html).toContain('john@doe.com');
     expect(html).toContain('Students');
     expect(html).toContain('app.roles.admin');
-    expect(html).toContain('settings.users.authenticator.users');
+    expect(html).toContain('settings.users.authenticator.local');
 
     view.vm.$root.$emit('bv::refresh::table', 'users-table');
 
@@ -85,9 +85,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 2,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'darth@vader.com',
-          username: 'dvr',
+          external_id: 'dvr',
           firstname: 'Darth',
           lastname: 'Vader',
           user_locale: 'de',
@@ -112,7 +112,7 @@ describe('UsersIndex', () => {
     expect(html).toContain('Vader');
     expect(html).toContain('Students');
     expect(html).toContain('darth@vader.com');
-    expect(html).toContain('settings.users.authenticator.ldap');
+    expect(html).toContain('settings.users.authenticator.external');
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -130,9 +130,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -141,9 +141,9 @@ describe('UsersIndex', () => {
           updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john1@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -153,9 +153,9 @@ describe('UsersIndex', () => {
           initial_password_set: true
         }, {
           id: 3,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'darth@vader.com',
-          username: 'dvr',
+          external_id: 'dvr',
           firstname: 'Darth',
           lastname: 'Vader',
           user_locale: 'de',
@@ -247,9 +247,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -258,9 +258,9 @@ describe('UsersIndex', () => {
           updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john1@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -270,9 +270,9 @@ describe('UsersIndex', () => {
           initial_password_set: true
         }, {
           id: 3,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'darth@vader.com',
-          username: 'dvr',
+          external_id: 'dvr',
           firstname: 'Darth',
           lastname: 'Vader',
           user_locale: 'de',
@@ -338,9 +338,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -349,9 +349,9 @@ describe('UsersIndex', () => {
           updated_at: '2020-01-01T01:00:00.000000Z'
         }, {
           id: 2,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'darth@vader.com',
-          username: 'dvr',
+          external_id: 'dvr',
           firstname: 'Darth',
           lastname: 'Vader',
           user_locale: 'de',
@@ -437,9 +437,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 2,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'darth@vader.com',
-          username: 'dvr',
+          external_id: 'dvr',
           firstname: 'Darth',
           lastname: 'Vader',
           user_locale: 'de',
@@ -498,9 +498,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 2,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'darth@vader.com',
-          username: 'dvr',
+          external_id: 'dvr',
           firstname: 'Darth',
           lastname: 'Vader',
           user_locale: 'de',
@@ -648,9 +648,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -756,9 +756,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',
@@ -835,9 +835,9 @@ describe('UsersIndex', () => {
       response: {
         data: [{
           id: 1,
-          authenticator: 'users',
+          authenticator: 'local',
           email: 'john@doe.com',
-          username: 'jdo',
+          external_id: 'jdo',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'en',

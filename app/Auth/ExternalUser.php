@@ -7,21 +7,29 @@ use Hash;
 use Log;
 use Str;
 
-class ExternalUser
+/**
+ * ExternalUser is an abstract class that represents an external user.
+ * This class contains methods to manage attributes and interact with
+ * the User Eloquent model.
+ */
+abstract class ExternalUser
 {
+    /**
+     * @var array $attributes An associative array to store attribute names and their values.
+     */
     private array $attributes = [];
+
+    /**
+     * @var User $user An instance of the User Eloquent model.
+     */
     private User $user;
 
-    public function __get($name): mixed
-    {
-        return $this->properties[$name] ?? null;
-    }
-
-    public function __set($name, $value): void
-    {
-        $this->properties[$name] = $value;
-    }
-
+    /**
+     * Add a value to an attribute.
+     *
+     * @param string $name  The name of the attribute.
+     * @param mixed  $value The value to add to the attribute.
+     */
     public function addAttributeValue($name, $value)
     {
         if (!isset($this->attributes[$name])) {
@@ -30,26 +38,36 @@ class ExternalUser
         $this->attributes[$name][] = $value;
     }
 
+    /**
+     * Get all attributes and their values.
+     *
+     * @return array The attributes array.
+     */
     public function getAttributes()
     {
         return $this->attributes;
     }
 
+    /**
+     * Get the first value of an attribute.
+     *
+     * @param  string     $name The name of the attribute.
+     * @return mixed|null The first value of the attribute, or null if not set.
+     */
     public function getFirstAttributeValue($name)
     {
         return $this->attributes[$name][0] ?? null;
     }
 
-    public function saveEloquentModel(): User
+    /**
+     * Get all values of an attribute.
+     *
+     * @param  string     $name The name of the attribute.
+     * @return array|null The array of values for the attribute, or null if not set.
+     */
+    public function getAttributeValues($name)
     {
-        $this->user()->save();
-
-        return $this->user();
-    }
-
-    public function user(): User
-    {
-        return $this->user;
+        return $this->attributes[$name] ?? null;
     }
 
     public function __construct()
@@ -57,6 +75,12 @@ class ExternalUser
         $this->validate();
     }
 
+    /**
+     * Create or find an Eloquent User model based on the external_id attribute.
+     * New users will be created with default values for locale and timezone.
+     * 
+     * @return User The User Eloquent model.
+     */
     public function createOrFindEloquentModel(): User
     {
         $this->user = User::firstOrNew(
@@ -74,30 +98,25 @@ class ExternalUser
         return $this->user;
     }
 
+    /**
+     * Validate the required attributes.
+     * Throws a MissingAttributeException if the attribute is not set.
+     */
     public function validate()
     {
-        if ($this->getFirstAttributeValue('external_id') == null) {
-            Log::error('External-ID attribute missing', ['attributes' => $this->getAttributes()]);
+        $requiredAttributes = [
+            'external_id',
+            'first_name',
+            'last_name',
+            'email'
+        ];
 
-            throw new MissingAttributeException('external_id');
-        }
+        foreach ($requiredAttributes as $attribute) {
+            if ($this->getFirstAttributeValue($attribute) == null) {
+                Log::error('Required attribute missing', ['attribute' => $attribute, 'attributes' => $this->getAttributes()]);
 
-        if ($this->getFirstAttributeValue('first_name') == null) {
-            Log::error('First name attribute missing', ['attributes' => $this->getAttributes()]);
-
-            throw new MissingAttributeException('first_name');
-        }
-
-        if ($this->getFirstAttributeValue('last_name') == null) {
-            Log::error('Last name attribute missing', ['attributes' => $this->getAttributes()]);
-
-            throw new MissingAttributeException('last_name');
-        }
-
-        if ($this->getFirstAttributeValue('email') == null) {
-            Log::error('Email attribute missing', ['attributes' => $this->getAttributes()]);
-
-            throw new MissingAttributeException('email');
+                throw new MissingAttributeException($attribute);
+            }
         }
     }
 

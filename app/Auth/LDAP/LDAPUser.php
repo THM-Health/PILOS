@@ -8,24 +8,27 @@ class LDAPUser extends ExternalUser
 {
     public function __construct(LDAPUserObject $ldap_user)
     {
+        // Get the attributes from the LDAP user object
         $raw_attributes = $ldap_user->getAttributes();
 
-        $attributeMap = config('ldap.mapping')->attributes;
+        // Load the attribute mapping from the config
+        $attributeMap   = config('ldap.mapping')->attributes;
 
-        foreach ($attributeMap as $attribute=>$oidc_attribute) {
-            foreach ($raw_attributes as $attribute_name=>$value) {
-                if (strcasecmp($oidc_attribute, $attribute_name) == 0) {
-                    if (is_array($value)) {
-                        foreach ($value as $sub_value) {
-                            $this->addAttributeValue($attribute, $sub_value);
-                        }
-                    } else {
+        // Loop through the attribute mapping
+        foreach ($attributeMap as $attribute=>$ldap_attribute) {
+            // Loop through the LDAP user attributes
+            foreach ($raw_attributes as $attribute_name=>$attribute_values) {
+                // If the current LDAP attribute matches the name of the LDAP attribute in the mapping
+                // add all values to the attribute of the user
+                if (strcasecmp($ldap_attribute, $attribute_name) == 0) {
+                    foreach ($attribute_values as $value) {
                         $this->addAttributeValue($attribute, $value);
                     }
                 }
             }
         }
 
+        // Call parent constructor to validate the attributes
         parent::__construct();
     }
 }

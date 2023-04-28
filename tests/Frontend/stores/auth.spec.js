@@ -24,9 +24,9 @@ describe('Auth Store', () => {
 
     const user = {
       id: 1,
-      authenticator: 'ldap',
+      authenticator: 'external',
       email: 'john.doe@domain.tld',
-      username: 'user',
+      external_id: 'user',
       firstname: 'John',
       lastname: 'Doe',
       user_locale: 'en',
@@ -75,9 +75,9 @@ describe('Auth Store', () => {
     const loading = useLoadingStore();
     auth.currentUser = {
       id: 1,
-      authenticator: 'ldap',
+      authenticator: 'external',
       email: 'john.doe@domain.tld',
-      username: 'user',
+      external_id: 'user',
       firstname: 'John',
       lastname: 'Doe',
       user_locale: 'en',
