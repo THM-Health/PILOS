@@ -10,6 +10,7 @@ import Base from './api/base';
 import HideTooltip from './directives/hide-tooltip';
 import axios from 'axios';
 import VueRouter from 'vue-router';
+import * as Sentry from '@sentry/vue';
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -40,6 +41,35 @@ const pinia = createPinia();
 
 Vue.use(VueRouter);
 const router = createRouter();
+
+// Add sentry error tracking
+if (import.meta.env.VITE_SENTRY_DSN_PUBLIC) {
+  console.log('Sentry enabled');
+  console.log(import.meta.env.VITE_SENTRY_DSN_PUBLIC);
+  Sentry.init({
+    Vue,
+    dsn: import.meta.env.VITE_SENTRY_DSN_PUBLIC,
+      // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+
+    // This sets the sample rate to be 10%. You may want this to be 100% while
+    // in development and sample at a lower rate in production
+    replaysSessionSampleRate: 1.0,
+    // If the entire session is not sampled, use the below sample rate to sample
+    // sessions when an error occurs.
+    replaysOnErrorSampleRate: 1.0,
+    
+    integrations: [
+      new Sentry.BrowserTracing({
+        routingInstrumentation: Sentry.vueRouterInstrumentation(router),
+        tracePropagationTargets: ['localhost', 'dock-swrh68.ges.thm.de', /^\//]
+      }),
+      new Sentry.Replay()
+    ]
+  });
+}
 
 export default new Vue({
   el: '#app',
