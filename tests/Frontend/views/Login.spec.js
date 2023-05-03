@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
 import moxios from 'moxios';
 import Login from '../../../resources/js/views/Login.vue';
-import EmailLoginComponent from '../../../resources/js/components/Login/EmailLoginComponent.vue';
+import LocalLoginComponent from '../../../resources/js/components/Login/LocalLoginComponent.vue';
 import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
@@ -28,7 +28,7 @@ describe('Login', () => {
   it('correct data gets sent on ldap login', async () => {
     const view = mount(Login, {
       localVue,
-      pinia: createTestingPinia({ initialState: { settings: { settings: { ldap: true } } }, stubActions: false }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { ldap: true } } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -65,7 +65,7 @@ describe('Login', () => {
   it('hide ldap login if disabled', () => {
     const view = mount(Login, {
       localVue,
-      pinia: createTestingPinia({ initialState: { settings: { settings: { ldap: false } } }, stubActions: false }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { ldap: false } } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -85,11 +85,11 @@ describe('Login', () => {
       }
     });
 
-    const emailLoginComponent = view.findComponent(EmailLoginComponent);
-    await emailLoginComponent.find('#defaultEmail').setValue('user');
-    await emailLoginComponent.find('#defaultPassword').setValue('password');
-    await emailLoginComponent.findComponent(BButton).trigger('submit');
-    expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
+    const localLoginComponent = view.findComponent(LocalLoginComponent);
+    await localLoginComponent.find('#localEmail').setValue('user');
+    await localLoginComponent.find('#localPassword').setValue('password');
+    await localLoginComponent.findComponent(BButton).trigger('submit');
+    expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
     await waitMoxios();
     let request = moxios.requests.mostRecent();
@@ -105,7 +105,7 @@ describe('Login', () => {
     request = moxios.requests.mostRecent();
 
     expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login');
+    expect(request.config.url).toBe('/api/v1/login/local');
 
     const data = JSON.parse(request.config.data);
     expect(data.email).toBe('user');
@@ -142,9 +142,9 @@ describe('Login', () => {
       response: {
         data: {
           id: 1,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'john.doe@domain.tld',
-          username: 'user',
+          external_id: 'user',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'de',
@@ -199,9 +199,9 @@ describe('Login', () => {
       response: {
         data: {
           id: 1,
-          authenticator: 'ldap',
+          authenticator: 'external',
           email: 'john.doe@domain.tld',
-          username: 'user',
+          external_id: 'user',
           firstname: 'John',
           lastname: 'Doe',
           user_locale: 'de',
@@ -237,12 +237,12 @@ describe('Login', () => {
       }
     });
 
-    const emailLoginComponent = view.findComponent(EmailLoginComponent);
-    await emailLoginComponent.find('#defaultEmail').setValue('user');
-    await emailLoginComponent.find('#defaultPassword').setValue('password');
-    await emailLoginComponent.findComponent(BButton).trigger('submit');
+    const localLoginComponent = view.findComponent(LocalLoginComponent);
+    await localLoginComponent.find('#localEmail').setValue('user');
+    await localLoginComponent.find('#localPassword').setValue('password');
+    await localLoginComponent.findComponent(BButton).trigger('submit');
 
-    expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
+    expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
     await waitMoxios();
     let request = moxios.requests.mostRecent();
@@ -258,7 +258,7 @@ describe('Login', () => {
     request = moxios.requests.mostRecent();
 
     expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login');
+    expect(request.config.url).toBe('/api/v1/login/local');
 
     const data = JSON.parse(request.config.data);
     expect(data.email).toBe('user');
@@ -273,7 +273,7 @@ describe('Login', () => {
       }
     });
 
-    const invalidFeedback = emailLoginComponent.findComponent(BFormInvalidFeedback);
+    const invalidFeedback = localLoginComponent.findComponent(BFormInvalidFeedback);
 
     expect(invalidFeedback.exists()).toBe(true);
     expect(invalidFeedback.html()).toContain('Password or Email wrong!');
@@ -290,12 +290,12 @@ describe('Login', () => {
       }
     });
 
-    const emailLoginComponent = view.findComponent(EmailLoginComponent);
-    await emailLoginComponent.find('#defaultEmail').setValue('user');
-    await emailLoginComponent.find('#defaultPassword').setValue('password');
-    await emailLoginComponent.findComponent(BButton).trigger('submit');
+    const localLoginComponent = view.findComponent(LocalLoginComponent);
+    await localLoginComponent.find('#localEmail').setValue('user');
+    await localLoginComponent.find('#localPassword').setValue('password');
+    await localLoginComponent.findComponent(BButton).trigger('submit');
 
-    expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
+    expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
     await waitMoxios();
     let request = moxios.requests.mostRecent();
@@ -311,7 +311,7 @@ describe('Login', () => {
     request = moxios.requests.mostRecent();
 
     expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login');
+    expect(request.config.url).toBe('/api/v1/login/local');
 
     const data = JSON.parse(request.config.data);
     expect(data.email).toBe('user');
@@ -325,7 +325,7 @@ describe('Login', () => {
         }
       }
     });
-    const invalidFeedback = emailLoginComponent.findComponent(BFormInvalidFeedback);
+    const invalidFeedback = localLoginComponent.findComponent(BFormInvalidFeedback);
 
     expect(invalidFeedback.exists()).toBe(true);
     expect(invalidFeedback.html()).toContain('Too many logins. Please try again later!');
@@ -344,12 +344,12 @@ describe('Login', () => {
       }
     });
 
-    const emailLoginComponent = view.findComponent(EmailLoginComponent);
-    await emailLoginComponent.find('#defaultEmail').setValue('user');
-    await emailLoginComponent.find('#defaultPassword').setValue('password');
-    await emailLoginComponent.findComponent(BButton).trigger('submit');
+    const localLoginComponent = view.findComponent(LocalLoginComponent);
+    await localLoginComponent.find('#localEmail').setValue('user');
+    await localLoginComponent.find('#localPassword').setValue('password');
+    await localLoginComponent.findComponent(BButton).trigger('submit');
 
-    expect(emailLoginComponent.findComponent(BSpinner).exists()).toBe(true);
+    expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
     await waitMoxios();
     const request = moxios.requests.mostRecent();

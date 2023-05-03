@@ -24,7 +24,7 @@ class AuthenticationService
     public function sendResetLink(): string
     {
         return Password::broker('users')->sendResetLink([
-            'authenticator' => 'users',
+            'authenticator' => 'local',
             'email'         => $this->user->email
         ]);
     }

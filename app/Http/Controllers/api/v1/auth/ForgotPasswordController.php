@@ -24,14 +24,14 @@ class ForgotPasswordController extends Controller
     {
         $this->validateEmail($request);
 
-        $user = User::where('authenticator', '=', 'users')
+        $user = User::where('authenticator', '=', 'local')
             ->where('initial_password_set', '=', false)
             ->where('email', '=', $request->email)
             ->first();
 
         if (!empty($user)) {
             $this->broker()->sendResetLink(
-                array_merge(['authenticator' => 'users'], $this->credentials($request))
+                array_merge(['authenticator' => 'local'], $this->credentials($request))
             );
         }
 

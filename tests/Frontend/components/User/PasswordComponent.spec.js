@@ -13,9 +13,9 @@ localVue.use(PiniaVuePlugin);
 
 const user = {
   id: 2,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'john@doe.com',
-  username: null,
+  external_id: null,
   firstname: 'John',
   lastname: 'Doe',
   model_name: 'User',
@@ -24,9 +24,9 @@ const user = {
 
 const adminUser = {
   id: 3,
-  authenticator: 'users',
+  authenticator: 'local',
   email: 'admin@domin.com',
-  username: null,
+  external_id: null,
   firstname: 'Admin',
   lastname: 'User',
   model_name: 'User',

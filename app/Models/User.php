@@ -39,7 +39,7 @@ class User extends Authenticatable implements HasLocalePreference
      * @var array
      */
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'password', 'username', 'guid', 'domain', 'locale', 'bbb_skip_check_audio',
+        'firstname', 'lastname', 'email', 'password', 'external_id', 'guid', 'domain', 'locale', 'bbb_skip_check_audio', 'authenticator',
         'initial_password_set', 'timezone'
     ];
 

@@ -1,8 +1,10 @@
 <?php
 
+$ldapEnabled = env('LDAP_ENABLED', false);
+
 return [
 
-    'enabled'   => env('LDAP_ENABLED', false),
+    'enabled'   => $ldapEnabled,
 
     /*
     |--------------------------------------------------------------------------
@@ -85,7 +87,12 @@ return [
     |
     */
 
-    'ldapRoleAttribute' => env('LDAP_ROLE_ATTRIBUTE', 'userclass'),
 
-    'roleMap' => json_decode(env('LDAP_ROLE_MAP', ''), true)
+    'guid_key' => env('LDAP_GUID_KEY', 'entryuuid'),
+
+    'object_classes' => explode(",",env('LDAP_OBJECT_CLASSES', 'top,person,organizationalperson,inetorgperson')),
+
+    'login_attribute' => env('LDAP_LOGIN_ATTRIBUTE', 'uid'),
+
+    'mapping' => $ldapEnabled ? json_decode(file_get_contents(app_path('Auth/config/ldap_mapping.json'))) : null,
 ];
