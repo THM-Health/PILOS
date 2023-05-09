@@ -3,7 +3,6 @@
 namespace App\Auth\OIDC;
 
 use App\Auth\MissingAttributeException;
-use App\Auth\RoleMapping;
 use App\Http\Controllers\Controller;
 use App\Models\SessionData;
 use Auth;
@@ -85,14 +84,8 @@ class OIDCController extends Controller
         // Get eloquent user (existing or new)
         $user = $oidc_user->createOrFindEloquentModel();
 
-        // Sync attributes
-        $oidc_user->syncWithEloquentModel();
-
-        // Save changes (update or create)
-        $user->save();
-
-        $roleMapping = new RoleMapping();
-        $roleMapping->mapRoles($oidc_user, $user, config('services.oidc.mapping')->roles);
+        // Sync attributes and map roles
+        $oidc_user->syncWithEloquentModel($user, config('services.oidc.mapping')->roles);
 
         Auth::login($user);
 

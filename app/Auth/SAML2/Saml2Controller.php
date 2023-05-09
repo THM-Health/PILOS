@@ -3,7 +3,6 @@
 namespace App\Auth\SAML2;
 
 use App\Auth\MissingAttributeException;
-use App\Auth\RoleMapping;
 use App\Http\Controllers\Controller;
 use App\Models\SessionData;
 use Auth;
@@ -103,14 +102,8 @@ class Saml2Controller extends Controller
         // Get eloquent user (existing or new)
         $user = $saml_user->createOrFindEloquentModel();
 
-        // Sync attributes
-        $saml_user->syncWithEloquentModel();
-
-        // Save changes (update or create)
-        $user->save();
-
-        $roleMapping = new RoleMapping();
-        $roleMapping->mapRoles($saml_user, $user, config('services.oidc.mapping')->roles);
+        // Sync attributes and map roles
+        $saml_user->syncWithEloquentModel($user, config('services.oidc.mapping')->roles);
 
         Auth::login($user);
 

@@ -27,8 +27,6 @@ class OIDCUser extends ExternalUser
                 }
             }
         }
-
-        parent::__construct();
     }
 
     public function getRawAttributes()

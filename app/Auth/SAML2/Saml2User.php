@@ -13,7 +13,6 @@ class Saml2User extends ExternalUser
 
         if ($raw_attributes == null) {
             Log::error('No attributes found in SAML response');
-            parent::__construct();
 
             return;
         }
@@ -27,7 +26,5 @@ class Saml2User extends ExternalUser
                 }
             }
         }
-
-        parent::__construct();
     }
 }

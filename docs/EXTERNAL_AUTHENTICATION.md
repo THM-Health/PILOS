@@ -30,6 +30,12 @@ LDAP_TLS=false
 # LDAP logging debugging only
 LDAP_LOGGING=false
 
+# Query the users attributes using the users own credentials
+#LDAP_LOAD_ATTRIBUTES_AS_USER=false
+
+# Raw LDAP filter to restrict the user search
+#LDAP_FILTER=
+
 # Attribute with GUID; OpenLDAP: 'entryuuid', AD: 'objectGUID'
 LDAP_GUID_KEY=entryuuid
 
@@ -41,11 +47,6 @@ LDAP_LOGIN_ATTRIBUTE=uid
 
 # Log found roles for debugging
 AUTH_LOG_ROLES=true
-```
-
-You can check if the LDAP configuration is correct, by using the following artisan command:
-```bash
-docker compose exec --user www-data app php artisan ldap:test
 ```
 
 ## Open-ID Connect

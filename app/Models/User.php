@@ -13,14 +13,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
-use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use Illuminate\Contracts\Translation\HasLocalePreference;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use Storage;
 
-class User extends Authenticatable implements HasLocalePreference, LdapAuthenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
-    use Notifiable, AuthenticatesWithLdap, HasApiTokens, AddsModelNameTrait, HasFactory;
+    use Notifiable, HasApiTokens, AddsModelNameTrait, HasFactory;
 
     /**
      * The "booted" method of the model.

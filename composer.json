@@ -10,7 +10,7 @@
         "ext-json": "*",
         "anlutro/l4-settings": "^1.0.0",
         "bensampo/laravel-enum": "^6.0",
-        "directorytree/ldaprecord-laravel": "^v2.7",
+        "directorytree/ldaprecord-laravel": "^2.7",
         "doctrine/dbal": "^3.0",
         "firebase/php-jwt": "^6.4",
         "goldspecdigital/laravel-eloquent-uuid": "^10",
@@ -23,8 +23,6 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^4.0",
         "littleredbutton/bigbluebutton-api-php": "^4.2.0",
-        "maatwebsite/excel": "^3.1",
-        "socialiteproviders/keycloak": "^5.2",
         "socialiteproviders/saml2": "^4.7"
     },
     "require-dev": {
@@ -52,7 +50,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "directorytree/ldaprecord-laravel"
+            ]
         }
     },
     "autoload": {

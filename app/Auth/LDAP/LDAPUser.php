@@ -3,6 +3,7 @@
 namespace App\Auth\LDAP;
 
 use App\Auth\ExternalUser;
+use Log;
 
 class LDAPUser extends ExternalUser
 {
@@ -11,8 +12,12 @@ class LDAPUser extends ExternalUser
         // Get the attributes from the LDAP user object
         $raw_attributes = $ldap_user->getAttributes();
 
+        if (config('ldap.logging')) {
+            Log::debug('LDAP attributes', $raw_attributes);
+        }
+
         // Load the attribute mapping from the config
-        $attributeMap   = config('ldap.mapping')->attributes;
+        $attributeMap = config('ldap.mapping')->attributes;
 
         // Loop through the attribute mapping
         foreach ($attributeMap as $attribute=>$ldap_attribute) {
@@ -27,8 +32,5 @@ class LDAPUser extends ExternalUser
                 }
             }
         }
-
-        // Call parent constructor to validate the attributes
-        parent::__construct();
     }
 }

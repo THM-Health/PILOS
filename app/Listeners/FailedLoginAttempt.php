@@ -27,7 +27,7 @@ class FailedLoginAttempt
     {
         if (config('auth.log.failed')) {
             if ($event->guard == 'ldap') {
-                Log::info('External user '.$event->credentials[config('ldap.login_attribute')].' has failed authentication.', ['ip'=>request()->ip(),'user-agent'=>request()->header('User-Agent'), 'type' => 'ldap']);
+                Log::info('External user '.$event->credentials['username'].' has failed authentication.', ['ip'=>request()->ip(),'user-agent'=>request()->header('User-Agent'), 'type' => 'ldap']);
             } else {
                 Log::info('Local user '.$event->credentials['email'].' has failed authentication.', ['ip'=>request()->ip(),'user-agent'=>request()->header('User-Agent')]);
             }
