@@ -74,10 +74,7 @@ return [
 
         'ldap' => [
             'driver'   => 'ldap',
-            'model'    => LDAPUserObject::class,
-            'database' => [
-                'model' => User::class,
-            ],
+            'model' => User::class,
         ],
 
         // 'users' => [

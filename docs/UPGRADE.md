@@ -37,7 +37,8 @@ In the process, some .env variables were changed, added or removed. The followin
 | - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID' |
 | - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson) |
 | - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid) |
-
+| - | LDAP_FILTER | Raw LDAP filter |
+| - | LDAP_LOAD_ATTRIBUTES_AS_USER | Load the users attributes by using the users credentials |
 
 Please have a look at the [external authentication documentation](EXTERNAL_AUTHENTICATION.md)
 

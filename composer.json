@@ -9,7 +9,7 @@
         "ext-json": "*",
         "anlutro/l4-settings": "^1.0.0",
         "bensampo/laravel-enum": "^6.0",
-        "directorytree/ldaprecord-laravel": "^v2.7",
+        "directorytree/ldaprecord": "^3.0",
         "doctrine/dbal": "^3.0",
         "goldspecdigital/laravel-eloquent-uuid": "^10",
         "guzzlehttp/guzzle": "^7.0.1",

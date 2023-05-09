@@ -94,7 +94,64 @@ sail artisan users:create:admin
 ```
 
 ### LDAP 
-To use the local openldap server, enable ldap in the .env file with the option `LDAP_ENABLED`.
+For local development the included LDAP server can be used. To use this, it must first be configured in the .env. Then the attribute and role mapping must be configured.
+
+**`.env`**
+```
+# LDAP config
+LDAP_ENABLED=true
+LDAP_HOST=openldap
+LDAP_USERNAME="cn=readonly,dc=university,dc=org"
+LDAP_PASSWORD="readonly"
+LDAP_PORT=389
+LDAP_BASE_DN="ou=people,dc=university,dc=org"
+LDAP_TIMEOUT=5
+LDAP_SSL=false
+LDAP_TLS=false
+LDAP_LOGGING=true
+LDAP_GUID_KEY=entryuuid
+AUTH_LOG_ROLES=true
+```
+
+**`app/Auth/config/ldap_mapping.json`**
+
+This role mapping gives users of the group students the user role and users of the group staff the admin role.
+
+```json
+{
+  "attributes": {
+    "external_id": "uid",
+    "first_name": "givenname",
+    "last_name": "sn",
+    "email": "mail",
+    "groups": "memberOf"
+  },
+  "roles": [
+    {
+      "name": "user",
+      "disabled": false,
+      "rules": [
+        {
+          "attribute": "groups",
+          "regex": "/^cn=students,ou=groups,dc=university,dc=org$/i"
+        }
+      ]
+    },
+    {
+      "name": "admin",
+      "disabled": false,
+      "all": true,
+      "rules": [
+        {
+          "attribute": "groups",
+          "regex": "/^cn=staff,ou=groups,dc=university,dc=org$/i"
+        }
+      ]
+    }
+  ]
+}
+```
+
 There are three user accounts (see docker/openldap/bootstrap.ldif)
 1. Name: John Doe, Username: jdoe, Password: password, Groups: Student
 2. Name: Richard Roe, Username: rroe, Password: password, Groups: Staff
