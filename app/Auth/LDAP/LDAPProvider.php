@@ -104,15 +104,18 @@ class LDAPProvider extends EloquentUserProvider
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
+        // Bind to LDAP with user credentials
         if (! $this->user->getConnection()->auth()->attempt($this->user->getDn(), $credentials['password'], true)) {
             return false;
         }
         
-        //
+        // If attributes should be loaded as user, refresh the user model
+        // The previous bind (with the user's credentials) will be used
         if (config('ldap.load_attributes_as_user')) {
             $this->user->refresh();
         }
 
+        // Sync LDAP user attributes with eloquent user model
         $ldap_user = new LDAPUser($this->user);
         $ldap_user->syncWithEloquentModel($user, config('ldap.mapping')->roles);
 
