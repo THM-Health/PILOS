@@ -24,6 +24,7 @@
 <script>
 import Base from '../api/base';
 import env from '../env';
+import { useSettingsStore } from '../stores/settings';
 
 export default {
   name: 'ConfirmEmailChange.vue',
@@ -49,6 +50,21 @@ export default {
   mounted () {
     this.verifyEmail();
   },
+
+  /**
+   * Calls the next callback if the password self reset page is enabled
+   * otherwise the user gets redirected to a 404 route.
+   */
+  beforeRouteEnter (to, from, next) {
+    const settings = useSettingsStore();
+
+    if (!settings.getSetting('auth.local')) {
+      next('/404');
+    } else {
+      next();
+    }
+  },
+
   methods: {
     verifyEmail () {
       this.loading = true;

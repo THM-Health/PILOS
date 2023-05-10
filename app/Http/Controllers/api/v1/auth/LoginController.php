@@ -23,6 +23,7 @@ class LoginController extends Controller
 
     use AuthenticatesUsers {
         logout as protected logoutApplication;
+        login as protected loginApplication;
     }
 
     /**
@@ -39,6 +40,16 @@ class LoginController extends Controller
     public function username()
     {
         return 'email';
+    }
+
+    public function login(Request $request)
+    {
+        // Check if local login is enabled
+        if (!config('auth.local.enabled')) {
+            abort(404);
+        }
+
+        $this->loginApplication($request);
     }
 
     protected function credentials(Request $request)
