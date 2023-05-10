@@ -17,7 +17,7 @@
           </b-button>
 
             <!-- Bulk Import -->
-          <bulk-import-members-component :room-id="room.id"></bulk-import-members-component>
+          <bulk-import-members-component :room-id="room.id" @imported="reload"></bulk-import-members-component>
 
           </can>
 

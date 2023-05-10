@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddRoomMember;
+use App\Http\Requests\BulkImportRequest;
 use App\Http\Requests\BulkUpdateRequest;
 use App\Http\Requests\BulkDestroyRequest;
 use App\Http\Requests\UpdateRoomMember;
@@ -39,6 +40,15 @@ class RoomMemberController extends Controller
     public function store(Room $room, AddRoomMember $request)
     {
         $room->members()->attach($request->user, ['role' => $request->role]);
+
+        return response()->noContent();
+    }
+    public function bulkImport(Room $room, BulkImportRequest $request)
+    {
+        foreach ($request->user_emails as $userEmail) {
+            $user = User::firstWhere('email', $userEmail);
+            $room->members()->attach($user, ['role' => $request->role]);
+        }
 
         return response()->noContent();
     }
