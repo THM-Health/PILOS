@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Auth\LDAP\LDAPProvider;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\RoomType;
@@ -14,7 +15,6 @@ use App\Policies\ServerPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Contracts\Foundation\Application;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -42,6 +42,10 @@ class AuthServiceProvider extends ServiceProvider
             if ($user->hasPermission($ability)) {
                 return true;
             }
+        });
+
+        $this->app->auth->provider('ldap', function ($app, array $config) {
+            return new LDAPProvider($app['hash'], $config['model']);
         });
     }
 }

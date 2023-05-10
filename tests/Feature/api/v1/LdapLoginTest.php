@@ -180,6 +180,9 @@ class LdapLoginTest extends TestCase
      */
     public function testAttributeMapping()
     {
+        Log::swap(new LogFake);
+        Config::set('ldap.logging', false);
+
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
@@ -192,6 +195,56 @@ class LdapLoginTest extends TestCase
         $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
         $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
         $this->assertEquals($this->ldapUser->mail[0], $user->email);
+
+        // Check no log entry created
+        Log::assertNotLogged(
+            fn (LogEntry $log) =>
+                $log->level === 'debug'
+                && $log->message == 'LDAP attributes'
+                && count($log->context) == 6
+                && $log->context['givenname'][0] == $this->ldapUser->givenName[0]
+                && $log->context['sn'][0] == $this->ldapUser->sn[0]
+                && $log->context['mail'][0] == $this->ldapUser->mail[0]
+                && $log->context['uid'][0] == $this->ldapUser->uid[0]
+                && $log->context['userclass'][0] == $this->ldapUser->userclass[0]
+                && $log->context['entryuuid'][0] == $this->ldapUser->entryuuid[0]
+        );
+    }
+
+    /**
+     * Test attributes get mapped correctly.
+     */
+    public function testAttributeMappingLogging()
+    {
+        Log::swap(new LogFake);
+        Config::set('ldap.logging', true);
+
+        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
+            'username' => $this->ldapUser->uid[0],
+            'password' => 'secret'
+        ]);
+
+        $this->assertAuthenticated($this->guard);
+        $user = $this->getAuthenticatedUser();
+        
+        $this->assertEquals($this->ldapUser->uid[0], $user->external_id);
+        $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
+        $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
+        $this->assertEquals($this->ldapUser->mail[0], $user->email);
+
+        // Check log entry created
+        Log::assertLogged(
+            fn (LogEntry $log) =>
+                $log->level === 'debug'
+                && $log->message == 'LDAP attributes'
+                && count($log->context) == 6
+                && $log->context['givenname'][0] == $this->ldapUser->givenName[0]
+                && $log->context['sn'][0] == $this->ldapUser->sn[0]
+                && $log->context['mail'][0] == $this->ldapUser->mail[0]
+                && $log->context['uid'][0] == $this->ldapUser->uid[0]
+                && $log->context['userclass'][0] == $this->ldapUser->userclass[0]
+                && $log->context['entryuuid'][0] == $this->ldapUser->entryuuid[0]
+        );
     }
 
     /**

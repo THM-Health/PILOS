@@ -2,13 +2,11 @@
 
 namespace App\Providers;
 
-use App\Auth\LDAP\SetUserLDAPRole;
 use App\Listeners\FailedLoginAttempt;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use LdapRecord\Laravel\Events\Import\Saved;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -20,9 +18,6 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
-        ],
-        Saved::class => [
-            SetUserLDAPRole::class,
         ],
         Failed::class => [
             FailedLoginAttempt::class,

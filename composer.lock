@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56669bb460c6e215b0dec6101e56fa4b",
+    "content-hash": "1d011d536e5c216f2da338b59816dac1",
     "packages": [
         {
             "name": "anlutro/l4-settings",
@@ -6889,16 +6889,16 @@
         },
         {
             "name": "tightenco/collect",
-            "version": "v9.52.0",
+            "version": "v9.52.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tighten/collect.git",
-                "reference": "d4772fe52bbc823d1d2e3d289d3f1ca8c0f3323b"
+                "reference": "b15143cd11fe01a700fcc449df61adc64452fa6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tighten/collect/zipball/d4772fe52bbc823d1d2e3d289d3f1ca8c0f3323b",
-                "reference": "d4772fe52bbc823d1d2e3d289d3f1ca8c0f3323b",
+                "url": "https://api.github.com/repos/tighten/collect/zipball/b15143cd11fe01a700fcc449df61adc64452fa6d",
+                "reference": "b15143cd11fe01a700fcc449df61adc64452fa6d",
                 "shasum": ""
             },
             "require": {
@@ -6937,9 +6937,9 @@
             ],
             "support": {
                 "issues": "https://github.com/tighten/collect/issues",
-                "source": "https://github.com/tighten/collect/tree/v9.52.0"
+                "source": "https://github.com/tighten/collect/tree/v9.52.7"
             },
-            "time": "2023-02-17T21:37:36+00:00"
+            "time": "2023-04-14T21:51:36+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -10863,8 +10863,8 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.1",
-        "ext-json": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-json": "*"
     },
     "platform-dev": {
         "ext-simplexml": "*"
