@@ -178,27 +178,13 @@
 
         <!-- Show limited file list for guests, users, members and moderators-->
         <cannot method="viewSettings" :policy="room">
-          <b-row>
-            <b-col>
-              <hr>
-              <file-component
-                ref="publicFileList"
-                :emit-errors="true"
-                v-on:error="onFileListError"
-                :access-code="accessCode"
-                :token="token"
-                :room="room"
-                :show-title="true"
-                :require-agreement="true"
-                :hide-reload="true"
-              ></file-component>
-            </b-col>
-          </b-row>
+          <hr>
+          <tabs-component :accessCode="accessCode" :token="token" :room="room" v-on:fileListError="onFileListError" ></tabs-component>
         </cannot>
 
         <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
         <can method="viewSettings" :policy="room">
-          <room-admin @settingsChanged="reload" :room="room"></room-admin>
+          <admin-tabs-component @settingsChanged="reload" :room="room"></admin-tabs-component>
         </can>
       </template>
       <!-- Ask for room access code -->
@@ -264,12 +250,12 @@
 <script>
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
-import RoomAdmin from '../../components/Room/AdminComponent.vue';
+import AdminTabsComponent from '../../components/Room/AdminTabsComponent.vue';
+import TabsComponent from '../../components/Room/TabsComponent.vue';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
 import Can from '../../components/Permissions/Can.vue';
 import Cannot from '../../components/Permissions/Cannot.vue';
-import FileComponent from '../../components/Room/FileComponent.vue';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
 import BrowserNotification from '../../components/Room/BrowserNotification.vue';
@@ -291,9 +277,9 @@ export default {
 
   components: {
     BrowserNotification,
-    FileComponent,
     DeleteRoomComponent,
-    RoomAdmin,
+    TabsComponent,
+    AdminTabsComponent,
     Can,
     Cannot
   },

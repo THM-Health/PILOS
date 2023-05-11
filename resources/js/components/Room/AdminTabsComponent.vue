@@ -4,13 +4,21 @@
       <div class="col-12">
         <b-card no-body>
           <b-tabs content-class="p-3" fill active-nav-item-class="bg-primary">
+            <!-- Room description tab -->
+            <b-tab>
+              <template v-slot:title>
+                <i class="fa-solid fa-file-lines"></i> {{ $t('rooms.description.title') }}
+              </template>
+              <room-description-component @settingsChanged="$emit('settingsChanged')" :room="room"></room-description-component>
+            </b-tab>
             <!-- Membership tab -->
-            <b-tab  active>
+            <b-tab>
               <template v-slot:title>
                 <i class="fa-solid fa-users"></i> {{ $t('rooms.members.title') }}
               </template>
               <members-component :room="room"></members-component>
             </b-tab>
+            <!-- Personal room links tab -->
             <b-tab>
               <template v-slot:title>
                 <i class="fa-solid fa-link"></i> {{ $t('rooms.tokens.title') }}
@@ -50,10 +58,12 @@ import MembersComponent from './MembersComponent.vue';
 import FileComponent from './FileComponent.vue';
 import HistoryComponent from './HistoryComponent.vue';
 import TokensComponent from './TokensComponent.vue';
+import RoomDescriptionComponent from './RoomDescriptionComponent.vue';
 
 export default {
 
   components: {
+    RoomDescriptionComponent,
     HistoryComponent,
     SettingsComponent,
     MembersComponent,
