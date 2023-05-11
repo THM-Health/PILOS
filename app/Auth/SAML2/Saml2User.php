@@ -22,7 +22,10 @@ class Saml2User extends ExternalUser
         foreach ($attributeMap as $attribute=>$saml_attribute) {
             foreach ($raw_attributes as $raw_attribute) {
                 if (strcasecmp($saml_attribute, $raw_attribute->getName()) == 0) {
-                    $this->addAttributeValue($attribute, $raw_attribute->getFirstAttributeValue());
+                    $attribute_values = $raw_attribute->getAllAttributeValues();
+                    foreach ($attribute_values as $value) {
+                        $this->addAttributeValue($attribute, $value);
+                    }
                 }
             }
         }
