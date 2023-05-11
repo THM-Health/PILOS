@@ -11,7 +11,9 @@
 
     <!-- bulk add new user modal -->
     <b-modal
+      :no-close-on-backdrop="true"
       hide-footer
+      class="pb-0"
       ref="bulk-import-modal"
       id="bulk-import-modal"
     >
@@ -20,15 +22,22 @@
       </template>
 
       <div v-if="step === 0">
-        <h3>{{$t('rooms.members.modals.add.description_bulk')}}</h3>
-        <i>{{$t('rooms.members.modals.add.information_bulk')}}</i>
-
+      <b-form-group
+        :state="fieldState('user_emails')"
+        :description="$t('rooms.members.modals.add.information_bulk')"
+        :label="$t('rooms.members.modals.add.description_bulk')"
+      >
         <b-form-textarea
+          :state="fieldState('user_emails')"
           v-model="rawList"
-          :placeholder="$t('rooms.members.modals.add.textarea.description_bulk')"
+         :placeholder="$t('rooms.members.modals.add.textarea.description_bulk')"
 
-          rows = "8"
-        ></b-form-textarea>
+        rows = "8"
+      ></b-form-textarea>
+          <template slot='invalid-feedback'><div v-html="fieldError('user_emails')"></div>
+        </template>
+      </b-form-group>
+
 
         <b-form-group :label="$t('rooms.role')"  >
           <b-form-radio :state="fieldState('role')" v-model.number="newUsersRole" name="some-radios" value="1">
@@ -42,7 +51,9 @@
           </b-form-radio>
         </b-form-group>
 
-        <b-button :disabled='rawList.length === 0' @click="importUsers(true)" variant="success">{{$t('rooms.members.modals.add.add')}}</b-button>
+        <div class="modal-footer">
+          <b-button :disabled='rawList.length === 0' @click="importUsers(true)" variant="success">{{$t('rooms.members.modals.add.add')}}</b-button>
+        </div>
       </div>
 
       <div v-if="step === 1">
@@ -51,11 +62,13 @@
 
         <bulk-import-members-list-component :list="invalidUsers" variant="danger" :description="$t('rooms.members.modals.bulk_import.cannot_import_users')"/>
 
-        <i v-if="validUsers.length>0" class="mb-3">
+        <i v-if="validUsers.length>0">
           {{$t('rooms.members.modals.bulk_import.import_importable_question')}}</i>
         <br>
-        <b-button @click="step = 0" variant="dark">{{$t('app.back')}}</b-button>
-        <b-button @click="importUsers(false)" variant="success" v-if="validUsers.length > 0">{{$t('app.next')}}</b-button>
+        <div class="modal-footer">
+          <b-button @click="step = 0" variant="dark">{{$t('app.back')}}</b-button>
+          <b-button @click="importUsers(false)" variant="success" v-if="validUsers.length > 0">{{$t('app.next')}}</b-button>
+        </div>
       </div>
       <div v-if="step === 2">
 
@@ -63,10 +76,11 @@
 
         <bulk-import-members-list-component :list="invalidUsers" variant="danger" :description="$t('rooms.members.modals.bulk_import.could_not_import_users')"/>
 
-        <b-button variant="success" @click="finish">{{ $t('app.close') }}</b-button>
-        <b-button @click="copyInvalidUsers">{{$t('rooms.members.modals.bulk_import.copy_and_close')}}</b-button>
+        <div class="modal-footer">
+          <b-button variant="success" @click="finish">{{ $t('app.close') }}</b-button>
+          <b-button @click="copyInvalidUsers">{{$t('rooms.members.modals.bulk_import.copy_and_close')}}</b-button>
+        </div>
       </div>
-
     </b-modal>
   </div>
 </template>
@@ -103,7 +117,8 @@ export default {
       newUsersRole: 1,
 
       validUsers: [],
-      invalidUsers: []
+      invalidUsers: [],
+      errors: []
 
     };
   },
@@ -115,6 +130,7 @@ export default {
     showModal () {
       this.step = 0;
       this.rawList = '';
+      this.errors = [];
       this.$bvModal.show('bulk-import-modal');
     },
     finish () {
@@ -128,8 +144,11 @@ export default {
     },
 
     initValidUsers () {
-      const transferList = this.rawList.replaceAll(' ', '').replaceAll('\t', '').replaceAll(/^[\n?\r]+/gm, '');
-
+      const transferList = this.rawList
+        .replaceAll(' ', '')
+        .replaceAll('\t', '')
+        .replaceAll(/^[\n?\r]+/gm, '')
+        ;//.toLowerCase(); //ToDo only commented for test purposes
       const usersEmailList = _.uniq(transferList.split(/\r?\n/));
       if (usersEmailList.at(usersEmailList.length - 1) === '') {
         usersEmailList.splice(usersEmailList.length - 1, 1);
@@ -143,6 +162,7 @@ export default {
     },
 
     importUsers (firstRound = false) {
+      this.errors =[];
       if (firstRound) { this.initValidUsers(); }
 
       const userEmails = this.validUsers.map(entry => entry.email);
@@ -157,8 +177,8 @@ export default {
         if (error.response) {
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             if (error.response.data.errors.user_emails) {
-              console.error('Data is invalid');
-              this.toastError('Invalid Data'); // ToDo
+              this.errors = {user_emails : error.response.data.errors.user_emails};
+
               return;
             }
 
@@ -172,8 +192,7 @@ export default {
               console.log('Invalid email: ' + userEmails[index]);
 
               this.validUsers = this.validUsers.filter(entry => entry.email !== userEmails[index]);
-              const replaceString = 'user_emails.' + index;
-              const errorString = error.response.data.errors[errorKey][0].replace(replaceString, this.$t('app.input')); // Makes Error readable Problems with language
+              const errorString = error.response.data.errors[errorKey][0];
               this.invalidUsers.push({ email: userEmails[index], error: errorString });
               this.step = 1;
             });

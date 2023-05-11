@@ -13,8 +13,8 @@ class BulkImportRequest extends FormRequest
     {
         return[
             'role'          => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR,RoomUserRole::CO_OWNER])],
-            'user_emails'   => ['required','array'],
-            'user_emails.*' => ['bail','required','email','distinct',
+            'user_emails'   => ['required','array','max:1000'],
+            'user_emails.*' => ['bail','required','email','distinct:ignore_case',
                 function ($attribute, $value, $fail) {
                     $users = User::where('email', $value);
                     if ($users->count() == 0) {
@@ -33,6 +33,17 @@ class BulkImportRequest extends FormRequest
                         $fail(__('validation.custom.room.already_member'));
                     }
                 }]
+            ];
+    }
+    public function attributes()
+    {
+        return ["user_emails" => __('validation.attributes.user_emails')];
+    }
+    public function messages()
+    {
+        return [
+            "user_emails.*.email" => __('validation.email',["attribute" => __('app.entry')]),
+            "user_email.*.distinct" => __('validation.distinct',["attribute" => __('app.entry')])
             ];
     }
 }
