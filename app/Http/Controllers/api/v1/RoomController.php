@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\StartJoinMeeting;
+use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Models\Meeting;
@@ -169,7 +170,6 @@ class RoomController extends Controller
      * Update room settings
      * @param  UpdateRoomSettings $request
      * @param  Room               $room
-     * @param  Room               $room
      * @return RoomSettings
      */
     public function update(UpdateRoomSettings $request, Room $room)
@@ -199,6 +199,26 @@ class RoomController extends Controller
         $room->default_role = $request->default_role;
         $room->lobby        = $request->lobby;
         $room->roomType()->associate($request->room_type);
+
+        $room->save();
+
+        return new RoomSettings($room);
+    }
+
+    /**
+     * Update room description
+     * @param  UpdateRoomDescription $request
+     * @param  Room                  $room
+     * @return RoomSettings
+     */
+    public function updateDescription(UpdateRoomDescription $request, Room $room)
+    {
+        $room->description = $request->description;
+
+        // Remove empty paragraph (tiptop editor always outputs at least one empty paragraph)
+        if ($room->description == '<p></p>') {
+            $room->description = null;
+        }
 
         $room->save();
 

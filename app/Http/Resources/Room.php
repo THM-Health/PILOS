@@ -53,6 +53,7 @@ class Room extends JsonResource
             $this->mergeWhen($this->details, [
                 'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
                 'authenticated'     => $this->authenticated,
+                'description'       => $this->description,
                 'allow_membership'  => $this->allow_membership,
                 'is_member'         => $this->resource->isMember(Auth::user()),
                 'is_moderator'      => $this->resource->isModerator(Auth::user(), $this->token),
