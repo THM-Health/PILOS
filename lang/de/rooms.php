@@ -10,6 +10,7 @@ return [
         'ok'    => 'Erstellen',
         'title' => 'Neuen Raum erstellen',
     ],
+    'description'    => 'Beschreibung',
     'end_membership' => [
         'button'  => 'Mitgliedschaft beenden',
         'message' => 'Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumbesitzer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.',

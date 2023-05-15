@@ -222,27 +222,20 @@ return [
         'disabled'             => 'Deaktiviert',
         'disabled_description' => 'Bereits laufende Meetings werden durch eine Deaktivierung nicht beendet, neue können jedoch nicht erstellt werden',
         'edit'                 => 'Server :name bearbeiten',
-        'flash'                => [
-            'panic' => [
-                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
-                'title'       => 'Der Server wurde deaktiviert.',
-            ],
-        ],
-        'hide_salt'           => 'Klartext verbergen',
-        'meeting_count'       => 'Meetings',
-        'meeting_description' => 'Alle Meetings auf dem BigBlueButton-Server',
-        'new'                 => 'Neuen Server hinzufügen',
-        'no_data'             => 'Es sind keine Server vorhanden!',
-        'no_data_filtered'    => 'Für die Suchanfrage wurden keine Server gefunden!',
-        'offline'             => 'Offline',
-        'offline_reason'      => [
+        'hide_salt'            => 'Klartext verbergen',
+        'meeting_count'        => 'Meetings',
+        'meeting_description'  => 'Alle Meetings auf dem BigBlueButton-Server',
+        'new'                  => 'Neuen Server hinzufügen',
+        'no_data'              => 'Es sind keine Server vorhanden!',
+        'no_data_filtered'     => 'Für die Suchanfrage wurden keine Server gefunden!',
+        'offline'              => 'Offline',
+        'offline_reason'       => [
             'connection' => 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
             'salt'       => 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.',
         ],
         'online'                  => 'Online',
         'own_meeting_count'       => 'Eigene Meetings',
         'own_meeting_description' => 'Meetings, die von diesem System verwaltet werden',
-        'panic'                   => 'Deaktivieren & Aufräumen',
         'panic_description'       => 'Es werden nur Meetings beendet, die über dieses System erstellt wurden!',
         'panic_server'            => 'Server deaktiveren und alle Meetings beenden',
         'participant_count'       => 'Teilnehmer',
@@ -259,6 +252,13 @@ return [
         'version'                 => 'Version',
         'video_count'             => 'Videos',
         'view'                    => 'Detaillierte Informationen über Server :name',
+        'flash'                   => [
+            'panic' => [
+                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
+                'title'       => 'Der Server wurde deaktiviert.',
+            ],
+        ],
+        'panic' => 'Deaktivieren & Aufräumen',
     ],
     'title' => 'Einstellungen',
     'users' => [
@@ -290,9 +290,6 @@ return [
         'new'                    => 'Neuen Benutzer erstellen',
         'no_data'                => 'Es sind keine Benutzer vorhanden!',
         'no_data_filtered'       => 'Für die Suchanfrage wurden keine Benutzer gefunden!',
-        'other_settings'         => 'Weitere Einstellungen',
-        'bbb'                    => 'BigBlueButton',
-        'skip_check_audio'       => 'Echo-Test deaktivieren',
         'password_reset_success' => 'Passwort-Rücksetz-Mail wurde erfolgreich an :mail verschickt!',
         'remove_role'            => 'Rolle entfernen',
         'reset_password'         => [
@@ -307,5 +304,8 @@ return [
         'timezone'              => 'Zeitzone',
         'user_locale'           => 'Sprache',
         'view'                  => 'Detaillierte Informationen für den Benutzer :firstname :lastname',
+        'other_settings'        => 'Weitere Einstellungen',
+        'bbb'                   => 'BigBlueButton',
+        'skip_check_audio'      => 'Echo-Test deaktivieren',
     ],
 ];

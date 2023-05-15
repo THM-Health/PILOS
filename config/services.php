@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'poeditor' => [
+        'token' => env('POEDITOR_TOKEN'),
+        'project' => env('POEDITOR_PROJECT')
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

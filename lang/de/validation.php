@@ -133,26 +133,26 @@ return [
             'not_in'   => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
         ],
-        'roles' => [
-            '*' => [
-                'distinct' => 'Mindestens eine Rolle wurde mehrfach ausgewählt.',
-                'exists'   => 'Eine der ausgewählten Rollen existiert nicht.',
-            ],
-        ],
         'room' => [
             'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.',
             'not_member'     => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
             'self_delete'    => 'Sie dürfen sich nicht selbst löschen.',
             'self_edit'      => 'Sie dürfen sich nicht selbst bearbeiten.',
         ],
+        'user' => [
+            'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.',
+        ],
+        'roles' => [
+            '*' => [
+                'distinct' => 'Mindestens eine Rolle wurde mehrfach ausgewählt.',
+                'exists'   => 'Eine der ausgewählten Rollen existiert nicht.',
+            ],
+        ],
         'servers' => [
             '*' => [
                 'distinct' => 'Der Server mit der ID :input wurde mehrfach ausgewählt.',
                 'exists'   => 'Der Server mit der ID :input konnte nicht gefunden werden.',
             ],
-        ],
-        'user' => [
-            'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.',
         ],
     ],
     'date'           => ':attribute muss ein gültiges Datum sein.',

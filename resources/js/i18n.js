@@ -3,6 +3,7 @@ import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import dateTimeFormats from './lang/date-time-formats';
 import _ from 'lodash';
+import Base from './api/base';
 const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
 
 const messages = {};
@@ -67,16 +68,17 @@ export function loadLanguageAsync (lang) {
 
   if (import.meta.env.MODE !== 'test') {
     return new Promise((resolve, reject) => {
-      import(`../../locales/${lang}.json`).then((messages) => {
-        importLanguage(lang, messages);
-
-        for (const path in overrideLocales) {
-          if (path.endsWith(`/${lang}.json`)) {
-            i18n.mergeLocaleMessage(lang, overrideLocales[path].default);
+      Base.call('locale/' + lang).then((data) => {
+        importLanguage(lang, data.data);
+        import(`../../locales/${lang}.json`).then((messages) => {
+          for (const path in overrideLocales) {
+            if (path.endsWith(`/${lang}.json`)) {
+              i18n.mergeLocaleMessage(lang, overrideLocales[path].default);
+            }
           }
-        }
 
-        resolve();
+          resolve();
+        });
       });
     });
   } else {
@@ -86,7 +88,7 @@ export function loadLanguageAsync (lang) {
 
 export function importLanguage (lang, messages) {
   const existingLocaleMessages = i18n.getLocaleMessage(lang);
-  i18n.setLocaleMessage(lang, _.merge({}, messages.default, existingLocaleMessages));
+  i18n.setLocaleMessage(lang, _.merge({}, messages, existingLocaleMessages));
   loadedLanguages.push(lang);
   return setI18nLanguage(lang);
 }
