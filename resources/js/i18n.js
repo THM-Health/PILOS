@@ -3,7 +3,6 @@ import Vue from 'vue';
 import VueI18n from 'vue-i18n';
 import dateTimeFormats from './lang/date-time-formats';
 import _ from 'lodash';
-
 const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
 
 const messages = {};
@@ -68,7 +67,7 @@ export function loadLanguageAsync (lang) {
 
   if (import.meta.env.MODE !== 'test') {
     return new Promise((resolve, reject) => {
-      import(`../../lang/${lang}.json`).then((messages) => {
+      import(`./lang/${lang}.json`).then((messages) => {
         importLanguage(lang, messages);
 
         for (const path in overrideLocales) {
