@@ -2,8 +2,8 @@
   <div>
     <h3>
       {{ id === 'new' ? $t('settings.roles.new') : (
-        viewOnly ? $t('settings.roles.view', { name: $te(`app.roles.${model.name}`) ? $t(`app.roles.${model.name}`) : model.name })
-          : $t('settings.roles.edit', { name: $te(`app.roles.${model.name}`) ? $t(`app.roles.${model.name}`) : model.name })
+        viewOnly ? $t('settings.roles.view', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
+          : $t('settings.roles.edit', { name: $te(`app.role_lables.${model.name}`) ? $t(`app.role_lables.${model.name}`) : model.name })
       ) }}
     </h3>
     <hr>

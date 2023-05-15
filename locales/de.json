@@ -1,0 +1,1133 @@
+{
+    "app": {
+      "actions": "Aktionen",
+      "back": "Zurück",
+      "browse": "Durchsuchen",
+      "button_styles": {
+        "danger": "Gefahr",
+        "dark": "Dunkel",
+        "info": "Info",
+        "light": "Hell",
+        "link": "Link",
+        "primary": "Primär",
+        "secondary": "Sekundär",
+        "success": "Erfolg",
+        "warning": "Warnung"
+      },
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "description": "Beschreibung",
+      "disable": "Deaktivieren",
+      "disabled": "Deaktiviert",
+      "email": "Email",
+      "enable": "Aktivieren",
+      "enabled": "Aktiviert",
+      "error": "Es ist ein Fehler aufgetreten!",
+      "errors": {
+        "attendance_agreement_missing": "Die Zustimmung zur Protokollierung der Anwesenheit ist erforderlich.",
+        "file_not_found": "Die Datei konnte nicht gefunden werden.",
+        "meeting_attendance_disabled": "Die Protokollierung der Anwesenheit ist nicht verfügbar.",
+        "meeting_attendance_not_ended": "Die Protokollierung der Anwesenheit ist für diesen Raum noch nicht abgeschlossen.",
+        "meeting_statistics_disabled": "Die Auslastungsdaten sind nicht verfügbar.",
+        "membership_disabled": "Mitgliedschaft fehlgeschlagen! Eine Mitgliedschaft ist in diesem Raum aktuell nicht möglich.",
+        "no_room_access": "Sie haben nicht die notwendigen Rechte, den Raum zu bearbeiten.",
+        "no_server_available": "Zur Zeit sind keine Server verfügbar.",
+        "not_member_of_room": "Die Person ist nicht (mehr) Mitglied dieses Raums.",
+        "not_running": "Teilnahme fehlgeschlagen! Der Raum ist aktuell geschlossen.",
+        "role_delete_linked_users": "Die Rolle ist mit Benutzern verknüpft und kann deshalb nicht gelöscht werden!",
+        "role_update_permission_lost": "Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!",
+        "room_limit_exceeded": "Raumerstellung fehlgeschlagen! Sie haben die max. Anzahl an Räumen erreicht.",
+        "room_start": "Starten fehlgeschlagen! Der Raum konnte nicht gestartet werden.",
+        "room_type_invalid": "Die Art des Raumes ist für bestimmte Benutzergruppen eingeschränkt. Wenn Sie der Beistzer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum gestartet werden kann.",
+        "server_delete_failed": "Der Server konnte nicht gelöscht werden. Um den Server zu löschen, muss dieser deaktivert werden und es dürfen keine Meetings laufen.",
+        "server_pool_delete_failed": "Der Serverpool konnte nicht gelöscht werden. Um den Serverpool zu löschen, darf dieser von keiner Raumart verwendet werden.",
+        "stale_model": "Der :model-Datensatz wurde in der Zwischenzeit geändert!",
+        "token_not_found": "Der personalisierte Raumlink konnte nicht gefunden werden."
+      },
+      "firstname": "Vorname",
+      "flash": {
+        "client_error": "Es ist ein unbekannter Fehler in der Anwendung aufgetreten!",
+        "guests_only": "Die Anfrage ist nur für nicht angemeldete Benutzer gestattet!",
+        "server_error": {
+          "empty_message": "Es ist ein Fehler auf dem Server aufgetreten!",
+          "error_code": "Fehlercode: :statusCode",
+          "message": ":message"
+        },
+        "too_large": "Die übertragenen Daten waren zu groß!",
+        "too_many_requests": "Zu viele Anfragen. Bitte versuchen Sie es später noch einmal.",
+        "unauthenticated": "Sie müssen angemeldet sein, um die Anfrage durchführen zu können!",
+        "unauthorized": "Sie haben für die aufgerufene Route nicht die notwendigen Rechte!"
+      },
+      "footer": {
+        "legal_notice": "Impressum",
+        "privacy_policy": "Datenschutzerklärung"
+      },
+      "help": "Benötigen Sie Hilfe?",
+      "home": "Startseite",
+      "id": "ID",
+      "lastname": "Nachname",
+      "link_targets": {
+        "blank": "In einem neuen Tab öffnen",
+        "self": "Im aktuellen Tab öffnen"
+      },
+      "model": {
+        "roles": "Rollen",
+        "room_types": "Raumarten",
+        "server_pools": "Serverpool",
+        "servers": "Server",
+        "users": "Benutzer"
+      },
+      "model_name": "Name",
+      "next_page": "Nächste Seite",
+      "no": "Nein",
+      "not_found": "404 | Die aufgerufene Adresse existiert nicht!",
+      "overwrite": "Überschreiben",
+      "permissions": {
+        "application_settings": {
+          "title": "Anwendung",
+          "update": "Einstellungen bearbeiten",
+          "view_any": "Alle Einstellungen anzeigen"
+        },
+        "meetings": {
+          "title": "Meetings",
+          "view_any": "Alle Meetings anzeigen"
+        },
+        "roles": {
+          "create": "Rollen erstellen",
+          "delete": "Rollen löschen",
+          "title": "Rollen",
+          "update": "Rollen bearbeiten",
+          "view": "Rollen anzeigen",
+          "view_any": "Alle Rollen anzeigen"
+        },
+        "room_types": {
+          "create": "Raumarten erstellen",
+          "delete": "Raumarten löschen",
+          "title": "Raumarten",
+          "update": "Raumarten bearbeiten",
+          "view": "Raumarten anzeigen"
+        },
+        "rooms": {
+          "create": "Räume erstellen",
+          "manage": "Alle Räume verwalten",
+          "title": "Räume",
+          "view_all": "Alle Räume anzeigen"
+        },
+        "server_pools": {
+          "create": "Serverpools erstellen",
+          "delete": "Serverpools löschen",
+          "title": "Serverpools",
+          "update": "Serverpools bearbeiten",
+          "view": "Serverpools anzeigen",
+          "view_any": "Alle Serverpools anzeigen"
+        },
+        "servers": {
+          "create": "Server erstellen",
+          "delete": "Server löschen",
+          "title": "Server",
+          "update": "Server bearbeiten",
+          "view": "Server anzeigen",
+          "view_any": "Alle Server anzeigen"
+        },
+        "settings": {
+          "manage": "Einstellungen verwalten",
+          "title": "Einstellungen"
+        },
+        "users": {
+          "create": "Benutzer erstellen",
+          "delete": "Benutzer löschen",
+          "title": "Benutzer",
+          "update": "Benutzer bearbeiten",
+          "update_own_attributes": "Eigenen Vornamen, Nachnamen und E-Mail bearbeiten",
+          "view": "Benutzer anzeigen",
+          "view_any": "Alle Benutzer anzeigen"
+        }
+      },
+      "previous_page": "Vorherige Seite",
+      "profile": "Profil",
+      "reload": "Neuladen",
+      "reset": "Zurücksetzen",
+      "roles": "Rollen",
+      "role_lables": {
+        "admin": "Administrator",
+        "user": "Benutzer"
+      },
+      "room_limit": "Maximale Anzahl an Räumen",
+      "room_types": "Raumarten",
+      "rooms": "Räume",
+      "save": "Speichern",
+      "search": "Suche",
+      "security": "Sicherheit",
+      "select_locale": "Wählen Sie eine Sprache aus",
+      "server": "Server",
+      "server_pool": "Serverpool",
+      "server_pools": "Serverpools",
+      "servers": "Server",
+      "user": "Benutzer",
+      "user_name": "Name",
+      "users": "Benutzer",
+      "validation": {
+        "too_large": "Die ausgewählte Datei ist zu groß."
+      },
+      "verify_email": {
+        "fail": "Ihre E-Mail konnte nicht verifiziert werden!",
+        "invalid": "Der Verifizierungslink ist ungültig oder abgelaufen!",
+        "success": "Ihre E-Mail wurde erfolgreich verifiziert!",
+        "title": "E-mail verifizieren"
+      },
+      "version": "Version",
+      "view": "Anzeigen",
+      "wait": "Bitte warten...",
+      "yes": "Ja"
+    },
+    "auth": {
+      "change_email": "E-Mail Adresse ändern",
+      "change_password": "Passwort ändern",
+      "current_password": "Aktuelles Passwort",
+      "email": {
+        "tab_title": "Email",
+        "title": "Mit einer Email anmelden"
+      },
+      "error": {
+        "missing_attributes": "Es fehlen Attribute für die Authentifizierung."
+      },
+      "external_id": "Externe ID",
+      "failed": "Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.",
+      "flash": {
+        "login": "Erfolgreich angemeldet",
+        "logout_all_others": "Die Abmeldung von allen anderen Geräten verlief erfolgreich!",
+        "logout_error": "Abmelden fehlgeschlagen",
+        "password_changed": "Passwort erfolgreich geändert"
+      },
+      "forgot_password": "Passwort vergessen?",
+      "input_new_password": "Neues Passwort setzen",
+      "input_new_password_new_user": "Passwort für neues Benutzerkonto setzen",
+      "ldap": {
+        "tab_title": "LDAP",
+        "title": "Mit einem LDAP-Account anmelden",
+        "username": "Benutzerkennung",
+        "username_help": "Geben Sie die Benutzerkennung (nicht die Email) Ihres LDAP-Account an"
+      },
+      "login": "Anmelden",
+      "logout": "Abmelden",
+      "logout_success": "Erfolgreich abgemeldet",
+      "new_password": "Neues Passwort",
+      "new_password_confirmation": "Neues Passwort bestätigen",
+      "password": "Passwort",
+      "reset_password": "Passwort zurücksetzen",
+      "send_email_confirm_mail": "Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.",
+      "send_password_reset_link": "Passwort-Rücksetz-Link senden",
+      "sessions": {
+        "active": "Aktive Sitzungen",
+        "browser": "Browser",
+        "current": "Aktuelle Sitzung",
+        "ip": "IP",
+        "last_active": "Zuletzt aktiv",
+        "logout_all": "Alle anderen Sitzungen abmelden",
+        "unknown_agent": "Unbekannt"
+      },
+      "set_password": "Passwort setzen",
+      "throttle": "Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.",
+      "throttle_email": "Sie haben bereits vor kurzem eine Anfrage zur Änderung der E-Mail Adresse gestellt. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
+    },
+    "home": {
+      "description": "Die Grundlage dafür ist das Open Source Projekt BigBlueButton.",
+      "description_extended": "Sie können für Ihre Veranstaltungen, Seminare und Übungen Räume erstellen und über einen praktischen Kurzlink Studenten, Mitarbeiter und Gäste einladen. Zusätzlich können Sie die Plattform auch für Prüfungen und Besprechnungen nutzen.",
+      "possibilities": {
+        "audio": {
+          "description": "Kommuniziere über eine qualitativ hochwertige Audioverbindung",
+          "title": "Audio"
+        },
+        "chat": {
+          "description": "Direktes Zuschauerfeedback",
+          "title": "Emojis"
+        },
+        "emojis": {
+          "description": "Versende öffentliche und private Nachrichten",
+          "title": "Chat"
+        },
+        "groups": {
+          "description": "Teile Nutzer für Gruppenarbeiten in Kleingruppen auf",
+          "title": "Kleingruppen"
+        },
+        "screen_sharing": {
+          "description": "Teile den Inhalt deines Bildschirms oder Anwendung",
+          "title": "Bildschirmfreigabe"
+        },
+        "statistics": {
+          "description": "Werte die Anwesenheit und Mediennutzung aus",
+          "title": "Auswertungen"
+        },
+        "surveys": {
+          "description": "Interagiere zu jeder Zeit mit den Zuschauern",
+          "title": "Umfragen"
+        },
+        "title": "Was PILOS alles kann",
+        "webcams": {
+          "description": "Ermögliche persönliche visuelle Unterhaltungen",
+          "title": "Webcams"
+        },
+        "whiteboard": {
+          "description": "Nutze eine gemeinsame interaktive virtuelle Tafel",
+          "title": "Mehrnutzer Whiteboard"
+        }
+      },
+      "subtitle": "PILOS ist die Plattform für interaktive Live-Online-Seminare.",
+      "title": "Willkommen zu PILOS."
+    },
+    "mail": {
+      "action_url": "Wenn Sie Probleme haben, den \":actionText\" Button zu drücken, kopieren Sie die nachfolgende URL und fügen diese in Ihren Browser ein:",
+      "email_changed": {
+        "description": "Die E-Mail-Adresse Ihres Benutzerkontos wurde geändert.",
+        "new_email": "Neue E-Mail-Adresse: :email",
+        "signature": "Wenn Sie keine Anfrage zum Ändern der E-Mail-Adresse gestellt haben, wenden Sie sich bitte an den Support.",
+        "subject": "E-Mail-Adresse geändert"
+      },
+      "greeting": "Hallo :name,",
+      "password_changed": {
+        "description": "Das Passwort Ihres Benutzerkontos wurde geändert.",
+        "signature": "Wenn Sie keine Anfrage zum Ändern des Passworts gestellt haben, wenden Sie sich bitte an den Support.",
+        "subject": "Passwort geändert"
+      },
+      "password_reset": {
+        "action": "Passwort zurücksetzen",
+        "description": "Sie erhalten diese E-Mail, weil eine Anfrage zum Zurücksetzen des Passworts für Ihr Benutzerkonto gestellt wurde.",
+        "expire": "Der Rücksetz-Link wird am :date ablaufen.",
+        "signature": "Wenn Sie keine Anfrage zum Zurücksetzen des Passworts gestellt haben, ist keine weitere Aktion nötig.",
+        "subject": "Passwort-Rücksetz-Benachrichtigung"
+      },
+      "regards": "Mit freundlichen Grüßen",
+      "room_expires": {
+        "delete": "Sollten Sie den Raum nicht mehr benötigen, können Sie diesen auch selbständig löschen.",
+        "expire": "Wenn Sie nichts weiter tun, wird der Raum am :date automatisch gelöscht.",
+        "inactivity": "Ihr Raum \":name\" wurde am :date erstellt, die letzte Nutzung liegt jedoch schon :days Tage zurück.",
+        "intro": "um Serverressourcen zu sparen, werden nicht genutzte Räume automatisch gelöscht.",
+        "keep": "Möchten Sie den Raum weiterhin nutzen, starten Sie den Raum bitte vor Ablauf der Frist.",
+        "no_meeting": "Ihr Raum \":name\" wurde am :date erstellt, jedoch noch nie gestartet.",
+        "open": "Raum anzeigen",
+        "subject": "Der Raum \":name\" wird wegen Inaktivität gelöscht"
+      },
+      "user_welcome": {
+        "action": "Passwort ändern",
+        "description": "Sie erhalten diese E-Mail, weil ein neues Benutzerkonto für Ihre E-Mail-Adresse erstellt wurde.",
+        "expire": "Sie haben bis zum :date Zeit, Ihr Passwort zu ändern.",
+        "subject": "Benutzerkonto wurde erstellt"
+      },
+      "verify_email": {
+        "action": "E-Mail-Adresse verifizieren",
+        "description": "Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den untenstehenden Button klicken.",
+        "expire": "Der Verifizierungs-Link wird am :expireDateTime ablaufen.",
+        "signature": "Wenn Sie keine Anfrage zur Änderung Ihrer E-Mail-Adresse gestellt haben, wenden Sie sich bitte an den Support.",
+        "subject": "E-Mail-Verifizierung"
+      }
+    },
+    "meetings": {
+      "attendance": {
+        "download": "Herunterladen",
+        "duration": "Anwesenheit",
+        "duration_minute": ":duration min.",
+        "filename": "Anwesenheitsliste",
+        "modal_title": "Anwesenheit für :room",
+        "no_breakout_support": "Die Anwesenheit in Breakout-Räumen wird aktuell nicht unterstützt. Es wird nur die Anwesenheit im Hauptraum protokolliert.",
+        "nodata": "Keine protokollierte Anwesenheit gefunden.",
+        "retention_period": "Die Anwesenheit wird für :days Tage gespeichert.",
+        "sessions": "Sitzungen",
+        "view": "Anwesenheit anzeigen"
+      },
+      "currently_running": "Laufende Meetings",
+      "end": "Ende",
+      "listener_count": "Zuhöhrer",
+      "no_data": "Aktuell laufen keine Meetings!",
+      "no_data_filtered": "Für die Suchanfrage wurden keine laufenden Meetings gefunden!",
+      "no_historical_data": "Es sind keine vergangenen Meetings verfügbar",
+      "now": "Jetzt",
+      "owner": "Besitzer",
+      "participant_count": "Teilnehmer",
+      "retention_period": "Aufbewahrungsfristen",
+      "start": "Beginn",
+      "stats": {
+        "amount": "Anzahl",
+        "modal_title": "Auslastung für :room",
+        "no_breakout_support": "Die Auslastung der Breakout-Räume wird aktuell nicht unterstützt. Es wird nur die Auslastung des Hauptraums gemessen.",
+        "participants": "Teilnehmer",
+        "retention_period": "Die Auslastung der Räume wird für :days Tage gespeichert.",
+        "time": "Uhrzeit",
+        "videos": "Webcams",
+        "voices": "Mikrofone"
+      },
+      "video_count": "Teilnehmer mit Video",
+      "view_meeting_stats": "Auslastung anzeigen",
+      "view_room": "Raum \":name\" anzeigen",
+      "voice_participant_count": "Teilnehmer mit Mikrofon"
+    },
+    "pagination": {
+      "next": "Weiter &raquo;",
+      "previous": "&laquo; Zurück"
+    },
+    "passwords": {
+      "reset": "Das Passwort wurde zurückgesetzt!",
+      "sent": "Passworterinnerung wurde gesendet!",
+      "throttled": "Please wait before retrying.",
+      "token": "Der Passwort-Wiederherstellungs-Schlüssel ist ungültig oder abgelaufen.",
+      "user": "Es konnte leider kein Benutzer mit dieser E-Mail-Adresse gefunden werden."
+    },
+    "rooms": {
+      "access_code": "Zugangscode",
+      "access_for_participants": "Zugang für Teilnehmer",
+      "all_rooms": "Alle Räume",
+      "become_member": "Mitglied werden",
+      "copy_access_for_participants": "Zugangsdaten für Teilnehmer in Zwischenablage kopieren",
+      "create": {
+        "ok": "Erstellen",
+        "title": "Neuen Raum erstellen"
+      },
+      "end_membership": {
+        "button": "Mitgliedschaft beenden",
+        "message": "Sie verlieren die Rolle, die mit Ihrer Mitgliedschaft verbunden ist. Um wieder Mitglied zu werden, müssen Sie eventuell den Raumbesitzer fragen. Wenn der Raum einen Zugangscode hat, müssen Sie diesen kennen, um weiterhin Zugang zu dem Raum zu haben.",
+        "no": "Nein, Mitgliedschaft beibehalten",
+        "title": "Sind Sie sicher, dass Sie die Mitgliedschaft beenden wollen?",
+        "yes": "Ja, Mitgliedschaft beenden"
+      },
+      "files": {
+        "confirm_delete": "Soll die Datei :filename gelöscht werden?",
+        "default": "Standard",
+        "delete": "Datei löschen",
+        "downloadable": "Herunterladbar",
+        "filename": "Dateiname",
+        "formats": "Erlaubte Dateiformate: :formats",
+        "nodata": "Keine Dateien vorhanden",
+        "select_or_drag": "Wählen Sie eine Datei aus, oder ziehen Sie eine Datei per Drag & Drop in dieses Feld ...",
+        "size": "Max. Dateigröße: :size MB",
+        "terms_of_use": {
+          "accept": "Ich akzeptiere die Nutzungsbedingungen",
+          "content": "Dateien, welche hier zum Download angeboten werden, sind ausschließlich für das persönliche Studium. Die Dateien, oder Inhalte aus diesen, dürfen nicht geteilt oder weiterverbreitet werden.",
+          "title": "Nutzungsbedingungen"
+        },
+        "title": "Dateien",
+        "uploaded_at": "Hochgeladen am",
+        "use_in_next_meeting": "Im nächsten Meeting nutzen",
+        "view": "Datei anzeigen"
+      },
+      "filter": {
+        "apply": "Anwenden",
+        "title": "Filter"
+      },
+      "find_rooms": "Räume finden",
+      "find_rooms_info": "Liste aller öffentlich gelisteten Räume ohne Zugangscode",
+      "first_and_lastname": "Vor- und Nachname",
+      "flash": {
+        "access_code_invalid": "Der Zugangscode ist ungültig.",
+        "file_forbidden": "Die Zugriff auf die Datei wurde verweigert.",
+        "file_gone": "Die Datei wurde in der Zwischenzeit gelöscht.",
+        "no_new_room": "Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.",
+        "start_forbidden": "Der Raum kann von Ihnen nicht gestartet werden.",
+        "token_invalid": "Der personalisierte Raumlink ist nicht mehr gültig."
+      },
+      "invalid_personal_link": "Dieser personalisierte Raumlink ist ungültig.",
+      "invitation": {
+        "code": "Zugangscode: :code",
+        "link": "Link: :link",
+        "room": "An \":roomname\" mit :platform teilnehmen"
+      },
+      "join": "Teilnehmen",
+      "login": "Anmelden",
+      "meeting_history": {
+        "title": "Historie"
+      },
+      "members": {
+        "add_user": "Benutzer hinzufügen",
+        "bulk_edit_user": ":numberOfSelectedUsers Mitglieder bearbeiten",
+        "bulk_remove_user": ":numberOfSelectedUsers Mitglieder löschen",
+        "edit_user": "Mitglied bearbeiten",
+        "image": "Bild",
+        "modals": {
+          "add": {
+            "add": "Hinzufügen",
+            "no_options": "Keine Einträge, bitte suchen Sie nach einem Benutzer.",
+            "no_result": "Oops! Für diesen Suchbegriff konnten keine Benutzer gefunden werden.",
+            "select_role": "Bitte wählen Sie eine Rolle aus",
+            "select_user": "Bitte wählen Sie einen Benutzer aus"
+          },
+          "edit": {
+            "title": ":firstname :lastname bearbeiten",
+            "title_bulk": ":numberOfSelectedUsers Mitglieder bearbeiten"
+          },
+          "remove": {
+            "confirm": "Soll :firstname :lastname aus dem Raum entfernt werden?",
+            "confirm_bulk": "Sollen :numberOfSelectedUsers Mitglieder aus dem Raum entfernt werden?",
+            "title": "Mitglied aus dem Raum entfernen",
+            "title_bulk": ":numberOfSelectedUsers Mitglieder aus dem Raum entfernen"
+          }
+        },
+        "nodata": "Keine Mitglieder vorhanden",
+        "remove_user": "Mitglied löschen",
+        "title": "Mitglieder"
+      },
+      "modals": {
+        "delete": {
+          "confirm": "Soll der Raum \":name\" gelöscht werden?",
+          "title": "Raum löschen"
+        }
+      },
+      "my_rooms": "Meine Räume",
+      "name": "Raumname",
+      "no_rooms_available": "Keine Räume vorhanden",
+      "no_rooms_available_search": "Keine Räume für diesen Suchbegriff gefunden",
+      "not_running": "Der Raum ist noch nicht gestartet.",
+      "notification": {
+        "body": "Der Raum wurde um :time gestartet",
+        "browser_support": "Ihr Browser unterstützt keine Benachrichtigung.",
+        "denied": "Der Browser verweigert Benachrichtigungen.",
+        "enable": "Beim Start des Raumes benachrichtigen",
+        "enabled": "Sie werden beim Start des Raumes von Ihrem Browser benachrichtigt. Schließen Sie dieses Fenster/Tab nicht."
+      },
+      "only_used_by_authenticated_users": "Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.",
+      "placeholder_name": "Max Mustermann",
+      "recording_attendance_accept": "Ich bin mit der Protokollierung einverstanden.",
+      "recording_attendance_info": "Die Anwesenheit in diesem Raum wird protokolliert.",
+      "require_access_code": "Für diesen Raum ist ein Zugangscode erforderlich",
+      "role": "Rolle",
+      "roles": {
+        "co_owner": "Mitbesitzer",
+        "guest": "Gast",
+        "moderator": "Moderator",
+        "participant": "Teilnehmer"
+      },
+      "room_limit": "Maximale Anzahl an Räumen: :has/:max",
+      "room_type_invalid_alert": "Die Nutzung der Raumart :roomTypeName ist nur für bestimmte Benutzergruppen genehmigt. Wenn Sie der Eigentümer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum wieder gestartet werden kann.",
+      "room_types": {
+        "loading_error": "Beim Laden der Raumarten ist ein Fehler aufgetreten.",
+        "reload": "Raumarten neuladen",
+        "select_type": "-- Raumart auswählen --"
+      },
+      "settings": {
+        "general": {
+          "chars": "Zeichen: :chars",
+          "max_duration": "Max. Dauer",
+          "minutes": "min.",
+          "reset_duration": "Dauer zurücksetzen",
+          "title": "Allgemein",
+          "type": "Art",
+          "welcome_message": "Begrüßungsnachricht"
+        },
+        "none_placeholder": "-- keine --",
+        "participants": {
+          "clear_max_participants": "Max. Teilnehmeranzahl zurücksetzen",
+          "default_role": {
+            "only_logged_in": "(nur für angemeldete Beutzer)",
+            "title": "Standardrolle"
+          },
+          "max_participants": "Max. Teilnehmeranzahl",
+          "record_attendance": "Anwesenheit der Teilnehmer protokollieren",
+          "title": "Teilnehmer",
+          "waiting_room": {
+            "only_for_guests_enabled": "Aktiviert für Gäste",
+            "title": "Warteraum"
+          }
+        },
+        "permissions": {
+          "everyone_start": "Jeder darf das Meeting starten",
+          "mute_mic": "Mikrofon bei Beitritt stummschalten",
+          "title": "Berechtigungen"
+        },
+        "restrictions": {
+          "disable_cam": "Webcam deaktivieren",
+          "disable_mic": "Mikrofon deaktivieren",
+          "disable_note_edit": "Bearbeiten der Notizen deaktivieren",
+          "disable_private_chat": "Private Chats deaktivieren",
+          "disable_public_chat": "Öffentlichen Chat deaktivieren",
+          "enabled": "Einschränkungen aktivieren",
+          "hide_participants_list": "Teilnehmerliste verbergen",
+          "only_mod_see_cam": "Webcam nur für Moderatoren sichtbar",
+          "title": "Einschränkungen"
+        },
+        "security": {
+          "access_code_note": "Zugangsbeschränkung für die Teilnahme und Mitgliedschaft (wenn aktiviert).",
+          "allow_guests": "Gäste zulassen",
+          "allow_new_members": "Neue Mitglieder zulassen",
+          "delete_access_code": "Zugangscode entfernen",
+          "generate_access_code": "Neuen Zugangscode erstellen",
+          "listed": "In Raumsuche einschließen",
+          "unprotected_placeholder": "-- ungeschützt --"
+        },
+        "title": "Einstellungen"
+      },
+      "shared_by": "Geteilt von :name",
+      "shared_rooms": "Mit mir geteilte Räume",
+      "start": "Starten",
+      "status": {
+        "not_running": "Kein laufendes Meeting",
+        "running": "Meeting läuft"
+      },
+      "tokens": {
+        "add": "Personalisierten Raumlink hinzufügen",
+        "confirm_delete": "Wollen Sie den personalisierten Raumlink für :firstname :lastname wirklich löschen?",
+        "copy": "Personalisierten Raumlink in Zwischenablage kopieren",
+        "delete": "Personalisierten Raumlink löschen",
+        "edit": "Personalisierten Raumlink bearbeiten",
+        "expires": "Verfallsdatum",
+        "last_usage": "Zuletzt verwendet",
+        "nodata": "Keine personalisierten Raumlinks vorhanden!",
+        "room_link_copied": "Der persionalisierte Raumlink für :firstname :lastname wurde in Ihre Zwischenablage kopiert.",
+        "title": "Personalisierte Raumlinks"
+      },
+      "try_again": "Erneut versuchen"
+    },
+    "settings": {
+      "application": {
+        "attendance": {
+          "enabled_title": "Protokollierung der Teilnehmeranwenheit in Meetings zulassen",
+          "retention_period_title": "Speicherdauer der Anwesenheitsprotokollierung in Tagen"
+        },
+        "attendance_and_statistics_title": "Aufzeichnung und Statistik",
+        "banner": {
+          "background": "Hintergrundfarbe des Banners",
+          "banner_title": "Überschrift",
+          "color": "Textfarbe des Banners",
+          "enabled": "Anzeigen",
+          "icon": "Icon",
+          "icon_description": "Die CSS-Klasse des Fontawesome-Icons (z. B. `fa-solid fa-door-open`). Das Icon wird nur angezeigt, wenn ein Titel angegeben wurde.",
+          "link": "Anzuzeigender Link nach der Mitteilung",
+          "link_style": "Linkart",
+          "link_target": "Linkziel",
+          "link_text": "Linktext",
+          "message": "Mitteilung",
+          "select_link_style": "Linkart auswählen",
+          "select_link_target": "Linkziel auswählen",
+          "title": "Banner für Mitteilungen"
+        },
+        "bbb": {
+          "logo": {
+            "alt": "Logo Vorschau",
+            "hint": "https://domain.tld/path/logo.svg",
+            "select_file": "Logo-Datei auswählen",
+            "title": "Logo",
+            "upload_title": "Logo hochladen (max. 500 KB)",
+            "url_title": "URL zu Logo-Datei"
+          },
+          "style": {
+            "title": "CSS Style Datei"
+          },
+          "title": "BigBlueButton Anpassungen"
+        },
+        "default_presentation": "Standard Präsentation",
+        "default_timezone": "Standardzeitzone",
+        "favicon": {
+          "alt": "Favicon Vorschau",
+          "hint": "https://domain.tld/path/favicon.ico",
+          "select_file": "Favicon-Datei auswählen",
+          "title": "Favicon",
+          "upload_title": "Favicon hochladen (max. 500 KB, Format: .ico)",
+          "url_title": "URL zu Favicon-Datei"
+        },
+        "help_url": {
+          "description": "Wenn nicht gesetzt, wird kein Hilfe-Button angezeigt.",
+          "title": "URL zur Hilfeseite"
+        },
+        "legal_notice_url": {
+          "description": "Wenn nicht gesetzt, wird kein Link zum Impressum in der Fußzeile angezeigt.",
+          "title": "URL zum Impressum"
+        },
+        "logo": {
+          "alt": "Logo Vorschau",
+          "hint": "https://domain.tld/path/logo.svg",
+          "select_file": "Logo-Datei auswählen",
+          "title": "Logo",
+          "upload_title": "Logo hochladen (max. 500 KB)",
+          "url_title": "URL zu Logo-Datei"
+        },
+        "name": {
+          "description": "Ändert den Seitentitel",
+          "title": "Name der Anwendung"
+        },
+        "never": "Nie",
+        "one_day": "1 Tag (24 Stunden)",
+        "one_month": "1 Monat (30 Tage)",
+        "one_week": "1 Woche (7 Tage)",
+        "one_year": "1 Jahr (365 Tage)",
+        "own_rooms_pagination_page_size": {
+          "description": "Begrenzt die Anzahl der gleichzeitig angezeigten Räume auf der Startseite",
+          "title": "Größe der Paginierung für eigene Räume"
+        },
+        "pagination_page_size": {
+          "description": "Begrenzt die Anzahl der gleichzeitig angezeigten Datensätze in Tabellen",
+          "title": "Größe der Paginierung"
+        },
+        "password_self_reset_enabled": "Registrierten Benutzern ermöglichen das Passwort zurückzusetzen",
+        "privacy_policy_url": {
+          "description": "Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.",
+          "title": "URL zur Datenschutzerklärung"
+        },
+        "room_auto_delete": {
+          "deadline_period": {
+            "description": "Zeitraum zwischen Zustellung der Informations-Email und der Löschung",
+            "title": "Löschfirst"
+          },
+          "enabled": {
+            "title": "Ungenutzte Räume automatisch löschen"
+          },
+          "inactive_period": {
+            "description": "Räume deren letztes Meeting länger als der Zeitraum zurückliegt",
+            "title": "Zeitraum bis inaktive Räume gelöscht werden"
+          },
+          "never_used_period": {
+            "description": "Räume die vor dem Zeitraum erstellt, aber bisher noch nicht verwendet wurden",
+            "title": "Zeitraum bis nie genutzte Räume gelöscht werden"
+          }
+        },
+        "room_limit": {
+          "description": "Begrenzt die Anzahl der Räume, die ein Benutzer haben kann. Diese Einstellung wird von den gruppenspezifischen Grenzen überschrieben.",
+          "title": "Anzahl der Räume pro Benutzer"
+        },
+        "room_token_expiration": {
+          "description": "Zeitraum ab der letzten Nutzung, wonach die personalisierte Raumlinks automatisch gelöscht werden.",
+          "title": "Ablaufzeit für personalisierte Raumlinks"
+        },
+        "six_month": "6 Monate (180 Tage)",
+        "statistics": {
+          "meetings": {
+            "enabled_title": "Auslastung der Meetings aufzeichnen",
+            "retention_period_title": "Speicherdauer der Meetingauslastung in Tagen"
+          },
+          "servers": {
+            "enabled_title": "Auslastung der Server aufzeichnen",
+            "retention_period_title": "Speicherdauer der Serverauslastung in Tagen"
+          }
+        },
+        "three_month": "3 Monate (90 Tage)",
+        "tile_description": "Regelt systemweitere Einstellungen wie Logo, Wartungs-Banner und Seitengrößen.",
+        "title": "Anwendung",
+        "two_weeks": "2 Wochen (14 Tage)",
+        "two_years": "2 Jahre (730 Tage)",
+        "unlimited": "Unbegrenzt",
+        "user_settings": "Benutzereinstellungen"
+      },
+      "home_button": "Zurück zur Übersicht",
+      "overview": "Übersicht",
+      "overview_description": "Hier können die Einstellungen der Anwendung verwaltet werden. Bitte wählen Sie eine der Kacheln aus, um die jeweiligen Einstellungen anzupassen.",
+      "roles": {
+        "default": "Standard",
+        "delete": {
+          "confirm": "Wollen Sie die Rolle :name wirklich löschen?",
+          "item": "Rolle :id löschen",
+          "title": "Rolle löschen?"
+        },
+        "edit": "Rolle :name bearbeiten",
+        "has_included_permission": "Das Recht \":name\" wurde entweder explizit ausgewählt oder ist in einem anderen ausgewählten Recht inkludiert.",
+        "has_not_included_permission": "Das Recht \":name\" wurde weder explizit ausgewählt noch ist es in einem anderen ausgewählten Recht inkludiert.",
+        "new": "Neue Rolle erstellen",
+        "no_options": "Keine Berechtigungen vorhanden!",
+        "nodata": "Es sind keine Rollen vorhanden!",
+        "permission_explicit": "Explizit",
+        "permission_included": "Inkludiert",
+        "permission_included_help": "Rechte die ausgewählt wurden und Rechte, die in den ausgewählten Rechten inkludiert sind.",
+        "permission_name": "Name des Rechts",
+        "permissions": "Rechte",
+        "room_limit": {
+          "custom": "Benutzerdefinierter Wert",
+          "default": "Systemstandard (:value)",
+          "help_modal": {
+            "examples": "Beispiele",
+            "info": "Die maximale Anzahl an eigenen Räumen ergibt sich aus dem Maximum der Begrenzungen der Rollen, welchen ein Benutzer angehört.",
+            "note": "X: Benutzer ist nicht Mitglied dieser Rolle",
+            "role_a": "Rolle A",
+            "role_b": "Rolle B",
+            "system_default": "Systemstandard"
+          },
+          "unlimited": "Unbegrenzt"
+        },
+        "select_roles": "Bitte wählen Sie mindestens eine Rolle aus",
+        "tile_description": "Die Rollen vergeben Berechtigungen, gliedern die Benutzer und legen das Maximum an Räumen pro Benutzer fest.",
+        "view": "Detaillierte Informationen für die Rolle :name"
+      },
+      "room_types": {
+        "allow_listing": "Raumsuche erlaubt",
+        "allow_listing_description": "In den Raumeinstellungen können Räume für die Raumsuche sichtbar geschaltet werden.",
+        "color": "Icon Farbe",
+        "custom_color": "Eigene Farbe",
+        "delete": {
+          "confirm": "Wollen Sie die Raumart :name wirklich löschen?",
+          "item": "Raumart :id löschen",
+          "no_replacement": "-- Kein Ersatz --",
+          "replacement": "Ersatzraumart",
+          "replacement_info": "Wenn der Raumart noch Räume zugeordnet sind, muss ein Ersatz angegeben werden.",
+          "title": "Raumart löschen?"
+        },
+        "edit": "Raumart :name bearbeiten",
+        "icon": "Icon",
+        "new": "Neue Raumart erstellen",
+        "no_data": "Es sind keine Raumarten vorhanden!",
+        "preview": "Vorschau",
+        "restrict": "Verwendung einschränken",
+        "restrict_description": "Die Verwendung dieser Raumart und der dazugehörigen Server wird nur für die nachfolgend angegebenen Rollen gestattet.",
+        "select_roles": "Rollen auswählen",
+        "select_server_pool": "Serverpool auswählen",
+        "server_pool_description": "Server dieses Serverpools werden für die Lastverteilung verwendet",
+        "short": "Icon Text",
+        "tile_description": "Die Raumarten sortieren die Räume, geben diesen Icons zur schnelleren Wiedererkennung und bestimmen auf welchem Serverpool ein Meeting stattfindet.",
+        "view": "Detaillierte Informationen für die Raumart :name"
+      },
+      "server_pools": {
+        "delete": {
+          "confirm": "Wollen Sie den Serverpool :name wirklich entfernen?",
+          "failed": "Serverpool kann nicht gelöscht werden, weil die folgenden Raumarten diesen noch verwenden:",
+          "item": "Serverpool :name löschen",
+          "title": "Serverpool löschen?"
+        },
+        "edit": "Serverpool :name bearbeiten",
+        "new": "Neuen Serverpool hinzufügen",
+        "no_data": "Es sind keine Serverpools vorhanden!",
+        "no_data_filtered": "Für die Suchanfrage wurden keine Serverpools gefunden!",
+        "remove_server": "Server entfernen",
+        "select_servers": "Server auswählen",
+        "server_count": "Anzahl Server",
+        "tile_description": "Für die Lastverteilung werden mehrere Server gebündelt und über die Raumart jedem Raum zugewiesen.",
+        "view": "Detaillierte Informationen über Serverpool :name"
+      },
+      "servers": {
+        "base_url": "API Endpunkt",
+        "current_usage": "Aktuelle Auslastung",
+        "delete": {
+          "confirm": "Wollen Sie den Server :name wirklich entfernen?",
+          "item": "Server :name löschen",
+          "title": "Server löschen?"
+        },
+        "disabled": "Deaktiviert",
+        "disabled_description": "Bereits laufende Meetings werden durch eine Deaktivierung nicht beendet, neue können jedoch nicht erstellt werden",
+        "edit": "Server :name bearbeiten",
+        "flash": {
+          "panic": {
+            "description": "Es wurden :total Meetings gefunden und :success erfolgreich beendet.",
+            "title": "Der Server wurde deaktiviert."
+          }
+        },
+        "hide_salt": "Klartext verbergen",
+        "meeting_count": "Meetings",
+        "meeting_description": "Alle Meetings auf dem BigBlueButton-Server",
+        "new": "Neuen Server hinzufügen",
+        "no_data": "Es sind keine Server vorhanden!",
+        "no_data_filtered": "Für die Suchanfrage wurden keine Server gefunden!",
+        "offline": "Offline",
+        "offline_reason": {
+          "connection": "Der Verbindungsaufbau zum Server ist fehlgeschlagen.",
+          "salt": "Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig."
+        },
+        "online": "Online",
+        "own_meeting_count": "Eigene Meetings",
+        "own_meeting_description": "Meetings, die von diesem System verwaltet werden",
+        "panic": "Deaktivieren & Aufräumen",
+        "panic_description": "Es werden nur Meetings beendet, die über dieses System erstellt wurden!",
+        "panic_server": "Server deaktiveren und alle Meetings beenden",
+        "participant_count": "Teilnehmer",
+        "reload": "Auslastung neu bestimmen",
+        "salt": "API Geheimnis",
+        "show_salt": "Klartext anzeigen",
+        "status": "Status",
+        "strength": "Serverstärke",
+        "strength_description": "Faktor für Lastverteilung; je höher desto mehr Teilnehmer und Meetings kann der Server verarbeiten",
+        "test_connection": "Verbindung testen",
+        "tile_description": "Die Server stellen die BBB Infrastruktur für die Meetings bereit.",
+        "unknown": "Unbekannt",
+        "usage_info": "Die Auslastung (Meetings, Teilnehmer, Videos) beinhalten auch Meetings die von anderen Systemen verwaltet werden.",
+        "version": "Version",
+        "video_count": "Videos",
+        "view": "Detaillierte Informationen über Server :name"
+      },
+      "title": "Einstellungen",
+      "users": {
+        "authenticator": {
+          "external": "Extern",
+          "local": "Lokal",
+          "title": "Anmeldeart"
+        },
+        "base_data": "Stammdaten",
+        "delete": {
+          "confirm": "Wollen Sie den Benutzer :firstname :lastname wirklich löschen?",
+          "item": "Benutzer :firstname :lastname löschen",
+          "title": "Benutzer löschen?"
+        },
+        "edit": "Benutzer :firstname :lastname bearbeiten",
+        "email": "E-Mail",
+        "generate_password": "Passwort generieren lassen",
+        "generate_password_description": "Es wird ein generiertes Passwort gesetzt und eine E-Mail mit einem Passwort-Rücksetz-Link an den Benutzer gesendet. Wenn der Benutzer das Passwort in einem bestimmten Zeitraum nicht ändert, wird dieser automatisch wieder gelöscht.",
+        "hide_password": "Password verbergen",
+        "image": {
+          "crop": "Profilbild zuschneiden",
+          "delete": "Bild löschen",
+          "invalid_mime": "Das Dateiformat wird nicht unterstützt. Bitte wählen Sie eine jpg- oder png-Datei aus.",
+          "save": "Übernehmen",
+          "title": "Profilbild",
+          "undo_delete": "Löschen rückgänig machen",
+          "upload": "Neues Bild hochladen"
+        },
+        "new": "Neuen Benutzer erstellen",
+        "no_data": "Es sind keine Benutzer vorhanden!",
+        "no_data_filtered": "Für die Suchanfrage wurden keine Benutzer gefunden!",
+        "other_settings": "Weitere Einstellungen",
+        "bbb": "BigBlueButton",
+        "skip_check_audio": "Echo-Test deaktivieren",
+        "password_reset_success": "Passwort-Rücksetz-Mail wurde erfolgreich an :mail verschickt!",
+        "remove_role": "Rolle entfernen",
+        "reset_password": {
+          "confirm": "Wollen Sie das Passwort für :firstname :lastname wirklich zurücksetzen?",
+          "item": "Passwort für den Benutzer :firstname :lastname zurücksetzen",
+          "title": "Passwort zurücksetzen?"
+        },
+        "role_filter": "Rolle zum Filtern auswählen",
+        "roles_and_permissions": "Rollen and Berechtigungen",
+        "show_password": "Password anzeigen",
+        "tile_description": "Die Benutzer können sich an dem System anmelden und je nach Rolle unterschiedliche Funktionen nutzen.",
+        "timezone": "Zeitzone",
+        "user_locale": "Sprache",
+        "view": "Detaillierte Informationen für den Benutzer :firstname :lastname"
+      }
+    },
+    "validation": {
+      "accepted": ":attribute muss akzeptiert werden.",
+      "active_url": ":attribute ist keine gültige Internet-Adresse.",
+      "after": ":attribute muss ein Datum nach dem :date sein.",
+      "after_or_equal": ":attribute muss ein Datum nach oder gleich dem :date sein.",
+      "alpha": ":attribute darf nur aus Buchstaben bestehen.",
+      "alpha_dash": ":attribute darf nur aus Buchstaben, Zahlen, Binde- und Unterstrichen bestehen.",
+      "alpha_num": ":attribute darf nur aus Buchstaben und Zahlen bestehen.",
+      "array": ":attribute muss ein Array sein.",
+      "attributes": {
+        "access_code": "Zugangscode",
+        "address": "Adresse",
+        "age": "Alter",
+        "allow_guests": "Gäste zulassen",
+        "allow_listing": "Raumsuche erlaubt",
+        "allow_membership": "Neue Mitglieder zulassen",
+        "available": "verfügbar",
+        "banner": {
+          "background": "Hintergrundfarbe des Banners",
+          "color": "Textfarbe des Banners",
+          "enabled": "Anzeigen",
+          "icon": "Icon",
+          "link": "Anzuzeigender Link nach der Mitteilung",
+          "link_style": "Linkart",
+          "link_target": "Linkziel",
+          "link_text": "Linktext",
+          "message": "Mitteilung",
+          "title": "Überschrift"
+        },
+        "base_url": "API Endpunkt",
+        "bbb_skip_check_audio": "Echo-Test deaktivieren",
+        "city": "Stadt",
+        "color": "Farbe",
+        "content": "Inhalt",
+        "country": "Land",
+        "current_password": "Aktuelles Passwort",
+        "date": "Datum",
+        "day": "Tag",
+        "default_presentation": "Standard Präsentation",
+        "default_role": "Standardrolle",
+        "default_timezone": "Standardzeitzone",
+        "description": "Beschreibung",
+        "duration": "Max. Dauer",
+        "email": "E-Mail Adresse",
+        "everyone_can_start": "Jeder darf das Meeting starten",
+        "excerpt": "Auszug",
+        "file": "Datei",
+        "first_name": "Vorname",
+        "firstname": "Vorname",
+        "gender": "Geschlecht",
+        "help_url": "Hilfeseite",
+        "hour": "Stunde",
+        "icon_text": "Icon Text",
+        "last_name": "Nachname",
+        "lastname": "Nachname",
+        "legal_notice_url": "Impressum",
+        "listed": "In Raumsuche einschließen",
+        "lobby": "Warteraum",
+        "lock_settings_disable_cam": "Webcam deaktivieren",
+        "lock_settings_disable_mic": "Mikrofon deaktivieren",
+        "lock_settings_disable_note": "Bearbeiten der Notizen deaktivieren",
+        "lock_settings_disable_private_chat": "Private Chats deaktivieren",
+        "lock_settings_disable_public_chat": "Öffentlichen Chat deaktivieren",
+        "lock_settings_hide_user_list": "Teilnehmerliste verbergen",
+        "lock_settings_lock_on_join": "Einschränkungen aktivieren",
+        "max_participants": "Max. Teilnehmeranzahl",
+        "minute": "Minute",
+        "mobile": "Handynummer",
+        "month": "Monat",
+        "mute_on_start": "Mikrofon bei Beitritt stummschalten",
+        "name": "Name",
+        "new_password": "Neues Passwort",
+        "new_password_confirmation": "Neues Passwort Bestätigung",
+        "password": "Passwort",
+        "password_confirmation": "Passwort Bestätigung",
+        "password_self_reset_enabled": "Registrierten Benutzer ermöglichen das Passwort zurückzusetzen",
+        "permissions": "Rechte",
+        "phone": "Telefonnummer",
+        "privacy_policy_url": "Datenschutzerklärung",
+        "restrict": "Verwendung einschränken",
+        "role": "Rolle",
+        "roles": "Rollen",
+        "room_limit": "Maximale Anzahl an Räumen",
+        "room_token_expiration": "Ablaufzeit für personalisierte Raumlinks",
+        "room_type": "Raumart",
+        "salt": "API Geheimnis",
+        "second": "Sekunde",
+        "server_pool": "Serverpool",
+        "servers": "Server",
+        "sex": "Geschlecht",
+        "size": "Größe",
+        "strength": "Serverstärke",
+        "time": "Uhrzeit",
+        "timezone": "Zeitzone",
+        "title": "Titel",
+        "updated_at": "Aktualisiert am",
+        "user": "Benutzer",
+        "user_locale": "Sprache",
+        "username": "Benutzerkennung",
+        "webcams_only_for_moderator": "Webcam nur für Moderatoren sichtbar",
+        "welcome": "Begrüßungsnachricht",
+        "year": "Jahr"
+      },
+      "before": ":attribute muss ein Datum vor dem :date sein.",
+      "before_or_equal": ":attribute muss ein Datum vor oder gleich dem :date sein.",
+      "between": {
+        "array": ":attribute muss zwischen :min & :max Elemente haben.",
+        "file": ":attribute muss zwischen :min & :max Kilobytes groß sein.",
+        "numeric": ":attribute muss zwischen :min & :max liegen.",
+        "string": ":attribute muss zwischen :min & :max Zeichen lang sein."
+      },
+      "boolean": ":attribute muss entweder 'true' oder 'false' sein.",
+      "confirmed": ":attribute stimmt nicht mit der Bestätigung überein.",
+      "current_password": "Das Passwort ist falsch.",
+      "custom": {
+        "banner": {
+          "array": "Die Einstellungen für den Banner für Mitteilungen fehlen!",
+          "icon": {
+            "regex": "Die Icon CSS-Klasse muss folgendem Format entsprechen: `fa-solid fa-door-open`."
+          },
+          "required": "Die Einstellungen für den Banner für Mitteilungen fehlen!"
+        },
+        "color": ":attribute muss eine Farbe im Hexadezimalformat sein (z. B. #fff oder #ffffff)!",
+        "invalid_room_type": "Sie haben nicht die notwendigen Rechte, um einen Raum mit der übergebenen Raumart zu besitzen.",
+        "locale": {
+          "in": "Die gewählte Sprache wird vom Server nicht unterstützt."
+        },
+        "password": "Das Passwort muss mindestens ein Zeichen aus jeder der folgenden vier Kategorien enthalten: Großbuchstabe (A - Z), Kleinbuchstaben (a - z), Zahl (0 - 9), nicht alphanumerisches Zeichen (zum Beispiel: !, $, #, oder %).",
+        "replacement_room_type": {
+          "exists": "Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.",
+          "not_in": "Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.",
+          "required": "Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet."
+        },
+        "roles": {
+          "*": {
+            "distinct": "Mindestens eine Rolle wurde mehrfach ausgewählt.",
+            "exists": "Eine der ausgewählten Rollen existiert nicht."
+          }
+        },
+        "room": {
+          "already_member": "Der Benutzer ist bereits Mitglied des Raums.",
+          "not_member": "Der Benutzer \":firstname :lastname\" ist nicht Mitglied des Raums.",
+          "self_delete": "Sie dürfen sich nicht selbst löschen.",
+          "self_edit": "Sie dürfen sich nicht selbst bearbeiten."
+        },
+        "servers": {
+          "*": {
+            "distinct": "Der Server mit der ID :input wurde mehrfach ausgewählt.",
+            "exists": "Der Server mit der ID :input konnte nicht gefunden werden."
+          }
+        },
+        "user": {
+          "exists": "Der ausgewählte Benutzer konnte nicht gefunden werden."
+        }
+      },
+      "date": ":attribute muss ein gültiges Datum sein.",
+      "date_equals": ":attribute muss ein Datum gleich :date sein.",
+      "date_format": ":attribute entspricht nicht dem gültigen Format für :format.",
+      "different": ":attribute und :other müssen sich unterscheiden.",
+      "digits": ":attribute muss :digits Stellen haben.",
+      "digits_between": ":attribute muss zwischen :min und :max Stellen haben.",
+      "dimensions": ":attribute hat ungültige Bildabmessungen.",
+      "distinct": ":attribute beinhaltet einen bereits vorhandenen Wert.",
+      "email": ":attribute muss eine gültige E-Mail-Adresse sein.",
+      "ends_with": ":attribute muss eine der folgenden Endungen aufweisen: :values.",
+      "exists": "Der gewählte Wert für :attribute ist ungültig.",
+      "file": ":attribute muss eine Datei sein.",
+      "filled": ":attribute muss ausgefüllt sein.",
+      "gt": {
+        "array": ":attribute muss mehr als :value Elemente haben.",
+        "file": ":attribute muss größer als :value Kilobytes sein.",
+        "numeric": ":attribute muss größer als :value sein.",
+        "string": ":attribute muss länger als :value Zeichen sein."
+      },
+      "gte": {
+        "array": ":attribute muss mindestens :value Elemente haben.",
+        "file": ":attribute muss größer oder gleich :value Kilobytes sein.",
+        "numeric": ":attribute muss größer oder gleich :value sein.",
+        "string": ":attribute muss mindestens :value Zeichen lang sein."
+      },
+      "image": ":attribute muss ein Bild sein.",
+      "in": "Der gewählte Wert für :attribute ist ungültig.",
+      "in_array": "Der gewählte Wert für :attribute kommt nicht in :other vor.",
+      "integer": ":attribute muss eine ganze Zahl sein.",
+      "ip": ":attribute muss eine gültige IP-Adresse sein.",
+      "ipv4": ":attribute muss eine gültige IPv4-Adresse sein.",
+      "ipv6": ":attribute muss eine gültige IPv6-Adresse sein.",
+      "json": ":attribute muss ein gültiger JSON-String sein.",
+      "lt": {
+        "array": ":attribute muss weniger als :value Elemente haben.",
+        "file": ":attribute muss kleiner als :value Kilobytes sein.",
+        "numeric": ":attribute muss kleiner als :value sein.",
+        "string": ":attribute muss kürzer als :value Zeichen sein."
+      },
+      "lte": {
+        "array": ":attribute darf maximal :value Elemente haben.",
+        "file": ":attribute muss kleiner oder gleich :value Kilobytes sein.",
+        "numeric": ":attribute muss kleiner oder gleich :value sein.",
+        "string": ":attribute darf maximal :value Zeichen lang sein."
+      },
+      "max": {
+        "array": ":attribute darf maximal :max Elemente haben.",
+        "file": ":attribute darf maximal :max Kilobytes groß sein.",
+        "numeric": ":attribute darf maximal :max sein.",
+        "string": ":attribute darf maximal :max Zeichen haben."
+      },
+      "mimes": ":attribute muss den Dateityp :values haben.",
+      "mimetypes": ":attribute muss den Dateityp :values haben.",
+      "min": {
+        "array": ":attribute muss mindestens :min Elemente haben.",
+        "file": ":attribute muss mindestens :min Kilobytes groß sein.",
+        "numeric": ":attribute muss mindestens :min sein.",
+        "string": ":attribute muss mindestens :min Zeichen lang sein."
+      },
+      "multiple_of": ":attribute muss ein Vielfaches von :value sein.",
+      "not_in": "Der gewählte Wert für :attribute ist ungültig.",
+      "not_regex": ":attribute hat ein ungültiges Format.",
+      "numeric": ":attribute muss eine Zahl sein.",
+      "password": "Das Passwort ist falsch.",
+      "present": ":attribute muss vorhanden sein.",
+      "prohibited": ":attribute ist unzulässig.",
+      "prohibited_if": ":attribute ist unzulässig, wenn :other :value ist.",
+      "prohibited_unless": ":attribute ist unzulässig, wenn :other nicht :values ist.",
+      "regex": ":attribute Format ist ungültig.",
+      "required": ":attribute muss ausgefüllt werden.",
+      "required_if": ":attribute muss ausgefüllt werden, wenn :other den Wert :value hat.",
+      "required_unless": ":attribute muss ausgefüllt werden, wenn :other nicht den Wert :values hat.",
+      "required_with": ":attribute muss ausgefüllt werden, wenn :values ausgefüllt wurde.",
+      "required_with_all": ":attribute muss ausgefüllt werden, wenn :values ausgefüllt wurde.",
+      "required_without": ":attribute muss ausgefüllt werden, wenn :values nicht ausgefüllt wurde.",
+      "required_without_all": ":attribute muss ausgefüllt werden, wenn keines der Felder :values ausgefüllt wurde.",
+      "same": ":attribute und :other müssen übereinstimmen.",
+      "size": {
+        "array": ":attribute muss genau :size Elemente haben.",
+        "file": ":attribute muss :size Kilobyte groß sein.",
+        "numeric": ":attribute muss gleich :size sein.",
+        "string": ":attribute muss :size Zeichen lang sein."
+      },
+      "starts_with": ":attribute muss mit einem der folgenden Anfänge aufweisen: :values.",
+      "string": ":attribute muss ein String sein.",
+      "timezone": ":attribute muss eine gültige Zeitzone sein.",
+      "unique": ":attribute ist bereits vergeben.",
+      "uploaded": ":attribute konnte nicht hochgeladen werden.",
+      "url": ":attribute muss eine URL sein.",
+      "uuid": ":attribute muss ein UUID sein.",
+      "validname": ":attribute enthält die folgenden nicht erlaubten Zeichen: :chars",
+      "validname_error": ":attribute enthält nicht erlaubte Zeichen"
+    }
+  }

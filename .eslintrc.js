@@ -58,7 +58,7 @@ module.exports = {
   settings: {
     'vue-i18n': {
       localeDir: {
-        pattern: './lang/*.json',
+        pattern: './locales/*.json',
         localeKey: 'file'
       },
       messageSyntaxVersion: '^8.26.8'
