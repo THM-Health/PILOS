@@ -1,45 +1,47 @@
-<?php return [
-    'description' => 'Die Grundlage dafür ist das Open Source Projekt BigBlueButton.',
+<?php
+
+return [
+    'description'          => 'Die Grundlage dafür ist das Open Source Projekt BigBlueButton.',
     'description_extended' => 'Sie können für Ihre Veranstaltungen, Seminare und Übungen Räume erstellen und über einen praktischen Kurzlink Studenten, Mitarbeiter und Gäste einladen. Zusätzlich können Sie die Plattform auch für Prüfungen und Besprechnungen nutzen.',
-    'possibilities' => [
+    'possibilities'        => [
         'audio' => [
             'description' => 'Kommuniziere über eine qualitativ hochwertige Audioverbindung',
-            'title' => 'Audio',
+            'title'       => 'Audio',
         ],
         'chat' => [
             'description' => 'Direktes Zuschauerfeedback',
-            'title' => 'Emojis',
+            'title'       => 'Emojis',
         ],
         'emojis' => [
             'description' => 'Versende öffentliche und private Nachrichten',
-            'title' => 'Chat',
+            'title'       => 'Chat',
         ],
         'groups' => [
             'description' => 'Teile Nutzer für Gruppenarbeiten in Kleingruppen auf',
-            'title' => 'Kleingruppen',
+            'title'       => 'Kleingruppen',
         ],
         'screen_sharing' => [
             'description' => 'Teile den Inhalt deines Bildschirms oder Anwendung',
-            'title' => 'Bildschirmfreigabe',
+            'title'       => 'Bildschirmfreigabe',
         ],
         'statistics' => [
             'description' => 'Werte die Anwesenheit und Mediennutzung aus',
-            'title' => 'Auswertungen',
+            'title'       => 'Auswertungen',
         ],
         'surveys' => [
             'description' => 'Interagiere zu jeder Zeit mit den Zuschauern',
-            'title' => 'Umfragen',
+            'title'       => 'Umfragen',
         ],
-        'title' => 'Was PILOS alles kann',
+        'title'   => 'Was PILOS alles kann',
         'webcams' => [
             'description' => 'Ermögliche persönliche visuelle Unterhaltungen',
-            'title' => 'Webcams',
+            'title'       => 'Webcams',
         ],
         'whiteboard' => [
             'description' => 'Nutze eine gemeinsame interaktive virtuelle Tafel',
-            'title' => 'Mehrnutzer Whiteboard',
+            'title'       => 'Mehrnutzer Whiteboard',
         ],
     ],
     'subtitle' => 'PILOS ist die Plattform für interaktive Live-Online-Seminare.',
-    'title' => 'Willkommen zu PILOS.',
+    'title'    => 'Willkommen zu PILOS.',
 ];
