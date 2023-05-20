@@ -16,6 +16,9 @@
       class="pb-0"
       ref="bulk-import-modal"
       id="bulk-import-modal"
+      :busy="loading"
+      :no-close-on-esc="loading"
+      :hide-header-close="loading"
     >
       <template v-slot:modal-title>
         {{ $t('rooms.members.bulk_add_user') }}
@@ -24,13 +27,14 @@
       <div v-if="step === 0">
       <b-form-group
         :state="fieldState('user_emails')"
-        :description="$t('rooms.members.modals.add.information_bulk')"
-        :label="$t('rooms.members.modals.add.description_bulk')"
+        :description="$t('rooms.members.modals.bulk_import.description.modal')"
+        :label="$t('rooms.members.modals.bulk_import.label')"
       >
         <b-form-textarea
           :state="fieldState('user_emails')"
           v-model="rawList"
-         :placeholder="$t('rooms.members.modals.add.textarea.description_bulk')"
+          :placeholder="$t('rooms.members.modals.bulk_import.placeholder.textarea')"
+          :disabled="loading"
 
         rows = "8"
       ></b-form-textarea>
@@ -39,20 +43,22 @@
       </b-form-group>
 
 
-        <b-form-group :label="$t('rooms.role')"  >
-          <b-form-radio :state="fieldState('role')" v-model.number="newUsersRole" name="some-radios" value="1">
+        <b-form-group :label="$t('rooms.role')" >
+          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="1">
             <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="newUsersRole" name="some-radios" value="2">
+          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="2">
             <b-badge variant="danger">{{ $t('rooms.roles.moderator') }}</b-badge>
           </b-form-radio>
-          <b-form-radio :state="fieldState('role')" v-model.number="newUsersRole" name="some-radios" value="3">
+          <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="3">
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
         </b-form-group>
 
         <div class="modal-footer">
-          <b-button :disabled='rawList.length === 0' @click="importUsers(true)" variant="success">{{$t('rooms.members.modals.add.add')}}</b-button>
+          <b-button :disabled='rawList.length === 0 || loading' @click="importUsers(true)" variant="success">
+            <b-spinner label="Loading..." small v-if="loading"></b-spinner>
+            {{$t('rooms.members.modals.add.add')}}</b-button>
         </div>
       </div>
 
@@ -66,8 +72,10 @@
           {{$t('rooms.members.modals.bulk_import.import_importable_question')}}</i>
         <br>
         <div class="modal-footer">
-          <b-button @click="step = 0" variant="dark">{{$t('app.back')}}</b-button>
-          <b-button @click="importUsers(false)" variant="success" v-if="validUsers.length > 0">{{$t('app.next')}}</b-button>
+          <b-button @click="step = 0" :disabled="loading" variant="dark">{{$t('app.back')}}</b-button>
+          <b-button @click="importUsers(false)" :disabled="loading" variant="success" v-if="validUsers.length > 0">
+            <b-spinner label="Loading..." small v-if="loading"></b-spinner>
+            {{$t('rooms.members.modals.bulk_import.import_importable_button')}}</b-button>
         </div>
       </div>
       <div v-if="step === 2">
@@ -78,7 +86,7 @@
 
         <div class="modal-footer">
           <b-button variant="success" @click="finish">{{ $t('app.close') }}</b-button>
-          <b-button @click="copyInvalidUsers">{{$t('rooms.members.modals.bulk_import.copy_and_close')}}</b-button>
+          <b-button v-if="invalidUsers.length>0" @click="copyInvalidUsers">{{$t('rooms.members.modals.bulk_import.copy_and_close')}}</b-button>
         </div>
       </div>
     </b-modal>
@@ -118,7 +126,8 @@ export default {
 
       validUsers: [],
       invalidUsers: [],
-      errors: []
+      errors: [],
+      loading: false
 
     };
   },
@@ -148,7 +157,7 @@ export default {
         .replaceAll(' ', '')
         .replaceAll('\t', '')
         .replaceAll(/^[\n?\r]+/gm, '')
-        ;//.toLowerCase(); //ToDo only commented for test purposes
+        .toLowerCase();
       const usersEmailList = _.uniq(transferList.split(/\r?\n/));
       if (usersEmailList.at(usersEmailList.length - 1) === '') {
         usersEmailList.splice(usersEmailList.length - 1, 1);
@@ -166,7 +175,7 @@ export default {
       if (firstRound) { this.initValidUsers(); }
 
       const userEmails = this.validUsers.map(entry => entry.email);
-
+      this.loading = true;
       Base.call('rooms/' + this.roomId + '/member/bulk', {
         method: 'post',
         data: { user_emails: userEmails, role: this.newUsersRole }
@@ -196,8 +205,12 @@ export default {
               this.invalidUsers.push({ email: userEmails[index], error: errorString });
               this.step = 1;
             });
+            return;
           }
         }
+        Base.error(error, this.$root);
+      }).finally(() =>{
+        this.loading = false;
       });
     }
   }

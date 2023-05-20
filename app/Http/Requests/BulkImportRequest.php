@@ -35,15 +35,4 @@ class BulkImportRequest extends FormRequest
                 }]
             ];
     }
-    public function attributes()
-    {
-        return ["user_emails" => __('validation.attributes.user_emails')];
-    }
-    public function messages()
-    {
-        return [
-            "user_emails.*.email" => __('validation.email',["attribute" => __('app.entry')]),
-            "user_email.*.distinct" => __('validation.distinct',["attribute" => __('app.entry')])
-            ];
-    }
 }

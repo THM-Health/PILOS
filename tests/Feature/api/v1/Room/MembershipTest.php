@@ -403,6 +403,10 @@ class MembershipTest extends TestCase
         $this->role->permissions()->detach($this->managePermission);
     }
 
+    public function testBulkImportMembers(){
+
+    }
+
     public function testBulkUpdateMembers()
     {
         // create possible users for the test
