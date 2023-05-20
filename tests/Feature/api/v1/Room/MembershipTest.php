@@ -404,7 +404,148 @@ class MembershipTest extends TestCase
     }
 
     public function testBulkImportMembers(){
+        $newUser         = User::factory()->create();
+        $user23Email     = $this->faker->email();
+        $newUser2        = User::factory()->create(['email' => $user23Email]);
+        $newUser3        = User::factory()->create(['email' => $user23Email]);
+        $newUser4        = User::factory()->create();
+        $invalidEmail    = $this->faker->email();
+        $noEmail         = $this->faker->word();
+        $memberUser      = User::factory()->create();
+        $memberModerator = User::factory()->create();
+        $memberCoOwner   = User::factory()->create();
+        $owner           = User::factory()->create();
 
+        $room = Room::factory()->create([
+            'allow_guests' => true,
+            'access_code'  => $this->faker->numberBetween(111111111, 999999999)
+        ]);
+        $room->owner()->associate($owner);
+        $room->save();
+
+        $room->members()->attach($memberUser, ['role'=>RoomUserRole::USER]);
+        $room->members()->attach($memberModerator, ['role'=>RoomUserRole::MODERATOR]);
+        $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
+
+        //Add single member acting as guest
+        $this->postJson(route('api.v1.rooms.member.bulkImport',['room'=>$room]),['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertUnauthorized();
+
+        //Add single member acting as non owner
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+
+        //Add single member acting as other member
+        $this->actingAs($memberUser)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+
+        //Add single member acting as moderator
+        $this->actingAs($memberModerator)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+
+        //Add single member acting as co-owner
+        $this->actingAs($memberCoOwner)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+
+        //Add multiple member acting as co-owner
+        $this->actingAs($memberCoOwner)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+        $room->members()->detach($newUser4->id);
+
+        //Add single member acting as owner
+        $this->actingAs($owner)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+
+        //Add multiple member acting as owner
+        $this->actingAs($owner)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+        $room->members()->detach($newUser4->id);
+
+        //Add single member with invalid role
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>10])
+            ->assertJsonValidationErrors(['role']);
+
+        //Add multiple members as user
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+        $room->members()->detach($newUser4->id);
+
+        //Add multiple members as moderator
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::MODERATOR])
+            ->assertNoContent();
+        $room->members()->detach($newUser->id);
+        $room->members()->detach($newUser4->id);
+
+        //Add multiple members as co-owner
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::CO_OWNER])
+            ->assertNoContent();
+
+        //Add same members again
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::CO_OWNER])
+            ->assertJsonValidationErrors('user_emails.0')->assertJsonValidationErrors('user_emails.1');
+        $room->members()->detach($newUser->id);
+        $room->members()->detach($newUser4->id);
+
+        //Add owner
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$owner->email], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails.0');
+
+        //Add non existing user
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$invalidEmail], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails.0');
+
+        //Add with input that is no email
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$noEmail], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails.0');
+
+        //Add without input
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails');
+
+        //Add with 2 users with the same email
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser2->email, $newUser3->email], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails.0')->assertJsonValidationErrors('user_emails.1');
+
+        //Add with email that two users have
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser2->email], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails.0');
+
+        //Add 1 valid and 1 invalid user
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $invalidEmail], 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails.1')->assertJsonMissingValidationErrors('user_emails.0');
+        //add valid user again to make sure that the user was not added before
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        //Check member list
+        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
+
+        // Check if user is member
+        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
+            ->assertStatus(200)
+            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
+
+        // Reset membership
+        $room->members()->detach($newUser->id);
+
+        // Test view all permission
+        $this->user->roles()->attach($this->role);
+        $this->role->permissions()->attach($this->viewAllPermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email],'role'=>RoomUserRole::USER])
+            ->assertForbidden();
+        $this->role->permissions()->detach($this->viewAllPermission);
+
+        // Test manage permission
+        $this->role->permissions()->attach($this->managePermission);
+        $this->actingAs($this->user)->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email],'role'=>RoomUserRole::USER])
+            ->assertNoContent();
+        $this->role->permissions()->detach($this->managePermission);
     }
 
     public function testBulkUpdateMembers()
