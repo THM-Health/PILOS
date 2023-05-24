@@ -40,7 +40,7 @@ class LocalesTest extends TestCase
         $this->withoutMix();
 
         config([
-            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales'   => ['fr', 'es', 'be', 'de', 'en', 'ru'],
             'app.fallback_locale'   => 'ru',
             'app.locale'            => 'en'
         ]);
@@ -158,13 +158,13 @@ class LocalesTest extends TestCase
         ])->get('/');
         $response->assertSee('<html lang="ru">', false);
 
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'us'
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['locale']);
 
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'fr'
         ]);
         $response->assertOk();
@@ -192,7 +192,7 @@ class LocalesTest extends TestCase
         ])->from(config('app.url'))->get('/');
         $response->assertSee('<html lang="fr">', false);
 
-        $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+        $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'de'
         ]);
         $response->assertOk();

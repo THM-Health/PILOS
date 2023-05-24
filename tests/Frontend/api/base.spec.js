@@ -182,7 +182,7 @@ describe('base', () => {
 
       await Base.setLocale('de');
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith('setLocale', { data: { locale: 'de' }, method: 'post' });
+      expect(spy).toBeCalledWith('locale', { data: { locale: 'de' }, method: 'post' });
     });
   });
 });

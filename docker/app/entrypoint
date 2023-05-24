@@ -38,6 +38,7 @@ function optimize() {
     gosu www-data php artisan config:cache
     gosu www-data php artisan route:cache
     gosu www-data php artisan view:cache
+    gosu www-data php artisan locales:cache
 }
 
 if [ "$ENABLE_XDEBUG" == "yes" ]; then

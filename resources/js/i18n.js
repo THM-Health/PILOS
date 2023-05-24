@@ -1,15 +1,11 @@
 import axios from 'axios';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import dateTimeFormats from './lang/date-time-formats';
-import _ from 'lodash';
+import _, { forEach } from 'lodash';
 import Base from './api/base';
 const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
 
-const messages = {};
-
 Vue.use(VueI18n);
-
 class CustomFormatter {
   interpolate (message, values) {
     if (!values) {
@@ -24,29 +20,41 @@ class CustomFormatter {
   }
 }
 
-const i18n = new VueI18n({
-  formatter: new CustomFormatter(),
-  dateTimeFormats,
-  locale: defaultLocale,
-  fallbackLocale: defaultLocale,
-  availableLocales: import.meta.env.VITE_AVAILABLE_LOCALES.split(','),
-  messages
+const availableLocales = import.meta.env.VITE_AVAILABLE_LOCALES.split(',');
+
+const localeMetadata = {};
+const localeMetadataFiles = import.meta.glob(['../../lang/**/metadata.json', '../custom/lang/**/metadata.json'], { eager: true });
+forEach(localeMetadataFiles, (module, path) => {
+  const locale = path.match(/lang\/(.*)\/metadata.json/)[1];
+
+  if (!availableLocales.includes(locale)) { return; }
+
+  if (!localeMetadata[locale]) { localeMetadata[locale] = {}; }
+  localeMetadata[locale] = Object.assign(localeMetadata[locale], module.default);
 });
 
-const overrideLocales = import.meta.glob('../custom/lang/*.json', { eager: true });
+const dateTimeFormats = {};
+for (const [locale, metadata] of Object.entries(localeMetadata)) {
+  dateTimeFormats[locale] = metadata.dateTimeFormat;
+}
 
-const loadedLanguages = [];
-
-export default i18n;
+export function getLocaleList () {
+  const localeList = {};
+  for (const [locale, metadata] of Object.entries(localeMetadata)) {
+    localeList[locale] = metadata.name;
+  }
+  return localeList;
+}
 
 /**
  * Set the timezone for showing date and time
  * @param {string=} timezone Timezone string e.g. 'Europe/Berlin', if undefined (default) use users system timezone
  */
 export function setTimeZone (timezone) {
-  const locales = i18n.availableLocales;
-  locales.forEach((locale) => {
+  console.log('set timezone to ' + timezone);
+  availableLocales.forEach((locale) => {
     const formats = i18n.getDateTimeFormat(locale);
+    console.log(formats);
     Object.keys(formats).forEach((index) => {
       formats[index].timeZone = timezone;
     });
@@ -61,6 +69,8 @@ function setI18nLanguage (lang) {
   return lang;
 }
 
+const loadedLanguages = [];
+
 export function loadLanguageAsync (lang) {
   if (loadedLanguages.includes(lang)) {
     return Promise.resolve(setI18nLanguage(lang));
@@ -70,15 +80,7 @@ export function loadLanguageAsync (lang) {
     return new Promise((resolve, reject) => {
       Base.call('locale/' + lang).then((data) => {
         importLanguage(lang, data.data);
-        import(`../../locales/${lang}.json`).then((messages) => {
-          for (const path in overrideLocales) {
-            if (path.endsWith(`/${lang}.json`)) {
-              i18n.mergeLocaleMessage(lang, overrideLocales[path].default);
-            }
-          }
-
-          resolve();
-        });
+        resolve();
       });
     });
   } else {
@@ -92,3 +94,11 @@ export function importLanguage (lang, messages) {
   loadedLanguages.push(lang);
   return setI18nLanguage(lang);
 }
+
+const i18n = new VueI18n({
+  formatter: new CustomFormatter(),
+  locale: defaultLocale,
+  fallbackLocale: defaultLocale,
+  dateTimeFormats
+});
+export default i18n;

@@ -200,5 +200,6 @@ return [
         'room_link_copied' => 'The personalized room link for :firstname :lastname was copied to your clipboard.',
         'title'            => 'Personalized room links',
     ],
-    'try_again' => 'Try again',
+    'try_again'   => 'Try again',
+    'description' => 'Description',
 ];

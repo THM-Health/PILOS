@@ -2,55 +2,108 @@
 
 namespace App\Services;
 
+use Cache;
 use Illuminate\Filesystem\Filesystem;
 
 class LocaleService
 {
-    protected $filesystem;
-    protected $locales = [];
+    protected Filesystem $filesystem;
 
-    public function __construct()
+    public function __construct(Filesystem $filesystem)
     {
-        $this->filesystem = new Filesystem();
+        $this->filesystem = $filesystem;
     }
 
-    public function getLocales(): array
+    /**
+     * Get locale data as JSON
+     * If a cached version exists, it will be returned otherwise it will be built and not cached
+     *
+     * @param  string $locale Locale name (e.g. 'en')
+     * @return string
+     */
+    public function getJsonLocale(string $locale): string
     {
-        if (empty($this->locales)) {
-            $this->locales = $this->getLocalesFromDir();
+        if (Cache::has('locale-'.$locale)) {
+            return Cache::get('locale-'.$locale);
         }
-
-        return $this->locales;
+        
+        return $this->buildJsonLocale($locale);
     }
 
-    public function getLocalesFromDir()
+    /**
+     * Build locale cache for all enabled locales
+     *
+     * @return array List of locales that have been built
+     */
+    public function buildCache(): array
     {
-        $localeDirs = glob(base_path('lang') . '/*', GLOB_ONLYDIR);
-        $locales    = [];
-        foreach ($localeDirs as $localeDir) {
-            $locale    = basename($localeDir);
-            $locales[] = $locale;
+        $locales = config('app.enabled_locales');
+        foreach ($locales as $locale) {
+            Cache::forever('locale-'.$locale, $this->buildJsonLocale($locale));
         }
 
         return $locales;
     }
 
-    public function getJsonLocale($locale)
+    /**
+     * Get locale data from filesystem
+     *
+     * @param  string  $locale       Locale name (e.g. 'en')
+     * @param  boolean $withFallback Load fallback locale for untranslated strings
+     * @param  boolean $withCustom   Load custom locale to overwrite existing translations
+     * @return array   Locale data
+     */
+    public function getLocaleData(string $locale, bool $withFallback = true, bool $withCustom = true): array
     {
-        if (!in_array($locale, $this->getLocales())) {
-            throw new \Exception('Locale ' . $locale . ' not found');
+        // Directories to search for locale files
+        $localeDirs = [ config('app.locale_dir') ];
+        // If overwrite is enabled, add overwrite directory	to directory list
+        if ($withCustom) {
+            $localeDirs[] = config('app.locale_custom_dir');
         }
 
-        $localeDir      = base_path('lang') . '/' . $locale;
-        $localeFiles    = glob($localeDir . '/*.php');
+        // Locale / translation data
         $localeContents = [];
-        foreach ($localeFiles as $localeFile) {
-            $group                  = basename($localeFile, '.php');
-            $localeData             = $this->filesystem->getRequire($localeFile);
-            $localeContents[$group] = $localeData;
-        }
-        $localeJson = json_encode($localeContents, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-        return $localeJson;
+        // If locale fallback is enabled, load fallback locale and overwrite with current locale
+        if ($withFallback && config('app.fallback_locale') != $locale) {
+            $localeContents = $this->getLocaleData(config('app.fallback_locale'), false, false);
+        }
+       
+        // Go through all locale directories
+        foreach ($localeDirs as $localeDir) {
+            // Get all locale files (only php files, not the metadata.json file)
+            $localeFiles    = glob($localeDir.'/'.$locale. '/*.php');
+            // Go through all locale files
+            foreach ($localeFiles as $localeFile) {
+                // Get group name / prefix from filename e.g. 'app' from 'app.home'
+                $group                  = basename($localeFile, '.php');
+                // Get locale data from file
+                $localeData             = $this->filesystem->getRequire($localeFile);
+
+                // Create to merge with existing locale data (ovewrite existing translations)
+                if (!isset($localeContents[$group])) {
+                    $localeContents[$group] = [];
+                }
+                $localeContents[$group] = array_merge($localeContents[$group], $localeData);
+            }
+        }
+
+        return $localeContents;
+    }
+
+    /**
+     * Build locale data as json
+     *
+     * @param  string  $locale       Locale name (e.g. 'en')
+     * @param  boolean $withFallback Load fallback locale for untranslated strings
+     * @param  boolean $withCustom   Load custom locale to overwrite existing translations
+     * @return void
+     */
+    public function buildJsonLocale(string $locale, bool $withFallback = true, bool $withCustom = true)
+    {
+        $localeData = $this->getLocaleData($locale, $withFallback, $withCustom);
+
+        return json_encode($localeData, JSON_UNESCAPED_UNICODE);
     }
 }

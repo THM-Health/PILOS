@@ -22,15 +22,13 @@ class ImportLocales extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Import locales from POEditor';
 
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(Filesystem $filesystem): void
     {
-        $filesystem = new Filesystem();
-
         $this->info('Importing locales from POEditor');
         $this->info('Fetching languages list');
         $response = Http::asForm()->post('https://api.poeditor.com/v2/languages/list', [
@@ -74,8 +72,9 @@ class ImportLocales extends Command
             // Iterate over each group and generate PHP language files
             foreach ($groups as $group) {
                 // Create the directory for the language if it doesn't exist
-                if (!is_dir(base_path('lang/' . $lang['code']))) {
-                    $filesystem->makeDirectory(base_path('lang/' . $lang['code']));
+                $localeDir = config('app.locale_dir').'/'.$lang['code'];
+                if (!is_dir($localeDir)) {
+                    $filesystem->makeDirectory($localeDir);
                 }
 
                 // Export the group data as a PHP array
@@ -90,6 +89,6 @@ class ImportLocales extends Command
         }
 
         $this->info('Apply coding standards');
-        Process::run('composer run fix-cs lang/');
+        Process::run('composer run fix-cs '.config('app.locale_dir'));
     }
 }

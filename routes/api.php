@@ -36,23 +36,12 @@ use Illuminate\Validation\Rule;
 */
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
-    Route::get('locale/{locale}', [LocaleController::class, 'get'])->name('locale.get');
+    Route::get('locale/{locale}', [LocaleController::class, 'show'])->name('locale.get');
+    Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
+
     Route::get('settings', [ApplicationController::class,'settings'])->name('application');
     Route::get('currentUser', [ApplicationController::class,'currentUser'])->name('currentUser');
-    Route::post('setLocale', function (Request $request) {
-        $validatedData = $request->validate([
-            'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
-        ]);
-
-        session()->put('locale', $validatedData['locale']);
-
-        if (Auth::user() !== null) {
-            Auth::user()->update([
-                'locale' => $validatedData['locale']
-            ]);
-        }
-    })->name('setLocale');
-
+   
     Route::post('login/local', [LoginController::class,'login'])->name('login.local');
     Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap');
 

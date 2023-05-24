@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Services\LocaleService;
 use Http;
 use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
 
 class UploadLocales extends Command
 {
@@ -20,33 +20,22 @@ class UploadLocales extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Upload locales to POEditor';
 
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(LocaleService $localeService): void
     {
-        $filesystem = new Filesystem();
-    
-        $localeDirs = glob(base_path('lang') . '/*', GLOB_ONLYDIR);
-        foreach ($localeDirs as $localeDir) {
-            $locale = basename($localeDir);
+        $locales = config('app.default_locales');
+        foreach ($locales as $locale) {
             $this->info('Processing locale ' . $locale);
 
-            $localeFiles = glob($localeDir . '/*.php');
+            $localeJson = $localeService->buildJsonLocale($locale, false, false);
 
-            $localeContents = [];
-            foreach ($localeFiles as $localeFile) {
-                $group = basename($localeFile, '.php');
-                $this->info('Processing group ' . $group);
+            $this->info('Waiting 20 seconds before upload');
+            sleep(20);
 
-                $localeData             = $filesystem->getRequire($localeFile);
-                $localeContents[$group] = $localeData;
-            }
-
-            $localeJson = json_encode($localeContents, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-            
             $this->info('Uploading locale ' . $locale);
 
             $response = Http::attach(
@@ -57,13 +46,19 @@ class UploadLocales extends Command
                 'api_token'     => config('services.poeditor.token'),
                 'id'            => config('services.poeditor.project'),
                 'updating'      => 'terms_translations',
-                'overwrite'     => '1',
-                'fuzzy_trigger' => '1',
+                'overwrite'     => 1,
+                'sync_terms '   => 1,
+                'fuzzy_trigger' => 1,
                 'language'      => $locale
             ]);
 
-            $this->info('Waiting 20 seconds before next upload');
-            sleep(20);
+            $apiResponse = $response->json('response');
+            if ($apiResponse['status'] == 'success') {
+                $this->info('Locale ' . $locale . ' uploaded successfully');
+            } else {
+                $this->error('Error uploading locale ' . $locale);
+                $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
+            }
         }
     }
 }
