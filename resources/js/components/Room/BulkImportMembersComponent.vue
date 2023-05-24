@@ -42,7 +42,6 @@
         </template>
       </b-form-group>
 
-
         <b-form-group :label="$t('rooms.role')" >
           <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="1">
             <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
@@ -171,7 +170,7 @@ export default {
     },
 
     importUsers (firstRound = false) {
-      this.errors =[];
+      this.errors = [];
       if (firstRound) { this.initValidUsers(); }
 
       const userEmails = this.validUsers.map(entry => entry.email);
@@ -186,7 +185,7 @@ export default {
         if (error.response) {
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             if (error.response.data.errors.user_emails) {
-              this.errors = {user_emails : error.response.data.errors.user_emails};
+              this.errors = { user_emails: error.response.data.errors.user_emails };
 
               return;
             }
@@ -209,7 +208,7 @@ export default {
           }
         }
         Base.error(error, this.$root);
-      }).finally(() =>{
+      }).finally(() => {
         this.loading = false;
       });
     }

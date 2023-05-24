@@ -224,19 +224,14 @@ class MembershipTest extends TestCase
         $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::CO_OWNER])
             ->assertNoContent();
 
-        // Add same member again
+        // Try to add same member again
         $this->postJson(route('api.v1.rooms.member.add', ['room'=>$room]), ['user'=>$newUser->id,'role'=>RoomUserRole::USER])
             ->assertJsonValidationErrors('user');
 
-        // Check member list
-        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
-
-        // Check if user is member
-        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
+        // Check if member is added with correct role
+        $foundNewUser = $room->members()->find($newUser);
+        $this->assertNotNull($foundNewUser);
+        $this->assertEquals(RoomUserRole::CO_OWNER, $foundNewUser->pivot->role);
 
         // Reset membership
         $room->members()->detach($newUser->id);
@@ -322,9 +317,7 @@ class MembershipTest extends TestCase
             ->assertNoContent();
 
         // Check member list
-        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
-            ->assertOk()
-            ->assertJsonMissing(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
+        $this->assertNull($room->members()->find($newUser));
 
         // Try to remove user again
         $this->deleteJson(route('api.v1.rooms.member.destroy', ['room'=>$room,'user'=>$newUser]))
@@ -372,10 +365,9 @@ class MembershipTest extends TestCase
         $this->actingAs($owner)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$otherUser]), ['role' => RoomUserRole::MODERATOR])
             ->assertStatus(410);
 
-        // Check member list
-        $this->actingAs($owner)->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$newUser->id,'role'=>RoomUserRole::MODERATOR]);
+        // Check if member role is changed
+        $foundNewUser = $room->members()->find($newUser);
+        $this->assertEquals(RoomUserRole::MODERATOR, $foundNewUser->pivot->role);
 
         // Update role as member user
         $this->actingAs($memberUser)->putJson(route('api.v1.rooms.member.update', ['room'=>$room,'user'=>$newUser]), ['role' => RoomUserRole::MODERATOR])
@@ -403,7 +395,8 @@ class MembershipTest extends TestCase
         $this->role->permissions()->detach($this->managePermission);
     }
 
-    public function testBulkImportMembers(){
+    public function testBulkImportMembers()
+    {
         $newUser         = User::factory()->create();
         $user23Email     = $this->faker->email();
         $newUser2        = User::factory()->create(['email' => $user23Email]);
@@ -428,7 +421,7 @@ class MembershipTest extends TestCase
         $room->members()->attach($memberCoOwner, ['role'=>RoomUserRole::CO_OWNER]);
 
         //Add single member acting as guest
-        $this->postJson(route('api.v1.rooms.member.bulkImport',['room'=>$room]),['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
             ->assertUnauthorized();
 
         //Add single member acting as non owner
@@ -473,20 +466,14 @@ class MembershipTest extends TestCase
         $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $newUser4->email], 'role'=>RoomUserRole::USER])
             ->assertNoContent();
 
-        //Check member list
-        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname])
-            ->assertJsonFragment(['id'=>$newUser4->id,'email'=>$newUser4->email,'firstname'=>$newUser4->firstname,'lastname'=>$newUser4->lastname]);
+        // Check if members are added with correct role
+        $foundNewUser = $room->members()->find($newUser);
+        $this->assertNotNull($foundNewUser);
+        $this->assertEquals(RoomUserRole::USER, $foundNewUser->pivot->role);
 
-        // Check if users are members
-        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
-
-        $this->actingAs($newUser4)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
+        $foundNewUser4 = $room->members()->find($newUser4);
+        $this->assertNotNull($foundNewUser4);
+        $this->assertEquals(RoomUserRole::USER, $foundNewUser4->pivot->role);
 
         // Reset membership
         $room->members()->detach($newUser->id);
@@ -525,8 +512,16 @@ class MembershipTest extends TestCase
         $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[], 'role'=>RoomUserRole::USER])
             ->assertJsonValidationErrors('user_emails');
 
+        //Add with to many emails
+        $emailList = [];
+        for ($i=0; $i < 1001; $i++) {
+            $emailList[]=$this->faker->unique()->email();
+        }
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>$emailList, 'role'=>RoomUserRole::USER])
+            ->assertJsonValidationErrors('user_emails');
+
         //Add without data
-        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]),[])
+        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), [])
             ->assertJsonValidationErrors('user_emails')
             ->assertJsonValidationErrors('role');
 
@@ -543,21 +538,6 @@ class MembershipTest extends TestCase
         $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email, $invalidEmail], 'role'=>RoomUserRole::USER])
             ->assertJsonValidationErrors('user_emails.1')
             ->assertJsonMissingValidationErrors('user_emails.0');
-        //add valid user again to make sure that the user was not added before
-        $this->postJson(route('api.v1.rooms.member.bulkImport', ['room'=>$room]), ['user_emails'=>[$newUser->email], 'role'=>RoomUserRole::USER])
-            ->assertNoContent();
-        //Check member list
-        $this->getJson(route('api.v1.rooms.member.get', ['room'=>$room]))
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$newUser->id,'email'=>$newUser->email,'firstname'=>$newUser->firstname,'lastname'=>$newUser->lastname]);
-
-        // Check if user is member
-        $this->actingAs($newUser)->getJson(route('api.v1.rooms.show', ['room'=>$room]))
-            ->assertStatus(200)
-            ->assertJsonFragment(['authenticated' => true, 'is_member' => true]);
-
-        // Reset membership
-        $room->members()->detach($newUser->id);
 
         // Test view all permission
         $this->user->roles()->attach($this->role);

@@ -13,7 +13,14 @@ class BulkImportRequest extends FormRequest
     {
         return[
             'role'          => ['required',Rule::in([RoomUserRole::USER,RoomUserRole::MODERATOR,RoomUserRole::CO_OWNER])],
-            'user_emails'   => ['required','array','max:1000'],
+            'user_emails'   => ['required','array',
+                function ($attribute, $value, $fail) {
+                    $max = 1000;
+                    if (count($value) > $max) {
+                        $this->getValidatorInstance()->stopOnFirstFailure();
+                        $fail(__('validation.max.array', ['max'=>$max]));
+                    }
+                },],
             'user_emails.*' => ['bail','required','email','distinct:ignore_case',
                 function ($attribute, $value, $fail) {
                     $users = User::where('email', $value);
