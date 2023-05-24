@@ -51,10 +51,8 @@ export function getLocaleList () {
  * @param {string=} timezone Timezone string e.g. 'Europe/Berlin', if undefined (default) use users system timezone
  */
 export function setTimeZone (timezone) {
-  console.log('set timezone to ' + timezone);
   availableLocales.forEach((locale) => {
     const formats = i18n.getDateTimeFormat(locale);
-    console.log(formats);
     Object.keys(formats).forEach((index) => {
       formats[index].timeZone = timezone;
     });
