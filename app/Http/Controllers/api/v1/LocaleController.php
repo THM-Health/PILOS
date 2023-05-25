@@ -12,7 +12,7 @@ class LocaleController extends Controller
     public function show($locale, LocaleService $localeService)
     {
         if (!in_array($locale, config('app.enabled_locales'))) {
-            abort(404, 'Locale not found');
+            abort(404);
         }
 
         $localeJson = $localeService->getJsonLocale($locale);
