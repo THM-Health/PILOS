@@ -17,9 +17,6 @@ describe('Auth Store', () => {
   });
 
   it('getCurrentUser and set i18n timezone', async () => {
-    const messagesEn = await import('../../../locales/en.json');
-    i18n.setLocaleMessage('en', messagesEn);
-
     const PermissionServiceSpy = vi.spyOn(PermissionService, 'setCurrentUser').mockImplementation(() => {});
 
     const user = {
