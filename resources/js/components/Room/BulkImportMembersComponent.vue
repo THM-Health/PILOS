@@ -3,14 +3,15 @@
     <!-- Add list of users from database -->
     <b-button
       variant="success"
-      ref="add-member"
+      ref="bulk-import-members-button"
       @click="showModal"
     >
-      <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.bulk_add_user') }}
+      <i class="fa-solid fa-user-plus"></i> {{ $t('rooms.members.bulk_import_users') }}
     </b-button>
 
     <!-- bulk add new user modal -->
     <b-modal
+      :static='modalStatic'
       :no-close-on-backdrop="true"
       hide-footer
       class="pb-0"
@@ -21,7 +22,7 @@
       :hide-header-close="loading"
     >
       <template v-slot:modal-title>
-        {{ $t('rooms.members.bulk_add_user') }}
+        {{ $t('rooms.members.bulk_import_users') }}
       </template>
 
       <div v-if="step === 0">
@@ -110,6 +111,10 @@ export default {
     roomId: {
       type: String,
       required: true
+    },
+    modalStatic:{
+      type: Boolean,
+      default: false
     }
   },
 
@@ -144,7 +149,7 @@ export default {
     finish () {
       this.$bvModal.hide('bulk-import-modal');
     },
-    copyInvalidUsers () { // OK?
+    copyInvalidUsers () {
       const invalidUsersEmails = this.invalidUsers.map(invalidUser => invalidUser.email);
       navigator.clipboard.writeText(invalidUsersEmails.join('\n'));
       this.toastInfo(this.$t('rooms.members.modals.bulk_import.copied_invalid_users'));

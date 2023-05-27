@@ -320,7 +320,7 @@
     "rooms.login": "Login",
     "rooms.meeting_history.title": "History",
     "rooms.members.add_user": "Add user",
-    "rooms.members.bulk_add_user": "Add several users",
+    "rooms.members.bulk_import_users": "Add several users",
     "rooms.members.bulk_edit_user": "Edit :numberOfSelectedUsers members",
     "rooms.members.bulk_remove_user": "Remove :numberOfSelectedUsers members",
     "rooms.members.edit_user": "Edit member",
