@@ -27,6 +27,6 @@ class LocalesCache extends Command
     public function handle(LocaleService $localeService): void
     {
         $locales = $localeService->buildCache();
-        $this->info('Locales ['.implode(',', $locales).'] cached successfully');
+        $this->info('Locales [ '.implode(', ', $locales).' ] cached successfully');
     }
 }
