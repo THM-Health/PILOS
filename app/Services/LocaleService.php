@@ -53,7 +53,7 @@ class LocaleService
      * @param  boolean $withCustom   Load custom locale to overwrite existing translations
      * @return array   Locale data
      */
-    public function getLocaleData(string $locale, bool $withFallback = true, bool $withCustom = true): array
+    private function getLocaleData(string $locale, bool $withFallback = true, bool $withCustom = true): array
     {
         // Directories to search for locale files
         $localeDirs = [ config('app.locale_dir') ];

@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\Models\User;
+use App\Services\LocaleService;
 use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -229,5 +230,31 @@ class LocalesTest extends TestCase
         $externalUser = User::where(['authenticator' => 'external'])->first();
 
         $this->assertEquals('en', $externalUser->locale);
+    }
+
+    public function testLocaleDataInvalid()
+    {
+        $this->getJson(route('api.v1.locale.get', [
+            'locale' => 'invalid'
+        ]))->assertNotFound();
+    }
+
+    public function testLocaleData()
+    {
+        $content = [
+            'key1' => 'value1'
+        ];
+
+        $this->mock(LocaleService::class)
+        ->shouldReceive('getJsonLocale')
+            ->once()
+            ->with('de')
+            ->andReturn(json_encode($content));
+
+        $response = $this->getJson(route('api.v1.locale.get', [
+            'locale' => 'de'
+        ]));
+
+        $this->assertEquals($content, $response->json());
     }
 }

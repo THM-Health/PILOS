@@ -18,34 +18,17 @@ class LocalesCacheTest extends TestCase
      */
     public function testLocalesCache()
     {
-        config([
-            'app.enabled_locales'   => ['de', 'en'],
-        ]);
-
         $mock = $this->partialMock(LocaleService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('buildJsonLocale')
+            $mock->shouldReceive('buildCache')
             ->once()
-            ->with('de')
-            ->andReturn("{ 'key1': 'value1' }");
-
-            $mock->shouldReceive('buildJsonLocale')
-            ->once()
-            ->with('en')
-            ->andReturn("{ 'key2': 'value2' }");
+            ->with()
+            ->andReturn(['de', 'en']);
         });
 
         $this->instance(
             LocaleService::class,
             $mock
         );
-
-        Cache::shouldReceive('forever')
-            ->once()
-            ->with('locale-de', "{ 'key1': 'value1' }");
-
-        Cache::shouldReceive('forever')
-            ->once()
-            ->with('locale-en', "{ 'key2': 'value2' }");
 
         $this->artisan('locales:cache')
         ->expectsOutput('Locales [ de, en ] cached successfully');

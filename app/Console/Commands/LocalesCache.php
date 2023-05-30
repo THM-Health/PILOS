@@ -19,7 +19,7 @@ class LocalesCache extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Create cache for all enabled locales';
 
     /**
      * Execute the console command.
