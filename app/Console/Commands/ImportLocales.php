@@ -82,7 +82,7 @@ class ImportLocales extends Command
 
                 // Write the PHP array to the language file
                 file_put_contents(
-                    base_path('lang/' . $lang['code'] . '/' . $group . '.php'),
+                    base_path($localeDir . '/' . $group . '.php'),
                     '<?php return ' . $exported . ';'
                 );
             }

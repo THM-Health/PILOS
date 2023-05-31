@@ -33,8 +33,9 @@ class UploadLocales extends Command
 
             $localeJson = $localeService->buildJsonLocale($locale, false, false);
 
-            $this->info('Waiting 20 seconds before upload');
-            sleep(20);
+            $delay = config('services.poeditor.upload_delay');
+            $this->info('Waiting '.$delay.' seconds before upload');
+            sleep($delay);
 
             $this->info('Uploading locale ' . $locale);
 
@@ -47,7 +48,7 @@ class UploadLocales extends Command
                 'id'            => config('services.poeditor.project'),
                 'updating'      => 'terms_translations',
                 'overwrite'     => 1,
-                'sync_terms '   => 1,
+                'sync_terms'    => 1,
                 'fuzzy_trigger' => 1,
                 'language'      => $locale
             ]);
