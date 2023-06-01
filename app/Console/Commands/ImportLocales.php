@@ -41,8 +41,10 @@ class ImportLocales extends Command
             'id'        => config('services.poeditor.project'),
         ]);
 
-        if ($response->failed()) {
+        $apiResponse = $response->json('response');
+        if ($apiResponse['status'] == 'fail') {
             $this->error('Failed to fetch languages list');
+            $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
 
             return;
         }
@@ -50,7 +52,7 @@ class ImportLocales extends Command
         foreach ($response->json('result.languages') as $lang) {
             $this->info('Found '.$lang['name'].' ('.$lang['code'].')');
 
-            $this->info('Downloading translation for '.$lang['code']);
+            $this->info('Fetching translation for '.$lang['code']);
             $response = Http::asForm()->post('https://api.poeditor.com/v2/projects/export', [
                 'api_token' => config('services.poeditor.token'),
                 'id'        => config('services.poeditor.project'),
@@ -58,26 +60,37 @@ class ImportLocales extends Command
                 'type'      => 'key_value_json'
             ]);
 
-            if ($response->failed()) {
-                $this->error('Failed to load translation for '.$lang['code']);
+            $apiResponse = $response->json('response');
+            if ($apiResponse['status'] == 'fail') {
+                $this->error('Failed to fetch translation for '.$lang['code']);
+                $this->error('Error code: ' . $apiResponse['code'].', message: '.$apiResponse['message']);
 
                 return;
             }
 
             $url = $response->json('result.url');
 
-            $localeFile = Http::get($url)->body();
-        
-            // Read the JSON file and decode its contents
-            $localeData = json_decode($localeFile, true);
+            $this->info('Downloading translation for '.$lang['code']);
+            
+            $response = Http::get($url)->json();
+           
+            // Check if response is an error
+            if (isset($response['response']['status'])) {
+                if ($response['response']['status'] == 'fail') {
+                    $this->error('Failed to download translation for '.$lang['code']);
+                    $this->error('Error code: ' . $response['response']['code'].', message: '.$response['response']['message']);
+
+                    return;
+                }
+            }
 
             // Get all major keys (groups) in the locale data, e.g. app, auth, validation, etc.
-            $groups = array_keys($localeData);
+            $groups = array_keys($response);
 
             // Iterate over each group and generate PHP language files
             foreach ($groups as $group) {
                 // Export the group data as a PHP array
-                $exported = VarExporter::export($localeData[$group]);
+                $exported = VarExporter::export($response[$group]);
 
                 // Write the PHP array to the language file
                 $disk->put($lang['code'] . '/' . $group . '.php', '<?php return ' . $exported . ';');
