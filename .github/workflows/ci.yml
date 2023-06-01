@@ -87,6 +87,8 @@ jobs:
       run: php artisan test --parallel --coverage-clover=coverage.xml
     - name: Upload coverage
       uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()
@@ -122,6 +124,8 @@ jobs:
               run: npm run cover
             - name: Upload coverage
               uses: codecov/codecov-action@v3
+              with:
+                token: ${{ secrets.CODECOV_TOKEN }}
             - name: Upload npm logs
               uses: actions/upload-artifact@v2
               if: failure()

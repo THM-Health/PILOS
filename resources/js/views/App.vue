@@ -74,7 +74,7 @@
               <b-nav-item class="d-block d-lg-none" target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')">
                 {{$t('app.help')}}
               </b-nav-item>
-              <locale-selector :available-locales="availableLocales"></locale-selector>
+              <locale-selector></locale-selector>
             </b-navbar-nav>
           </b-collapse>
         </b-container>
@@ -107,11 +107,6 @@ export default {
     ...mapState(useAuthStore, ['currentUser', 'isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),
     ...mapState(useLoadingStore, ['loadingCounter', 'overlayLoadingCounter'])
-  },
-  data () {
-    return {
-      availableLocales: import.meta.env.VITE_AVAILABLE_LOCALES.split(',')
-    };
   },
   methods: {
 

@@ -60,7 +60,7 @@ class CreateAdminUser extends Command
         $data['firstname']             = $this->ask('Firstname');
         $data['lastname']              = $this->ask('Lastname');
         $data['email']                 = $this->ask('E-Mail');
-        $data['user_locale']           = $this->ask('Locale (possible values: ' . join(',', config('app.available_locales')) . ')');
+        $data['user_locale']           = $this->ask('Locale (possible values: ' . join(',', config('app.enabled_locales')) . ')');
         $data['password']              = $this->secret('Password');
         $data['password_confirmation'] = $this->secret('Password Confirmation');
         $data['generate_password']     = false;

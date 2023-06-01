@@ -1,10 +1,12 @@
 <?php
 
+use App\Services\LocaleService;
 use Illuminate\Support\Facades\Facade;
 
-$available_locales = array_diff(scandir(base_path('lang')), array('..', '.'));
-$locales_env = env('VITE_AVAILABLE_LOCALES','en,de');
-$available_locales = $locales_env !== null ? preg_split('/,/', $locales_env) : $available_locales;
+$localeDir = base_path('lang');
+$defaultLocales = array_diff(scandir($localeDir), array('..', '.'));
+$localesEnv = env('VITE_AVAILABLE_LOCALES','en,de');
+$enabledLocales = $localesEnv !== null ? preg_split('/,/', $localesEnv) : $defaultLocales;
 
 $versionFile = base_path('version');
 $version = file_exists($versionFile) ? file_get_contents($versionFile) : null;
@@ -108,7 +110,7 @@ return [
     |
     */
 
-    'fallback_locale' => env('VITE_DEFAULT_LOCALE', 'en'),
+    'fallback_locale' => 'en',
 
     /*
     |--------------------------------------------------------------------------
@@ -123,7 +125,11 @@ return [
 
     'faker_locale' => 'en_US',
 
-    'available_locales' => $available_locales,
+    'enabled_locales' => $enabledLocales,
+    'default_locales' => $defaultLocales,
+
+    'locale_dir' => $localeDir,
+    'locale_custom_dir' => base_path('/resources/custom/lang'),
 
     /*
     |--------------------------------------------------------------------------
@@ -193,7 +199,6 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
@@ -214,6 +219,8 @@ return [
 
         // Laravel IDE helper
         \Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+
+        App\Providers\TranslationServiceProvider::class,
     ],
 
     /*

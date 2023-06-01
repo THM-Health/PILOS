@@ -27,9 +27,9 @@ class UpdateSetting extends FormRequest
             'favicon_file'                              => 'required_without:favicon|mimes:ico|max:500', // 500 KB, larger files are bad for loading times
             'own_rooms_pagination_page_size'            => 'required|numeric|min:1|max:25',
             'pagination_page_size'                      => 'required|numeric|min:1|max:100',
-            'banner'                                    => 'required|array',
             'password_self_reset_enabled'               => 'required|boolean',
             'default_timezone'                          => ['required', 'string', Rule::in(timezone_identifiers_list())],
+            'banner'                                    => 'required|array',
             'banner.enabled'                            => 'required|boolean',
             'banner.title'                              => 'nullable|string|max:255',
             'banner.message'                            => ['nullable', Rule::requiredIf(is_array($this->banner) && $this->boolean('banner.enabled')), 'string', 'max:500'],
@@ -58,6 +58,27 @@ class UpdateSetting extends FormRequest
             'room_auto_delete.inactive_period'          => 'required|numeric|in:-1,7,14,30,90,180,365,730',
             'room_auto_delete.never_used_period'        => 'required|numeric|in:-1,7,14,30,90,180,365,730',
             'room_auto_delete.deadline_period'          => 'required|numeric|in:7,14,30',
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'banner.enabled'     => __('validation.attributes.banner_enabled'),
+            'banner.title'       => __('validation.attributes.banner_title'),
+            'banner.message'     => __('validation.attributes.banner_message'),
+            'banner.link'        => __('validation.attributes.banner_link'),
+            'banner.link_text'   => __('validation.attributes.banner_link_text'),
+            'banner.link_style'  => __('validation.attributes.banner_link_style'),
+            'banner.link_target' => __('validation.attributes.banner_link_target'),
+            'banner.icon'        => __('validation.attributes.banner_icon'),
+            'banner.color'       => __('validation.attributes.banner_color'),
+            'banner.background'  => __('validation.attributes.banner_background')
         ];
     }
 }

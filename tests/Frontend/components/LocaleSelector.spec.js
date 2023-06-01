@@ -7,6 +7,7 @@ import { createLocalVue, waitMoxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { useLoadingStore } from '../../../resources/js/stores/loading';
+import { expect, vi } from 'vitest';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -14,12 +15,16 @@ localVue.use(PiniaVuePlugin);
 
 describe('LocaleSelector', () => {
   beforeEach(() => {
-    vi.mock('@/lang/LocaleMap', () => {
+    vi.mock('../../../resources/js/i18n.js', async () => {
+      const mod = await import('../../../resources/js/i18n.js');
       return {
-        default: {
-          de: 'German',
-          en: 'English',
-          ru: 'Russian'
+        ...mod,
+        getLocaleList: () => {
+          return {
+            de: 'German',
+            en: 'English',
+            ru: 'Russian'
+          };
         }
       };
     });
@@ -31,34 +36,19 @@ describe('LocaleSelector', () => {
     moxios.uninstall();
   });
 
-  it('validates `availableLocales` correctly', async () => {
-    const availableLocales = LocaleSelector.props.availableLocales;
-
-    expect(availableLocales.type).toEqual(Array);
-    expect(availableLocales.required).toBe(true);
-    expect(availableLocales.validator).toBeInstanceOf(Function);
-    expect(availableLocales.validator([1, 2, 3])).toBeFalsy();
-    expect(availableLocales.validator(['de', 'en', 'ru'])).toBeTruthy();
-    expect(availableLocales.validator(['pl', 'es'])).toBeFalsy();
-    expect(availableLocales.validator(['a', 'b'])).toBeFalsy();
-    expect(availableLocales.validator([{ foo: 'bar' }])).toBeFalsy();
-  });
-
-  it('only locales specified in `availableLocales` property gets rendered', async () => {
+  it('all locales loaded in i18n gets rendered', async () => {
+    vi.resetModules();
     const wrapper = mount(LocaleSelector, {
       localVue,
       mocks: {
         $t: (key) => key
       },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
       pinia: createTestingPinia()
     });
 
     const dropdownItems = wrapper.findAllComponents(BDropdownItem);
-    expect(dropdownItems.length).toBe(2);
-    expect(dropdownItems.filter(w => w.text() === 'English').length).toBe(0);
+    expect(dropdownItems.length).toBe(3);
+    expect(dropdownItems.filter(w => w.text() === 'English').length).toBe(1);
     expect(dropdownItems.filter(w => w.text() === 'Russian').length).toBe(1);
     expect(dropdownItems.filter(w => w.text() === 'German').length).toBe(1);
 
@@ -70,9 +60,6 @@ describe('LocaleSelector', () => {
       localVue,
       mocks: {
         $t: (key) => key
-      },
-      propsData: {
-        availableLocales: ['de', 'ru']
       },
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } } })
     });
@@ -93,13 +80,10 @@ describe('LocaleSelector', () => {
         $t: (key) => key,
         toastError: toastErrorSpy
       },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    moxios.stubRequest('/api/v1/setLocale', {
+    moxios.stubRequest('/api/v1/locale', {
       status: 422,
       response: {
         errors: {
@@ -136,13 +120,10 @@ describe('LocaleSelector', () => {
       mocks: {
         $t: (key) => key
       },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    moxios.stubRequest('/api/v1/setLocale', {
+    moxios.stubRequest('/api/v1/locale', {
       status: 500,
       response: {
         message: 'Test'
@@ -180,15 +161,13 @@ describe('LocaleSelector', () => {
       mocks: {
         $t: (key) => key
       },
-      propsData: {
-        availableLocales: ['de', 'ru']
-      },
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    moxios.stubRequest('/api/v1/setLocale', {
+    moxios.stubRequest('/api/v1/locale', {
       status: 200
     });
+
     moxios.stubRequest('/api/v1/currentUser', {
       status: 200,
       response: {

@@ -2,6 +2,7 @@
 
 use App\Auth\LDAP\LDAPController;
 use App\Http\Controllers\api\v1\ApplicationController;
+use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
@@ -35,22 +36,12 @@ use Illuminate\Validation\Rule;
 */
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
+    Route::get('locale/{locale}', [LocaleController::class, 'show'])->name('locale.get');
+    Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
+
     Route::get('settings', [ApplicationController::class,'settings'])->name('application');
     Route::get('currentUser', [ApplicationController::class,'currentUser'])->name('currentUser');
-    Route::post('setLocale', function (Request $request) {
-        $validatedData = $request->validate([
-            'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
-        ]);
-
-        session()->put('locale', $validatedData['locale']);
-
-        if (Auth::user() !== null) {
-            Auth::user()->update([
-                'locale' => $validatedData['locale']
-            ]);
-        }
-    })->name('setLocale');
-
+   
     Route::post('login/local', [LoginController::class,'login'])->name('login.local');
     Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap');
 
