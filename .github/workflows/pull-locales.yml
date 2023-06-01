@@ -76,7 +76,12 @@ jobs:
         POEDITOR_PROJECT: ${{ secrets.POEDITOR_PROJECT }}
       run: php artisan locales:import
 
-    - uses: stefanzweifel/git-auto-commit-action@v4
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
       with:
         commit_message: Update locales
-        file_pattern: 'lang/**/*.php'
+        add-paths: 'lang/**/*.php'
+        push_options: --force
+        branch: update-locales
+        title: Update locales using POEditor
+        body: This PR was automatically created using the most recent translations from POEditor.
