@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import LocaleMap from '../../lang/LocaleMap';
+import { getLocaleList } from '../../i18n';
 
 export default {
   name: 'LocaleSelect',
@@ -46,16 +46,14 @@ export default {
      * The available locales that the user can select from.
      */
     locales () {
-      const availableLocales = import.meta.env.VITE_AVAILABLE_LOCALES.split(',');
-
-      return Object.keys(LocaleMap)
-        .filter(key => availableLocales.includes(key))
-        .map(key => {
-          return {
-            value: key,
-            text: LocaleMap[key]
-          };
+      const locales = [];
+      for (const [locale, label] of Object.entries(getLocaleList())) {
+        locales.push({
+          value: locale,
+          text: label
         });
+      }
+      return locales;
     }
   },
   methods: {

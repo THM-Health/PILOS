@@ -5,49 +5,34 @@
       <i class="fa-solid fa-language"></i><span class="sr-only">{{ $t('app.select_locale') }}</span>
     </template>
     <b-dropdown-item
-      v-for="(value, key) in locales"
-      :key="key"
-      @click="changeLocale(key)"
-      :active="key === currentLocale">
-      {{ value }}
+      v-for="(label, locale) in locales"
+      :key="locale"
+      @click="changeLocale(locale)"
+      :active="locale === currentLocale">
+      {{ label }}
     </b-dropdown-item>
   </b-nav-item-dropdown>
 </template>
 
 <script>
-import { loadLanguageAsync } from '../i18n';
+import { loadLanguageAsync, getLocaleList } from '../i18n';
 import env from './../env.js';
-import LocaleMap from '../lang/LocaleMap';
 import Base from '../api/base';
 import { mapActions, mapState } from 'pinia';
 import { useLocaleStore } from '../stores/locale';
 import { useLoadingStore } from '../stores/loading';
 
 export default {
-  props: {
-    availableLocales: {
-      type: Array,
-      required: true,
-      validator: prop => prop.every(element => {
-        return typeof element === 'string' && Object.keys(LocaleMap).includes(element);
-      })
-    }
-  },
 
   computed: {
+
     locales () {
-      return Object.keys(LocaleMap)
-        .filter(key => this.availableLocales.includes(key))
-        .reduce((object, key) => {
-          object[key] = LocaleMap[key];
-          return object;
-        }, {});
+      return getLocaleList();
     },
 
     ...mapState(useLocaleStore, ['currentLocale'])
   },
   methods: {
-
     ...mapActions(useLocaleStore, ['setLocale']),
     ...mapActions(useLoadingStore, ['setOverlayLoading', 'setOverlayLoadingFinished']),
 

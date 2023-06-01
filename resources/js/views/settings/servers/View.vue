@@ -289,7 +289,7 @@ export default {
 
       Base.call(`servers/${this.id}/panic`).then(response => {
         if (response.status === 200) {
-          this.toastSuccess(this.$t('settings.servers.panic.flash.description', { total: response.data.total, success: response.data.success }), this.$t('settings.servers.panic.flash.title'));
+          this.toastSuccess(this.$t('settings.servers.flash.panic.description', { total: response.data.total, success: response.data.success }), this.$t('settings.servers.flash.panic.title'));
           this.load();
         }
       }).catch(error => {

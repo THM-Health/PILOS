@@ -27,7 +27,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer()
     });
@@ -71,7 +71,7 @@ describe('UsersIndex', () => {
     expect(html).toContain('Doe');
     expect(html).toContain('john@doe.com');
     expect(html).toContain('Students');
-    expect(html).toContain('app.roles.admin');
+    expect(html).toContain('app.role_lables.admin');
     expect(html).toContain('settings.users.authenticator.local');
 
     view.vm.$root.$emit('bv::refresh::table', 'users-table');
@@ -175,7 +175,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -292,7 +292,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin',
+        $te: (key) => key === 'app.role_lables.admin',
         toastSuccess: toastSuccessSpy
       },
       attachTo: createContainer(),
@@ -371,7 +371,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer()
     });
@@ -406,7 +406,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer()
     });
@@ -459,7 +459,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -520,7 +520,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer(),
       propsData: {
@@ -560,7 +560,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer()
     });
@@ -634,7 +634,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer()
     });
@@ -674,7 +674,7 @@ describe('UsersIndex', () => {
     const roleOptions = roleSelector.findAll('li');
 
     // check drop down values
-    expect(roleOptions.at(0).html()).toContain('app.roles.admin');
+    expect(roleOptions.at(0).html()).toContain('app.role_lables.admin');
     expect(roleOptions.at(1).html()).toContain('Staff');
     expect(roleOptions.at(2).html()).toContain('Students');
 
@@ -822,7 +822,7 @@ describe('UsersIndex', () => {
       localVue,
       mocks: {
         $t: key => key,
-        $te: (key) => key === 'app.roles.admin'
+        $te: (key) => key === 'app.role_lables.admin'
       },
       attachTo: createContainer()
     });
@@ -925,7 +925,7 @@ describe('UsersIndex', () => {
 
     // check drop down values
     const roleOptions = roleSelector.findAll('li');
-    expect(roleOptions.at(0).html()).toContain('app.roles.admin');
+    expect(roleOptions.at(0).html()).toContain('app.role_lables.admin');
     expect(roleOptions.at(1).html()).toContain('Staff');
     expect(roleOptions.at(2).html()).toContain('Students');
 

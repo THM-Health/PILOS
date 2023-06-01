@@ -165,11 +165,11 @@
                 :allowEmpty='!!model.restrict'
                 :class="{ 'is-invalid': fieldState('roles', true), 'multiselect-form-control': true }">
                 <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-                <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
+                <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
                 <template slot='tag' slot-scope='{ option, remove }'>
                   <h5 class='d-inline mr-1 mb-1'>
                     <b-badge variant='secondary'>
-                      {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
+                      {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
                       <span @click='remove(option)'><i class="fa-solid fa-xmark" :aria-label="$t('settings.users.remove_role')"></i></span>
                     </b-badge>
                   </h5>

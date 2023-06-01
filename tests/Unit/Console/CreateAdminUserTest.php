@@ -19,7 +19,7 @@ class CreateAdminUserTest extends TestCase
         parent::setUp();
 
         config([
-            'app.available_locales' => ['de', 'en'],
+            'app.enabled_locales'   => ['de', 'en'],
             'app.fallback_locale'   => 'ru',
             'app.locale'            => 'en'
         ]);
@@ -39,7 +39,7 @@ class CreateAdminUserTest extends TestCase
             ->expectsQuestion('Firstname', str_repeat('a', 256))
             ->expectsQuestion('Lastname', str_repeat('a', 256))
             ->expectsQuestion('E-Mail', str_repeat('a', 256))
-            ->expectsQuestion('Locale (possible values: ' . join(',', config('app.available_locales')) . ')', str_repeat('a', 256))
+            ->expectsQuestion('Locale (possible values: ' . join(',', config('app.enabled_locales')) . ')', str_repeat('a', 256))
             ->expectsQuestion('Password', 'Test')
             ->expectsQuestion('Password Confirmation', 'Test1234')
             ->expectsConfirmation('Skip audio check on joining rooms?', 'f')
@@ -73,7 +73,7 @@ class CreateAdminUserTest extends TestCase
             ->expectsQuestion('Firstname', $this->faker->firstName)
             ->expectsQuestion('Lastname', $this->faker->lastName)
             ->expectsQuestion('E-Mail', $this->faker->email)
-            ->expectsQuestion('Locale (possible values: ' . join(',', config('app.available_locales')) . ')', config('app.available_locales')[0])
+            ->expectsQuestion('Locale (possible values: ' . join(',', config('app.enabled_locales')) . ')', config('app.enabled_locales')[0])
             ->expectsQuestion('Password', 'Test_1234')
             ->expectsQuestion('Password Confirmation', 'Test_1234')
             ->expectsOutput('New admin user created successfully.')

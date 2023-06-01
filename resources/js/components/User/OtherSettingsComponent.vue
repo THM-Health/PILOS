@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h4>{{ $t('settings.users.other_settings.bbb') }}</h4>
+    <h4>{{ $t('settings.users.bbb') }}</h4>
     <b-form @submit="save">
       <b-form-group
         label-cols-sm='3'
-        :label="$t('settings.users.other_settings.skip_check_audio')"
+        :label="$t('settings.users.skip_check_audio')"
         label-for='bbb_skip_check_audio'
         :state="fieldState('bbb_skip_check_audio')"
         class="align-items-center d-flex"
