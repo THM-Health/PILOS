@@ -1,4 +1,4 @@
-name: CI
+name: Upload locales to POEditor
 
 on:
   push:

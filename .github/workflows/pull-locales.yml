@@ -1,4 +1,4 @@
-name: CI
+name: Pull locales from POEditor
 
 on:
   workflow_dispatch:
