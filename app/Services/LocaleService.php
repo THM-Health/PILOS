@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Cache;
 use Illuminate\Filesystem\Filesystem;
+use Storage;
 
 class LocaleService
 {
@@ -72,14 +73,27 @@ class LocaleService
        
         // Go through all locale directories
         foreach ($localeDirs as $localeDir) {
-            // Get all locale files (only php files, not the metadata.json file)
-            $localeFiles    = glob($localeDir.'/'.$locale. '/*.php');
+            $disk = Storage::build([
+                'driver' => 'local',
+                'root'   => $localeDir,
+            ]);
+
+            // Get all files in locale directory
+            $localeFiles = $disk->files($locale);
             // Go through all locale files
             foreach ($localeFiles as $localeFile) {
+                $path_parts = pathinfo($localeFile);
+
+                // Skip non-PHP files
+                if ($path_parts['extension'] != 'php') {
+                    continue;
+                }
+
                 // Get group name / prefix from filename e.g. 'app' from 'app.home'
-                $group                  = basename($localeFile, '.php');
+                $group = $path_parts['filename'];
+
                 // Get locale data from file
-                $localeData             = $this->filesystem->getRequire($localeFile);
+                $localeData = $this->filesystem->getRequire($disk->path($localeFile));
 
                 // Create to merge with existing locale data (ovewrite existing translations)
                 if (!isset($localeContents[$group])) {

@@ -17,7 +17,7 @@ return [
     'poeditor' => [
         'token' => env('POEDITOR_TOKEN'),
         'project' => env('POEDITOR_PROJECT'),
-        'upload_delay' => env('POEDITOR_UPLOAD_DELAY', 0),
+        'upload_delay' => env('POEDITOR_UPLOAD_DELAY', 20),
     ],
 
     'mailgun' => [

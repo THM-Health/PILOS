@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\LocaleService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class ExportLocales extends Command
 {
@@ -26,16 +27,18 @@ class ExportLocales extends Command
      */
     public function handle(LocaleService $localeService): void
     {
+        $disk = Storage::build([
+            'driver' => 'local',
+            'root'   => 'tests/Fixtures/Locales',
+        ]);
+
         $locales = config('app.default_locales');
         foreach ($locales as $locale) {
             $this->info('Processing locale ' . $locale);
 
             $localeJson = $localeService->buildJsonLocale($locale, false, false);
 
-            file_put_contents(
-                base_path('tests/Fixtures/Locales/' . $locale . '.json'),
-                $localeJson
-            );
+            $disk->put($locale . '.json', $localeJson);
         }
     }
 }

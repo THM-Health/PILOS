@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Http;
 use Illuminate\Console\Command;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Process;
+use Storage;
 use Symfony\Component\VarExporter\VarExporter;
 
 class ImportLocales extends Command
@@ -27,8 +27,13 @@ class ImportLocales extends Command
     /**
      * Execute the console command.
      */
-    public function handle(Filesystem $filesystem): void
+    public function handle(): void
     {
+        $disk = Storage::build([
+            'driver' => 'local',
+            'root'   => config('app.locale_dir'),
+        ]);
+
         $this->info('Importing locales from POEditor');
         $this->info('Fetching languages list');
         $response = Http::asForm()->post('https://api.poeditor.com/v2/languages/list', [
@@ -71,20 +76,11 @@ class ImportLocales extends Command
 
             // Iterate over each group and generate PHP language files
             foreach ($groups as $group) {
-                // Create the directory for the language if it doesn't exist
-                $localeDir = config('app.locale_dir').'/'.$lang['code'];
-                if (!is_dir($localeDir)) {
-                    $filesystem->makeDirectory($localeDir);
-                }
-
                 // Export the group data as a PHP array
                 $exported = VarExporter::export($localeData[$group]);
 
                 // Write the PHP array to the language file
-                file_put_contents(
-                    base_path($localeDir . '/' . $group . '.php'),
-                    '<?php return ' . $exported . ';'
-                );
+                $disk->put($lang['code'] . '/' . $group . '.php', '<?php return ' . $exported . ';');
             }
         }
 
