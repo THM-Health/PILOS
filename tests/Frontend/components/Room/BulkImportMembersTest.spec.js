@@ -14,7 +14,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import BulkImportMembersComponent from "../../../../resources/js/components/Room/BulkImportMembersComponent.vue";
+import BulkImportMembersComponent from '../../../../resources/js/components/Room/BulkImportMembersComponent.vue';
 const localVue = createLocalVue();
 
 localVue.use(BootstrapVue);
@@ -35,148 +35,12 @@ describe('RoomMembersBulk', () => {
     moxios.uninstall();
   });
 
-  it ('bulk import members', async()=>{
-   PermissionService.setCurrentUser(exampleUser);
-   const view = mount(BulkImportMembersComponent, {
-     localVue,
-     mocks: {
-       $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
-       $d: (date, format) => date.toDateString() //could maybe be removed
-     },
-     propsData: {
-       roomId: ownerRoom.id,
-       modalStatic: true
-     },
-     stubs: {
-       transition: false
-     },
-     pinia: createTestingPinia({ initialState }),
-     attachTo: createContainer()
-   });
-
-   //find modal
-   const modal = view.findComponent({ ref: 'bulk-import-modal' });
-   expect(modal.exists()).toBeTruthy();
-
-   // check if modal is closed and try to open it
-   expect(modal.find('.modal').element.style.display).toEqual('none');
-
-   //check if button to open the modal exists and shows correct title
-   let bulkImportButton = view.findComponent({ref: 'bulk-import-members-button'});
-   expect(bulkImportButton.exists()).toBeTruthy();
-   expect(bulkImportButton.text()).toBe('rooms.members.bulk_import_users')
-
-    //try to open modal
-    await waitModalShown(view, () => {
-      bulkImportButton.trigger('click');
-    });
-
-    // check if modal is open
-    expect(modal.find('.modal').element.style.display).toEqual('block');
-
-    //check if data is set right
-    expect(view.vm.$data.step).toBe(0);
-    expect(view.vm.$data.rawList).toBe('');
-    expect(view.vm.$data.validUsers.length).toBe(0);
-    expect(view.vm.$data.invalidUsers.length).toBe(0);
-    expect(view.vm.$data.errors.length).toBe(0);
-
-    //check if textarea exists and is empty
-    let textarea = modal.findComponent(BFormTextarea);
-    expect(textarea.exists()).toBeTruthy();
-    expect(textarea.text()).toBe('');
-
-    //check if checkboxes exist and if the first one is checked
-    let roleSelector = modal.findAllComponents(BFormRadio);
-    expect(roleSelector.length).toBe(3);
-    expect(roleSelector.at(0).text()).toBe('rooms.roles.participant');
-    expect(roleSelector.at(1).text()).toBe('rooms.roles.moderator');
-    expect(roleSelector.at(2).text()).toBe('rooms.roles.co_owner');
-
-    expect(roleSelector.at(0).find('input').attributes('value')).toBe('1');
-    expect(roleSelector.at(1).find('input').attributes('value')).toBe('2');
-    expect(roleSelector.at(2).find('input').attributes('value')).toBe('3');
-
-    expect(roleSelector.at(0).find('input').element.checked).toBeTruthy();
-
-    //check if button exists, shows correct text and if it is disabled
-    let firstStepButtons = modal.findAllComponents(BButton);
-    expect(firstStepButtons.length).toBe(1);
-    expect(firstStepButtons.at(0).text()).toBe('rooms.members.modals.add.add');
-    expect(firstStepButtons.at(0).element.disabled).toBeTruthy();
-
-    //enter text in textarea and check if button is enabled
-    textarea.setValue('LauraWRivera@domain.tld\nLauraMWalter@domain.tld');
-    await view.vm.$nextTick();
-    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
-
-    //confirm add of new users
-    firstStepButtons.at(0).trigger('click');
-
-    //check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
-    expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
-
-    await request.respondWith({
-      status: 204
-    });
-
-    //check if data is set correctly
-    expect(view.vm.$data.step).toBe(2);
-    expect(view.vm.$data.rawList).toBe('LauraWRivera@domain.tld\nLauraMWalter@domain.tld');
-    expect(view.vm.$data.validUsers.length).toBe(2);
-    expect(view.vm.$data.invalidUsers.length).toBe(0);
-    expect(view.vm.$data.errors.length).toBe(0);
-
-    //check if modal shows correctly
-    //check if list shows correctly
-    let lastStepLists = modal.findAllComponents(BListGroup);
-    expect(lastStepLists.length).toBe(1);
-    let lastStepListGroupItemsValid = lastStepLists.at(0).findAllComponents(BListGroupItem);
-    expect(lastStepListGroupItemsValid.length).toBe(2);
-    expect(lastStepListGroupItemsValid.at(0).text()).toBe('laurawrivera@domain.tld');
-    expect(lastStepListGroupItemsValid.at(1).text()).toBe('lauramwalter@domain.tld');
-
-    //check if button exists and shows the correct text
-    let lastStepButtons = modal.findAllComponents(BButton);
-    expect(lastStepButtons.length).toBe(1);
-    expect(lastStepButtons.at(0).text()).toBe('app.close');
-
-    //check if modal closes when the button is clicked
-    await waitModalHidden(view, async()=> {
-      lastStepButtons.at(0).trigger('click');
-    });
-    expect(modal.find('.modal').element.style.display).toEqual('none');
-
-    //check if modal opens again
-    await waitModalShown(view, () => {
-      bulkImportButton.trigger('click');
-    });
-
-    // check if modal is open
-    expect(modal.find('.modal').element.style.display).toEqual('block');
-
-    //check if data is reset right
-    expect(view.vm.$data.step).toBe(0);
-    expect(view.vm.$data.rawList).toBe('');
-    expect(view.vm.$data.validUsers.length).toBe(2);
-    expect(view.vm.$data.invalidUsers.length).toBe(0);
-    expect(view.vm.$data.errors.length).toBe(0);
-
-    view.destroy();
-  });
-
-  it('bulk import members with errors', async () =>{
+  it('bulk import members with only valid users', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(BulkImportMembersComponent, {
       localVue,
       mocks: {
-        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
-        $d: (date, format) => date.toDateString() //could maybe be removed
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
       },
       propsData: {
         roomId: ownerRoom.id,
@@ -189,14 +53,19 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    //find modal
+    // find modal
     const modal = view.findComponent({ ref: 'bulk-import-modal' });
     expect(modal.exists()).toBeTruthy();
 
-    // check if modal is closed and try to open it
+    // check if modal is closed
     expect(modal.find('.modal').element.style.display).toEqual('none');
 
-    let bulkImportButton = view.findComponent({ref: 'bulk-import-members-button'});
+    // check if button to open the modal exists and shows correct title
+    const bulkImportButton = view.findComponent({ ref: 'bulk-import-members-button' });
+    expect(bulkImportButton.exists()).toBeTruthy();
+    expect(bulkImportButton.text()).toBe('rooms.members.bulk_import_users');
+
+    // try to open modal
     await waitModalShown(view, () => {
       bulkImportButton.trigger('click');
     });
@@ -204,17 +73,165 @@ describe('RoomMembersBulk', () => {
     // check if modal is open
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
-    //enter text in textarea and check if button is enabled
-    let firstStepButtons = modal.findAllComponents(BButton);
+    // check if textarea exists and is empty
     let textarea = modal.findComponent(BFormTextarea);
-    textarea.setValue('LauraWRivera@domain.tld\nnotAnEmail');
-    await view.vm.$nextTick();
+    expect(textarea.exists()).toBeTruthy();
+    expect(textarea.element.value).toBe('');
+
+    // check if checkboxes exist and if the first one is checked
+    const roleSelector = modal.findAllComponents(BFormRadio);
+    expect(roleSelector.length).toBe(3);
+    expect(roleSelector.at(0).text()).toBe('rooms.roles.participant');
+    expect(roleSelector.at(1).text()).toBe('rooms.roles.moderator');
+    expect(roleSelector.at(2).text()).toBe('rooms.roles.co_owner');
+
+    expect(roleSelector.at(0).find('input').attributes('value')).toBe('1');
+    expect(roleSelector.at(1).find('input').attributes('value')).toBe('2');
+    expect(roleSelector.at(2).find('input').attributes('value')).toBe('3');
+
+    expect(roleSelector.at(0).find('input').element.checked).toBeTruthy();
+
+    // check if button exists, shows correct text and if it is disabled
+    const firstStepButtons = modal.findAllComponents(BButton);
+    expect(firstStepButtons.length).toBe(1);
+    expect(firstStepButtons.at(0).text()).toBe('rooms.members.modals.add.add');
+    expect(firstStepButtons.at(0).element.disabled).toBeTruthy();
+
+    // enter text in textarea and check if button is enabled
+    await textarea.setValue('LauraWRivera@domain.tld\nLauraMWalter@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    //confirm add of new users
+    // confirm add of new users
     firstStepButtons.at(0).trigger('click');
 
-    //check for request and respond
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    let request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
+
+    await request.respondWith({
+      status: 204
+    });
+
+    // check if 'imported' was emitted to reload the member list
+    console.log(view.emitted());
+    expect(view.emitted()).toHaveProperty('imported');
+
+    // check if modal shows correctly
+    // check if list shows correctly
+    let lastStepLists = modal.findAllComponents(BListGroup);
+    expect(lastStepLists.length).toBe(1);
+    let lastStepListGroupItemsValid = lastStepLists.at(0).findAllComponents(BListGroupItem);
+    expect(lastStepListGroupItemsValid.length).toBe(2);
+    expect(lastStepListGroupItemsValid.at(0).text()).toBe('laurawrivera@domain.tld');
+    expect(lastStepListGroupItemsValid.at(1).text()).toBe('lauramwalter@domain.tld');
+
+    // check if button exists and shows the correct text
+    const lastStepButtons = modal.findAllComponents(BButton);
+    expect(lastStepButtons.length).toBe(1);
+    expect(lastStepButtons.at(0).text()).toBe('app.close');
+
+    // check if modal closes when the button is clicked
+    await waitModalHidden(view, async () => {
+      lastStepButtons.at(0).trigger('click');
+    });
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    // check if modal opens again
+    await waitModalShown(view, () => {
+      bulkImportButton.trigger('click');
+    });
+
+    // check if modal is open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // check if textarea exists, is empty and button is disabled
+    textarea = modal.findComponent(BFormTextarea);
+    expect(textarea.exists()).toBeTruthy();
+    expect(textarea.element.value).toBe('');
+    expect(firstStepButtons.at(0).element.disabled).toBeTruthy();
+
+    // enter text in textarea and check if button is enabled
+    await textarea.setValue('TammyGLaw@domain.tld');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+
+    // confirm add of new users
+    firstStepButtons.at(0).trigger('click');
+
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
+
+    await request.respondWith({
+      status: 204
+    });
+
+    // check if modal shows correctly
+    // check if list shows correctly
+    lastStepLists = modal.findAllComponents(BListGroup);
+    expect(lastStepLists.length).toBe(1);
+    lastStepListGroupItemsValid = lastStepLists.at(0).findAllComponents(BListGroupItem);
+    expect(lastStepListGroupItemsValid.length).toBe(1);
+    expect(lastStepListGroupItemsValid.at(0).text()).toBe('tammyglaw@domain.tld');
+
+    // check if modal closes when the button is clicked
+    await waitModalHidden(view, async () => {
+      lastStepButtons.at(0).trigger('click');
+    });
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    view.destroy();
+  });
+
+  it('bulk import members with valid and invalid users', async () => {
+    PermissionService.setCurrentUser(exampleUser);
+    const view = mount(BulkImportMembersComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+      },
+      propsData: {
+        roomId: ownerRoom.id,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    // find modal
+    const modal = view.findComponent({ ref: 'bulk-import-modal' });
+    expect(modal.exists()).toBeTruthy();
+
+    // check if modal is closed and try to open it
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+    const bulkImportButton = view.findComponent({ ref: 'bulk-import-members-button' });
+    await waitModalShown(view, () => {
+      bulkImportButton.trigger('click');
+    });
+
+    // check if modal is open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // enter text in textarea and check if button is enabled
+    const firstStepButtons = modal.findAllComponents(BButton);
+    const textarea = modal.findComponent(BFormTextarea);
+    await textarea.setValue('LauraWRivera@domain.tld\nnotAnEmail');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+
+    // confirm add of new users
+    firstStepButtons.at(0).trigger('click');
+
+    // check for request and respond
     await waitMoxios();
     await view.vm.$nextTick();
     let request = moxios.requests.mostRecent();
@@ -225,52 +242,239 @@ describe('RoomMembersBulk', () => {
     await request.respondWith({
       status: 422,
       response: {
-        message: 'notanemail must be a valid email adress.',
         errors: {
-          "user_emails.1": ['notanemail must be a valid email adress.']
+          'user_emails.1': ['notanemail must be a valid email adress.']
         }
       }
     });
-    //check if data is set correctly
-    expect(view.vm.$data.step).toBe(1);
-    expect(view.vm.$data.rawList).toBe('LauraWRivera@domain.tld\nnotAnEmail');
-    expect(view.vm.$data.validUsers.length).toBe(1);
-    expect(view.vm.$data.validUsers[0].email).toBe('laurawrivera@domain.tld');
-    expect(view.vm.$data.invalidUsers.length).toBe(1);
-    expect(view.vm.$data.invalidUsers[0].email).toBe('notanemail');
-    expect(view.vm.$data.invalidUsers[0].error).toBe('notanemail must be a valid email adress.');
-    expect(view.vm.$data.errors.length).toBe(0);
 
-    //check if modal shows correctly
-    //check if list shows correctly
-    let middleStepLists = modal.findAllComponents(BListGroup);
+    // check if modal shows correctly
+    // check if lists show correctly
+    const middleStepLists = modal.findAllComponents(BListGroup);
     expect(middleStepLists.length).toBe(2);
-    let middleStepListGroupItemsValid = middleStepLists.at(0).findAllComponents(BListGroupItem);
+    const middleStepListGroupItemsValid = middleStepLists.at(0).findAllComponents(BListGroupItem);
     expect(middleStepListGroupItemsValid.length).toBe(1);
     expect(middleStepListGroupItemsValid.at(0).text()).toBe('laurawrivera@domain.tld');
-    let middleStepListGroupItemsInvalid = middleStepLists.at(1).findAllComponents(BListGroupItem);
+    const middleStepListGroupItemsInvalid = middleStepLists.at(1).findAllComponents(BListGroupItem);
     expect(middleStepListGroupItemsInvalid.length).toBe(1);
-    //console.log(middleStepListGroupItemsInvalid.at(0).text());
-    //expect(middleStepListGroupItemsInvalid.at(0).text()).toBe('notanemail');
+    expect(middleStepListGroupItemsInvalid.at(0).find('span').text()).toBe('notanemail');
 
-    //check if error and button exist
-    let errorCollapse = middleStepListGroupItemsInvalid.at(0).findComponent(BCollapse);
-    let errorButton = middleStepListGroupItemsInvalid.at(0).findComponent(BButton);
+    // check if error and button exist
+    const errorCollapse = middleStepListGroupItemsInvalid.at(0).findComponent(BCollapse);
+    const errorButton = middleStepListGroupItemsInvalid.at(0).findComponent(BButton);
     expect(errorButton.exists()).toBeTruthy();
     expect(errorCollapse.exists()).toBeTruthy();
     expect(errorCollapse.element.style.display).toEqual('none');
 
-    //Try to open the collapse
+    // Try to open the collapse
     errorButton.trigger('click');
     await view.vm.$nextTick();
     expect(errorCollapse.element.style.display).toEqual('');
     expect(errorCollapse.text()).toBe('notanemail must be a valid email adress.');
 
-    //check if button exists and shows the correct text
-    let middleStepButtons = modal.findAllComponents(BButton);
+    // check if button exist and show the correct text
+    const middleStepButtons = modal.findAllComponents(BButton);
     expect(middleStepButtons.length).toBe(3);
     expect(middleStepButtons.at(1).text()).toBe('app.back');
     expect(middleStepButtons.at(2).text()).toBe('rooms.members.modals.bulk_import.import_importable_button');
 
+    // Try to add the valid users
+    middleStepButtons.at(2).trigger('click');
+
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
+
+    await request.respondWith({
+      status: 204
+    });
+
+    // check if modal shows correctly
+    // check if lists show correctly
+    const lastStepLists = modal.findAllComponents(BListGroup);
+    expect(lastStepLists.length).toBe(2);
+    const lastStepListGroupValid = lastStepLists.at(0).findAllComponents(BListGroupItem);
+    expect(lastStepListGroupValid.length).toBe(1);
+    expect(lastStepListGroupValid.at(0).text()).toBe('laurawrivera@domain.tld');
+    const lastStepListGroupInvalid = lastStepLists.at(1).findAllComponents(BListGroupItem);
+    expect(lastStepListGroupInvalid.length).toBe(1);
+    expect(lastStepListGroupInvalid.at(0).find('span').text()).toBe('notanemail');
+
+    // check if error and button exist
+    const errorCollapseLastStep = lastStepListGroupInvalid.at(0).findComponent(BCollapse);
+    const errorButtonLastStep = lastStepListGroupInvalid.at(0).findComponent(BButton);
+    expect(errorButtonLastStep.exists()).toBeTruthy();
+    expect(errorCollapseLastStep.exists()).toBeTruthy();
+    expect(errorCollapseLastStep.element.style.display).toEqual('');
+
+    // Try to open the collapse
+    errorButtonLastStep.trigger('click');
+    await view.vm.$nextTick();
+    expect(errorCollapseLastStep.element.style.display).toEqual('block');
+    expect(errorCollapseLastStep.text()).toBe('notanemail must be a valid email adress.');
+
+    // check if button exist and show the correct text
+    const lastStepButtons = modal.findAllComponents(BButton);
+    expect(lastStepButtons.length).toBe(3);
+    expect(lastStepButtons.at(1).text()).toBe('app.close');
+    expect(lastStepButtons.at(2).text()).toBe('rooms.members.modals.bulk_import.copy_and_close');
+
+    // check if modal closes when the close button is clicked
+    await waitModalHidden(view, async () => {
+      lastStepButtons.at(1).trigger('click');
+    });
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    view.destroy();
+  });
+
+  it('bulk import members with only invalid users', async () => {
+    PermissionService.setCurrentUser(exampleUser);
+    const view = mount(BulkImportMembersComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+      },
+      propsData: {
+        roomId: ownerRoom.id,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    // find modal
+    const modal = view.findComponent({ ref: 'bulk-import-modal' });
+    expect(modal.exists()).toBeTruthy();
+
+    // check if modal is closed and try to open it
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+    const bulkImportButton = view.findComponent({ ref: 'bulk-import-members-button' });
+    await waitModalShown(view, () => {
+      bulkImportButton.trigger('click');
+    });
+
+    // check if modal is open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // enter text in textarea and check if button is enabled
+    const firstStepButtons = modal.findAllComponents(BButton);
+    let textarea = modal.findComponent(BFormTextarea);
+    await textarea.setValue('invalidEmail@domain.tld\nnotAnEmail');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+
+    // confirm add of new users
+    firstStepButtons.at(0).trigger('click');
+
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    let request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
+
+    await request.respondWith({
+      status: 422,
+      response: {
+        errors: {
+          'user_emails.0': ['No user was found with this e-mail'],
+          'user_emails.1': ['notanemail must be a valid email adress.']
+        }
+      }
+    });
+
+    // check if modal shows correctly
+    // check if list shows correctly
+    const middleStepLists = modal.findAllComponents(BListGroup);
+    expect(middleStepLists.length).toBe(1);
+    const middleStepListGroupItemsInvalid = middleStepLists.at(0).findAllComponents(BListGroupItem);
+    expect(middleStepListGroupItemsInvalid.length).toBe(2);
+    expect(middleStepListGroupItemsInvalid.at(0).find('span').text()).toBe('invalidemail@domain.tld');
+    expect(middleStepListGroupItemsInvalid.at(1).find('span').text()).toBe('notanemail');
+
+    // check if error and button exist
+    const errorCollapse0 = middleStepListGroupItemsInvalid.at(0).findComponent(BCollapse);
+    const errorCollapse1 = middleStepListGroupItemsInvalid.at(1).findComponent(BCollapse);
+    const errorButton0 = middleStepListGroupItemsInvalid.at(0).findComponent(BButton);
+    const errorButton1 = middleStepListGroupItemsInvalid.at(1).findComponent(BButton);
+    expect(errorButton0.exists()).toBeTruthy();
+    expect(errorButton1.exists()).toBeTruthy();
+    expect(errorCollapse0.exists()).toBeTruthy();
+    expect(errorCollapse1.exists()).toBeTruthy();
+    expect(errorCollapse0.element.style.display).toEqual('none');
+    expect(errorCollapse1.element.style.display).toEqual('none');
+
+    // Try to open the collapse
+    errorButton0.trigger('click');
+    await view.vm.$nextTick();
+    expect(errorCollapse0.element.style.display).toEqual('');
+    expect(errorCollapse0.text()).toBe('No user was found with this e-mail');
+    errorButton1.trigger('click');
+    await view.vm.$nextTick();
+    expect(errorCollapse1.element.style.display).toEqual('');
+    expect(errorCollapse1.text()).toBe('notanemail must be a valid email adress.');
+
+    // check if button exists and shows the correct text
+    const middleStepButtons = modal.findAllComponents(BButton);
+    expect(middleStepButtons.length).toBe(3);
+    expect(middleStepButtons.at(2).text()).toBe('app.back');
+
+    // Try to go back
+    middleStepButtons.at(2).trigger('click');
+    await view.vm.$nextTick();
+
+    // check if textarea is shown again and with the correct values
+    textarea = modal.findComponent(BFormTextarea);
+    expect(textarea.exists()).toBeTruthy();
+    expect(textarea.element.value).toBe('invalidEmail@domain.tld\nnotAnEmail');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+
+    // enter corrected text in textarea and check if button is still enabled
+    await textarea.setValue('TammyGLaw@domain.tld');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+
+    // confirm add of new users
+    firstStepButtons.at(0).trigger('click');
+
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
+
+    await request.respondWith({
+      status: 204
+    });
+
+    // check if modal shows correctly
+    // check if list shows correctly
+    const lastStepLists = modal.findAllComponents(BListGroup);
+    expect(lastStepLists.length).toBe(1);
+    const lastStepListGroupItemsValid = lastStepLists.at(0).findAllComponents(BListGroupItem);
+    expect(lastStepListGroupItemsValid.length).toBe(1);
+    expect(lastStepListGroupItemsValid.at(0).text()).toBe('tammyglaw@domain.tld');
+
+    // check if button exists and shows the correct text
+    const lastStepButtons = modal.findAllComponents(BButton);
+    expect(lastStepButtons.length).toBe(1);
+    expect(lastStepButtons.at(0).text()).toBe('app.close');
+
+    // check if modal closes when the button is clicked
+    await waitModalHidden(view, async () => {
+      lastStepButtons.at(0).trigger('click');
+    });
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    view.destroy();
   });
 });

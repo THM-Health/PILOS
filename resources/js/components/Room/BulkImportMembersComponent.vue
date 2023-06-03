@@ -112,7 +112,7 @@ export default {
       type: String,
       required: true
     },
-    modalStatic:{
+    modalStatic: {
       type: Boolean,
       default: false
     }

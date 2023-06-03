@@ -43,6 +43,14 @@ class RoomMemberController extends Controller
 
         return response()->noContent();
     }
+
+    /**
+     * Add multiple members
+     *
+     * @param  Room                      $room
+     * @param  BulkImportRequest         $request
+     * @return \Illuminate\Http\Response
+     */
     public function bulkImport(Room $room, BulkImportRequest $request)
     {
         foreach ($request->user_emails as $userEmail) {
