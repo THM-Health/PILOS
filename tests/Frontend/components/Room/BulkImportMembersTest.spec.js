@@ -477,4 +477,98 @@ describe('RoomMembersBulk', () => {
 
     view.destroy();
   });
+
+  it('bulk import members with errors', async()=> {
+    PermissionService.setCurrentUser(exampleUser);
+    const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+    const view = mount(BulkImportMembersComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
+      },
+      propsData: {
+        roomId: ownerRoom.id,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    // find modal
+    const modal = view.findComponent({ ref: 'bulk-import-modal' });
+    expect(modal.exists()).toBeTruthy();
+
+    // check if modal is closed and try to open it
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+    const bulkImportButton = view.findComponent({ ref: 'bulk-import-members-button' });
+    await waitModalShown(view, () => {
+      bulkImportButton.trigger('click');
+    });
+
+    // check if modal is open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // enter text in textarea and check if button is enabled
+    const firstStepButtons = modal.findAllComponents(BButton);
+    let textarea = modal.findComponent(BFormTextarea);
+    await textarea.setValue('\n');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+
+    // confirm add of new users
+    firstStepButtons.at(0).trigger('click');
+
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    let request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(0);
+
+    await request.respondWith({
+      status: 422,
+      response: {
+        errors: {
+          'user_emails': ['The user emails field is required.']
+        }
+      }
+    });
+
+    // check if modal shows correctly
+    textarea = modal.findComponent(BFormTextarea);
+    expect(textarea.element.value).toBe('\n');
+    expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
+    expect (modal.html()).toContain('The user emails field is required.');
+
+    textarea.setValue('laurawrivera@domain.tld');
+    // confirm add of new users
+    firstStepButtons.at(0).trigger('click');
+
+    // check for request and respond
+    await waitMoxios();
+    await view.vm.$nextTick();
+    request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
+    expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
+
+    await request.respondWith({
+      status: 500,
+      response: {
+        message: 'Test'
+      }
+    });
+
+    //check if modal is still open after error
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    expect(baseError).toBeCalledTimes(1);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(500);
+
+    view.destroy();
+  });
+
 });
