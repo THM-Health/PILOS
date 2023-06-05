@@ -2,12 +2,18 @@
   <div>
     <b-button-toolbar v-if="editor" justify>
       <!-- Text styling -->
-      <b-button-group class="mr-1">
-        <!-- Heading -->
-        <b-dropdown variant="outline-dark">
+      <b-button-group>
+        <!-- Text type -->
+        <b-dropdown
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.text_type')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+        >
           <template v-slot:button-content>
             <i class="fa-solid fa-heading"></i>
           </template>
+
           <b-dropdown-item @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :active="editor.isActive('heading', { level: 1 })">
             {{ $t('rooms.description.heading1') }}
           </b-dropdown-item>
@@ -22,14 +28,55 @@
           </b-dropdown-item>
         </b-dropdown>
 
-      <!-- Text font styling -->
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleBold().run()" :pressed="editor.isActive('bold')"><i class="fa-solid fa-bold"></i></b-button>
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleItalic().run()" :pressed="editor.isActive('italic')"><i class="fa-solid fa-italic"></i></b-button>
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleUnderline().run()" :pressed="editor.isActive('underline')"><i class="fa-solid fa-underline"></i></b-button>
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleStrike().run()" :pressed="editor.isActive('strike')"><i class="fa-solid fa-strikethrough"></i></b-button>
+        <!-- Text font styling -->
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.bold')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleBold().run()"
+          :pressed="editor.isActive('bold')"
+        >
+          <i class="fa-solid fa-bold"></i>
+        </b-button>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.italic')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleItalic().run()"
+          :pressed="editor.isActive('italic')"
+        >
+          <i class="fa-solid fa-italic"></i>
+        </b-button>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.underline')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleUnderline().run()"
+          :pressed="editor.isActive('underline')"
+        >
+          <i class="fa-solid fa-underline"></i>
+        </b-button>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.strikethrough')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleStrike().run()"
+          :pressed="editor.isActive('strike')"
+        >
+          <i class="fa-solid fa-strikethrough"></i>
+        </b-button>
 
         <!-- Text color -->
-        <b-dropdown variant="outline-dark">
+        <b-dropdown
+          :title="$t('rooms.description.tooltips.color')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          variant="outline-dark"
+        >
           <template v-slot:button-content>
             <i class="fa-solid fa-palette"></i>
           </template>
@@ -43,7 +90,12 @@
         </b-dropdown>
 
         <!-- Highlight -->
-        <b-dropdown variant="outline-dark">
+        <b-dropdown
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.highlight')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+        >
           <template v-slot:button-content>
             <i class="fa-solid fa-highlighter"></i>
           </template>
@@ -52,29 +104,84 @@
           </b-dropdown-item>
         </b-dropdown>
 
-        <b-button variant="outline-dark" @click="editor.chain().focus().unsetAllMarks().run()"><i class="fa-solid fa-times"></i></b-button>
+        <b-button
+          variant="outline-dark"
+          @click="editor.chain().focus().unsetAllMarks().run()"
+          :title="$t('rooms.description.tooltips.clear')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+        >
+          <i class="fa-solid fa-times"></i>
+        </b-button>
 
       </b-button-group>
 
       <!-- Text alignment -->
-      <b-button-group class="mx-1">
-        <b-button variant="outline-dark" @click="editor.chain().focus().setTextAlign('left').run()" :pressed="editor.isActive({ textAlign: 'left' })"><i class="fa-solid fa-align-left"></i></b-button>
-        <b-button variant="outline-dark" @click="editor.chain().focus().setTextAlign('center').run()" :pressed="editor.isActive({ textAlign: 'center' })"><i class="fa-solid fa-align-center"></i></b-button>
-        <b-button variant="outline-dark" @click="editor.chain().focus().setTextAlign('right').run()" :pressed="editor.isActive({ textAlign: 'right' })"><i class="fa-solid fa-align-right"></i></b-button>
+      <b-button-group>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.left')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().setTextAlign('left').run()"
+          :pressed="editor.isActive({ textAlign: 'left' })"
+        >
+          <i class="fa-solid fa-align-left"></i>
+        </b-button>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.center')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().setTextAlign('center').run()"
+          :pressed="editor.isActive({ textAlign: 'center' })"
+        >
+          <i class="fa-solid fa-align-center"></i></b-button>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.right')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().setTextAlign('right').run()"
+          :pressed="editor.isActive({ textAlign: 'right' })"
+        >
+          <i class="fa-solid fa-align-right"></i>
+        </b-button>
       </b-button-group>
 
       <!-- Text styles -->
-      <b-button-group class="mx-1">
+      <b-button-group>
         <!-- Unordered list -->
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleBulletList().run()" :pressed="editor.isActive('bulletList')">
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.list')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleBulletList().run()"
+          :pressed="editor.isActive('bulletList')"
+        >
           <i class="fa-solid fa-list-ul"></i>
         </b-button>
         <!-- Ordered list -->
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleOrderedList().run()" :pressed="editor.isActive('orderedList')">
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.numbered_list')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleOrderedList().run()"
+          :pressed="editor.isActive('orderedList')"
+        >
           <i class="fa-solid fa-list-ol"></i>
         </b-button>
         <!-- Quote -->
-        <b-button variant="outline-dark" @click="editor.chain().focus().toggleBlockquote().run()" :pressed="editor.isActive('blockquote')">
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.quote')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().toggleBlockquote().run()"
+          :pressed="editor.isActive('blockquote')"
+        >
           <i class="fa-solid fa-quote-right"></i>
         </b-button>
         <!-- Link -->
@@ -84,10 +191,36 @@
       </b-button-group>
 
       <!-- History -->
-      <b-button-group class="ml-1">
-        <b-button variant="outline-dark" @click="editor.chain().focus().undo().run()" :disabled="!editor.can().undo()"><i class="fa-solid fa-undo"></i></b-button>
-        <b-button variant="outline-dark" @click="editor.chain().focus().redo().run()" :disabled="!editor.can().redo()"><i class="fa-solid fa-redo"></i></b-button>
-        <b-button variant="danger" @click="editor.commands.clearContent(true)"><i class="fa-solid fa-trash"></i></b-button>
+      <b-button-group>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.undo')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().undo().run()"
+          :disabled="!editor.can().undo()"
+        >
+          <i class="fa-solid fa-undo"></i>
+        </b-button>
+        <b-button
+          variant="outline-dark"
+          :title="$t('rooms.description.tooltips.redo')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.chain().focus().redo().run()"
+          :disabled="!editor.can().redo()"
+        >
+          <i class="fa-solid fa-redo"></i>
+        </b-button>
+        <b-button
+          variant="danger"
+          :title="$t('rooms.description.tooltips.delete')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+          @click="editor.commands.clearContent(true)"
+        >
+          <i class="fa-solid fa-trash"></i>
+        </b-button>
         <tip-tap-source :editor="editor"/>
       </b-button-group>
     </b-button-toolbar>

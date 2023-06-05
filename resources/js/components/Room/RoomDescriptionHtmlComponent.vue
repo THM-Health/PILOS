@@ -3,12 +3,12 @@
         <div class="px-2 room-description" v-html="html"></div>
         <b-modal
             id="linkModal"
-            :title="$t('rooms.description.link.warning.title')"
+            :title="$t('rooms.description.external_link_warning.title')"
             :ok-title="$t('app.continue')"
             :cancel-title="$t('app.cancel')"
             @ok="onConfirm"
         >
-        {{ $t('rooms.description.link.warning.description') }} {{ link }}
+        {{ $t('rooms.description.external_link_warning.description', {link: link}) }}
         </b-modal>
     </div>
 

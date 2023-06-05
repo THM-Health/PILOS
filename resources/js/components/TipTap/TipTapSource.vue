@@ -1,6 +1,13 @@
 <template>
     <div v-frag>
-        <b-button variant="outline-dark" @click="openModal">
+        <b-button
+        variant="outline-dark"
+        @click="openModal"
+        :title="$t('rooms.description.tooltips.source_code')"
+          v-b-tooltip.hover
+          v-tooltip-hide-click
+
+        >
             <i class="fa-solid fa-code"></i>
         </b-button>
         <b-modal
@@ -37,7 +44,7 @@ export default {
       this.$bvModal.show('code-modal');
     },
     save () {
-      this.editor.commands.setContent(this.source);
+      this.editor.commands.setContent(this.source, true);
       this.$bvModal.hide('code-modal');
     }
   }

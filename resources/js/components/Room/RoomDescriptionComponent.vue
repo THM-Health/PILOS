@@ -47,6 +47,7 @@
           <i>{{ $t('rooms.description.missing') }}</i>
         </div>
       </div>
+
       <tip-tap-editor
         v-else
         :disabled="isBusy"
