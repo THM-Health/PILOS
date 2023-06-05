@@ -9,7 +9,7 @@ class UpdateRoomDescription extends FormRequest
     public function rules()
     {
         return [
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:65000',
         ];
     }
 }
