@@ -179,7 +179,7 @@
         <!-- Show limited file list for guests, users, members and moderators-->
         <cannot method="viewSettings" :policy="room">
           <hr>
-          <tabs-component :accessCode="accessCode" :token="token" :room="room" v-on:fileListError="onFileListError" ></tabs-component>
+          <tabs-component ref="tabs" :accessCode="accessCode" :token="token" :room="room" v-on:fileListError="onFileListError" ></tabs-component>
         </cannot>
 
         <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
@@ -480,8 +480,8 @@ export default {
             this.accessCodeValid = null;
           }
 
-          if (this.$refs.publicFileList) {
-            this.$refs.publicFileList.reload();
+          if (this.$refs.tabs) {
+            this.$refs.tabs.reload();
           }
 
           if (this.room.username) {

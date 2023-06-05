@@ -51,6 +51,10 @@ export default {
   methods: {
     onFileListError: function (error) {
       this.$emit('fileListError', error);
+    },
+
+    reload: function () {
+      this.$refs.publicFileList.reload();
     }
   }
 };

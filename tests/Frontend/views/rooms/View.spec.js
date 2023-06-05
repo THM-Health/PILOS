@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
-import AdminComponent from '../../../../resources/js/components/Room/AdminComponent.vue';
+import AdminTabsComponent from '../../../../resources/js/components/Room/AdminTabsComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
@@ -445,7 +445,7 @@ describe('Room', () => {
     expect(view.html()).toContain('Max Doe');
     expect(view.vm.invitationText).toContain('rooms.invitation.code');
 
-    const adminComponent = view.findComponent(AdminComponent);
+    const adminComponent = view.findComponent(AdminTabsComponent);
     expect(adminComponent.exists()).toBeFalsy();
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
     view.vm.$set(view.vm.$data.room, 'room_type_invalid', true);
@@ -491,7 +491,7 @@ describe('Room', () => {
     expect(view.html()).toContain('John Doe');
 
     expect(view.vm.invitationText).toContain('rooms.invitation.code');
-    const adminComponent = view.findComponent(AdminComponent);
+    const adminComponent = view.findComponent(AdminTabsComponent);
 
     expect(adminComponent.exists()).toBeTruthy();
 
@@ -540,7 +540,7 @@ describe('Room', () => {
     expect(view.html()).toContain('John Doe');
 
     expect(view.vm.invitationText).toContain('rooms.invitation.code');
-    const adminComponent = view.findComponent(AdminComponent);
+    const adminComponent = view.findComponent(AdminTabsComponent);
     expect(adminComponent.exists()).toBeTruthy();
 
     expect(view.findComponent({ ref: 'roomTypeInvalidAlert' }).exists()).toBe(false);
@@ -588,14 +588,14 @@ describe('Room', () => {
     expect(view.html()).toContain('Meeting One');
     expect(view.html()).toContain('John Doe');
 
-    expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
+    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
 
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.viewAll'];
     authStore.setCurrentUser(newUser);
 
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
+    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
 
     view.destroy();
   });
@@ -2194,7 +2194,7 @@ describe('Room', () => {
     });
 
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
+    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
 
     const reloadButton = view.findComponent({ ref: 'reloadButton' });
     reloadButton.trigger('click');
@@ -2227,7 +2227,7 @@ describe('Room', () => {
     const authStore = useAuthStore();
 
     await view.vm.$nextTick();
-    expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
+    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
 
     expect(authStore.isAuthenticated).toBeFalsy();
 
@@ -2256,7 +2256,7 @@ describe('Room', () => {
     });
 
     expect(authStore.isAuthenticated).toBeTruthy();
-    expect(view.findComponent(AdminComponent).exists()).toBeTruthy();
+    expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
 
     await reloadButton.trigger('click');
     await waitMoxios();
@@ -2265,7 +2265,7 @@ describe('Room', () => {
       response: { message: 'guests_not_allowed' }
     });
 
-    expect(view.findComponent(AdminComponent).exists()).toBeFalsy();
+    expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
     expect(authStore.isAuthenticated).toBeFalsy();
     view.destroy();
   });
