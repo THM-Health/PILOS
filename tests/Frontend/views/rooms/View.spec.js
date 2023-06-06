@@ -3,6 +3,7 @@ import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
 import moxios from 'moxios';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminTabsComponent from '../../../../resources/js/components/Room/AdminTabsComponent.vue';
+import TabsComponent from '../../../../resources/js/components/Room/TabsComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
@@ -454,7 +455,143 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('room admin components for owner', async () => {
+  it('room tabs components for authenticated users/guests with access token', async () => {
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      router: routerMock,
+      attachTo: createContainer(),
+      stubs: {
+        'tabs-component': true
+      },
+      data () {
+        return {
+          room: {
+            id: 'gs4-6fb-kk8',
+            name: 'Meeting One',
+            owner: { id: 2, name: 'John Doe' },
+            type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+            model_name: 'Room',
+            authenticated: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
+            running: false
+          },
+          room_id: 'gs4-6fb-kk8',
+          accessCode: '905992606'
+        };
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    const tabsComponent = view.findComponent(TabsComponent);
+
+    expect(tabsComponent.exists()).toBeTruthy();
+
+    expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+    expect(tabsComponent.props('accessCode')).toEqual('905992606');
+
+    view.destroy();
+  });
+
+  it('room tabs components for guests with token', async () => {
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      router: routerMock,
+      attachTo: createContainer(),
+      stubs: {
+        'tabs-component': true
+      },
+      data () {
+        return {
+          room: {
+            id: 'gs4-6fb-kk8',
+            name: 'Meeting One',
+            owner: { id: 2, name: 'John Doe' },
+            type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+            model_name: 'Room',
+            authenticated: true,
+            allow_membership: false,
+            is_member: false,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
+            running: false
+          },
+          room_id: 'gs4-6fb-kk8',
+          token: 'xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR'
+        };
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    const tabsComponent = view.findComponent(TabsComponent);
+
+    expect(tabsComponent.exists()).toBeTruthy();
+
+    expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+    expect(tabsComponent.props('token')).toEqual('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+
+    view.destroy();
+  });
+
+  it('room tabs components for members', async () => {
+    const view = mount(RoomView, {
+      localVue,
+      mocks: {
+        $t: (key) => key
+      },
+      pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
+      router: routerMock,
+      attachTo: createContainer(),
+      stubs: {
+        'tabs-component': true
+      },
+      data () {
+        return {
+          room: {
+            id: 'gs4-6fb-kk8',
+            name: 'Meeting One',
+            owner: { id: 2, name: 'John Doe' },
+            type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
+            model_name: 'Room',
+            authenticated: true,
+            allow_membership: false,
+            is_member: true,
+            is_co_owner: false,
+            is_moderator: false,
+            can_start: true,
+            running: false
+          },
+          room_id: 'gs4-6fb-kk8'
+        };
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    const tabsComponent = view.findComponent(TabsComponent);
+
+    expect(tabsComponent.exists()).toBeTruthy();
+
+    expect(tabsComponent.props('room').id).toEqual('gs4-6fb-kk8');
+
+    view.destroy();
+  });
+
+  it('room admin tabs components for owner', async () => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -503,7 +640,7 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('room admin components for co-owner', async () => {
+  it('room admin tabs components for co-owner', async () => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -517,7 +654,7 @@ describe('Room', () => {
           room: {
             id: 'gs4-6fb-kk8',
             name: 'Meeting One',
-            owner: { id: 1, name: 'John Doe' },
+            owner: { id: 2, name: 'John Doe' },
             type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false },
             model_name: 'Room',
             authenticated: true,
@@ -551,7 +688,7 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('room admin components with rooms.viewAll permission', async () => {
+  it('room admin tabs components with rooms.viewAll permission', async () => {
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -613,7 +750,7 @@ describe('Room', () => {
         $t: (key) => key
       },
       stubs: {
-        'room-admin': true
+        'admin-tabs-component': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -841,7 +978,7 @@ describe('Room', () => {
     view.destroy();
   });
 
-  it('handle file list errors', async () => {
+  it('handle tab component errors', async () => {
     const handleInvalidCode = vi.spyOn(RoomView.methods, 'handleInvalidCode').mockImplementation(() => {});
     const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
     const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
@@ -859,19 +996,19 @@ describe('Room', () => {
       attachTo: createContainer()
     });
 
-    view.vm.onFileListError({ response: { status: 401, data: { message: 'invalid_code' } } });
+    view.vm.onTabComponentError({ response: { status: 401, data: { message: 'invalid_code' } } });
     expect(handleInvalidCode).toBeCalledTimes(1);
 
-    view.vm.onFileListError({ response: { status: 403, data: { message: 'require_code' } } });
+    view.vm.onTabComponentError({ response: { status: 403, data: { message: 'require_code' } } });
     expect(handleInvalidCode).toBeCalledTimes(2);
 
-    view.vm.onFileListError({ response: { status: 403, data: { message: 'guests_not_allowed' } } });
+    view.vm.onTabComponentError({ response: { status: 403, data: { message: 'guests_not_allowed' } } });
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
-    view.vm.onFileListError({ response: { status: 401, data: { message: 'invalid_token' } } });
+    view.vm.onTabComponentError({ response: { status: 401, data: { message: 'invalid_token' } } });
     expect(handleInvalidToken).toBeCalledTimes(1);
 
-    view.vm.onFileListError({ response: { status: 500, data: { message: 'Internal server error' } } });
+    view.vm.onTabComponentError({ response: { status: 500, data: { message: 'Internal server error' } } });
     expect(baseError).toBeCalledTimes(1);
     expect(baseError.mock.calls[0][0].response.status).toEqual(500);
 
@@ -1698,13 +1835,13 @@ describe('Room', () => {
     const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
     const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
 
-    const fileComponentReloadSpy = vi.fn();
-    const fileComponent = {
+    const tabsComponentReloadSpy = vi.fn();
+    const tabsComponent = {
       name: 'test-component',
       // eslint-disable @intlify/vue-i18n/no-raw-text
       template: '<p>test</p>',
       methods: {
-        reload: fileComponentReloadSpy
+        reload: tabsComponentReloadSpy
       }
     };
 
@@ -1719,7 +1856,7 @@ describe('Room', () => {
         toastError: toastErrorSpy
       },
       stubs: {
-        'file-component': fileComponent
+        'tabs-component': tabsComponent
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       attachTo: createContainer(),
@@ -1885,7 +2022,7 @@ describe('Room', () => {
       }
     });
 
-    expect(fileComponentReloadSpy).toBeCalledTimes(1);
+    expect(tabsComponentReloadSpy).toBeCalledTimes(1);
 
     view.destroy();
   });

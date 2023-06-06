@@ -179,12 +179,12 @@
         <!-- Show limited file list for guests, users, members and moderators-->
         <cannot method="viewSettings" :policy="room">
           <hr>
-          <tabs-component ref="tabs" :accessCode="accessCode" :token="token" :room="room" v-on:fileListError="onFileListError" ></tabs-component>
+          <tabs-component ref="tabs" :access-code="accessCode" :token="token" :room="room" v-on:tabComponentError="onTabComponentError" />
         </cannot>
 
         <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
         <can method="viewSettings" :policy="room">
-          <admin-tabs-component @settingsChanged="reload" :room="room"></admin-tabs-component>
+          <admin-tabs-component @settingsChanged="reload" :room="room" />
         </can>
       </template>
       <!-- Ask for room access code -->
@@ -391,7 +391,7 @@ export default {
     /**
      *  Handle errors of the file list
      */
-    onFileListError: function (error) {
+    onTabComponentError: function (error) {
       if (error.response) {
         // Access code invalid
         if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {

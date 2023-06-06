@@ -19,7 +19,7 @@
               <file-component
                 ref="publicFileList"
                 :emit-errors="true"
-                v-on:error="onFileListError"
+                v-on:error="onTabComponentError"
                 :access-code="accessCode"
                 :token="token"
                 :room="room"
@@ -49,10 +49,16 @@ export default {
     token: String
   },
   methods: {
-    onFileListError: function (error) {
-      this.$emit('fileListError', error);
+    /**
+     * Handle errors from tab components by emitting them to parent to be handled
+     */
+    onTabComponentError: function (error) {
+      this.$emit('tabComponentError', error);
     },
 
+    /**
+     * Reload components (called by parent) due to changes in access code, token or room
+     */
     reload: function () {
       this.$refs.publicFileList.reload();
     }
