@@ -42,7 +42,10 @@ return [
                 'width'             => 'Width',
                 'width_description' => 'Width in pixels (px) or percent (%)',
                 'alt'               => 'Alternative text',
-            ]
+            ],
+            'source_code' => [
+                'title' => 'Edit source code',
+            ],
         ],
         'external_link_warning' => [
             'title'       => 'External link',

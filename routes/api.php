@@ -69,7 +69,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('rooms/{room}/settings', [RoomController::class,'getSettings'])->name('rooms.settings');
 
-        Route::put('rooms/{room}/description', [RoomController::class,'updateDescription'])->name('rooms.description.update');
+        Route::put('rooms/{room}/description', [RoomController::class,'updateDescription'])->name('rooms.description.update')->middleware('can:update,room');
 
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', [RoomMemberController::class,'join'])->name('rooms.membership.join');

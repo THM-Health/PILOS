@@ -12,7 +12,7 @@
         </b-button>
         <b-modal
         id="code-modal"
-        title="Source code"
+        :title="$t('rooms.description.modals.source_code.title')"
         :cancel-title="$t('app.cancel')"
         cancel-variant="dark"
         :ok-title="$t('app.save')"
