@@ -48,11 +48,15 @@
         </div>
       </div>
 
-      <tip-tap-editor
-        v-else
-        :disabled="isBusy"
-        v-model="newContent">
-      </tip-tap-editor>
+      <div v-else>
+        <tip-tap-editor
+          v-bind:class="{'is-invalid': fieldState('description') === false}"
+          :disabled="isBusy"
+          v-model="newContent">
+        </tip-tap-editor>
+        <b-form-invalid-feedback :state="fieldState('description')" v-html="fieldError('description')"></b-form-invalid-feedback>
+    </div>
+
   </b-overlay>
   </div>
 </template>
@@ -62,11 +66,13 @@ import TipTapEditor from '../TipTap/TipTapEditor.vue';
 import Can from '../Permissions/Can.vue';
 import Base from '../../api/base';
 import env from '../../env';
-import DOMPurify from 'dompurify';
+import createDOMPurify from 'dompurify';
 import RoomDescriptionHtmlComponent from './RoomDescriptionHtmlComponent.vue';
+import FieldErrors from '../../mixins/FieldErrors';
 
 export default {
   name: 'RoomDescriptionComponent',
+  mixins: [FieldErrors],
   props: {
     room: Object
   },
@@ -80,18 +86,22 @@ export default {
     return {
       editorOpen: false,
       newContent: '',
-      isBusy: false
+      isBusy: false,
+      domPurify: null
     };
   },
   computed: {
     sanitizedHtml () {
-      return DOMPurify.sanitize(this.room.description, { USE_PROFILES: { html: true } });
+      return this.domPurify.sanitize(this.room.description, { USE_PROFILES: { html: true } });
     }
   },
   created () {
+    // Create a new DOMPurify instance
+    this.domPurify = createDOMPurify();
+
     // Add a hook to move all links hrefs to data-href and add data-target to safeLink
     // this will be used to open a modal before opening the link
-    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+    this.domPurify.addHook('afterSanitizeAttributes', function (node) {
       // set non-HTML/MathML links to xlink:show=new
       if (node.hasAttribute('href')) {
         node.setAttribute('data-href', node.getAttribute('href'));
@@ -100,11 +110,20 @@ export default {
       }
     });
   },
+
   methods: {
+
+    /**
+     * Open the editor
+     */
     edit () {
       this.editorOpen = true;
       this.newContent = this.room.description;
     },
+
+    /**
+     * Save the new description and close the editor
+     */
     save () {
       // Set saving indicator
       this.isBusy = true;
@@ -117,14 +136,14 @@ export default {
       Base.call('rooms/' + this.room.id + '/description', {
         method: 'put',
         data
-      }).then(response => {
-        // Settings successfully saved
-        // inform parent component about changed settings
+      }).then(() => {
+        // Description successfully saved
+        // inform parent component about changed description
         this.$emit('settingsChanged');
         this.errors = {};
         this.editorOpen = false;
       }).catch((error) => {
-        // Settings couldn't be saved
+        // Description couldn't be saved
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
           return;
@@ -135,6 +154,10 @@ export default {
         this.isBusy = false;
       });
     },
+
+    /**
+     * Cancel editing / close the editor
+     */
     cancel () {
       this.editorOpen = false;
     }

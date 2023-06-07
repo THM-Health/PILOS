@@ -12,7 +12,7 @@
         </b-button>
         <b-modal
         id="image-modal"
-        :title="newLink ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
+        :title="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
         >
 
           <b-form-group

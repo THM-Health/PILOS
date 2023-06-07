@@ -11,6 +11,7 @@
             <i class="fa-solid fa-code"></i>
         </b-button>
         <b-modal
+        size="xl"
         id="code-modal"
         :title="$t('rooms.description.modals.source_code.title')"
         :cancel-title="$t('app.cancel')"
@@ -19,7 +20,7 @@
         ok-variant="success"
         @ok="save"
         >
-          <b-form-textarea v-model="source"></b-form-textarea>
+          <b-form-textarea v-model="source" rows="5"></b-form-textarea>
         </b-modal>
     </div>
 </template>
