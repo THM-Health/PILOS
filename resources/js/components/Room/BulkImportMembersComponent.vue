@@ -43,7 +43,7 @@
         </template>
       </b-form-group>
 
-        <b-form-group :label="$t('rooms.role')" >
+        <b-form-group :label="$t('rooms.role')" :state="fieldState('role')" >
           <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="1">
             <b-badge class="text-white" variant="success">{{ $t('rooms.roles.participant') }}</b-badge>
           </b-form-radio>
@@ -53,6 +53,7 @@
           <b-form-radio :state="fieldState('role')" :disabled="loading" v-model.number="newUsersRole" name="some-radios" value="3">
             <b-badge variant="dark">{{ $t('rooms.roles.co_owner') }}</b-badge>
           </b-form-radio>
+          <template slot='invalid-feedback'><div v-html="fieldError('role')"></div> </template>
         </b-form-group>
 
         <div class="modal-footer">
@@ -189,24 +190,33 @@ export default {
       }).catch(error => {
         if (error.response) {
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
+            // check for role errors
+            if (error.response.data.errors.role) {
+              this.errors = { role: error.response.data.errors.role };
+
+              return;
+            }
+            // check for general errors with user list (empty, too long)
             if (error.response.data.errors.user_emails) {
               this.errors = { user_emails: error.response.data.errors.user_emails };
 
               return;
             }
 
+            // check for errors for the single emails
             const regex = /^user_emails\.([0-9]+)$/;
             Object.keys(error.response.data.errors).forEach(errorKey => {
               const result = errorKey.match(regex);
-              if (result == null) {
-                return;
-              }
               const index = result[1];
-              console.log('Invalid email: ' + userEmails[index]);
-
-              this.validUsers = this.validUsers.filter(entry => entry.email !== userEmails[index]);
+              // userEmails contains the array send to the server,
+              // by using the index of the error the server returned, the email causing the error can be looked up
+              const email = userEmails[index];
+              // remove email from the list of valid emails
+              this.validUsers = this.validUsers.filter(entry => entry.email !== email);
+              // get error message for this email
               const errorString = error.response.data.errors[errorKey][0];
-              this.invalidUsers.push({ email: userEmails[index], error: errorString });
+              // add email to the list of invalid emails
+              this.invalidUsers.push({ email, error: errorString });
               this.step = 1;
             });
             return;

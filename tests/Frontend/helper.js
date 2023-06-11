@@ -60,6 +60,41 @@ module.exports = {
   },
 
   /**
+   * Asynchronous helper function for modal events
+   * @param wrapper Vue testing wrapper for component (https://v1.test-utils.vuejs.org/api/wrapper/#wrapper)
+   * @param action Function to be executed, causing the modal event, e.g. triggering button click
+   * @param event Modal event to listen to
+   * @returns {Promise<void>}
+   */
+  waitCollapseEvent: async (wrapper, action, event) => {
+    const promise = new Promise((resolve, reject) => {
+      wrapper.vm.$once(event, () => resolve());
+    });
+    await action();
+    await promise;
+  },
+
+  /**
+   * Asynchronous helper function for modal hidden event
+   * @param wrapper Vue testing wrapper for component (https://v1.test-utils.vuejs.org/api/wrapper/#wrapper)
+   * @param action Function to be executed, causing the modal to hide, e.g. triggering button click
+   * @returns {Promise<void>}
+   */
+  waitCollapseHidden: async (wrapper, action) => {
+    await module.exports.waitCollapseEvent(wrapper, action, 'hidden');
+  },
+
+  /**
+   * Asynchronous helper function for modal shown event
+   * @param wrapper Vue testing wrapper for component (https://v1.test-utils.vuejs.org/api/wrapper/#wrapper)
+   * @param action Function to be executed, causing the modal to show, e.g. triggering button click
+   * @returns {Promise<void>}
+   */
+  waitCollapseShown: async (wrapper, action) => {
+    await module.exports.waitCollapseEvent(wrapper, action, 'shown');
+  },
+
+  /**
    * Overwrite an existing moxios response
    * @see https://github.com/axios/moxios/issues/42#issuecomment-499578991
    * @param url Url of the axios call
