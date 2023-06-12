@@ -31,8 +31,8 @@ export const useLoadingStore = defineStore('loading', {
 
       this.setLoading();
       await settings.getSettings();
-      await auth.getCurrentUser();
       await loadLanguageAsync(defaultLocale);
+      await auth.getCurrentUser();
       await locale.setCurrentLocale(defaultLocale);
       this.initialized = true;
       this.setLoadingFinished();

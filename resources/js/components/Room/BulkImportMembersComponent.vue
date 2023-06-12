@@ -28,13 +28,13 @@
       <div v-if="step === 0">
       <b-form-group
         :state="fieldState('user_emails')"
-        :description="$t('rooms.members.modals.bulk_import.description.modal')"
+        :description="$t('rooms.members.modals.bulk_import.list_description')"
         :label="$t('rooms.members.modals.bulk_import.label')"
       >
         <b-form-textarea
           :state="fieldState('user_emails')"
           v-model="rawList"
-          :placeholder="$t('rooms.members.modals.bulk_import.placeholder.textarea')"
+          :placeholder="$t('rooms.members.modals.bulk_import.list_placeholder')"
           :disabled="loading"
 
         rows = "8"

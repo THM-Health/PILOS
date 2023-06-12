@@ -79,20 +79,16 @@ jobs:
       run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test
         DB_USERNAME: root
         DB_PASSWORD: password
         TESTING_BBB: ${{ secrets.TESTING_BBB }}
-      run: |
-        php artisan test --parallel --coverage-clover=coverage.xml
-        bash <(curl -s https://codecov.io/bash)
+      run: php artisan test --parallel --coverage-clover=coverage.xml
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
-        override_commit: $GITHUB_SHA
-
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Upload laravel logs
       uses: actions/upload-artifact@v2
       if: failure()
@@ -128,6 +124,8 @@ jobs:
               run: npm run cover
             - name: Upload coverage
               uses: codecov/codecov-action@v3
+              with:
+                token: ${{ secrets.CODECOV_TOKEN }}
             - name: Upload npm logs
               uses: actions/upload-artifact@v2
               if: failure()

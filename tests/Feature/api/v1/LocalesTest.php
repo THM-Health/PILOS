@@ -3,6 +3,7 @@
 namespace Tests\Feature\api\v1;
 
 use App\Models\User;
+use App\Services\LocaleService;
 use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -40,7 +41,7 @@ class LocalesTest extends TestCase
         $this->withoutMix();
 
         config([
-            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales'   => ['fr', 'es', 'be', 'de', 'en', 'ru'],
             'app.fallback_locale'   => 'ru',
             'app.locale'            => 'en'
         ]);
@@ -158,13 +159,13 @@ class LocalesTest extends TestCase
         ])->get('/');
         $response->assertSee('<html lang="ru">', false);
 
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'us'
         ]);
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['locale']);
 
-        $response = $this->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'fr'
         ]);
         $response->assertOk();
@@ -192,7 +193,7 @@ class LocalesTest extends TestCase
         ])->from(config('app.url'))->get('/');
         $response->assertSee('<html lang="fr">', false);
 
-        $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.setLocale'), [
+        $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.locale.update'), [
             'locale' => 'de'
         ]);
         $response->assertOk();
@@ -229,5 +230,31 @@ class LocalesTest extends TestCase
         $externalUser = User::where(['authenticator' => 'external'])->first();
 
         $this->assertEquals('en', $externalUser->locale);
+    }
+
+    public function testLocaleDataInvalid()
+    {
+        $this->getJson(route('api.v1.locale.get', [
+            'locale' => 'invalid'
+        ]))->assertNotFound();
+    }
+
+    public function testLocaleData()
+    {
+        $content = [
+            'key1' => 'value1'
+        ];
+
+        $this->mock(LocaleService::class)
+        ->shouldReceive('getJsonLocale')
+            ->once()
+            ->with('de')
+            ->andReturn(json_encode($content));
+
+        $response = $this->getJson(route('api.v1.locale.get', [
+            'locale' => 'de'
+        ]));
+
+        $this->assertEquals($content, $response->json());
     }
 }

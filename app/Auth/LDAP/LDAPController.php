@@ -34,8 +34,8 @@ class LDAPController extends Controller
     protected function credentials(Request $request)
     {
         return [
-            'password'                     => $request->get('password'),
-            config('ldap.login_attribute') => $request->get('username')
+            'password' => $request->get('password'),
+            'username' => $request->get('username')
         ];
     }
 

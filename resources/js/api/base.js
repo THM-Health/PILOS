@@ -83,7 +83,7 @@ export default {
    * @returns {Promise<AxiosResponse<any>>} Resolves if successful, or rejects if the locale isn't supported by the backend
    */
   setLocale (locale) {
-    return this.call('setLocale', {
+    return this.call('locale', {
       data: { locale },
       method: 'post'
     });
