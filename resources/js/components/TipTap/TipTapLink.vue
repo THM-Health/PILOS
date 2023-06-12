@@ -11,6 +11,7 @@
             <i class="fa-solid fa-link"></i>
         </b-button>
         <b-modal
+        :static='modalStatic'
         id="link-modal"
         :title="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
         :cancel-title="$t('app.cancel')"
@@ -50,9 +51,14 @@ export default {
       newLink: true
     };
   },
-  props: [
-    'editor'
-  ],
+  props: {
+    editor: Object,
+    modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
+  },
   computed: {
     urlState () {
       if (this.link === null || this.link === '') {

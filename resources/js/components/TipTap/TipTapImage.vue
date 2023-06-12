@@ -11,6 +11,7 @@
             <i class="fa-solid fa-image"></i>
         </b-button>
         <b-modal
+        :static='modalStatic'
         id="image-modal"
         :title="newImage ? $t('rooms.description.modals.image.new') : $t('rooms.description.modals.image.edit')"
         >
@@ -93,9 +94,14 @@ export default {
       return regex.exec(this.src) !== null;
     }
   },
-  props: [
-    'editor'
-  ],
+  props: {
+    editor: Object,
+    modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
+  },
   methods: {
 
     deleteImage () {

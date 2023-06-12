@@ -2,6 +2,7 @@
     <div>
         <div class="px-2 room-description" v-html="html"></div>
         <b-modal
+            :static='modalStatic'
             id="linkModal"
             :title="$t('rooms.description.external_link_warning.title')"
             :ok-title="$t('app.continue')"
@@ -16,7 +17,12 @@
 <script>
 export default {
   props: {
-    html: String
+    html: String,
+    modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
   },
   data () {
     return {

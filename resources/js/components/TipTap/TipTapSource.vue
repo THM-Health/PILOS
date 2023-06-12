@@ -11,6 +11,7 @@
             <i class="fa-solid fa-code"></i>
         </b-button>
         <b-modal
+        :static='modalStatic'
         size="xl"
         id="code-modal"
         :title="$t('rooms.description.modals.source_code.title')"
@@ -36,9 +37,14 @@ export default {
       source: null
     };
   },
-  props: [
-    'editor'
-  ],
+  props: {
+    editor: Object,
+    modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
+  },
   methods: {
     openModal () {
       this.source = this.editor.getHTML();
