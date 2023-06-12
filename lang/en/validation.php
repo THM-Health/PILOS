@@ -133,12 +133,12 @@ return [
             'required' => 'Replacement room type required! Rooms are still assigned to this room type.',
         ],
         'room' => [
-            'already_member' => 'The user is already member of the room.',
-            'not_member'     => 'The user ":firstname :lastname" isn\'t a member.',
-            'self_delete'    => 'The user is not allowed to delete himself.',
-            'self_edit'      => 'The user is not allowed to edit himself.',
+            'already_member'            => 'The user is already member of the room.',
+            'not_member'                => 'The user ":firstname :lastname" isn\'t a member.',
+            'self_delete'               => 'The user is not allowed to delete himself.',
+            'self_edit'                 => 'The user is not allowed to edit himself.',
             'several_users_found_email' => 'Several users were found with this e-mail',
-            'user_not_found_email' => 'No user was found with this e-mail'
+            'user_not_found_email'      => 'No user was found with this e-mail'
         ],
         'user' => [
             'exists' => 'The selected user could not be found.',
