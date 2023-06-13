@@ -17,6 +17,7 @@ return [
     ],
     'cancel'      => 'Abbrechen',
     'close'       => 'Schließen',
+    'continue'    => 'Weiter',
     'delete'      => 'Löschen',
     'description' => 'Beschreibung',
     'disable'     => 'Deaktivieren',

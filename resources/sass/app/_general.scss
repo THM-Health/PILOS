@@ -22,3 +22,8 @@ body {
 .not-collapsed > .when-closed {
     display: none;
 }
+
+
+.is-invalid .ProseMirror{
+    border-color: $danger;
+}

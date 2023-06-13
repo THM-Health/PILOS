@@ -17,6 +17,7 @@ return [
     ],
     'cancel'      => 'Cancel',
     'close'       => 'Close',
+    'continue'    => 'Continue',
     'delete'      => 'Delete',
     'description' => 'Description',
     'disable'     => 'Disable',
