@@ -233,7 +233,7 @@ import TipTapImage from './TipTapImage.vue';
 import TipTapLink from './TipTapLink.vue';
 import TipTapSource from './TipTapSource.vue';
 export default {
-  name: 'TipTabMenu',
+  name: 'TipTapMenu',
   props: [
     'editor'
   ],
