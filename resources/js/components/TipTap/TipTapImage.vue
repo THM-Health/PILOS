@@ -19,6 +19,8 @@
           <b-form-group
             :label="$t('rooms.description.modals.image.src')"
             label-for="src"
+            :invalid-feedback="$t('rooms.description.modals.image.invalid_src')"
+          :state="srcState"
           >
             <b-form-input
               id="src"
@@ -27,9 +29,6 @@
               :state="srcState"
               trim
             />
-            <b-form-invalid-feedback id="input-live-feedback">
-              {{ $t('rooms.description.modals.image.invalid_src') }}
-            </b-form-invalid-feedback>
           </b-form-group>
 
           <b-form-group
@@ -58,7 +57,7 @@
           <template #modal-footer="{ cancel }">
             <div class="w-100 d-flex justify-content-between">
               <div>
-                <b-button variant="danger" class="mr-2" @click="deleteImage" v-if="src && !newImage" >{{ $t('app.delete') }}</b-button>
+                <b-button variant="danger" class="mr-2" @click="deleteImage" v-if="!newImage" >{{ $t('app.delete') }}</b-button>
               </div>
               <div>
                 <b-button variant="secondary" @click="cancel">{{ $t('app.cancel') }}</b-button>

@@ -14,12 +14,6 @@
         :static='modalStatic'
         id="link-modal"
         :title="newLink ? $t('rooms.description.modals.link.new') : $t('rooms.description.modals.link.edit')"
-        :cancel-title="$t('app.cancel')"
-        cancel-variant="dark"
-        :ok-title="$t('app.save')"
-        ok-variant="success"
-        @ok="save"
-        :ok-disabled="urlState === false"
         >
 
         <b-form-group
@@ -34,6 +28,18 @@
             :state="urlState"
           ></b-form-input>
       </b-form-group>
+
+      <template #modal-footer="{ cancel }">
+            <div class="w-100 d-flex justify-content-between">
+              <div>
+                <b-button variant="danger" class="mr-2" @click="deleteLink" v-if="!newLink" >{{ $t('app.delete') }}</b-button>
+              </div>
+              <div>
+                <b-button variant="secondary" @click="cancel">{{ $t('app.cancel') }}</b-button>
+                <b-button variant="success" class="ml-2" @click="save" :disabled="urlState !== true">{{ $t('app.save') }}</b-button>
+              </div>
+          </div>
+          </template>
         </b-modal>
     </div>
 </template>
@@ -78,12 +84,14 @@ export default {
       }
       this.$bvModal.show('link-modal');
     },
+
+    deleteLink () {
+      this.editor.chain().focus().unsetLink().run();
+      this.$bvModal.hide('link-modal');
+    },
+
     save () {
-      if (this.link === null || this.link === '') {
-        this.editor.chain().focus().unsetLink().run();
-      } else {
-        this.editor.chain().focus().setLink({ href: this.link }).run();
-      }
+      this.editor.chain().focus().setLink({ href: this.link }).run();
       this.$bvModal.hide('link-modal');
     }
   }

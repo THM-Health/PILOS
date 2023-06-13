@@ -1,37 +1,35 @@
 import { mount } from '@vue/test-utils';
 import { createContainer, createLocalVue, waitModalShown, waitModalHidden } from '../../helper';
 import { BButton, BFormInput, BModal, BootstrapVue } from 'bootstrap-vue';
-import TipTapLink from '../../../../resources/js/components/TipTap/TipTapLink.vue';
+import TipTapImage from '../../../../resources/js/components/TipTap/TipTapImage.vue';
 import { expect, it } from 'vitest';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 
-describe('TipTap Link', () => {
-  it('Edit link', async () => {
-    const setLinkSpy = vi.fn();
+describe('TipTap Image', () => {
+  it('Edit image', async () => {
+    const insertContentSpy = vi.fn();
 
     const editor = {
       isActive: (type) => {
-        return type === 'link';
+        return type === 'image';
       },
       getAttributes: (type) => {
-        if (type === 'link') {
+        if (type === 'image') {
           return {
-            href: 'https://example.org'
+            src: 'https://example.org/image.jpg',
+            width: '250px',
+            alt: 'Image description'
           };
         }
       },
       chain: () => {
         return {
-          focus: () => {
+          insertContent: (data) => {
             return {
-              setLink: (href) => {
-                return {
-                  run: () => {
-                    setLinkSpy(href);
-                  }
-                };
+              run: () => {
+                insertContentSpy(data);
               }
             };
           }
@@ -39,7 +37,7 @@ describe('TipTap Link', () => {
       }
     };
 
-    const view = mount(TipTapLink, {
+    const view = mount(TipTapImage, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
@@ -74,21 +72,24 @@ describe('TipTap Link', () => {
 
     // Check modal title
     const modalTitle = modal.find('.modal-title');
-    expect(modalTitle.text()).toBe('rooms.description.modals.link.edit');
+    expect(modalTitle.text()).toBe('rooms.description.modals.image.edit');
 
     // Check modal body
-    const input = modal.findComponent(BFormInput);
-    expect(input.element.value).toBe('https://example.org');
+    const input = modal.findAllComponents(BFormInput);
 
-    // Change link to invalid value
-    await input.setValue('invalid');
+    expect(input.at(0).element.value).toBe('https://example.org/image.jpg');
+    expect(input.at(1).element.value).toBe('250px');
+    expect(input.at(2).element.value).toBe('Image description');
 
-    // Find buttons
+    // Find buttons (delete, cancel, save)
     const buttons = modal.findAllComponents(BButton);
     expect(buttons.length).toBe(3);
-
-    // Check if delete button is shown
     expect(buttons.at(0).text()).toBe('app.delete');
+    expect(buttons.at(1).text()).toBe('app.cancel');
+    expect(buttons.at(2).text()).toBe('app.save');
+
+    // Change link to invalid value
+    await input.at(0).setValue('invalid');
 
     // Check if save button is disabled
     expect(buttons.at(2).text()).toBe('app.save');
@@ -98,7 +99,7 @@ describe('TipTap Link', () => {
     expect(modal.find('.invalid-feedback').classes()).toContain('d-block');
 
     // Change link to valid value
-    await input.setValue('https://example.com');
+    await input.at(0).setValue('https://example.com/img.png');
 
     // Check if save button is enabled
     expect(buttons.at(2).attributes('disabled')).toBe(undefined);
@@ -112,44 +113,43 @@ describe('TipTap Link', () => {
     // Check if modal is hidden
     expect(modal.vm.$data.isVisible).toBe(false);
 
-    // Check if setLink was called
-    expect(setLinkSpy).toHaveBeenCalledWith({ href: 'https://example.com' });
+    // Check if insertContent was called
+    expect(insertContentSpy).toHaveBeenCalledWith({
+      attrs: {
+        alt: 'Image description',
+        src: 'https://example.com/img.png',
+        width: '250px'
+      },
+      type: 'image'
+    });
 
     view.destroy();
   });
 
-  it('Remove link', async () => {
-    const unsetLinkSpy = vi.fn();
+  it('Delete image', async () => {
+    const deleteSelectionSpy = vi.fn();
 
     const editor = {
       isActive: (type) => {
-        return type === 'link';
+        return type === 'image';
       },
       getAttributes: (type) => {
-        if (type === 'link') {
+        if (type === 'image') {
           return {
-            href: 'https://example.org'
+            src: 'https://example.org/image.jpg',
+            width: '250px',
+            alt: 'Image description'
           };
         }
       },
-      chain: () => {
-        return {
-          focus: () => {
-            return {
-              unsetLink: () => {
-                return {
-                  run: () => {
-                    unsetLinkSpy();
-                  }
-                };
-              }
-            };
-          }
-        };
+      commands: {
+        deleteSelection: () => {
+          deleteSelectionSpy();
+        }
       }
     };
 
-    const view = mount(TipTapLink, {
+    const view = mount(TipTapImage, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
@@ -172,40 +172,36 @@ describe('TipTap Link', () => {
     // Click on button to open modal
     await waitModalShown(view, async () => await button.trigger('click'));
 
-    // Find buttons
+    // Find buttons (delete, cancel, save)
     const buttons = modal.findAllComponents(BButton);
     expect(buttons.length).toBe(3);
-
-    // Check if delete button is shown and click on it
     expect(buttons.at(0).text()).toBe('app.delete');
-    await buttons.at(0).trigger('click');
+
+    // Click on delete button
+    await waitModalHidden(view, async () => await buttons.at(0).trigger('click'));
 
     // Check if modal is hidden
     expect(modal.vm.$data.isVisible).toBe(false);
 
-    // Check if setLink was called
-    expect(unsetLinkSpy).toHaveBeenCalled();
+    // Check if deleteSelection command was called
+    expect(deleteSelectionSpy).toHaveBeenCalled();
 
     view.destroy();
   });
 
-  it('Add link', async () => {
-    const setLinkSpy = vi.fn();
+  it('Add image', async () => {
+    const insertContentSpy = vi.fn();
 
     const editor = {
-      isActive: (type) => {
+      isActive: () => {
         return false;
       },
       chain: () => {
         return {
-          focus: () => {
+          insertContent: (data) => {
             return {
-              setLink: (href) => {
-                return {
-                  run: () => {
-                    setLinkSpy(href);
-                  }
-                };
+              run: () => {
+                insertContentSpy(data);
               }
             };
           }
@@ -213,7 +209,7 @@ describe('TipTap Link', () => {
       }
     };
 
-    const view = mount(TipTapLink, {
+    const view = mount(TipTapImage, {
       localVue,
       mocks: {
         $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : '')
@@ -233,7 +229,7 @@ describe('TipTap Link', () => {
     const button = view.findComponent(BButton);
     const modal = view.findComponent(BModal);
 
-    // Check if button is not active if editor indicates that a link element is not selected
+    // Check if button is active if editor indicates that a link element is selected
     expect(button.exists()).toBe(true);
     expect(button.classes()).not.toContain('active');
 
@@ -248,21 +244,26 @@ describe('TipTap Link', () => {
 
     // Check modal title
     const modalTitle = modal.find('.modal-title');
-    expect(modalTitle.text()).toBe('rooms.description.modals.link.new');
+    expect(modalTitle.text()).toBe('rooms.description.modals.image.new');
 
     // Check modal body
-    const input = modal.findComponent(BFormInput);
-    expect(input.element.value).toBe('');
+    const input = modal.findAllComponents(BFormInput);
 
-    // Change link to invalid value
-    await input.setValue('invalid');
+    expect(input.at(0).element.value).toBe('');
+    expect(input.at(1).element.value).toBe('');
+    expect(input.at(2).element.value).toBe('');
 
-    // Add new link
-    await input.setValue('https://example.com');
-
-    // Find buttons (delete button is not shown)
+    // Find buttons (delete, cancel, save)
     const buttons = modal.findAllComponents(BButton);
     expect(buttons.length).toBe(2);
+    expect(buttons.at(0).text()).toBe('app.cancel');
+    expect(buttons.at(1).text()).toBe('app.save');
+
+    // Check if save button is disabled
+    expect(buttons.at(1).attributes('disabled')).toBe('disabled');
+
+    // Add image src
+    await input.at(0).setValue('https://example.com/img.png');
 
     // Check if save button is enabled
     expect(buttons.at(1).attributes('disabled')).toBe(undefined);
@@ -273,8 +274,15 @@ describe('TipTap Link', () => {
     // Check if modal is hidden
     expect(modal.vm.$data.isVisible).toBe(false);
 
-    // Check if setLink was called
-    expect(setLinkSpy).toHaveBeenCalledWith({ href: 'https://example.com' });
+    // Check if insertContent was called
+    expect(insertContentSpy).toHaveBeenCalledWith({
+      attrs: {
+        alt: null,
+        src: 'https://example.com/img.png',
+        width: null
+      },
+      type: 'image'
+    });
 
     view.destroy();
   });
