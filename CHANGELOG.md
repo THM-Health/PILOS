@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to set custom LDAP filter ([#344])
 - Option to load LDAP attributes as authenticated user ([#344])
 - Custom localization for backend ([#345])
+- Room description / welcome page ([#270],[#273]) 
 
 ### Changed
 - **Breaking:** Custom localization file format ([#345])
@@ -524,6 +525,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#266]: https://github.com/THM-Health/PILOS/issues/266
 [#267]: https://github.com/THM-Health/PILOS/issues/267
 [#268]: https://github.com/THM-Health/PILOS/pull/268
+[#270]: https://github.com/THM-Health/PILOS/issues/270
 [#271]: https://github.com/THM-Health/PILOS/issues/271
 [#272]: https://github.com/THM-Health/PILOS/pull/272
 [#273]: https://github.com/THM-Health/PILOS/pull/273
