@@ -19,11 +19,13 @@
         :ok-title="$t('app.save')"
         ok-variant="success"
         @ok="save"
-        :ok-disabled="urlState !== true"
+        :ok-disabled="urlState === false"
         >
 
         <b-form-group
           :label="$t('rooms.description.modals.link.url')"
+          :invalid-feedback="$t('rooms.description.modals.link.invalid_url')"
+          :state="urlState"
         >
           <b-form-input
             v-model="link"
@@ -31,9 +33,6 @@
             type="text"
             :state="urlState"
           ></b-form-input>
-          <b-form-invalid-feedback id="input-live-feedback">
-            {{ $t('rooms.description.modals.link.invalid_url') }}
-          </b-form-invalid-feedback>
       </b-form-group>
         </b-modal>
     </div>
@@ -80,7 +79,7 @@ export default {
       this.$bvModal.show('link-modal');
     },
     save () {
-      if (this.link === null) {
+      if (this.link === null || this.link === '') {
         this.editor.chain().focus().unsetLink().run();
       } else {
         this.editor.chain().focus().setLink({ href: this.link }).run();
