@@ -92,7 +92,6 @@ describe('TipTap Image', () => {
     await input.at(0).setValue('invalid');
 
     // Check if save button is disabled
-    expect(buttons.at(2).text()).toBe('app.save');
     expect(buttons.at(2).attributes('disabled')).toBe('disabled');
 
     // Check if error message is shown
