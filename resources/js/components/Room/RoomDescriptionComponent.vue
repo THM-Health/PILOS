@@ -132,7 +132,7 @@ export default {
         description: this.newContent
       };
 
-      // Send new settings to the server
+      // Send new description to the server
       Base.call('rooms/' + this.room.id + '/description', {
         method: 'put',
         data
@@ -143,11 +143,12 @@ export default {
         this.errors = {};
         this.editorOpen = false;
       }).catch((error) => {
-        // Description couldn't be saved
+        // Description couldn't be saved due to validation errors
         if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
           this.errors = error.response.data.errors;
           return;
         }
+        // Handle other errors
         Base.error(error, this.$root);
       }).finally(() => {
         // Disable saving indicator

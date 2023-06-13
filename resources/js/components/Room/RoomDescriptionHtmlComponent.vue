@@ -30,14 +30,20 @@ export default {
     };
   },
   updated () {
+    // Call addSafeLinkListeners on update to make sure all links
+    // are covered even after the description was updated
     this.addSafeLinkListeners();
   },
   mounted () {
+    // Call addSafeLinkListeners on mount to make sure all links
+    // are covered on first render
     this.addSafeLinkListeners();
   },
   methods: {
+    /**
+     * Add listeners to all links with target safeLink to open a modal before opening the link
+     */
     addSafeLinkListeners () {
-      // Add a listener to all links with target safeLink
       const safeLinks = document.querySelectorAll('[data-target="safeLink"]');
       safeLinks.forEach((link) => {
         link.addEventListener('click', (event) => {
@@ -47,6 +53,10 @@ export default {
         });
       });
     },
+
+    /**
+     * Handle confirm button click on link modal, open link in new tab
+     */
     onConfirm () {
       window.open(this.link, '_blank');
       this.$bvModal.hide('linkModal');

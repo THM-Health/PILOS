@@ -46,10 +46,17 @@ export default {
     }
   },
   methods: {
+    /**
+     * Open modal with current source code
+     */
     openModal () {
       this.source = this.editor.getHTML();
       this.$bvModal.show('code-modal');
     },
+
+    /**
+     * Apply changes to the editor
+     */
     save () {
       this.editor.commands.setContent(this.source, true);
       this.$bvModal.hide('code-modal');

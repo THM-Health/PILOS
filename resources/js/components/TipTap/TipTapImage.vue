@@ -103,10 +103,17 @@ export default {
   },
   methods: {
 
+    /**
+     * Delete the image and close modal
+     */
     deleteImage () {
       this.editor.commands.deleteSelection();
       this.$bvModal.hide('image-modal');
     },
+
+    /**
+     * Open modal and fill fields with current image attributes if image is selected
+     */
     openModal () {
       if (this.editor.isActive('image')) {
         this.src = this.editor.getAttributes('image').src;
@@ -121,6 +128,10 @@ export default {
       }
       this.$bvModal.show('image-modal');
     },
+
+    /**
+     * Save changes to the image and close modal
+     */
     save () {
       this.editor.chain().insertContent({
         type: 'image',

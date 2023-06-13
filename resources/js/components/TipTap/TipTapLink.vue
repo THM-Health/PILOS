@@ -65,15 +65,23 @@ export default {
     }
   },
   computed: {
+    /**
+     * Check if the link url is valid
+     */
     urlState () {
+      // Only return state if link is not empty
       if (this.link === null || this.link === '') {
         return null;
       }
+      // regex checks if url starts with http://, https:// or mailto:
       const regex = /^(https|http|mailto):\/\//;
       return regex.exec(this.link) !== null;
     }
   },
   methods: {
+    /**
+     * Open modal to edit or create a link
+     */
     openModal () {
       if (this.editor.isActive('link')) {
         this.link = this.editor.getAttributes('link').href;
@@ -85,11 +93,17 @@ export default {
       this.$bvModal.show('link-modal');
     },
 
+    /**
+     * Delete link and close modal
+     */
     deleteLink () {
       this.editor.chain().focus().unsetLink().run();
       this.$bvModal.hide('link-modal');
     },
 
+    /**
+     * Save changes to the link and close modal
+     */
     save () {
       this.editor.chain().focus().setLink({ href: this.link }).run();
       this.$bvModal.hide('link-modal');
