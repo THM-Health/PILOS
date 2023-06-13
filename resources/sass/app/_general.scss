@@ -18,3 +18,8 @@ body {
     color: $input-color;
     opacity: 1;
 }
+
+
+.is-invalid .ProseMirror{
+    border-color: $danger;
+}

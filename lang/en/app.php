@@ -16,6 +16,7 @@ return [
         'warning'   => 'Warning',
     ],
     'cancel'      => 'Cancel',
+    'continue'    => 'Continue',
     'delete'      => 'Delete',
     'description' => 'Description',
     'disable'     => 'Disable',

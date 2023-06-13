@@ -178,27 +178,13 @@
 
         <!-- Show limited file list for guests, users, members and moderators-->
         <cannot method="viewSettings" :policy="room">
-          <b-row>
-            <b-col>
-              <hr>
-              <file-component
-                ref="publicFileList"
-                :emit-errors="true"
-                v-on:error="onFileListError"
-                :access-code="accessCode"
-                :token="token"
-                :room="room"
-                :show-title="true"
-                :require-agreement="true"
-                :hide-reload="true"
-              ></file-component>
-            </b-col>
-          </b-row>
+          <hr>
+          <tabs-component ref="tabs" :access-code="accessCode" :token="token" :room="room" v-on:tabComponentError="onTabComponentError" />
         </cannot>
 
         <!-- Show room settings (including members and files) for co-owners, owner and users with rooms.viewAll permission -->
         <can method="viewSettings" :policy="room">
-          <room-admin @settingsChanged="reload" :room="room"></room-admin>
+          <admin-tabs-component @settingsChanged="reload" :room="room" />
         </can>
       </template>
       <!-- Ask for room access code -->
@@ -264,12 +250,12 @@
 <script>
 import AwesomeMask from 'awesome-mask';
 import Base from '../../api/base';
-import RoomAdmin from '../../components/Room/AdminComponent.vue';
+import AdminTabsComponent from '../../components/Room/AdminTabsComponent.vue';
+import TabsComponent from '../../components/Room/TabsComponent.vue';
 import env from './../../env.js';
 import DeleteRoomComponent from '../../components/Room/DeleteRoomComponent.vue';
 import Can from '../../components/Permissions/Can.vue';
 import Cannot from '../../components/Permissions/Cannot.vue';
-import FileComponent from '../../components/Room/FileComponent.vue';
 import PermissionService from '../../services/PermissionService';
 import FieldErrors from '../../mixins/FieldErrors';
 import BrowserNotification from '../../components/Room/BrowserNotification.vue';
@@ -291,9 +277,9 @@ export default {
 
   components: {
     BrowserNotification,
-    FileComponent,
     DeleteRoomComponent,
-    RoomAdmin,
+    TabsComponent,
+    AdminTabsComponent,
     Can,
     Cannot
   },
@@ -405,7 +391,7 @@ export default {
     /**
      *  Handle errors of the file list
      */
-    onFileListError: function (error) {
+    onTabComponentError: function (error) {
       if (error.response) {
         // Access code invalid
         if (error.response.status === env.HTTP_UNAUTHORIZED && error.response.data.message === 'invalid_code') {
@@ -494,8 +480,8 @@ export default {
             this.accessCodeValid = null;
           }
 
-          if (this.$refs.publicFileList) {
-            this.$refs.publicFileList.reload();
+          if (this.$refs.tabs) {
+            this.$refs.tabs.reload();
           }
 
           if (this.room.username) {
