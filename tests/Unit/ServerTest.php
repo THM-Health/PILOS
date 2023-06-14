@@ -60,7 +60,7 @@ class ServerTest extends TestCase
                 ->andReturn(false);
             $mock->shouldReceive('getMeetings')
                 ->once()
-                ->andReturn('test-response');
+                ->andReturn((new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-3.xml')))->getMeetings());
         });
 
         $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($bbbResponseMock) {
@@ -75,7 +75,10 @@ class ServerTest extends TestCase
         $server->offline = 0;
         $server->status  = 1;
 
-        self::assertEquals('test-response', $serverService->getMeetings());
+        $meetings = $serverService->getMeetings();
+        self::assertCount(2, $meetings);
+        self::assertEquals('409e94ee-e317-4040-8cb2-8000a289b49d', $meetings[0]->getMeetingId());
+        self::assertEquals('216b94ffe-a225-3041-ac62-5000a289b49d', $meetings[1]->getMeetingId());
     }
 
     /**

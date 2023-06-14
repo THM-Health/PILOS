@@ -8,6 +8,7 @@ use App\Http\Requests\StartJoinMeeting;
 use App\Models\Meeting;
 use App\Models\Room;
 use Auth;
+use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
@@ -79,7 +80,7 @@ class MeetingService
             ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
-            ->setMeetingLayout(CreateMeetingParameters::CUSTOM_LAYOUT)
+            ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
             ->setLearningDashboardEnabled(false);
 
         // get files that should be used in this meeting and add links to the files
