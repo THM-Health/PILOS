@@ -46,7 +46,6 @@ class MeetingTest extends TestCase
         $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
         $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
             $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($response, $meeting) {
-               
                 $this->assertEquals($meeting->id, $arg->getMeetingID());
                 $this->assertEquals($meeting->room->name, $arg->getName());
                 $this->assertEquals($meeting->moderator_pw, $arg->getModeratorPW());
