@@ -173,14 +173,14 @@ export default {
      * init the valid users with the emails that were entered by the user
      */
     initValidUsers () {
-      //get content from the textarea and remove unnecessary characters (' ', '\t', '\n' except the separator)
+      // get content from the textarea and remove unnecessary characters (' ', '\t', '\n' except the separator)
       const transferList = this.rawList
         .replaceAll(' ', '')
         .replaceAll('\t', '')
         .replaceAll(/^[\n?\r]+/gm, '')
         .toLowerCase();
       const usersEmailList = _.uniq(transferList.split(/\r?\n/));
-      //delete last element of the email list if it is empty
+      // delete last element of the email list if it is empty
       if (usersEmailList.at(usersEmailList.length - 1) === '') {
         usersEmailList.splice(usersEmailList.length - 1, 1);
       }
@@ -198,13 +198,13 @@ export default {
      */
     importUsers (firstRound = false) {
       this.errors = [];
-      //initialize list of valid and invalid users on first request sent to the server
-      //all subsequent requests only modify list of valid/invalid users
+      // initialize list of valid and invalid users on first request sent to the server
+      // all subsequent requests only modify list of valid/invalid users
       if (firstRound) { this.initValidUsers(); }
       const userEmails = this.validUsers.map(entry => entry.email);
       this.loading = true;
 
-      //post new users as room members
+      // post new users as room members
       Base.call('rooms/' + this.roomId + '/member/bulk', {
         method: 'post',
         data: { user_emails: userEmails, role: this.newUsersRole }
@@ -213,7 +213,7 @@ export default {
         this.step = 2;
         this.$emit('imported');
       }).catch(error => {
-        //adding failed
+        // adding failed
         if (error.response) {
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             // check for role errors
@@ -257,4 +257,3 @@ export default {
 
 };
 </script>
-
