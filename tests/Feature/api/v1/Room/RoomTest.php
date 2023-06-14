@@ -1727,11 +1727,11 @@ class RoomTest extends TestCase
 
     /**
      * Check if user or guest enters room or lobby
-     * @param $room Room room
-     * @param  null $user user or guest
+     * @param Room $room Room
+     * @param  User|null User or guest
      * @return bool is entering lobby
      */
-    protected function checkGuestWaitPage($room, $user = null)
+    protected function checkGuestWaitPage(Room $room, ?User $user = null)
     {
         // logout from previous calls
         \Auth::logout();

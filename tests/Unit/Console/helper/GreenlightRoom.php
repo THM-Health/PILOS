@@ -14,15 +14,8 @@ class GreenlightRoom
 
     /**
      * GreenlightRoom constructor.
-     * @param $id
-     * @param $user_id
-     * @param $name
-     * @param $uid
-     * @param int|null $access_code
-     * @param array    $room_settings
-     * @param bool     $deleted
      */
-    public function __construct($id, $user_id, $name, $uid, ?int $access_code = null, array $room_settings = [], bool $deleted = false)
+    public function __construct(string $id, string $user_id, string $name, string $uid, ?int $access_code = null, array $room_settings = [], bool $deleted = false)
     {
         $this->id              = $id;
         $this->user_id         = $user_id;

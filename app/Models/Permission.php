@@ -42,8 +42,8 @@ class Permission extends Model
 
     /**
      * Setup the permission include
-     * @param $permissionName string Name of the permission
-     * @param $includedPermissionNames string[] Names of the permissions that should be included
+     * @param string   $permissionName          Name of the permission
+     * @param string[] $includedPermissionNames Names of the permissions that should be included
      */
     public static function setIncludedPermissions($permissionName, $includedPermissionNames)
     {
