@@ -1,4 +1,3 @@
-
 import { Editor } from '@tiptap/vue-2';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';

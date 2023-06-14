@@ -22,7 +22,7 @@ return [
     'description' => 'Beschreibung',
     'disable'     => 'Deaktivieren',
     'disabled'    => 'Deaktiviert',
-    'email'       => 'Email',
+    'email'       => 'E-Mail',
     'enable'      => 'Aktivieren',
     'enabled'     => 'Aktiviert',
     'error'       => 'Es ist ein Fehler aufgetreten!',
@@ -172,7 +172,7 @@ return [
         'fail'    => 'Ihre E-Mail konnte nicht verifiziert werden!',
         'invalid' => 'Der Verifizierungslink ist ungültig oder abgelaufen!',
         'success' => 'Ihre E-Mail wurde erfolgreich verifiziert!',
-        'title'   => 'E-mail verifizieren',
+        'title'   => 'E-Mail verifizieren',
     ],
     'version'     => 'Version',
     'view'        => 'Anzeigen',
@@ -183,4 +183,5 @@ return [
         'admin' => 'Administrator',
         'user'  => 'Benutzer',
     ],
+    'continue' => 'Weiter',
 ];

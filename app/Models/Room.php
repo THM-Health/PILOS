@@ -176,7 +176,7 @@ class Room extends Model
      * @param  RoomToken|null $token
      * @return bool
      */
-    public function isModerator(?User $user, RoomToken $token = null)
+    public function isModerator(?User $user, ?RoomToken $token = null)
     {
         if ($user == null && $token != null) {
             return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
@@ -196,21 +196,21 @@ class Room extends Model
 
     /**
      * Check if user is member of this room
-     * @param $user User|null
+     * @param  User|null $user
      * @return bool
      */
-    public function isMember($user)
+    public function isMember(?User $user)
     {
         return $user == null ? false : $this->members->contains($user);
     }
 
     /**
      * Get role of the user
-     * @param $user |null
-     * @param $token
+     * @param  User|null    $user
+     * @param  RoomToken    $token
      * @return RoomUserRole
      */
-    public function getRole($user, $token): RoomUserRole
+    public function getRole(?User $user, ?RoomToken $token): RoomUserRole
     {
         if ($user == null) {
             if ($token) {
@@ -261,11 +261,11 @@ class Room extends Model
      * Returns true if the passed owner has rights to create a room
      * with the passed room type.
      *
-     * @param $owner User
-     * @param $roomType RoomType
+     * @param       $owner    User
+     * @param       $roomType RoomType
      * @return bool
      */
-    public static function roomTypePermitted($owner, $roomType): bool
+    public static function roomTypePermitted(User $owner, ?RoomType $roomType): bool
     {
         if (empty($owner) || empty($roomType)) {
             return false;

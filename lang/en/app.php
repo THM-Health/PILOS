@@ -183,4 +183,5 @@ return [
         'admin' => 'Administrator',
         'user'  => 'User',
     ],
+    'continue' => 'Continue',
 ];
