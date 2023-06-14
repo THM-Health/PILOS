@@ -82,14 +82,14 @@ return [
                 'can_import_users'          => 'Users that can be added',
                 'cannot_import_users'       => 'Users that can not be added',
                 'copied_invalid_users'      => 'Copied invalid users',
-                'copy_and_close'            => 'Copy users that could not added and close',
-                'could_not_import_users'    => 'Users that were not be added',
-                'list_description'          => 'Every line represents a separate e-mail address (maximum 1000)',
+                'copy_and_close'            => 'Copy users that could not be added and close',
+                'could_not_import_users'    => 'Users that could not be added',
+                'list_description'          => 'Every line represents a separate email address (maximum 1000)',
                 'list_placeholder'          => 'john.doe@domain.com\njane.doe@domain.com',
                 'import_importable_button'  => 'Add valid users',
                 'import_importable_question'=> 'Do you want to continue to add the users that can be added?',
                 'imported_users'            => 'Users that were successfully added',
-                'label'                     => 'E-mail list'
+                'label'                     => 'Email list'
             ],
             'edit' => [
                 'title'      => 'Edit :firstname :lastname',

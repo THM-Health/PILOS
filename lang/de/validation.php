@@ -95,7 +95,7 @@ return [
         'title'                              => 'Titel',
         'updated_at'                         => 'Aktualisiert am',
         'user'                               => 'Benutzer',
-        'user_emails'                        => 'Email Liste',
+        'user_emails'                        => 'E-Mail-Liste',
         'user_locale'                        => 'Sprache',
         'username'                           => 'Benutzerkennung',
         'webcams_only_for_moderator'         => 'Webcam nur für Moderatoren sichtbar',
@@ -146,7 +146,7 @@ return [
         ],
         'user_emails' => [
             '*' => [
-                'email' => ':input ist keine gültige E-mail Adresse.'
+                'email' => ':input ist keine gültige E-mail-Adresse.'
             ]
         ],
         'roles' => [

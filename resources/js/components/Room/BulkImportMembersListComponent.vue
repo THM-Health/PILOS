@@ -2,7 +2,7 @@
   <div>
     <div v-if="list.length > 0" class="mb-3">
       <p> {{description}} <b-badge :variant="variant">{{list.length}}</b-badge></p>
-      <b-list-group class="preview" style="overflow-y: auto;max-height: 200px" >
+      <b-list-group class="room-bulk-import-preview" >
         <b-list-group-item
           v-for="user in list"
           v-bind:key="user.email"
@@ -36,7 +36,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-
-</style>

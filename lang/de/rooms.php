@@ -84,12 +84,12 @@ return [
                 'copied_invalid_users'      => 'Ungültige Benutzer wurden kopiert',
                 'copy_and_close'            => 'Ungültige Benutzer kopieren und Schließen',
                 'could_not_import_users'    => 'Benutzer, die nicht hinzugefügt werden konnten',
-                'list_description'          => 'Jede Zeile steht für eine eigene E-Mail Adresse (maximal 1000)',
+                'list_description'          => 'Jede Zeile steht für eine eigene E-Mail-Adresse (maximal 1000)',
                 'list_placeholder'          => "max.mustermann@domain.de\nerika.mustermann@domain.de",
                 'import_importable_button'  => 'Gültige Benutzer hinzufügen',
                 'import_importable_question'=> 'Möchten Sie fortfahren und die Benutzer hinzufügen, die hinzugefügt werden können?',
-                'imported_users'            => 'Benutzer die erfolgreich hinzugefügt wurden',
-                'label'                     => 'E-Mail Liste'
+                'imported_users'            => 'Benutzer, die erfolgreich hinzugefügt wurden',
+                'label'                     => 'E-Mail-Liste'
             ],
             'edit' => [
                 'title'      => ':firstname :lastname bearbeiten',

@@ -141,15 +141,27 @@ export default {
   },
 
   methods: {
+
+    /**
+     * show modal to bulk import users
+     */
     showModal () {
       this.step = 0;
       this.rawList = '';
       this.errors = [];
       this.$bvModal.show('bulk-import-modal');
     },
+
+    /**
+     * close modal to bulk import users
+     */
     finish () {
       this.$bvModal.hide('bulk-import-modal');
     },
+
+    /**
+     * copy the invalid users and close the modal to bulk import users
+     */
     copyInvalidUsers () {
       const invalidUsersEmails = this.invalidUsers.map(invalidUser => invalidUser.email);
       navigator.clipboard.writeText(invalidUsersEmails.join('\n'));
@@ -157,37 +169,51 @@ export default {
       this.finish();
     },
 
+    /**
+     * init the valid users with the emails that were entered by the user
+     */
     initValidUsers () {
+      //get content from the textarea and remove unnecessary characters (' ', '\t', '\n' except the separator)
       const transferList = this.rawList
         .replaceAll(' ', '')
         .replaceAll('\t', '')
         .replaceAll(/^[\n?\r]+/gm, '')
         .toLowerCase();
       const usersEmailList = _.uniq(transferList.split(/\r?\n/));
+      //delete last element of the email list if it is empty
       if (usersEmailList.at(usersEmailList.length - 1) === '') {
         usersEmailList.splice(usersEmailList.length - 1, 1);
       }
+      // clear valid users and add the emails that were entered by the user
       this.validUsers = [];
       usersEmailList.forEach(email => {
         this.validUsers.push({ email, error: null });
       });
-
+      // clear invalid users
       this.invalidUsers = [];
     },
-
+    /**
+     * bulk import users
+     * @param firstRound
+     */
     importUsers (firstRound = false) {
       this.errors = [];
+      //initialize list of valid and invalid users on first request sent to the server
+      //all subsequent requests only modify list of valid/invalid users
       if (firstRound) { this.initValidUsers(); }
-
       const userEmails = this.validUsers.map(entry => entry.email);
       this.loading = true;
+
+      //post new users as room members
       Base.call('rooms/' + this.roomId + '/member/bulk', {
         method: 'post',
         data: { user_emails: userEmails, role: this.newUsersRole }
       }).then(response => {
+        // operation successful, go to the last step and emit "imported" to reload member list
         this.step = 2;
         this.$emit('imported');
       }).catch(error => {
+        //adding failed
         if (error.response) {
           if (error.response.status === env.HTTP_UNPROCESSABLE_ENTITY) {
             // check for role errors
@@ -232,10 +258,3 @@ export default {
 };
 </script>
 
-<style scoped>
-
-.preview {
-  max-height: 200px;
-  overflow-y: scroll;
-}
-</style>
