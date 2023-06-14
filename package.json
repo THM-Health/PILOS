@@ -37,7 +37,7 @@
         "mutationobserver-shim": "^0.3.7",
         "popper.js": "^1.12",
         "resolve-url-loader": "^5.0.0",
-        "sass": "^1.49.0",
+        "sass": "^1.63.4",
         "vite": "^3.2.7",
         "vitest": "^0.25.8",
         "vue": "^2.7.14",
