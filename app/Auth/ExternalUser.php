@@ -171,8 +171,7 @@ abstract class ExternalUser
     }
 
     /**
-     * @param mixed $role
-     * @param $userAttributes
+     * @param  mixed $role
      * @return bool
      */
     private function areRulesFulfilled(mixed $role): bool

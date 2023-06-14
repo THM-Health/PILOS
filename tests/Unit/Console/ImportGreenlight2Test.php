@@ -41,12 +41,12 @@ class ImportGreenlight2Test extends TestCase
 
     /**
      * Mock DB with fake response of the postgres database
-     * @param $roomAuth bool Room Authentication feature flag
-     * @param $users Collection Collection of Users
-     * @param $rooms Collection Collection of Rooms
-     * @param $sharedAccesses Collection Collection of SharedAccesses
+     * @param bool       $roomAuth       Authentication feature flag
+     * @param Collection $users          Collection of Users
+     * @param Collection $rooms          Collection Collection of Rooms
+     * @param Collection $sharedAccesses Collection Collection of SharedAccesses
      */
-    private function fakeDatabase($roomAuth, $users, $rooms, $sharedAccesses)
+    private function fakeDatabase(bool $roomAuth, Collection $users, Collection $rooms, Collection $sharedAccesses)
     {
         // preserve DB default
         $connection     = DB::connection();
