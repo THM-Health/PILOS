@@ -87,7 +87,7 @@ return [
         ],
         'room_auto_delete' => [
             'deadline_period' => [
-                'description' => 'Zeitraum zwischen Zustellung der Informations-Email und der Löschung',
+                'description' => 'Zeitraum zwischen Zustellung der Informations-E-Mail und der Löschung',
                 'title'       => 'Löschfirst',
             ],
             'enabled' => [

@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'change_email'     => 'E-Mail Adresse ändern',
+    'change_email'     => 'E-Mail-Adresse ändern',
     'change_password'  => 'Passwort ändern',
     'current_password' => 'Aktuelles Passwort',
     'email'            => [
-        'tab_title' => 'Email',
-        'title'     => 'Mit einer Email anmelden',
+        'tab_title' => 'E-Mail',
+        'title'     => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
         'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
@@ -26,7 +26,7 @@ return [
         'tab_title'     => 'LDAP',
         'title'         => 'Mit einem LDAP-Account anmelden',
         'username'      => 'Benutzerkennung',
-        'username_help' => 'Geben Sie die Benutzerkennung (nicht die Email) Ihres LDAP-Account an',
+        'username_help' => 'Geben Sie die Benutzerkennung (nicht die E-Mail) Ihres LDAP-Account an',
     ],
     'login'                     => 'Anmelden',
     'logout'                    => 'Abmelden',
@@ -48,5 +48,5 @@ return [
     ],
     'set_password'   => 'Passwort setzen',
     'throttle'       => 'Zu viele Loginversuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
-    'throttle_email' => 'Sie haben bereits vor kurzem eine Anfrage zur Änderung der E-Mail Adresse gestellt. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.',
+    'throttle_email' => 'Sie haben bereits vor kurzem eine Anfrage zur Änderung der E-Mail-Adresse gestellt. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut.',
 ];

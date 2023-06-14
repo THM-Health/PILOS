@@ -41,7 +41,7 @@ return [
         'default_timezone'                   => 'Standardzeitzone',
         'description'                        => 'Beschreibung',
         'duration'                           => 'Max. Dauer',
-        'email'                              => 'E-Mail Adresse',
+        'email'                              => 'E-Mail-Adresse',
         'everyone_can_start'                 => 'Jeder darf das Meeting starten',
         'excerpt'                            => 'Auszug',
         'file'                               => 'Datei',
