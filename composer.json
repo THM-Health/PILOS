@@ -14,7 +14,7 @@
         "doctrine/dbal": "^3.0",
         "goldspecdigital/laravel-eloquent-uuid": "^10",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel-lang/lang": "~6.1",
+        "laravel-lang/lang": "~12.21",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^v3.2",
         "laravel/tinker": "^2.0",
