@@ -16,7 +16,6 @@ return [
         'warning'   => 'Warning',
     ],
     'cancel'      => 'Cancel',
-    'continue'    => 'Continue',
     'delete'      => 'Delete',
     'description' => 'Description',
     'disable'     => 'Disable',
@@ -181,4 +180,5 @@ return [
         'admin' => 'Administrator',
         'user'  => 'User',
     ],
+    'continue' => 'Continue',
 ];
