@@ -50,7 +50,7 @@ class MeetingTest extends TestCase
                 $this->assertEquals($meeting->room->name, $arg->getName());
                 $this->assertEquals($meeting->moderator_pw, $arg->getModeratorPW());
                 $this->assertEquals($meeting->attendee_pw, $arg->getAttendeePW());
-                $this->assertEquals(url('rooms/'.$meeting->room->id), $arg->getLogoutUrl());
+                $this->assertEquals(url('rooms/'.$meeting->room->id), $arg->getLogoutURL());
 
                 $salt = urldecode(explode('?salt=', $arg->getMeta('endCallbackUrl'))[1]);
                 $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
