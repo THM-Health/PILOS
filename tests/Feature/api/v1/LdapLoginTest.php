@@ -25,10 +25,7 @@ class LdapLoginTest extends TestCase
      */
     private $guard = 'ldap';
 
-    /**
-     * @var Model|null $externalUser The ldap user that is used in the tests.
-     */
-    private $externalUser = null;
+    private LdapUser $ldapUser;
 
     /**
      * @var string $ldapRoleName Name of the ldap role.
@@ -399,7 +396,7 @@ class LdapLoginTest extends TestCase
      */
     public function testMappingOnSecondLogin()
     {
-        $this->ldapUser->updateAttribute('userclass', ['administrator']);
+        $this->ldapUser->replaceAttribute('userclass', ['administrator']);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -440,7 +437,7 @@ class LdapLoginTest extends TestCase
         $this->assertContains('user', $roleNames);
         $this->assertContains('test', $roleNames);
 
-        $this->ldapUser->updateAttribute('userclass', []);
+        $this->ldapUser->replaceAttribute('userclass', []);
 
         $this->postJson(route('api.v1.logout'));
 
