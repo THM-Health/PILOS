@@ -5,6 +5,7 @@ services:
         image: pilos/pilos:latest
         ports:
           - '127.0.0.1:5000:80'
+          - '127.0.0.1:9000:9000'
         env_file:
           - .env
         environment:

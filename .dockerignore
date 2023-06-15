@@ -16,4 +16,5 @@ tests
 .styleci.yml
 docs
 ssl
+db
 phpunit.xml
