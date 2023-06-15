@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Bulk import room members ([#282], [#299])
 - Option to set custom LDAP filter ([#344])
 - Option to load LDAP attributes as authenticated user ([#344])
 - Custom localization for backend ([#345])
@@ -536,6 +537,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#279]: https://github.com/THM-Health/PILOS/issues/279
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
+[#282]: https://github.com/THM-Health/PILOS/issues/282
 [#284]: https://github.com/THM-Health/PILOS/issues/284
 [#285]: https://github.com/THM-Health/PILOS/issues/285
 [#287]: https://github.com/THM-Health/PILOS/pull/287
@@ -548,6 +550,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#296]: https://github.com/THM-Health/PILOS/pull/296
 [#297]: https://github.com/THM-Health/PILOS/issues/297
 [#298]: https://github.com/THM-Health/PILOS/issues/298
+[#299]: https://github.com/THM-Health/PILOS/pull/299
 [#304]: https://github.com/THM-Health/PILOS/issues/304
 [#305]: https://github.com/THM-Health/PILOS/issues/305
 [#306]: https://github.com/THM-Health/PILOS/pull/306

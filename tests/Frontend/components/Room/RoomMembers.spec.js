@@ -93,7 +93,7 @@ describe('RoomMembers', () => {
     view.destroy();
   });
 
-  it('show owner add and edit buttons', async () => {
+  it('show owner add, import and edit buttons', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -108,6 +108,7 @@ describe('RoomMembers', () => {
     });
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'add-member' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'import-members' }).exists()).toBeTruthy();
 
     const fields = view.vm.tableFields.map(a => a.key);
     expect(fields).toContain('firstname');
@@ -118,7 +119,7 @@ describe('RoomMembers', () => {
     view.destroy();
   });
 
-  it('show co-owner add and edit buttons', async () => {
+  it('show co-owner add, import and edit buttons', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const view = mount(MembersComponent, {
       localVue,
@@ -133,6 +134,7 @@ describe('RoomMembers', () => {
     });
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'add-member' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'import-members' }).exists()).toBeTruthy();
 
     const fields = view.vm.tableFields.map(a => a.key);
     expect(fields).toContain('firstname');
@@ -144,7 +146,7 @@ describe('RoomMembers', () => {
     view.destroy();
   });
 
-  it('hide add and edit buttons on room.viewAll permission', async () => {
+  it('hide add, import and edit buttons on room.viewAll permission', async () => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -166,6 +168,7 @@ describe('RoomMembers', () => {
     expect(view.findComponent(BFormFile).exists()).toBeFalsy();
 
     expect(view.findComponent({ ref: 'add-member' }).exists()).toBeFalsy();
+    expect(view.findComponent({ ref: 'import-members' }).exists()).toBeFalsy();
 
     const fields = view.vm.tableFields.map(a => a.key);
     expect(fields).toContain('firstname');
@@ -178,7 +181,7 @@ describe('RoomMembers', () => {
     view.destroy();
   });
 
-  it('add and edit buttons on room.manage permission', async () => {
+  it('Show add, import and edit buttons on room.manage permission', async () => {
     const oldUser = PermissionService.currentUser;
 
     const newUser = _.clone(exampleUser);
@@ -198,6 +201,7 @@ describe('RoomMembers', () => {
     });
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'add-member' }).exists()).toBeTruthy();
+    expect(view.findComponent({ ref: 'import-members' }).exists()).toBeTruthy();
 
     const fields = view.vm.tableFields.map(a => a.key);
     expect(fields).toContain('firstname');

@@ -76,6 +76,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('rooms/{room}/membership', [RoomMemberController::class,'leave'])->name('rooms.membership.leave');
 
         // Membership users for mass update & delete
+        Route::post('rooms/{room}/member/bulk', [RoomMemberController::class,'bulkImport'])->name('rooms.member.bulkImport')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
 

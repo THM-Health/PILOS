@@ -94,3 +94,8 @@
     display: inline-block;
     margin-right: 5px;
 }
+
+.room-bulk-import-preview {
+    overflow-y: auto;
+    max-height: 200px;
+}

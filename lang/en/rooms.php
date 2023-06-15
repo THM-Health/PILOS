@@ -64,18 +64,32 @@ return [
         'title' => 'History',
     ],
     'members' => [
-        'add_user'         => 'Add user',
-        'bulk_edit_user'   => 'Edit :numberOfSelectedUsers members',
-        'bulk_remove_user' => 'Remove :numberOfSelectedUsers members',
-        'edit_user'        => 'Edit member',
-        'image'            => 'Picture',
-        'modals'           => [
+        'add_user'          => 'Add user',
+        'bulk_edit_user'    => 'Edit :numberOfSelectedUsers members',
+        'bulk_import_users' => 'Add several users',
+        'bulk_remove_user'  => 'Remove :numberOfSelectedUsers members',
+        'edit_user'         => 'Edit member',
+        'image'             => 'Picture',
+        'modals'            => [
             'add' => [
                 'add'         => 'Add',
                 'no_options'  => 'No entries, please search for a user.',
                 'no_result'   => 'Oops! No user was found for this query.',
                 'select_role' => 'Please select a role',
                 'select_user' => 'Please select the user you would like to add',
+            ],
+            'bulk_import' => [
+                'can_import_users'          => 'Users that can be added',
+                'cannot_import_users'       => 'Users that can not be added',
+                'copied_invalid_users'      => 'Copied invalid users',
+                'copy_and_close'            => 'Copy users that could not be added and close',
+                'could_not_import_users'    => 'Users that could not be added',
+                'list_description'          => 'Every line represents a separate email address (maximum 1000)',
+                'list_placeholder'          => 'john.doe@domain.com\njane.doe@domain.com',
+                'import_importable_button'  => 'Add valid users',
+                'import_importable_question'=> 'Do you want to continue to add the users that can be added?',
+                'imported_users'            => 'Users that were successfully added',
+                'label'                     => 'Email list'
             ],
             'edit' => [
                 'title'      => 'Edit :firstname :lastname',
