@@ -33,6 +33,16 @@ function linkStorage() {
     gosu www-data php artisan storage:link
 }
 
+function enableSSL() {
+    echo "Checking SSL files"
+    if [ -e /local/certs/fullchain.pem -a -e /local/certs/privkey.pem ]; then
+        echo "Files found, enabling SSL"
+        ln -s /etc/nginx/snippets-available/ssl /etc/nginx/snippets/ssl
+    else
+        echo "Files not found, skipping SSL"
+    fi
+}
+
 function optimize() {
     gosu www-data composer dump-autoload -o
     gosu www-data php artisan config:cache
@@ -55,6 +65,8 @@ else
         migrateDatabase
         linkStorage
         optimize
+    else
+        enableSSL
     fi
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
