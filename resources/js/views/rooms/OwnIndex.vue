@@ -6,6 +6,11 @@
             <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
               <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+              <b-dropdown variant="primary" text="sort by" >
+                <b-dropdown-item @click="">alphabetical order</b-dropdown-item>
+                <b-dropdown-item @click="">...</b-dropdown-item>
+              </b-dropdown>
+              <b-button @click="changeSortingOrder" class="fa-solid" :class="{'fa-arrow-down': sortingOrderDown, 'fa-arrow-up': !sortingOrderDown}" v-tooltip-hide-click v-b-tooltip.hover title="Change sorting order"></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
@@ -155,6 +160,9 @@ export default {
       }).finally(() => {
         this.loadingOwn = false;
       });
+    },
+    changeSortingOrder(){
+      this.sortingOrderDown = !this.sortingOrderDown;
     }
   },
   data () {
@@ -163,7 +171,8 @@ export default {
       loadingShared: false,
       ownRooms: null,
       sharedRooms: null,
-      rawSearchQuery: ''
+      rawSearchQuery: '',
+      sortingOrderDown: true
     };
   }
 };
