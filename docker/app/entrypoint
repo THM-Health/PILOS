@@ -51,6 +51,11 @@ function optimize() {
     gosu www-data php artisan locales:cache
 }
 
+function enableOPCacheTimestamps() {
+    echo "Enabling opcache timestamps"
+    sed -i 's/opcache.validate_timestamps=.*/opcache.validate_timestamps=1/' /usr/local/etc/php/conf.d/opcache.ini
+}
+
 if [ "$ENABLE_XDEBUG" == "yes" ]; then
     echo "Enabling xdebug"
     docker-php-ext-enable xdebug
@@ -67,6 +72,7 @@ else
         optimize
     else
         enableSSL
+        enableOPCacheTimestamps
     fi
 
     exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

@@ -11,6 +11,7 @@ WORKDIR /var/www/html
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
+ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0"
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -22,7 +23,7 @@ RUN apt-get update \
     && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev  \
     && docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ \
     && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-    && docker-php-ext-install -j$(nproc) bcmath pdo_mysql pdo_pgsql pgsql ldap zip gd \
+    && docker-php-ext-install -j$(nproc) bcmath pdo_mysql pdo_pgsql pgsql ldap zip gd opcache \
     && pecl install xdebug-3.1.5 \
     && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
     && curl -sL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
@@ -71,6 +72,7 @@ RUN echo 'ULIMIT="-n 65535"' >> /etc/default/nginx
 # Copy php config files
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
+COPY ./docker/app/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
