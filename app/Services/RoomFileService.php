@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RoomFileService
 {
@@ -51,15 +50,23 @@ class RoomFileService
         return true;
     }
 
-    public function download(): StreamedResponse
+    public function download(): \Illuminate\Http\Response
     {
         if (!$this->checkFileExists()) {
             abort(404);
         }
 
-        return Storage::download($this->file->path, $this->file->filename, [
-            'Content-Disposition' => 'inline; filename="'. $this->file->filename .'"'
-        ]);
+        $fileAlias = config('filesystems.x-accel.url_prefix').'/'.$this->file->path;
+        $fileName  = $this->file->filename;
+        $fileSize  = Storage::size($this->file->path);
+        $fileMime  = Storage::mimeType($this->file->path);
+
+        return response(null, 200)
+            ->header('Content-Type', $fileMime)
+            ->header('Content-Length', $fileSize )
+            ->header('Content-Disposition', 'inline; filename='.$fileName)
+            ->header('Content-Transfer-Encoding', 'binary')
+            ->header('X-Accel-Redirect', $fileAlias);
     }
 
     /**
