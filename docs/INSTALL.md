@@ -70,8 +70,21 @@ Copy the output and edit the `DB_PASSWORD` option in the `.env` file.
 
 
 ### Webserver
-PILOS has a build in apache webserver. However, it is **highly** recommended to not expose the container port.
+PILOS has a build in nginx webserver. However, it is **highly** recommended to not expose the container port.
 You will need to set up a reverse proxy that routes the traffic to this application (default: 127.0.0.1:5000)
+
+
+**Nginx (Recommended)**
+```nginx
+location / {
+  proxy_pass          http://127.0.0.1:5000;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Port  $server_port;
+  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+  proxy_set_header    X-Forwarded-Proto $scheme;
+  proxy_http_version  1.1;
+}
+```
 
 **Apache**
 ```apacheconf
@@ -85,18 +98,6 @@ RequestHeader set X-Forwarded-Port "443"
 ```
 
 You may need to adjust the X-Forwarded-Proto and X-Forwarded-Port settings, depending on your environment.
-
-**Nginx**
-```nginx
-location / {
-  proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    Host              $host;
-  proxy_set_header    X-Forwarded-Port  $server_port;
-  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
-  proxy_set_header    X-Forwarded-Proto $scheme;
-  proxy_http_version  1.1;
-}
-```
 
 #### Trusted proxies
 You have to add your proxy to the list of trusted proxies in the `.env` file.
