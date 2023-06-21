@@ -64,7 +64,7 @@ RUN rm /etc/nginx/sites-enabled/default
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 
-# set limits
+# Increase limits
 RUN echo 'www-data soft nofile 65535' >> /etc/security/limits.conf
 RUN echo 'www-data hard nofile 65535' >> /etc/security/limits.conf
 RUN echo 'ULIMIT="-n 65535"' >> /etc/default/nginx
