@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to load LDAP attributes as authenticated user ([#344])
 - Custom localization for backend ([#345])
 - Room description / welcome page ([#270],[#273]) 
+- OPCache for better performance ([#371])
+
+### Changed
+- Switch internal webserver from apache to nginx ([#371])
+- Increase PHP-FPM workers ([#371])
 
 ### Changed
 - **Breaking:** Custom localization file format ([#345])

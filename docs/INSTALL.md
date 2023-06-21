@@ -58,6 +58,8 @@ Copy the output and edit the `APP_KEY` option in the `.env` file.
 
 You also need to edit the `APP_URL` option in the `.env` file to match the domain from which the application will be accessible from. 
 
+**Warning**: Ensure that `APP_ENV=production` and `APP_DEBUG=false` are used on a production server for performance and security reasons.
+
 ### Database
 The docker-compose.yml provides a mariadb.
 To create a secure default database password, run the following command:
@@ -77,6 +79,24 @@ You will need to set up a reverse proxy that routes the traffic to this applicat
 **Nginx (Recommended)**
 ```nginx
 location / {
+  proxy_pass          http://127.0.0.1:5000;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Port  $server_port;
+  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+  proxy_set_header    X-Forwarded-Proto $scheme;
+  proxy_http_version  1.1;
+}
+```
+
+You can also add some rate limiting on the webserver level. This example config allows 5 requests/sec. The configuration allows bursts of up to 20 requests, the first 10 of which are processed without delay. A delay is added after 10 excessive requests to enforce the 5 r/s limit. After 20 excessive requests, any further requests are rejected. For more details have a look at the nginx documentation on [rate limting](https://www.nginx.com/blog/rate-limiting-nginx/).
+
+```nginx
+limit_req_zone $binary_remote_addr zone=api:10m rate=5r/s;
+location / {
+  limit_req zone=api burst=20 delay=10;
+  limit_req_log_level warn;
+  limit_req_status 429;
+
   proxy_pass          http://127.0.0.1:5000;
   proxy_set_header    Host              $host;
   proxy_set_header    X-Forwarded-Port  $server_port;

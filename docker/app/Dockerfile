@@ -11,7 +11,6 @@ WORKDIR /var/www/html
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV TZ=UTC
-ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0"
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -62,7 +61,6 @@ COPY ./docker/app/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/app/nginx/snippets-available /etc/nginx/snippets-available
 RUN rm /etc/nginx/sites-enabled/default
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
 
 # Increase limits
 RUN echo 'www-data soft nofile 65535' >> /etc/security/limits.conf
