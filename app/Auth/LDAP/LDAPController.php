@@ -78,9 +78,7 @@ class LDAPController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        // Log successful authentication if enabled
-        if (config('auth.log.successful')) {
-            Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'ldap']);
-        }
+        // Log successful authentication
+        Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['type' => 'ldap']);
     }
 }

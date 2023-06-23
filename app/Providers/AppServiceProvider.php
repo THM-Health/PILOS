@@ -24,5 +24,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LocaleService::class, function () {
             return new LocaleService(new Filesystem());
         });
+
+        if ($this->app->environment('local')) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 }
