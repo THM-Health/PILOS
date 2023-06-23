@@ -11,7 +11,6 @@ services:
         environment:
           TRUSTED_PROXIES: "*"
         volumes:
-          - './storage/logs:/var/www/html/storage/logs'
           - './storage/app:/var/www/html/storage/app'
           - './resources/custom:/var/www/html/resources/custom'
           - './app/Auth/config:/var/www/html/app/Auth/config'
