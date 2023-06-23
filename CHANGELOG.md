@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom localization for backend ([#345])
 - Room description / welcome page ([#270],[#273]) 
 - OPCache for better performance ([#371])
+- Laravel telescope for local development and testing ([#380], [#381])
+- Logging for many user and system actions ([#380], [#381])
 
 ### Changed
 - Switch internal webserver from apache to nginx ([#371])
 - Increase PHP-FPM workers ([#371])
+- Default log channel ([#381]) 
 
 ### Changed
 - **Breaking:** Custom localization file format ([#345])
@@ -588,6 +591,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#340]: https://github.com/THM-Health/PILOS/pull/340
 [#344]: https://github.com/THM-Health/PILOS/pull/344
 [#345]: https://github.com/THM-Health/PILOS/pull/345
+[#371]: https://github.com/THM-Health/PILOS/pull/371
+[#380]: https://github.com/THM-Health/PILOS/issues/380
+[#381]: https://github.com/THM-Health/PILOS/pull/381
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
