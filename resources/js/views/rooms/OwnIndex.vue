@@ -1,35 +1,69 @@
 <template>
     <b-container class="mt-3 mb-5">
-      <b-row class="mb-3">
-        <b-col md="3" offset-md="9">
+      <b-row class="mb-1">
+        <b-col md="9">
           <b-input-group>
             <b-form-input @change="search" :disabled="loadingOwn || loadingShared" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
               <b-button @click="search" :disabled="loadingOwn || loadingShared" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
-              <b-dropdown variant="primary" text="sort by" >
-                <b-dropdown-item @click="">alphabetical order</b-dropdown-item>
-                <b-dropdown-item @click="">...</b-dropdown-item>
-              </b-dropdown>
-              <b-button @click="changeSortingOrder" class="fa-solid" :class="{'fa-arrow-down': sortingOrderDown, 'fa-arrow-up': !sortingOrderDown}" v-tooltip-hide-click v-b-tooltip.hover title="Change sorting order"></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
+        <b-col md="3">
+          <new-room-component @limitReached="onReachLimit" ></new-room-component>
+        </b-col>
       </b-row>
-      <h2>{{ $t('rooms.my_rooms') }}</h2>
+      <b-row >
+        <b-col md="3">
+          <h6>Sortierung</h6>
+          <b-form-select v-model="selectedSortingType">
+            <b-form-select-option disabled value="-1">-- Sortierung auswählen --</b-form-select-option>
+            <b-form-select-option value="null">Alphabetisch aufsteigend</b-form-select-option>
+            <b-form-select-option value="0">Alphabetisch absteigend</b-form-select-option>
+            <b-form-select-option value="1">...</b-form-select-option>
+          </b-form-select>
+        </b-col>
+        <b-col md="3">
+          <h6>Raumart</h6>
+          <b-form-select v-model="selectedRoomType">
+            <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
+            <b-form-select-option value="null">Alle</b-form-select-option>
+            <b-form-select-option value="0">Lecture</b-form-select-option>
+            <b-form-select-option value="1">Meeting</b-form-select-option>
+            <b-form-select-option value="1">Exam</b-form-select-option>
+            <b-form-select-option value="1">Seminar</b-form-select-option>
+          </b-form-select>
+        </b-col>
+        <b-col md="3">
+          <h6>Geteilte Räume anzeigen</h6>
+          <b-form-checkbox
+            switch
+          >
+          </b-form-checkbox>
+        </b-col>
+        <b-col md="3">
+          <h6>Alle Räume anzeigen</h6>
+          <b-form-checkbox
+            switch
+          >
+          </b-form-checkbox>
+        </b-col>
+
+      </b-row>
       <b-overlay :show="loadingOwn" >
         <div id="ownRooms" v-if="ownRooms">
           <b-badge v-if="showLimit">{{ $t('rooms.room_limit',{has:ownRooms.meta.total_no_filter,max:currentUser.room_limit}) }}</b-badge><br>
           <em v-if="ownRooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
           <em v-else-if="!ownRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
-          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
+          <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" :type="room.type" :running="room.running"></room-component>
+                <room-component :id="room.id" :name="room.name" :type="room.type" :running="room.running"></room-component>
             </b-col>
-            <can method="create" policy="RoomPolicy" v-if="!limitReached">
+<!--            <can method="create" policy="RoomPolicy" v-if="!limitReached">
             <b-col class="pt-2">
               <new-room-component @limitReached="onReachLimit" ></new-room-component>
             </b-col>
-            </can>
+            </can>-->
           </b-row>
           <b-pagination
             class="mt-4"
@@ -160,9 +194,6 @@ export default {
       }).finally(() => {
         this.loadingOwn = false;
       });
-    },
-    changeSortingOrder(){
-      this.sortingOrderDown = !this.sortingOrderDown;
     }
   },
   data () {
@@ -172,7 +203,8 @@ export default {
       ownRooms: null,
       sharedRooms: null,
       rawSearchQuery: '',
-      sortingOrderDown: true
+      selectedRoomType: null,
+      selectedSortingType:null
     };
   }
 };

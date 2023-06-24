@@ -5,13 +5,18 @@
       <b-card-body class="p-3">
         <room-status-component :running="running"></room-status-component>
         <b-row>
-          <b-col cols="3" sm="3"><div v-if="type" v-b-tooltip.hover :title="type.description" class="room-icon" :style="{ 'background-color': type.color}">{{type.short}}</div></b-col>
-          <b-col col><h5 class="mt-2 text-break " style="width: 100%">{{name}}</h5></b-col>
+          <b-col>
+            <b-badge :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
+            <h5 class="mt-2 text-break " style="width: 100%">{{name}}</h5>
+            <small v-if="shared" style="display: block"><i class="fa-solid fa-user"></i> {{ sharedBy.name }} </small>
+            <small v-if="!shared" style="display: block"><i class="fa-solid fa-user"></i> Besitzer </small>
+            <small  v-if="running" style="display: block"><i class="fa-solid fa-clock"></i> Läuft</small>
+            <small  v-if="!running" style="display: block"><i class="fa-solid fa-clock"></i> 20.06.23</small>
+          </b-col>
+
+<!--          <b-col cols="3" sm="3"><div v-if="type" v-b-tooltip.hover :title="type.description" class="room-icon" :style="{ 'background-color': type.color}">{{type.short}}</div></b-col>-->
         </b-row>
       </b-card-body>
-      <template v-slot:footer v-if="shared">
-        <small><i class="fa-solid fa-share"></i> {{ $t('rooms.shared_by', { name: sharedBy.name }) }}</small>
-      </template>
     </b-card>
     </b-overlay>
   </div>

@@ -1,10 +1,11 @@
 <template>
   <div>
-    <b-card no-body class="room-card" @click="$bvModal.show('new-room')">
-      <b-card-body class="p-3">
-       <h5 class="mt-2"><i class="fa-solid fa-plus mr-3"></i> {{ $t('rooms.create.title') }}</h5>
-      </b-card-body>
-    </b-card>
+    <b-button block variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> Neuen Raum erstellen</b-button>
+<!--    <b-card no-body class="room-card" @click="$bvModal.show('new-room')">-->
+<!--      <b-card-body class="p-3">-->
+<!--       <h5 class="mt-2"><i class="fa-solid fa-plus mr-3"></i> {{ $t('rooms.create.title') }}</h5>-->
+<!--      </b-card-body>-->
+<!--    </b-card>-->
 
     <b-modal
       id="new-room"
