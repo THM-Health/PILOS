@@ -204,7 +204,7 @@ export default {
       sharedRooms: null,
       rawSearchQuery: '',
       selectedRoomType: null,
-      selectedSortingType:null
+      selectedSortingType: null
     };
   }
 };
