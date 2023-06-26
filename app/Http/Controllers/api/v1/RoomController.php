@@ -110,7 +110,7 @@ class RoomController extends Controller
         $room->owner()->associate(Auth::user());
         $room->save();
 
-        Log::info('Created new room {room}', ['room' => $room->id, 'room-name' => $room->name ]);
+        Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
 
         return new \App\Http\Resources\Room($room, true);
     }
@@ -205,7 +205,7 @@ class RoomController extends Controller
 
         $room->save();
 
-        Log::info('Changed settings for room {room}', ['room' => $room->id, 'room-name' => $room->name ]);
+        Log::info('Changed settings for room {room}', ['room' => $room->getLogLabel() ]);
 
         return new RoomSettings($room);
     }
@@ -227,7 +227,7 @@ class RoomController extends Controller
 
         $room->save();
 
-        Log::info('Changed description for room {room}', ['room' => $room->id, 'room-name' => $room->name ]);
+        Log::info('Changed description for room {room}', ['room' => $room->getLogLabel() ]);
 
         return new RoomSettings($room);
     }
@@ -242,7 +242,7 @@ class RoomController extends Controller
     {
         $room->delete();
 
-        Log::info('Deleted room {room}', ['room' => $room->id, 'room-name' => $room->name ]);
+        Log::info('Deleted room {room}', ['room' => $room->getLogLabel() ]);
 
         return response()->noContent();
     }

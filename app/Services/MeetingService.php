@@ -15,6 +15,7 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Log;
 
 class MeetingService
 {
@@ -148,7 +149,18 @@ class MeetingService
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
-        $response               = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
+        try {
+            $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
+        } // Catch exceptions, e.g. network connection issues
+        catch (\Exception $exception) {
+            Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel() ]);
+
+            // Remove meeting and set server to offline
+            $this->meeting->forceDelete();
+            $this->serverService->handleApiCallFailed();
+
+            return false;
+        }
 
         return $response->success();
     }

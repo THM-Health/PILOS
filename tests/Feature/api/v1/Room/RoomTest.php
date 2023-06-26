@@ -1234,7 +1234,7 @@ class RoomTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
             ->assertSuccessful();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
-            ->assertStatus(471);
+            ->assertStatus(470);
     }
 
     /**

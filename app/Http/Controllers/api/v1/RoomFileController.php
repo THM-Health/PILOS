@@ -48,7 +48,7 @@ class RoomFileController extends Controller
         $room->files()->save($file);
         $room->updateDefaultFile();
 
-        Log::info('Uploaded new file {file} to room {room}', ['room' => $room->id, 'file' => $file->id, 'filename' => $file->filename ]);
+        Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel() ]);
 
         return $this->index($room);
     }
@@ -109,7 +109,7 @@ class RoomFileController extends Controller
 
         $file->save();
 
-        Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->id, 'file' => $file->id, 'filename' => $file->filename ]);
+        Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
 
         $room->updateDefaultFile();
 
@@ -133,7 +133,7 @@ class RoomFileController extends Controller
         $file->delete();
         $room->updateDefaultFile();
 
-        Log::info('Deleted file {file} in room {room}', ['room' => $room->id, 'file' => $file->id, 'filename' => $file->filename ]);
+        Log::info('Deleted file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel() ]);
 
         return $this->index($room);
     }

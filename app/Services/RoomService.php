@@ -83,14 +83,14 @@ class RoomService
 
                 $meetingService = new MeetingService($meeting);
 
-                Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->id, 'server' => $server->id ]);
+                Log::info('Starting new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel() ]);
                 if (!$meetingService->start()) {
                     $lock->release();
-                    Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->id, 'server' => $server->id ]);
+                    Log::error('Failed to start meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel()  ]);
                     abort(CustomStatusCodes::ROOM_START_FAILED, __('app.errors.room_start'));
                 }
 
-                Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->id, 'server' => $server->id ]);
+                Log::info('Successfully started new meeting for room {room} on server {server}', ['room' => $this->room->getLogLabel(), 'server' => $server->getLogLabel() ]);
 
                 // Set start time after successful api call, prevents user from tying to join this meeting before it is ready
                 $meeting->start = date('Y-m-d H:i:s');
