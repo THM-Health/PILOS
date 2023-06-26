@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Http\Requests\StartJoinMeeting;
 use App\Models\Meeting;
-use App\Models\Room;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Parameters\CreateMeetingParameters;
@@ -15,6 +15,7 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class MeetingService
 {
@@ -148,7 +149,16 @@ class MeetingService
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
-        $response               = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
+        try {
+            $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
+        }
+        // Catch exceptions, e.g. network connection issues
+        catch (\Exception $exception) {
+            // Set server to offline
+            $this->serverService->handleApiCallFailed();
+
+            return false;
+        }
 
         return $response->success();
     }
@@ -226,12 +236,10 @@ class MeetingService
     }
 
     /**
-     * @param  mixed            $token
      * @param  StartJoinMeeting $request
-     * @param  Room             $room
-     * @return string
+     * @return string|bool
      */
-    public function getJoinUrl(StartJoinMeeting $request): string
+    public function getJoinUrl(StartJoinMeeting $request): string|bool
     {
         $token = $request->get('token');
 
@@ -259,6 +267,19 @@ class MeetingService
             $joinMeetingParams->addUserData('bbb_custom_style_url', setting('bbb_style'));
         }
 
-        return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
+        try {
+            $url = $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
+        }
+        // Catch exceptions, e.g. network connection issues
+        catch (\Exception $exception) {
+            // Set server to offline
+            $this->serverService->handleApiCallFailed();
+            $this->setEnd();
+
+            Log::error('Failed to get join url for room {room} on server {server}', ['room' => $this->meeting->room->id, 'server' => $this->meeting->server->id ]);
+            abort(CustomStatusCodes::ROOM_JOIN_FAILED, __('app.errors.room_join'));
+        }
+
+        return $url;
     }
 }

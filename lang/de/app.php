@@ -41,6 +41,7 @@ return [
         'role_update_permission_lost'  => 'Die Änderungen an der Rolle würden für Sie zum Verlust der Rechte zum Bearbeiten oder Anzeigen von Rollen führen!',
         'room_limit_exceeded'          => 'Raumerstellung fehlgeschlagen! Sie haben die max. Anzahl an Räumen erreicht.',
         'room_start'                   => 'Starten fehlgeschlagen! Der Raum konnte nicht gestartet werden.',
+        'room_join'                    => 'Teilnahme fehlgeschlagen! Bei der Verbindung zum Server ist ein Fehler aufgetreten.',
         'room_type_invalid'            => 'Die Art des Raumes ist für bestimmte Benutzergruppen eingeschränkt. Wenn Sie der Beistzer des Raumes sind, ändern Sie bitte die Raumart, damit der Raum gestartet werden kann.',
         'server_delete_failed'         => 'Der Server konnte nicht gelöscht werden. Um den Server zu löschen, muss dieser deaktivert werden und es dürfen keine Meetings laufen.',
         'server_pool_delete_failed'    => 'Der Serverpool konnte nicht gelöscht werden. Um den Serverpool zu löschen, darf dieser von keiner Raumart verwendet werden.',
@@ -182,6 +183,5 @@ return [
     'role_lables' => [
         'admin' => 'Administrator',
         'user'  => 'Benutzer',
-    ],
-    'continue' => 'Weiter',
+    ]
 ];

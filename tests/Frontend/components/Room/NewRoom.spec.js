@@ -370,7 +370,7 @@ describe('Create new rooms', () => {
     const request = moxios.requests.mostRecent();
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
-      status: 463,
+      status: 464,
       response: { message: 'test' }
     });
 

@@ -1547,14 +1547,14 @@ describe('Room', () => {
     expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
     expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
     await moxios.requests.mostRecent().respondWith({
-      status: 470,
+      status: 471,
       response: {
         message: 'Consent to record attendance is required.'
       }
     });
     await view.vm.$nextTick();
     expect(baseError).toBeCalledTimes(1);
-    expect(baseError.mock.calls[0][0].response.status).toEqual(470);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(471);
     expect(baseError.mock.calls[0][0].response.data.message).toEqual('Consent to record attendance is required.');
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
 
@@ -1956,7 +1956,7 @@ describe('Room', () => {
     expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
 
     await moxios.requests.mostRecent().respondWith({
-      status: 470,
+      status: 471,
       response: {
         message: 'Consent to record attendance is required.'
       }
@@ -1965,7 +1965,7 @@ describe('Room', () => {
     await view.vm.$nextTick();
 
     expect(baseError).toBeCalledTimes(1);
-    expect(baseError.mock.calls[0][0].response.status).toEqual(470);
+    expect(baseError.mock.calls[0][0].response.status).toEqual(471);
     expect(baseError.mock.calls[0][0].response.data.message).toEqual('Consent to record attendance is required.');
 
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeTruthy();
