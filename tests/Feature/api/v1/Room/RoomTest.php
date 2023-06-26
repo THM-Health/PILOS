@@ -14,6 +14,7 @@ use App\Models\RoomToken;
 use App\Models\RoomType;
 use App\Models\Server;
 use App\Models\User;
+use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\MeetingService;
 use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -23,7 +24,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -1060,7 +1060,7 @@ class RoomTest extends TestCase
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
         // Try to start bbb meeting
-        $response = Http::timeout(config('bigbluebutton.server_timeout'))->withOptions(['allow_redirects' => false])->get($response->json('url'));
+        $response = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' => false])->get($response->json('url'));
         $this->assertEquals(302, $response->status());
         $this->assertArrayHasKey('Location', $response->headers());
 
@@ -1216,7 +1216,7 @@ class RoomTest extends TestCase
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 1]))
             ->assertSuccessful();
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
-            ->assertStatus(470);
+            ->assertStatus(471);
     }
 
     /**
@@ -1225,12 +1225,14 @@ class RoomTest extends TestCase
     public function testStartWhileStarting()
     {
         config(['bigbluebutton.server_timeout' => 2]);
-        $room = Room::factory()->create();
-        $lock = Cache::lock('startroom-'.$room->id, config('bigbluebutton.server_timeout'));
+        config(['bigbluebutton.server_connect_timeout' => 2]);
+        $room    = Room::factory()->create();
+        $timeout = config('bigbluebutton.server_timeout') + config('bigbluebutton.server_connect_timeout');
+        $lock    = Cache::lock('startroom-'.$room->id, $timeout);
 
         try {
             // Simulate that another request is currently starting this room
-            $lock->block(config('bigbluebutton.server_timeout'));
+            $lock->block($timeout);
 
             // Try to start the room
             $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room, 'record_attendance' => 0]))
@@ -1392,7 +1394,7 @@ class RoomTest extends TestCase
         $this->assertEquals('true', $queryParams['userdata-bbb_skip_check_audio']);
 
         // Try to start bbb meeting
-        $response = Http::timeout(config('bigbluebutton.server_timeout'))->withOptions(['allow_redirects' => false])->get($response->json('url'));
+        $response = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' => false])->get($response->json('url'));
         $this->assertEquals(302, $response->status());
         $this->assertArrayHasKey('Location', $response->headers());
 
@@ -1743,7 +1745,7 @@ class RoomTest extends TestCase
         // check if response has a join url
         $this->assertIsString($response->json('url'));
         // check if join url is working
-        $response        = Http::timeout(config('bigbluebutton.server_timeout'))->withOptions(['allow_redirects' =>['track_redirects' => true]])->get($response->json('url'));
+        $response        = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' =>['track_redirects' => true]])->get($response->json('url'));
         $headersRedirect = $response->getHeader(\GuzzleHttp\RedirectMiddleware::HISTORY_HEADER);
         $this->assertNotEmpty($headersRedirect);
 

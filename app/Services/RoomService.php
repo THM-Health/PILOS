@@ -31,13 +31,15 @@ class RoomService
     {
         Log::info('Starting room {room}', ['room' => $this->room->id, 'room-name' => $this->room->name ]);
 
+        // Maximum waiting time (server response timeout + server connect timeout) before failing
+        $timeout = config('bigbluebutton.server_timeout') + config('bigbluebutton.server_connect_timeout');
+
         // Atomic lock for room start to prevent users from simultaneously starting the same room
-        // Maximum waiting time 45sec before failing
-        $lock = Cache::lock('startroom-'.$this->room->id, config('bigbluebutton.server_timeout'));
+        $lock = Cache::lock('startroom-'.$this->room->id, $timeout);
 
         try {
             // Block the lock for a max. of 45sec
-            $lock->block(config('bigbluebutton.server_timeout'));
+            $lock->block($timeout);
 
             $meeting = $this->room->runningMeeting();
             if (!$meeting) {

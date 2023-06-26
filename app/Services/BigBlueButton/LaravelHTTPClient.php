@@ -22,7 +22,12 @@ final class LaravelHTTPClient implements TransportInterface
 
     public function __construct()
     {
-        $this->httpClient = Http::timeout(config('bigbluebutton.server_timeout'));
+        $this->httpClient = self::httpClient();
+    }
+
+    public static function httpClient(): PendingRequest
+    {
+        return Http::timeout(config('bigbluebutton.server_timeout'))->connectTimeout(config('bigbluebutton.server_connect_timeout'));
     }
 
     /**

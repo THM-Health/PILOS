@@ -12,7 +12,7 @@ class EnsureModelNotStale
     /**
      * Checks that the updates from request only applied to a actual model. If the update_at field in the
      * request parameters is older than the updated_at of the model in the database, a error response with the
-     * status code 466 will be returned containing the actual model.
+     * status code 428 will be returned containing the actual model.
      *
      * @param  Request $request                    Request to get the model and parameters from
      * @param  Closure $next                       Next to call if everything is ok
