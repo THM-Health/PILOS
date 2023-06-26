@@ -52,6 +52,7 @@ class ServerService
 
         try {
             $response = $this->bbb->getMeetings();
+
             if ($response->failed()) {
                 return null;
             }
@@ -158,7 +159,6 @@ class ServerService
 
         if ($this->server->status != ServerStatus::DISABLED) {
             $bbbMeetings = $this->getMeetings();
-
             // Server is offline, end all meetings  in database
             if ($bbbMeetings === null) {
                 $this->handleApiCallFailed();

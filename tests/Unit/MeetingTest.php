@@ -8,14 +8,11 @@ use App\Models\RoomFile;
 use App\Models\Server;
 use App\Services\MeetingService;
 use App\Services\ServerService;
-use BigBlueButton\BigBlueButton;
-use BigBlueButton\Parameters\CreateMeetingParameters;
-use BigBlueButton\Responses\CreateMeetingResponse;
+use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Mockery;
 use Tests\TestCase;
 
 class MeetingTest extends TestCase
@@ -43,57 +40,58 @@ class MeetingTest extends TestCase
     public function testStartParameters()
     {
         $meeting  = $this->meeting;
-        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
-        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
-            $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($response, $meeting) {
-                $this->assertEquals($meeting->id, $arg->getMeetingID());
-                $this->assertEquals($meeting->room->name, $arg->getName());
-                $this->assertEquals($meeting->moderator_pw, $arg->getModeratorPW());
-                $this->assertEquals($meeting->attendee_pw, $arg->getAttendeePW());
-                $this->assertEquals(url('rooms/'.$meeting->room->id), $arg->getLogoutURL());
 
-                $salt = urldecode(explode('?salt=', $arg->getMeta('endCallbackUrl'))[1]);
-                $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
-                $this->assertCount(0, $arg->getPresentations());
-                $this->assertNull($arg->getLogo());
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+        ]);
 
-                return true;
-            })->once()->andReturn($response);
-        });
         $server = Server::factory()->create();
         $meeting->server()->associate($server);
 
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $meetingService = new MeetingService($meeting);
         $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data    = $request->data();
+
+        $this->assertEquals($meeting->id, $data['meetingID']);
+        $this->assertEquals($meeting->room->name, $data['name']);
+        $this->assertEquals($meeting->moderator_pw, $data['moderatorPW']);
+        $this->assertEquals($meeting->attendee_pw, $data['attendeePW']);
+        $this->assertEquals(url('rooms/'.$meeting->room->id), $data['logoutURL']);
+
+        $salt = urldecode(explode('?salt=', $data['meta_endCallbackUrl'])[1]);
+        $this->assertTrue((new MeetingService($meeting))->validateCallbackSalt($salt));
+        $this->assertArrayNotHasKey('logo', $data);
     }
 
     /**
-     * Test room start with gloabl logo
+     * Test room start with global logo
      */
     public function testStartParametersWithLogo()
     {
         setting()->set('bbb_logo', url('logo.png'));
 
         $meeting  = $this->meeting;
-        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
-        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
-            $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
-                $this->assertEquals( url('logo.png'), $arg->getLogo());
 
-                return true;
-            })->once()->andReturn($response);
-        });
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+        ]);
+
         $server = Server::factory()->create();
         $meeting->server()->associate($server);
 
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $meetingService = new MeetingService($meeting);
         $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $data    = $request->data();
+
+        $this->assertEquals(url('logo.png'), $data['logo']);
     }
 
     /**
@@ -104,6 +102,10 @@ class MeetingTest extends TestCase
         $meeting = $this->meeting;
 
         setting()->set('default_presentation', url('default.pdf'));
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+        ]);
 
         Storage::fake('local');
 
@@ -131,27 +133,26 @@ class MeetingTest extends TestCase
         $file4->filename       = 'file4';
         $file4->use_in_meeting = false;
         $meeting->room->files()->save($file4);
-        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
-        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
-            $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
-                $this->assertCount(3, $arg->getPresentations());
-                $fileNames = array_values($arg->getPresentations());
-                // check order based on default and missing file 4 because use_in_meeting disabled
-                $this->assertEquals('file2', $fileNames[0]);
-                $this->assertEquals('file1', $fileNames[1]);
-                $this->assertEquals('file3', $fileNames[2]);
 
-                return true;
-            })->once()->andReturn($response);
-        });
         $server = Server::factory()->create();
         $meeting->server()->associate($server);
 
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $meetingService = new MeetingService($meeting);
         $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $body    = $request->body();
+        $xml     = simplexml_load_string($body);
+        $docs    = $xml->module->document;
+
+        $this->assertCount(3, $docs);
+
+        // check order based on default and missing file 4 because use_in_meeting disabled
+        $this->assertEquals('file2', $docs[0]->attributes()->filename);
+        $this->assertEquals('file1', $docs[1]->attributes()->filename);
+        $this->assertEquals('file3', $docs[2]->attributes()->filename);
     }
 
     /**
@@ -162,22 +163,27 @@ class MeetingTest extends TestCase
         $meeting = $this->meeting;
 
         setting()->set('default_presentation', url('default.pdf'));
-        $response = new CreateMeetingResponse(new \SimpleXMLElement('<response><returncode>SUCCESS</returncode></response>'));
-        $bbbMock  = Mockery::mock(BigBlueButton::class, function ($mock) use ($response, $meeting) {
-            $mock->shouldReceive('createMeeting')->withArgs(function (CreateMeetingParameters $arg) use ($meeting) {
-                $this->assertCount(1, $arg->getPresentations());
-                $this->assertEquals(url('default.pdf'), array_keys($arg->getPresentations())[0]);
 
-                return true;
-            })->once()->andReturn($response);
-        });
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Success.xml'))
+        ]);
+
         $server = Server::factory()->create();
         $meeting->server()->associate($server);
 
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $meetingService = new MeetingService($meeting);
         $meetingService->setServerService($serverService)->start();
+
+        $request = Http::recorded()[0][0];
+        $body    = $request->body();
+        $xml     = simplexml_load_string($body);
+        $docs    = $xml->module->document;
+
+        $this->assertCount(1, $docs);
+
+        // check order based on default and missing file 4 because use_in_meeting disabled
+        $this->assertEquals(url('default.pdf'), $docs[0]->attributes()->url);
     }
 }

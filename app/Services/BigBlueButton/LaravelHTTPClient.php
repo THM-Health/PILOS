@@ -41,14 +41,14 @@ final class LaravelHTTPClient implements TransportInterface
 
         try {
             if ('' !== $payload = $request->getPayload()) {
-                $httpResponse = $this->httpClient->withHeaders($headers)->post(
-                    $request->getUrl(),
-                    $payload
-                );
+                $httpResponse = $this->httpClient
+                    ->withHeaders($headers)
+                    ->withBody($payload)
+                    ->post($request->getUrl());
             } else {
-                $httpResponse = $this->httpClient->withHeaders($headers)->get(
-                    $request->getUrl()
-                );
+                $httpResponse = $this->httpClient
+                    ->withHeaders($headers)
+                    ->get($request->getUrl());
             }
 
             if ($httpResponse->failed()) {
