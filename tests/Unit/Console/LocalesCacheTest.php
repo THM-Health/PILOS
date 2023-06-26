@@ -3,7 +3,6 @@
 namespace Tests\Unit\Console;
 
 use App\Services\LocaleService;
-use Cache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Mockery\MockInterface;

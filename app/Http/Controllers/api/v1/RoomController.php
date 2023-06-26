@@ -9,7 +9,6 @@ use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
-use App\Models\Meeting;
 use App\Models\Room;
 use App\Models\RoomType;
 use App\Services\RoomService;
