@@ -33,13 +33,6 @@ class ServerService
         $this->bbb    = new BigBlueButton($server->base_url, $server->salt, new LaravelHTTPClient());
     }
 
-    public function setBigBlueButton(BigBlueButton $bbb)
-    {
-        $this->bbb = $bbb;
-
-        return $this;
-    }
-
     /**
      * Get list of currently running meeting from the api
      * @return \BigBlueButton\Core\Meeting[]|null

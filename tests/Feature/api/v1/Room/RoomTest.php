@@ -1547,6 +1547,23 @@ class RoomTest extends TestCase
     }
 
     /**
+     * Test joining a meeting with a server error in BBB
+     */
+    public function testJoinServerError()
+    {
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetingInfo*' => Http::response('Error', 500),
+        ]);
+
+        $meeting = Meeting::factory(['id' => '409e94ee-e317-4040-8cb2-8000a289b49d', 'end' => null])->create();
+
+        $this->actingAs($meeting->room->owner)->getJson(route('api.v1.rooms.join', ['room'=>$meeting->room,'record_attendance' => 1]))
+            ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+
+        $this->assertEquals(ServerStatus::OFFLINE, $meeting->server->status);
+    }
+
+    /**
      * Test joining urls contains correct role and name
      */
     public function testJoinUrl()
