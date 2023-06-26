@@ -285,7 +285,7 @@ describe('EmailSettingsComponent', () => {
     await waitMoxios();
     request = moxios.requests.mostRecent();
     await request.respondWith({
-      status: 472
+      status: 471
     });
 
     await wrapper.vm.$nextTick();

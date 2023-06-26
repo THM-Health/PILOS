@@ -6,6 +6,7 @@ use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Http\Requests\StartJoinMeeting;
 use App\Models\Meeting;
+use App\Models\Room;
 use Auth;
 use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Parameters\CreateMeetingParameters;
@@ -147,16 +148,7 @@ class MeetingService
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
-        try {
-            $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
-        }
-        // Catch exceptions, e.g. network connection issues
-        catch (\Exception $exception) {
-            // Set server to offline
-            $this->serverService->handleApiCallFailed();
-
-            return false;
-        }
+        $response               = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
 
         return $response->success();
     }
@@ -234,10 +226,12 @@ class MeetingService
     }
 
     /**
+     * @param  mixed            $token
      * @param  StartJoinMeeting $request
-     * @return string|bool
+     * @param  Room             $room
+     * @return string
      */
-    public function getJoinUrl(StartJoinMeeting $request): string|bool
+    public function getJoinUrl(StartJoinMeeting $request): string
     {
         $token = $request->get('token');
 
