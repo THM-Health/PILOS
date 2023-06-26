@@ -9,8 +9,8 @@ use App\Models\MeetingStat;
 use App\Models\Server;
 use App\Models\ServerStat;
 use App\Models\User;
+use App\Services\BigBlueButton\LaravelHTTPClient;
 use BigBlueButton\BigBlueButton;
-use BigBlueButton\Http\Transport\CurlTransport;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -30,8 +30,7 @@ class ServerService
     public function __construct(Server $server)
     {
         $this->server = $server;
-        $transport    = CurlTransport::createWithDefaultOptions([CURLOPT_TIMEOUT => config('bigbluebutton.server_timeout')]);
-        $this->bbb    = new BigBlueButton($server->base_url, $server->salt, $transport);
+        $this->bbb    = new BigBlueButton($server->base_url, $server->salt, new LaravelHTTPClient());
     }
 
     public function setBigBlueButton(BigBlueButton $bbb)
