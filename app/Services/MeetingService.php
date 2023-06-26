@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\CustomStatusCodes;
 use App\Enums\RoomLobby;
 use App\Enums\RoomUserRole;
 use App\Http\Requests\StartJoinMeeting;
@@ -15,7 +14,6 @@ use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class MeetingService
 {
@@ -267,19 +265,6 @@ class MeetingService
             $joinMeetingParams->addUserData('bbb_custom_style_url', setting('bbb_style'));
         }
 
-        try {
-            $url = $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
-        }
-        // Catch exceptions, e.g. network connection issues
-        catch (\Exception $exception) {
-            // Set server to offline
-            $this->serverService->handleApiCallFailed();
-            $this->setEnd();
-
-            Log::error('Failed to get join url for room {room} on server {server}', ['room' => $this->meeting->room->id, 'server' => $this->meeting->server->id ]);
-            abort(CustomStatusCodes::ROOM_JOIN_FAILED, __('app.errors.room_join'));
-        }
-
-        return $url;
+        return $this->serverService->getBigBlueButton()->getJoinMeetingURL($joinMeetingParams);
     }
 }

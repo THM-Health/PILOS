@@ -19,6 +19,7 @@ use App\Services\MeetingService;
 use Database\Factories\RoomFactory;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Database\Seeders\ServerSeeder;
+use Http;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -1035,6 +1036,23 @@ class RoomTest extends TestCase
         // Create meeting
         $this->actingAs($room->owner)->getJson(route('api.v1.rooms.join', ['room' => $room,'record_attendance' => 1]))
             ->assertStatus(CustomStatusCodes::MEETING_NOT_RUNNING);
+    }
+
+    public function testStartServerErrors()
+    {
+        $room = Room::factory()->create();
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/create*' => Http::response('Error', 500)
+        ]);
+
+        // Adding fake server(s)
+        $server =  Server::factory()->create();
+        $room->roomType->serverPool->servers()->sync([$server->id]);
+
+        // Create meeting
+        $this->actingAs($room->owner)->getJson(route('api.v1.rooms.start', ['room' => $room,'record_attendance' => 1]))
+            ->assertStatus(CustomStatusCodes::ROOM_START_FAILED);
     }
 
     /**

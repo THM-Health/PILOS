@@ -7,7 +7,6 @@ use BigBlueButton\Exceptions\RuntimeException;
 use BigBlueButton\Http\Transport\TransportInterface;
 use BigBlueButton\Http\Transport\TransportRequest;
 use BigBlueButton\Http\Transport\TransportResponse;
-use Exception;
 use Http;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -50,15 +49,6 @@ final class LaravelHTTPClient implements TransportInterface
                     ->withHeaders($headers)
                     ->get($request->getUrl());
             }
-
-            if ($httpResponse->failed()) {
-                Log::error('BigBlueButton API request to url {url} failed with status {status}.', [
-                    'url'    => $request->getUrl(),
-                    'status' => $httpResponse->status(),
-                ]);
-
-                throw new NetworkException('Bad response.', $httpResponse->status());
-            }
         } catch (ConnectionException $e) {
             Log::error('BigBlueButton API request to url {url} failed with a connection error.', [
                 'url'     => $request->getUrl(),
@@ -66,13 +56,15 @@ final class LaravelHTTPClient implements TransportInterface
             ]);
 
             throw new RuntimeException(sprintf('HTTP request failed: %s', $e->getMessage()), 0, $e);
-        } catch (Exception $e) {
-            Log::error('BigBlueButton API request to url {url} failed.', [
-                'url'     => $request->getUrl(),
-                'message' => $e->getMessage()
+        }
+
+        if ($httpResponse->failed()) {
+            Log::error('BigBlueButton API request to url {url} failed with status {status}.', [
+                'url'    => $request->getUrl(),
+                'status' => $httpResponse->status(),
             ]);
 
-            throw new RuntimeException(sprintf('HTTP request failed: %s', $e->getMessage()), 0, $e);
+            throw new NetworkException('Bad response.', $httpResponse->status());
         }
 
         return new TransportResponse($httpResponse->body(), $httpResponse->cookies()->getCookieByName('JSESSIONID'));
