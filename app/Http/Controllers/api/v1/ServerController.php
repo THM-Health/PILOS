@@ -9,6 +9,7 @@ use App\Http\Requests\ServerConnectionCheckRequest;
 use App\Http\Requests\ServerRequest;
 use App\Http\Resources\Server as ServerResource;
 use App\Models\Server;
+use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\ServerService;
 use BigBlueButton\BigBlueButton;
 use Illuminate\Http\JsonResponse;
@@ -170,7 +171,7 @@ class ServerController extends Controller
         $saltOk       = false;
 
         try {
-            $bbb      = new BigBlueButton($request->base_url, $request->salt);
+            $bbb      = new BigBlueButton($request->base_url, $request->salt, new LaravelHTTPClient());
             $response = $bbb->getMeetings();
 
             if ($response->success()) {

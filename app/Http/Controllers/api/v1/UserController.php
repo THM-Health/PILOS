@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Log;
 use Storage;
 
 class UserController extends Controller
@@ -166,10 +167,12 @@ class UserController extends Controller
                 // Save new image
                 $path        = $request->file('image')->storePublicly('profile_images', 'public');
                 $user->image = $path;
+                Log::info('Updated profile image of user {user}', ['user' => $user->getLogLabel()]);
             }
             // Image should be removed
             else {
                 $user->image = null;
+                Log::info('Removed profile image of user {user}', ['user' => $user->getLogLabel()]);
             }
         }
 
@@ -185,10 +188,14 @@ class UserController extends Controller
 
         $user->save();
 
+        Log::info('Updated attributes for user {user}', ['user' => $user->getLogLabel()]);
+
         if (Auth::user()->can('editUserRole', $user) && $request->has('roles')) {
             $user->roles()->syncWithoutDetaching($request->roles);
             $user->roles()->detach($user->roles()->wherePivot('automatic', '=', false)
                 ->whereNotIn('role_id', $request->roles)->pluck('role_id')->toArray());
+
+            Log::info('Updated roles for user {user}', ['user' => $user->getLogLabel(), 'roles' => $request->roles]);
         }
 
         $user->touch();
@@ -233,11 +240,15 @@ class UserController extends Controller
         if ($user->email != $request->email) {
             // User is changing his own email, require verification
             if (Auth::user()->is($user)) {
+                Log::info('Requesting to change email to {email}', ['email' => $request->email]);
                 $emailVerificationService = new EmailVerificationService($user);
                 $success                  = $emailVerificationService->sendEmailVerificationNotification($request->email);
                 if ($success) {
+                    Log::info('Verification for email change was send to {email}', ['email' => $request->email]);
+
                     return response()->noContent(202);
                 } else {
+                    Log::warning('Reached throttle limit for email change', ['email' => $request->email]);
                     abort(CustomStatusCodes::EMAIL_CHANGE_THROTTLE);
                 }
             }
@@ -246,6 +257,8 @@ class UserController extends Controller
                 $emailVerificationService = new EmailVerificationService($user);
                 $emailVerificationService->changeEmail($request->email);
                 $user->refresh();
+
+                Log::notice('Email of user {user} was chanaged to {email}', ['user' => $user->getLogLabel(), 'email' => $request->email]);
 
                 return new UserResource($user);
             }
@@ -262,6 +275,8 @@ class UserController extends Controller
         $keepSession = Auth::user()->is($user) ? session()->getId() : null;
 
         $authService->changePassword($request->new_password, $keepSession);
+
+        Log::notice('Password of user {user} was changed', ['user' => $user->getLogLabel()]);
 
         return new UserResource($user);
     }

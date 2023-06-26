@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\MeetingAttendee;
 use Illuminate\Console\Command;
+use Log;
 
 class CleanupAttendance extends Command
 {
@@ -30,6 +31,7 @@ class CleanupAttendance extends Command
     {
         // Remove all attendance data older than the retention period
         $day = now()->subDays(setting('attendance.retention_period'))->toDateString();
+        Log::info('Removing attendance data older than '.$day);
         MeetingAttendee::where('join', '<', $day)->delete();
     }
 }

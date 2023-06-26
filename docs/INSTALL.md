@@ -181,6 +181,22 @@ docker compose exec --user www-data app npm run build
 #### Language files, footer and more
 To customize other files have a look at https://github.com/THM-Health/PILOS/wiki/Customization
 
+### Logging
+
+By default all nginx and php-fpm errors are written to stderr and shown in the docker logs. The application messages and errors are also written to stderr.
+
+#### File based logging
+To use a more persistent logging exclusive for the application, change the `LOG_CHANNEL` in the `.env` file to `stack` (a single file) or `daily` (log rotation)
+and mount the directory `storage/logs` to the host:
+
+```yml
+app:
+  [...]
+  volumes:
+    - './storage/logs:/var/www/html/storage/logs'
+    [...]
+```
+
 ## Native
 
 [Laravel](https://laravel.com/) is the main backend framework that used to develop PILOS.

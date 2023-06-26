@@ -105,7 +105,7 @@ class ApplicationSettings extends JsonResource
             'auth'                  => [
                 'ldap'                   => config('ldap.enabled'),
             ],
-            'room_refresh_rate'     => floatval(setting('room_refresh_rate')),
+            'room_refresh_rate'     => floatval(config('bigbluebutton.room_refresh_rate')),
         ];
     }
 }

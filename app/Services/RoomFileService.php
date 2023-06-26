@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Log;
 
 class RoomFileService
 {
@@ -40,6 +41,7 @@ class RoomFileService
         // Handle missing file on drive
         if (!Storage::exists($this->file->path)) {
             try {
+                Log::error('Room file {file} not found', ['file' => $this->file->getLogLabel() ]);
                 $this->file->delete();
             } catch (\Exception $exception) {
             }
@@ -52,6 +54,8 @@ class RoomFileService
 
     public function download(): \Illuminate\Http\Response
     {
+        Log::info('Download room file {file}', ['file' => $this->file->getLogLabel() ]);
+
         if (!$this->checkFileExists()) {
             abort(404);
         }
@@ -75,6 +79,7 @@ class RoomFileService
      */
     public function url(): string
     {
+        Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel() ]);
         $params     = ['roomFile' => $this->file->id,'filename'=>$this->file->filename];
         $routeName  = 'download.file';
 

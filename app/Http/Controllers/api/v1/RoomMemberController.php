@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddRoomMember;
 use App\Http\Requests\BulkImportRequest;
@@ -12,6 +13,7 @@ use App\Http\Resources\RoomUser;
 use App\Models\Room;
 use App\Models\User;
 use Auth;
+use Log;
 
 class RoomMemberController extends Controller
 {
@@ -41,6 +43,10 @@ class RoomMemberController extends Controller
     {
         $room->members()->attach($request->user, ['role' => $request->role]);
 
+        $member = User::find($request->user);
+
+        Log::info('Added member {member} with role {role} to room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'member' => $member->getLogLabel() ]);
+
         return response()->noContent();
     }
 
@@ -57,6 +63,8 @@ class RoomMemberController extends Controller
             $user = User::firstWhere('email', $userEmail);
             $room->members()->attach($user, ['role' => $request->role]);
         }
+
+        Log::info('Added {count} member(s) with role {role} to room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'count' => count($request->user_emails) ]);
 
         return response()->noContent();
     }
@@ -76,6 +84,8 @@ class RoomMemberController extends Controller
         }
         $room->members()->updateExistingPivot($user, ['role' => $request->role]);
 
+        Log::info('Changed role for member {member} to {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'member' => $user->getLogLabel() ]);
+
         return response()->noContent();
     }
 
@@ -91,6 +101,8 @@ class RoomMemberController extends Controller
         foreach ($request->users as $user) {
             $room->members()->updateExistingPivot($user, ['role' => $request->role]);
         }
+
+        Log::info('Changed role for {count} member(s) to role {role} in room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($request->role), 'count' => count($request->users) ]);
 
         return response()->noContent();
     }
@@ -109,6 +121,8 @@ class RoomMemberController extends Controller
         }
         $room->members()->detach($user);
 
+        Log::info('Removed member {member} from room {room}', ['room' => $room->getLogLabel(), 'member' => $user->getLogLabel() ]);
+
         return response()->noContent();
     }
 
@@ -123,6 +137,8 @@ class RoomMemberController extends Controller
     {
         $room->members()->detach($request->users);
 
+        Log::info('Removed {count} member(s) from room {room}', ['room' => $room->getLogLabel(), 'count' => count($request->users) ]);
+
         return response()->noContent();
     }
 
@@ -135,12 +151,16 @@ class RoomMemberController extends Controller
     {
         // Check if membership is enabled
         if (!$room->allow_membership) {
+            Log::notice('Failed to join room {room}; membership is disabled', ['room' => $room->getLogLabel()]);
+
             return response()->json(['message'=>__('app.errors.membership_disabled')], 403);
         }
         // Only add to members, if user isn't already a member or the owner
         if (!$room->members->contains(Auth::user()) && !$room->owner->is(Auth::user())) {
             $room->members()->attach(Auth::user()->id, ['role' => $room->default_role]);
         }
+
+        Log::info('Joined membership for room {room}', ['room' => $room->getLogLabel()]);
 
         return response()->noContent();
     }
@@ -153,6 +173,8 @@ class RoomMemberController extends Controller
     public function leave(Room $room)
     {
         $room->members()->detach(Auth::user()->id);
+
+        Log::info('Left membership for room {room}', ['room' => $room->getLogLabel()]);
 
         return response()->noContent();
     }

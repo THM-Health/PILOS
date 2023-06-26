@@ -10,6 +10,7 @@ use App\Http\Resources\MeetingWithRoomAndServer as MeetingResource;
 use App\Models\Meeting;
 use App\Services\MeetingService;
 use Illuminate\Http\Request;
+use Log;
 
 /**
  * Class MeetingController
@@ -85,9 +86,12 @@ class MeetingController extends Controller
      */
     public function endMeetingCallback(Request $request, Meeting $meeting)
     {
+        Log::info('Recieved end meeting request from BBB sever for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
+
         $meetingService = new MeetingService($meeting);
         // Validate request
         if (!$meetingService->validateCallbackSalt($request->salt)) {
+            Log::warning('Invalid end meeting request; invalid salt');
             abort(401);
         }
 
@@ -108,8 +112,11 @@ class MeetingController extends Controller
     {
         $this->authorize('viewStatistics', $meeting->room);
 
+        Log::info('Show statistics for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
+
         // check if statistical data is globally enabled
         if (!setting('statistics.meetings.enabled')) {
+            Log::info('Failed to show statistics for meeting {meeting} of room {room}; statistics are disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_statistics_disabled'));
         }
 
@@ -125,15 +132,20 @@ class MeetingController extends Controller
     public function attendance(Meeting $meeting)
     {
         $this->authorize('viewStatistics', $meeting->room);
+
+        Log::info('Show attendace for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
+
         $meetingService = new MeetingService($meeting);
 
         // check if attendance recording is enabled for this meeting and globally enabled
         if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+            Log::info('Failed to show attendace for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended
         if ($meeting->end == null) {
+            Log::info('Failed to show attendace for meeting {meeting} of room {room}; meeting is still running', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
         }
 

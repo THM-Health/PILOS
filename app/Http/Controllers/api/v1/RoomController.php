@@ -17,6 +17,7 @@ use Auth;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Log;
 
 class RoomController extends Controller
 {
@@ -108,6 +109,8 @@ class RoomController extends Controller
         $room->roomType()->associate($request->room_type);
         $room->owner()->associate(Auth::user());
         $room->save();
+
+        Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
 
         return new \App\Http\Resources\Room($room, true);
     }
@@ -202,6 +205,8 @@ class RoomController extends Controller
 
         $room->save();
 
+        Log::info('Changed settings for room {room}', ['room' => $room->getLogLabel() ]);
+
         return new RoomSettings($room);
     }
 
@@ -222,6 +227,8 @@ class RoomController extends Controller
 
         $room->save();
 
+        Log::info('Changed description for room {room}', ['room' => $room->getLogLabel() ]);
+
         return new RoomSettings($room);
     }
 
@@ -234,6 +241,8 @@ class RoomController extends Controller
     public function destroy(Room $room)
     {
         $room->delete();
+
+        Log::info('Deleted room {room}', ['room' => $room->getLogLabel() ]);
 
         return response()->noContent();
     }
