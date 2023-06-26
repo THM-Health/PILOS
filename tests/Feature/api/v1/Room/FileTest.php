@@ -695,7 +695,7 @@ class FileTest extends TestCase
         $this->assertIsString($response->json('url'));
 
         // Try to start bbb meeting
-        $response = Http::withOptions(['allow_redirects' => false])->get($response->json('url'));
+        $response = Http::timeout(config('bigbluebutton.server_timeout'))->withOptions(['allow_redirects' => false])->get($response->json('url'));
         $this->assertEquals(302, $response->status());
         $this->assertArrayHasKey('Location', $response->headers());
 
