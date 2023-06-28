@@ -152,10 +152,8 @@ abstract class ExternalUser
             }
         }
 
-        if (config('auth.log.roles')) {
-            \Log::debug('Roles found for user ['.$eloquentUser->external_id.'].', $matchedRoles);
-        }
-
+        Log::info('Roles found for user ({user}): {roles}.', ['user' => $eloquentUser->external_id, 'roles' => implode(', ', $matchedRoles)]);
+        
         $roleIds   = [];
 
         foreach ($matchedRoles as $roleName) {

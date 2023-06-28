@@ -22,6 +22,11 @@ class RoomFile extends Model
         return $this->belongsTo(Room::class);
     }
 
+    public function getLogLabel()
+    {
+        return $this->filename.' ('.$this->id.')';
+    }
+
     /**
      * Delete file from database and storage
      * @return bool|null

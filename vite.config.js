@@ -10,8 +10,8 @@ export default ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), ENV_PREFIX) };
 
   const VITE_HMR_HOST = process.env.VITE_HOST || 'localhost';
-  const VITE_PORT = parseInt(process.env.VITE_PORT || 5173);
-  const VITEST_UI_PORT = parseInt(process.env.VITEST_UI_PORT || 5174);
+  const VITE_PORT = parseInt(process.env.VITE_PORT || 1073);
+  const VITEST_UI_PORT = parseInt(process.env.VITEST_UI_PORT || 1074);
   const THEME = process.env.VITE_THEME || 'default';
 
   /**

@@ -97,4 +97,9 @@ class Server extends Model
     {
         return $query->where('name', 'like', '%' . $name . '%');
     }
+
+    public function getLogLabel()
+    {
+        return $this->name.' ('.$this->id.')';
+    }
 }

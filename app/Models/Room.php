@@ -84,6 +84,11 @@ class Room extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function getLogLabel()
+    {
+        return $this->name.' ('.$this->id.')';
+    }
+
     /**
      * Correct the default file settings after every file setting change
      */

@@ -97,7 +97,6 @@ return [
         'legal_notice_url'            => env('LEGAL_NOTICE_URL'),
         'privacy_policy_url'          => env('PRIVACY_POLICY_URL'),
         'room_token_expiration'       => env('ROOM_TOKEN_EXPIRATION', -1),
-        'room_refresh_rate'           => env('ROOM_REFRESH_RATE', 30),
         'room_auto_delete' => [
             'enabled' => env('ROOM_AUTO_DELETE_ENABLED', false),
             'inactive_period' => env('ROOM_AUTO_DELETE_INACTIVE_PERIOD', 365),

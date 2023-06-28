@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Password;
+use Log;
 
 /**
  * Command class that deletes new users that hasn't changed their
@@ -47,6 +48,8 @@ class DeleteUnverifiedNewUsers extends Command
             $broker->deleteToken($user);
             $user->delete();
         }
+
+        Log::info('Deleting '.count($unverified_users).' unverified new users');
 
         return 0;
     }

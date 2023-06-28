@@ -182,6 +182,5 @@ return [
     'role_lables' => [
         'admin' => 'Administrator',
         'user'  => 'User',
-    ],
-    'continue' => 'Continue',
+    ]
 ];

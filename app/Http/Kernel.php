@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\EnsureModelNotStale;
+use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIf;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -40,7 +41,8 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
-            'loggedin:ldap,users'
+            'loggedin:ldap,users',
+            LogContext::class,
         ],
 
         'api' => [
@@ -49,6 +51,7 @@ class Kernel extends HttpKernel
             'loggedin:ldap,users',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
+            LogContext::class,
         ],
     ];
 

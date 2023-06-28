@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Server;
 use App\Services\ServerService;
 use Illuminate\Console\Command;
+use Log;
 
 class BuildHistory extends Command
 {
@@ -30,6 +31,7 @@ class BuildHistory extends Command
     public function handle()
     {
         $servers = Server::all();
+        Log::info('Building history for servers');
         foreach ($servers as $server) {
             $serverService = new ServerService($server);
             $serverService->updateUsage();

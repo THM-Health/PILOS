@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\RoomFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Log;
 
 class RoomFileService
 {
@@ -41,6 +41,7 @@ class RoomFileService
         // Handle missing file on drive
         if (!Storage::exists($this->file->path)) {
             try {
+                Log::error('Room file {file} not found', ['file' => $this->file->getLogLabel() ]);
                 $this->file->delete();
             } catch (\Exception $exception) {
             }
@@ -51,15 +52,25 @@ class RoomFileService
         return true;
     }
 
-    public function download(): StreamedResponse
+    public function download(): \Illuminate\Http\Response
     {
+        Log::info('Download room file {file}', ['file' => $this->file->getLogLabel() ]);
+
         if (!$this->checkFileExists()) {
             abort(404);
         }
 
-        return Storage::download($this->file->path, $this->file->filename, [
-            'Content-Disposition' => 'inline; filename="'. $this->file->filename .'"'
-        ]);
+        $fileAlias = config('filesystems.x-accel.url_prefix').'/'.$this->file->path;
+        $fileName  = $this->file->filename;
+        $fileSize  = Storage::size($this->file->path);
+        $fileMime  = Storage::mimeType($this->file->path);
+
+        return response(null, 200)
+            ->header('Content-Type', $fileMime)
+            ->header('Content-Length', $fileSize )
+            ->header('Content-Disposition', 'inline; filename='.$fileName)
+            ->header('Content-Transfer-Encoding', 'binary')
+            ->header('X-Accel-Redirect', $fileAlias);
     }
 
     /**
@@ -68,6 +79,7 @@ class RoomFileService
      */
     public function url(): string
     {
+        Log::info('Create download url for room file {file}', ['file' => $this->file->getLogLabel() ]);
         $params     = ['roomFile' => $this->file->id,'filename'=>$this->file->filename];
         $routeName  = 'download.file';
 

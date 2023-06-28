@@ -69,6 +69,11 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->firstname.' '.$this->lastname;
     }
 
+    public function getLogLabel()
+    {
+        return $this->fullname.' ('.$this->id.')';
+    }
+
     /**
      * Get public url of the users profile picture
      * @return string|null

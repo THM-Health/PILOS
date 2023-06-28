@@ -73,4 +73,8 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    'x-accel' => [
+        'url_prefix' => '/private-storage'
+    ]
+
 ];
