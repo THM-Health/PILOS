@@ -234,13 +234,6 @@
           >
             <b-spinner small v-if="loading"></b-spinner> <i v-if="!loading" class="fa-solid fa-sync"></i> {{$t('rooms.try_again')}}
           </b-button>
-          <!-- Redirect the login the access room -->
-          <b-button
-            @click="$router.push({name: 'login', query: { redirect: $router.currentRoute.path }})"
-            variant="primary"
-          >
-            <i class="fa-solid fa-lock"></i> {{$t('rooms.login')}}
-          </b-button>
         </b-button-group>
       </template>
 
