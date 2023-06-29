@@ -57,7 +57,6 @@ describe('Room', () => {
 
     const router = new VueRouter({ mode: 'abstract' });
     await router.push('/rooms/knz-6ah-anr');
-    const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const view = mount(RoomView, {
       localVue,
