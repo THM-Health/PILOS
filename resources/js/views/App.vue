@@ -108,12 +108,12 @@ export default {
     ...mapState(useSettingsStore, ['getSetting']),
     ...mapState(useLoadingStore, ['loadingCounter', 'overlayLoadingCounter']),
 
-    // Add a redirect query parameter to the login route if the current route has the redirect meta set to true
+    // Add a redirect query parameter to the login route if the current route has the redirectBackAfterLogin meta set to true
     // This ensures that the user is redirected to the page he is currently on after login
     // By default the user is redirected to the home page after login (see comment in router.js)
     loginRoute () {
       const route = { name: 'login' };
-      if (this.$route.meta.redirect === true) { route.query = { redirect: this.$route.path }; }
+      if (this.$route.meta.redirectBackAfterLogin === true) { route.query = { redirect: this.$route.path }; }
       return route;
     }
   },

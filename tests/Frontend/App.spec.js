@@ -255,7 +255,7 @@ describe('App', () => {
           name: 'demo',
           component: demoComponent,
           meta: {
-            redirect: true
+            redirectBackAfterLogin: true
           }
         }
       ]
