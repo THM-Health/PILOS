@@ -20,11 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** Custom localization file format ([#345])
 - Switch internal webserver from apache to nginx ([#371])
 - Increase PHP-FPM workers ([#371])
-- Default log channel ([#381]) 
+- Default log channel ([#381])
 
 ### Fixed
 - Broken localization in form validation ([#345])
 - Showing old validation error in personalized room links modal ([#377], [#389])
+
+### Removed
+- Dedicated login button on room view ([#386])
 
 ## [v2.0.0] - 2023-04-28
 ### Added

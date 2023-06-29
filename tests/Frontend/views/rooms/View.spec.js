@@ -82,10 +82,8 @@ describe('Room', () => {
     expect(view.html()).toContain('rooms.only_used_by_authenticated_users');
 
     const tryAgain = view.findAllComponents(BButton).at(0);
-    const login = view.findAllComponents(BButton).at(1);
 
     expect(tryAgain.html()).toContain('rooms.try_again');
-    expect(login.html()).toContain('rooms.login');
 
     await tryAgain.trigger('click');
 
@@ -94,9 +92,6 @@ describe('Room', () => {
     expect(request.config.url).toBe('/api/v1/rooms/abc-def-123');
     await view.vm.$nextTick();
 
-    await login.trigger('click');
-    expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'login', query: { redirect: '/rooms/knz-6ah-anr' } });
     view.destroy();
   });
 
