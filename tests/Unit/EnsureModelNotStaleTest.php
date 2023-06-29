@@ -7,12 +7,11 @@ use App\Models\Role;
 use Carbon\Carbon;
 use DateInterval;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\CreatesApplication;
 use Tests\TestCase;
 
 class EnsureModelNotStaleTest extends TestCase
 {
-    use CreatesApplication, RefreshDatabase;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {

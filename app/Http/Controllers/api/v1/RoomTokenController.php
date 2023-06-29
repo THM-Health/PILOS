@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\RoomUserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoomTokenRequest;
 use App\Http\Resources\RoomToken as RoomTokenResource;
@@ -9,6 +10,7 @@ use App\Models\Room;
 use App\Models\RoomToken;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Log;
 
 class RoomTokenController extends Controller
 {
@@ -38,6 +40,8 @@ class RoomTokenController extends Controller
         $token->role      = $request->role;
         $room->tokens()->save($token);
 
+        Log::info('Created new room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($token->role), 'name' => $token->firstname.' '.$token->lastname]);
+
         return new RoomTokenResource($token);
     }
 
@@ -60,6 +64,8 @@ class RoomTokenController extends Controller
         $token->role      = $request->role;
         $token->save();
 
+        Log::info('Updated room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($token->role), 'name' => $token->firstname.' '.$token->lastname]);
+
         return new RoomTokenResource($token);
     }
 
@@ -78,6 +84,8 @@ class RoomTokenController extends Controller
         }
 
         $token->delete();
+
+        Log::info('Removed room token for guest {name} with the role {role} for room {room}', ['room' => $room->getLogLabel(), 'role' => RoomUserRole::getDescription($token->role), 'name' => $token->firstname.' '.$token->lastname]);
 
         return response()->noContent();
     }

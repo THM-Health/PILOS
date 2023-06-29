@@ -16,6 +16,7 @@ return [
         'warning'   => 'Warning',
     ],
     'cancel'      => 'Cancel',
+    'close'       => 'Close',
     'continue'    => 'Continue',
     'delete'      => 'Delete',
     'description' => 'Description',
@@ -80,6 +81,7 @@ return [
         'users'        => 'user',
     ],
     'model_name'  => 'Name',
+    'next'        => 'Next',
     'next_page'   => 'Next page',
     'no'          => 'No',
     'not_found'   => '404 | The requested route doesn\'t exists!',
@@ -180,5 +182,5 @@ return [
     'role_lables' => [
         'admin' => 'Administrator',
         'user'  => 'User',
-    ],
+    ]
 ];

@@ -9,5 +9,7 @@ return [
     'room_name_limit' => env('ROOM_NAME_LIMIT',50),
     'room_id_max_tries' =>  env('BBB_ROOM_ID_MAX_TRIES',1000),
     'user_search_limit' =>  env('USER_SEARCH_LIMIT',10),
-    'server_timeout' => env('BBB_SERVER_TIMEOUT', 30)
+    'server_timeout' => env('BBB_SERVER_TIMEOUT', 10),
+    'server_connect_timeout' => env('BBB_SERVER_CONNECT_TIMEOUT', 20),
+    'room_refresh_rate' => env('ROOM_REFRESH_RATE', 30)
 ];

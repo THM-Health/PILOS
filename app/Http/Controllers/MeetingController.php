@@ -6,6 +6,7 @@ use App\Enums\CustomStatusCodes;
 use App\Exports\AttendanceExport;
 use App\Models\Meeting;
 use Illuminate\Auth\Access\AuthorizationException;
+use Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -25,13 +26,17 @@ class MeetingController extends Controller
     {
         $this->authorize('viewStatistics', $meeting->room);
 
+        Log::info('Download attendance list for meeting {meeting} of room {room}', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
+
         // check if attendance recording is enabled for this meeting
         if (!$meeting->record_attendance || !setting('attendance.enabled')) {
+            Log::info('Failed to download attendance list for meeting {meeting} of room {room}; attendance is disabled', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::FEATURE_DISABLED, __('app.errors.meeting_attendance_disabled'));
         }
 
         // check if meeting is ended
         if ($meeting->end == null) {
+            Log::info('Failed to download attendance list for meeting {meeting} of room {room}; meeting is still running', ['room' => $meeting->room->getLogLabel(), 'meeting' => $meeting->id]);
             abort(CustomStatusCodes::MEETING_ATTENDANCE_NOT_ENDED, __('app.errors.meeting_attendance_not_ended'));
         }
 

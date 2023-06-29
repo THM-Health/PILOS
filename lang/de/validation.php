@@ -41,7 +41,7 @@ return [
         'default_timezone'                   => 'Standardzeitzone',
         'description'                        => 'Beschreibung',
         'duration'                           => 'Max. Dauer',
-        'email'                              => 'E-Mail Adresse',
+        'email'                              => 'E-Mail-Adresse',
         'everyone_can_start'                 => 'Jeder darf das Meeting starten',
         'excerpt'                            => 'Auszug',
         'file'                               => 'Datei',
@@ -95,6 +95,7 @@ return [
         'title'                              => 'Titel',
         'updated_at'                         => 'Aktualisiert am',
         'user'                               => 'Benutzer',
+        'user_emails'                        => 'E-Mail-Liste',
         'user_locale'                        => 'Sprache',
         'username'                           => 'Benutzerkennung',
         'webcams_only_for_moderator'         => 'Webcam nur für Moderatoren sichtbar',
@@ -132,13 +133,21 @@ return [
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
         ],
         'room' => [
-            'already_member' => 'Der Benutzer ist bereits Mitglied des Raums.',
-            'not_member'     => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
-            'self_delete'    => 'Sie dürfen sich nicht selbst löschen.',
-            'self_edit'      => 'Sie dürfen sich nicht selbst bearbeiten.',
+            'already_member'            => 'Der Benutzer ist bereits Mitglied des Raums.',
+            'not_member'                => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
+            'self_delete'               => 'Sie dürfen sich nicht selbst löschen.',
+            'self_edit'                 => 'Sie dürfen sich nicht selbst bearbeiten.',
+            'several_users_found_email' => 'Es wurden mehrere Benutzer mit dieser E-Mail gefunden',
+            'user_not_found_email'      => 'Es wurde kein Benuter mit dieser E-Mail gefunden'
+
         ],
         'user' => [
             'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.',
+        ],
+        'user_emails' => [
+            '*' => [
+                'email' => ':input ist keine gültige E-mail-Adresse.'
+            ]
         ],
         'roles' => [
             '*' => [

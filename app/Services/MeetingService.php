@@ -8,12 +8,14 @@ use App\Http\Requests\StartJoinMeeting;
 use App\Models\Meeting;
 use App\Models\Room;
 use Auth;
+use BigBlueButton\Core\MeetingLayout;
 use BigBlueButton\Parameters\CreateMeetingParameters;
 use BigBlueButton\Parameters\EndMeetingParameters;
 use BigBlueButton\Parameters\GetMeetingInfoParameters;
 use BigBlueButton\Parameters\JoinMeetingParameters;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Log;
 
 class MeetingService
 {
@@ -79,7 +81,7 @@ class MeetingService
             ->setLockSettingsHideUserList($this->meeting->room->lock_settings_hide_user_list)
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
-            ->setMeetingLayout(CreateMeetingParameters::CUSTOM_LAYOUT)
+            ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
             ->setLearningDashboardEnabled(false);
 
         // get files that should be used in this meeting and add links to the files
@@ -147,7 +149,18 @@ class MeetingService
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
-        $response               = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
+        try {
+            $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
+        } // Catch exceptions, e.g. network connection issues
+        catch (\Exception $exception) {
+            Log::warning('Checking if room {room} is running on server {server} failed', ['room' => $this->meeting->room->getLogLabel(), 'server' => $this->meeting->server->getLogLabel() ]);
+
+            // Remove meeting and set server to offline
+            $this->meeting->forceDelete();
+            $this->serverService->handleApiCallFailed();
+
+            return false;
+        }
 
         return $response->success();
     }

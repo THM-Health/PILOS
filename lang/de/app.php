@@ -16,12 +16,13 @@ return [
         'warning'   => 'Warnung',
     ],
     'cancel'      => 'Abbrechen',
+    'close'       => 'Schließen',
     'continue'    => 'Weiter',
     'delete'      => 'Löschen',
     'description' => 'Beschreibung',
     'disable'     => 'Deaktivieren',
     'disabled'    => 'Deaktiviert',
-    'email'       => 'Email',
+    'email'       => 'E-Mail',
     'enable'      => 'Aktivieren',
     'enabled'     => 'Aktiviert',
     'error'       => 'Es ist ein Fehler aufgetreten!',
@@ -80,6 +81,7 @@ return [
         'users'        => 'Benutzer',
     ],
     'model_name'  => 'Name',
+    'next'        => 'Weiter',
     'next_page'   => 'Nächste Seite',
     'no'          => 'Nein',
     'not_found'   => '404 | Die aufgerufene Adresse existiert nicht!',
@@ -170,7 +172,7 @@ return [
         'fail'    => 'Ihre E-Mail konnte nicht verifiziert werden!',
         'invalid' => 'Der Verifizierungslink ist ungültig oder abgelaufen!',
         'success' => 'Ihre E-Mail wurde erfolgreich verifiziert!',
-        'title'   => 'E-mail verifizieren',
+        'title'   => 'E-Mail verifizieren',
     ],
     'version'     => 'Version',
     'view'        => 'Anzeigen',
@@ -180,5 +182,5 @@ return [
     'role_lables' => [
         'admin' => 'Administrator',
         'user'  => 'Benutzer',
-    ],
+    ]
 ];

@@ -18,6 +18,10 @@ body {
     color: $input-color;
     opacity: 1;
 }
+.collapsed > .when-open,
+.not-collapsed > .when-closed {
+    display: none;
+}
 
 
 .is-invalid .ProseMirror{

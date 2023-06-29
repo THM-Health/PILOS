@@ -74,6 +74,9 @@ Also, it is necessary to generate a new application key with the following comma
 sail artisan key:generate
 ```
 
+Make sure to have `APP_ENV=local` during local development.
+If set to `production`, some caching and performance optimisation is done during the start of the container, which makes it impossible to edit the source code in real time.
+
 ### Database
 The development environment comes with mariadb that is preconfigured in the .env file.
 You need to run the artisan commands for migration and seeding (see README.md).

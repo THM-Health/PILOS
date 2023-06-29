@@ -6,16 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Bulk import room members ([#282], [#299])
 - Option to set custom LDAP filter ([#344])
 - Option to load LDAP attributes as authenticated user ([#344])
 - Custom localization for backend ([#345])
 - Room description / welcome page ([#270],[#273]) 
+- OPCache for better performance ([#371])
+- Laravel telescope for local development and testing ([#380], [#381])
+- Logging for many user and system actions ([#380], [#381])
 
 ### Changed
 - **Breaking:** Custom localization file format ([#345])
+- Switch internal webserver from apache to nginx ([#371])
+- Increase PHP-FPM workers ([#371])
+- Default log channel ([#381]) 
 
 ### Fixed
 - Broken localization in form validation ([#345])
+- Showing old validation error in personalized room links modal ([#377], [#389])
 
 ## [v2.0.0] - 2023-04-28
 ### Added
@@ -536,6 +544,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#279]: https://github.com/THM-Health/PILOS/issues/279
 [#280]: https://github.com/THM-Health/PILOS/issues/280
 [#281]: https://github.com/THM-Health/PILOS/pull/281
+[#282]: https://github.com/THM-Health/PILOS/issues/282
 [#284]: https://github.com/THM-Health/PILOS/issues/284
 [#285]: https://github.com/THM-Health/PILOS/issues/285
 [#287]: https://github.com/THM-Health/PILOS/pull/287
@@ -548,6 +557,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#296]: https://github.com/THM-Health/PILOS/pull/296
 [#297]: https://github.com/THM-Health/PILOS/issues/297
 [#298]: https://github.com/THM-Health/PILOS/issues/298
+[#299]: https://github.com/THM-Health/PILOS/pull/299
 [#304]: https://github.com/THM-Health/PILOS/issues/304
 [#305]: https://github.com/THM-Health/PILOS/issues/305
 [#306]: https://github.com/THM-Health/PILOS/pull/306
@@ -580,6 +590,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#340]: https://github.com/THM-Health/PILOS/pull/340
 [#344]: https://github.com/THM-Health/PILOS/pull/344
 [#345]: https://github.com/THM-Health/PILOS/pull/345
+[#371]: https://github.com/THM-Health/PILOS/pull/371
+[#377]: https://github.com/THM-Health/PILOS/issues/377
+[#380]: https://github.com/THM-Health/PILOS/issues/380
+[#381]: https://github.com/THM-Health/PILOS/pull/381
+[#389]: https://github.com/THM-Health/PILOS/pull/389
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0

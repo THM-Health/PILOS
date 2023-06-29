@@ -95,6 +95,7 @@ return [
         'title'                              => 'Title',
         'updated_at'                         => 'Updated at',
         'user'                               => 'User',
+        'user_emails'                        => 'Email list',
         'user_locale'                        => 'Language',
         'username'                           => 'Username',
         'webcams_only_for_moderator'         => 'Only moderators can see the webcam',
@@ -132,13 +133,20 @@ return [
             'required' => 'Replacement room type required! Rooms are still assigned to this room type.',
         ],
         'room' => [
-            'already_member' => 'The user is already member of the room.',
-            'not_member'     => 'The user ":firstname :lastname" isn\'t a member.',
-            'self_delete'    => 'The user is not allowed to delete himself.',
-            'self_edit'      => 'The user is not allowed to edit himself.',
+            'already_member'            => 'The user is already member of the room.',
+            'not_member'                => 'The user ":firstname :lastname" isn\'t a member.',
+            'self_delete'               => 'The user is not allowed to delete himself.',
+            'self_edit'                 => 'The user is not allowed to edit himself.',
+            'several_users_found_email' => 'Several users were found with this email',
+            'user_not_found_email'      => 'No user was found with this email'
         ],
         'user' => [
             'exists' => 'The selected user could not be found.',
+        ],
+        'user_emails' => [
+            '*' => [
+                'email' => ':input is not a valid email.',
+            ]
         ],
         'roles' => [
             '*' => [

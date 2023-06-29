@@ -51,7 +51,7 @@ jobs:
 
       - name: Set version to commit short hash
         if: ${{ github.event_name != 'release' }}
-        run: echo "${GITHUB_SHA}" | cut -c1-8 > version
+        run: echo "${GITHUB_SHA}" | cut -c1-7 > version
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.1

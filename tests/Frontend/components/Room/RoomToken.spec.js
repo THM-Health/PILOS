@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, {
-  BButton, BFormInput, BFormRadio,
+  BButton, BFormInput, BFormInvalidFeedback, BFormRadio,
   BTbody
 } from 'bootstrap-vue';
 import moxios from 'moxios';
@@ -809,6 +809,129 @@ describe('Room Token', () => {
     expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
     expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
     expect(rows.length).toBe(1);
+
+    view.destroy();
+  });
+
+  it('add token form validation error', async () => {
+    const view = mount(TokensComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      propsData: {
+        room: exampleRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      router: routerMock,
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    await waitMoxios();
+    await view.vm.$nextTick();
+    let request = moxios.requests.mostRecent();
+    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+    await request.respondWith({
+      status: 200,
+      response: {
+        data: []
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // Open modal
+    const addButton = view.findComponent(BButton);
+    await waitModalShown(view, () => {
+      addButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    const modal = view.findComponent({ ref: 'add-edit-token-modal' });
+
+    // Check if modal inputs are empty
+    expect(modal.findAllComponents(BFormInput).at(0).element.value).toBe('');
+    expect(modal.findAllComponents(BFormInput).at(1).element.value).toBe('');
+
+    // Set only firstname
+    await modal.findAllComponents(BFormInput).at(0).setValue('Richard');
+
+    // Click confirm button
+    const confirmButton = modal.findAllComponents(BButton).at(1);
+    await confirmButton.trigger('click');
+
+    await waitMoxios();
+    await view.vm.$nextTick();
+    request = moxios.requests.mostRecent();
+    expect(request.config.method).toEqual('post');
+    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+
+    // Check request with mandatory fields missing
+    const data = JSON.parse(request.config.data);
+    expect(data.firstname).toEqual('Richard');
+    expect(data.lastname).toEqual(null);
+    expect(data.role).toEqual(null);
+
+    // Respond with validation errors
+    await request.respondWith({
+      status: 422,
+      response: {
+        message: 'The Lastname field is required. (and 1 more error)',
+        errors: {
+          lastname: [
+            'The Lastname field is required.'
+          ],
+          role: [
+            'The Role field is required.'
+          ]
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if modal is still open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // Check if error messages are shown
+    let errorMessages = modal.findAllComponents(BFormInvalidFeedback);
+    expect(errorMessages.length).toBe(2);
+    expect(errorMessages.at(0).text()).toBe('The Lastname field is required.');
+    expect(errorMessages.at(1).text()).toBe('The Role field is required.');
+
+    // Close modal using cancel button
+    const cancelButton = modal.findAllComponents(BButton).at(0);
+
+    // Wait for modal to close
+    await waitModalHidden(view, () => {
+      cancelButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if modal is closed
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    // Open modal again
+    await waitModalShown(view, () => {
+      addButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if values are reset
+    expect(modal.findAllComponents(BFormInput).at(0).element.value).toBe('');
+    expect(modal.findAllComponents(BFormInput).at(1).element.value).toBe('');
+
+    // Check if no old error messages are shown
+    errorMessages = modal.findAllComponents(BFormInvalidFeedback);
+    expect(errorMessages.length).toBe(0);
 
     view.destroy();
   });
