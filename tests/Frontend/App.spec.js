@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import App from '../../resources/js/views/App.vue';
 import Profile from '../../resources/js/views/Profile.vue';
-import BootstrapVue, { BNavItem } from 'bootstrap-vue';
+import BootstrapVue, { BLink, BNavItem } from 'bootstrap-vue';
 import PermissionService from '../../resources/js/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -34,12 +34,22 @@ describe('App', () => {
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
 
+    const router = new VueRouter({
+      mode: 'abstract',
+      routes: [{
+        path: '/profile',
+        name: 'profile',
+        component: Profile
+      }]
+    });
+
     const view = mount(App, {
       localVue,
       pinia: createTestingPinia(),
       mocks: {
         $t: (key) => key
       },
+      router,
       stubs: {
         RouterView: true,
         LocaleSelector: true
@@ -212,5 +222,83 @@ describe('App', () => {
     // Cleanup
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
+  });
+
+  it('login button having redirect query parameter set on routes with meta tag', async () => {
+    const startComponent = {
+      template: '<div>Start</div>'
+    };
+
+    const demoComponent = {
+      template: '<div>Public</div>'
+    };
+
+    const loginComponent = {
+      template: '<div>Login</div>'
+    };
+
+    const router = new VueRouter({
+      mode: 'history',
+      routes: [
+        {
+          path: '/login',
+          name: 'login',
+          component: loginComponent
+        },
+        {
+          path: '/start',
+          name: 'start',
+          component: startComponent
+        },
+        {
+          path: '/demo',
+          name: 'demo',
+          component: demoComponent,
+          meta: {
+            redirect: true
+          }
+        }
+      ]
+    });
+
+    const view = mount(App, {
+      localVue,
+      pinia: createTestingPinia({ stubActions: false }),
+      mocks: {
+        $t: (key) => key
+      },
+      router,
+      stubs: {
+        RouterView: true,
+        LocaleSelector: true
+      },
+      data () {
+        return {
+          availableLocales: []
+        };
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if login button has no redirect query parameter set by default
+    expect(view.findComponent(BNavItem).findComponent(BLink).props('to')).toStrictEqual({ name: 'login' });
+
+    // Navigate to route without the redirect meta tag
+    await view.vm.$router.replace({ name: 'start' });
+    await view.vm.$nextTick();
+
+    // Check if login button has no redirect query parameter set
+    expect(view.findComponent(BNavItem).findComponent(BLink).props('to')).toStrictEqual({ name: 'login' });
+
+    // Navigate to route with the redirect meta tag
+    await view.vm.$router.replace({ name: 'demo' });
+    await view.vm.$nextTick();
+
+    // Check if login button has redirect query parameter set
+    expect(view.findComponent(BNavItem).findComponent(BLink).props('to')).toStrictEqual({ name: 'login', query: { redirect: '/demo' } });
+
+    // Cleanup
+    view.destroy();
   });
 });
