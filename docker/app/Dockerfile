@@ -71,6 +71,7 @@ RUN echo 'ULIMIT="-n 65535"' >> /etc/default/nginx
 COPY ./docker/app/php/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY ./docker/app/php/php.ini /usr/local/etc/php/conf.d/99-app.ini
 COPY ./docker/app/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+RUN mkdir -p /var/log/php
 
 # Copy ldap config files
 COPY ./docker/app/ldap/ /etc/ldap
