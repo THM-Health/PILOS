@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OPCache for better performance ([#371])
 - Laravel telescope for local development and testing ([#380], [#381])
 - Logging for many user and system actions ([#380], [#381])
+- Redirect back to previous viewed room after login ([#346], [#386])
 
 ### Changed
 - **Breaking:** Custom localization file format ([#345])
@@ -590,10 +591,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#340]: https://github.com/THM-Health/PILOS/pull/340
 [#344]: https://github.com/THM-Health/PILOS/pull/344
 [#345]: https://github.com/THM-Health/PILOS/pull/345
+[#346]: https://github.com/THM-Health/PILOS/issues/346
 [#371]: https://github.com/THM-Health/PILOS/pull/371
 [#377]: https://github.com/THM-Health/PILOS/issues/377
 [#380]: https://github.com/THM-Health/PILOS/issues/380
 [#381]: https://github.com/THM-Health/PILOS/pull/381
+[#386]: https://github.com/THM-Health/PILOS/pull/386
 [#389]: https://github.com/THM-Health/PILOS/pull/389
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0...HEAD
