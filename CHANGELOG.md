@@ -16,15 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Logging for many user and system actions ([#380], [#381])
 
 ### Changed
+- **Breaking:** Custom localization file format ([#345])
 - Switch internal webserver from apache to nginx ([#371])
 - Increase PHP-FPM workers ([#371])
 - Default log channel ([#381]) 
 
-### Changed
-- **Breaking:** Custom localization file format ([#345])
-
 ### Fixed
 - Broken localization in form validation ([#345])
+- Showing old validation error in personalized room links modal ([#377], [#389])
 
 ## [v2.0.0] - 2023-04-28
 ### Added
@@ -592,8 +591,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#344]: https://github.com/THM-Health/PILOS/pull/344
 [#345]: https://github.com/THM-Health/PILOS/pull/345
 [#371]: https://github.com/THM-Health/PILOS/pull/371
+[#377]: https://github.com/THM-Health/PILOS/issues/377
 [#380]: https://github.com/THM-Health/PILOS/issues/380
 [#381]: https://github.com/THM-Health/PILOS/pull/381
+[#389]: https://github.com/THM-Health/PILOS/pull/389
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.0.0...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
