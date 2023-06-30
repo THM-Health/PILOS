@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api\v1;
 use App\Enums\CustomStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
+use App\Http\Requests\ShowRoomsRequest;
 use App\Http\Requests\StartJoinMeeting;
 use App\Http\Requests\UpdateRoomDescription;
 use App\Http\Requests\UpdateRoomSettings;
@@ -14,6 +15,7 @@ use App\Models\RoomType;
 use App\Services\RoomService;
 use Auth;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
@@ -30,12 +32,37 @@ class RoomController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(ShowRoomsRequest $request)
     {
         $collection     = null;
         $additionalMeta = [];
 
-        if ($request->has('filter')) {
+        $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
+        $roomMemberships = Auth::user()->sharedRooms->modelKeys();
+
+
+        // If filter has all
+        if (Auth::user()->can('viewAll', Room::class)) {
+            $collection = Room::query();
+        }
+        else{
+            $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled) {
+                $query->where('listed', 1)
+                    ->whereNull('access_code')
+                    ->whereIn('room_type_id', $roomTypesWithListingEnabled);
+            });
+        }
+
+        // If filter has shared
+        $collection->orWhereIn('id',$roomMemberships);
+
+        // Always show own rooms
+        $collection->orWhere('user_id', '=', Auth::user()->id);
+
+
+        $collection->with(['owner','roomType']);
+
+        /*if ($request->has('filter')) {
             switch ($request->filter) {
                 case 'own':
                     $collection                                = Auth::user()->myRooms()->with('owner');
@@ -54,11 +81,11 @@ class RoomController extends Controller
             if ($request->has('search') && trim($request->search) != '') {
                 $collection = $collection->where('name', 'like', '%' . $request->search . '%');
             }
-
+*/
             $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
 
             return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
-        }
+      /*  }
 
         $collection =  Room::with('owner');
         if (Auth::user()->cannot('viewAll', Room::class)) {
@@ -87,7 +114,7 @@ class RoomController extends Controller
 
         $collection = $collection->orderBy('name')->paginate(setting('pagination_page_size'));
 
-        return \App\Http\Resources\Room::collection($collection);
+        return \App\Http\Resources\Room::collection($collection);*/
     }
 
     /**

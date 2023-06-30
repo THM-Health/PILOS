@@ -16,32 +16,15 @@
 .room-card{
     pointer-events: auto;
     cursor: pointer;
+    &.running{
+        border-Color: $green;
+    }
 }
 .room-card:hover{
     background-color: darken(#FFF, 7.5%) !important;
 }
 
-.room-status {
-    content: '';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    @if($showRoomClosedIndicator) {
-        display: block;
-        background-color: $red;
-    }
-    @else {
-        display: none;
-    }
-}
 
-.room-status.running {
-    display: block;
-    background-color: $green;
-}
 
 /* Basic editor styles */
 .ProseMirror {

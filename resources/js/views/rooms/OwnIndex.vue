@@ -16,28 +16,30 @@
       <b-row >
         <b-col md="3">
           <h6>Sortierung</h6>
-          <b-form-select v-model="selectedSortingType">
+          <b-form-select v-model="selectedSortingType" @change="loadOwnRooms">
             <b-form-select-option disabled value="-1">-- Sortierung auswählen --</b-form-select-option>
-            <b-form-select-option value="null">Alphabetisch aufsteigend</b-form-select-option>
-            <b-form-select-option value="0">Alphabetisch absteigend</b-form-select-option>
-            <b-form-select-option value="1">...</b-form-select-option>
+            <b-form-select-option value="alphabetical_ascending">Alphabetisch aufsteigend</b-form-select-option>
+            <b-form-select-option value="alphabetical_descending">Alphabetisch absteigend</b-form-select-option>
+            <b-form-select-option value="...">...</b-form-select-option>
           </b-form-select>
         </b-col>
         <b-col md="3">
           <h6>Raumart</h6>
-          <b-form-select v-model="selectedRoomType">
+          <b-form-select v-model="selectedRoomType" @change="loadOwnRooms">
             <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
-            <b-form-select-option value="null">Alle</b-form-select-option>
-            <b-form-select-option value="0">Lecture</b-form-select-option>
-            <b-form-select-option value="1">Meeting</b-form-select-option>
-            <b-form-select-option value="1">Exam</b-form-select-option>
-            <b-form-select-option value="1">Seminar</b-form-select-option>
+            <b-form-select-option value=0>Alle</b-form-select-option>
+            <b-form-select-option value=1>Lecture</b-form-select-option>
+            <b-form-select-option value=2>Meeting</b-form-select-option>
+            <b-form-select-option value=3>Exam</b-form-select-option>
+            <b-form-select-option value=4>Seminar</b-form-select-option>
           </b-form-select>
         </b-col>
         <b-col md="3">
           <h6>Geteilte Räume anzeigen</h6>
           <b-form-checkbox
             switch
+            v-model="showSharedRooms"
+            @change="changedSharedRooms"
           >
           </b-form-checkbox>
         </b-col>
@@ -45,6 +47,8 @@
           <h6>Alle Räume anzeigen</h6>
           <b-form-checkbox
             switch
+            v-model="showAllRooms"
+            @change="changedAllRooms"
           >
           </b-form-checkbox>
         </b-col>
@@ -57,7 +61,7 @@
           <em v-else-if="!ownRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
-                <room-component :id="room.id" :name="room.name" :type="room.type" :running="room.running"></room-component>
+                <room-component :id="room.id" :name="room.name" :owner="room.owner" :type="room.type" :running="room.running"></room-component>
             </b-col>
 <!--            <can method="create" policy="RoomPolicy" v-if="!limitReached">
             <b-col class="pt-2">
@@ -83,7 +87,7 @@
           <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" v-bind:shared="true" :running="room.running" :shared-by="room.owner" :type="room.type"></room-component>
+              <room-component :id="room.id" :name="room.name" v-bind:shared="true" :running="room.running" :owner="room.owner" :type="room.type"></room-component>
             </b-col>
           </b-row>
           <b-pagination
@@ -151,49 +155,90 @@ export default {
     },
     // Load the rooms shared with the current user
     loadSharedRooms () {
-      this.loadingShared = true;
-
-      const config = {
-        params: {
-          filter: 'shared',
-          page: this.sharedRooms !== null ? this.sharedRooms.meta.current_page : 1
-        }
-      };
-
-      if (this.rawSearchQuery.trim() !== '') {
-        config.params.search = this.rawSearchQuery.trim();
-      }
-
-      Base.call('rooms', config).then(response => {
-        this.sharedRooms = response.data;
-      }).catch(error => {
-        Base.error(error, this);
-      }).finally(() => {
-        this.loadingShared = false;
-      });
+      // this.loadingShared = true;
+      //
+      // const config = {
+      //   params: {
+      //     filter: 'shared',
+      //     page: this.sharedRooms !== null ? this.sharedRooms.meta.current_page : 1
+      //   }
+      // };
+      //
+      // if (this.rawSearchQuery.trim() !== '') {
+      //   config.params.search = this.rawSearchQuery.trim();
+      // }
+      //
+      // Base.call('rooms', config).then(response => {
+      //   this.sharedRooms = response.data;
+      // }).catch(error => {
+      //   Base.error(error, this);
+      // }).finally(() => {
+      //   this.loadingShared = false;
+      // });
     },
     // Load the rooms of the current user
     loadOwnRooms () {
       this.loadingOwn = true;
+      this.updateFilter();
 
-      const config = {
+      Base.call('rooms',{
+        method: 'get',
         params: {
-          filter: 'own',
+          filter:this.roomFilter,
+          selected_room_type: this.selectedRoomType,
+          selected_sorting_type: this.selectedSortingType,
+          search: this.rawSearchQuery.trim()!==""?this.rawSearchQuery.trim():null,
           page: this.ownRooms !== null ? this.ownRooms.meta.current_page : 1
         }
-      };
-
-      if (this.rawSearchQuery.trim() !== '') {
-        config.params.search = this.rawSearchQuery.trim();
-      }
-
-      Base.call('rooms', config).then(response => {
-        this.ownRooms = response.data;
+      }).then(response=>{
+          this.ownRooms = response.data;
       }).catch(error => {
         Base.error(error, this);
       }).finally(() => {
         this.loadingOwn = false;
       });
+
+      // const config = {
+      //   params: {
+      //     filter: 'own',
+      //     page: this.ownRooms !== null ? this.ownRooms.meta.current_page : 1
+      //   }
+      // };
+      //
+      // if (this.rawSearchQuery.trim() !== '') {
+      //   config.params.search = this.rawSearchQuery.trim();
+      // }
+      //
+      // Base.call('rooms', config).then(response => {
+      //   this.ownRooms = response.data;
+      // }).catch(error => {
+      //   Base.error(error, this);
+      // }).finally(() => {
+      //   this.loadingOwn = false;
+      // });
+    },
+    changedSharedRooms(){
+      if (!this.showSharedRooms){
+        this.showAllRooms = false;
+      }
+      this.loadOwnRooms();
+    },
+    changedAllRooms(){
+      if (this.showAllRooms){
+        this.showSharedRooms= true;
+      }
+      this.loadOwnRooms();
+    },
+    updateFilter(){
+      if (this.showAllRooms){
+        this.roomFilter="all";
+      }
+      else if (this.showSharedRooms && !this.showAllRooms){
+        this.roomFilter="own_and_shared";
+      }
+      else {
+        this.roomFilter="own";
+      }
     }
   },
   data () {
@@ -203,8 +248,11 @@ export default {
       ownRooms: null,
       sharedRooms: null,
       rawSearchQuery: '',
-      selectedRoomType: null,
-      selectedSortingType: null
+      roomFilter:"own",
+      selectedRoomType: 0,
+      selectedSortingType: "alphabetical_ascending",
+      showAllRooms: false,
+      showSharedRooms: false
     };
   }
 };
