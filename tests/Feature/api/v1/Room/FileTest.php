@@ -7,13 +7,13 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Room;
 use App\Models\User;
+use App\Services\BigBlueButton\LaravelHTTPClient;
 use App\Services\MeetingService;
 use App\Services\RoomFileService;
 use Database\Seeders\ServerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -695,7 +695,7 @@ class FileTest extends TestCase
         $this->assertIsString($response->json('url'));
 
         // Try to start bbb meeting
-        $response = Http::withOptions(['allow_redirects' => false])->get($response->json('url'));
+        $response = LaravelHTTPClient::httpClient()->withOptions(['allow_redirects' => false])->get($response->json('url'));
         $this->assertEquals(302, $response->status());
         $this->assertArrayHasKey('Location', $response->headers());
 

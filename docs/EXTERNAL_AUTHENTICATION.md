@@ -44,9 +44,6 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 
 # Attribute by which the user should be found in the LDAP
 LDAP_LOGIN_ATTRIBUTE=uid
-
-# Log found roles for debugging
-AUTH_LOG_ROLES=true
 ```
 
 ## Open-ID Connect

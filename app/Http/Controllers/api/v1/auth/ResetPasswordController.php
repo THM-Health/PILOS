@@ -69,7 +69,7 @@ class ResetPasswordController extends Controller
     /**
      * Get the broker to be used during password reset.
      *
-     * @param $name
+     * @param  string         $name
      * @return PasswordBroker
      */
     public function broker($name): PasswordBroker

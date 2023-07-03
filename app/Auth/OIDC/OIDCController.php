@@ -80,7 +80,7 @@ class OIDCController extends Controller
         } catch(MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
         }
-                
+
         // Get eloquent user (existing or new)
         $user = $oidc_user->createOrFindEloquentModel();
 
@@ -92,13 +92,11 @@ class OIDCController extends Controller
         session(['session_data' => [
             ['key'=>'oidc_sub', 'value' => $oidc_user->getRawAttributes()['sub']],
         ]]);
-        
+
         session()->put('external_auth', 'oidc');
         session()->put('oidc_id_token', $oidc_raw_user->accessTokenResponseBody['id_token']);
-    
-        if (config('auth.log.successful')) {
-            Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'oidc']);
-        }
+
+        Log::info('External user :user has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'oidc']);
 
         $url = '/external_login';
 

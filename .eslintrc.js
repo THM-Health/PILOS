@@ -42,7 +42,7 @@ module.exports = {
     '@intlify/vue-i18n/no-raw-text': ['error', {
       ignoreNodes: ['raw-text']
     }],
-    'vue/multi-word-component-names': 'warn',
+    'vue/multi-word-component-names': 'off',
     'vue/no-v-text-v-html-on-component': 'warn',
     '@intlify/vue-i18n/no-missing-keys': 'error',
     '@intlify/vue-i18n/no-missing-keys-in-other-locales': 'error',
@@ -58,7 +58,7 @@ module.exports = {
   settings: {
     'vue-i18n': {
       localeDir: {
-        pattern: './lang/*.json',
+        pattern: './tests/Fixtures/Locales/*.json',
         localeKey: 'file'
       },
       messageSyntaxVersion: '^8.26.8'

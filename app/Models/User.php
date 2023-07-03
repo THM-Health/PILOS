@@ -69,6 +69,11 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->firstname.' '.$this->lastname;
     }
 
+    public function getLogLabel()
+    {
+        return $this->fullname.' ('.$this->id.')';
+    }
+
     /**
      * Get public url of the users profile picture
      * @return string|null
@@ -226,10 +231,10 @@ class User extends Authenticatable implements HasLocalePreference
 
     /**
      * Check if user has the given permission
-     * @param $permission string Name of a permission
-     * @return bool has permission
+     * @param  string $permission Name of a permission
+     * @return bool   has permission
      */
-    public function hasPermission($permission)
+    public function hasPermission(string $permission)
     {
         return DB::table('permissions')
             ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')

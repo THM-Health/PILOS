@@ -58,6 +58,8 @@ Copy the output and edit the `APP_KEY` option in the `.env` file.
 
 You also need to edit the `APP_URL` option in the `.env` file to match the domain from which the application will be accessible from. 
 
+**Warning**: Ensure that `APP_ENV=production` and `APP_DEBUG=false` are used on a production server for performance and security reasons.
+
 ### Database
 The docker-compose.yml provides a mariadb.
 To create a secure default database password, run the following command:
@@ -70,8 +72,39 @@ Copy the output and edit the `DB_PASSWORD` option in the `.env` file.
 
 
 ### Webserver
-PILOS has a build in apache webserver. However, it is **highly** recommended to not expose the container port.
+PILOS has a build in nginx webserver. However, it is **highly** recommended to not expose the container port.
 You will need to set up a reverse proxy that routes the traffic to this application (default: 127.0.0.1:5000)
+
+
+**Nginx (Recommended)**
+```nginx
+location / {
+  proxy_pass          http://127.0.0.1:5000;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Port  $server_port;
+  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+  proxy_set_header    X-Forwarded-Proto $scheme;
+  proxy_http_version  1.1;
+}
+```
+
+You can also add some rate limiting on the webserver level. This example config allows 5 requests/sec. The configuration allows bursts of up to 20 requests, the first 10 of which are processed without delay. A delay is added after 10 excessive requests to enforce the 5 r/s limit. After 20 excessive requests, any further requests are rejected. For more details have a look at the nginx documentation on [rate limting](https://www.nginx.com/blog/rate-limiting-nginx/).
+
+```nginx
+limit_req_zone $binary_remote_addr zone=api:10m rate=5r/s;
+location / {
+  limit_req zone=api burst=20 delay=10;
+  limit_req_log_level warn;
+  limit_req_status 429;
+
+  proxy_pass          http://127.0.0.1:5000;
+  proxy_set_header    Host              $host;
+  proxy_set_header    X-Forwarded-Port  $server_port;
+  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+  proxy_set_header    X-Forwarded-Proto $scheme;
+  proxy_http_version  1.1;
+}
+```
 
 **Apache**
 ```apacheconf
@@ -85,18 +118,6 @@ RequestHeader set X-Forwarded-Port "443"
 ```
 
 You may need to adjust the X-Forwarded-Proto and X-Forwarded-Port settings, depending on your environment.
-
-**Nginx**
-```nginx
-location / {
-  proxy_pass          http://127.0.0.1:5000;
-  proxy_set_header    Host              $host;
-  proxy_set_header    X-Forwarded-Port  $server_port;
-  proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
-  proxy_set_header    X-Forwarded-Proto $scheme;
-  proxy_http_version  1.1;
-}
-```
 
 #### Trusted proxies
 You have to add your proxy to the list of trusted proxies in the `.env` file.
@@ -157,6 +178,22 @@ docker compose exec --user www-data app npm run build
 
 #### Language files, footer and more
 To customize other files have a look at https://github.com/THM-Health/PILOS/wiki/Customization
+
+### Logging
+
+By default all nginx and php-fpm errors are written to stderr and shown in the docker logs. The application messages and errors are also written to stderr.
+
+#### File based logging
+To use a more persistent logging exclusive for the application, change the `LOG_CHANNEL` in the `.env` file to `stack` (a single file) or `daily` (log rotation)
+and mount the directory `storage/logs` to the host:
+
+```yml
+app:
+  [...]
+  volumes:
+    - './storage/logs:/var/www/html/storage/logs'
+    [...]
+```
 
 ## Native
 

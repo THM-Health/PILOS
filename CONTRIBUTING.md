@@ -74,6 +74,9 @@ Also, it is necessary to generate a new application key with the following comma
 sail artisan key:generate
 ```
 
+Make sure to have `APP_ENV=local` during local development.
+If set to `production`, some caching and performance optimisation is done during the start of the container, which makes it impossible to edit the source code in real time.
+
 ### Database
 The development environment comes with mariadb that is preconfigured in the .env file.
 You need to run the artisan commands for migration and seeding (see README.md).
@@ -108,9 +111,18 @@ LDAP_BASE_DN="ou=people,dc=university,dc=org"
 LDAP_TIMEOUT=5
 LDAP_SSL=false
 LDAP_TLS=false
+
+# LDAP logging debugging only
 LDAP_LOGGING=true
+
+# Attribute with GUID; OpenLDAP: 'entryuuid', AD: 'objectGUID'
 LDAP_GUID_KEY=entryuuid
-AUTH_LOG_ROLES=true
+
+# Comma seperated list of the object class
+LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
+
+# Attribute by which the user should be found in the LDAP
+LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
 **`app/Auth/config/ldap_mapping.json`**
@@ -245,9 +257,9 @@ Additionally, to the style guides the following things should apply to the chang
 ## Localization
 
 If you implement a new feature, please also add the translation for the new or changed strings.
-The translation files are located in the `lang` folder and named by the language code e.g. `en.json`.
+The translation files are located in the `lang` folder and placed in sub-directories by the language code and group name e.g. `en/home.php`.
 Please note: The translation files are used by the frontend and the backend.
-Laravel only supports flat / one-level-deep translation files, so nested objects are not supported.
+Each locale file return a nested php array.
 
 ### General language changes
 If you want to change the translation of an existing string, please contribute to our [POEditor](https://poeditor.com/join/project/UGpZY4JAnz) project.
@@ -257,13 +269,73 @@ We will update the translation files with the next release.
 You can change the available languages and the default language in the `.env` file with the keys `VITE_AVAILABLE_LOCALES` and `VITE_DEFAULT_LOCALE`.
 
 ### Customize locales
-#### Frontend
-To customize the locales put a json file in the folder `resources/custom/lang` which makes the wanted adjustments, for example:
-`de.json`
+Within the locale directory you can create files with the group name (part before the first dot in the translation string) as filename.
+For example, the string `auth.ldap.username_help` would be stored in the file `auth.php`.
+
+Within the file, the keys are organized in nested php arrays.
+Example for a custom german locale (`resources/custom/lang/de/auth.php`):
+```php
+<?php
+
+return [
+    'ldap' =>  [
+        'username_help' => 'Test'
+    ]
+];
+```
+
+To customize the date time format and the display name of a locale create a json file `metadata.json` in the locales directory.
 ```json
 {
-  "auth.ldap.username_help": "Test"
+    "name": "German",
+    "dateTimeFormat":  {
+        "dateShort": { 
+            "year": "numeric",
+            "month": "2-digit",
+            "day": "2-digit" 
+        },
+        "dateLong": {
+            "year": "numeric",
+            "month": "short",
+            "day": "2-digit"
+        },
+        "time": {
+            "hour": "2-digit",
+            "minute": "2-digit",
+            "hour12": false
+        },
+        "datetimeShort": {
+            "year": "numeric",
+            "month": "2-digit",
+            "day": "2-digit",
+            "hour": "2-digit",
+            "minute": "2-digit",
+            "hour12": false
+        },
+        "datetimeLong": {
+            "year": "numeric",
+            "month": "short",
+            "day": "2-digit",
+            "hour": "2-digit",
+            "minute": "2-digit",
+            "hour12": false
+        }
+      }
+
 }
 ```
-#### Backend
-Currently, the backend does not support customizing the locales.
+
+### New locales
+To add custom locales that are not part of the core, add them to the resources/custom/lang directory as well.
+You need to create all php files and metadata.json file.
+To enable the new locale, you need to add it to the `VITE_AVAILABLE_LOCALES` .env option and rebuild the frontend.
+
+### Sync localisation data with POEditor 
+
+Before you can sync the locales, you have to set the .env variables `POEDITOR_TOKEN` and `POEDITOR_PROJECT`.
+
+To upload the locale to POEditor  run `php artisan locales:upload` or, if you use sail: `sail artisan locales:upload`.
+
+
+To import the locale to POEditor  run `php artisan locales:import` or, if you use sail: `sail artisan locales:import`.
+

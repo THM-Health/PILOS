@@ -3,14 +3,12 @@
 namespace Tests\Feature\api\v1;
 
 use App\Models\Role;
-use App\Models\User;
 use Config;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Models\Model;
 use LdapRecord\Models\OpenLDAP\User as LdapUser;
 use Tests\TestCase;
 use TiMacDonald\Log\LogEntry;
@@ -25,10 +23,7 @@ class LdapLoginTest extends TestCase
      */
     private $guard = 'ldap';
 
-    /**
-     * @var Model|null $externalUser The ldap user that is used in the tests.
-     */
-    private $externalUser = null;
+    private LdapUser $ldapUser;
 
     /**
      * @var string $ldapRoleName Name of the ldap role.
@@ -190,7 +185,7 @@ class LdapLoginTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
         $user = $this->getAuthenticatedUser();
-        
+
         $this->assertEquals($this->ldapUser->uid[0], $user->external_id);
         $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
         $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
@@ -201,7 +196,6 @@ class LdapLoginTest extends TestCase
             fn (LogEntry $log) =>
                 $log->level === 'debug'
                 && $log->message == 'LDAP attributes'
-                && count($log->context) == 6
                 && $log->context['givenname'][0] == $this->ldapUser->givenName[0]
                 && $log->context['sn'][0] == $this->ldapUser->sn[0]
                 && $log->context['mail'][0] == $this->ldapUser->mail[0]
@@ -226,7 +220,7 @@ class LdapLoginTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
         $user = $this->getAuthenticatedUser();
-        
+
         $this->assertEquals($this->ldapUser->uid[0], $user->external_id);
         $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
         $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
@@ -237,7 +231,6 @@ class LdapLoginTest extends TestCase
             fn (LogEntry $log) =>
                 $log->level === 'debug'
                 && $log->message == 'LDAP attributes'
-                && count($log->context) == 6
                 && $log->context['givenname'][0] == $this->ldapUser->givenName[0]
                 && $log->context['sn'][0] == $this->ldapUser->sn[0]
                 && $log->context['mail'][0] == $this->ldapUser->mail[0]
@@ -399,7 +392,7 @@ class LdapLoginTest extends TestCase
      */
     public function testMappingOnSecondLogin()
     {
-        $this->ldapUser->updateAttribute('userclass', ['administrator']);
+        $this->ldapUser->replaceAttribute('userclass', ['administrator']);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -440,7 +433,7 @@ class LdapLoginTest extends TestCase
         $this->assertContains('user', $roleNames);
         $this->assertContains('test', $roleNames);
 
-        $this->ldapUser->updateAttribute('userclass', []);
+        $this->ldapUser->replaceAttribute('userclass', []);
 
         $this->postJson(route('api.v1.logout'));
 
@@ -472,30 +465,6 @@ class LdapLoginTest extends TestCase
     {
         Log::swap(new LogFake);
 
-        config([
-            'auth.log.roles' => true
-        ]);
-
-        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
-            'username' => $this->ldapUser->uid[0],
-            'password' => 'secret'
-        ]);
-
-        Log::assertLogged(
-            fn (LogEntry $log) =>
-                $log->level === 'debug'
-                && $log->message == 'Roles found for user ['.$this->ldapUser->uid[0].'].'
-                && count($log->context) == 2
-                && $log->context[0] == 'user'
-                && $log->context[1] == 'admin'
-        );
-
-        Auth::guard('ldap')->logout();
-        Log::swap(new LogFake);
-        config([
-            'auth.log.roles' => false
-        ]);
-
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
             'password' => 'secret'
@@ -503,13 +472,12 @@ class LdapLoginTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
 
-        Log::assertNotLogged(
+        Log::assertLogged(
             fn (LogEntry $log) =>
-                $log->level === 'debug'
-                && $log->message == 'Roles found for user ['.$this->ldapUser->uid[0].'].'
-                && count($log->context) == 2
-                && $log->context[0] == 'user'
-                && $log->context[1] == 'admin'
+                $log->level === 'info'
+                && $log->message == 'Roles found for user ({user}): {roles}.'
+                && $log->context['user'] == $this->ldapUser->uid[0]
+                && $log->context['roles'] == 'user, admin'
         );
     }
 
@@ -520,13 +488,8 @@ class LdapLoginTest extends TestCase
      */
     public function testLogging()
     {
-        config([
-            'auth.log.roles' => false
-        ]);
-
-        // test failed login with logging enabled
+        // test failed login
         Log::swap(new LogFake);
-        config(['auth.log.failed' => true]);
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username'    => 'testuser',
             'password'    => 'secret'
@@ -534,32 +497,15 @@ class LdapLoginTest extends TestCase
 
         Log::assertLogged(
             fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'External user testuser has failed authentication.'
+                $log->level === 'notice'
+                && $log->message == 'External user testuser has failed authentication.'
                 && $log->context['ip'] == '127.0.0.1'
-                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['current-user'] == 'guest'
                 && $log->context['type'] == 'ldap'
         );
 
-        // test failed login with logging disabled
-        config(['auth.log.failed' => false]);
+        // test successful login
         Log::swap(new LogFake);
-        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
-            'username'    => 'testuser',
-            'password'    => 'foo'
-        ]);
-        Log::assertNotLogged(
-            fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'External user testuser has failed authentication.'
-                && $log->context['ip'] == '127.0.0.1'
-                && $log->context['user-agent'] == 'Symfony'
-                && $log->context['type'] == 'ldap'
-        );
-
-        // test successful login with logging enabled
-        Log::swap(new LogFake);
-        config(['auth.log.successful' => true]);
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username'    => $this->ldapUser->uid[0],
             'password'    => 'bar'
@@ -567,29 +513,10 @@ class LdapLoginTest extends TestCase
 
         Log::assertLogged(
             fn (LogEntry $log) =>
-            $log->level == 'info'
-            && $log->message == 'External user '.$this->ldapUser->uid[0].' has been successfully authenticated.'
+                $log->level == 'info'
+                && $log->message == 'External user '.$this->ldapUser->uid[0].' has been successfully authenticated.'
                 && $log->context['ip'] == '127.0.0.1'
-                && $log->context['user-agent'] == 'Symfony'
-                && $log->context['type'] == 'ldap'
-        );
-
-        // logout user to allow new login
-        Auth::guard('ldap')->logout();
-
-        // test successful login with logging disabled
-        Log::swap(new LogFake);
-        config(['auth.log.successful' => false]);
-        $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
-            'username'    => $this->ldapUser->uid[0],
-            'password'    => 'bar'
-        ]);
-        Log::assertNotLogged(
-            fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'External user '.$this->ldapUser->uid[0].' has been successfully authenticated.'
-                && $log->context['ip'] == '127.0.0.1'
-                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['current-user'] == 'guest'
                 && $log->context['type'] == 'ldap'
         );
     }

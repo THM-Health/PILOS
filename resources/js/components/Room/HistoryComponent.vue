@@ -117,7 +117,7 @@
         </template>
         <b-alert show variant="info"><i class="fa-solid fa-info-circle"></i> {{ $t('meetings.stats.no_breakout_support')}}</b-alert>
 
-        <line-chart v-if="statsMeeting" :height="250" :chart-data="chartData" :chart-options="chartOptions"></line-chart>
+        <line-chart v-if="statsMeeting" :style="{height: '200px', position: 'relative'}" :data="chartData" :options="chartOptions"></line-chart>
       </b-modal>
       <!-- Attendance modal -->
       <b-modal :static="modalStatic" size="xl" hide-footer id="attendanceModal" title-tag="div" title-class="w-100">
@@ -176,14 +176,18 @@
 
 <script>
 import Base from '../../api/base';
-import LineChart from './../../charts/LineChart';
+import { Line } from 'vue-chartjs';
 import RawText from '../RawText.vue';
 import env from '../../env';
 import { mapState } from 'pinia';
 import { useSettingsStore } from '../../stores/settings';
+import { Chart as ChartJS, Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale } from 'chart.js';
+import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
+
+ChartJS.register(Title, Tooltip, Legend, PointElement, LineElement, TimeScale, LinearScale);
 
 export default {
-  components: { RawText, LineChart },
+  components: { RawText, LineChart: Line },
   props: {
     room: Object,
     modalStatic: {
@@ -355,21 +359,29 @@ export default {
     chartOptions () {
       return {
         responsive: true,
+        animation: false,
         scales: {
-          xAxes: [{
+          x: {
             type: 'time',
             time: {
               unit: 'minute'
             },
             display: true,
-            scaleLabel: {
+            title: {
               display: true,
-              labelString: this.$t('meetings.stats.time')
+              text: this.$t('meetings.stats.time')
             },
             ticks: {
               major: {
-                fontStyle: 'bold',
-                fontColor: '#FF0000'
+                enabled: true
+              },
+              color: (context) => context.tick && context.tick.major && '#FF0000',
+              font: function (context) {
+                if (context.tick && context.tick.major) {
+                  return {
+                    weight: 'bold'
+                  };
+                }
               },
               /**
                * Callback to set the ticks label of the x-axes
@@ -383,24 +395,26 @@ export default {
                 return this.$d(ticks[index].value, 'time');
               }
             }
-          }],
-          yAxes: [{
-            scaleLabel: {
+          },
+          y: {
+            title: {
               display: true,
-              labelString: this.$t('meetings.stats.amount')
+              text: this.$t('meetings.stats.amount')
             }
-          }]
+          }
         },
-        tooltips: {
-          callbacks: {
-            /**
-             * Callback to set the title of the tooltip (hover on datapoint)
-             * @param data Array with charts x-y data of this datapoint
-             * @return {string} Localised human-readable string with the timezone of the user
-             */
-            title: (data) => {
-              // get xLabel of the first dataset (all have the same xLabel) that is a ISO 8601 datetime string
-              return this.$d(new Date(data[0].xLabel), 'datetimeShort');
+        plugins: {
+          tooltip: {
+            callbacks: {
+              /**
+               * Callback to set the title of the tooltip (hover on datapoint)
+               * @param data Array with charts x-y data of this datapoint
+               * @return {string} Localised human-readable string with the timezone of the user
+               */
+              title: (data) => {
+                // get label of the first dataset (all have the same label) that is a ISO 8601 datetime string
+                return this.$d(new Date(data[0].label), 'datetimeShort');
+              }
             }
           }
         }

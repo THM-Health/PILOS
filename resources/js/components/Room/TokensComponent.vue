@@ -173,6 +173,7 @@
         :label="$t('app.firstname')"
         label-for='firstname'
         :state='fieldState("firstname")'
+        :invalid-feedback="fieldError('firstname')"
       >
         <b-form-input
           id='firstname'
@@ -181,13 +182,13 @@
           :state='fieldState("firstname")'
           :disabled="actionRunning"
         ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('firstname')"></div></template>
       </b-form-group>
       <b-form-group
         label-cols-sm='3'
         :label="$t('app.lastname')"
         label-for='lastname'
         :state='fieldState("lastname")'
+        :invalid-feedback="fieldError('lastname')"
       >
         <b-form-input
           id='lastname'
@@ -196,11 +197,11 @@
           :state='fieldState("lastname")'
           :disabled="actionRunning"
         ></b-form-input>
-        <template slot='invalid-feedback'><div v-html="fieldError('lastname')"></div></template>
       </b-form-group>
       <b-form-group
         :label="$t('rooms.role')"
         :state='fieldState("role")'
+        :invalid-feedback="fieldError('role')"
       >
         <b-form-radio
           v-model.number="model.role"
@@ -218,7 +219,6 @@
             {{ $t('rooms.roles.moderator') }}
           </b-badge>
         </b-form-radio>
-        <template slot='invalid-feedback'><div v-html="fieldError('role')"></div></template>
       </b-form-group>
     </b-modal>
   </div>
@@ -365,6 +365,8 @@ export default {
         lastname: null,
         role: null
       };
+
+      this.errors = {};
     }
   },
 

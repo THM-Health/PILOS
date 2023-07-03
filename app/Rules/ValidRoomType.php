@@ -10,16 +10,16 @@ use Illuminate\Contracts\Validation\Rule;
 class ValidRoomType implements Rule
 {
     /**
-     * @var User $owner The owner of the room type.
+     * @var User $owner The owner of the room.
      */
-    private $owner;
+    private User $owner;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($owner)
+    public function __construct(User $owner)
     {
         $this->owner = $owner;
     }

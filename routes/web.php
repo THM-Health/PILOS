@@ -4,6 +4,7 @@ use App\Auth\OIDC\OIDCController;
 use App\Auth\SAML2\Saml2Controller;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MeetingController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('test', function () {
+    dd(__('app.actions'));
+});
+
 Route::get('download/file/{roomFile}/{filename?}', [FileController::class,'show'])->name('download.file')->middleware('signed');
 Route::get('download/attendance/{meeting}', [MeetingController::class,'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 

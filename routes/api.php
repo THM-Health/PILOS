@@ -2,6 +2,7 @@
 
 use App\Auth\LDAP\LDAPController;
 use App\Http\Controllers\api\v1\ApplicationController;
+use App\Http\Controllers\api\v1\LocaleController;
 use App\Http\Controllers\api\v1\auth\ForgotPasswordController;
 use App\Http\Controllers\api\v1\auth\LoginController;
 use App\Http\Controllers\api\v1\auth\ResetPasswordController;
@@ -35,22 +36,12 @@ use Illuminate\Validation\Rule;
 */
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
+    Route::get('locale/{locale}', [LocaleController::class, 'show'])->name('locale.get');
+    Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
+
     Route::get('settings', [ApplicationController::class,'settings'])->name('application');
     Route::get('currentUser', [ApplicationController::class,'currentUser'])->name('currentUser');
-    Route::post('setLocale', function (Request $request) {
-        $validatedData = $request->validate([
-            'locale' => ['required', 'string', Rule::in(config('app.available_locales'))]
-        ]);
-
-        session()->put('locale', $validatedData['locale']);
-
-        if (Auth::user() !== null) {
-            Auth::user()->update([
-                'locale' => $validatedData['locale']
-            ]);
-        }
-    })->name('setLocale');
-
+   
     Route::post('login/local', [LoginController::class,'login'])->name('login.local');
     Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap');
 
@@ -80,11 +71,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('rooms/{room}/settings', [RoomController::class,'getSettings'])->name('rooms.settings');
 
+        Route::put('rooms/{room}/description', [RoomController::class,'updateDescription'])->name('rooms.description.update')->middleware('can:update,room');
+
         // Membership user self add/remove
         Route::post('rooms/{room}/membership', [RoomMemberController::class,'join'])->name('rooms.membership.join');
         Route::delete('rooms/{room}/membership', [RoomMemberController::class,'leave'])->name('rooms.membership.leave');
 
         // Membership users for mass update & delete
+        Route::post('rooms/{room}/member/bulk', [RoomMemberController::class,'bulkImport'])->name('rooms.member.bulkImport')->middleware('can:manageMembers,room');
         Route::put('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkUpdate'])->name('rooms.member.bulkUpdate')->middleware('can:manageMembers,room');
         Route::delete('rooms/{room}/member/bulk', [RoomMemberController::class, 'bulkDestroy'])->name('rooms.member.bulkDestroy')->middleware('can:manageMembers,room');
 

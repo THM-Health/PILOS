@@ -9,20 +9,24 @@ use Illuminate\Support\Facades\Gate;
 
 class Room extends JsonResource
 {
-    /**
-     * @var bool is user authenticated (has valid access code, member or owner)
-     */
-    private $authenticated;
-    private $details;
-    private $token;
+    // Is user authenticated (has valid access code, member or owner)
+    private bool $authenticated;
+
+    // Show details of the room (otherwise only basic information for listing is shown)
+    private bool $details;
+    
+    // The token used to authenticate the user
+    private ?RoomToken $token;
 
     /**
      * Create a new resource instance.
      *
-     * @param mixed $resource
-     * @param $authenticated boolean is user authenticated (has valid access code, member or owner)
+     * @param mixed     $resource
+     * @param boolean   $authenticated Is user authenticated (has valid access code, member or owner)
+     * @param boolean   $details       Show details of the room (otherwise only basic information for listing is shown)
+     * @param RoomToken $token         The token used to authenticate the user
      */
-    public function __construct($resource, $authenticated, $details = false, $token = null)
+    public function __construct($resource, bool $authenticated, bool $details = false, ?RoomToken $token = null)
     {
         parent::__construct($resource);
         $this->authenticated = $authenticated;
@@ -53,6 +57,7 @@ class Room extends JsonResource
             $this->mergeWhen($this->details, [
                 'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
                 'authenticated'     => $this->authenticated,
+                'description'       => $this->when($this->authenticated, $this->description),
                 'allow_membership'  => $this->allow_membership,
                 'is_member'         => $this->resource->isMember(Auth::user()),
                 'is_moderator'      => $this->resource->isModerator(Auth::user(), $this->token),

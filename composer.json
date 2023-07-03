@@ -10,7 +10,7 @@
         "ext-json": "*",
         "anlutro/l4-settings": "^1.0.0",
         "bensampo/laravel-enum": "^6.0",
-        "directorytree/ldaprecord-laravel": "^2.7",
+        "directorytree/ldaprecord-laravel": "^3.0",
         "doctrine/dbal": "^3.0",
         "firebase/php-jwt": "^6.4",
         "goldspecdigital/laravel-eloquent-uuid": "^10",
@@ -22,23 +22,24 @@
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^4.0",
-        "littleredbutton/bigbluebutton-api-php": "^4.2.0",
-        "maatwebsite/excel": "^3.1",
-        "socialiteproviders/saml2": "^4.7"
+        "socialiteproviders/saml2": "^4.7",
+        "littleredbutton/bigbluebutton-api-php": "^5.0.0",
+        "maatwebsite/excel": "^3.1"
     },
     "require-dev": {
         "ext-simplexml": "*",
         "barryvdh/laravel-ide-helper": "^2.7",
         "brianium/paratest": "^7.0",
-        "spatie/laravel-ignition": "^2.0",
-        "friendsofphp/php-cs-fixer": "3.*",
         "fakerphp/faker": "^1.9.1",
-        "laravel/sail": "^1.14",
+        "friendsofphp/php-cs-fixer": "3.*",
+        "laravel/telescope": "^4.15",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^7.0",
         "php-coveralls/php-coveralls": "^2.3.0",
         "phpunit/phpunit": "^10.0",
+        "spatie/laravel-ignition": "^2.0",
         "squizlabs/php_codesniffer": "3.*",
+        "symfony/var-exporter": "^6.2",
         "timacdonald/log-fake": "^2.0.1"
     },
     "config": {
@@ -47,12 +48,16 @@
         "sort-packages": true,
         "platform": {
           "php": "8.1"
+        },
+        "allow-plugins": {
+            "php-http/discovery": true
         }
     },
     "extra": {
         "laravel": {
             "dont-discover": [
-                "directorytree/ldaprecord-laravel"
+                "directorytree/ldaprecord-laravel",
+                "laravel/telescope"
             ]
         }
     },

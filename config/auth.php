@@ -150,11 +150,4 @@ return [
     'local' => [
         'enabled' => env('LOCAL_AUTH_ENABLED', true),
     ],
-
-
-    'log' => [
-        'successful' => env('AUTH_LOG_SUCCESSFUL', false),
-        'failed'     => env('AUTH_LOG_FAILED', false),
-        'roles' => env('AUTH_LOG_ROLES', false),
-    ]
 ];

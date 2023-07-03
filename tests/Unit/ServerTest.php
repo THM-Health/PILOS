@@ -7,12 +7,9 @@ use App\Models\Meeting;
 use App\Models\Server;
 use App\Models\User;
 use App\Services\ServerService;
-use BigBlueButton\BigBlueButton;
-use BigBlueButton\Responses\ApiVersionResponse;
-use BigBlueButton\Responses\GetMeetingsResponse;
+use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Mockery;
 use Tests\TestCase;
 use TiMacDonald\Log\LogEntry;
 use TiMacDonald\Log\LogFake;
@@ -54,28 +51,20 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithResponse()
     {
-        $bbbResponseMock = Mockery::mock(GetMeetingsResponse::class, function ($mock) {
-            $mock->shouldReceive('failed')
-                ->once()
-                ->andReturn(false);
-            $mock->shouldReceive('getMeetings')
-                ->once()
-                ->andReturn('test-response');
-        });
-
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($bbbResponseMock) {
-            $mock->shouldReceive('getMeetings')
-                ->once()
-                ->andReturn($bbbResponseMock);
-        });
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-3.xml'))
+        ]);
 
         $server        = Server::factory()->create();
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
+
         $server->offline = 0;
         $server->status  = 1;
 
-        self::assertEquals('test-response', $serverService->getMeetings());
+        $meetings = $serverService->getMeetings();
+        self::assertCount(2, $meetings);
+        self::assertEquals('409e94ee-e317-4040-8cb2-8000a289b49d', $meetings[0]->getMeetingId());
+        self::assertEquals('216b94ffe-a225-3041-ac62-5000a289b49d', $meetings[1]->getMeetingId());
     }
 
     /**
@@ -83,21 +72,12 @@ class ServerTest extends TestCase
      */
     public function testGetMeetingsWithFailedResponse()
     {
-        $bbbReponseMock = Mockery::mock(GetMeetingsResponse::class, function ($mock) {
-            $mock->shouldReceive('failed')
-                ->once()
-                ->andReturn(true);
-        });
-
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) use ($bbbReponseMock) {
-            $mock->shouldReceive('getMeetings')
-                ->once()
-                ->andReturn($bbbReponseMock);
-        });
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Failed.xml'))
+        ]);
 
         $server        = Server::factory()->create();
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $server->status = ServerStatus::ONLINE;
 
@@ -186,16 +166,16 @@ class ServerTest extends TestCase
         Log::swap(new LogFake);
         setting(['attendance.enabled'=>true]);
 
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) {
-            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')));
-            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-1.xml')));
-            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-2.xml')));
-            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
-        });
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::sequence()
+            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml'))
+            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-1.xml'))
+            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-2.xml'))
+            ->push(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml'))
+        ]);
 
         $server        = Server::factory()->create();
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendee_pw'=> 'asdfgh32343','moderator_pw'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
@@ -295,13 +275,12 @@ class ServerTest extends TestCase
     {
         setting(['attendance.enabled'=>false]);
 
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) {
-            $mock->shouldReceive('getMeetings')->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')));
-        });
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-Start.xml')),
+        ]);
 
         $server        = Server::factory()->create();
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $meeting = Meeting::factory()->create(['id'=> '409e94ee-e317-4040-8cb2-8000a289b49d','start'=>'2021-06-25 09:24:25','end'=>null,'record_attendance'=>true,'attendee_pw'=> 'asdfgh32343','moderator_pw'=> 'h6gfdew423']);
         $meeting->server()->associate($server);
@@ -326,17 +305,16 @@ class ServerTest extends TestCase
      */
     public function testVersionUpdate()
     {
-        $bbbMock = Mockery::mock(BigBlueButton::class, function ($mock) {
-            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
-            $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion.xml')));
-
-            $mock->shouldReceive('getMeetings')->once()->andReturn(new GetMeetingsResponse(simplexml_load_file(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')));
-            $mock->shouldReceive('getApiVersion')->once()->andReturn(new ApiVersionResponse(simplexml_load_file(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml')));
-        });
-
         $server        = Server::factory()->create(['version' => '2.3.0']);
+
+        Http::fake([
+            'test.notld/bigbluebutton/api/getMeetings*' => Http::response(file_get_contents(__DIR__.'/../Fixtures/Attendance/GetMeetings-End.xml')),
+            'test.notld/bigbluebutton/api/?checksum=*'  => Http::sequence()
+                                                            ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion.xml'))
+                                                            ->push(file_get_contents(__DIR__.'/../Fixtures/GetApiVersion-Disabled.xml'))
+        ]);
+
         $serverService = new ServerService($server);
-        $serverService->setBigBlueButton($bbbMock);
 
         $serverService->updateUsage();
         $server->refresh();

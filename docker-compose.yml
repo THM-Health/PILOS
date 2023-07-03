@@ -5,17 +5,22 @@ services:
         image: pilos/pilos:latest
         ports:
           - '127.0.0.1:5000:80'
+          - '127.0.0.1:9000:81'
         env_file:
           - .env
         environment:
           TRUSTED_PROXIES: "*"
         volumes:
-          - './storage/logs:/var/www/html/storage/logs'
           - './storage/app:/var/www/html/storage/app'
           - './resources/custom:/var/www/html/resources/custom'
           - './app/Auth/config:/var/www/html/app/Auth/config'
           - './public/images/custom:/var/www/html/public/images/custom'
           - './resources/sass/theme/custom:/var/www/html/resources/sass/theme/custom'
+        sysctls:
+          net.core.somaxconn: 65536
+          net.ipv4.ip_local_port_range: "2000 65535"
+          net.ipv4.tcp_tw_reuse: 1
+          net.ipv4.tcp_fin_timeout: 30
         depends_on:
           - db
     db:

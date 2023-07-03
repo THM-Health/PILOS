@@ -7,7 +7,6 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
@@ -137,7 +136,7 @@ class LoginTest extends TestCase
     {
         $user     = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
-        $response->assertNoContent();
+        $response->assertJson(['redirect' => false, 'external_auth' => false, 'external_sign_out' => false]);
         $this->assertGuest();
     }
 
@@ -166,67 +165,32 @@ class LoginTest extends TestCase
             'password' => Hash::make('bar')
         ]);
 
-        // test failed login with logging enabled
+        // test failed login
         Log::swap(new LogFake);
-        config(['auth.log.failed' => true]);
         $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
             'email'    => $user->email,
             'password' => 'foo'
         ]);
         Log::assertLogged(
             fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'Local user '.$user->email.' has failed authentication.'
-            && $log->context['ip'] == '127.0.0.1'
-            && $log->context['user-agent'] == 'Symfony'
-        );
-
-        // test failed login with logging disabled
-        config(['auth.log.failed' => false]);
-        Log::swap(new LogFake);
-        $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => 'foo'
-        ]);
-        Log::assertNotLogged(
-            fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'Local user '.$user->email.' has failed authentication.'
+                $log->level === 'notice'
+                && $log->message == 'Local user '.$user->email.' has failed local authentication.'
                 && $log->context['ip'] == '127.0.0.1'
-                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['current-user'] == 'guest'
         );
 
-        // test successful login with logging enabled
+        // test successful login
         Log::swap(new LogFake);
-        config(['auth.log.successful' => true]);
         $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
             'email'    => $user->email,
             'password' => 'bar'
         ]);
         Log::assertLogged(
             fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'Local user '.$user->email.' has been successfully authenticated.'
-            && $log->context['ip'] == '127.0.0.1'
-            && $log->context['user-agent'] == 'Symfony'
-        );
-
-        // logout user to allow new login
-        Auth::guard('users')->logout();
-
-        // test successful login with logging disabled
-        Log::swap(new LogFake);
-        config(['auth.log.successful' => false]);
-        $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
-            'email'    => $user->email,
-            'password' => 'bar'
-        ]);
-        Log::assertNotLogged(
-            fn (LogEntry $log) =>
-            $log->level === 'info'
-            && $log->message == 'Local user '.$user->email.' has been successfully authenticated.'
+                $log->level === 'info'
+                && $log->message == 'Local user '.$user->email.' has been successfully authenticated.'
                 && $log->context['ip'] == '127.0.0.1'
-                && $log->context['user-agent'] == 'Symfony'
+                && $log->context['current-user'] == 'guest'
         );
     }
 }

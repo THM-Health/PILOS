@@ -29,16 +29,16 @@ LDAP is disabled by default. To enable LDAP change the `LDAP_ENABLED` option in 
 Authentication with LDAP has been fundamentally refactored.
 In the process, some .env variables were changed, added or removed. The following table provides an overview of the changes.
 
-| Old .env Attribute | New .env  Attribute | Description |
-|-----------|--------|-------------|
+| Old .env Attribute | New .env  Attribute | Description                                                                                        |
+|-----------|--------|----------------------------------------------------------------------------------------------------|
 | LDAP_ROLE_ATTRIBUTE | *Removed* | Attribute with the users role, can be a multi value attribute, replaced with new mapping json file |
-| LDAP_ROLE_MAP | *Removed* | Map the attribute to the name of a local role, replaced with new mapping json file |
-| AUTH_LOG_LDAP_ROLES | AUTH_LOG_ROLES | Show found roles during mapping |
-| - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID' |
-| - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson) |
-| - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid) |
-| - | LDAP_FILTER | Raw LDAP filter |
-| - | LDAP_LOAD_ATTRIBUTES_AS_USER | Load the users attributes by using the users credentials |
+| LDAP_ROLE_MAP | *Removed* | Map the attribute to the name of a local role, replaced with new mapping json file                 |
+| AUTH_LOG_LDAP_ROLES | *Removed* | Show found roles during mapping, enabled on log level info                                         |
+| - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID'                             |
+| - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson)  |
+| - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid)                             |
+| - | LDAP_FILTER | Raw LDAP filter                                                                                    |
+| - | LDAP_LOAD_ATTRIBUTES_AS_USER | Load the users attributes by using the users credentials                                           |
 
 Please have a look at the [external authentication documentation](EXTERNAL_AUTHENTICATION.md)
 
@@ -72,14 +72,72 @@ VITE_BANNER_TEXT_COLORS='["#ffffff", "#000000"]'
 Many .env variables for theming have been added and the prefix changed from `MIX_` to `VITE_`. Please have a look in the `.env.example` and adjust your `.env` file accordingly.
 
 ## Locales
-Custom locales are now json files in the `resources/custom/lang` folder.
+Custom locales are now php files in the `resources/custom/lang` folder.
+Each locale has its own subdirectory named after the locale code (e.g. en).
+Within the directory you can create files with the group name (part before the first dot in the translation string) as filename.
+For example, the string `auth.ldap.username_help` would be stored in the file `auth.php`.
 
-Example for a custom german locale (`resources/custom/lang/de.json`):
+Within the file, the keys are organized in nested php arrays.
+Example for a custom german locale (`resources/custom/lang/de/auth.php`):
+```php
+<?php
+
+return [
+    'ldap' =>  [
+        'username_help' => 'Test'
+    ]
+];
+```
+
+To customize the date time format and the display name of a locale create a json file `metadata.json` in the locales directory.
 ```json
 {
-  "auth.ldap.username_help": "Test"
+    "name": "German",
+    "dateTimeFormat":  {
+        "dateShort": { 
+            "year": "numeric",
+            "month": "2-digit",
+            "day": "2-digit" 
+        },
+        "dateLong": {
+            "year": "numeric",
+            "month": "short",
+            "day": "2-digit"
+        },
+        "time": {
+            "hour": "2-digit",
+            "minute": "2-digit",
+            "hour12": false
+        },
+        "datetimeShort": {
+            "year": "numeric",
+            "month": "2-digit",
+            "day": "2-digit",
+            "hour": "2-digit",
+            "minute": "2-digit",
+            "hour12": false
+        },
+        "datetimeLong": {
+            "year": "numeric",
+            "month": "short",
+            "day": "2-digit",
+            "hour": "2-digit",
+            "minute": "2-digit",
+            "hour12": false
+        }
+      }
+
 }
 ```
+
+### New locales
+To add custom locales that are not part of the core, add them to the resources/custom/lang directory as well.
+You need to create all php files and metadata.json file.
+To enable the new locale, you need to add it to the `VITE_AVAILABLE_LOCALES` .env option and rebuild the frontend.
+
+### Locale caching
+For better performance, locales should be cached with `php artisan locales:cache` or, if you use sail: `sail artisan locales:cache`.
+If you use the Docker Contrainer, the locales are automatically cached in production when the container is started.
 
 ## Images
 The path for custom images changed from `resources/custom/images` to `public/images/custom`.

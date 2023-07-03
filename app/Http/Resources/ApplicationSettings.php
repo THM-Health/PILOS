@@ -102,14 +102,13 @@ class ApplicationSettings extends JsonResource
                 'retention_period'  => intval(setting('attendance.retention_period')),
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),
-
-            'auth' => [
+            'auth'                  => [
                 'local'                  => config('auth.local.enabled'),
                 'ldap'                   => config('ldap.enabled'),
                 'oidc'                   => config('services.oidc.enabled'),
                 'saml2'                  => config('services.saml2.enabled'),
             ],
-            'room_refresh_rate'     => floatval(setting('room_refresh_rate')),
+            'room_refresh_rate'     => floatval(config('bigbluebutton.room_refresh_rate')),
         ];
     }
 }

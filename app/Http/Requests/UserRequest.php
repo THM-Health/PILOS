@@ -15,7 +15,7 @@ class UserRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'user_locale'           => ['sometimes','required', 'string', Rule::in(config('app.available_locales'))],
+            'user_locale'           => ['sometimes','required', 'string', Rule::in(config('app.enabled_locales'))],
             'bbb_skip_check_audio'  => ['sometimes','required','boolean'],
             'timezone'              => ['sometimes','required', 'string', Rule::in(timezone_identifiers_list())],
             'roles'                 => ['sometimes','required','array'],

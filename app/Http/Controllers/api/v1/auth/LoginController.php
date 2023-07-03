@@ -49,7 +49,7 @@ class LoginController extends Controller
             abort(404);
         }
 
-        $this->loginApplication($request);
+        return $this->loginApplication($request);
     }
 
     protected function credentials(Request $request)
@@ -70,9 +70,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        if (config('auth.log.successful')) {
-            Log::info('Local user '. $user->email .' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent')]);
-        }
+        Log::info('Local user '. $user->email .' has been successfully authenticated.');
     }
 
     public function logout(Request $request)

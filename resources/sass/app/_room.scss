@@ -42,3 +42,60 @@
     display: block;
     background-color: $green;
 }
+
+/* Basic editor styles */
+.ProseMirror {
+
+    margin-top: 10px;
+    padding: 10px;
+    outline: none;
+    border: 1px solid;
+    @include border-radius($thumbnail-border-radius);
+
+    > * + * {
+        margin-top: 0.75em;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+        &.ProseMirror-selectednode {
+            outline: 3px solid #68CEF8;
+        }
+    }
+    blockquote {
+        padding-left: 1rem;
+        border-left: 3px solid rgba(#0D0D0D, 0.1);
+    }
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+}
+
+.room-description {
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    blockquote {
+        padding-left: 1rem;
+        border-left: 3px solid rgba(#0D0D0D, 0.1);
+    }
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+}
+
+.color-picker-block {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.room-bulk-import-preview {
+    overflow-y: auto;
+    max-height: 200px;
+}

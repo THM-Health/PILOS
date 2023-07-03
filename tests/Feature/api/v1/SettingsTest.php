@@ -52,7 +52,7 @@ class SettingsTest extends TestCase
         setting(['legal_notice_url' => 'http://localhost']);
         setting(['privacy_policy_url' => 'http://localhost']);
         setting(['room_token_expiration' => -1]);
-        setting(['room_refresh_rate' => 20]);
+        config(['bigbluebutton.room_refresh_rate' => 20]);
         config(['app.url' => 'https://domain.tld']);
         config(['app.version' => 'v1.0.0']);
 
@@ -133,7 +133,7 @@ class SettingsTest extends TestCase
         ]]);
 
         setting(['room_token_expiration' => 100]);
-        setting(['room_refresh_rate' => 5.5]);
+        config(['bigbluebutton.room_refresh_rate' => 5.5]);
 
         $this->getJson(route('api.v1.application'))
             ->assertJson([
@@ -195,7 +195,7 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.room_name_limit' => 20]);
         config(['bigbluebutton.welcome_message_limit' => 100]);
         config(['app.url' => 'https://domain.tld']);
-        setting(['room_refresh_rate' => 20]);
+        config(['bigbluebutton.room_refresh_rate' => 20]);
 
         setting(['statistics' => [
             'servers' => [

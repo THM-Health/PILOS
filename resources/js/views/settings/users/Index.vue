@@ -58,9 +58,9 @@
               class="multiselect-form-control"
              >
               <template slot='noOptions'>{{ $t('settings.roles.nodata') }}</template>
-              <template slot='option' slot-scope="props">{{ $te(`app.roles.${props.option.name}`) ? $t(`app.roles.${props.option.name}`) : props.option.name }}</template>
+              <template slot='option' slot-scope="props">{{ $te(`app.role_lables.${props.option.name}`) ? $t(`app.role_lables.${props.option.name}`) : props.option.name }}</template>
               <template slot='singleLabel' slot-scope='{ option }'>
-                    {{ $te(`app.roles.${option.name}`) ? $t(`app.roles.${option.name}`) : option.name }}
+                    {{ $te(`app.role_lables.${option.name}`) ? $t(`app.role_lables.${option.name}`) : option.name }}
 
               </template>
               <template slot='afterList'>
@@ -133,7 +133,7 @@
 
       <template v-slot:cell(roles)="data">
         <text-truncate  v-for="role in data.item.roles" :key="role.id">
-          {{ $te(`app.roles.${role.name}`) ? $t(`app.roles.${role.name}`) : role.name }}
+          {{ $te(`app.role_lables.${role.name}`) ? $t(`app.role_lables.${role.name}`) : role.name }}
         </text-truncate>
       </template>
 

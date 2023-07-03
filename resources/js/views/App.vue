@@ -53,7 +53,7 @@
 
             <!-- Right aligned nav items -->
             <b-navbar-nav class="ml-auto">
-              <b-nav-item :to="{ name: 'login' }" v-if='!isAuthenticated' right>{{ $t('auth.login') }}</b-nav-item>
+              <b-nav-item :to="loginRoute" v-if='!isAuthenticated' right>{{ $t('auth.login') }}</b-nav-item>
 
               <b-nav-item-dropdown right v-if='isAuthenticated'>
                 <!-- Using 'button-content' slot -->
@@ -74,7 +74,7 @@
               <b-nav-item class="d-block d-lg-none" target="_blank" :href="getSetting('help_url')" v-if="!!getSetting('help_url')">
                 {{$t('app.help')}}
               </b-nav-item>
-              <locale-selector :available-locales="availableLocales"></locale-selector>
+              <locale-selector></locale-selector>
             </b-navbar-nav>
           </b-collapse>
         </b-container>
@@ -106,12 +106,16 @@ export default {
   computed: {
     ...mapState(useAuthStore, ['currentUser', 'isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),
-    ...mapState(useLoadingStore, ['loadingCounter', 'overlayLoadingCounter'])
-  },
-  data () {
-    return {
-      availableLocales: import.meta.env.VITE_AVAILABLE_LOCALES.split(',')
-    };
+    ...mapState(useLoadingStore, ['loadingCounter', 'overlayLoadingCounter']),
+
+    // Add a redirect query parameter to the login route if the current route has the redirectBackAfterLogin meta set to true
+    // This ensures that the user is redirected to the page he is currently on after login
+    // By default the user is redirected to the home page after login (see comment in router.js)
+    loginRoute () {
+      const route = { name: 'login' };
+      if (this.$route.meta.redirectBackAfterLogin === true) { route.query = { redirect: this.$route.path }; }
+      return route;
+    }
   },
   methods: {
 

@@ -278,7 +278,7 @@ class UserTest extends TestCase
             ->assertJsonValidationErrors(['firstname', 'new_password', 'email', 'lastname', 'user_locale', 'roles.0']);
 
         config([
-            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
         $request = [
@@ -319,7 +319,7 @@ class UserTest extends TestCase
     public function testUpdateSelf()
     {
         config([
-            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
         $roleA = Role::factory()->create();
@@ -394,7 +394,7 @@ class UserTest extends TestCase
     public function testUpdateSelfLdap()
     {
         config([
-            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
         $roleA      = Role::factory()->create();
@@ -1053,7 +1053,7 @@ class UserTest extends TestCase
     public function testUpdateNewImage()
     {
         config([
-            'app.available_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
+            'app.enabled_locales' => ['fr', 'es', 'be', 'de', 'en', 'ru'],
         ]);
 
         $user       = User::factory()->create(['locale' => 'de', 'timezone' => 'Europe/Berlin' ,'bbb_skip_check_audio' => false]);

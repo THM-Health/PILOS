@@ -1,8 +1,6 @@
 <template>
   <div>
     <b-overlay :show="isBusy" >
-      <h4 v-if="showTitle">{{ $t('rooms.files.title') }}</h4>
-
       <b-alert show v-if="requireAgreement && files.files && files.files.length>0" >
         <strong>{{ $t('rooms.files.terms_of_use.title')}}</strong><br>
         {{ $t('rooms.files.terms_of_use.content')}}

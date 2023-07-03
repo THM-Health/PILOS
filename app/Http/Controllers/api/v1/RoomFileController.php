@@ -10,6 +10,7 @@ use App\Http\Resources\RoomFileCollection;
 use App\Models\Room;
 use App\Models\RoomFile;
 use App\Services\RoomFileService;
+use Log;
 
 class RoomFileController extends Controller
 {
@@ -47,11 +48,13 @@ class RoomFileController extends Controller
         $room->files()->save($file);
         $room->updateDefaultFile();
 
+        Log::info('Uploaded new file {file} to room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel() ]);
+
         return $this->index($room);
     }
 
     /**
-     * Update the specified file attributes
+     * Get url to download the specified file
      *
      * @param  UpdateRoomFile                $request
      * @param  Room                          $room
@@ -106,6 +109,8 @@ class RoomFileController extends Controller
 
         $file->save();
 
+        Log::info('Changed file settings for file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel()]);
+
         $room->updateDefaultFile();
 
         return $this->index($room);
@@ -127,6 +132,8 @@ class RoomFileController extends Controller
 
         $file->delete();
         $room->updateDefaultFile();
+
+        Log::info('Deleted file {file} in room {room}', ['room' => $room->getLogLabel(), 'file' => $file->getLogLabel() ]);
 
         return $this->index($room);
     }

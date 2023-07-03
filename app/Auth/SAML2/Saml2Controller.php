@@ -98,7 +98,7 @@ class Saml2Controller extends Controller
         } catch(MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
         }
-        
+
         // Get eloquent user (existing or new)
         $user = $saml_user->createOrFindEloquentModel();
 
@@ -114,9 +114,7 @@ class Saml2Controller extends Controller
         session()->put('external_auth', 'saml2');
         session()->put('saml2_name_id', $saml_raw_user->id);
 
-        if (config('auth.log.successful')) {
-            Log::info('External user '.$user->external_id.' has been successfully authenticated.', ['ip' => $request->ip(), 'user-agent' => $request->header('User-Agent'), 'type' => 'saml2']);
-        }
+        Log::info('External user :user has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'saml2']);
 
         $url = '/external_login';
 

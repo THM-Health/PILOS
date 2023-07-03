@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\EnsureModelNotStale;
+use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIf;
 use App\Http\Middleware\StoreSessionData;
@@ -43,6 +44,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\SetApplicationLocale::class,
             'loggedin:ldap,users',
             StoreSessionData::class,
+            LogContext::class,
         ],
 
         'api' => [
@@ -51,7 +53,7 @@ class Kernel extends HttpKernel
             'loggedin:ldap,users',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
-            StoreSessionData::class,
+            LogContext::class,
         ],
     ];
 
