@@ -145,10 +145,4 @@ return [
     */
 
     'password_timeout' => 10800,
-
-    'log' => [
-        'successful' => env('AUTH_LOG_SUCCESSFUL', false),
-        'failed'     => env('AUTH_LOG_FAILED', false),
-        'roles' => env('AUTH_LOG_ROLES', false),
-    ]
 ];

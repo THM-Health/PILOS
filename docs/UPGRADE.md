@@ -29,16 +29,16 @@ LDAP is disabled by default. To enable LDAP change the `LDAP_ENABLED` option in 
 Authentication with LDAP has been fundamentally refactored.
 In the process, some .env variables were changed, added or removed. The following table provides an overview of the changes.
 
-| Old .env Attribute | New .env  Attribute | Description |
-|-----------|--------|-------------|
+| Old .env Attribute | New .env  Attribute | Description                                                                                        |
+|-----------|--------|----------------------------------------------------------------------------------------------------|
 | LDAP_ROLE_ATTRIBUTE | *Removed* | Attribute with the users role, can be a multi value attribute, replaced with new mapping json file |
-| LDAP_ROLE_MAP | *Removed* | Map the attribute to the name of a local role, replaced with new mapping json file |
-| AUTH_LOG_LDAP_ROLES | AUTH_LOG_ROLES | Show found roles during mapping |
-| - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID' |
-| - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson) |
-| - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid) |
-| - | LDAP_FILTER | Raw LDAP filter |
-| - | LDAP_LOAD_ATTRIBUTES_AS_USER | Load the users attributes by using the users credentials |
+| LDAP_ROLE_MAP | *Removed* | Map the attribute to the name of a local role, replaced with new mapping json file                 |
+| AUTH_LOG_LDAP_ROLES | *Removed* | Show found roles during mapping, enabled on log level info                                         |
+| - | LDAP_GUID_KEY | Attribute with GUID; OpenLDAP (default): 'entryuuid', AD: 'objectGUID'                             |
+| - | LDAP_OBJECT_CLASSES | Comma seperated list of the object class (default: top,person,organizationalperson,inetorgperson)  |
+| - | LDAP_LOGIN_ATTRIBUTE | Attribute by which the user should be found in the LDAP (default: uid)                             |
+| - | LDAP_FILTER | Raw LDAP filter                                                                                    |
+| - | LDAP_LOAD_ATTRIBUTES_AS_USER | Load the users attributes by using the users credentials                                           |
 
 Please have a look at the [external authentication documentation](EXTERNAL_AUTHENTICATION.md)
 

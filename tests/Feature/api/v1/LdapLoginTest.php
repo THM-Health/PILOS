@@ -185,7 +185,7 @@ class LdapLoginTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
         $user = $this->getAuthenticatedUser();
-        
+
         $this->assertEquals($this->ldapUser->uid[0], $user->external_id);
         $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
         $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
@@ -220,7 +220,7 @@ class LdapLoginTest extends TestCase
 
         $this->assertAuthenticated($this->guard);
         $user = $this->getAuthenticatedUser();
-        
+
         $this->assertEquals($this->ldapUser->uid[0], $user->external_id);
         $this->assertEquals($this->ldapUser->givenName[0], $user->firstname);
         $this->assertEquals($this->ldapUser->sn[0], $user->lastname);
@@ -488,10 +488,6 @@ class LdapLoginTest extends TestCase
      */
     public function testLogging()
     {
-        config([
-            'auth.log.roles' => false
-        ]);
-
         // test failed login
         Log::swap(new LogFake);
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
