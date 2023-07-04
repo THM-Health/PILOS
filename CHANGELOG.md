@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.1.1] - 2023-07-4
+### Changed
+- Bump dependencies
+
+### Removed
+- Unused .env variables from example file and docs
+
 ## [v2.1.0] - 2023-06-29
 ### Added
 - Bulk import room members ([#282], [#299])
@@ -604,7 +611,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#386]: https://github.com/THM-Health/PILOS/pull/386
 [#389]: https://github.com/THM-Health/PILOS/pull/389
 
-[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.1.0...HEAD
+[unreleased]: https://github.com/THM-Health/PILOS/compare/v2.1.1...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
 [v1.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.2.0
@@ -633,3 +640,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.0.0-RC.4]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0-RC.4
 [v2.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.0.0
 [v2.1.0]: https://github.com/THM-Health/PILOS/releases/tag/v2.1.0
+[v2.1.1]: https://github.com/THM-Health/PILOS/releases/tag/v2.1.1
