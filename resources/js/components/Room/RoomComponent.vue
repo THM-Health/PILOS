@@ -19,8 +19,12 @@
             </div>
             <div>
               <small style="display: block"><i class="fa-solid fa-user"></i> {{ owner.name }} </small>
-              <small  v-if="running" style="display: block"><i class="fa-solid fa-clock"></i> Läuft</small>
-              <small  v-if="!running" style="display: block"><i class="fa-solid fa-clock"></i> 20.06.23</small>
+              <small style="display: block"><i class="fa-solid fa-clock"></i>
+                <span v-if="meeting==null"> Noch nie gestartet</span>
+                <span v-else-if="meeting.start!=null && meeting.end!=null"> Zuletzt gelaufen bis {{ $d(new Date(meeting.end),'datetimeShort') }}</span>
+                <span v-else-if="meeting.end==null"> Metting läuft seit  {{ $d(new Date(meeting.start),'datetimeShort') }}</span>
+                <span v-else> Meeting startet gerade</span>
+              </small>
             </div>
           </div>
       </b-card-body>
@@ -40,10 +44,7 @@ export default {
   props: {
     id: String,
     name: String,
-    running: {
-      type: Boolean,
-      default: false
-    },
+    meeting:Object,
     shared: {
       type: Boolean,
       default: false
@@ -60,6 +61,11 @@ export default {
       });
     }
 
+  },
+  computed:{
+    running: function (){
+      return this.meeting!=null && this.meeting.start!=null && this.meeting.end == null
+    }
   }
 };
 </script>

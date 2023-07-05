@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
+use App\Enums\RoomFilter;
+use App\Enums\RoomSortingType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
 use App\Http\Requests\ShowRoomsRequest;
@@ -19,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
+use phpDocumentor\Reflection\Types\Collection;
 
 class RoomController extends Controller
 {
@@ -41,50 +44,60 @@ class RoomController extends Controller
         $roomMemberships = Auth::user()->sharedRooms->modelKeys();
 
 
-        // If filter has all
-        if (Auth::user()->can('viewAll', Room::class)) {
+
+        if($request->filter == RoomFilter::ALL && Auth::user()->can('viewAll', Room::class)){
             $collection = Room::query();
         }
         else{
-            $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled) {
-                $query->where('listed', 1)
-                    ->whereNull('access_code')
-                    ->whereIn('room_type_id', $roomTypesWithListingEnabled);
+            $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled, $roomMemberships, $request) {
+                $query->where('user_id', '=', Auth::user()->id);
+
+                if($request->filter == RoomFilter::OWN_AND_SHARED || $request->filter == RoomFilter::ALL){
+                    $query->orWhereIn('id',$roomMemberships);
+                }
+
+                if($request->filter == RoomFilter::ALL){
+                    $query->orWhere(function (Builder $subQuery) use ($roomTypesWithListingEnabled) {
+                        $subQuery->where('listed', 1)
+                            ->whereNull('access_code')
+                            ->whereIn('room_type_id', $roomTypesWithListingEnabled);
+                    });
+                }
             });
         }
-
-        // If filter has shared
-        $collection->orWhereIn('id',$roomMemberships);
-
-        // Always show own rooms
-        $collection->orWhere('user_id', '=', Auth::user()->id);
 
 
         $collection->with(['owner','roomType']);
 
-        /*if ($request->has('filter')) {
-            switch ($request->filter) {
-                case 'own':
-                    $collection                                = Auth::user()->myRooms()->with('owner');
-                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
+        if ($request->has('room_type')) {
+            $collection->where('room_type_id', $request->room_type);
+        }
 
-                    break;
-                case 'shared':
-                    $collection                                =  Auth::user()->sharedRooms()->with('owner');
-                    $additionalMeta['meta']['total_no_filter'] = $collection->count();
-
-                    break;
-                default:
-                    abort(400);
+        if ($request->has('search') && trim($request->search) != '') {
+            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
+            foreach ($searchQueries as $searchQuery) {
+                $collection = $collection->where(function ($query) use ($searchQuery) {
+                    $query->where('name', 'like', '%' . $searchQuery . '%')
+                        ->orWhereHas('owner', function ($query2) use ($searchQuery) {
+                            $query2->where('firstname', 'like', '%' . $searchQuery . '%')
+                                ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
+                        });
+                });
             }
+        }
 
-            if ($request->has('search') && trim($request->search) != '') {
-                $collection = $collection->where('name', 'like', '%' . $request->search . '%');
-            }
-*/
-            $collection = $collection->orderBy('name')->paginate(setting('own_rooms_pagination_page_size'));
+        switch($request->sort_by){
+            case RoomSortingType::ALPHA_DESC:
+                $collection = $collection->orderByDesc('name');
+                break;
+            case RoomSortingType::ALPHA_ASC:
+            default:
+                $collection = $collection->orderBy('name');
+                break;
+        }
+        $collection = $collection->paginate(setting('own_rooms_pagination_page_size'));
 
-            return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
+        return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
       /*  }
 
         $collection =  Room::with('owner');

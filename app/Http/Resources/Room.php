@@ -53,6 +53,16 @@ class Room extends JsonResource
         ];
     }
 
+    public function getLastMeeting($runningMeeting){
+        if (!$runningMeeting){
+            return null;
+        }
+        return [
+            'start' => $runningMeeting->start,
+            'end'   => $runningMeeting->end
+        ];
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -61,7 +71,7 @@ class Room extends JsonResource
      */
     public function toArray($request)
     {
-        $runningMeeting = $this->resource->runningMeeting();
+        $runningMeeting = $this->resource->latestMeeting();
 
         return [
             'id'                => $this->id,
@@ -71,6 +81,7 @@ class Room extends JsonResource
                 'name' => $this->owner->fullname,
             ],
             'running'           => $runningMeeting != null,
+            'last_meeting'      => $this->getLastMeeting($runningMeeting),
             'type'              => new RoomType($this->roomType),
             'model_name'        => $this->model_name,
             $this->mergeWhen($this->details, $this->getDetails($runningMeeting))

@@ -137,7 +137,7 @@
                 </b-alert>
 
                 <!-- If room is running, show join button -->
-                <template v-if="room.running">
+                <template v-if="running">
                   <!-- If user is guest, join is only possible if a name is provided -->
                   <b-button
                     block
@@ -170,7 +170,7 @@
                   </div>
                 </template>
 
-                <browser-notification :running="room.running" :name="room.name"></browser-notification>
+                <browser-notification :running="running" :name="room.name"></browser-notification>
               </b-col>
             </b-row>
           </b-col>
@@ -654,7 +654,7 @@ export default {
 
             // Room is not running, update running status
             if (error.response.status === env.HTTP_MEETING_NOT_RUNNING) {
-              this.room.running = false;
+              this.reload();
             }
 
             // Form validation error
@@ -743,6 +743,9 @@ export default {
   },
   computed: {
 
+    running: function (){
+      return this.room.last_meeting!=null && this.room.last_meeting.start!=null && this.room.last_meeting.end == null
+    },
     ...mapState(useAuthStore, ['isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),
 

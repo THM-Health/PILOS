@@ -16,22 +16,19 @@
       <b-row >
         <b-col md="3">
           <h6>Sortierung</h6>
-          <b-form-select v-model="selectedSortingType" @change="loadOwnRooms">
+          <b-form-select v-model="selectedSortingType" @change="loadOwnRooms()">
             <b-form-select-option disabled value="-1">-- Sortierung auswählen --</b-form-select-option>
-            <b-form-select-option value="alphabetical_ascending">Alphabetisch aufsteigend</b-form-select-option>
-            <b-form-select-option value="alphabetical_descending">Alphabetisch absteigend</b-form-select-option>
+            <b-form-select-option value="alpha_asc">Alphabetisch aufsteigend</b-form-select-option>
+            <b-form-select-option value="alpha_desc">Alphabetisch absteigend</b-form-select-option>
             <b-form-select-option value="...">...</b-form-select-option>
           </b-form-select>
         </b-col>
         <b-col md="3">
           <h6>Raumart</h6>
-          <b-form-select v-model="selectedRoomType" @change="loadOwnRooms">
+          <b-form-select v-model="selectedRoomType" @change="loadOwnRooms()">
             <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
-            <b-form-select-option value=0>Alle</b-form-select-option>
-            <b-form-select-option value=1>Lecture</b-form-select-option>
-            <b-form-select-option value=2>Meeting</b-form-select-option>
-            <b-form-select-option value=3>Exam</b-form-select-option>
-            <b-form-select-option value=4>Seminar</b-form-select-option>
+            <b-form-select-option :value="null">Alle</b-form-select-option>
+            <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
           </b-form-select>
         </b-col>
         <b-col md="3">
@@ -61,7 +58,7 @@
           <em v-else-if="!ownRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in ownRooms.data" :key="room.id" class="pt-2">
-                <room-component :id="room.id" :name="room.name" :owner="room.owner" :type="room.type" :running="room.running"></room-component>
+                <room-component :id="room.id" :name="room.name" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
 <!--            <can method="create" policy="RoomPolicy" v-if="!limitReached">
             <b-col class="pt-2">
@@ -75,7 +72,7 @@
             v-model="ownRooms.meta.current_page"
             :total-rows="ownRooms.meta.total"
             :per-page="ownRooms.meta.per_page"
-            @input="loadOwnRooms()"
+            @input="loadOwnRooms(false)"
           ></b-pagination>
         </div>
       </b-overlay>
@@ -87,7 +84,7 @@
           <em v-else-if="!sharedRooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3">
             <b-col v-for="room in sharedRooms.data" :key="room.id" class="pt-2">
-              <room-component :id="room.id" :name="room.name" v-bind:shared="true" :running="room.running" :owner="room.owner" :type="room.type"></room-component>
+              <room-component :id="room.id" :name="room.name" v-bind:shared="true" :meeting="room.last_meeting" :owner="room.owner" :type="room.type"></room-component>
             </b-col>
           </b-row>
           <b-pagination
@@ -111,6 +108,7 @@ import Can from '../../components/Permissions/Can.vue';
 import Base from '../../api/base';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
+import PermissionService from "../../services/PermissionService";
 
 export default {
   components: {
@@ -131,6 +129,7 @@ export default {
   },
   mounted: function () {
     this.reload();
+    this.loadRoomTypes();
   },
   methods: {
 
@@ -143,15 +142,41 @@ export default {
     },
     // Load all required resources
     reload () {
-      this.loadOwnRooms();
+      this.loadOwnRooms(false);
       this.loadSharedRooms();
     },
     // Reset page of pagination and reload resources with search query
     search () {
       this.ownRooms.meta.current_page = 1;
-      this.sharedRooms.meta.current_page = 1;
+      // this.sharedRooms.meta.current_page = 1;
       this.loadOwnRooms();
-      this.loadSharedRooms();
+      // this.loadSharedRooms();
+    },
+    /**
+     * Load the room types
+     */
+    loadRoomTypes () {
+      this.roomTypesBusy = true;
+
+      let config;
+
+      if (PermissionService.cannot('viewAll', 'RoomPolicy')) {
+        config = {
+          params: {
+            filter: 'searchable'
+          }
+        };
+      }
+
+      Base.call('roomTypes', config).then(response => {
+        this.roomTypes = response.data.data;
+        this.roomTypesLoadingError = false;
+      }).catch(error => {
+        this.roomTypesLoadingError = true;
+        Base.error(error, this);
+      }).finally(() => {
+        this.roomTypesBusy = false;
+      });
     },
     // Load the rooms shared with the current user
     loadSharedRooms () {
@@ -177,7 +202,10 @@ export default {
       // });
     },
     // Load the rooms of the current user
-    loadOwnRooms () {
+    loadOwnRooms (resetPage = true) {
+      if (resetPage){
+        this.ownRooms.meta.current_page = 1;
+      }
       this.loadingOwn = true;
       this.updateFilter();
 
@@ -185,8 +213,8 @@ export default {
         method: 'get',
         params: {
           filter:this.roomFilter,
-          selected_room_type: this.selectedRoomType,
-          selected_sorting_type: this.selectedSortingType,
+          room_type: this.selectedRoomType,
+          sort_by: this.selectedSortingType,
           search: this.rawSearchQuery.trim()!==""?this.rawSearchQuery.trim():null,
           page: this.ownRooms !== null ? this.ownRooms.meta.current_page : 1
         }
@@ -249,10 +277,13 @@ export default {
       sharedRooms: null,
       rawSearchQuery: '',
       roomFilter:"own",
-      selectedRoomType: 0,
-      selectedSortingType: "alphabetical_ascending",
+      selectedRoomType: null,
+      selectedSortingType: "alpha_asc",
       showAllRooms: false,
-      showSharedRooms: false
+      showSharedRooms: false,
+      roomTypes: [],
+      roomTypesBusy: false,
+      roomTypesLoadingError: false
     };
   }
 };
