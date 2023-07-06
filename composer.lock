@@ -71,16 +71,16 @@
         },
         {
             "name": "bensampo/laravel-enum",
-            "version": "v6.3.3",
+            "version": "v6.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BenSampo/laravel-enum.git",
-                "reference": "680355c9533594852a088bf21fb209124258d705"
+                "reference": "22e9faff7f34a95ff6cd96bbc3fb4395d6ffbf4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BenSampo/laravel-enum/zipball/680355c9533594852a088bf21fb209124258d705",
-                "reference": "680355c9533594852a088bf21fb209124258d705",
+                "url": "https://api.github.com/repos/BenSampo/laravel-enum/zipball/22e9faff7f34a95ff6cd96bbc3fb4395d6ffbf4d",
+                "reference": "22e9faff7f34a95ff6cd96bbc3fb4395d6ffbf4d",
                 "shasum": ""
             },
             "require": {
@@ -94,14 +94,14 @@
             "require-dev": {
                 "doctrine/dbal": "^3.4",
                 "ergebnis/composer-normalize": "^2.28.3",
+                "mll-lab/php-cs-fixer-config": "^5.4",
                 "mockery/mockery": "^1.5",
                 "nunomaduro/larastan": "^2.1.12",
                 "orchestra/testbench": "^7.6.1 || ^8",
                 "phpstan/phpstan": "^1.8.2",
                 "phpstan/phpstan-mockery": "^1.1",
                 "phpstan/phpstan-phpunit": "^1.1.1",
-                "phpunit/phpunit": "^9.5.21",
-                "squizlabs/php_codesniffer": "^3.7.1"
+                "phpunit/phpunit": "^9.5.21"
             },
             "type": "library",
             "extra": {
@@ -130,6 +130,11 @@
                     "name": "Ben Sampson",
                     "homepage": "https://sampo.co.uk",
                     "role": "Developer"
+                },
+                {
+                    "name": "Benedikt Franke",
+                    "homepage": "https://franke.tech",
+                    "role": "Developer"
                 }
             ],
             "description": "Simple, extensible and powerful enumeration implementation for Laravel.",
@@ -143,7 +148,7 @@
             ],
             "support": {
                 "issues": "https://github.com/BenSampo/laravel-enum/issues",
-                "source": "https://github.com/BenSampo/laravel-enum/tree/v6.3.3"
+                "source": "https://github.com/BenSampo/laravel-enum/tree/v6.4.0"
             },
             "funding": [
                 {
@@ -151,7 +156,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-05-18T09:13:17+00:00"
+            "time": "2023-07-05T08:16:59+00:00"
         },
         {
             "name": "brick/math",
@@ -210,22 +215,22 @@
         },
         {
             "name": "composer/class-map-generator",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/class-map-generator.git",
-                "reference": "1e1cb2b791facb2dfe32932a7718cf2571187513"
+                "reference": "953cc4ea32e0c31f2185549c7d216d7921f03da9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/1e1cb2b791facb2dfe32932a7718cf2571187513",
-                "reference": "1e1cb2b791facb2dfe32932a7718cf2571187513",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/953cc4ea32e0c31f2185549c7d216d7921f03da9",
+                "reference": "953cc4ea32e0c31f2185549c7d216d7921f03da9",
                 "shasum": ""
             },
             "require": {
-                "composer/pcre": "^2 || ^3",
+                "composer/pcre": "^2.1 || ^3.1",
                 "php": "^7.2 || ^8.0",
-                "symfony/finder": "^4.4 || ^5.3 || ^6"
+                "symfony/finder": "^4.4 || ^5.3 || ^6 || ^7"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.6",
@@ -263,7 +268,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/class-map-generator/issues",
-                "source": "https://github.com/composer/class-map-generator/tree/1.0.0"
+                "source": "https://github.com/composer/class-map-generator/tree/1.1.0"
             },
             "funding": [
                 {
@@ -279,7 +284,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-06-19T11:31:27+00:00"
+            "time": "2023-06-30T13:58:57+00:00"
         },
         {
             "name": "composer/pcre",
@@ -3422,16 +3427,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.67.0",
+            "version": "2.68.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "c1001b3bc75039b07f38a79db5237c4c529e04c8"
+                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/c1001b3bc75039b07f38a79db5237c4c529e04c8",
-                "reference": "c1001b3bc75039b07f38a79db5237c4c529e04c8",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/4f991ed2a403c85efbc4f23eb4030063fdbe01da",
+                "reference": "4f991ed2a403c85efbc4f23eb4030063fdbe01da",
                 "shasum": ""
             },
             "require": {
@@ -3520,7 +3525,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-25T22:09:47+00:00"
+            "time": "2023-06-20T18:29:04+00:00"
         },
         {
             "name": "nette/schema",
