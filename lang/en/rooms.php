@@ -3,7 +3,7 @@
 return [
     'access_code'                  => 'Access code',
     'access_for_participants'      => 'Access for participants',
-    'all_rooms'                    => 'All rooms',
+//    'all_rooms'                    => 'All rooms',
     'become_member'                => 'Become member',
     'copy_access_for_participants' => 'Copy access for participants to clipboard',
     'create'                       => [
@@ -41,8 +41,8 @@ return [
         'apply' => 'Apply',
         'title' => 'Filter',
     ],
-    'find_rooms'         => 'Find rooms',
-    'find_rooms_info'    => 'List of all public listed rooms without an access code',
+//    'find_rooms'         => 'Find rooms',
+//    'find_rooms_info'    => 'List of all public listed rooms without an access code',
     'first_and_lastname' => 'First- und last name',
     'flash'              => [
         'access_code_invalid' => 'The access code is invalid.',
@@ -51,6 +51,18 @@ return [
         'no_new_room'         => 'You do not have the necessary permission to create a new room.',
         'start_forbidden'     => 'The room could not be started by you.',
         'token_invalid'       => 'The personalised room link is no longer valid.',
+    ],
+    'index' =>[
+        'room_type' => 'Room type',
+        'show_shared' => 'Show shared rooms',
+        'show_all' =>'Show all rooms',
+        'sorting' => [
+            'sort' => 'Sorting',
+            'select_sorting' => '-- Select sorting --',
+            'alpha_asc' => 'Alphabetically ascending',
+            'alpha_desc' => 'Alphabetically descending',
+        ],
+
     ],
     'invalid_personal_link' => 'This personalised room link is invalid.',
     'invitation'            => [
@@ -112,7 +124,7 @@ return [
             'title'   => 'Delete room',
         ],
     ],
-    'my_rooms'                  => 'My rooms',
+//    'my_rooms'                  => 'My rooms',
     'name'                      => 'Room name',
     'no_rooms_available'        => 'No rooms available',
     'no_rooms_available_search' => 'No rooms found for this search query',
@@ -195,8 +207,8 @@ return [
         ],
         'title' => 'Settings',
     ],
-    'shared_by'    => 'Shared by :name',
-    'shared_rooms' => 'Rooms shared with me',
+//    'shared_by'    => 'Shared by :name',
+//    'shared_rooms' => 'Rooms shared with me',
     'start'        => 'Start',
     'status'       => [
         'not_running' => 'No running meeting',

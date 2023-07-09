@@ -65,13 +65,13 @@ class RoomController extends Controller
                 }
             });
         }
-
-
         $collection->with(['owner','roomType']);
 
         if ($request->has('room_type')) {
             $collection->where('room_type_id', $request->room_type);
         }
+
+        $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
         if ($request->has('search') && trim($request->search) != '') {
             $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
@@ -95,39 +95,10 @@ class RoomController extends Controller
                 $collection = $collection->orderBy('name');
                 break;
         }
+
         $collection = $collection->paginate(setting('own_rooms_pagination_page_size'));
 
         return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
-      /*  }
-
-        $collection =  Room::with('owner');
-        if (Auth::user()->cannot('viewAll', Room::class)) {
-            $collection = $collection
-                ->where('listed', 1)
-                ->whereNull('access_code')
-                ->whereIn('room_type_id', RoomType::where('allow_listing', 1)->get('id'));
-        }
-
-        if ($request->has('search') && trim($request->search) != '') {
-            $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
-            foreach ($searchQueries as $searchQuery) {
-                $collection = $collection->where(function ($query) use ($searchQuery) {
-                    $query->where('name', 'like', '%' . $searchQuery . '%')
-                            ->orWhereHas('owner', function ($query2) use ($searchQuery) {
-                                $query2->where('firstname', 'like', '%' . $searchQuery . '%')
-                                       ->orWhere('lastname', 'like', '%' . $searchQuery . '%');
-                            });
-                });
-            }
-        }
-
-        if ($request->has('room_types')) {
-            $collection->whereIn('room_type_id', $request->room_types);
-        }
-
-        $collection = $collection->orderBy('name')->paginate(setting('pagination_page_size'));
-
-        return \App\Http\Resources\Room::collection($collection);*/
     }
 
     /**
