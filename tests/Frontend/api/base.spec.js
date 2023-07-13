@@ -1,7 +1,6 @@
 import Base from '../../../resources/js/api/base';
-import moxios from 'moxios';
 import VueRouter from 'vue-router';
-import { waitMoxios } from '../helper';
+import { axiosMock } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../../resources/js/stores/auth';
 
@@ -9,20 +8,13 @@ let consoleErrorStub;
 
 describe('base', () => {
   beforeEach(() => {
-    moxios.install();
     consoleErrorStub = vi.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    axiosMock.reset();
   });
 
   describe('call', () => {
     it('calls `getCsrfCookie` if `loadCsrfCookie` is set to true', async () => {
-      moxios.stubRequest('/api/v1/test', {
-        status: 200,
-        responseText: 'Test'
-      });
+      axiosMock.stubRequest('/api/v1/test', { status: 200, response: 'Test' });
 
       const spy = vi.spyOn(Base, 'getCsrfCookie').mockImplementation(() => Promise.resolve());
 
@@ -32,33 +24,21 @@ describe('base', () => {
     });
 
     it('makes an call to the passed route with the passed parameters', async () => {
+      const request = axiosMock.blockingRequest('/api/v1/test');
+
       Base.call('test', { method: 'put', data: { a: 'test' } });
 
-      await waitMoxios();
-
-      const request = moxios.requests.mostRecent();
+      await request.wait();
 
       expect(request.config.url).toBe('/api/v1/test');
       expect(request.config.method).toBe('put');
       expect(request.config.data).toBe('{"a":"test"}');
-
-      await request.respondWith({
-        status: 200
-      });
     });
 
     it('returns a promise that rejects on response codes above 400', async () => {
-      moxios.stubRequest('/api/v1/test', {
-        status: 400,
-        responseText: 'Test'
-      });
+      axiosMock.stubRequest('/api/v1/test', { status: 400, response: 'Test' });
 
-      await expect(Base.call('test')).rejects.toMatchObject({
-        response: {
-          status: 400,
-          data: 'Test'
-        }
-      });
+      await expect(Base.call('test')).rejects.toThrowError('Request failed with status code 400');
     });
 
     it('base error handling', async () => {
@@ -165,17 +145,15 @@ describe('base', () => {
       expect(consoleErrorStub).toBeCalledWith('Error: Error: {"testProp1":"testValue1","testProp2":"testValue2"}\nInfo: infoText');
     });
 
-    it('`getCsrfCookie` calls the route for getting a csrf cookie',
-      async () => {
-        moxios.stubRequest('/sanctum/csrf-cookie', {
-          status: 200,
-          responseText: 'Test'
-        });
+    it('`getCsrfCookie` calls the route for getting a csrf cookie', async () => {
+      const request = axiosMock.stubRequest('/sanctum/csrf-cookie', { status: 200, response: 'Test' });
 
-        const response = await Base.getCsrfCookie();
-        expect(response.status).toBe(200);
-        expect(response.data).toBe('Test');
-      });
+      const response = await Base.getCsrfCookie();
+      expect(response.status).toBe(200);
+      expect(response.data).toBe('Test');
+
+      expect(request.config.url).toBe('/sanctum/csrf-cookie');
+    });
 
     it('`setLocale` calls `call` with the corresponding locale', async () => {
       const spy = vi.spyOn(Base, 'call').mockImplementation(() => {});

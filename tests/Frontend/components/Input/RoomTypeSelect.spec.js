@@ -1,10 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BFormSelect } from 'bootstrap-vue';
-import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/Inputs/RoomTypeSelect.vue';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
+import { axiosMock, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -14,11 +13,7 @@ localVue.use(PiniaVuePlugin);
 
 describe('RoomType Select', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    axiosMock.reset();
   });
 
   const exampleRoomTypeResponse = {
@@ -31,7 +26,7 @@ describe('RoomType Select', () => {
   };
 
   it('value passed', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -48,7 +43,6 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
     await view.vm.$nextTick();
     expect(view.vm.$data.roomType).toEqual({ id: 1, short: 'VL', description: 'Vorlesung', color: '#80BA27' });
 
@@ -56,7 +50,7 @@ describe('RoomType Select', () => {
   });
 
   it('disabled param', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    const request = axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -73,7 +67,9 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await axiosMock.wait();
+    expect(request.config.params.filter).toEqual('own');
+
     await view.vm.$nextTick();
 
     expect(view.findComponent(BButton).attributes('disabled')).toBeFalsy();
@@ -88,7 +84,7 @@ describe('RoomType Select', () => {
   });
 
   it('invalid value passed', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -105,7 +101,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
     expect(view.vm.$data.roomType).toBeNull();
 
@@ -113,7 +109,7 @@ describe('RoomType Select', () => {
   });
 
   it('busy events emitted', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -130,7 +126,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
 
     expect(view.emitted().busy[0]).toEqual([true]);
@@ -151,7 +147,7 @@ describe('RoomType Select', () => {
   });
 
   it('error events emitted', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 500,
       response: {
         message: 'Test'
@@ -172,13 +168,13 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
 
     expect(view.emitted().loadingError[0]).toEqual([true]);
     expect(spy).toBeCalledTimes(1);
 
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -186,18 +182,17 @@ describe('RoomType Select', () => {
     });
 
     view.vm.reloadRoomTypes();
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
     expect(view.emitted().loadingError[1]).toEqual([false]);
 
-    restoreRoomTypeResponse();
     view.destroy();
   });
 
   it('reload room types', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -211,7 +206,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
 
     const typeInput = view.findComponent(BFormSelect);
@@ -220,13 +215,19 @@ describe('RoomType Select', () => {
     meetingOption.element.selected = true;
     await typeInput.trigger('change');
     expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
+
+    axiosMock.stubRequest('/api/v1/roomTypes', {
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
+
     view.vm.reloadRoomTypes();
 
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
     expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
-    let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 200,
       response: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -235,12 +236,12 @@ describe('RoomType Select', () => {
 
     view.vm.reloadRoomTypes();
 
-    await waitMoxios();
+    await axiosMock.wait();
     await view.vm.$nextTick();
 
     expect(view.vm.$data.roomType).toBeNull();
-    restoreRoomTypeResponse();
-    restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+
+    axiosMock.stubRequest('/api/v1/roomTypes', {
       status: 500,
       response: {
         message: 'Test'
@@ -248,10 +249,11 @@ describe('RoomType Select', () => {
     });
 
     view.vm.reloadRoomTypes();
-    await waitMoxios();
+
+    await axiosMock.wait();
+
     expect(spy).toBeCalledTimes(1);
 
-    restoreRoomTypeResponse();
     view.destroy();
   });
 });

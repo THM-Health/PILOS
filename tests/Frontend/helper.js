@@ -1,4 +1,5 @@
-import moxios from 'moxios';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { createLocalVue as originalCreateLocalVue } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import HideTooltip from '../../resources/js/directives/hide-tooltip';
@@ -10,18 +11,79 @@ function createLocalVue () {
   return localVue;
 }
 
+const axiosMock = new MockAdapter(axios);
 /**
  * Various helper functions for testing
  */
 module.exports = {
-  /**
-   * Asynchronous helper function for moxios.wait
-   * @returns {Promise<void>}
-   */
-  waitMoxios: async () => {
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
+
+  axiosMock: {
+    reset: () => axiosMock.reset(),
+
+    wait: () => new Promise(resolve => setTimeout(resolve)),
+
+    stubRequest: function (url, { status, response }) {
+      const resolvers = {
+        request: null
+      };
+
+      const promises = {
+        request: new Promise(function (resolve) {
+          resolvers.request = resolve;
+        }),
+        response: new Promise(function (resolve) {
+          resolve([status, response]);
+        })
+      };
+
+      const request = {
+        config: null,
+        wait: () => promises.request
+      };
+
+      axiosMock.onAny(url).replyOnce(function (config) {
+        request.config = config;
+        resolvers.request();
+        return promises.response;
+      });
+
+      return request;
+    },
+
+    blockingRequest: function (url) {
+      const resolvers = {
+        request: null,
+        response: null
+      };
+
+      const promises = {
+        request: new Promise(function (resolve) {
+          resolvers.request = resolve;
+        }),
+        response: new Promise(function (resolve) {
+          resolvers.response = resolve;
+        })
+      };
+
+      const request = {
+        config: null,
+        respond: function ({ status, response }) {
+          resolvers.response([status, response]);
+          return new Promise(resolve => setTimeout(resolve));
+        },
+        wait: () => promises.request
+      };
+
+      axiosMock.onAny(url).replyOnce(function (config) {
+        request.config = config;
+        resolvers.request();
+        return promises.response;
+      });
+
+      return request;
+    },
+
+    history: () => axiosMock.history
   },
 
   /**
@@ -92,27 +154,6 @@ module.exports = {
    */
   waitCollapseShown: async (wrapper, action) => {
     await module.exports.waitCollapseEvent(wrapper, action, 'shown');
-  },
-
-  /**
-   * Overwrite an existing moxios response
-   * @see https://github.com/axios/moxios/issues/42#issuecomment-499578991
-   * @param url Url of the axios call
-   * @param response New response for axios call
-   * @returns {restoreFunc} Function to restore old response
-   */
-  overrideStub: (url, response) => {
-    const l = moxios.stubs.count();
-    for (let i = 0; i < l; i++) {
-      const stub = moxios.stubs.at(i);
-      if (stub.url === url) {
-        const oldResponse = stub.response;
-        const restoreFunc = () => { stub.response = oldResponse; };
-
-        stub.response = response;
-        return restoreFunc;
-      }
-    }
   },
 
   /**

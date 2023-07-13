@@ -1,19 +1,19 @@
-import moxios from 'moxios';
 import { createPinia, setActivePinia } from 'pinia';
+import { axiosMock } from '../helper';
 import { useSettingsStore } from '../../../resources/js/stores/settings';
 
 describe('SettingsStore', () => {
   beforeEach(() => {
-    moxios.install();
+    axiosMock.reset();
     setActivePinia(createPinia());
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('getSettings loads the settings from the server, resolves only after the request is fulfilled and sets the corresponding property', async () => {
-    moxios.stubRequest('/api/v1/settings', {
+    axiosMock.stubRequest('/api/v1/settings', {
       status: 200,
       response: { data: { foo: 'bar' } }
     });

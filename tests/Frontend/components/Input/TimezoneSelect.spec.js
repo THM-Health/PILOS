@@ -12,11 +12,11 @@ localVue.use(PiniaVuePlugin);
 
 describe('TimezoneSelect', () => {
   beforeEach(() => {
-    moxios.install();
+    axiosMock.reset();
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('check v-model and props', async () => {
@@ -40,7 +40,7 @@ describe('TimezoneSelect', () => {
     await view.vm.$nextTick();
     const select = view.findComponent(BFormSelect);
 
-    await waitMoxios();
+    await waitAxios();
     const request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('get');
     expect(request.config.url).toEqual('/api/v1/getTimezones');
@@ -134,7 +134,7 @@ describe('TimezoneSelect', () => {
     await view.vm.$nextTick();
     const select = view.findComponent(BFormSelect);
 
-    await waitMoxios();
+    await waitAxios();
     let request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('get');
     expect(request.config.url).toEqual('/api/v1/getTimezones');
@@ -171,7 +171,7 @@ describe('TimezoneSelect', () => {
     expect(reloadButton.attributes('disabled')).toBeUndefined();
     await reloadButton.trigger('click');
 
-    await waitMoxios();
+    await waitAxios();
     expect(moxios.requests.count()).toBe(2);
     request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('get');
