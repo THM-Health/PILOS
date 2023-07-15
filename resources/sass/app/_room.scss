@@ -18,6 +18,7 @@
     cursor: pointer;
     &.running{
         border-Color: $green;
+        border-width: 2.5px;
     }
 }
 .room-card:hover{

@@ -44,18 +44,23 @@ class RoomController extends Controller
         $roomMemberships = Auth::user()->sharedRooms->modelKeys();
 
 
-
+        //all rooms without limitation
         if($request->filter == RoomFilter::ALL && Auth::user()->can('viewAll', Room::class)){
             $collection = Room::query();
+
         }
         else{
             $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled, $roomMemberships, $request) {
+                //own rooms
                 $query->where('user_id', '=', Auth::user()->id);
+                //ToDo count number of own rooms and save it in additionalMeta
 
+                //rooms where the user is member
                 if($request->filter == RoomFilter::OWN_AND_SHARED || $request->filter == RoomFilter::ALL){
                     $query->orWhereIn('id',$roomMemberships);
                 }
 
+                //all rooms that can be shown
                 if($request->filter == RoomFilter::ALL){
                     $query->orWhere(function (Builder $subQuery) use ($roomTypesWithListingEnabled) {
                         $subQuery->where('listed', 1)
@@ -67,12 +72,14 @@ class RoomController extends Controller
         }
         $collection->with(['owner','roomType']);
 
+        //rooms with specific room Type
         if ($request->has('room_type')) {
             $collection->where('room_type_id', $request->room_type);
         }
 
         $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
+        //rooms that can be found with the search
         if ($request->has('search') && trim($request->search) != '') {
             $searchQueries  =  explode(' ', preg_replace('/\s\s+/', ' ', $request->search));
             foreach ($searchQueries as $searchQuery) {
@@ -85,7 +92,7 @@ class RoomController extends Controller
                 });
             }
         }
-
+        //sort rooms
         switch($request->sort_by){
             case RoomSortingType::ALPHA_DESC:
                 $collection = $collection->orderByDesc('name');

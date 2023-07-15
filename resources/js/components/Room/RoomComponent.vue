@@ -20,10 +20,10 @@
             <div>
               <small style="display: block"><i class="fa-solid fa-user"></i> {{ owner.name }} </small>
               <small style="display: block"><i class="fa-solid fa-clock"></i>
-                <span v-if="meeting==null"> Noch nie gestartet</span>
-                <span v-else-if="meeting.start!=null && meeting.end!=null"> Zuletzt gelaufen bis {{ $d(new Date(meeting.end),'datetimeShort') }}</span>
-                <span v-else-if="meeting.end==null"> Metting läuft seit  {{ $d(new Date(meeting.start),'datetimeShort') }}</span>
-                <span v-else> Meeting startet gerade</span>
+                <span v-if="meeting==null"> {{$t('rooms.index.room_component.never_started')}}</span>
+                <span v-else-if="meeting.start!=null && meeting.end!=null">{{$t('rooms.index.room_component.last_ran_till', {date:$d(new Date(meeting.end),'datetimeShort')})}}</span>
+                <span v-else-if="meeting.end==null"> {{$t('rooms.index.room_component.running_since', {date:$d(new Date(meeting.start),'datetimeShort')})}}</span>
+                <span v-else> {{$t('rooms.index.room_component.meeting_starting')}}</span>
               </small>
             </div>
           </div>

@@ -62,6 +62,12 @@ return [
             'alpha_asc' => 'Alphabetisch aufsteigend',
             'alpha_desc' => 'Alphabetisch absteigend',
         ],
+        'room_component'=>[
+          'never_started'=>' Noch nie gestartet',
+          'running_since' =>' Meeting läuft seit :date',
+          'last_ran_till'=>' Zuletzt gelaufen bis :date',
+          'meeting_starting'=>' Meeting startet gerade'
+        ],
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
     'invitation'            => [

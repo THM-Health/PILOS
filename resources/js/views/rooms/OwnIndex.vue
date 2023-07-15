@@ -3,9 +3,9 @@
       <b-row class="mb-1">
         <b-col md="9">
           <b-input-group>
-            <b-form-input @change="search" :disabled="loadingRooms" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
+            <b-form-input @change="loadRooms()" :disabled="loadingRooms" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
             <b-input-group-append>
-              <b-button @click="search" :disabled="loadingRooms" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
+              <b-button @click="loadRooms()" :disabled="loadingRooms" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-col>
@@ -20,7 +20,6 @@
             <b-form-select-option disabled value="-1">{{ $t('rooms.index.sorting.select_sorting') }}</b-form-select-option>
             <b-form-select-option value="alpha_asc">{{ $t('rooms.index.sorting.alpha_asc') }}</b-form-select-option>
             <b-form-select-option value="alpha_desc">{{ $t('rooms.index.sorting.alpha_desc') }}</b-form-select-option>
-            <b-form-select-option value="...">...</b-form-select-option>
           </b-form-select>
         </b-col>
         <b-col md="3">
@@ -111,24 +110,24 @@ export default {
 
     ...mapActions(useAuthStore, ['getCurrentUser']),
 
-    // Handle event from new room component that the limit was reached
+    /**
+     * Handle event from new room component that the limit was reached
+     */
     onReachLimit () {
       this.getCurrentUser();
       this.loadRooms();
     },
-    // Load all required resources
+    /**
+     *  Reload rooms
+     */
     reload () {
       this.loadRooms(false);
     },
-    // Reset page of pagination and reload resources with search query
-    search () {
-      this.rooms.meta.current_page = 1;
-      this.loadRooms();
-    },
+
     /**
      * Load the room types
      */
-    loadRoomTypes () {
+    loadRoomTypes () { //ToDo change so that the user has all options (or all necessary options)
       this.roomTypesBusy = true;
 
       let config;
@@ -136,7 +135,7 @@ export default {
       if (PermissionService.cannot('viewAll', 'RoomPolicy')) {
         config = {
           params: {
-            filter: 'searchable'
+            filter: 'searchable' //Problem: only shows searchable RoomTypes (user can be member in a room that has another room type)
           }
         };
       }
@@ -151,12 +150,17 @@ export default {
         this.roomTypesBusy = false;
       });
     },
-    // Load the rooms of the current user
+    /**
+     * Load the rooms of the current user based on the given inputs
+     * @param resetPage
+     */
     loadRooms (resetPage = true) {
+      //reset page of pagination if resetPage is true
       if (resetPage){
         this.rooms.meta.current_page = 1;
       }
       this.loadingRooms = true;
+      //update the filter
       this.updateFilter();
 
       Base.call('rooms',{
@@ -169,26 +173,37 @@ export default {
           page: this.rooms !== null ? this.rooms.meta.current_page : 1
         }
       }).then(response=>{
+        //operation successful, set rooms
           this.rooms = response.data;
       }).catch(error => {
+        //failed
         Base.error(error, this);
       }).finally(() => {
         this.loadingRooms = false;
       });
 
     },
+    /**
+     * changes showAllRooms if showSharedRooms was set to false
+     */
     changedSharedRooms(){
       if (!this.showSharedRooms){
         this.showAllRooms = false;
       }
       this.loadRooms();
     },
+    /**
+     * changes showSharedRooms if showAllRooms was set to true
+     */
     changedAllRooms(){
       if (this.showAllRooms){
         this.showSharedRooms= true;
       }
       this.loadRooms();
     },
+    /**
+     * updates the roomFilter based on showAllRooms and showSharedRooms
+     */
     updateFilter(){
       if (this.showAllRooms){
         this.roomFilter="all";
@@ -210,7 +225,7 @@ export default {
       selectedRoomType: null,
       selectedSortingType: "alpha_asc",
       showAllRooms: false,
-      showSharedRooms: false,
+      showSharedRooms: true,
       roomTypes: [],
       roomTypesBusy: false,
       roomTypesLoadingError: false

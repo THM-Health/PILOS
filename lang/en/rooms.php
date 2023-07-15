@@ -62,6 +62,12 @@ return [
             'alpha_asc' => 'Alphabetically ascending',
             'alpha_desc' => 'Alphabetically descending',
         ],
+        'room_component'=>[
+            'never_started'=>' Never started before',
+            'running_since' =>' Meeting running since :date',
+            'last_ran_till'=>' Last ran till :date',
+            'meeting_starting'=>' Meeting is starting'
+        ],
 
     ],
     'invalid_personal_link' => 'This personalised room link is invalid.',
