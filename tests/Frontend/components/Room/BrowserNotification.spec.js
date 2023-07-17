@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import { BAlert, BButton } from 'bootstrap-vue';
-import moxios from 'moxios';
 import BrowserNotification from '../../../../resources/js/components/Room/BrowserNotification.vue';
 import VueRouter from 'vue-router';
 import { createContainer, createLocalVue } from '../../helper';
@@ -17,14 +16,6 @@ const i18nDateMock = (date, format) => {
 };
 
 describe('Browser Notification', () => {
-  beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
-  });
-
   it('show enable button if permission is granted', async () => {
     const NotificationFake = class {
       static permission = 'granted';

@@ -3,11 +3,10 @@ import BootstrapVue, {
   BButton,
   BTbody
 } from 'bootstrap-vue';
-import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalShown, axiosMock, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -25,10 +24,7 @@ const initialState = { settings: { settings: { attendance: { enabled: true }, st
 
 describe('History', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    axiosMock.reset();
   });
 
   it('load meetings', async () => {
@@ -60,11 +56,15 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+    await request.wait();
+
+    console.log(request);
+
+    expect(request.config.params.page).toEqual(1);
+    await request.respond({
       status: 200,
       response: {
         data: [
@@ -108,13 +108,16 @@ describe('History', () => {
 
     const reloadButton = view.findComponent(BButton);
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
+
+    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
     await reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+
+    expect(request.config.params.page).toEqual(1);
+    await request.respond({
       status: 200,
       response: {
         data: [],
@@ -153,11 +156,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    const request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+
+    await request.respond({
       status: 200,
       response: {
         data: [
@@ -242,11 +246,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+
+    await request.respond({
       status: 500,
       response: {
         message: 'Internal server error'
@@ -261,13 +266,15 @@ describe('History', () => {
 
     const reloadButton = view.findAllComponents(BButton).at(1);
     expect(reloadButton.text()).toBe('app.reload');
+
+    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
     await reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+
+    await request.respond({
       status: 200,
       response: {
         data: [
@@ -319,11 +326,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+
+    await request.respond({
       status: 200,
       response: {
         data: [
@@ -354,15 +362,14 @@ describe('History', () => {
 
     expect(view.find('#statsModal').find('.modal').element.style.display).toEqual('none');
 
+    request = axiosMock.blockingRequest('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
+
     await buttonsRow.at(0).trigger('click');
 
-    await waitMoxios();
-
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
+    await request.wait();
 
     await waitModalShown(view, async () => {
-      await request.respondWith({
+      await request.respond({
         status: 200,
         response: {
           data: [
@@ -424,11 +431,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
-    await request.respondWith({
+
+    await request.respond({
       status: 200,
       response: {
         data: [
@@ -457,15 +465,14 @@ describe('History', () => {
 
     expect(view.find('#attendanceModal').find('.modal').element.style.display).toEqual('none');
 
+    request = axiosMock.blockingRequest('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
+
     await buttonsRow.at(1).trigger('click');
 
-    await waitMoxios();
-
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
+    await request.wait();
 
     await waitModalShown(view, async () => {
-      await request.respondWith({
+      await request.respond({
         status: 200,
         response: {
           data: [

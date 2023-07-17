@@ -1,10 +1,9 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
-import moxios from 'moxios';
 import VueClipboard from 'vue-clipboard2';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent.vue';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { axiosMock, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -14,10 +13,7 @@ const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, na
 
 describe('Delete room', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    axiosMock.reset();
   });
 
   it('default render', () => {
@@ -74,14 +70,15 @@ describe('Delete room', () => {
       preventDefault: vi.fn()
     };
 
+    const request = axiosMock.blockingRequest('/api/v1/rooms/gs4-6fb-kk8');
+
     component.vm.deleteRoom(bvModalEvt);
 
-    await waitMoxios();
+    await request.wait();
 
-    const request = moxios.requests.mostRecent();
     expect(request.config.method).toMatch('delete');
-    expect(request.config.url).toContain(exampleRoom.id);
-    await request.respondWith({
+
+    await request.respond({
       status: 204
     });
 
@@ -109,12 +106,15 @@ describe('Delete room', () => {
       preventDefault: vi.fn()
     };
 
+    const request = axiosMock.blockingRequest('/api/v1/rooms/gs4-6fb-kk8');
+
     component.vm.deleteRoom(bvModalEvt);
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+
+    await request.wait();
+
     expect(request.config.method).toMatch('delete');
-    expect(request.config.url).toContain(exampleRoom.id);
-    await request.respondWith({
+
+    await request.respond({
       status: 404
     });
 
