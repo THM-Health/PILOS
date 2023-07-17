@@ -21,7 +21,7 @@
         "axios": "^0.21.2",
         "bootstrap": "^4.6.1",
         "canvas": "^2.10.2",
-        "eslint": "^8.44.0",
+        "eslint": "^8.45.0",
         "eslint-config-standard": "^17.0.0",
         "eslint-plugin-import": "^2.27.5",
         "eslint-plugin-jsonc": "^2.7.0",
