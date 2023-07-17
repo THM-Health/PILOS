@@ -29,7 +29,7 @@
         "eslint-plugin-promise": "^6.1.1",
         "eslint-plugin-vitest-globals": "^1.4.0",
         "eslint-plugin-vue": "^9.15.1",
-        "glob": "^7.2.0",
+        "glob": "^10.3.3",
         "jsdom": "^16.7.0",
         "laravel-vite-plugin": "^0.7.0",
         "lodash": "^4.17.19",
