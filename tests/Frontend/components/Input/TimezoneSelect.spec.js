@@ -20,7 +20,6 @@ describe('TimezoneSelect', () => {
   });
 
   it('check v-model and props', async () => {
-
     const request = mockAxios.request('/api/v1/getTimezones');
 
     const view = mount(TimezoneSelect, {

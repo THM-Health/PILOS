@@ -5,12 +5,12 @@ import BootstrapVue, {
   BFormTextarea,
   BOverlay
 } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import SettingsComponent from '../../../../resources/js/components/Room/SettingsComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -39,18 +39,18 @@ const initialState = { settings: { settings: { attendance: { enabled: true }, bb
 
 describe('RoomSettings', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
+
+    mockAxios.request('/api/v1/roomTypes', { filter: exampleRoom.id }).respondWith({
+      status: 200,
+      response: exampleRoomTypeResponse
+    });
   });
 
   it('load settings, fill form fields, disable fields if no write permission, calculate welcome message', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -64,11 +64,9 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
     // check for settings request and reply with settings
-    const request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
     await request.respondWith({
       status: 200,
       response: {
@@ -164,10 +162,8 @@ describe('RoomSettings', () => {
 
   it('load settings owner, check fields disabled during loading', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -181,10 +177,8 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
 
     const inputFields = view.findAllComponents(BFormInput);
     const buttons = view.findAllComponents(BButton);
@@ -250,10 +244,8 @@ describe('RoomSettings', () => {
 
   it('load settings co-owner', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -267,10 +259,8 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
     await request.respondWith({
       status: 200,
       response: {
@@ -328,10 +318,8 @@ describe('RoomSettings', () => {
 
   it('load settings with room manage permission', async () => {
     PermissionService.setCurrentUser(adminUser);
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -345,10 +333,8 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
     await request.respondWith({
       status: 200,
       response: {
@@ -409,10 +395,7 @@ describe('RoomSettings', () => {
 
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -426,10 +409,8 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
 
     // check if overlay is shown during request
     expect(view.vm.isBusy).toBe(true);
@@ -481,12 +462,11 @@ describe('RoomSettings', () => {
     expect(reloadButton.exists()).toBeTruthy();
     expect(reloadButton.text()).toBe('app.reload');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
+
     // click reload button
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
+    await request.wait();
     // respond with a successful response
     await request.respondWith({
       status: 200,
@@ -545,10 +525,8 @@ describe('RoomSettings', () => {
   it('save settings', async () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${exampleRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -562,10 +540,8 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
     await request.respondWith({
       status: 200,
       response: {
@@ -608,13 +584,14 @@ describe('RoomSettings', () => {
     expect(view.vm.isBusy).toBe(false);
 
     const saveButton = view.findAllComponents(BButton).at(5);
+
+    request = mockAxios.request('/api/v1/rooms/123-456-789');
+
     expect(saveButton.text()).toBe('app.save');
 
     // test server error
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789');
+    await request.wait();
     expect(request.config.method).toBe('put');
     expect(JSON.parse(request.config.data)).toMatchObject({
       name: 'Meeting One',
@@ -660,9 +637,9 @@ describe('RoomSettings', () => {
     expect(baseError.mock.calls[0][0].response.data.message).toEqual('Server error');
 
     // test success
+    request = mockAxios.request('/api/v1/rooms/123-456-789');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
       response: {
@@ -705,9 +682,9 @@ describe('RoomSettings', () => {
     expect(view.emitted().settingsChanged).toBeTruthy();
 
     // test form validation error
+    request = mockAxios.request('/api/v1/rooms/123-456-789');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 422,
       response: {
@@ -728,10 +705,8 @@ describe('RoomSettings', () => {
 
   it('load and save settings with attendance logging globally disabled', async () => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.stubRequest(`/api/v1/roomTypes?filter=${ownerRoom.id}`, {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
 
     const view = mount(SettingsComponent, {
       localVue,
@@ -745,11 +720,9 @@ describe('RoomSettings', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     // check for settings request and reply with settings
-    let request = moxios.requests.at(0);
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/settings');
     await request.respondWith({
       status: 200,
       response: {
@@ -797,11 +770,11 @@ describe('RoomSettings', () => {
     const saveButton = view.findAllComponents(BButton).at(5);
     expect(saveButton.text()).toBe('app.save');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789');
+
     // test server error
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789');
+    await request.wait();
     expect(request.config.method).toBe('put');
     expect(JSON.parse(request.config.data)).toMatchObject({
       name: 'Meeting One',
