@@ -11,46 +11,18 @@ function createLocalVue () {
   return localVue;
 }
 
-const axiosMock = new MockAdapter(axios);
+const mockAxios = new MockAdapter(axios);
 /**
  * Various helper functions for testing
  */
 module.exports = {
 
-  axiosMock: {
-    reset: () => axiosMock.reset(),
+  mockAxios: {
+    reset: () => mockAxios.reset(),
 
     wait: () => new Promise(resolve => setTimeout(resolve)),
 
-    stubRequest: function (url, { status, response }) {
-      const resolvers = {
-        request: null
-      };
-
-      const promises = {
-        request: new Promise(function (resolve) {
-          resolvers.request = resolve;
-        }),
-        response: new Promise(function (resolve) {
-          resolve([status, response]);
-        })
-      };
-
-      const request = {
-        config: null,
-        wait: () => promises.request
-      };
-
-      axiosMock.onAny(url).replyOnce(function (config) {
-        request.config = config;
-        resolvers.request();
-        return promises.response;
-      });
-
-      return request;
-    },
-
-    blockingRequest: function (url) {
+    request: function (url, params) {
       const resolvers = {
         request: null,
         response: null
@@ -67,14 +39,14 @@ module.exports = {
 
       const request = {
         config: null,
-        respond: function ({ status, response }) {
+        respondWith: function ({ status, response }) {
           resolvers.response([status, response]);
           return new Promise(resolve => setTimeout(resolve));
         },
         wait: () => promises.request
       };
 
-      axiosMock.onAny(url).replyOnce(function (config) {
+      mockAxios.onAny(url, params).replyOnce(function (config) {
         request.config = config;
         resolvers.request();
         return promises.response;
@@ -83,7 +55,7 @@ module.exports = {
       return request;
     },
 
-    history: () => axiosMock.history
+    history: () => mockAxios.history
   },
 
   /**

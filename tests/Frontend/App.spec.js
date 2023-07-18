@@ -6,7 +6,7 @@ import PermissionService from '../../resources/js/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../resources/js/stores/auth';
-import { createLocalVue, axiosMock, waitAxios } from './helper';
+import { createLocalVue, mockAxios, waitAxios } from './helper';
 import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();
@@ -22,7 +22,7 @@ const currentUser = {
 
 describe('App', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   it('settings menu item gets only shown if the user has permissions to manage settings', async () => {
@@ -79,7 +79,7 @@ describe('App', () => {
   });
 
   it('successfull logout', async () => {
-    const request = axiosMock.blockingRequest('/api/v1/logout');
+    const request = mockAxios.request('/api/v1/logout');
 
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
@@ -128,7 +128,7 @@ describe('App', () => {
     expect(request.config.url).toBe('/api/v1/logout');
 
     // Reply with successfull logout
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 
@@ -145,7 +145,7 @@ describe('App', () => {
   });
 
   it('failed logout', async () => {
-    const request = axiosMock.blockingRequest('/api/v1/logout');
+    const request = mockAxios.request('/api/v1/logout');
 
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
@@ -196,7 +196,7 @@ describe('App', () => {
     expect(request.config.url).toBe('/api/v1/logout');
 
     // Reply with failed logout (e.g. server error)
-    await request.respond({
+    await request.respondWith({
       status: 500,
       response: {
         message: 'Test'

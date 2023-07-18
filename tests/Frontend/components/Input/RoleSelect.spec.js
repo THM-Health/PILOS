@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BInputGroupAppend } from 'bootstrap-vue';
-import { createContainer, waitAxios, axiosMock, createLocalVue } from '../../helper';
+import { createContainer, mockAxios, createLocalVue } from '../../helper';
 import { Multiselect } from 'vue-multiselect';
 import Base from '../../../../resources/js/api/base';
 import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect.vue';
@@ -9,11 +9,11 @@ const localVue = createLocalVue();
 
 describe('RoleSelect', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   it('check v-model and props', async () => {
-    const request = axiosMock.blockingRequest('/api/v1/roles');
+    const request = mockAxios.request('/api/v1/roles');
 
     const view = mount(RoleSelect, {
       localVue,
@@ -40,7 +40,7 @@ describe('RoleSelect', () => {
     expect(select.props('disabled')).toBeTruthy();
     expect(view.vm.$data.loading).toBeTruthy();
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -152,12 +152,12 @@ describe('RoleSelect', () => {
 
     // Check if options are empty and no request is sent
     expect(view.vm.$data.roles.length).toBe(0);
-    expect(axiosMock.history().get.length).toBe(0);
+    expect(mockAxios.history().get.length).toBe(0);
 
     // Check if component is disabled
     expect(select.props('disabled')).toBeTruthy();
 
-    const request = axiosMock.blockingRequest('/api/v1/roles');
+    const request = mockAxios.request('/api/v1/roles');
 
     // Enable select
     await view.setProps({ disabled: false });
@@ -170,7 +170,7 @@ describe('RoleSelect', () => {
     // Check loading indicator
     expect(view.vm.$data.loading).toBeTruthy();
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -213,7 +213,7 @@ describe('RoleSelect', () => {
   it('loading error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    let request = axiosMock.blockingRequest('/api/v1/roles');
+    let request = mockAxios.request('/api/v1/roles');
 
     const view = mount(RoleSelect, {
       localVue,
@@ -237,7 +237,7 @@ describe('RoleSelect', () => {
     // Check loading indicator
     expect(view.vm.$data.loading).toBeTruthy();
 
-    await request.respond({
+    await request.respondWith({
       status: 500,
       response: {
         message: 'Internal Server Error'
@@ -256,7 +256,7 @@ describe('RoleSelect', () => {
     const reloadButton = appendWrapper.findComponent(BButton);
     expect(reloadButton.exists()).toBeTruthy();
 
-    request = axiosMock.blockingRequest('/api/v1/roles');
+    request = mockAxios.request('/api/v1/roles');
 
     // Trigger reload
     expect(reloadButton.attributes('disabled')).toBeUndefined();
@@ -269,7 +269,7 @@ describe('RoleSelect', () => {
     // Check if button is disabled during request
     expect(reloadButton.attributes('disabled')).toBe('disabled');
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [

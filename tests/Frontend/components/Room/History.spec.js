@@ -6,7 +6,7 @@ import BootstrapVue, {
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, axiosMock, createContainer, createLocalVue } from '../../helper';
+import { waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -24,7 +24,7 @@ const initialState = { settings: { settings: { attendance: { enabled: true }, st
 
 describe('History', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   it('load meetings', async () => {
@@ -56,15 +56,13 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await view.vm.$nextTick();
     await request.wait();
 
-    console.log(request);
-
     expect(request.config.params.page).toEqual(1);
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -109,7 +107,7 @@ describe('History', () => {
     const reloadButton = view.findComponent(BButton);
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await reloadButton.trigger('click');
 
@@ -117,7 +115,7 @@ describe('History', () => {
     await view.vm.$nextTick();
 
     expect(request.config.params.page).toEqual(1);
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [],
@@ -156,12 +154,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    const request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await request.wait();
     await view.vm.$nextTick();
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -246,12 +244,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await request.wait();
     await view.vm.$nextTick();
 
-    await request.respond({
+    await request.respondWith({
       status: 500,
       response: {
         message: 'Internal server error'
@@ -267,14 +265,14 @@ describe('History', () => {
     const reloadButton = view.findAllComponents(BButton).at(1);
     expect(reloadButton.text()).toBe('app.reload');
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await reloadButton.trigger('click');
 
     await request.wait();
     await view.vm.$nextTick();
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -326,12 +324,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await request.wait();
     await view.vm.$nextTick();
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -362,14 +360,14 @@ describe('History', () => {
 
     expect(view.find('#statsModal').find('.modal').element.style.display).toEqual('none');
 
-    request = axiosMock.blockingRequest('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
+    request = mockAxios.request('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
 
     await buttonsRow.at(0).trigger('click');
 
     await request.wait();
 
     await waitModalShown(view, async () => {
-      await request.respond({
+      await request.respondWith({
         status: 200,
         response: {
           data: [
@@ -431,12 +429,12 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/meetings');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
 
     await request.wait();
     await view.vm.$nextTick();
 
-    await request.respond({
+    await request.respondWith({
       status: 200,
       response: {
         data: [
@@ -465,14 +463,14 @@ describe('History', () => {
 
     expect(view.find('#attendanceModal').find('.modal').element.style.display).toEqual('none');
 
-    request = axiosMock.blockingRequest('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
+    request = mockAxios.request('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
 
     await buttonsRow.at(1).trigger('click');
 
     await request.wait();
 
     await waitModalShown(view, async () => {
-      await request.respond({
+      await request.respondWith({
         status: 200,
         response: {
           data: [

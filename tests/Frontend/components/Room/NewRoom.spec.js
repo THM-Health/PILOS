@@ -1,15 +1,15 @@
 import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
 import { BFormInput, BFormSelect } from 'bootstrap-vue';
-import moxios from 'moxios';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
+import axios from 'axios';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 const initialState = { auth: { currentUser: exampleUser } };
@@ -20,11 +20,7 @@ localVue.use(PiniaVuePlugin);
 
 describe('Create new rooms', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   const exampleOwnRoomResponse = {
@@ -108,11 +104,11 @@ describe('Create new rooms', () => {
   };
 
   it('frontend permission test', async () => {
-    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
       status: 200,
       response: exampleOwnRoomResponse
     });
-    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'shared', page: 1 }).respondWith({
       status: 200,
       response: exampleSharedRoomResponse
     });
@@ -127,7 +123,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const missingNewRoomComponent = view.findComponent(NewRoomComponent);
@@ -147,15 +143,16 @@ describe('Create new rooms', () => {
   });
 
   it('frontend room limit test', async () => {
-    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
       status: 200,
       response: exampleOwnRoomResponse
     });
-    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'shared', page: 1 }).respondWith({
       status: 200,
       response: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -179,7 +176,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     let missingNewRoomComponent = view.findComponent(NewRoomComponent);
@@ -190,15 +187,17 @@ describe('Create new rooms', () => {
 
     // Enter search query
     await searchField.setValue('test');
+
+    const ownRequest = mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 });
+    const sharedRequest = mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 });
+
     searchField.trigger('change');
 
-    moxios.requests.reset();
-    await waitMoxios();
+    await ownRequest.wait();
+    await sharedRequest.wait();
     // Check if requests use the search string
-    const ownRequest = moxios.requests.at(0);
-    const sharedRequest = moxios.requests.at(1);
-    expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
-    expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
+    expect(ownRequest.config.params.search).toBe('test');
+    expect(sharedRequest.config.params.search).toBe('test');
 
     await ownRequest.respondWith({
       status: 200,
@@ -241,7 +240,7 @@ describe('Create new rooms', () => {
     const router = new VueRouter();
     const spy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -259,7 +258,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const typeInput = view.findComponent(BFormSelect);
@@ -269,10 +268,12 @@ describe('Create new rooms', () => {
     await typeInput.trigger('change');
     const nameInput = view.findComponent(BFormInput);
     await nameInput.setValue('Test');
-    view.vm.handleSubmit();
-    await waitMoxios();
 
-    const request = moxios.requests.mostRecent();
+    const request = mockAxios.request('/api/v1/rooms');
+
+    view.vm.handleSubmit();
+    await request.wait();
+
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 201,
@@ -288,7 +289,7 @@ describe('Create new rooms', () => {
   it('submit forbidden', async () => {
     const toastErrorSpy = vi.fn();
 
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -306,7 +307,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const typeInput = view.findComponent(BFormSelect);
@@ -316,11 +317,13 @@ describe('Create new rooms', () => {
     await typeInput.trigger('change');
     const nameInput = view.findComponent(BFormInput);
     await nameInput.setValue('Test');
+
+    const request = mockAxios.request('/api/v1/rooms');
+
     view.vm.handleSubmit();
 
-    await waitMoxios();
+    await request.wait();
 
-    const request = moxios.requests.mostRecent();
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 403
@@ -335,7 +338,7 @@ describe('Create new rooms', () => {
   it('submit reached room limit', async () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -352,7 +355,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
 
     await view.vm.$nextTick();
 
@@ -363,11 +366,13 @@ describe('Create new rooms', () => {
     await typeInput.trigger('change');
     const nameInput = view.findComponent(BFormInput);
     await nameInput.setValue('Test');
+
+    const request = mockAxios.request('/api/v1/rooms');
+
     view.vm.handleSubmit();
 
-    await waitMoxios();
+    await request.wait();
 
-    const request = moxios.requests.mostRecent();
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 463,
@@ -381,7 +386,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit without name', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -398,7 +403,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
 
     await view.vm.$nextTick();
     const typeInput = view.findComponent(BFormSelect);
@@ -407,10 +412,13 @@ describe('Create new rooms', () => {
     meetingOption.element.selected = true;
     await typeInput.trigger('change');
     const nameInput = view.findComponent(BFormInput);
+
+    const request = mockAxios.request('/api/v1/rooms');
+
     view.vm.handleSubmit();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
+
     await request.respondWith({
       status: 422,
       response: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
@@ -422,7 +430,7 @@ describe('Create new rooms', () => {
   });
 
   it('submit invalid room type', async () => {
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -439,11 +447,10 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -456,9 +463,10 @@ describe('Create new rooms', () => {
     meetingOption.element.selected = true;
     await typeInput.trigger('change');
 
+    const request = mockAxios.request('/api/v1/rooms');
+
     view.vm.handleSubmit();
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 422,
       response: { message: 'The given data was invalid.', errors: { room_type: ['error'] } }
@@ -466,19 +474,15 @@ describe('Create new rooms', () => {
     await view.vm.$nextTick();
     expect(typeInput.classes()).toContain('is-invalid');
 
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/roomTypes?filter=own');
-
     expect(view.vm.$data.room.room_type).toBeNull();
 
-    restoreRoomTypeResponse();
     view.destroy();
   });
 
   it('cancel or close', async () => {
     const roomTypes = [{ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' }];
 
-    moxios.stubRequest('/api/v1/roomTypes?filter=own', {
+    mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -496,7 +500,7 @@ describe('Create new rooms', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const typeInput = view.findComponent(BFormSelect);

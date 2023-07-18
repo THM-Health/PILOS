@@ -1,5 +1,5 @@
 import i18n from '../../../resources/js/i18n';
-import { axiosMock } from '../helper';
+import { mockAxios } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
 import PermissionService from '../../../resources/js/services/PermissionService';
@@ -7,7 +7,7 @@ import { useLoadingStore } from '../../../resources/js/stores/loading';
 
 describe('Auth Store', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
     setActivePinia(createPinia());
   });
 
@@ -32,7 +32,7 @@ describe('Auth Store', () => {
       timezone: 'Australia/Sydney'
     };
 
-    axiosMock.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
       response: {
         data: user
@@ -50,7 +50,7 @@ describe('Auth Store', () => {
 
     user.timezone = 'Europe/Berlin';
 
-    axiosMock.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
       response: {
         data: user
@@ -83,7 +83,7 @@ describe('Auth Store', () => {
       timezone: 'Australia/Sydney'
     };
 
-    const request = axiosMock.blockingRequest('/api/v1/logout');
+    const request = mockAxios.request('/api/v1/logout');
 
     auth.logout();
     expect(loading.loadingCounter).toBe(1);
@@ -93,7 +93,7 @@ describe('Auth Store', () => {
     expect(request.config.method).toEqual('post');
     expect(request.config.url).toEqual('/api/v1/logout');
 
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 

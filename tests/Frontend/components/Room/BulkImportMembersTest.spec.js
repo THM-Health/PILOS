@@ -10,7 +10,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import {
   waitModalHidden,
   waitModalShown,
-  axiosMock,
+  mockAxios,
   createContainer,
   createLocalVue,
   waitCollapseShown, waitCollapseHidden
@@ -31,7 +31,7 @@ const initialState = { auth: { currentUser: exampleUser } };
 
 describe('RoomMembersBulk', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   it('bulk import members with only valid users', async () => {
@@ -100,7 +100,7 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('LauraWRivera@domain.tld\nLauraMWalter@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -111,7 +111,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
 
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 
@@ -156,7 +156,7 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('TammyGLaw@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -167,7 +167,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 
@@ -230,7 +230,7 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('\n\n\nLauraWRivera@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -241,7 +241,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(4);
 
-    await request.respond({
+    await request.respondWith({
       status: 422,
       response: {
         errors: {
@@ -250,7 +250,7 @@ describe('RoomMembersBulk', () => {
         }
       }
     });
-    await axiosMock.wait();
+    await mockAxios.wait();
 
     // check if modal shows correctly
     // check if lists show correctly
@@ -298,7 +298,7 @@ describe('RoomMembersBulk', () => {
     expect(middleStepButtons.at(2).text()).toBe('app.back');
     expect(middleStepButtons.at(3).text()).toBe('rooms.members.modals.bulk_import.import_importable_button');
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // Try to add the valid users
     await middleStepButtons.at(3).trigger('click');
@@ -309,7 +309,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
 
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 
@@ -412,7 +412,7 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('invalidEmail@domain.tld\nnotAnEmail');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -422,7 +422,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.method).toEqual('post');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
 
-    await request.respond({
+    await request.respondWith({
       status: 422,
       response: {
         errors: {
@@ -471,7 +471,7 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('TammyGLaw@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -481,7 +481,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.method).toEqual('post');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 
@@ -540,7 +540,7 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('\n');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
-    let request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -550,7 +550,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.method).toEqual('post');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(0);
 
-    await request.respond({
+    await request.respondWith({
       status: 422,
       response: {
         errors: {
@@ -567,7 +567,7 @@ describe('RoomMembersBulk', () => {
 
     textarea.setValue('laurawrivera@domain.tld');
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -577,7 +577,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.method).toEqual('post');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
-    await request.respond({
+    await request.respondWith({
       status: 422,
       response: {
         errors: {
@@ -592,7 +592,7 @@ describe('RoomMembersBulk', () => {
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
     expect(modal.html()).toContain('The selected role is invalid');
 
-    request = axiosMock.blockingRequest('/api/v1/rooms/123-456-789/member/bulk');
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
 
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
@@ -602,7 +602,7 @@ describe('RoomMembersBulk', () => {
     expect(request.config.method).toEqual('post');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
-    await request.respond({
+    await request.respondWith({
       status: 500,
       response: {
         message: 'Test'

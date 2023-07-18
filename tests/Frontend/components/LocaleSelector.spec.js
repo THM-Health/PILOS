@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
 import Base from '../../../resources/js/api/base';
-import { createLocalVue, axiosMock } from '../helper';
+import { createLocalVue, mockAxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { useLoadingStore } from '../../../resources/js/stores/loading';
@@ -28,7 +28,7 @@ describe('LocaleSelector', () => {
       };
     });
 
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   it('all locales loaded in i18n gets rendered', async () => {
@@ -78,7 +78,7 @@ describe('LocaleSelector', () => {
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    axiosMock.stubRequest('/api/v1/locale', {
+    mockAxios.request('/api/v1/locale').respondWith({
       status: 422,
       response: {
         errors: {
@@ -95,7 +95,7 @@ describe('LocaleSelector', () => {
 
     items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    await axiosMock.wait();
+    await mockAxios.wait();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
@@ -118,7 +118,7 @@ describe('LocaleSelector', () => {
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    axiosMock.stubRequest('/api/v1/locale', {
+    mockAxios.request('/api/v1/locale').respondWith({
       status: 500,
       response: {
         message: 'Test'
@@ -137,7 +137,7 @@ describe('LocaleSelector', () => {
 
     expect(loadingStore.overlayLoadingCounter).toEqual(1);
 
-    await axiosMock.wait();
+    await mockAxios.wait();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
@@ -159,11 +159,11 @@ describe('LocaleSelector', () => {
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    axiosMock.stubRequest('/api/v1/locale', {
+    mockAxios.request('/api/v1/locale').respondWith({
       status: 200
     });
 
-    axiosMock.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
       response: {
         data: {
@@ -180,7 +180,7 @@ describe('LocaleSelector', () => {
 
     await items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    await axiosMock.wait();
+    await mockAxios.wait();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);

@@ -3,7 +3,7 @@ import { BButton, BFormSelect } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
 import RoomTypeSelect from '../../../../resources/js/components/Inputs/RoomTypeSelect.vue';
-import { axiosMock, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -13,7 +13,7 @@ localVue.use(PiniaVuePlugin);
 
 describe('RoomType Select', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   const exampleRoomTypeResponse = {
@@ -26,7 +26,7 @@ describe('RoomType Select', () => {
   };
 
   it('value passed', async () => {
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -50,7 +50,8 @@ describe('RoomType Select', () => {
   });
 
   it('disabled param', async () => {
-    const request = axiosMock.stubRequest('/api/v1/roomTypes', {
+    const request = mockAxios.request('/api/v1/roomTypes');
+    request.respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -67,7 +68,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     expect(request.config.params.filter).toEqual('own');
 
     await view.vm.$nextTick();
@@ -84,7 +85,7 @@ describe('RoomType Select', () => {
   });
 
   it('invalid value passed', async () => {
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -101,7 +102,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     expect(view.vm.$data.roomType).toBeNull();
 
@@ -109,7 +110,7 @@ describe('RoomType Select', () => {
   });
 
   it('busy events emitted', async () => {
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -126,7 +127,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.emitted().busy[0]).toEqual([true]);
@@ -147,7 +148,7 @@ describe('RoomType Select', () => {
   });
 
   it('error events emitted', async () => {
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 500,
       response: {
         message: 'Test'
@@ -168,13 +169,13 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.emitted().loadingError[0]).toEqual([true]);
     expect(spy).toBeCalledTimes(1);
 
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -182,7 +183,7 @@ describe('RoomType Select', () => {
     });
 
     view.vm.reloadRoomTypes();
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     expect(view.emitted().loadingError[1]).toEqual([false]);
 
@@ -192,7 +193,7 @@ describe('RoomType Select', () => {
   it('reload room types', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
@@ -206,7 +207,7 @@ describe('RoomType Select', () => {
       attachTo: createContainer()
     });
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const typeInput = view.findComponent(BFormSelect);
@@ -216,18 +217,18 @@ describe('RoomType Select', () => {
     await typeInput.trigger('change');
     expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
 
     view.vm.reloadRoomTypes();
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     expect(view.vm.$data.roomType).toEqual({ id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' });
 
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       response: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
@@ -236,12 +237,12 @@ describe('RoomType Select', () => {
 
     view.vm.reloadRoomTypes();
 
-    await axiosMock.wait();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.vm.$data.roomType).toBeNull();
 
-    axiosMock.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 500,
       response: {
         message: 'Test'
@@ -250,7 +251,7 @@ describe('RoomType Select', () => {
 
     view.vm.reloadRoomTypes();
 
-    await axiosMock.wait();
+    await mockAxios.wait();
 
     expect(spy).toBeCalledTimes(1);
 

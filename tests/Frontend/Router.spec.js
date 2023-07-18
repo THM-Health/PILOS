@@ -4,7 +4,7 @@ import Base from '../../resources/js/api/base';
 import { createTestingPinia } from '@pinia/testing';
 import { useLoadingStore } from '../../resources/js/stores/loading';
 import { useAuthStore } from '../../resources/js/stores/auth';
-import { axiosMock } from './helper';
+import { mockAxios } from './helper';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
@@ -33,7 +33,7 @@ const currentUser = { id: 1, firstname: 'Darth', lastname: 'Vader' };
 
 describe('Router', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   describe('beforeEachRoute', () => {
@@ -208,21 +208,21 @@ describe('Router', () => {
         }
       };
 
-      axiosMock.stubRequest('/api/v1/roles/1', response);
+      mockAxios.request('/api/v1/roles/1').respondWith(response);
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
       PermissionService.setCurrentUser({ permissions: ['roles.update'] });
-      axiosMock.stubRequest('/api/v1/roles/1', response);
+      mockAxios.request('/api/v1/roles/1').respondWith(response);
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
       PermissionService.setCurrentUser({ permissions: ['roles.update', 'settings.manage'] });
-      axiosMock.stubRequest('/api/v1/roles/1', response);
+      mockAxios.request('/api/v1/roles/1').respondWith(response);
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
-      axiosMock.stubRequest('/api/v1/roles/1', {
+      mockAxios.request('/api/v1/roles/1').respondWith({
         status: 200,
         response: {
           data: {
@@ -241,7 +241,7 @@ describe('Router', () => {
     it('for role update view calls error handler returns false on error in request', async () => {
       const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-      axiosMock.stubRequest('/api/v1/roles/1', {
+      mockAxios.request('/api/v1/roles/1').respondWith({
         status: 500,
         response: {
           status: 500,

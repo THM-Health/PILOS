@@ -6,12 +6,12 @@ import BootstrapVue, {
   BThead,
   BTr
 } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -29,14 +29,23 @@ const initialState = { auth: { currentUser: exampleUser } };
 
 describe('RoomMembersBulk', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('visibility of bulk edit/remove buttons', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      response: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -54,21 +63,9 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // check if button not exists if no user is selected
     let bulkEditButton = view.findComponent({ ref: 'bulk-edit-members-button' });
@@ -102,6 +99,18 @@ describe('RoomMembersBulk', () => {
 
   it('multiple checkboxes selected functionality', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      response: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -119,21 +128,9 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 3, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     const members = view.findComponent(BTbody);
     const rows = members.findAllComponents(BTr);
@@ -174,6 +171,19 @@ describe('RoomMembersBulk', () => {
 
   it('self select as co-owner', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      response: {
+        data: [
+          { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnDoe@domain.tld', role: 3, image: null },
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -186,22 +196,9 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnDoe@domain.tld', role: 3, image: null },
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     const members = view.findComponent(BTbody);
     const rows = members.findAllComponents(BTr);
@@ -225,6 +222,18 @@ describe('RoomMembersBulk', () => {
 
   it('bulk edit member', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      response: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -242,21 +251,9 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'bulk-edit-members-modal' });
@@ -318,15 +315,14 @@ describe('RoomMembersBulk', () => {
     expect(footerButtons.at(0).text()).toBe('app.cancel');
     expect(footerButtons.at(1).text()).toBe('app.save');
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm changes
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toMatchObject({ role: 2 });
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -380,15 +376,14 @@ describe('RoomMembersBulk', () => {
     await roleSelector.at(2).find('input').setChecked();
     expect(view.vm.$data.bulkEditRole).toBe(3);
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm changes
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toMatchObject({ role: 3 });
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -415,6 +410,18 @@ describe('RoomMembersBulk', () => {
 
   it('bulk remove members', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      response: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -432,21 +439,9 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'bulk-remove-members-modal' });
@@ -486,15 +481,14 @@ describe('RoomMembersBulk', () => {
     // check if modal displays correct number of selected users
     expect(modal.find('h5').text()).toBe('rooms.members.modals.remove.title_bulk');
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm removal of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
-
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 204
@@ -538,15 +532,14 @@ describe('RoomMembersBulk', () => {
     // check if modal displays correct number of selected users
     expect(modal.find('h5').text()).toBe('rooms.members.modals.remove.title_bulk');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm removal of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
-
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 204
@@ -566,6 +559,18 @@ describe('RoomMembersBulk', () => {
   it('bulk edit with errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      response: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -583,21 +588,9 @@ describe('RoomMembersBulk', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'bulk-edit-members-modal' });
@@ -641,15 +634,14 @@ describe('RoomMembersBulk', () => {
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm changes, not selected any role
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toEqual({ role: null, users: [5] });
     await request.respondWith({
       status: 422,
@@ -675,15 +667,14 @@ describe('RoomMembersBulk', () => {
     await roleSelector.at(1).find('input').setChecked();
     expect(view.vm.$data.bulkEditRole).toBe(2);
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm changes
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond with user that is not member of the room anymore
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toEqual({ role: 2, users: [5] });
     await request.respondWith({
       status: 422,
@@ -705,15 +696,14 @@ describe('RoomMembersBulk', () => {
     expect(feedback.at(0).text()).toBe('');
     expect(feedback.at(1).text()).toBe('The user \'Laura Rivera\' isn\'t a member.');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm changes
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond with user that is not member of the room anymore
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data)).toEqual({ role: 2, users: [5] });
     await waitModalHidden(view, async () => {
       await request.respondWith({

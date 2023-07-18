@@ -3,7 +3,7 @@ import BootstrapVue from 'bootstrap-vue';
 import VueClipboard from 'vue-clipboard2';
 import DeleteRoomComponent from '../../../../resources/js/components/Room/DeleteRoomComponent.vue';
 import Base from '../../../../resources/js/api/base';
-import { axiosMock, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -13,7 +13,7 @@ const exampleRoom = { id: 'gs4-6fb-kk8', name: 'Meeting One', owner: { id: 1, na
 
 describe('Delete room', () => {
   beforeEach(() => {
-    axiosMock.reset();
+    mockAxios.reset();
   });
 
   it('default render', () => {
@@ -70,7 +70,7 @@ describe('Delete room', () => {
       preventDefault: vi.fn()
     };
 
-    const request = axiosMock.blockingRequest('/api/v1/rooms/gs4-6fb-kk8');
+    const request = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8');
 
     component.vm.deleteRoom(bvModalEvt);
 
@@ -78,7 +78,7 @@ describe('Delete room', () => {
 
     expect(request.config.method).toMatch('delete');
 
-    await request.respond({
+    await request.respondWith({
       status: 204
     });
 
@@ -106,7 +106,7 @@ describe('Delete room', () => {
       preventDefault: vi.fn()
     };
 
-    const request = axiosMock.blockingRequest('/api/v1/rooms/gs4-6fb-kk8');
+    const request = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8');
 
     component.vm.deleteRoom(bvModalEvt);
 
@@ -114,7 +114,7 @@ describe('Delete room', () => {
 
     expect(request.config.method).toMatch('delete');
 
-    await request.respond({
+    await request.respondWith({
       status: 404
     });
 
