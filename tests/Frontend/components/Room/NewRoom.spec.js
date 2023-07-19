@@ -106,11 +106,11 @@ describe('Create new rooms', () => {
   it('frontend permission test', async () => {
     mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
       status: 200,
-      response: exampleOwnRoomResponse
+      data: exampleOwnRoomResponse
     });
     mockAxios.request('/api/v1/rooms', { filter: 'shared', page: 1 }).respondWith({
       status: 200,
-      response: exampleSharedRoomResponse
+      data: exampleSharedRoomResponse
     });
 
     PermissionService.setCurrentUser(exampleUser);
@@ -145,16 +145,16 @@ describe('Create new rooms', () => {
   it('frontend room limit test', async () => {
     mockAxios.request('/api/v1/rooms', { filter: 'own', page: 1 }).respondWith({
       status: 200,
-      response: exampleOwnRoomResponse
+      data: exampleOwnRoomResponse
     });
     mockAxios.request('/api/v1/rooms', { filter: 'shared', page: 1 }).respondWith({
       status: 200,
-      response: exampleSharedRoomResponse
+      data: exampleSharedRoomResponse
     });
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const newUser = _.cloneDeep(exampleUser);
@@ -201,7 +201,7 @@ describe('Create new rooms', () => {
 
     await ownRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -216,7 +216,7 @@ describe('Create new rooms', () => {
     });
     await sharedRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -242,7 +242,7 @@ describe('Create new rooms', () => {
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(NewRoomComponent, {
@@ -277,7 +277,7 @@ describe('Create new rooms', () => {
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 201,
-      response: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
+      data: { data: { id: 'zej-p5h-2wf', name: 'Test', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66' } } }
     });
 
     await view.vm.$nextTick();
@@ -291,7 +291,7 @@ describe('Create new rooms', () => {
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(NewRoomComponent, {
@@ -340,7 +340,7 @@ describe('Create new rooms', () => {
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(NewRoomComponent, {
@@ -376,7 +376,7 @@ describe('Create new rooms', () => {
     expect(JSON.parse(request.config.data)).toMatchObject({ room_type: 2, name: 'Test' });
     await request.respondWith({
       status: 463,
-      response: { message: 'test' }
+      data: { message: 'test' }
     });
 
     expect(baseError).toBeCalledTimes(1);
@@ -388,7 +388,7 @@ describe('Create new rooms', () => {
   it('submit without name', async () => {
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(NewRoomComponent, {
@@ -421,7 +421,7 @@ describe('Create new rooms', () => {
 
     await request.respondWith({
       status: 422,
-      response: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
+      data: { message: 'The given data was invalid.', errors: { name: ['The Name field is required.'] } }
     });
 
     await view.vm.$nextTick();
@@ -432,7 +432,7 @@ describe('Create new rooms', () => {
   it('submit invalid room type', async () => {
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(NewRoomComponent, {
@@ -452,7 +452,7 @@ describe('Create new rooms', () => {
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
       }
     });
@@ -469,7 +469,7 @@ describe('Create new rooms', () => {
     await request.wait();
     await request.respondWith({
       status: 422,
-      response: { message: 'The given data was invalid.', errors: { room_type: ['error'] } }
+      data: { message: 'The given data was invalid.', errors: { room_type: ['error'] } }
     });
     await view.vm.$nextTick();
     expect(typeInput.classes()).toContain('is-invalid');
@@ -484,7 +484,7 @@ describe('Create new rooms', () => {
 
     mockAxios.request('/api/v1/roomTypes', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(NewRoomComponent, {

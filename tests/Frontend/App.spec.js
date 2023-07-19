@@ -198,7 +198,7 @@ describe('App', () => {
     // Reply with failed logout (e.g. server error)
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });

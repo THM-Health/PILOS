@@ -83,7 +83,7 @@ describe('EmailSettingsComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: newUser
       }
     });
@@ -219,7 +219,7 @@ describe('EmailSettingsComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: { ...user, email: 'john.doe@example.com' }
       }
     });
@@ -268,7 +268,7 @@ describe('EmailSettingsComponent', () => {
     await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -298,7 +298,7 @@ describe('EmailSettingsComponent', () => {
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           email: ['The email field is required.']
         }
@@ -321,7 +321,7 @@ describe('EmailSettingsComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

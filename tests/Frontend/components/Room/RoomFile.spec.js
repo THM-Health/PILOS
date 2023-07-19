@@ -49,7 +49,7 @@ describe('RoomFile', () => {
     expect(request.config.headers.Token).toBeUndefined();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' },
@@ -119,7 +119,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -159,7 +159,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -197,7 +197,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -240,7 +240,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -284,7 +284,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -328,7 +328,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -371,7 +371,7 @@ describe('RoomFile', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
@@ -397,7 +397,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -452,7 +452,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -486,7 +486,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           file: ['The File must be a file of type: pdf, doc.']
@@ -513,7 +513,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [],
           default: null
@@ -545,7 +545,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -564,7 +564,7 @@ describe('RoomFile', () => {
   it('error emitted on files load', async () => {
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 403,
-      response: {
+      data: {
         data: {
           message: 'require_code'
         }
@@ -597,7 +597,7 @@ describe('RoomFile', () => {
   it('remove file', async () => {
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -660,7 +660,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -750,7 +750,7 @@ describe('RoomFile', () => {
     await waitModalHidden(view, async () => {
       await deleteFile3Request.respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             files: [
               {
@@ -811,7 +811,7 @@ describe('RoomFile', () => {
     await waitModalHidden(view, async () => {
       await deleteFile2Request.respondWith({
         status: 404,
-        response: {
+        data: {
           message: 'No query results for model'
         }
       });
@@ -841,7 +841,7 @@ describe('RoomFile', () => {
     await waitModalHidden(view, async () => {
       await deleteFile1Request.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Internal server error'
         }
       });
@@ -860,7 +860,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -900,7 +900,7 @@ describe('RoomFile', () => {
     expect(request.config.headers.Token).toBeUndefined();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'download-link.pdf'
       }
     });
@@ -912,7 +912,7 @@ describe('RoomFile', () => {
     // Test 401 error, invalid code
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 401,
-      response: {
+      data: {
         message: 'invalid_code'
       }
     });
@@ -928,7 +928,7 @@ describe('RoomFile', () => {
     // Test 401, token invalid
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 401,
-      response: {
+      data: {
         message: 'invalid_token'
       }
     });
@@ -945,7 +945,7 @@ describe('RoomFile', () => {
     // Test 403, require code
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 403,
-      response: {
+      data: {
         message: 'require_code'
       }
     });
@@ -960,7 +960,7 @@ describe('RoomFile', () => {
     // Test 403, file not available for download
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 403,
-      response: {
+      data: {
         message: 'This action is unauthorized.'
       }
     });
@@ -978,7 +978,7 @@ describe('RoomFile', () => {
     // Test 404
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'No query results for model'
       }
     });
@@ -994,7 +994,7 @@ describe('RoomFile', () => {
     // Test 500
     request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -1010,7 +1010,7 @@ describe('RoomFile', () => {
   it('download file test request with access code', async () => {
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -1054,7 +1054,7 @@ describe('RoomFile', () => {
   it('download file test request with token', async () => {
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -1115,7 +1115,7 @@ describe('RoomFile', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -1174,7 +1174,7 @@ describe('RoomFile', () => {
     expect(request.config.data).toEqual('{"download":true}');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: true, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
@@ -1197,7 +1197,7 @@ describe('RoomFile', () => {
     await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'No query results for model'
       }
     });
@@ -1214,7 +1214,7 @@ describe('RoomFile', () => {
     await request.wait();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

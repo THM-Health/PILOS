@@ -22,7 +22,7 @@ describe('SessionsComponent', () => {
 
     mockAxios.request('/api/v1/sessions').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             last_activity: '2022-01-24T10:15:00.000000Z',
@@ -101,7 +101,7 @@ describe('SessionsComponent', () => {
 
     await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             last_activity: '2022-01-24T10:15:00.000000Z',
@@ -131,7 +131,7 @@ describe('SessionsComponent', () => {
     expect(deleteRequest.config.method).toEqual('delete');
     await deleteRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal Server Error'
       }
     });
@@ -193,7 +193,7 @@ describe('SessionsComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             last_activity: '2022-01-24T10:15:00.000000Z',

@@ -76,7 +76,7 @@ describe('ViewEditComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -132,7 +132,7 @@ describe('ViewEditComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Error'
       }
     });
@@ -169,7 +169,7 @@ describe('ViewEditComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: ldapUser
       }
     });
@@ -190,7 +190,7 @@ describe('ViewEditComponent', () => {
   it('test update user event', async () => {
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -241,7 +241,7 @@ describe('ViewEditComponent', () => {
 
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -291,7 +291,7 @@ describe('ViewEditComponent', () => {
   it('test stale user event', async () => {
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -373,7 +373,7 @@ describe('ViewEditComponent', () => {
 
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -434,7 +434,7 @@ describe('ViewEditComponent', () => {
 
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -500,7 +500,7 @@ describe('ViewEditComponent', () => {
 
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -571,7 +571,7 @@ describe('ViewEditComponent', () => {
 
     mockAxios.request('/api/v1/users/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });

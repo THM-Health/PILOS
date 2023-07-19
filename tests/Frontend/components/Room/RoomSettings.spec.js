@@ -43,7 +43,7 @@ describe('RoomSettings', () => {
 
     mockAxios.request('/api/v1/roomTypes', { filter: exampleRoom.id }).respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
   });
 
@@ -69,7 +69,7 @@ describe('RoomSettings', () => {
     // check for settings request and reply with settings
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -195,7 +195,7 @@ describe('RoomSettings', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -263,7 +263,7 @@ describe('RoomSettings', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -337,7 +337,7 @@ describe('RoomSettings', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -434,7 +434,7 @@ describe('RoomSettings', () => {
     // respond with server error
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Server error'
       }
     });
@@ -470,7 +470,7 @@ describe('RoomSettings', () => {
     // respond with a successful response
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -544,7 +544,7 @@ describe('RoomSettings', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -623,7 +623,7 @@ describe('RoomSettings', () => {
     // respond with server error
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Server error'
       }
     });
@@ -642,7 +642,7 @@ describe('RoomSettings', () => {
     await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {
@@ -687,7 +687,7 @@ describe('RoomSettings', () => {
     await request.wait();
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           welcome: ['The Welcome message may not be greater than 250 characters.']
@@ -725,7 +725,7 @@ describe('RoomSettings', () => {
     // check for settings request and reply with settings
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           name: 'Meeting One',
           room_type: {

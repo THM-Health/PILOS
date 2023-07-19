@@ -121,7 +121,7 @@ describe('RolesAndPermissionsComponent', () => {
     // Respond with success
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: newUser
       }
     });
@@ -305,7 +305,7 @@ describe('RolesAndPermissionsComponent', () => {
     await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -327,7 +327,7 @@ describe('RolesAndPermissionsComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response
+      data: response
     });
 
     await wrapper.vm.$nextTick();
@@ -344,7 +344,7 @@ describe('RolesAndPermissionsComponent', () => {
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           roles: ['The roles field is required.']
         }
@@ -368,7 +368,7 @@ describe('RolesAndPermissionsComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

@@ -50,7 +50,7 @@ describe('TimezoneSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           'America/New_York',
           'Australia/Sydney',
@@ -143,7 +143,7 @@ describe('TimezoneSelect', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal Server Error'
       }
     });
@@ -179,7 +179,7 @@ describe('TimezoneSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           'America/New_York',
           'Australia/Sydney',

@@ -80,7 +80,7 @@ describe('LocaleSelector', () => {
 
     mockAxios.request('/api/v1/locale').respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           locale: ['Test']
         }
@@ -120,7 +120,7 @@ describe('LocaleSelector', () => {
 
     mockAxios.request('/api/v1/locale').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -165,7 +165,7 @@ describe('LocaleSelector', () => {
 
     mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           data: null
         }

@@ -82,7 +82,7 @@ describe('PasswordComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -151,7 +151,7 @@ describe('PasswordComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -202,7 +202,7 @@ describe('PasswordComponent', () => {
     await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -219,7 +219,7 @@ describe('PasswordComponent', () => {
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           current_password: [
             'The current password field is required.'
@@ -249,7 +249,7 @@ describe('PasswordComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

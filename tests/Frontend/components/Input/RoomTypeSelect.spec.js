@@ -28,7 +28,7 @@ describe('RoomType Select', () => {
   it('value passed', async () => {
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomTypeSelect, {
@@ -53,7 +53,7 @@ describe('RoomType Select', () => {
     const request = mockAxios.request('/api/v1/roomTypes');
     request.respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomTypeSelect, {
@@ -87,7 +87,7 @@ describe('RoomType Select', () => {
   it('invalid value passed', async () => {
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomTypeSelect, {
@@ -112,7 +112,7 @@ describe('RoomType Select', () => {
   it('busy events emitted', async () => {
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomTypeSelect, {
@@ -150,7 +150,7 @@ describe('RoomType Select', () => {
   it('error events emitted', async () => {
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -177,7 +177,7 @@ describe('RoomType Select', () => {
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
       }
     });
@@ -195,7 +195,7 @@ describe('RoomType Select', () => {
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomTypeSelect, {
@@ -219,7 +219,7 @@ describe('RoomType Select', () => {
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     view.vm.reloadRoomTypes();
@@ -230,7 +230,7 @@ describe('RoomType Select', () => {
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{ id: 3, short: 'ME', description: 'Meeting', color: '#4a5c66' }]
       }
     });
@@ -244,7 +244,7 @@ describe('RoomType Select', () => {
 
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });

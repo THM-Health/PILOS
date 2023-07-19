@@ -334,7 +334,7 @@ describe('RoomDescriptionComponent', () => {
     expect(JSON.parse(request.config.data)).toStrictEqual({ description: '<p>Test 2</p>' });
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: { ...newRoom, description: '<p>Test 2</p>' }
       }
     });
@@ -387,7 +387,7 @@ describe('RoomDescriptionComponent', () => {
     await request.wait();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -410,7 +410,7 @@ describe('RoomDescriptionComponent', () => {
     await request2.wait();
     await request2.respondWith({
       status: 422,
-      response: { message: 'The Description must not be greater than 65000 characters', errors: { description: ['The Description must not be greater than 65000 characters.'] } }
+      data: { message: 'The Description must not be greater than 65000 characters', errors: { description: ['The Description must not be greater than 65000 characters.'] } }
     });
 
     await view.vm.$nextTick();

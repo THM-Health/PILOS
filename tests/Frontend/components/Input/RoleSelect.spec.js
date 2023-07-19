@@ -42,7 +42,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'admin' },
           { id: 2, name: 'user' }
@@ -172,7 +172,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'admin' },
           { id: 2, name: 'user' }
@@ -239,7 +239,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal Server Error'
       }
     });
@@ -271,7 +271,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'admin' },
           { id: 2, name: 'user' }

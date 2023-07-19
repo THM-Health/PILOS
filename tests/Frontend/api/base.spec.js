@@ -14,7 +14,7 @@ describe('base', () => {
 
   describe('call', () => {
     it('calls `getCsrfCookie` if `loadCsrfCookie` is set to true', async () => {
-      mockAxios.request('/api/v1/test').respondWith({ status: 200, response: 'Test' });
+      mockAxios.request('/api/v1/test').respondWith({ status: 200, data: 'Test' });
 
       const spy = vi.spyOn(Base, 'getCsrfCookie').mockImplementation(() => Promise.resolve());
 
@@ -36,7 +36,7 @@ describe('base', () => {
     });
 
     it('returns a promise that rejects on response codes above 400', async () => {
-      mockAxios.request('/api/v1/test').respondWith({ status: 400, response: 'Test' });
+      mockAxios.request('/api/v1/test').respondWith({ status: 400, data: 'Test' });
 
       await expect(Base.call('test')).rejects.toThrowError('Request failed with status code 400');
     });
@@ -146,7 +146,7 @@ describe('base', () => {
     });
 
     it('`getCsrfCookie` calls the route for getting a csrf cookie', async () => {
-      mockAxios.request('/sanctum/csrf-cookie').respondWith({ status: 200, response: 'Test' });
+      mockAxios.request('/sanctum/csrf-cookie').respondWith({ status: 200, data: 'Test' });
 
       const response = await Base.getCsrfCookie();
       expect(response.status).toBe(200);

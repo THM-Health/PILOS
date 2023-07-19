@@ -374,7 +374,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
@@ -467,7 +467,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -525,7 +525,7 @@ describe('ProfileComponent', () => {
     await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -547,7 +547,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response
+      data: response
     });
 
     await wrapper.vm.$nextTick();
@@ -563,7 +563,7 @@ describe('ProfileComponent', () => {
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           firstname: ['The Firstname field is required.'],
           lastname: ['The Lastname field is required.']
@@ -589,7 +589,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -659,7 +659,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
@@ -668,7 +668,7 @@ describe('ProfileComponent', () => {
     expect(reloadUserRequest.config.method).toBe('get');
     await reloadUserRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });

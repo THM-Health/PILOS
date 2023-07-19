@@ -31,7 +31,7 @@ describe('RoomMembers', () => {
   it('load members', async () => {
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
@@ -94,7 +94,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -128,7 +128,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -167,7 +167,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -209,7 +209,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -245,7 +245,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -276,7 +276,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
@@ -333,7 +333,7 @@ describe('RoomMembers', () => {
     expect(searchRequest.config.params.query).toEqual('Laura');
     await searchRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
           { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null }
@@ -404,7 +404,7 @@ describe('RoomMembers', () => {
     await listRequest.wait();
     await listRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
@@ -436,7 +436,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -493,7 +493,7 @@ describe('RoomMembers', () => {
     expect(JSON.parse(addMemberRequest.config.data)).toMatchObject({ user: 10, role: 2 });
     await addMemberRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           user: ['The user is already member of the room.']
@@ -515,7 +515,7 @@ describe('RoomMembers', () => {
     await waitModalHidden(view, async () => {
       await addMemberRequest.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Test'
         }
       });
@@ -536,7 +536,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -653,7 +653,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -724,7 +724,7 @@ describe('RoomMembers', () => {
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 410,
-        response: {
+        data: {
           message: 'The person is not a member of this room (anymore).'
         }
       });
@@ -753,7 +753,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -839,7 +839,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -905,7 +905,7 @@ describe('RoomMembers', () => {
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 410,
-        response: {
+        data: {
           message: 'The person is not a member of this room (anymore).'
         }
       });
@@ -933,7 +933,7 @@ describe('RoomMembers', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },

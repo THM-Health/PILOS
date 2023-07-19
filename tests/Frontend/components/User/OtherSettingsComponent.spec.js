@@ -146,7 +146,7 @@ describe('OtherSettingComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
@@ -195,7 +195,7 @@ describe('OtherSettingComponent', () => {
     await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -217,7 +217,7 @@ describe('OtherSettingComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response
+      data: response
     });
 
     await wrapper.vm.$nextTick();
@@ -233,7 +233,7 @@ describe('OtherSettingComponent', () => {
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           bbb_skip_check_audio: ['The bbb skip check audio field is required.']
         }
@@ -256,7 +256,7 @@ describe('OtherSettingComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

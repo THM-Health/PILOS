@@ -37,7 +37,7 @@ describe('RoomMembersBulk', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -102,7 +102,7 @@ describe('RoomMembersBulk', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -174,7 +174,7 @@ describe('RoomMembersBulk', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, firstname: 'John', lastname: 'Doe', email: 'JohnDoe@domain.tld', role: 3, image: null },
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
@@ -225,7 +225,7 @@ describe('RoomMembersBulk', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -413,7 +413,7 @@ describe('RoomMembersBulk', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
@@ -562,7 +562,7 @@ describe('RoomMembersBulk', () => {
 
     mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
@@ -645,7 +645,7 @@ describe('RoomMembersBulk', () => {
     expect(JSON.parse(request.config.data)).toEqual({ role: null, users: [5] });
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The Role field is required.',
         errors: {
           role: ['The Role field is required.']
@@ -678,7 +678,7 @@ describe('RoomMembersBulk', () => {
     expect(JSON.parse(request.config.data)).toEqual({ role: 2, users: [5] });
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The user \'Laura Rivera\' isn\'t a member.',
         errors: {
           'users.0': ['The user \'Laura Rivera\' isn\'t a member.']
@@ -708,7 +708,7 @@ describe('RoomMembersBulk', () => {
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Test'
         }
       });

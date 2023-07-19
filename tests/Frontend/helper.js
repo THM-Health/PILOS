@@ -39,8 +39,8 @@ module.exports = {
 
       const request = {
         config: null,
-        respondWith: function ({ status, response }) {
-          resolvers.response([status, response]);
+        respondWith: function ({ status, data, header }) {
+          resolvers.response([status, data, header]);
           return new Promise(resolve => setTimeout(resolve));
         },
         wait: () => promises.request

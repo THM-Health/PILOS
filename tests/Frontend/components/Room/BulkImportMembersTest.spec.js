@@ -243,7 +243,7 @@ describe('RoomMembersBulk', () => {
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           'user_emails.2': ['notanemail must be a valid email adress.'],
           'user_emails.3': ['No user was found with this e-mail']
@@ -424,7 +424,7 @@ describe('RoomMembersBulk', () => {
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           'user_emails.0': ['No user was found with this e-mail'],
           'user_emails.1': ['notanemail must be a valid email adress.']
@@ -552,7 +552,7 @@ describe('RoomMembersBulk', () => {
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           user_emails: ['The user emails field is required.']
         }
@@ -579,7 +579,7 @@ describe('RoomMembersBulk', () => {
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           role: ['The selected role is invalid']
         }
@@ -604,7 +604,7 @@ describe('RoomMembersBulk', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });

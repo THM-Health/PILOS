@@ -34,7 +34,7 @@ describe('Auth Store', () => {
 
     mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -52,7 +52,7 @@ describe('Auth Store', () => {
 
     mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });

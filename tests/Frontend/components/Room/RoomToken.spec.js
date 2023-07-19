@@ -70,7 +70,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
           { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
@@ -109,7 +109,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -128,7 +128,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
           { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
@@ -162,7 +162,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -199,7 +199,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
           { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
@@ -247,7 +247,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -313,7 +313,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus',
@@ -368,7 +368,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -423,7 +423,7 @@ describe('Room Token', () => {
     await waitModalHidden(view, async () => {
       await deleteRequest.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Internal server error'
         }
       });
@@ -438,7 +438,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -499,7 +499,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -569,7 +569,7 @@ describe('Room Token', () => {
 
     await editRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           firstname: ['Firstname contains the following non-permitted characters: 2']
         }
@@ -598,7 +598,7 @@ describe('Room Token', () => {
     await waitModalHidden(view, () => {
       editRequest.respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
             firstname: 'Richard',
@@ -618,7 +618,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -681,7 +681,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -733,7 +733,7 @@ describe('Room Token', () => {
 
     await addRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -761,7 +761,7 @@ describe('Room Token', () => {
     await waitModalHidden(view, () => {
       addRequest.respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
             firstname: 'Richard',
@@ -782,7 +782,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -835,7 +835,7 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -879,7 +879,7 @@ describe('Room Token', () => {
     // Respond with validation errors
     await addRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The Lastname field is required. (and 1 more error)',
         errors: {
           lastname: [

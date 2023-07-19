@@ -199,7 +199,7 @@ describe('Router', () => {
       const oldUser = PermissionService.currentUser;
       const response = {
         status: 200,
-        response: {
+        data: {
           data: {
             id: 1,
             default: true,
@@ -224,7 +224,7 @@ describe('Router', () => {
 
       mockAxios.request('/api/v1/roles/1').respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             id: 1,
             default: false,
@@ -243,11 +243,8 @@ describe('Router', () => {
 
       mockAxios.request('/api/v1/roles/1').respondWith({
         status: 500,
-        response: {
-          status: 500,
-          response: {
-            message: 'Test'
-          }
+        data: {
+          message: 'Test'
         }
       });
 

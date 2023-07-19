@@ -64,7 +64,7 @@ describe('History', () => {
     expect(request.config.params.page).toEqual(1);
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '6091532e-57c7-4a88-9b00-2bebfb969002', start: '2021-06-22T11:05:39.000000Z', end: null, attendance: true, statistical: false },
           { id: '2ba7ba60-91d7-49f5-b1bb-5353b9415406', start: '2021-06-22T10:04:50.000000Z', end: '2021-06-22T10:06:16.000000Z', attendance: false, statistical: false },
@@ -117,7 +117,7 @@ describe('History', () => {
     expect(request.config.params.page).toEqual(1);
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -161,7 +161,7 @@ describe('History', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '6091532e-57c7-4a88-9b00-2bebfb969002', start: '2021-06-22T11:05:39.000000Z', end: null, attendance: true, statistical: false },
           { id: '2ba7ba60-91d7-49f5-b1bb-5353b9415406', start: '2021-06-22T10:04:50.000000Z', end: '2021-06-22T10:06:16.000000Z', attendance: false, statistical: false },
@@ -251,7 +251,7 @@ describe('History', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -274,7 +274,7 @@ describe('History', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '6091532e-57c7-4a88-9b00-2bebfb969002', start: '2021-06-22T11:05:39.000000Z', end: null, attendance: true, statistical: false },
           { id: '2ba7ba60-91d7-49f5-b1bb-5353b9415406', start: '2021-06-22T10:04:50.000000Z', end: '2021-06-22T10:06:16.000000Z', attendance: false, statistical: false },
@@ -331,7 +331,7 @@ describe('History', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '10b23d8a-9dc1-4377-a26f-bdc990cd2f36', start: '2021-06-22T08:49:10.000000Z', end: '2021-06-22T08:50:20.000000Z', attendance: true, statistical: true }
         ],
@@ -369,7 +369,7 @@ describe('History', () => {
     await waitModalShown(view, async () => {
       await request.respondWith({
         status: 200,
-        response: {
+        data: {
           data: [
             {
               id: 8,
@@ -436,7 +436,7 @@ describe('History', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '10b23d8a-9dc1-4377-a26f-bdc990cd2f36', start: '2021-06-22T08:49:10.000000Z', end: '2021-06-22T08:50:20.000000Z', attendance: true, statistical: true }
         ],
@@ -472,7 +472,7 @@ describe('History', () => {
     await waitModalShown(view, async () => {
       await request.respondWith({
         status: 200,
-        response: {
+        data: {
           data: [
             {
               name: 'John Doe',
