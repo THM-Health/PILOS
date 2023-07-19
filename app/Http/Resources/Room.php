@@ -34,9 +34,12 @@ class Room extends JsonResource
         $this->token         = $token;
     }
 
-    public function getDetails($runningMeeting){
-        if(!$this->details)
+    public function getDetails($runningMeeting)
+    {
+        if (!$this->details) {
             return [];
+        }
+
         return [
             'username'          => $this->when(!empty($this->token), !empty($this->token) ? $this->token->fullname : null),
             'authenticated'     => $this->authenticated,
@@ -53,10 +56,12 @@ class Room extends JsonResource
         ];
     }
 
-    public function getLastMeeting($runningMeeting){
-        if (!$runningMeeting){
+    public function getLastMeeting($runningMeeting)
+    {
+        if (!$runningMeeting) {
             return null;
         }
+
         return [
             'start' => $runningMeeting->start,
             'end'   => $runningMeeting->end

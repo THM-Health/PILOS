@@ -33,9 +33,7 @@
   </div>
 </template>
 <script>
-import RoomStatusComponent from './RoomStatusComponent.vue';
 export default {
-  components: { RoomStatusComponent },
   data () {
     return {
       loading: false
@@ -44,7 +42,7 @@ export default {
   props: {
     id: String,
     name: String,
-    meeting:Object,
+    meeting: Object,
     shared: {
       type: Boolean,
       default: false
@@ -62,9 +60,9 @@ export default {
     }
 
   },
-  computed:{
-    running: function (){
-      return this.meeting!=null && this.meeting.start!=null && this.meeting.end == null
+  computed: {
+    running: function () {
+      return this.meeting != null && this.meeting.start != null && this.meeting.end == null;
     }
   }
 };

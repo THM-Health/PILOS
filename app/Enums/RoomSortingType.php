@@ -10,6 +10,6 @@ use BenSampo\Enum\Enum;
  */
 final class RoomSortingType extends Enum
 {
-    public const ALPHA_ASC     =   "alpha_asc";
-    public const ALPHA_DESC    =   "alpha_desc";
+    public const ALPHA_ASC     =   'alpha_asc';
+    public const ALPHA_DESC    =   'alpha_desc';
 }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-button block variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> Neuen Raum erstellen</b-button>
+    <b-button :disabled="disabled" block variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> {{ $t('rooms.create.title') }} </b-button>
 
     <b-modal
       id="new-room"
@@ -58,6 +58,10 @@ export default {
 
   props: {
     modalStatic: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }

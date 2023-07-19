@@ -52,21 +52,21 @@ return [
         'start_forbidden'     => 'The room could not be started by you.',
         'token_invalid'       => 'The personalised room link is no longer valid.',
     ],
-    'index' =>[
-        'room_type' => 'Room type',
+    'index' => [
+        'room_type'   => 'Room type',
         'show_shared' => 'Show shared rooms',
-        'show_all' =>'Show all rooms',
-        'sorting' => [
-            'sort' => 'Sorting',
+        'show_all'    => 'Show all rooms',
+        'sorting'     => [
+            'sort'           => 'Sorting',
             'select_sorting' => '-- Select sorting --',
-            'alpha_asc' => 'Alphabetically ascending',
-            'alpha_desc' => 'Alphabetically descending',
+            'alpha_asc'      => 'Alphabetically ascending',
+            'alpha_desc'     => 'Alphabetically descending',
         ],
-        'room_component'=>[
-            'never_started'=>' Never started before',
-            'running_since' =>' Meeting running since :date',
-            'last_ran_till'=>' Last ran till :date',
-            'meeting_starting'=>' Meeting is starting'
+        'room_component'=> [
+            'never_started'   => ' Never started before',
+            'running_since'   => ' Meeting running since :date',
+            'last_ran_till'   => ' Last ran till :date',
+            'meeting_starting'=> ' Meeting is starting'
         ],
 
     ],
@@ -160,6 +160,7 @@ return [
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload'        => 'Reload room types',
         'select_type'   => '-- Select room type --',
+        'all'           => 'All',
     ],
     'settings' => [
         'general' => [

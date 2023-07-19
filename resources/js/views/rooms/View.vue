@@ -743,8 +743,8 @@ export default {
   },
   computed: {
 
-    running: function (){
-      return this.room.last_meeting!=null && this.room.last_meeting.start!=null && this.room.last_meeting.end == null
+    running: function () {
+      return this.room.last_meeting != null && this.room.last_meeting.start != null && this.room.last_meeting.end == null;
     },
     ...mapState(useAuthStore, ['isAuthenticated']),
     ...mapState(useSettingsStore, ['getSetting']),

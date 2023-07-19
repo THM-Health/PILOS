@@ -21,7 +21,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Log;
-use phpDocumentor\Reflection\Types\Collection;
 
 class RoomController extends Controller
 {
@@ -41,27 +40,25 @@ class RoomController extends Controller
         $additionalMeta = [];
 
         $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
-        $roomMemberships = Auth::user()->sharedRooms->modelKeys();
-
+        $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
 
         //all rooms without limitation
-        if($request->filter == RoomFilter::ALL && Auth::user()->can('viewAll', Room::class)){
+        if ($request->filter == RoomFilter::ALL && Auth::user()->can('viewAll', Room::class)) {
             $collection = Room::query();
-
-        }
-        else{
+        } else {
             $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled, $roomMemberships, $request) {
                 //own rooms
                 $query->where('user_id', '=', Auth::user()->id);
+
                 //ToDo count number of own rooms and save it in additionalMeta
 
                 //rooms where the user is member
-                if($request->filter == RoomFilter::OWN_AND_SHARED || $request->filter == RoomFilter::ALL){
-                    $query->orWhereIn('id',$roomMemberships);
+                if ($request->filter == RoomFilter::OWN_AND_SHARED || $request->filter == RoomFilter::ALL) {
+                    $query->orWhereIn('id', $roomMemberships);
                 }
 
                 //all rooms that can be shown
-                if($request->filter == RoomFilter::ALL){
+                if ($request->filter == RoomFilter::ALL) {
                     $query->orWhere(function (Builder $subQuery) use ($roomTypesWithListingEnabled) {
                         $subQuery->where('listed', 1)
                             ->whereNull('access_code')
@@ -93,15 +90,19 @@ class RoomController extends Controller
             }
         }
         //sort rooms
-        switch($request->sort_by){
+        switch($request->sort_by) {
             case RoomSortingType::ALPHA_DESC:
                 $collection = $collection->orderByDesc('name');
+
                 break;
             case RoomSortingType::ALPHA_ASC:
             default:
                 $collection = $collection->orderBy('name');
+
                 break;
         }
+
+        $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
         $collection = $collection->paginate(setting('own_rooms_pagination_page_size'));
 

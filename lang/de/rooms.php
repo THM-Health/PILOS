@@ -52,21 +52,21 @@ return [
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
-    'index' =>[
-        'room_type' => 'Raumart',
+    'index' => [
+        'room_type'   => 'Raumart',
         'show_shared' => 'Geteilte Räume anzeigen',
-        'show_all' =>'Alle Räume anzeigen',
-        'sorting' => [
-            'sort' => 'Sortierung',
+        'show_all'    => 'Alle Räume anzeigen',
+        'sorting'     => [
+            'sort'           => 'Sortierung',
             'select_sorting' => '-- Sortierung auswählen --',
-            'alpha_asc' => 'Alphabetisch aufsteigend',
-            'alpha_desc' => 'Alphabetisch absteigend',
+            'alpha_asc'      => 'Alphabetisch aufsteigend',
+            'alpha_desc'     => 'Alphabetisch absteigend',
         ],
-        'room_component'=>[
-          'never_started'=>' Noch nie gestartet',
-          'running_since' =>' Meeting läuft seit :date',
-          'last_ran_till'=>' Zuletzt gelaufen bis :date',
-          'meeting_starting'=>' Meeting startet gerade'
+        'room_component'=> [
+          'never_started'   => ' Noch nie gestartet',
+          'running_since'   => ' Meeting läuft seit :date',
+          'last_ran_till'   => ' Zuletzt gelaufen bis :date',
+          'meeting_starting'=> ' Meeting startet gerade'
         ],
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
@@ -159,6 +159,7 @@ return [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
         'select_type'   => '-- Raumart auswählen --',
+        'all'           => 'Alle',
     ],
     'settings' => [
         'general' => [
