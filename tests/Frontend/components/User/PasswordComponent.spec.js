@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import PasswordComponent from '../../../../resources/js/components/User/PasswordComponent.vue';
 import { BButton, BFormInput } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 
@@ -35,11 +35,7 @@ const adminUser = {
 
 describe('PasswordComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   // Admin can change password without password confirmation
@@ -74,14 +70,14 @@ describe('PasswordComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     expect(saveButton.text()).toBe('auth.change_password');
 
+    const request = mockAxios.request('/api/v1/users/2/password');
+
     // Click save button
     await saveButton.trigger('click');
-    await waitMoxios();
 
     // Check request
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/users/2/password');
     expect(JSON.parse(request.config.data)).toEqual({ new_password: 'secretPassword123#', new_password_confirmation: 'confirmSecretPassword123#' });
 
     await request.respondWith({
@@ -143,14 +139,14 @@ describe('PasswordComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     expect(saveButton.text()).toBe('auth.change_password');
 
+    const request = mockAxios.request('/api/v1/users/2/password');
+
     // Click save button
     await saveButton.trigger('click');
-    await waitMoxios();
 
     // Check request
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/users/2/password');
     expect(JSON.parse(request.config.data)).toEqual({ current_password: 'secretPassword123#', new_password: 'newSecretPassword123#', new_password_confirmation: 'confirmNewSecretPassword123#' });
 
     await request.respondWith({
@@ -201,10 +197,9 @@ describe('PasswordComponent', () => {
     // Find submit button
     const saveButton = wrapper.findComponent(BButton);
     // --- Check 404 error ---
-
+    let request = mockAxios.request('/api/v1/users/2/password');
     await saveButton.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 404,
       response: {
@@ -218,10 +213,9 @@ describe('PasswordComponent', () => {
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
     // --- Check form validation error ---
-
+    request = mockAxios.request('/api/v1/users/2/password');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     // Respond with errors
     await request.respondWith({
       status: 422,
@@ -245,10 +239,9 @@ describe('PasswordComponent', () => {
     expect(inputs.at(1).props('state')).toBe(false);
 
     // --- Check other errors ---
-
+    request = mockAxios.request('/api/v1/users/2/password');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Reset form validation error shown on next request
     expect(inputs.at(0).props('state')).toBeNull();

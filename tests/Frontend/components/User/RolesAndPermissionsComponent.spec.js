@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import RolesAndPermissionsComponent from '../../../../resources/js/components/User/RolesAndPermissionsComponent.vue';
 import { BButton } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import Base from '../../../../resources/js/api/base';
 import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
@@ -49,11 +49,7 @@ const adminUser = {
 
 describe('RolesAndPermissionsComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   // Admin can change roles of users
@@ -106,14 +102,14 @@ describe('RolesAndPermissionsComponent', () => {
     // Emit input event
     roleSelect.vm.$emit('input', [{ id: 1, name: 'Admin', automatic: true }]);
 
+    const request = mockAxios.request('/api/v1/users/2');
+
     // Trigger save
     await saveButton.trigger('click');
 
     // Check if request was sent
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/users/2');
     expect(request.config.data).toEqual(JSON.stringify({ roles: [1] }));
 
     // Check if save button and role select are disabled during request
@@ -304,10 +300,9 @@ describe('RolesAndPermissionsComponent', () => {
     expect(button.text()).toBe('app.save');
 
     // --- Check 404 error ---
-
+    let request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 404,
       response: {
@@ -321,10 +316,9 @@ describe('RolesAndPermissionsComponent', () => {
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
     // --- Check stale error ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     const response = {
       error: 428,
       message: 'test',
@@ -344,9 +338,9 @@ describe('RolesAndPermissionsComponent', () => {
 
     // --- Check form validation error ---
 
+    request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     // Respond with errors
     await request.respondWith({
       status: 422,
@@ -365,9 +359,9 @@ describe('RolesAndPermissionsComponent', () => {
 
     // --- Check other errors ---
 
+    request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Reset form validation error shown on next request
     expect(roleSelect.props('state')).toBeFalsy();

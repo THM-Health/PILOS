@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import EmailSettingsComponent from '../../../../resources/js/components/User/EmailSettingsComponent.vue';
 import { BAlert, BButton, BFormInput } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 
@@ -35,11 +35,7 @@ const adminUser = {
 
 describe('EmailSettingsComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   // Admin can change email of normal user without password confirmation
@@ -73,14 +69,14 @@ describe('EmailSettingsComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     expect(saveButton.text()).toBe('auth.change_email');
 
+    const request = mockAxios.request('/api/v1/users/2/email');
+
     // Click save button
     await saveButton.trigger('click');
-    await waitMoxios();
 
     // Check request
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/users/2/email');
     expect(JSON.parse(request.config.data)).toEqual({ email: 'john.doe@example.com' });
 
     const newUser = { ...user, email: 'john.doe@example.com' };
@@ -167,14 +163,14 @@ describe('EmailSettingsComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     expect(saveButton.text()).toBe('auth.change_email');
 
+    let request = mockAxios.request('/api/v1/users/2/email');
+
     // Click save button
     await saveButton.trigger('click');
-    await waitMoxios();
 
     // Check request
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/users/2/email');
     expect(JSON.parse(request.config.data)).toEqual({ email: 'john.doe@example.com', current_password: 'secretPassword123#' });
 
     // Check if field are disabled during request
@@ -210,10 +206,12 @@ describe('EmailSettingsComponent', () => {
     // Submit again but server already has changed email
     await inputs.at(0).find('input').setValue('secretPassword123#');
     await inputs.at(1).find('input').setValue('john.doe@example.com');
+
+    request = mockAxios.request('/api/v1/users/2/email');
+
     await saveButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Check if message is hidden
     message = wrapper.findComponent(BAlert);
@@ -264,9 +262,10 @@ describe('EmailSettingsComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     // --- Check 404 error ---
 
+    let request = mockAxios.request('/api/v1/users/2/email');
+
     await saveButton.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 404,
       response: {
@@ -280,10 +279,9 @@ describe('EmailSettingsComponent', () => {
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
     // --- Check email change throttle error ---
-
+    request = mockAxios.request('/api/v1/users/2/email');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 471
     });
@@ -294,10 +292,9 @@ describe('EmailSettingsComponent', () => {
     expect(toastErrorSpy).toHaveBeenCalled();
 
     // --- Check form validation error ---
-
+    request = mockAxios.request('/api/v1/users/2/email');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     // Respond with errors
     await request.respondWith({
       status: 422,
@@ -315,10 +312,9 @@ describe('EmailSettingsComponent', () => {
     expect(emailInput.props('state')).toBe(false);
 
     // --- Check other errors ---
-
+    request = mockAxios.request('/api/v1/users/2/email');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Reset form validation error shown on next request
     expect(emailInput.props('state')).toBeNull();

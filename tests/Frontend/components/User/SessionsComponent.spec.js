@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BListGroupItem, BSpinner } from 'bootstrap-vue';
-import { createContainer, waitMoxios, createLocalVue } from '../../helper';
+import { createContainer, mockAxios, createLocalVue } from '../../helper';
 import SessionsComponent from '../../../../resources/js/components/User/SessionsComponent.vue';
-import moxios from 'moxios';
+
 import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
@@ -13,34 +13,14 @@ const i18nDateMock = (date, format) => {
 
 describe('SessionsComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('list of sessions and logout other sessions', async () => {
     const toastSuccessSpy = vi.fn();
     const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const view = mount(SessionsComponent, {
-      localVue,
-      mocks: {
-        $t: key => key,
-        $d: i18nDateMock,
-        toastSuccess: toastSuccessSpy
-      },
-      attachTo: createContainer()
-    });
-
-    await view.vm.$nextTick();
-
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/sessions');
-    await request.respondWith({
+    mockAxios.request('/api/v1/sessions').respondWith({
       status: 200,
       response: {
         data: [
@@ -60,6 +40,17 @@ describe('SessionsComponent', () => {
       }
     });
 
+    const view = mount(SessionsComponent, {
+      localVue,
+      mocks: {
+        $t: key => key,
+        $d: i18nDateMock,
+        toastSuccess: toastSuccessSpy
+      },
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // Check session list
@@ -80,16 +71,20 @@ describe('SessionsComponent', () => {
     const endSessionButton = view.findComponent(BButton);
     expect(endSessionButton.text()).toBe('auth.sessions.logout_all');
     expect(endSessionButton.attributes('disabled')).toBeUndefined();
+
+    let deleteRequest = mockAxios.request('/api/v1/sessions');
+
     await endSessionButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/sessions');
+    await deleteRequest.wait();
+    expect(deleteRequest.config.method).toEqual('delete');
 
     // check if button is disabled during request
     expect(endSessionButton.attributes('disabled')).toBe('disabled');
-    await request.respondWith({
+
+    const reloadRequest = mockAxios.request('/api/v1/sessions');
+
+    await deleteRequest.respondWith({
       status: 204
     });
 
@@ -101,12 +96,10 @@ describe('SessionsComponent', () => {
     expect(toastSuccessSpy).toBeCalledWith('auth.flash.logout_all_others');
 
     // check if sessions are reloaded
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/sessions');
+    await reloadRequest.wait();
+    expect(reloadRequest.config.method).toEqual('get');
 
-    await request.respondWith({
+    await reloadRequest.respondWith({
       status: 200,
       response: {
         data: [
@@ -129,13 +122,14 @@ describe('SessionsComponent', () => {
     // Check end session button
     expect(endSessionButton.text()).toBe('auth.sessions.logout_all');
     expect(endSessionButton.attributes('disabled')).toBeUndefined();
+
+    deleteRequest = mockAxios.request('/api/v1/sessions');
+
     await endSessionButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/sessions');
-    await request.respondWith({
+    await deleteRequest.wait();
+    expect(deleteRequest.config.method).toEqual('delete');
+    await deleteRequest.respondWith({
       status: 500,
       response: {
         message: 'Internal Server Error'
@@ -152,6 +146,7 @@ describe('SessionsComponent', () => {
   it('loading error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    let request = mockAxios.request('/api/v1/sessions');
     const view = mount(SessionsComponent, {
       localVue,
       mocks: {
@@ -163,10 +158,7 @@ describe('SessionsComponent', () => {
 
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/sessions');
+    await request.wait();
 
     // check if spinner is shown during request but not the reload button
     expect(view.findComponent(BSpinner).exists()).toBeTruthy();
@@ -188,13 +180,12 @@ describe('SessionsComponent', () => {
     const reloadButton = view.findComponent({ ref: 'reload' });
     expect(reloadButton.exists()).toBeTruthy();
 
+    request = mockAxios.request('/api/v1/sessions');
+
     // Check if reload button works
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/sessions');
+    await request.wait();
 
     // check if spinner is shown during request and reload button is missing
     expect(view.findComponent(BSpinner).exists()).toBeTruthy();
