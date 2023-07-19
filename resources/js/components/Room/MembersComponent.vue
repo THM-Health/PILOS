@@ -434,7 +434,13 @@ export default {
     asyncFind (query) {
       this.isLoadingSearch = true;
 
-      Base.call('users/search?query=' + query).then(response => {
+      const config = {
+        params: {
+          query
+        }
+      };
+
+      Base.call('users/search', config).then(response => {
         // disable users that are already members of this room or the room owner
         const idOfMembers = this.members.map(user => user.id);
         this.users = response.data.data.map(user => {
