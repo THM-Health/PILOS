@@ -1,11 +1,10 @@
-import moxios from 'moxios';
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInput, BFormInvalidFeedback } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import PasswordReset from '../../../resources/js/views/PasswordReset.vue';
 import Base from '../../../resources/js/api/base';
 import env from '../../../resources/js/env';
-import { waitMoxios, createLocalVue } from '../helper';
+import { mockAxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useLocaleStore } from '../../../resources/js/stores/locale';
@@ -17,15 +16,16 @@ localVue.use(VueRouter);
 
 describe('PasswordReset', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('submit handles errors correctly', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/sanctum/csrf-cookie').respondWith({
+      status: 200
+    });
+    let request = mockAxios.request('/api/v1/password/reset');
 
     const view = mount(PasswordReset, {
       localVue,
@@ -35,10 +35,10 @@ describe('PasswordReset', () => {
     });
 
     view.findComponent(BButton).trigger('submit');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         errors: {
           password: ['Error Password'],
           password_confirmation: ['Error Password Confirmation'],
@@ -53,11 +53,16 @@ describe('PasswordReset', () => {
     expect(feedBacks.at(2).html()).toContain('Error Email');
     expect(feedBacks.at(3).html()).toContain('Error Token');
 
+    mockAxios.request('/sanctum/csrf-cookie').respondWith({
+      status: 200
+    });
+    request = mockAxios.request('/api/v1/password/reset');
+
     view.findComponent(BButton).trigger('submit');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -71,6 +76,9 @@ describe('PasswordReset', () => {
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
     const toastSuccessSpy = vi.fn();
+
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+    const request = mockAxios.request('/api/v1/password/reset');
 
     const view = mount(PasswordReset, {
       localVue,
@@ -93,21 +101,27 @@ describe('PasswordReset', () => {
     await inputs.at(1).setValue('Test123');
     await view.findComponent(BButton).trigger('submit');
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await csrfRequest.wait();
+
+    document.cookie = 'XSRF-TOKEN=test-csrf';
+
+    await csrfRequest.respondWith({
       status: 200
     });
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+
+    await request.wait();
+    expect(request.config.headers['X-XSRF-TOKEN']).toBe('test-csrf');
     const data = JSON.parse(request.config.data);
     expect(data.email).toBe('foo@bar.com');
     expect(data.token).toBe('Test123');
     expect(data.password).toBe('Test123');
     expect(data.password_confirmation).toBe('Test123');
 
+    const currentUserRequest = mockAxios.request('/api/v1/currentUser');
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         message: 'Success!'
       }
     });
@@ -115,12 +129,10 @@ describe('PasswordReset', () => {
     expect(toastSuccessSpy).toBeCalledTimes(1);
     expect(toastSuccessSpy).toBeCalledWith('Success!');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/currentUser');
-    await request.respondWith({
+    await currentUserRequest.wait();
+    await currentUserRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 1,
           authenticator: 'external',

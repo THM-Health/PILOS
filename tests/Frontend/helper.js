@@ -11,6 +11,9 @@ function createLocalVue () {
   return localVue;
 }
 
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
 const mockAxios = new MockAdapter(axios);
 /**
  * Various helper functions for testing
@@ -39,7 +42,7 @@ module.exports = {
 
       const request = {
         config: null,
-        respondWith: function ({ status, data, header }) {
+        respondWith: function ({ status, data, header = {} }) {
           resolvers.response([status, data, header]);
           return new Promise(resolve => setTimeout(resolve));
         },
@@ -47,6 +50,13 @@ module.exports = {
       };
 
       mockAxios.onAny(url, params).replyOnce(function (config) {
+        // Add xsrf header
+        const xsrfValue = document.cookie.split('; ').find((row) => row.startsWith(config.xsrfCookieName))?.split('=')[1];
+
+        if (config.withCredentials && config.xsrfCookieName && xsrfValue) {
+          config.headers[config.xsrfHeaderName] = xsrfValue;
+        }
+
         request.config = config;
         resolvers.request();
         return promises.response;
