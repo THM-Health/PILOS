@@ -1,6 +1,6 @@
 import Index from '../../../../resources/js/views/meetings/Index.vue';
 import { mount } from '@vue/test-utils';
-import moxios from 'moxios';
+
 import BootstrapVue, {
   BTr,
   BTbody, BButton, BPagination, BFormInput, BOverlay, BThead, BTh
@@ -8,7 +8,8 @@ import BootstrapVue, {
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VueRouter from 'vue-router';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
+import { expect } from 'vitest';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -75,15 +76,13 @@ const exampleUser = {
 
 describe('MeetingsIndex', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
     PermissionService.setCurrentUser(exampleUser);
   });
 
-  afterEach(() => {
-    moxios.uninstall();
-  });
-
   it('list of meetings with pagination gets displayed', async () => {
+    let request = mockAxios.request('/api/v1/meetings');
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -93,7 +92,7 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     // test if table is busy, pagination disabled and search disabled during loading
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
     expect(view.vm.$data.isBusy).toBeTruthy();
@@ -102,10 +101,11 @@ describe('MeetingsIndex', () => {
     expect(pagination.props('disabled')).toBeTruthy();
     expect(view.findComponent(BButton).attributes('disabled')).toBe('disabled');
 
-    let request = moxios.requests.mostRecent();
+    expect(request.config.params.page).toBe(1);
+
     await request.respondWith({
       status: 200,
-      response: defaultResponse
+      data: defaultResponse
     });
 
     await view.vm.$nextTick();
@@ -139,17 +139,18 @@ describe('MeetingsIndex', () => {
     expect(paginationButtons.at(4).find('button').exists()).toBeTruthy();
     expect(paginationButtons.at(5).find('button').exists()).toBeTruthy();
 
+    request = mockAxios.request('/api/v1/meetings');
+
     // test pagination navigation
     await paginationButtons.at(3).find('button').trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     expect(pagination.props('disabled')).toBeTruthy();
 
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/meetings?page=2');
+    expect(request.config.params.page).toBe(2);
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '64b0f3b5-7409-4682-9d15-2cafb34eb283',
@@ -235,9 +236,9 @@ describe('MeetingsIndex', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for meetings load
-    moxios.stubRequest('/api/v1/meetings?page=1', {
+    mockAxios.request('/api/v1/meetings').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -251,7 +252,7 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check buttons and input fields are disabled after an error occurred
@@ -262,30 +263,35 @@ describe('MeetingsIndex', () => {
     // check if error message is shown
     expect(spy).toBeCalledTimes(1);
 
-    // restore valid response
-    const restoreMeetingsResponse = overrideStub('/api/v1/meetings?page=1', {
-      status: 200,
-      response: defaultResponse
-    });
+    const request = mockAxios.request('/api/v1/meetings');
 
     // check if reload button is shown and if a click reloads the resource
     const reloadButton = view.findComponent(BOverlay).findComponent(BButton);
     expect(reloadButton.text()).toEqual('app.reload');
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
+    await request.wait();
+
+    // restore valid response
+    await request.respondWith({
+      status: 200,
+      data: defaultResponse
+    });
 
     // check if buttons/input fields are active
     expect(view.findComponent(BFormInput).props('disabled')).toBeFalsy();
     expect(view.findComponent(BPagination).props('disabled')).toBeFalsy();
     expect(view.findComponent(BButton).attributes('disabled')).toBeUndefined();
 
-    restoreMeetingsResponse();
     view.destroy();
   });
 
   it('search', async () => {
+    mockAxios.request('/api/v1/meetings').respondWith({
+      status: 200,
+      data: defaultResponse
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -295,26 +301,23 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 200,
-      response: defaultResponse
-    });
-
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // enter new search string and click search button
     await view.findComponent(BFormInput).setValue('Meeting One');
+
+    const request = mockAxios.request('/api/v1/meetings');
+
     await view.findComponent(BFormInput).trigger('change');
 
     // check if new request with the search query is send
-    await waitMoxios();
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting One' });
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    expect(request.config.url).toEqual('/api/v1/meetings');
+    expect(request.config.params).toEqual({ page: 1, search: 'Meeting One' });
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '34d0b4eb-0de9-4bd4-b158-a8edc0f71674',
@@ -353,6 +356,11 @@ describe('MeetingsIndex', () => {
   });
 
   it('sort', async () => {
+    mockAxios.request('/api/v1/meetings').respondWith({
+      status: 200,
+      data: defaultResponse
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -362,26 +370,23 @@ describe('MeetingsIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 200,
-      response: defaultResponse
-    });
-
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // select first table column and sort by clicking
     const heading = view.findComponent(BThead).findAllComponents(BTh);
+
+    const request = mockAxios.request('/api/v1/meetings');
+
     await heading.at(0).trigger('click');
     await view.vm.$nextTick();
-    await waitMoxios();
+    await request.wait();
     // check if request includes sort column and direction
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/meetings');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, sort_by: 'start', sort_direction: 'asc' });
-    await moxios.requests.mostRecent().respondWith({
+    expect(request.config.url).toEqual('/api/v1/meetings');
+    expect(request.config.params).toEqual({ page: 1, sort_by: 'start', sort_direction: 'asc' });
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '5866d99e-ea44-4221-afa8-54f397ab07c8',

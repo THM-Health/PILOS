@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BAlert, BButton, BFormCheckbox } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import AdminTabsComponent from '../../../../resources/js/components/Room/AdminTabsComponent.vue';
 import TabsComponent from '../../../../resources/js/components/Room/TabsComponent.vue';
@@ -12,7 +12,7 @@ import _ from 'lodash';
 import env from '../../../../resources/js/env';
 
 import i18n from '../../../../resources/js/i18n';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
@@ -41,16 +41,13 @@ const initialState = { auth: { currentUser: exampleUser }, settings: { settings:
 describe('Room', () => {
   beforeEach(() => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('guest forbidden', async () => {
-    moxios.stubRequest('/api/v1/rooms/abc-def-123', {
+    mockAxios.request('/api/v1/rooms/abc-def-123').respondWith({
       status: 403,
-      response: {
+      data: {
         message: 'guests_not_allowed'
       }
     });
@@ -84,12 +81,11 @@ describe('Room', () => {
 
     expect(tryAgain.html()).toContain('rooms.try_again');
 
+    const request = mockAxios.request('/api/v1/rooms/abc-def-123');
+
     await tryAgain.trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/rooms/abc-def-123');
-    await view.vm.$nextTick();
+    await request.wait();
 
     view.destroy();
   });
@@ -98,10 +94,25 @@ describe('Room', () => {
     const router = new VueRouter();
     vi.spyOn(router, 'push').mockImplementation(() => {});
 
+    let request = mockAxios.request('/api/v1/rooms/abc-def-123');
+
+    const tabsComponentReloadSpy = vi.fn();
+    const tabsComponent = {
+      name: 'test-component',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: tabsComponentReloadSpy
+      }
+    };
+
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'tabs-component': tabsComponent
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
@@ -126,14 +137,11 @@ describe('Room', () => {
     });
 
     // wait for the request from the beforeRouteEnter hook in the RoomView
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
-    expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    await request.respondWith({
       status: 200,
-      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
+      data: { data: { id: 'abc-def-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'John Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
     });
 
     // wait for promise to be resolved (room data is loaded)
@@ -150,18 +158,20 @@ describe('Room', () => {
 
     // reload page
     const reloadButton = view.findComponent({ ref: 'reloadButton' });
+
+    request = mockAxios.request('/api/v1/rooms/abc-def-123');
+
     await reloadButton.trigger('click');
 
     // respond with different name (room owner changed the name of the personalized room link in the meantime)
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
-    expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    await request.respondWith({
       status: 200,
-      response: { data: { id: 'abc-def-456', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'Peter Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
+      data: { data: { id: 'abc-def-123', name: 'Meeting One', owner: { id: 2, name: 'Max Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, username: 'Peter Doe', allow_membership: false, is_member: false, is_co_owner: false, is_moderator: false, can_start: false, running: false, current_user: null } }
     });
+
+    await mockAxios.wait();
 
     // check if ui reflects the change
     await view.vm.$nextTick();
@@ -174,10 +184,25 @@ describe('Room', () => {
     const router = new VueRouter();
     vi.spyOn(router, 'push').mockImplementation(() => {});
 
+    const tabsComponentReloadSpy = vi.fn();
+    const tabsComponent = {
+      name: 'test-component',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: tabsComponentReloadSpy
+      }
+    };
+
+    const request = mockAxios.request('/api/v1/rooms/abc-def-123');
+
     const view = mount(RoomView, {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'tabs-component': tabsComponent
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router,
@@ -202,14 +227,11 @@ describe('Room', () => {
     });
 
     // wait for the request from the beforeRouteEnter hook in the RoomView
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
-    expect(request.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    await request.respondWith({
       status: 401,
-      response: { message: 'invalid_token' }
+      data: { message: 'invalid_token' }
     });
 
     // wait for promise to be resolved (room data is loaded)
@@ -261,6 +283,8 @@ describe('Room', () => {
   });
 
   it('room not found', async () => {
+    const request = mockAxios.request('/api/v1/rooms/abc-def-123');
+
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -280,13 +304,10 @@ describe('Room', () => {
     });
 
     // wait for the request from the beforeRouteEnter hook in the RoomView
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-123');
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'No query results for model [App\\Room] abc-def-123'
       }
     });
@@ -299,7 +320,7 @@ describe('Room', () => {
   });
 
   it('error beforeRouteEnter', async () => {
-    moxios.stubRequest('/api/v1/rooms/abc-def-456', {
+    mockAxios.request('/api/v1/rooms/abc-def-456').respondWith({
       status: env.HTTP_SERVICE_UNAVAILABLE
     });
 
@@ -591,6 +612,9 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
+      stubs: {
+        'admin-tabs-component': true
+      },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
@@ -640,6 +664,9 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
+      stubs: {
+        'admin-tabs-component': true
+      },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
       attachTo: createContainer(),
@@ -687,6 +714,9 @@ describe('Room', () => {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'admin-tabs-component': true
       },
       pinia: createTestingPinia({ initialState: _.cloneDeep(initialState), stubActions: false }),
       router: routerMock,
@@ -738,6 +768,8 @@ describe('Room', () => {
     const handleGuestsNotAllowed = vi.spyOn(RoomView.methods, 'handleGuestsNotAllowed').mockImplementation(() => {});
     const handleInvalidToken = vi.spyOn(RoomView.methods, 'handleInvalidToken').mockImplementation(() => {});
 
+    let request = mockAxios.request('/api/v1/rooms/cba-fed-234');
+
     const view = mount(RoomView, {
       localVue,
       mocks: {
@@ -764,48 +796,49 @@ describe('Room', () => {
     // Test reload with changes of the room data
     const reloadButton = view.findComponent({ ref: 'reloadButton' });
     await reloadButton.trigger('click');
-    await waitMoxios();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-234');
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 200,
-      response: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: false, is_moderator: true, can_start: true, running: false, access_code: 123456789, current_user: exampleUser } }
+      data: { data: { id: 'cba-fed-234', name: 'Meeting Two', owner: { id: 1, name: 'John Doe' }, type: { id: 2, short: 'ME', description: 'Meeting', color: '#4a5c66', default: false }, model_name: 'Room', authenticated: true, allow_membership: false, is_member: true, is_co_owner: false, is_moderator: true, can_start: true, running: false, access_code: 123456789, current_user: exampleUser } }
     });
     expect(view.html()).toContain('Meeting Two');
 
     // Test reload with access code now invalid, changed in the meantime
+    request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 401,
-      response: { message: 'invalid_code' }
+      data: { message: 'invalid_code' }
     });
     expect(handleInvalidCode).toBeCalledTimes(1);
 
     // Test reload with personalized room token now invalid, deleted/expired in the meantime
+    request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 401,
-      response: { message: 'invalid_token' }
+      data: { message: 'invalid_token' }
     });
     expect(handleInvalidToken).toBeCalledTimes(1);
 
     // Test reload with changed access policy, now guests are not allowed anymore
+    request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 403,
-      response: { message: 'guests_not_allowed' }
+      data: { message: 'guests_not_allowed' }
     });
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
     // Test reload with some server errors
+    request = mockAxios.request('/api/v1/rooms/cba-fed-234');
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 500,
       data: { message: 'Internal server error' }
     });
@@ -915,23 +948,27 @@ describe('Room', () => {
     expect(view.html()).toContain('rooms.require_access_code');
 
     // reinstall moxios to disable stub
-    moxios.uninstall();
-    moxios.install();
+
+    mockAxios.reset();
 
     // click on the login button without input to access code field
     const loginButton = view.findAllComponents(BButton).at(1);
     expect(loginButton.text()).toBe('rooms.login');
+
+    const request = mockAxios.request('/api/v1/rooms/abc-def-456');
+
     await loginButton.trigger('click');
 
     // check if request is send to server with empty access code
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/rooms/abc-def-456');
+    await request.wait();
     expect(request.config.headers['Access-Code']).toBe('');
+
+    const autoReloadRequest = mockAxios.request('/api/v1/rooms/abc-def-456');
+
     // respond with invalid access code error message
     await request.respondWith({
       status: 401,
-      response: { message: 'invalid_code' }
+      data: { message: 'invalid_code' }
     });
     await view.vm.$nextTick();
     // check if internal access code is reset and error is shown
@@ -941,13 +978,11 @@ describe('Room', () => {
     expect(toastErrorSpy.mock.calls[0][0]).toBe('rooms.flash.access_code_invalid');
 
     // check if room is reloaded without access code
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/rooms/abc-def-456');
-    expect(request.config.headers['Access-Code']).toBeUndefined();
-    await request.respondWith({
+    await autoReloadRequest.wait();
+    expect(autoReloadRequest.config.headers['Access-Code']).toBeUndefined();
+    await autoReloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 'abc-def-456',
           name: 'Meeting One',
@@ -1055,20 +1090,19 @@ describe('Room', () => {
 
     expect(joinButton.attributes('disabled')).toBeUndefined();
 
+    const joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     await joinButton.trigger('click');
     await view.vm.$nextTick();
 
     expect(joinButton.attributes('disabled')).toEqual('disabled');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1127,17 +1161,17 @@ describe('Room', () => {
 
     const joinButton = view.findComponent({ ref: 'joinMeeting' });
     await view.vm.$nextTick();
+
+    const joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     await joinButton.trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 1 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1202,19 +1236,19 @@ describe('Room', () => {
     expect(joinButton.attributes('disabled')).toBeUndefined();
 
     await view.vm.$nextTick();
+
+    let joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     await joinButton.trigger('click');
 
     // Check with invalid chars in guest name
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
     // respond with validation errors
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: { name: ['The name contains the following non-permitted characters: 123!'] }
       }
@@ -1229,21 +1263,21 @@ describe('Room', () => {
     // Check with valid name
     nameInput.setValue('John Doe');
     await view.vm.$nextTick();
+
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     await joinButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
 
     // check if errors are removed on new request
     expect(nameGroup.classes()).not.toContain('is-invalid');
     expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
 
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1307,20 +1341,18 @@ describe('Room', () => {
     expect(joinButton.attributes('disabled')).toBeUndefined();
 
     await view.vm.$nextTick();
+    let joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
 
     // Check with invalid chars in guest name
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.headers['Access-Code']).toBe('905992606');
-    expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
+    await joinRequest.wait();
+    expect(joinRequest.config.headers['Access-Code']).toBe('905992606');
+    expect(joinRequest.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
     // respond with validation errors
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: { name: ['The name contains the following non-permitted characters: 123!'] }
       }
@@ -1335,22 +1367,20 @@ describe('Room', () => {
     // Check with valid name
     nameInput.setValue('John Doe');
     await view.vm.$nextTick();
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.headers['Access-Code']).toBe('905992606');
-    expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+    await joinRequest.wait();
+    expect(joinRequest.config.headers['Access-Code']).toBe('905992606');
+    expect(joinRequest.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
 
     // check if errors are removed on new request
     expect(nameGroup.classes()).not.toContain('is-invalid');
     expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
 
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1411,19 +1441,18 @@ describe('Room', () => {
     expect(nameInput.attributes('disabled')).toBe('disabled');
     expect(nameInput.element.value).toBe('John Doe');
 
+    const joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     await joinButton.trigger('click');
 
     // Check with invalid chars in guest name
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-    expect(request.config.params).toEqual({ name: null, record_attendance: 0 });
+    await joinRequest.wait();
+    expect(joinRequest.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    expect(joinRequest.config.params).toEqual({ name: null, record_attendance: 0 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1476,73 +1505,64 @@ describe('Room', () => {
     let joinButton = view.findComponent({ ref: 'joinMeeting' });
     expect(joinButton.attributes('disabled')).toBeUndefined();
 
+    let joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     // Test guests not allowed
     await joinButton.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await joinRequest.respondWith({
       status: 403,
-      response: { message: 'guests_not_allowed' }
+      data: { message: 'guests_not_allowed' }
     });
     await view.vm.$nextTick();
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
     // Test invalid access token
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await joinRequest.respondWith({
       status: 401,
-      response: { message: 'invalid_code' }
+      data: { message: 'invalid_code' }
     });
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(1);
 
     // Test invalid access token
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await joinRequest.respondWith({
       status: 403,
-      response: { message: 'require_code' }
+      data: { message: 'require_code' }
     });
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(2);
 
     // Test invalid token
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     await joinButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await joinRequest.respondWith({
       status: 401,
-      response: { message: 'invalid_token' }
+      data: { message: 'invalid_token' }
     });
     await view.vm.$nextTick();
     expect(handleInvalidToken).toBeCalledTimes(1);
 
     // Test without required recording agreement
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
     expect(view.findComponent({ ref: 'recordingAttendanceInfo' }).exists()).toBeFalsy();
     await joinButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await joinRequest.respondWith({
       status: 470,
-      response: {
+      data: {
         message: 'Consent to record attendance is required.'
       }
     });
@@ -1558,17 +1578,17 @@ describe('Room', () => {
 
     joinButton = view.findComponent({ ref: 'joinMeeting' });
     expect(joinButton.attributes('disabled')).toBeUndefined();
+
+    joinRequest = mockAxios.request('/api/v1/rooms/abc-def-789/join');
+
     await joinButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/join');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
+    await joinRequest.wait();
+    expect(joinRequest.config.params).toEqual({ name: '', record_attendance: 1 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await joinRequest.respondWith({
       status: 460,
-      response: {
+      data: {
         message: 'Joining failed! The room is currently closed.'
       }
     });
@@ -1627,20 +1647,19 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(startButton.attributes('disabled')).toBeUndefined();
 
+    const startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
+
     await startButton.trigger('click');
     await view.vm.$nextTick();
 
     expect(startButton.attributes('disabled')).toEqual('disabled');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1698,18 +1717,18 @@ describe('Room', () => {
     await agreementCheckbox.get('input').trigger('click');
 
     const startButton = view.findComponent({ ref: 'startMeeting' });
+
+    const startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
+
     await view.vm.$nextTick();
     await startButton.trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 1 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1772,20 +1791,19 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(startButton.attributes('disabled')).toBeUndefined();
 
+    let startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
+
     await view.vm.$nextTick();
     await startButton.trigger('click');
 
     // Check with invalid chars in name
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: 'John Doe 123!', record_attendance: 1 });
 
     // respond with validation errors
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: { name: ['The name contains the following non-permitted characters: 123!'] }
       }
@@ -1800,21 +1818,19 @@ describe('Room', () => {
     // try without invalid chars
     nameInput.setValue('John Doe');
     await view.vm.$nextTick();
+    startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: 'John Doe', record_attendance: 1 });
 
     // check if errors are removed on new request
     expect(nameGroup.classes()).not.toContain('is-invalid');
     expect(nameGroup.text()).not.toContain('The name contains the following non-permitted characters: 123!');
 
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -1884,74 +1900,62 @@ describe('Room', () => {
     expect(startButton.attributes('disabled')).toBeUndefined();
 
     // Test guests not allowed
+    let startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.respondWith({
       status: 403,
-      response: { message: 'guests_not_allowed' }
+      data: { message: 'guests_not_allowed' }
     });
     await view.vm.$nextTick();
 
     expect(handleGuestsNotAllowed).toBeCalledTimes(1);
 
     // Test invalid access token
+    startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.respondWith({
       status: 401,
-      response: { message: 'invalid_code' }
+      data: { message: 'invalid_code' }
     });
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(1);
 
     // Test access token required
+    startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.respondWith({
       status: 403,
-      response: { message: 'require_code' }
+      data: { message: 'require_code' }
     });
     await view.vm.$nextTick();
     expect(handleInvalidCode).toBeCalledTimes(2);
 
     // Test invalid token
+    startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.respondWith({
       status: 401,
-      response: { message: 'invalid_token' }
+      data: { message: 'invalid_token' }
     });
 
     await view.vm.$nextTick();
     expect(handleInvalidToken).toBeCalledTimes(1);
 
+    startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
-
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.respondWith({
       status: 470,
-      response: {
+      data: {
         message: 'Consent to record attendance is required.'
       }
     });
@@ -1969,17 +1973,17 @@ describe('Room', () => {
     startButton = view.findComponent({ ref: 'startMeeting' });
     expect(startButton.exists()).toBeTruthy();
     expect(startButton.attributes('disabled')).toBeUndefined();
+
+    startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
     await startButton.trigger('click');
+    await startRequest.wait();
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 1 });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 1 });
+    const reloadRequest = mockAxios.request('/api/v1/rooms/abc-def-789');
 
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 403,
-      response: {
+      data: {
         message: 'This action is unauthorized.'
       }
     });
@@ -1989,14 +1993,10 @@ describe('Room', () => {
 
     expect(view.findComponent({ ref: 'startMeeting' }).exists()).toBeFalsy();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789');
-
-    await moxios.requests.mostRecent().respondWith({
+    await reloadRequest.wait();
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 'abc-def-789',
           name: 'Meeting One',
@@ -2067,21 +2067,20 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(startButton.attributes('disabled')).toBeUndefined();
 
+    const startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
+
     await startButton.trigger('click');
     await view.vm.$nextTick();
 
     expect(startButton.attributes('disabled')).toEqual('disabled');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.headers['Access-Code']).toBe('905992606');
-    expect(request.config.params).toEqual({ name: '', record_attendance: 0 });
+    await startRequest.wait();
+    expect(startRequest.config.headers['Access-Code']).toBe('905992606');
+    expect(startRequest.config.params).toEqual({ name: '', record_attendance: 0 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -2141,21 +2140,20 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(startButton.attributes('disabled')).toBeUndefined();
 
+    const startRequest = mockAxios.request('/api/v1/rooms/abc-def-789/start');
+
     await startButton.trigger('click');
     await view.vm.$nextTick();
 
     expect(startButton.attributes('disabled')).toEqual('disabled');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/abc-def-789/start');
-    expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-    expect(request.config.params).toEqual({ name: null, record_attendance: 0 });
+    await startRequest.wait();
+    expect(startRequest.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
+    expect(startRequest.config.params).toEqual({ name: null, record_attendance: 0 });
 
-    await moxios.requests.mostRecent().respondWith({
+    await startRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'test.tld'
       }
     });
@@ -2170,15 +2168,14 @@ describe('Room', () => {
   });
 
   it('end membership', async () => {
-    moxios.stubRequest('/api/v1/rooms/cba-fed-123/files', {
-      status: 200,
-      response: {
-        data: {
-          files: [],
-          default: null
-        }
+    const tabsComponent = {
+      name: 'test-component',
+      // eslint-disable @intlify/vue-i18n/no-raw-text
+      template: '<p>test</p>',
+      methods: {
+        reload: vi.fn()
       }
-    });
+    };
 
     const view = mount(RoomView, {
       localVue,
@@ -2191,6 +2188,7 @@ describe('Room', () => {
         modalStatic: true
       },
       stubs: {
+        'tabs-component': tabsComponent,
         transition: false
       },
       data () {
@@ -2236,6 +2234,8 @@ describe('Room', () => {
     const leaveConfirmButton = leaveMembershipModal.findAllComponents(BButton).at(1);
     expect(leaveConfirmButton.text()).toBe('rooms.end_membership.yes');
 
+    const leaveRequest = mockAxios.request('/api/v1/rooms/cba-fed-123/membership');
+
     await waitModalHidden(view, () => {
       leaveConfirmButton.trigger('click');
     });
@@ -2246,27 +2246,24 @@ describe('Room', () => {
     expect(leaveMembershipModal.vm.$data.isVisible).toBe(false);
 
     // Check leave membership request
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-123/membership');
+    await leaveRequest.wait();
+    expect(leaveRequest.config.method).toEqual('delete');
+
+    const reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-123');
 
     // Respond to leave membership request
-    await moxios.requests.mostRecent().respondWith({
+    await leaveRequest.respondWith({
       status: 204,
-      response: {}
+      data: {}
     });
 
     // response for room reload, now with the user not beeing a member anymore
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-123');
+    await reloadRequest.wait();
 
     // Respond to leave membership request
-    await moxios.requests.mostRecent().respondWith({
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 'cba-fed-123',
           name: 'Meeting One',
@@ -2298,6 +2295,9 @@ describe('Room', () => {
       mocks: {
         $t: (key) => key
       },
+      stubs: {
+        'admin-tabs-component': true
+      },
       data () {
         return {
           room: {
@@ -2327,16 +2327,15 @@ describe('Room', () => {
     await view.vm.$nextTick();
     expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
 
+    let reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
+
     const reloadButton = view.findComponent({ ref: 'reloadButton' });
     reloadButton.trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/rooms/cba-fed-234');
-    await moxios.requests.mostRecent().respondWith({
+    await reloadRequest.wait();
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 'cba-fed-234',
           name: 'Meeting One',
@@ -2362,11 +2361,13 @@ describe('Room', () => {
 
     expect(authStore.isAuthenticated).toBeFalsy();
 
+    reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
+
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await reloadRequest.wait();
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 'cba-fed-234',
           name: 'Meeting One',
@@ -2389,11 +2390,13 @@ describe('Room', () => {
     expect(authStore.isAuthenticated).toBeTruthy();
     expect(view.findComponent(AdminTabsComponent).exists()).toBeTruthy();
 
+    reloadRequest = mockAxios.request('/api/v1/rooms/cba-fed-234');
+
     await reloadButton.trigger('click');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await reloadRequest.wait();
+    await reloadRequest.respondWith({
       status: 403,
-      response: { message: 'guests_not_allowed' }
+      data: { message: 'guests_not_allowed' }
     });
 
     expect(view.findComponent(AdminTabsComponent).exists()).toBeFalsy();
@@ -2406,6 +2409,9 @@ describe('Room', () => {
       localVue,
       mocks: {
         $t: (key) => key
+      },
+      stubs: {
+        'admin-tabs-component': true
       },
       data () {
         return {

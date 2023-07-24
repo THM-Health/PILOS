@@ -8,12 +8,12 @@ import {
   BPagination,
   BSpinner
 } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import VueRouter from 'vue-router';
 import _ from 'lodash';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import RoomStatusComponent from '../../../../resources/js/components/Room/RoomStatusComponent.vue';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -26,11 +26,7 @@ const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', p
 
 describe('Room Index', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   const exampleRoomResponse = {
@@ -120,6 +116,9 @@ describe('Room Index', () => {
     const router = new VueRouter();
     router.push = spy;
 
+    const roomRequest = mockAxios.request('/api/v1/rooms');
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+
     const view = mount(RoomList, {
       localVue,
       mocks: {
@@ -130,7 +129,8 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await roomRequest.wait();
+
     // check if spinners are active and buttons disabled during loading
     expect(view.vm.$data.isBusy).toBeTruthy();
     expect(view.vm.$data.roomTypesBusy).toBeTruthy();
@@ -141,16 +141,16 @@ describe('Room Index', () => {
     expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeTruthy();
 
     // respond with example data to room and roomType requests
-    expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
-    await moxios.requests.at(0).respondWith({
+    await roomRequest.respondWith({
       status: 200,
-      response: exampleRoomResponse
+      data: exampleRoomResponse
     });
-    expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
-    await moxios.requests.at(1).respondWith({
+
+    await roomTypeRequest.respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
+    await roomTypeRequest.wait();
 
     // check if spinners are disabled and buttons active
     await view.vm.$nextTick();
@@ -202,15 +202,15 @@ describe('Room Index', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for room load
-    moxios.stubRequest('/api/v1/rooms?page=1', {
+    mockAxios.request('/api/v1/rooms').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
-    moxios.stubRequest('/api/v1/roomTypes?filter=searchable', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomList, {
@@ -222,7 +222,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check buttons and input fields are disabled after an error occurred
@@ -235,19 +235,19 @@ describe('Room Index', () => {
     // check if error message is shown
     expect(spy).toBeCalledTimes(1);
 
-    // restore valid response
-    const restoreRoomResponse = overrideStub('/api/v1/rooms?page=1', {
-      status: 200,
-      response: exampleRoomResponse
-    });
+    const request = mockAxios.request('/api/v1/rooms');
 
     // check if reload button is shown and if a click reloads the resource
     const reloadButton = view.findAllComponents(BCol).at(3).findComponent(BOverlay).findComponent(BButton);
     expect(reloadButton.text()).toEqual('app.reload');
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
+    await request.wait();
+    // restore valid response
+    await request.respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
 
     // check if all rooms are shown and the buttons/input fields are active
     expect(view.findAllComponents(BListGroupItem).length).toEqual(2);
@@ -256,7 +256,6 @@ describe('Room Index', () => {
     expect(view.findAllComponents(BButton).at(0).attributes('disabled')).toBeFalsy();
     expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeFalsy();
 
-    restoreRoomResponse();
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
@@ -267,13 +266,13 @@ describe('Room Index', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     // respond with server error for room type load
-    moxios.stubRequest('/api/v1/rooms?page=1', {
+    mockAxios.request('/api/v1/rooms').respondWith({
       status: 200,
-      response: exampleRoomResponse
+      data: exampleRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes?filter=searchable', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -287,7 +286,7 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check apply filter button disabled after an error occurred
@@ -297,19 +296,16 @@ describe('Room Index', () => {
     // check if error message is shown
     expect(spy).toBeCalledTimes(1);
 
-    // restore valid response
-    const restoreRoomResponse = overrideStub('/api/v1/roomTypes?filter=searchable', {
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
+    const request = mockAxios.request('/api/v1/roomTypes');
 
     // check if reload button is shown and if a click reloads the resource
     const reloadButton = view.findAllComponents(BCol).at(2).findComponent(BOverlay).findComponent(BButton);
     expect(reloadButton.text()).toEqual('app.reload');
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/roomTypes');
+    await request.wait();
+    // restore valid response
+    await request.respondWith({ status: 200, data: exampleRoomTypeResponse });
 
     // check if all room types are shown and the apply filter button is active
     const roomTypes = view.findAll('[name="room-types-checkbox"]');
@@ -317,13 +313,22 @@ describe('Room Index', () => {
     expect(view.findAllComponents(BButton).at(1).text()).toEqual('rooms.filter.apply');
     expect(view.findAllComponents(BButton).at(1).attributes('disabled')).toBeFalsy();
 
-    restoreRoomResponse();
     PermissionService.setCurrentUser(oldUser);
     view.destroy();
   });
 
   it('search and filter rooms', async () => {
     const oldUser = PermissionService.currentUser;
+
+    mockAxios.request('/api/v1/rooms').respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
 
     const view = mount(RoomList, {
       localVue,
@@ -334,32 +339,22 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    // respond with demo content to the rooms and roomTypes requests
-    expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
-    await moxios.requests.at(0).respondWith({
-      status: 200,
-      response: exampleRoomResponse
-    });
-    expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
-    await moxios.requests.at(1).respondWith({
-      status: 200,
-      response: exampleRoomTypeResponse
-    });
-
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // enter search query and click search button
     await view.findComponent(BFormInput).setValue('Meeting');
+
+    let request = mockAxios.request('/api/v1/rooms');
+
     await view.findAllComponents(BButton).trigger('click');
 
     // check if new request with the search query is send
-    await waitMoxios();
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', room_types: [] });
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    expect(request.config.params).toEqual({ page: 1, search: 'Meeting', room_types: [] });
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 'abc-def-123',
@@ -408,15 +403,17 @@ describe('Room Index', () => {
     // find apply filter button and click to apply filter
     const applyFilter = view.findAllComponents(BButton).at(1);
     expect(applyFilter.text()).toEqual('rooms.filter.apply');
+
+    request = mockAxios.request('/api/v1/rooms');
+
     await applyFilter.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     // check if the search query and the room filter are send, respond with no rooms found
-    expect(moxios.requests.mostRecent().config.url).toEqual('/api/v1/rooms');
-    expect(moxios.requests.mostRecent().config.params).toEqual({ page: 1, search: 'Meeting', room_types: [1, 3] });
-    await moxios.requests.mostRecent().respondWith({
+    expect(request.config.params).toEqual({ page: 1, search: 'Meeting', room_types: [1, 3] });
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -445,6 +442,9 @@ describe('Room Index', () => {
     newUser.permissions = ['rooms.viewAll'];
     PermissionService.setCurrentUser(newUser);
 
+    const roomRequest = mockAxios.request('/api/v1/rooms');
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+
     const view = mount(RoomList, {
       localVue,
       mocks: {
@@ -454,18 +454,18 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await roomRequest.wait();
     // respond with demo content to the rooms and roomTypes requests
-    expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
-    await moxios.requests.at(0).respondWith({
+    await roomRequest.respondWith({
       status: 200,
-      response: exampleRoomResponse
+      data: exampleRoomResponse
     });
-    expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
-    expect(moxios.requests.at(1).config.params).toBeUndefined();
-    await moxios.requests.at(1).respondWith({
+
+    await roomTypeRequest.wait();
+    expect(roomTypeRequest.config.params).toBeUndefined();
+    await roomRequest.respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     PermissionService.setCurrentUser(oldUser);
@@ -473,6 +473,9 @@ describe('Room Index', () => {
   });
 
   it('sends request to list all rooms if user has not rooms.viewAll permission', async () => {
+    const roomRequest = mockAxios.request('/api/v1/rooms');
+    const roomTypeRequest = mockAxios.request('/api/v1/roomTypes');
+
     const view = mount(RoomList, {
       localVue,
       mocks: {
@@ -482,16 +485,16 @@ describe('Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await roomRequest.wait();
     // respond with demo content to the rooms and roomTypes requests
-    expect(moxios.requests.at(0).config.url).toEqual('/api/v1/rooms');
-    await moxios.requests.at(0).respondWith({
+    await roomRequest.respondWith({
       status: 200,
-      response: exampleRoomResponse
+      data: exampleRoomResponse
     });
-    expect(moxios.requests.at(1).config.url).toEqual('/api/v1/roomTypes');
-    expect(moxios.requests.at(1).config.params).toStrictEqual({ filter: 'searchable' });
-    await moxios.requests.at(1).respondWith({
+
+    await roomTypeRequest.wait();
+    expect(roomTypeRequest.config.params).toStrictEqual({ filter: 'searchable' });
+    await roomTypeRequest.respondWith({
       status: 200,
       response: exampleRoomTypeResponse
     });
