@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import OtherSettingsComponent from '../../../../resources/js/components/User/OtherSettingsComponent.vue';
 import { BButton, BFormCheckbox } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import Base from '../../../../resources/js/api/base';
 
 const localVue = createLocalVue();
@@ -24,11 +24,7 @@ const user = {
 
 describe('OtherSettingComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('check admin view and edit normal user', async () => {
@@ -133,12 +129,13 @@ describe('OtherSettingComponent', () => {
     // Check buttons
     const button = wrapper.findComponent(BButton);
     expect(button.attributes('disabled')).toBeFalsy();
+
+    const request = mockAxios.request('/api/v1/users/2');
+
     await button.trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('post');
-    expect(request.config.url).toBe('/api/v1/users/2');
     expect(JSON.parse(request.config.data).bbb_skip_check_audio).toBeFalsy();
 
     // Check button and input disabled during request
@@ -149,13 +146,13 @@ describe('OtherSettingComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
 
     // Check if changes are emitted
-    expect(wrapper.emitted('updateUser')[0][0]).toBe(userAfterChanges);
+    expect(wrapper.emitted('updateUser')[0][0]).toStrictEqual(userAfterChanges);
     // Update user prop
     await wrapper.setProps({ user: userAfterChanges });
     await wrapper.vm.$nextTick();
@@ -193,12 +190,12 @@ describe('OtherSettingComponent', () => {
 
     // --- Check 404 error ---
 
+    let request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -209,10 +206,9 @@ describe('OtherSettingComponent', () => {
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
     // --- Check 428 error ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     const response = {
       error: 428,
       message: 'test',
@@ -221,7 +217,7 @@ describe('OtherSettingComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response
+      data: response
     });
 
     await wrapper.vm.$nextTick();
@@ -231,14 +227,13 @@ describe('OtherSettingComponent', () => {
     expect(wrapper.emitted().staleError[0]).toEqual([response]);
 
     // --- Check form validation error ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           bbb_skip_check_audio: ['The bbb skip check audio field is required.']
         }
@@ -252,17 +247,16 @@ describe('OtherSettingComponent', () => {
     expect(checkbox.props('state')).toBe(false);
 
     // --- Check other errors ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await button.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Reset form validation error shown on next request
     expect(checkbox.props('state')).toBeNull();
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

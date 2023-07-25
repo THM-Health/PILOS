@@ -1,10 +1,10 @@
 import { beforeEachRoute, routes } from '../../resources/js/router';
 import PermissionService from '../../resources/js/services/PermissionService';
-import moxios from 'moxios';
 import Base from '../../resources/js/api/base';
 import { createTestingPinia } from '@pinia/testing';
 import { useLoadingStore } from '../../resources/js/stores/loading';
 import { useAuthStore } from '../../resources/js/stores/auth';
+import { mockAxios } from './helper';
 
 const accessPermittedRolesView = routes.filter(route => route.path === '/settings')[0]
   .children.filter(route => route.name === 'settings.roles.view')[0].meta.accessPermitted;
@@ -33,11 +33,7 @@ const currentUser = { id: 1, firstname: 'Darth', lastname: 'Vader' };
 
 describe('Router', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   describe('beforeEachRoute', () => {
@@ -201,46 +197,40 @@ describe('Router', () => {
 
     it('for role update view returns true if user has necessary permissions and role is not a default role', async () => {
       const oldUser = PermissionService.currentUser;
-      const respond = function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 200,
-          response: {
-            data: {
-              id: 1,
-              default: true,
-              model_name: 'Role'
-            }
+      const response = {
+        status: 200,
+        data: {
+          data: {
+            id: 1,
+            default: true,
+            model_name: 'Role'
           }
-        });
+        }
       };
 
-      moxios.wait(respond);
+      mockAxios.request('/api/v1/roles/1').respondWith(response);
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
       PermissionService.setCurrentUser({ permissions: ['roles.update'] });
-      moxios.wait(respond);
+      mockAxios.request('/api/v1/roles/1').respondWith(response);
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
       PermissionService.setCurrentUser({ permissions: ['roles.update', 'settings.manage'] });
-      moxios.wait(respond);
+      mockAxios.request('/api/v1/roles/1').respondWith(response);
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        return request.respondWith({
-          status: 200,
-          response: {
-            data: {
-              id: 1,
-              default: false,
-              model_name: 'Role'
-            }
+      mockAxios.request('/api/v1/roles/1').respondWith({
+        status: 200,
+        data: {
+          data: {
+            id: 1,
+            default: false,
+            model_name: 'Role'
           }
-        });
+        }
       });
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(true);
@@ -251,14 +241,11 @@ describe('Router', () => {
     it('for role update view calls error handler returns false on error in request', async () => {
       const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-      moxios.wait(function () {
-        const request = moxios.requests.mostRecent();
-        request.respondWith({
-          status: 500,
-          response: {
-            message: 'Test'
-          }
-        });
+      mockAxios.request('/api/v1/roles/1').respondWith({
+        status: 500,
+        data: {
+          message: 'Test'
+        }
       });
 
       expect(await accessPermittedRolesView({ id: 1 }, {})).toBe(false);

@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 import FooterComponent from '../../../resources/js/components/FooterComponent.vue';
-import moxios from 'moxios';
 import VueRouter from 'vue-router';
 import RawText from '../../../resources/js/components/RawText.vue';
 import { PiniaVuePlugin } from 'pinia';
@@ -13,14 +12,6 @@ localVue.use(VueRouter);
 localVue.use(PiniaVuePlugin);
 
 describe('Footer Component', () => {
-  beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
-  });
-
   it('footer test with two urls, no version', async () => {
     const view = mount(FooterComponent, {
       localVue,

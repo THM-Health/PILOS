@@ -1,7 +1,7 @@
 import View from '../../../../../resources/js/views/settings/servers/View.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import moxios from 'moxios';
+
 import BootstrapVue, {
 
   BFormInput,
@@ -12,7 +12,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -24,7 +24,7 @@ describe('ServerView', () => {
   beforeEach(() => {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'servers.update', 'settings.manage'] });
-    moxios.install();
+    mockAxios.reset();
 
     const serverResponse = {
       data: {
@@ -46,15 +46,14 @@ describe('ServerView', () => {
       }
     };
 
-    moxios.stubRequest('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 200,
-      response: serverResponse
+      data: serverResponse
     });
   });
 
   afterEach(() => {
     PermissionService.setCurrentUser(oldUser);
-    moxios.uninstall();
   });
 
   it('input fields are disabled if the server is displayed in view mode', async () => {
@@ -70,7 +69,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(BFormRating).wrappers.every(input => input.vm.disabled)).toBe(true);
     expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.disabled)).toBe(true);
@@ -80,9 +79,10 @@ describe('ServerView', () => {
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -99,18 +99,39 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
 
-    restoreServerResponse();
+    mockAxios.request('/api/v1/servers/1').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 1,
+          name: 'Server 01',
+          description: 'Testserver 01',
+          base_url: 'https://localhost/bigbluebutton',
+          salt: '123456789',
+          strength: 1,
+          status: 1,
+          participant_count: 14,
+          listener_count: 7,
+          voice_participant_count: 7,
+          video_count: 7,
+          meeting_count: 3,
+          version: '2.4.5',
+          model_name: 'Server',
+          updated_at: '2020-12-21T13:43:21.000000Z'
+        }
+      }
+    });
 
     const reloadButton = view.findComponent({ ref: 'reloadServer' });
     expect(reloadButton.exists()).toBeTruthy();
     reloadButton.trigger('click');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
@@ -126,9 +147,10 @@ describe('ServerView', () => {
 
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -146,12 +168,11 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
 
-    restoreServerResponse();
     view.destroy();
   });
 
@@ -175,22 +196,23 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    await mockAxios.wait();
+
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.servers' });
-    restoreServerResponse();
+
     view.destroy();
   });
 
@@ -209,20 +231,19 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    await mockAxios.wait();
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
 
-    restoreServerResponse();
     view.destroy();
   });
 
@@ -245,11 +266,9 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const requestCount = moxios.requests.count();
-
+    await mockAxios.wait();
     await view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click');
-    expect(moxios.requests.count()).toBe(requestCount);
+
     expect(spy).toBeCalledTimes(1);
     view.destroy();
   });
@@ -273,7 +292,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     await view.findAllComponents(BFormInput).at(0).setValue('Server 01');
     await view.findAllComponents(BFormInput).at(1).setValue('Testserver 01');
@@ -282,11 +301,23 @@ describe('ServerView', () => {
     await view.findComponent(BFormRating).findAll('.b-rating-star').at(4).trigger('click');
     await view.findComponent(BFormCheckbox).find('input').setChecked();
 
+    const saveRequest = mockAxios.request('/api/v1/servers/1');
+
     view.findComponent(BForm).trigger('submit');
 
-    let restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    await saveRequest.wait();
+    const data = JSON.parse(saveRequest.config.data);
+
+    expect(data.name).toBe('Server 01');
+    expect(data.description).toBe('Testserver 01');
+    expect(data.base_url).toBe('http://localhost/bbb');
+    expect(data.salt).toBe('987654321');
+    expect(data.strength).toBe(5);
+    expect(data.disabled).toBe(true);
+
+    await saveRequest.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           name: ['Test name'],
@@ -299,17 +330,6 @@ describe('ServerView', () => {
       }
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    const data = JSON.parse(request.config.data);
-
-    expect(data.name).toBe('Server 01');
-    expect(data.description).toBe('Testserver 01');
-    expect(data.base_url).toBe('http://localhost/bbb');
-    expect(data.salt).toBe('987654321');
-    expect(data.strength).toBe(5);
-    expect(data.disabled).toBe(true);
-
     const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
     expect(feedback[0].html()).toContain('Test name');
     expect(feedback[1].html()).toContain('Test description');
@@ -318,16 +338,15 @@ describe('ServerView', () => {
     expect(feedback[4].html()).toContain('Test strength');
     expect(feedback[5].html()).toContain('Test disabled');
 
-    restoreServerResponse();
-    restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 204
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
-    restoreServerResponse();
+
     view.destroy();
   });
 
@@ -351,13 +370,13 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
-    let restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -366,24 +385,24 @@ describe('ServerView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-server-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
-    restoreServerResponse();
-    restoreServerResponse = overrideStub('/api/v1/servers/1', {
-      status: 204
-    });
+    const saveRequest = mockAxios.request('/api/v1/servers/1');
 
     staleModelModal.vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    const data = JSON.parse(request.config.data);
-
+    await saveRequest.wait();
+    const data = JSON.parse(saveRequest.config.data);
     expect(data.updated_at).toBe(newModel.updated_at);
+
+    await saveRequest.respondWith({
+      status: 204
+    });
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-    restoreServerResponse();
+
     view.destroy();
   });
 
@@ -401,14 +420,14 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
     newModel.name = 'Server 02';
 
-    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -417,12 +436,10 @@ describe('ServerView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-server-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
     expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Server 01');
-
-    restoreServerResponse();
 
     staleModelModal.vm.$refs['cancel-button'].click();
 
@@ -445,16 +462,16 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
     // response server online
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
 
-    let restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 1,
           name: 'Server 01',
@@ -477,17 +494,16 @@ describe('ServerView', () => {
 
     view.vm.load();
 
-    await waitMoxios();
     // response server offline
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeFalsy();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.offline');
 
-    restoreServerResponse();
-    restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 1,
           name: 'Server 01',
@@ -510,14 +526,13 @@ describe('ServerView', () => {
 
     view.vm.load();
 
-    await waitMoxios();
     // response server disabled
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BFormCheckbox).find('input').element.checked).toBeTruthy();
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.unknown');
 
-    restoreServerResponse();
     view.destroy();
   });
 
@@ -536,21 +551,21 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
+
+    let request = mockAxios.request('/api/v1/servers/check');
 
     // Check for invalid connection
     await view.findAllComponents(BButton).at(1).trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers/check');
+    await request.wait();
     expect(request.config.method).toBe('post');
     const data = JSON.parse(request.config.data);
     expect(data.base_url).toBe('https://localhost/bigbluebutton');
     expect(data.salt).toBe('123456789');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         connection_ok: false,
         salt_ok: false
       }
@@ -561,13 +576,14 @@ describe('ServerView', () => {
     expect(view.findAllComponents(BFormText).length).toBe(3);
     expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.connection');
 
+    request = mockAxios.request('/api/v1/servers/check');
+
     // check for invalid salt
     await view.findAllComponents(BButton).at(1).trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         connection_ok: true,
         salt_ok: false
       }
@@ -578,13 +594,14 @@ describe('ServerView', () => {
     expect(view.findAllComponents(BFormText).length).toBe(3);
     expect(view.findAllComponents(BFormText).at(2).html()).toContain('settings.servers.offline_reason.salt');
 
+    request = mockAxios.request('/api/v1/servers/check');
+
     // check for valid connection
     await view.findAllComponents(BButton).at(1).trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         connection_ok: true,
         salt_ok: true
       }
@@ -594,13 +611,14 @@ describe('ServerView', () => {
     expect(view.findAllComponents(BFormInput).at(5).element.value).toBe('settings.servers.online');
     expect(view.findAllComponents(BFormText).length).toBe(2);
 
+    request = mockAxios.request('/api/v1/servers/check');
+
     // check for response errors
     await view.findAllComponents(BButton).at(1).trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -627,16 +645,16 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
     await view.setProps({ viewOnly: true });
     expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(true);
     await view.setProps({ viewOnly: false });
 
-    const restoreServerResponse = overrideStub('/api/v1/servers/1', {
+    mockAxios.request('/api/v1/servers/1').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 1,
           name: 'Server 01',
@@ -658,13 +676,12 @@ describe('ServerView', () => {
     });
     view.vm.load();
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
     await view.setProps({ viewOnly: true });
     expect(view.findComponent({ ref: 'currentUsage' }).exists()).toBe(false);
 
-    restoreServerResponse();
     view.destroy();
   });
 
@@ -681,7 +698,7 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').exists()).toBe(true);
     PermissionService.setCurrentUser({ permissions: ['servers.view', 'servers.create', 'settings.manage'] });
@@ -708,26 +725,56 @@ describe('ServerView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     const button = view.findComponent({ ref: 'currentUsage' }).find('button');
+
+    let panicRequest = mockAxios.request('/api/v1/servers/1/panic');
+    const reloadRequest = mockAxios.request('/api/v1/servers/1');
+
     await button.trigger('click');
 
     expect(button.attributes('disabled')).toBe('disabled');
 
     // check success
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers/1/panic');
-    expect(request.config.method).toBe('get');
-    await request.respondWith({
+    await panicRequest.wait();
+    expect(panicRequest.config.method).toBe('get');
+    await panicRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         total: 5,
         success: 3
       }
     });
+
+    // check reload of server data
+    await reloadRequest.wait();
+    expect(reloadRequest.config.method).toBe('get');
+    await reloadRequest.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 1,
+          name: 'Server 01',
+          description: 'Testserver 01',
+          base_url: 'https://localhost/bigbluebutton',
+          salt: '123456789',
+          strength: 1,
+          status: 1,
+          participant_count: 14,
+          listener_count: 7,
+          voice_participant_count: 7,
+          video_count: 7,
+          meeting_count: 3,
+          version: '2.4.5',
+          model_name: 'Server',
+          updated_at: '2020-12-21T13:43:21.000000Z'
+        }
+      }
+    });
+
     await view.vm.$nextTick();
+
     expect(view.findComponent({ ref: 'currentUsage' }).find('button').attributes('disabled')).toBeUndefined();
 
     expect(toastSuccessSpy).toBeCalledTimes(1);
@@ -736,22 +783,15 @@ describe('ServerView', () => {
       'settings.servers.flash.panic.title'
     );
 
-    // check reload of server data
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers/1');
-    expect(request.config.method).toBe('get');
-    await view.vm.$nextTick();
-    await button.trigger('click');
-
     // check error handling
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers/1/panic');
-    expect(request.config.method).toBe('get');
-    await request.respondWith({
+    panicRequest = mockAxios.request('/api/v1/servers/1/panic');
+    await button.trigger('click');
+    await panicRequest.wait();
+    expect(panicRequest.config.url).toBe('/api/v1/servers/1/panic');
+    expect(panicRequest.config.method).toBe('get');
+    await panicRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });

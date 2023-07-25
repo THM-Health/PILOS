@@ -1,6 +1,5 @@
-import moxios from 'moxios';
 import i18n from '../../../resources/js/i18n';
-import { overrideStub, waitMoxios } from '../helper';
+import { mockAxios } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
 import PermissionService from '../../../resources/js/services/PermissionService';
@@ -8,12 +7,12 @@ import { useLoadingStore } from '../../../resources/js/stores/loading';
 
 describe('Auth Store', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
     setActivePinia(createPinia());
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('getCurrentUser and set i18n timezone', async () => {
@@ -33,9 +32,9 @@ describe('Auth Store', () => {
       timezone: 'Australia/Sydney'
     };
 
-    moxios.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -50,9 +49,10 @@ describe('Auth Store', () => {
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/13/2021, 05:09');
 
     user.timezone = 'Europe/Berlin';
-    const restoreCurrentUserResponse = overrideStub('/api/v1/currentUser', {
+
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -64,7 +64,6 @@ describe('Auth Store', () => {
     expect(PermissionServiceSpy).toBeCalledWith(user, true);
 
     expect(i18n.d(new Date('2021-02-12T18:09:29.000000Z'), 'datetimeShort')).toBe('02/12/2021, 19:09');
-    restoreCurrentUserResponse();
   });
 
   it('logout', async () => {
@@ -84,11 +83,13 @@ describe('Auth Store', () => {
       timezone: 'Australia/Sydney'
     };
 
+    const request = mockAxios.request('/api/v1/logout');
+
     auth.logout();
     expect(loading.loadingCounter).toBe(1);
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
+
     expect(request.config.method).toEqual('post');
     expect(request.config.url).toEqual('/api/v1/logout');
 

@@ -1,26 +1,25 @@
 import Index from '../../../../../resources/js/views/settings/roles/Index.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import moxios from 'moxios';
+
 import { BTr, BTbody, BButton, BModal, BButtonClose } from 'bootstrap-vue';
-import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 import Base from '../../../../../resources/js/api/base';
+import { expect } from 'vitest';
 
 const localVue = createLocalVue();
 
 describe('RolesIndex', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('list of roles with pagination gets displayed', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
+
+    let request = mockAxios.request('/api/v1/roles');
 
     const view = mount(Index, {
       localVue,
@@ -31,14 +30,12 @@ describe('RolesIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           name: 'Test',
@@ -59,15 +56,16 @@ describe('RolesIndex', () => {
     expect(html).toContain('app.no');
     expect(html).toContain('1');
 
+    request = mockAxios.request('/api/v1/roles');
+
     view.vm.$root.$emit('bv::refresh::table', 'roles-table');
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '2',
           name: 'admin',
@@ -94,11 +92,13 @@ describe('RolesIndex', () => {
   it('update and delete buttons only shown if user has the permission and the role is not system default', async () => {
     const oldUser = PermissionService.currentUser;
 
+    const request = mockAxios.request('/api/v1/roles');
+
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage'] });
 
     const response = {
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           name: 'Test',
@@ -127,8 +127,8 @@ describe('RolesIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await request.wait();
+    await request.respondWith(response);
     await view.vm.$nextTick();
 
     view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
@@ -151,6 +151,8 @@ describe('RolesIndex', () => {
   it('error handler gets called if an error occurs during loading of data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    const request = mockAxios.request('/api/v1/roles');
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -160,11 +162,10 @@ describe('RolesIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -180,9 +181,11 @@ describe('RolesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
 
+    let request = mockAxios.request('/api/v1/roles');
+
     const response = {
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           name: 'Test',
@@ -209,8 +212,8 @@ describe('RolesIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await request.wait();
+    await request.respondWith(response);
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -218,13 +221,37 @@ describe('RolesIndex', () => {
 
     await view.vm.$nextTick();
 
+    const deleteRequest = mockAxios.request('/api/v1/roles/1');
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     view.findComponent(BModal).vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({ status: 204 });
+    request = mockAxios.request('/api/v1/roles');
+
+    await deleteRequest.wait();
+    expect(deleteRequest.config.method).toEqual('delete');
+    await deleteRequest.respondWith({ status: 204 });
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
     expect(view.vm.$data.roleToDelete).toBeUndefined();
+
+    // Reload after delete
+    await request.wait();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 0
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
+    expect(view.findComponent(BTbody).text()).toContain('settings.roles.nodata');
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -235,9 +262,11 @@ describe('RolesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.delete'] });
 
+    const request = mockAxios.request('/api/v1/roles');
+
     const response = {
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           name: 'Test',
@@ -264,8 +293,8 @@ describe('RolesIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await request.wait();
+    await request.respondWith(response);
     await view.vm.$nextTick();
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
     expect(view.vm.$data.roleToDelete).toBeUndefined();
@@ -291,6 +320,8 @@ describe('RolesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['roles.viewAny', 'settings.manage', 'roles.create'] });
 
+    const request = mockAxios.request('/api/v1/roles');
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -300,11 +331,10 @@ describe('RolesIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           per_page: 2,

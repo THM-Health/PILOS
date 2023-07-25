@@ -4,14 +4,13 @@ import BootstrapVue, {
   BFormRadio, BFormTextarea, BListGroup, BListGroupItem
 
 } from 'bootstrap-vue';
-import moxios from 'moxios';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import {
   waitModalHidden,
   waitModalShown,
-  waitMoxios,
+  mockAxios,
   createContainer,
   createLocalVue,
   waitCollapseShown, waitCollapseHidden
@@ -32,10 +31,7 @@ const initialState = { auth: { currentUser: exampleUser } };
 
 describe('RoomMembersBulk', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('bulk import members with only valid users', async () => {
@@ -104,13 +100,13 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('LauraWRivera@domain.tld\nLauraMWalter@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
@@ -160,13 +156,13 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('TammyGLaw@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
@@ -234,26 +230,27 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('\n\n\nLauraWRivera@domain.tld\ntammyglaw@do  main  .tld\n\nnotAn\tE  ma il\ninvalidemail@domain.tld\n\n\n');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(4);
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           'user_emails.2': ['notanemail must be a valid email adress.'],
           'user_emails.3': ['No user was found with this e-mail']
         }
       }
     });
+    await mockAxios.wait();
 
     // check if modal shows correctly
     // check if lists show correctly
@@ -284,6 +281,7 @@ describe('RoomMembersBulk', () => {
     await waitCollapseShown(errorCollapse0, async () => {
       errorButton0.trigger('click');
     });
+
     expect(errorCollapse0.element.style.display).toEqual('');
     expect(errorCollapse0.text()).toBe('notanemail must be a valid email adress.');
 
@@ -300,13 +298,13 @@ describe('RoomMembersBulk', () => {
     expect(middleStepButtons.at(2).text()).toBe('app.back');
     expect(middleStepButtons.at(3).text()).toBe('rooms.members.modals.bulk_import.import_importable_button');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // Try to add the valid users
     await middleStepButtons.at(3).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
     expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
@@ -414,20 +412,19 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('invalidEmail@domain.tld\nnotAnEmail');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(2);
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           'user_emails.0': ['No user was found with this e-mail'],
           'user_emails.1': ['notanemail must be a valid email adress.']
@@ -474,15 +471,14 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('TammyGLaw@domain.tld');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
     await request.respondWith({
@@ -544,20 +540,19 @@ describe('RoomMembersBulk', () => {
     await textarea.setValue('\n');
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
 
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(0);
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           user_emails: ['The user emails field is required.']
         }
@@ -571,20 +566,20 @@ describe('RoomMembersBulk', () => {
     expect(modal.html()).toContain('The user emails field is required.');
 
     textarea.setValue('laurawrivera@domain.tld');
+
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond with an error for the role
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           role: ['The selected role is invalid']
         }
@@ -597,20 +592,19 @@ describe('RoomMembersBulk', () => {
     expect(firstStepButtons.at(0).element.disabled).toBeFalsy();
     expect(modal.html()).toContain('The selected role is invalid');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/member/bulk');
+
     // confirm add of new users
     await firstStepButtons.at(0).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/bulk');
     expect(JSON.parse(request.config.data).user_emails.length).toBe(1);
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });

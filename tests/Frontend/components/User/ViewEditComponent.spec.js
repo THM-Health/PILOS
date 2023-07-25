@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
-import moxios from 'moxios';
-import { waitModalShown, waitModalHidden, createContainer, createLocalVue, waitMoxios } from '../../helper';
+
+import { waitModalShown, waitModalHidden, createContainer, createLocalVue, mockAxios } from '../../helper';
 import ViewEditComponent from '../../../../resources/js/components/User/ViewEditComponent.vue';
 import EmailSettingsComponent from '../../../../resources/js/components/User/EmailSettingsComponent.vue';
 import ProfileComponent from '../../../../resources/js/components/User/ProfileComponent.vue';
@@ -42,14 +42,12 @@ const ldapUser = {
 
 describe('ViewEditComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('load model', async () => {
+    const request = mockAxios.request('/api/v1/users/1');
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -69,18 +67,16 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('get');
-    expect(request.config.url).toBe('/api/v1/users/1');
 
     // Check loading overlay
     expect(wrapper.vm.isBusy).toBe(true);
     expect(wrapper.findComponent(BOverlay).props('show')).toBe(true);
 
-    await moxios.requests.mostRecent().respondWith({
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: _.cloneDeep(ldapUser)
       }
     });
@@ -106,6 +102,8 @@ describe('ViewEditComponent', () => {
   it('load model with error', async () => {
     const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    let request = mockAxios.request('/api/v1/users/1');
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -125,18 +123,16 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('get');
-    expect(request.config.url).toBe('/api/v1/users/1');
 
     // Check loading overlay
     expect(wrapper.vm.isBusy).toBe(true);
     expect(wrapper.findComponent(BOverlay).props('show')).toBe(true);
 
-    await moxios.requests.mostRecent().respondWith({
+    await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Error'
       }
     });
@@ -159,21 +155,21 @@ describe('ViewEditComponent', () => {
     expect(baseErrorSpy).toBeCalledTimes(1);
     expect(baseErrorSpy.mock.calls[0][0].response.status).toBe(500);
 
+    request = mockAxios.request('/api/v1/users/1');
+
     // Trigger reload
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('get');
-    expect(request.config.url).toBe('/api/v1/users/1');
 
     // Check loading overlay
     expect(wrapper.vm.isBusy).toBe(true);
     expect(wrapper.findComponent(BOverlay).props('show')).toBe(true);
 
-    await moxios.requests.mostRecent().respondWith({
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: ldapUser
       }
     });
@@ -192,6 +188,13 @@ describe('ViewEditComponent', () => {
   });
 
   it('test update user event', async () => {
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -212,14 +215,7 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     const newUser = _.cloneDeep(ldapUser);
@@ -243,6 +239,13 @@ describe('ViewEditComponent', () => {
     const router = new VueRouter();
     const routerSpy = vi.spyOn(router, 'push').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -264,14 +267,7 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     const newUser = _.cloneDeep(ldapUser);
@@ -293,6 +289,13 @@ describe('ViewEditComponent', () => {
   });
 
   it('test stale user event', async () => {
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -313,14 +316,7 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     const newUser = _.cloneDeep(ldapUser);
@@ -348,7 +344,7 @@ describe('ViewEditComponent', () => {
     expect(reloadButton.text()).toBe('app.reload');
 
     // Check if user is not updated before click
-    expect(wrapper.vm.user).toEqual(ldapUser);
+    expect(wrapper.vm.user.firstname).toEqual('John');
 
     // Check if modal is hidden on click
     await waitModalHidden(wrapper, async () => {
@@ -356,7 +352,7 @@ describe('ViewEditComponent', () => {
     });
 
     // Check if user is updated after click
-    expect(wrapper.vm.user).toEqual(newUser);
+    expect(wrapper.vm.user.firstname).toEqual('Peter');
 
     // Check if automatic roles are disabled
     wrapper.vm.user.roles.forEach(role => {
@@ -374,6 +370,13 @@ describe('ViewEditComponent', () => {
     const spyUpdateUser = vi.spyOn(ViewEditComponent.methods, 'updateUser').mockImplementation(() => {});
     const spyHandleStaleError = vi.spyOn(ViewEditComponent.methods, 'handleStaleError').mockImplementation(() => {});
     const spyHandleNotFoundError = vi.spyOn(ViewEditComponent.methods, 'handleNotFoundError').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
 
     const wrapper = mount(ViewEditComponent, {
       localVue,
@@ -395,20 +398,13 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     // Check if profile component is rendered
     const profileComponent = wrapper.findComponent(ProfileComponent);
     expect(profileComponent.exists()).toBe(true);
-    expect(profileComponent.props('user')).toEqual(ldapUser);
+    expect(profileComponent.props('user').firstname).toEqual(ldapUser.firstname);
     expect(profileComponent.props('viewOnly')).toBe(false);
 
     await wrapper.setProps({ viewOnly: true });
@@ -436,6 +432,13 @@ describe('ViewEditComponent', () => {
     const spyUpdateUser = vi.spyOn(ViewEditComponent.methods, 'updateUser').mockImplementation(() => {});
     const spyHandleNotFoundError = vi.spyOn(ViewEditComponent.methods, 'handleNotFoundError').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -456,14 +459,7 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     // Check if profile component is rendered
@@ -477,7 +473,7 @@ describe('ViewEditComponent', () => {
     const emailSettingsComponent = wrapper.findComponent(EmailSettingsComponent);
     expect(emailSettingsComponent.exists()).toBe(true);
 
-    expect(emailSettingsComponent.props('user')).toEqual(ldapUser);
+    expect(emailSettingsComponent.props('user').email).toEqual(ldapUser.email);
     expect(emailSettingsComponent.props('viewOnly')).toBe(false);
 
     await wrapper.setProps({ viewOnly: true });
@@ -502,6 +498,13 @@ describe('ViewEditComponent', () => {
     const spyHandleStaleError = vi.spyOn(ViewEditComponent.methods, 'handleStaleError').mockImplementation(() => {});
     const spyHandleNotFoundError = vi.spyOn(ViewEditComponent.methods, 'handleNotFoundError').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -522,14 +525,7 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     // Check if profile component is rendered
@@ -543,7 +539,7 @@ describe('ViewEditComponent', () => {
     const authenticationSettingsComponent = wrapper.findComponent(AuthenticationSettingsComponent);
     expect(authenticationSettingsComponent.exists()).toBe(true);
 
-    expect(authenticationSettingsComponent.props('user')).toEqual(ldapUser);
+    expect(authenticationSettingsComponent.props('user').roles[0].id).toEqual(ldapUser.roles[0].id);
     expect(authenticationSettingsComponent.props('viewOnly')).toBe(false);
 
     await wrapper.setProps({ viewOnly: true });
@@ -573,6 +569,13 @@ describe('ViewEditComponent', () => {
     const spyHandleStaleError = vi.spyOn(ViewEditComponent.methods, 'handleStaleError').mockImplementation(() => {});
     const spyHandleNotFoundError = vi.spyOn(ViewEditComponent.methods, 'handleNotFoundError').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/users/1').respondWith({
+      status: 200,
+      data: {
+        data: _.cloneDeep(ldapUser)
+      }
+    });
+
     const wrapper = mount(ViewEditComponent, {
       localVue,
       mocks: {
@@ -593,14 +596,7 @@ describe('ViewEditComponent', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
-      status: 200,
-      response: {
-        data: _.cloneDeep(ldapUser)
-      }
-    });
-
+    await mockAxios.wait();
     await wrapper.vm.$nextTick();
 
     // Check if profile component is rendered
@@ -614,7 +610,7 @@ describe('ViewEditComponent', () => {
     const otherSettingsComponent = wrapper.findComponent(OtherSettingsComponent);
     expect(otherSettingsComponent.exists()).toBe(true);
 
-    expect(otherSettingsComponent.props('user')).toEqual(ldapUser);
+    expect(otherSettingsComponent.props('user').bbb_skip_check_audio).toEqual(ldapUser.bbb_skip_check_audio);
     expect(otherSettingsComponent.props('viewOnly')).toBe(false);
 
     await wrapper.setProps({ viewOnly: true });

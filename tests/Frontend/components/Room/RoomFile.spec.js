@@ -1,12 +1,11 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormFile, BFormInvalidFeedback, BModal, BTbody } from 'bootstrap-vue';
-import moxios from 'moxios';
 import FileComponent from '../../../../resources/js/components/Room/FileComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -23,13 +22,12 @@ const exampleRoom = { id: '123-456-789', name: 'Meeting One', owner: { id: 2, na
 
 describe('RoomFile', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('load files', async () => {
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/files');
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -44,15 +42,13 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
+
     expect(request.config.headers['Access-Code']).toBeUndefined();
     expect(request.config.headers.Token).toBeUndefined();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' },
@@ -69,6 +65,8 @@ describe('RoomFile', () => {
   });
 
   it('load files with access code', async () => {
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/files');
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -84,16 +82,16 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
 
-    await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
     expect(request.config.headers['Access-Code']).toBe('396856824');
     expect(request.config.headers.Token).toBeUndefined();
     view.destroy();
   });
 
   it('load files with token', async () => {
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/files');
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -109,9 +107,7 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.headers['Access-Code']).toBeUndefined();
     expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
     view.destroy();
@@ -119,6 +115,16 @@ describe('RoomFile', () => {
 
   it('hide table fields and upload', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
 
     const view = mount(FileComponent, {
       localVue,
@@ -149,6 +155,17 @@ describe('RoomFile', () => {
 
   it('show owner upload and all table fields', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -176,6 +193,17 @@ describe('RoomFile', () => {
 
   it('show co-owner upload and all table fields', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -208,6 +236,16 @@ describe('RoomFile', () => {
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.viewAll'];
     PermissionService.setCurrentUser(newUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
 
     const view = mount(FileComponent, {
       localVue,
@@ -243,6 +281,16 @@ describe('RoomFile', () => {
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
 
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -277,6 +325,16 @@ describe('RoomFile', () => {
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
 
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -291,19 +349,7 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: {
-          files: [],
-          default: null
-        }
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.vm.$data.files.files).toHaveLength(0);
@@ -313,18 +359,18 @@ describe('RoomFile', () => {
       lastModified: Date.now()
     });
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/files');
+
     view.vm.uploadFile({ target: { files: [file] } });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.headers['Content-Type']).toBe('multipart/form-data');
-    expect(request.config.url).toBe('/api/v1/rooms/123-456-789/files');
     expect(request.config.method).toBe('post');
     expect(request.config.data.get('file')).toBe(file);
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: false, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
@@ -348,6 +394,16 @@ describe('RoomFile', () => {
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
 
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -362,19 +418,7 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: {
-          files: [],
-          default: null
-        }
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const file = new window.File(['foo'], 'foo.txt', {
@@ -383,14 +427,14 @@ describe('RoomFile', () => {
     });
 
     expect(view.findComponent(BFormInvalidFeedback).text()).toBe('');
-    view.vm.uploadFile({ target: { files: [file] } });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 413
     });
 
+    view.vm.uploadFile({ target: { files: [file] } });
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BFormInvalidFeedback).text()).toBe('app.validation.too_large');
@@ -405,6 +449,16 @@ describe('RoomFile', () => {
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
 
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -419,19 +473,7 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: {
-          files: [],
-          default: null
-        }
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const file = new window.File(['foo'], 'foo.txt', {
@@ -440,13 +482,10 @@ describe('RoomFile', () => {
     });
 
     expect(view.findComponent(BFormInvalidFeedback).text()).toBe('');
-    view.vm.uploadFile({ target: { files: [file] } });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           file: ['The File must be a file of type: pdf, doc.']
@@ -454,6 +493,9 @@ describe('RoomFile', () => {
       }
     });
 
+    view.vm.uploadFile({ target: { files: [file] } });
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BFormInvalidFeedback).text()).toBe('The File must be a file of type: pdf, doc.');
@@ -468,6 +510,16 @@ describe('RoomFile', () => {
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
 
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [],
+          default: null
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -482,19 +534,7 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: {
-          files: [],
-          default: null
-        }
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const file = new window.File(['foo'], 'foo.txt', {
@@ -502,17 +542,16 @@ describe('RoomFile', () => {
       lastModified: Date.now()
     });
 
-    view.vm.uploadFile({ target: { files: [file] } });
-
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
 
+    view.vm.uploadFile({ target: { files: [file] } });
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(baseError).toBeCalledTimes(1);
@@ -522,6 +561,15 @@ describe('RoomFile', () => {
   });
 
   it('error emitted on files load', async () => {
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 403,
+      data: {
+        data: {
+          message: 'require_code'
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -537,45 +585,18 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
-      status: 403,
-      response: {
-        data: {
-          message: 'require_code'
-        }
-      }
-    });
+
     expect(view.emitted().error).toBeTruthy();
     expect(view.emitted().error[0][0].response.status).toBe(403);
     view.destroy();
   });
 
   it('remove file', async () => {
-    const view = mount(FileComponent, {
-      localVue,
-      mocks: {
-        $t: (key) => key,
-        $d: (date, format) => date.toDateString()
-      },
-      propsData: {
-        room: ownerRoom,
-        showTitle: true
-      },
-      pinia: createTestingPinia(),
-      attachTo: createContainer()
-    });
-
-    await waitMoxios();
-    await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             {
@@ -607,6 +628,24 @@ describe('RoomFile', () => {
         }
       }
     });
+
+    const view = mount(FileComponent, {
+      localVue,
+      mocks: {
+        $t: (key) => key,
+        $d: (date, format) => date.toDateString()
+      },
+      propsData: {
+        room: ownerRoom,
+        showTitle: true
+      },
+      pinia: createTestingPinia(),
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
     expect(view.vm.$data.files.files).toHaveLength(3);
     view.vm.removeFile(view.vm.$data.files.files[0]);
     expect(view.vm.$data.files.files).toHaveLength(2);
@@ -617,6 +656,41 @@ describe('RoomFile', () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const toastErrorSpy = vi.fn();
+
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [
+            {
+              id: 1,
+              filename: 'File1.pdf',
+              download: true,
+              use_in_meeting: false,
+              default: false,
+              uploaded: '2020-09-21T07:08:00.000000Z'
+            },
+            {
+              id: 2,
+              filename: 'File2.pdf',
+              download: true,
+              use_in_meeting: true,
+              default: true,
+              uploaded: '2020-09-21T07:08:00.000000Z'
+            },
+            {
+              id: 3,
+              filename: 'File3.pdf',
+              download: false,
+              use_in_meeting: false,
+              default: false,
+              uploaded: '2020-09-21T07:09:00.000000Z'
+            }
+          ],
+          default: 2
+        }
+      }
+    });
 
     const view = mount(FileComponent, {
       localVue,
@@ -638,43 +712,8 @@ describe('RoomFile', () => {
     });
 
     // load files
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: {
-          files: [
-            {
-              id: 1,
-              filename: 'File1.pdf',
-              download: true,
-              use_in_meeting: false,
-              default: false,
-              uploaded: '2020-09-21T07:08:00.000000Z'
-            },
-            {
-              id: 2,
-              filename: 'File2.pdf',
-              download: true,
-              use_in_meeting: true,
-              default: true,
-              uploaded: '2020-09-21T07:09:00.000000Z'
-            },
-            {
-              id: 3,
-              filename: 'File3.pdf',
-              download: false,
-              use_in_meeting: false,
-              default: false,
-              uploaded: '2020-09-21T07:10:00.000000Z'
-            }
-          ],
-          default: 2
-        }
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // check if all files found
     expect(view.vm.$data.files.files).toHaveLength(3);
@@ -699,17 +738,18 @@ describe('RoomFile', () => {
 
     // open modal and confirm delete
     expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+
+    const deleteFile3Request = mockAxios.request('/api/v1/rooms/123-456-789/files/3');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
 
     // check for delete requests
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/3');
+    await deleteFile3Request.wait();
+    expect(deleteFile3Request.config.method).toEqual('delete');
     await waitModalHidden(view, async () => {
-      await request.respondWith({
+      await deleteFile3Request.respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             files: [
               {
@@ -758,18 +798,19 @@ describe('RoomFile', () => {
 
     // open modal and confirm delete
     expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+
+    const deleteFile2Request = mockAxios.request('/api/v1/rooms/123-456-789/files/2');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
 
     // check for delete request and respond with 404, file is already deleted
-    await waitMoxios();
+    await deleteFile2Request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/files/2');
+    expect(deleteFile2Request.config.method).toEqual('delete');
     await waitModalHidden(view, async () => {
-      await request.respondWith({
+      await deleteFile2Request.respondWith({
         status: 404,
-        response: {
+        data: {
           message: 'No query results for model'
         }
       });
@@ -788,15 +829,18 @@ describe('RoomFile', () => {
     });
     // open modal and confirm delete
     expect(view.findComponent(BModal).find('.modal').element.style.display).toEqual('block');
+
+    const deleteFile1Request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
 
     // check for delete request and respond with 500
-    await waitMoxios();
+    await deleteFile1Request.wait();
     await view.vm.$nextTick();
     await waitModalHidden(view, async () => {
-      await moxios.requests.mostRecent().respondWith({
+      await deleteFile1Request.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Internal server error'
         }
       });
@@ -813,6 +857,22 @@ describe('RoomFile', () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const toastErrorSpy = vi.fn();
 
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [
+            {
+              id: 1,
+              filename: 'File1.pdf',
+              uploaded: '2020-09-21T07:08:00.000000Z'
+            }
+          ],
+          default: 1
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -823,33 +883,23 @@ describe('RoomFile', () => {
       propsData: {
         room: exampleRoom
       },
-      data () {
-        return {
-          files: {
-            files: [
-              {
-                id: 1,
-                filename: 'File1.pdf',
-                uploaded: '2020-09-21T07:08:00.000000Z'
-              }
-            ]
-          }
-        };
-      },
       pinia: createTestingPinia(),
       attachTo: createContainer()
     });
-    // Test valid download
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
+
+    // Test valid download
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+    await request.wait();
     expect(request.config.headers['Access-Code']).toBeUndefined();
     expect(request.config.headers.Token).toBeUndefined();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files/1');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         url: 'download-link.pdf'
       }
     });
@@ -859,58 +909,65 @@ describe('RoomFile', () => {
     openStub.mockRestore();
 
     // Test 401 error, invalid code
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 401,
-      response: {
+      data: {
         message: 'invalid_code'
       }
     });
+
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     expect(view.emitted().error.length).toBe(1);
     expect(view.emitted().error[0][0].response.status).toBe(401);
 
     // Test 401, token invalid
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 401,
-      response: {
+      data: {
         message: 'invalid_token'
       }
     });
+
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     view.vm.$nextTick();
     expect(view.emitted().error.length).toBe(2);
     expect(view.emitted().error[1][0].response.status).toBe(401);
 
     // Test 403, require code
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 403,
-      response: {
+      data: {
         message: 'require_code'
       }
     });
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     expect(view.emitted().error.length).toBe(3);
     expect(view.emitted().error[2][0].response.status).toBe(403);
 
     // Test 403, file not available for download
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 403,
-      response: {
+      data: {
         message: 'This action is unauthorized.'
       }
     });
+
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     view.vm.$nextTick();
     expect(toastErrorSpy).toBeCalledTimes(1);
@@ -918,38 +975,54 @@ describe('RoomFile', () => {
     expect(removeFile).toBeCalledWith({ id: 1, filename: 'File1.pdf', uploaded: '2020-09-21T07:08:00.000000Z' });
 
     // Test 404
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'No query results for model'
       }
     });
-    view.vm.$nextTick();
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
     expect(toastErrorSpy).toBeCalledTimes(2);
     expect(toastErrorSpy).lastCalledWith('rooms.flash.file_gone');
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test 500
-    view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
+    view.vm.downloadFile(view.vm.$data.files.files[0]);
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
-    view.vm.$nextTick();
     expect(baseError).toBeCalledTimes(1);
     expect(baseError.mock.calls[0][0].response.status).toEqual(500);
     view.destroy();
   });
 
   it('download file test request with access code', async () => {
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [
+            {
+              id: 1,
+              filename: 'File1.pdf',
+              uploaded: '2020-09-21T07:08:00.000000Z'
+            }
+          ],
+          default: 1
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -960,34 +1033,40 @@ describe('RoomFile', () => {
         accessCode: '396856824',
         room: exampleRoom
       },
-      data () {
-        return {
-          files: {
-            files: [
-              {
-                id: 1,
-                filename: 'File1.pdf',
-                uploaded: '2020-09-21T07:08:00.000000Z'
-              }
-            ]
-          }
-        };
-      },
       pinia: createTestingPinia(),
       attachTo: createContainer()
     });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
     // Test valid request header
     view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.headers['Access-Code']).toBe('396856824');
     expect(request.config.headers.Token).toBeUndefined();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files/1');
     view.destroy();
   });
 
   it('download file test request with token', async () => {
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [
+            {
+              id: 1,
+              filename: 'File1.pdf',
+              uploaded: '2020-09-21T07:08:00.000000Z'
+            }
+          ],
+          default: 1
+        }
+      }
+    });
+
     const view = mount(FileComponent, {
       localVue,
       mocks: {
@@ -1014,14 +1093,17 @@ describe('RoomFile', () => {
       pinia: createTestingPinia(),
       attachTo: createContainer()
     });
+
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
     // Test valid request header
     view.vm.downloadFile(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.headers['Access-Code']).toBeUndefined();
     expect(request.config.headers.Token).toBe('xWDCevVTcMys1ftzt3nFPgU56Wf32fopFWgAEBtklSkFU22z1ntA4fBHsHeMygMiOa9szJbNEfBAgEWSLNWg2gcF65PwPZ2ylPQR');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/files/1');
     view.destroy();
   });
 
@@ -1029,6 +1111,25 @@ describe('RoomFile', () => {
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
     const removeFile = vi.spyOn(FileComponent.methods, 'removeFile').mockImplementation(() => {});
     const toastErrorSpy = vi.fn();
+
+    mockAxios.request('/api/v1/rooms/123-456-789/files').respondWith({
+      status: 200,
+      data: {
+        data: {
+          files: [
+            {
+              id: 1,
+              filename: 'File1.pdf',
+              download: false,
+              use_in_meeting: true,
+              default: true,
+              uploaded: '2020-09-21T07:08:00.000000Z'
+            }
+          ],
+          default: 1
+        }
+      }
+    });
 
     const view = mount(FileComponent, {
       localVue,
@@ -1060,15 +1161,19 @@ describe('RoomFile', () => {
       attachTo: createContainer()
     });
 
-    view.vm.changeSettings(view.vm.$data.files.files[0], 'download', true);
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
+
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
+    view.vm.changeSettings(view.vm.$data.files.files[0], 'download', true);
+
+    await request.wait();
     expect(request.config.method).toEqual('put');
     expect(request.config.data).toEqual('{"download":true}');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           files: [
             { id: 1, filename: 'File1.pdf', download: true, use_in_meeting: true, default: false, uploaded: '2020-09-21T07:08:00.000000Z' }
@@ -1084,12 +1189,14 @@ describe('RoomFile', () => {
     expect(view.vm.$data.files.files[0].download).toBeTruthy();
 
     // Test 404
+
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
     view.vm.changeSettings(view.vm.$data.files.files[0]);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'No query results for model'
       }
     });
@@ -1100,12 +1207,13 @@ describe('RoomFile', () => {
     expect(removeFile).toBeCalledWith(view.vm.$data.files.files[0]);
 
     // Test unknown error
+    request = mockAxios.request('/api/v1/rooms/123-456-789/files/1');
+
     view.vm.changeSettings(view.vm.$data.files.files[0], 'download', true);
-    await waitMoxios();
-    await view.vm.$nextTick();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

@@ -1,6 +1,5 @@
-import moxios from 'moxios';
 import { mount } from '@vue/test-utils';
-import { waitMoxios, createLocalVue } from '../helper';
+import { mockAxios, createLocalVue } from '../helper';
 import VerifyEmail from '../../../resources/js/views/VerifyEmail.vue';
 import { BAlert, BSpinner } from 'bootstrap-vue';
 import Base from '../../../resources/js/api/base';
@@ -9,14 +8,12 @@ const localVue = createLocalVue();
 
 describe('VerifyEmail', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('success', async () => {
+    const request = mockAxios.request('/api/v1/email/verify');
+
     const wrapper = mount(VerifyEmail, {
       localVue,
       mocks: {
@@ -31,9 +28,7 @@ describe('VerifyEmail', () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/email/verify');
+    await request.wait();
     expect(request.config.method).toBe('post');
     expect(JSON.parse(request.config.data)).toEqual({
       email: 'john.doe@example.com',
@@ -54,6 +49,8 @@ describe('VerifyEmail', () => {
   });
 
   it('invalid code', async () => {
+    const request = mockAxios.request('/api/v1/email/verify');
+
     const wrapper = mount(VerifyEmail, {
       localVue,
       mocks: {
@@ -68,9 +65,7 @@ describe('VerifyEmail', () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/email/verify');
+    await request.wait();
     expect(request.config.method).toBe('post');
     expect(JSON.parse(request.config.data)).toEqual({
       email: 'john.doe@example.com',
@@ -93,6 +88,8 @@ describe('VerifyEmail', () => {
   it('other error', async () => {
     const baseErrorSpy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    const request = mockAxios.request('/api/v1/email/verify');
+
     const wrapper = mount(VerifyEmail, {
       localVue,
       mocks: {
@@ -107,9 +104,7 @@ describe('VerifyEmail', () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/email/verify');
+    await request.wait();
     expect(request.config.method).toBe('post');
     expect(JSON.parse(request.config.data)).toEqual({
       email: 'john.doe@example.com',

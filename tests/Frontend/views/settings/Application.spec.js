@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import moxios from 'moxios';
+
 import BootstrapVue, {
   BButton,
   BFormCheckbox,
@@ -13,7 +13,7 @@ import Application from '../../../../resources/js/views/settings/Application.vue
 import env from '../../../../resources/js/env.js';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import VSwatches from 'vue-swatches';
-import { waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -33,17 +33,17 @@ const bbbSettings = {
 describe('Application', () => {
   beforeEach(() => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
-    moxios.install();
-    moxios.stubRequest('/api/v1/getTimezones', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/getTimezones').respondWith({
       status: 200,
-      response: {
+      data: {
         timezones: ['UTC']
       }
     });
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('getSettings method called, when the view is mounted', () => {
@@ -63,6 +63,8 @@ describe('Application', () => {
   });
 
   it('getSettings method works properly with response data room_limit is -1', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -71,11 +73,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -132,6 +133,8 @@ describe('Application', () => {
   });
 
   it('getSettings method works properly with response data room_limit is not -1', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -140,11 +143,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: 32,
@@ -188,6 +190,8 @@ describe('Application', () => {
   });
 
   it('update room_token_expiration', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -197,12 +201,11 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     // eslint-disable-next-line no-use-before-define
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: 32,
@@ -250,15 +253,17 @@ describe('Application', () => {
     // Save button, which triggers updateSettings method when clicked
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('room_token_expiration')).toStrictEqual('1440');
-    await request.respondWith({
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('room_token_expiration')).toStrictEqual('1440');
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test1.svg',
           room_limit: 33,
@@ -311,6 +316,8 @@ describe('Application', () => {
   });
 
   it('updateSettings method works properly with response data room_limit is -1', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -320,11 +327,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: 32,
@@ -360,14 +366,16 @@ describe('Application', () => {
     // Save button, which triggers updateSettings method when clicked
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await saveRequest.wait();
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test1.svg',
           room_limit: -1,
@@ -412,13 +420,52 @@ describe('Application', () => {
   });
 
   it('roomLimitModeChanged method works properly', async () => {
+    mockAxios.request('/api/v1/settings/all').respondWith({
+      status: 200,
+      data: {
+        data: {
+          logo: 'test.svg',
+          room_limit: 32,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+
     const view = mount(Application, {
       localVue,
+      pinia: createTestingPinia(),
       mocks: {
         $t: key => key
       },
       attachTo: createContainer()
     });
+
+    await mockAxios.wait();
 
     // Room limit radio group value set to 'custom' by default
     const roomLimitRadioGroup = view.find('#application-room-limit-radio-group');
@@ -438,6 +485,8 @@ describe('Application', () => {
   });
 
   it('getSettings error handler', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const view = mount(Application, {
@@ -448,11 +497,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -464,6 +512,8 @@ describe('Application', () => {
   });
 
   it('updateSettings sends null values and booleans correctly to the backend', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -473,11 +523,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: 32,
@@ -558,29 +607,33 @@ describe('Application', () => {
 
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('banner[enabled]')).toStrictEqual('0');
-    expect(request.config.data.get('banner[message]')).toStrictEqual('Test');
-    expect(request.config.data.get('banner[color]')).toStrictEqual('#fff');
-    expect(request.config.data.get('banner[background]')).toStrictEqual('#000');
-    expect(request.config.data.get('banner[title]')).toStrictEqual('');
-    expect(request.config.data.get('banner[icon]')).toStrictEqual('');
-    expect(request.config.data.get('banner[link]')).toStrictEqual('');
-    expect(request.config.data.get('help_url')).toStrictEqual('');
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('banner[enabled]')).toStrictEqual('0');
+    expect(saveRequest.config.data.get('banner[message]')).toStrictEqual('Test');
+    expect(saveRequest.config.data.get('banner[color]')).toStrictEqual('#fff');
+    expect(saveRequest.config.data.get('banner[background]')).toStrictEqual('#000');
+    expect(saveRequest.config.data.get('banner[title]')).toStrictEqual('');
+    expect(saveRequest.config.data.get('banner[icon]')).toStrictEqual('');
+    expect(saveRequest.config.data.get('banner[link]')).toStrictEqual('');
+    expect(saveRequest.config.data.get('help_url')).toStrictEqual('');
 
-    expect(request.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
-    expect(request.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
-    expect(request.config.data.get('attendance[enabled]')).toStrictEqual('0');
-    expect(request.config.data.get('room_auto_delete[enabled]')).toStrictEqual('1');
+    expect(saveRequest.config.data.get('statistics[servers][enabled]')).toStrictEqual('0');
+    expect(saveRequest.config.data.get('statistics[meetings][enabled]')).toStrictEqual('1');
+    expect(saveRequest.config.data.get('attendance[enabled]')).toStrictEqual('0');
+    expect(saveRequest.config.data.get('room_auto_delete[enabled]')).toStrictEqual('1');
 
     view.destroy();
   });
 
   it('updateSettings error handler', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    const request = mockAxios.request('/api/v1/settings/all');
 
     const view = mount(Application, {
       localVue,
@@ -590,11 +643,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: 32,
@@ -630,14 +682,16 @@ describe('Application', () => {
     // Save button, which triggers updateSettings method when clicked
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await saveRequest.wait();
+    await saveRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -650,6 +704,8 @@ describe('Application', () => {
   it('updateSettings error handler code 413', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -658,11 +714,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: 32,
@@ -701,14 +756,16 @@ describe('Application', () => {
     // Save button, which triggers updateSettings method when clicked
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await saveRequest.wait();
+    await saveRequest.respondWith({
       status: env.HTTP_PAYLOAD_TOO_LARGE,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -719,6 +776,8 @@ describe('Application', () => {
   });
 
   it('updateSettings error handler code 422', async () => {
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -727,12 +786,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -771,13 +828,15 @@ describe('Application', () => {
     // Save button, which triggers updateSettings method when clicked
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await saveRequest.wait();
+    await saveRequest.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         errors: {
           logo: ['logo error'],
           room_limit: ['room limit error'],
@@ -799,6 +858,42 @@ describe('Application', () => {
   });
 
   it('uploadLogoFile watcher called base64Encode method when value of data props uploadLogoFile changed', async () => {
+    mockAxios.request('/api/v1/settings/all').respondWith({
+      status: 200,
+      data: {
+        data: {
+          logo: 'test.svg',
+          room_limit: 32,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
+
     const view = mount(Application, {
       localVue,
       mocks: {
@@ -806,6 +901,8 @@ describe('Application', () => {
       },
       attachTo: createContainer()
     });
+
+    await mockAxios.wait();
 
     // base64Encode method spy
     const spy = vi.spyOn(view.vm, 'base64Encode');
@@ -838,8 +935,44 @@ describe('Application', () => {
     view.destroy();
   });
 
-  it('disable edit button if user does not have permission', () => {
+  it('disable edit button if user does not have permission', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
+
+    mockAxios.request('/api/v1/settings/all').respondWith({
+      status: 200,
+      data: {
+        data: {
+          logo: 'test.svg',
+          room_limit: 32,
+          pagination_page_size: 10,
+          own_rooms_pagination_page_size: 5,
+          banner: {
+            enabled: false
+          },
+          bbb: bbbSettings,
+          statistics: {
+            servers: {
+              enabled: true,
+              retention_period: 7
+            },
+            meetings: {
+              enabled: false,
+              retention_period: 30
+            }
+          },
+          attendance: {
+            enabled: true,
+            retention_period: 14
+          },
+          room_auto_delete: {
+            enabled: true,
+            inactive_period: 30,
+            never_used_period: 14,
+            deadline_period: 7
+          }
+        }
+      }
+    });
 
     const view = mount(Application, {
       localVue,
@@ -849,6 +982,8 @@ describe('Application', () => {
       },
       attachTo: createContainer()
     });
+
+    await mockAxios.wait();
 
     // Save button should be missing
     const saveSettingsButton = view.find('#application-save-button');
@@ -860,6 +995,8 @@ describe('Application', () => {
   it('delete default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -869,12 +1006,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -915,6 +1050,8 @@ describe('Application', () => {
   it('delete default presentation button is visible if the view is not in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -924,12 +1061,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -970,6 +1105,8 @@ describe('Application', () => {
   it('delete default presentation button is not visible if there is no default presentation or a new presentation was uploaded', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -979,12 +1116,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1035,6 +1170,8 @@ describe('Application', () => {
   it('revert default presentation button is not visible if the view is in view only mode', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -1044,12 +1181,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1090,6 +1225,8 @@ describe('Application', () => {
   it('revert default presentation button is not visible if there is no new default presentation', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -1099,12 +1236,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1155,6 +1290,8 @@ describe('Application', () => {
   it('view default presentation button is not visible if there is no default presentation even if a new was uploaded but not persisted', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'settings.manage', 'applicationSettings.update'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -1164,12 +1301,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1219,6 +1354,8 @@ describe('Application', () => {
   it('if no new default presentation was uploaded the attribute does not get send with the request', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -1228,12 +1365,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1269,18 +1404,22 @@ describe('Application', () => {
     });
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.has('default_presentation')).toBe(false);
+    await saveRequest.wait();
+    expect(saveRequest.config.data.has('default_presentation')).toBe(false);
 
     view.destroy();
   });
 
   it('if the default presentation was deleted the attribute gets send as null value the request', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const request = mockAxios.request('/api/v1/settings/all');
 
     const view = mount(Application, {
       localVue,
@@ -1291,12 +1430,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1334,18 +1471,22 @@ describe('Application', () => {
 
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('default_presentation')).toBe('');
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('default_presentation')).toBe('');
 
     view.destroy();
   });
 
   it('if a new default presentation was uploaded the file gets send', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const request = mockAxios.request('/api/v1/settings/all');
 
     const view = mount(Application, {
       localVue,
@@ -1361,12 +1502,10 @@ describe('Application', () => {
       lastModified: Date.now()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1406,18 +1545,22 @@ describe('Application', () => {
 
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('default_presentation')).toBe(file);
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('default_presentation')).toBe(file);
 
     view.destroy();
   });
 
   it('bbb style', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
+
+    const request = mockAxios.request('/api/v1/settings/all');
 
     const view = mount(Application, {
       localVue,
@@ -1433,12 +1576,10 @@ describe('Application', () => {
       lastModified: Date.now()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1483,16 +1624,17 @@ describe('Application', () => {
     });
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
+
+    let saveRequest = mockAxios.request('/api/v1/settings');
+
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[style]')).toBe(file);
-
-    await request.respondWith({
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[style]')).toBe(file);
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1540,17 +1682,17 @@ describe('Application', () => {
     expect(viewBtn.html()).toContain('fa-solid fa-eye');
     expect(viewBtn.attributes('href')).toBe('http://localhost/storage/styles/bbb.css');
 
+    saveRequest = mockAxios.request('/api/v1/settings');
+
     // save without changing anything
     saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[style]')).toBeNull();
-
-    await request.respondWith({
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[style]')).toBeNull();
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1609,18 +1751,18 @@ describe('Application', () => {
     deleteBtn = formGroup.findAllComponents(BButton).at(1);
     expect(deleteBtn.html()).toContain('fa-solid fa-trash');
 
+    saveRequest = mockAxios.request('/api/v1/settings');
+
     // delete file and save
     await deleteBtn.trigger('click');
     await saveSettingsButton.trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[style]')).toBe('');
-
-    await request.respondWith({
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[style]')).toBe('');
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1667,6 +1809,8 @@ describe('Application', () => {
   it('bbb logo', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -1694,12 +1838,10 @@ describe('Application', () => {
       lastModified: Date.now()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1754,15 +1896,17 @@ describe('Application', () => {
 
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
-    await saveSettingsButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[logo]')).toBeNull();
-    expect(request.config.data.get('bbb[logo_file]')).toBe(file);
 
-    await request.respondWith({
+    let saveRequest = mockAxios.request('/api/v1/settings');
+
+    await saveSettingsButton.trigger('click');
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[logo]')).toBeNull();
+    expect(saveRequest.config.data.get('bbb[logo_file]')).toBe(file);
+
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1814,16 +1958,17 @@ describe('Application', () => {
     await formGroup.findComponent(BFormInput).setValue('http://localhost/storage/logo2.png');
     expect(formGroup.findComponent(BImg).attributes('src')).toBe('http://localhost/storage/logo2.png');
 
+    saveRequest = mockAxios.request('/api/v1/settings');
+
     // save
     await saveSettingsButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[logo]')).toBe('http://localhost/storage/logo2.png');
-    expect(request.config.data.get('bbb[logo_file]')).toBeNull();
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[logo]')).toBe('http://localhost/storage/logo2.png');
+    expect(saveRequest.config.data.get('bbb[logo_file]')).toBeNull();
 
-    await request.respondWith({
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1891,16 +2036,16 @@ describe('Application', () => {
     expect(formGroup.findComponent(BFormInput).exists()).toBeFalsy();
     expect(formGroup.findComponent(BImg).attributes('src')).toBe(img);
 
+    saveRequest = mockAxios.request('/api/v1/settings');
+
     // save
     await saveSettingsButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[logo]')).toBeNull();
-    expect(request.config.data.get('bbb[logo_file]')).toBe(file);
-
-    await request.respondWith({
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[logo]')).toBeNull();
+    expect(saveRequest.config.data.get('bbb[logo_file]')).toBe(file);
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -1948,6 +2093,8 @@ describe('Application', () => {
   it('bbb logo delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -1957,12 +2104,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -2029,18 +2174,18 @@ describe('Application', () => {
     expect(formGroup.findComponent(BFormFile).exists()).toBeTruthy();
     expect(formGroup.findComponent(BImg).exists()).toBeTruthy();
 
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
     // delete file and save
     await deleteBtn.trigger('click');
     await saveSettingsButton.trigger('click');
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.data.get('bbb[logo]')).toBeNull();
-    expect(request.config.data.get('bbb[logo_file]')).toBeNull();
-
-    await request.respondWith({
+    await saveRequest.wait();
+    expect(saveRequest.config.data.get('bbb[logo]')).toBeNull();
+    expect(saveRequest.config.data.get('bbb[logo_file]')).toBeNull();
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -2088,6 +2233,8 @@ describe('Application', () => {
   it('custom urls', async () => {
     PermissionService.setCurrentUser({ permissions: ['applicationSettings.viewAny', 'applicationSettings.update', 'settings.manage'] });
 
+    const request = mockAxios.request('/api/v1/settings/all');
+
     const view = mount(Application, {
       localVue,
       pinia: createTestingPinia(),
@@ -2097,12 +2244,10 @@ describe('Application', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,
@@ -2147,13 +2292,14 @@ describe('Application', () => {
 
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
-    await saveSettingsButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
 
-    await request.respondWith({
+    const saveRequest = mockAxios.request('/api/v1/settings');
+
+    await saveSettingsButton.trigger('click');
+    await saveRequest.wait();
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           logo: 'test.svg',
           room_limit: -1,

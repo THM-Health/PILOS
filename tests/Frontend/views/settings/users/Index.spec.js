@@ -1,27 +1,65 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BButtonClose, BTbody, BTr } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import Index from '../../../../../resources/js/views/settings/users/Index.vue';
 import Base from '../../../../../resources/js/api/base';
 import { Multiselect } from 'vue-multiselect';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 
 describe('UsersIndex', () => {
   beforeEach(() => {
-    moxios.install();
-  });
+    mockAxios.reset();
 
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.request('/api/v1/roles').respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 1,
+            name: 'admin',
+            default: true,
+            updated_at: '2021-01-08T15:51:08.000000Z',
+            model_name: 'Role',
+            room_limit: -1
+          },
+          {
+            id: 2,
+            name: 'Staff',
+            default: false,
+            updated_at: '2021-03-19T09:12:44.000000Z',
+            model_name: 'Role',
+            room_limit: 20
+          },
+          {
+            id: 3,
+            name: 'Students',
+            default: false,
+            updated_at: '2021-05-22T11:55:21.000000Z',
+            model_name: 'Role',
+            room_limit: 1
+          }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 3,
+          to: 3,
+          total: 6
+        }
+      }
+    });
   });
 
   it('list of users with pagination gets displayed', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
+
+    let request = mockAxios.request('/api/v1/users');
 
     const view = mount(Index, {
       localVue,
@@ -32,13 +70,11 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -74,15 +110,16 @@ describe('UsersIndex', () => {
     expect(html).toContain('app.role_lables.admin');
     expect(html).toContain('settings.users.authenticator.local');
 
+    request = mockAxios.request('/api/v1/users');
+
     view.vm.$root.$emit('bv::refresh::table', 'users-table');
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 2,
           authenticator: 'external',
@@ -125,9 +162,9 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ id: 4, permissions: ['users.viewAny', 'settings.manage'] });
 
-    const response = {
+    mockAxios.request('/api/v1/users').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -169,7 +206,7 @@ describe('UsersIndex', () => {
           total: 3
         }
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -183,8 +220,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
@@ -210,16 +246,15 @@ describe('UsersIndex', () => {
     await view.vm.$nextTick();
 
     expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
+
+    const resetPasswordRequest = mockAxios.request('/api/v1/users/1/resetPassword');
+
     view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
-    expect(request.url).toBe('/api/v1/users/1/resetPassword');
-
-    await request.respondWith({
+    await resetPasswordRequest.wait();
+    await resetPasswordRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -242,9 +277,9 @@ describe('UsersIndex', () => {
       permissions: ['users.viewAny', 'settings.manage', 'users.update']
     });
 
-    const response = {
+    mockAxios.request('/api/v1/users').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -286,7 +321,7 @@ describe('UsersIndex', () => {
           total: 3
         }
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -301,8 +336,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     await view.findComponent(BTbody).findComponent(BTr).findAllComponents(BButton).filter(button => {
@@ -312,14 +346,13 @@ describe('UsersIndex', () => {
     await view.vm.$nextTick();
 
     expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(true);
+
+    const resetPasswordRequest = mockAxios.request('/api/v1/users/1/resetPassword');
+
     view.findComponent({ ref: 'reset-user-password-modal' }).vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-
-    expect(request.url).toBe('/api/v1/users/1/resetPassword');
-
-    await request.respondWith({
+    await resetPasswordRequest.wait();
+    await resetPasswordRequest.respondWith({
       status: 200
     });
     expect(toastSuccessSpy).toBeCalledTimes(1);
@@ -333,9 +366,9 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage'] });
 
-    const response = {
+    mockAxios.request('/api/v1/users').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -365,7 +398,7 @@ describe('UsersIndex', () => {
           total: 2
         }
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -376,8 +409,7 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
@@ -402,6 +434,13 @@ describe('UsersIndex', () => {
   it('error handler gets called if an error occurs during loading of data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/users').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -411,15 +450,7 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
-
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(spy).toBeCalledTimes(1);
@@ -432,9 +463,9 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ id: 1, permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
 
-    const response = {
+    mockAxios.request('/api/v1/users').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 2,
           authenticator: 'external',
@@ -453,7 +484,7 @@ describe('UsersIndex', () => {
           total: 1
         }
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -467,8 +498,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
@@ -477,12 +507,31 @@ describe('UsersIndex', () => {
     await view.vm.$nextTick();
 
     expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(true);
+
+    const deleteRequest = mockAxios.request('/api/v1/users/2', 'delete');
+
     view.findComponent({ ref: 'delete-user-modal' }).vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({ status: 204 });
+    await deleteRequest.wait();
+
+    const reloadRquest = mockAxios.request('/api/v1/users');
+
+    await deleteRequest.respondWith({ status: 204 });
     expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
     expect(view.vm.$data.userToDelete).toBeUndefined();
+
+    await reloadRquest.wait();
+    await reloadRquest.respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 0
+        }
+      }
+    });
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -493,9 +542,9 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.delete'] });
 
-    const response = {
+    mockAxios.request('/api/v1/users').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 2,
           authenticator: 'external',
@@ -514,7 +563,7 @@ describe('UsersIndex', () => {
           total: 1
         }
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -528,8 +577,7 @@ describe('UsersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent({ ref: 'delete-user-modal' }).vm.$data.isVisible).toBe(false);
@@ -556,6 +604,18 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
 
+    mockAxios.request('/api/v1/users').respondWith({
+      status: 200,
+      data: {
+        data: [],
+        meta: {
+          per_page: 2,
+          current_page: 1,
+          total: 0
+        }
+      }
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -565,19 +625,7 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [],
-        meta: {
-          per_page: 2,
-          current_page: 1,
-          total: 0
-        }
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     const newButton = view.findComponent(BButton);
@@ -589,45 +637,7 @@ describe('UsersIndex', () => {
   });
 
   it('role filter', async () => {
-    moxios.stubRequest('/api/v1/roles?page=1', {
-      status: 200,
-      response: {
-        data: [
-          {
-            id: 1,
-            name: 'admin',
-            default: true,
-            updated_at: '2021-01-08T15:51:08.000000Z',
-            model_name: 'Role',
-            room_limit: -1
-          },
-          {
-            id: 2,
-            name: 'Staff',
-            default: false,
-            updated_at: '2021-03-19T09:12:44.000000Z',
-            model_name: 'Role',
-            room_limit: 20
-          },
-          {
-            id: 3,
-            name: 'Students',
-            default: false,
-            updated_at: '2021-05-22T11:55:21.000000Z',
-            model_name: 'Role',
-            room_limit: 1
-          }
-        ],
-        meta: {
-          current_page: 1,
-          from: 1,
-          last_page: 2,
-          per_page: 3,
-          to: 3,
-          total: 6
-        }
-      }
-    });
+    let request = mockAxios.request('/api/v1/users');
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {
@@ -639,13 +649,13 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
+
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -683,16 +693,17 @@ describe('UsersIndex', () => {
     expect(paginationButtons.at(0).attributes('disabled')).toBe('disabled');
     expect(paginationButtons.at(1).attributes('disabled')).toBeUndefined();
 
+    const rolesRequest = mockAxios.request('/api/v1/roles', { page: 2 });
+
     // test navigate to next page
     await paginationButtons.at(1).trigger('click');
+
     // dropdown show loading spinner during load
     expect(roleSelector.props('loading')).toBeTruthy();
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/roles?page=2');
-    await request.respondWith({
+    await rolesRequest.wait();
+    await rolesRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 4,
@@ -742,18 +753,19 @@ describe('UsersIndex', () => {
 
     // check clear roles button and select option
     expect(view.findComponent({ ref: 'clearRolesButton' }).exists()).toBeFalsy();
+    request = mockAxios.request('/api/v1/users');
     await roleOptions.at(0).find('span').trigger('click');
+
     expect(view.findComponent({ ref: 'clearRolesButton' }).exists()).toBeTruthy();
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    request = moxios.requests.mostRecent();
     expect(request.config.params.role).toBe(4);
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -778,16 +790,15 @@ describe('UsersIndex', () => {
     });
 
     // select other role
+    request = mockAxios.request('/api/v1/users');
     await roleOptions.at(1).find('span').trigger('click');
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    request = moxios.requests.mostRecent();
     expect(request.config.params.role).toBe(5);
-
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           per_page: 1,
@@ -798,22 +809,25 @@ describe('UsersIndex', () => {
     });
 
     // clear role
+    request = mockAxios.request('/api/v1/users');
     await view.findComponent({ ref: 'clearRolesButton' }).trigger('click');
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    request = moxios.requests.mostRecent();
     expect(request.config.params.role).toBeUndefined();
     view.destroy();
   });
 
   it('role filter error', async () => {
-    moxios.stubRequest('/api/v1/roles?page=1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/roles').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
+
+    const request = mockAxios.request('/api/v1/users');
 
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
@@ -827,12 +841,13 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
+
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-    let request = moxios.requests.mostRecent();
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: 1,
           authenticator: 'local',
@@ -869,9 +884,16 @@ describe('UsersIndex', () => {
     expect(view.findComponent({ ref: 'reloadRolesButton' }).exists()).toBeTruthy();
 
     // change response to a valid response
-    const restoreRoles = overrideStub('/api/v1/roles?page=1', {
+    const rolesRequest = mockAxios.request('/api/v1/roles', { page: 1 });
+
+    // reload roles list
+    await view.findComponent({ ref: 'reloadRolesButton' }).trigger('click');
+    expect(roleSelector.props('loading')).toBeTruthy();
+
+    await rolesRequest.wait();
+    await rolesRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 1,
@@ -908,19 +930,11 @@ describe('UsersIndex', () => {
         }
       }
     });
-
-    // reload roles list
-    await view.findComponent({ ref: 'reloadRolesButton' }).trigger('click');
-    expect(roleSelector.props('loading')).toBeTruthy();
-
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/roles?page=1');
     await view.vm.$nextTick();
 
     expect(roleSelector.props('loading')).toBeFalsy();
 
-    // check if reload button hidden after a successfull request
+    // check if reload button hidden after a successfully request
     expect(view.findComponent({ ref: 'reloadRolesButton' }).exists()).toBeFalsy();
 
     // check drop down values
@@ -929,7 +943,6 @@ describe('UsersIndex', () => {
     expect(roleOptions.at(1).html()).toContain('Staff');
     expect(roleOptions.at(2).html()).toContain('Students');
 
-    restoreRoles();
     view.destroy();
   });
 });

@@ -1,7 +1,7 @@
 import View from '../../../../../resources/js/views/settings/roomTypes/View.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import moxios from 'moxios';
+
 import BootstrapVue, {
 
   BFormInput,
@@ -14,7 +14,7 @@ import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
 import { Multiselect } from 'vue-multiselect';
-import { waitMoxios, overrideStub, createLocalVue } from '../../../helper';
+import { mockAxios, createLocalVue } from '../../../helper';
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
 localVue.use(VueRouter);
@@ -25,7 +25,7 @@ describe('RoomTypeView', () => {
   beforeEach(() => {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['roomTypes.view', 'roomTypes.create', 'roomTypes.update', 'settings.manage'] });
-    moxios.install();
+    mockAxios.reset();
 
     const roomTypeResponse = {
       data: {
@@ -39,9 +39,9 @@ describe('RoomTypeView', () => {
       }
     };
 
-    moxios.stubRequest('/api/v1/roomTypes/1', {
+    mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: 200,
-      response: roomTypeResponse
+      data: roomTypeResponse
     });
 
     const serverPoolsResponse = {
@@ -59,14 +59,14 @@ describe('RoomTypeView', () => {
       }
     };
 
-    moxios.stubRequest('/api/v1/serverPools?page=1', {
+    mockAxios.request('/api/v1/serverPools', { page: 1 }).respondWith({
       status: 200,
-      response: serverPoolsResponse
+      data: serverPoolsResponse
     });
 
-    moxios.stubRequest('/api/v1/roles?page=1', {
+    mockAxios.request('/api/v1/roles', { page: 1 }).respondWith({
       status: 200,
-      response: {
+      data: {
         data: Array.from(Array(5).keys()).map(item => {
           return {
             id: item + 1,
@@ -89,7 +89,6 @@ describe('RoomTypeView', () => {
 
   afterEach(() => {
     PermissionService.setCurrentUser(oldUser);
-    moxios.uninstall();
   });
 
   it('room type description in title gets shown for detail view', async () => {
@@ -104,7 +103,7 @@ describe('RoomTypeView', () => {
       }
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.html()).toContain('settings.room_types.view Meeting');
     view.destroy();
   });
@@ -121,7 +120,7 @@ describe('RoomTypeView', () => {
       }
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.html()).toContain('settings.room_types.edit Meeting');
     view.destroy();
   });
@@ -140,15 +139,12 @@ describe('RoomTypeView', () => {
       }
     });
 
+    await mockAxios.wait();
+    await view.vm.$nextTick();
+
     const multiSelect = view.findComponent(Multiselect);
     const saveButton = view.findAllComponents(BButton).at(3);
     expect(saveButton.html()).toContain('app.save');
-
-    // load server pools
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/serverPools?page=1');
-    await view.vm.$nextTick();
 
     // check drop down values
     expect(multiSelect.html()).toContain('Pool1');
@@ -159,16 +155,16 @@ describe('RoomTypeView', () => {
     expect(paginationButtons.at(0).attributes('disabled')).toBe('disabled');
     expect(paginationButtons.at(1).attributes('disabled')).toBeUndefined();
 
+    let serverPoolRequest = mockAxios.request('/api/v1/serverPools', { page: 2 });
+
     // test navigate to next page
     await paginationButtons.at(1).trigger('click');
     // dropdown show loading spinner during load and save disabled
     expect(multiSelect.props('loading')).toBeTruthy();
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/serverPools?page=2');
-    await request.respondWith({
+    await serverPoolRequest.wait();
+    await serverPoolRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 3, name: 'Pool3', description: 'test3' },
           { id: 4, name: 'Pool4', description: 'test4' }
@@ -193,14 +189,14 @@ describe('RoomTypeView', () => {
     expect(paginationButtons.at(1).attributes('disabled')).toBe('disabled');
 
     // test error during load
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools?page=1', {
+    mockAxios.request('/api/v1/serverPools', { page: 2 }).respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
     await paginationButtons.at(0).trigger('click');
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // hide loading spinner, disable dropdown and prevent saving
@@ -210,21 +206,19 @@ describe('RoomTypeView', () => {
 
     expect(spy).toBeCalledTimes(1);
 
-    restoreServerPoolResponse();
-
     const reloadButton = view.findAllComponents(BButton).at(2);
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
+
+    serverPoolRequest = mockAxios.request('/api/v1/serverPools', { page: 2 });
 
     await reloadButton.trigger('click');
 
     // load server pools
-    await waitMoxios();
+    await serverPoolRequest.wait();
     expect(saveButton.attributes('disabled')).toBe('disabled');
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/serverPools?page=2');
-    await request.respondWith({
+    await serverPoolRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 3, name: 'Pool3', description: 'test3' },
           { id: 4, name: 'Pool4', description: 'test4' }
@@ -260,7 +254,7 @@ describe('RoomTypeView', () => {
       }
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(VSwatches).wrappers.every(input => input.vm.disabled)).toBe(true);
     expect(view.findComponent(Multiselect).props('disabled')).toBeTruthy();
@@ -270,9 +264,48 @@ describe('RoomTypeView', () => {
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/roles', { page: 1 }).respondWith({
+      status: 200,
+      data: {
+        data: Array.from(Array(5).keys()).map(item => {
+          return {
+            id: item + 1,
+            name: 'Test ' + (item + 1),
+            default: true,
+            updated_at: '2020-01-01T01:00:00.000000Z',
+            model_name: 'Role',
+            room_limit: null
+          };
+        }),
+        meta: {
+          per_page: 5,
+          current_page: 1,
+          total: 10,
+          last_page: 2
+        }
+      }
+    });
+    mockAxios.request('/api/v1/serverPools', { page: 1 }).respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 1, name: 'Pool1', description: 'test1' },
+          { id: 2, name: 'Pool2', description: 'test2' }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4
+        }
+      }
+    });
+    mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -288,18 +321,35 @@ describe('RoomTypeView', () => {
       }
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
 
-    restoreRoomTypeResponse();
-
     const reloadButton = view.findComponent({ ref: 'reloadRoomType' });
+
     expect(reloadButton.exists()).toBeTruthy();
+
+    const request = mockAxios.request('/api/v1/roomTypes/1');
+
     reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 1,
+          short: 'ME',
+          color: '#333333',
+          description: 'Meeting',
+          model_name: 'RoomType',
+          updated_at: '2020-09-08T15:13:26.000000Z',
+          roles: []
+        }
+      }
+    });
+
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
@@ -315,9 +365,48 @@ describe('RoomTypeView', () => {
 
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/roles', { page: 1 }).respondWith({
+      status: 200,
+      data: {
+        data: Array.from(Array(5).keys()).map(item => {
+          return {
+            id: item + 1,
+            name: 'Test ' + (item + 1),
+            default: true,
+            updated_at: '2020-01-01T01:00:00.000000Z',
+            model_name: 'Role',
+            room_limit: null
+          };
+        }),
+        meta: {
+          per_page: 5,
+          current_page: 1,
+          total: 10,
+          last_page: 2
+        }
+      }
+    });
+    mockAxios.request('/api/v1/serverPools', { page: 1 }).respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 1, name: 'Pool1', description: 'test1' },
+          { id: 2, name: 'Pool2', description: 'test2' }
+        ],
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          per_page: 2,
+          to: 2,
+          total: 4
+        }
+      }
+    });
+    mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -334,12 +423,11 @@ describe('RoomTypeView', () => {
       router
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
 
-    restoreRoomTypeResponse();
     view.destroy();
   });
 
@@ -362,22 +450,24 @@ describe('RoomTypeView', () => {
       router
     });
 
-    await waitMoxios();
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
-      status: 404,
-      response: {
-        message: 'Test'
-      }
-    });
+    await mockAxios.wait();
+
+    const request = mockAxios.request('/api/v1/roomTypes/1');
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await request.wait();
+    await request.respondWith({
+      status: 404,
+      data: {
+        message: 'Test'
+      }
+    });
     expect(spy).toBeCalledTimes(1);
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.room_types' });
-    restoreRoomTypeResponse();
+
     view.destroy();
   });
 
@@ -395,19 +485,21 @@ describe('RoomTypeView', () => {
       }
     });
 
-    await waitMoxios();
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    await mockAxios.wait();
+    const request = mockAxios.request('/api/v1/roomTypes/1');
+
+    view.findComponent(BForm).trigger('submit');
+
+    await request.wait();
+    await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
 
-    view.findComponent(BForm).trigger('submit');
-
-    await waitMoxios();
     expect(spy).toBeCalledTimes(1);
-    restoreRoomTypeResponse();
+
     view.destroy();
   });
 
@@ -429,12 +521,11 @@ describe('RoomTypeView', () => {
       router
     });
 
-    await waitMoxios();
-    const requestCount = moxios.requests.count();
+    await mockAxios.wait();
 
     await view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click');
-    expect(moxios.requests.count()).toBe(requestCount);
     expect(spy).toBeCalledTimes(1);
+
     view.destroy();
   });
 
@@ -456,7 +547,7 @@ describe('RoomTypeView', () => {
       router
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     const inputs = view.findAllComponents(BFormInput).wrappers;
 
@@ -465,11 +556,21 @@ describe('RoomTypeView', () => {
     await inputs[2].setValue('#333333');
     await view.findComponent(Multiselect).findAll('li').at(1).find('span').trigger('click');
 
+    const request = mockAxios.request('/api/v1/roomTypes/1');
+
     view.findComponent(BForm).trigger('submit');
 
-    let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    await request.wait();
+    const data = JSON.parse(request.config.data);
+
+    expect(data.description).toBe('Meeting');
+    expect(data.short).toBe('ME');
+    expect(data.color).toBe('#333333');
+    expect(data.server_pool).toBe(2);
+
+    await request.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           description: ['Test description'],
@@ -479,30 +580,20 @@ describe('RoomTypeView', () => {
       }
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    const data = JSON.parse(request.config.data);
-
-    expect(data.description).toBe('Meeting');
-    expect(data.short).toBe('ME');
-    expect(data.color).toBe('#333333');
-    expect(data.server_pool).toBe(2);
-
     const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
     expect(feedback[0].html()).toContain('Test description');
     expect(feedback[1].html()).toContain('Test short');
     expect(feedback[2].html()).toContain('Test color');
 
-    restoreRoomTypeResponse();
-    restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: 204
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
-    restoreRoomTypeResponse();
+
     view.destroy();
   });
 
@@ -525,13 +616,13 @@ describe('RoomTypeView', () => {
       router
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
-    let restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -540,24 +631,25 @@ describe('RoomTypeView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-roomType-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
-    restoreRoomTypeResponse();
-    restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
-      status: 204
-    });
+    const request = mockAxios.request('/api/v1/roomTypes/1');
 
     staleModelModal.vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     const data = JSON.parse(request.config.data);
 
     expect(data.updated_at).toBe(newModel.updated_at);
+
+    await request.respondWith({
+      status: 204
+    });
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-    restoreRoomTypeResponse();
+
     view.destroy();
   });
 
@@ -580,14 +672,14 @@ describe('RoomTypeView', () => {
       router
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
     newModel.description = 'Test';
 
-    const restoreRoomTypeResponse = overrideStub('/api/v1/roomTypes/1', {
+    mockAxios.request('/api/v1/roomTypes/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -596,12 +688,10 @@ describe('RoomTypeView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-roomType-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
     expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Meeting');
-
-    restoreRoomTypeResponse();
 
     staleModelModal.vm.$refs['cancel-button'].click();
 

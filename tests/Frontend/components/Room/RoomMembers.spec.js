@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormFile, BFormRadio, BTbody, BTr } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import MembersComponent from '../../../../resources/js/components/Room/MembersComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import _ from 'lodash';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -25,13 +25,21 @@ const initialState = { auth: { currentUser: exampleUser } };
 
 describe('RoomMembers', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('load members', async () => {
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -45,20 +53,8 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: 'http://domain.tld/storage/profile_images/1234abc.jpg' }
-        ]
-      }
-    });
 
     expect(view.vm.$data.members).toHaveLength(3);
 
@@ -95,6 +91,14 @@ describe('RoomMembers', () => {
 
   it('show owner add, import and edit buttons', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -121,6 +125,14 @@ describe('RoomMembers', () => {
 
   it('show co-owner add, import and edit buttons', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -152,6 +164,13 @@ describe('RoomMembers', () => {
     const newUser = _.clone(exampleUser);
     newUser.permissions = ['rooms.viewAll'];
     PermissionService.setCurrentUser(newUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
 
     const view = mount(MembersComponent, {
       localVue,
@@ -188,6 +207,13 @@ describe('RoomMembers', () => {
     newUser.permissions = ['rooms.manage'];
     PermissionService.setCurrentUser(newUser);
 
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -217,6 +243,13 @@ describe('RoomMembers', () => {
   it('error emitted on members load', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -230,16 +263,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
+
     expect(spy).toBeCalledTimes(1);
 
     view.destroy();
@@ -247,6 +273,18 @@ describe('RoomMembers', () => {
 
   it('add new member', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -264,26 +302,14 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'add-member-modal' });
     expect(modal.exists()).toBeTruthy();
-    await waitMoxios();
+
     const addButton = view.findComponent({ ref: 'add-member' });
     expect(addButton.exists()).toBeTruthy();
     // check if modal is closed and try to open it
@@ -298,15 +324,16 @@ describe('RoomMembers', () => {
 
     // find user search and enter query
     const searchField = modal.find('input');
+
+    const searchRequest = mockAxios.request('/api/v1/users/search');
+
     await searchField.setValue('Laura');
-    await waitMoxios();
-    await view.vm.$nextTick();
+    await searchRequest.wait();
     // check user search query request and respond with found users
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/users/search?query=Laura');
-    await request.respondWith({
+    expect(searchRequest.config.params.query).toEqual('Laura');
+    await searchRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', image: null },
           { id: 10, firstname: 'Laura', lastname: 'Walter', email: 'LauraMWalter@domain.tld', image: null }
@@ -351,19 +378,20 @@ describe('RoomMembers', () => {
     expect(footerButtons.at(0).text()).toBe('app.cancel');
     expect(footerButtons.at(1).text()).toBe('rooms.members.modals.add.add');
 
+    const addMemberRequest = mockAxios.request('/api/v1/rooms/123-456-789/member');
+
     // confirm add of new user
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
-    expect(JSON.parse(request.config.data)).toMatchObject({ user: 10, role: 2 });
+    await addMemberRequest.wait();
+    expect(addMemberRequest.config.method).toEqual('post');
+    expect(JSON.parse(addMemberRequest.config.data)).toMatchObject({ user: 10, role: 2 });
+
+    const listRequest = mockAxios.request('/api/v1/rooms/123-456-789/member');
 
     await waitModalHidden(view, async () => {
-      await request.respondWith({
+      await addMemberRequest.respondWith({
         status: 204
       });
     });
@@ -373,14 +401,10 @@ describe('RoomMembers', () => {
     expect(modal.find('.modal').element.style.display).toEqual('none');
 
     // reload user list
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
+    await listRequest.wait();
+    await listRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
           { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
@@ -409,6 +433,14 @@ describe('RoomMembers', () => {
   it('add new member errors', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -426,17 +458,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: []
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'add-member-modal' });
@@ -458,19 +482,18 @@ describe('RoomMembers', () => {
 
     expect(view.vm.$data.newMember.role).toBe(2);
 
+    let addMemberRequest = mockAxios.request('/api/v1/rooms/123-456-789/member');
+
     // confirm add of new user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
-    expect(JSON.parse(request.config.data)).toMatchObject({ user: 10, role: 2 });
-    await request.respondWith({
+    await addMemberRequest.wait();
+    expect(addMemberRequest.config.method).toEqual('post');
+    expect(JSON.parse(addMemberRequest.config.data)).toMatchObject({ user: 10, role: 2 });
+    await addMemberRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           user: ['The user is already member of the room.']
@@ -482,20 +505,17 @@ describe('RoomMembers', () => {
 
     expect(modal.find('.modal').element.style.display).toEqual('block');
 
+    addMemberRequest = mockAxios.request('/api/v1/rooms/123-456-789/member');
+
     // confirm add of new user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member');
-    expect(JSON.parse(request.config.data)).toMatchObject({ user: 10, role: 2 });
-
+    await addMemberRequest.wait();
     await waitModalHidden(view, async () => {
-      await request.respondWith({
+      await addMemberRequest.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Test'
         }
       });
@@ -513,6 +533,18 @@ describe('RoomMembers', () => {
 
   it('edit member', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -530,21 +562,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'edit-member-modal' });
@@ -596,15 +616,14 @@ describe('RoomMembers', () => {
     expect(footerButtons.at(0).text()).toBe('app.cancel');
     expect(footerButtons.at(1).text()).toBe('app.save');
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/member/5');
+
     // confirm changes
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
     expect(JSON.parse(request.config.data)).toMatchObject({ role: 2 });
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -631,6 +650,18 @@ describe('RoomMembers', () => {
   it('edit member error gone', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -648,21 +679,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'edit-member-modal' });
@@ -692,20 +711,20 @@ describe('RoomMembers', () => {
     // check modal action buttons
     const footerButtons = modal.find('footer').findAll('button');
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/member/5');
+
     // confirm changes
     await footerButtons.at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('put');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
     expect(JSON.parse(request.config.data)).toMatchObject({ role: 1 });
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 410,
-        response: {
+        data: {
           message: 'The person is not a member of this room (anymore).'
         }
       });
@@ -731,6 +750,18 @@ describe('RoomMembers', () => {
 
   it('delete members', async () => {
     PermissionService.setCurrentUser(exampleUser);
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -748,21 +779,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'remove-member-modal' });
@@ -787,14 +806,14 @@ describe('RoomMembers', () => {
 
     expect(view.vm.$data.removeMember.id).toBe(5);
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/member/5');
+
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
 
     await waitModalHidden(view, async () => {
       await request.respondWith({
@@ -817,6 +836,18 @@ describe('RoomMembers', () => {
   it('delete members, already gone', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -834,21 +865,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'remove-member-modal' });
@@ -874,19 +893,19 @@ describe('RoomMembers', () => {
 
     expect(view.vm.$data.removeMember.id).toBe(5);
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/member/5');
+
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
 
     await waitModalHidden(view, async () => {
       await request.respondWith({
         status: 410,
-        response: {
+        data: {
           message: 'The person is not a member of this room (anymore).'
         }
       });
@@ -911,6 +930,18 @@ describe('RoomMembers', () => {
   it('delete members error', async () => {
     PermissionService.setCurrentUser(exampleUser);
     const baseError = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    mockAxios.request('/api/v1/rooms/123-456-789/member').respondWith({
+      status: 200,
+      data: {
+        data: [
+          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
+          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 1, image: null },
+          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 1, image: null }
+        ]
+      }
+    });
+
     const view = mount(MembersComponent, {
       localVue,
       mocks: {
@@ -928,21 +959,9 @@ describe('RoomMembers', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await view.vm.$nextTick();
     // load current member list
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/member');
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: [
-          { id: 5, firstname: 'Laura', lastname: 'Rivera', email: 'LauraWRivera@domain.tld', role: 1, image: null },
-          { id: 6, firstname: 'Juan', lastname: 'Walter', email: 'JuanMWalter@domain.tld', role: 2, image: null },
-          { id: 7, firstname: 'Tammy', lastname: 'Law', email: 'TammyGLaw@domain.tld', role: 3, image: null }
-        ]
-      }
-    });
+    await mockAxios.wait();
+    await view.vm.$nextTick();
 
     // find modal
     const modal = view.findComponent({ ref: 'remove-member-modal' });
@@ -966,14 +985,14 @@ describe('RoomMembers', () => {
 
     expect(view.vm.$data.removeMember.id).toBe(5);
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/member/5');
+
     // confirm delete of user
     await modal.find('footer').findAll('button').at(1).trigger('click');
 
     // check for request and respond
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('delete');
-    expect(request.config.url).toEqual('/api/v1/rooms/123-456-789/member/5');
 
     await waitModalHidden(view, async () => {
       await request.respondWith({
