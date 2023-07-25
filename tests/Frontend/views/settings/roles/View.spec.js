@@ -1,7 +1,7 @@
 import View from '../../../../../resources/js/views/settings/roles/View.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import moxios from 'moxios';
+
 import BootstrapVue, {
 
   BFormInput,
@@ -14,7 +14,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -28,7 +28,7 @@ const initialState = { settings: { settings: { room_limit: -1 } } };
 describe('RolesView', () => {
   beforeEach(() => {
     PermissionService.setCurrentUser({ permissions: ['roles.view', 'roles.create', 'roles.update', 'settings.manage'] });
-    moxios.install();
+    mockAxios.reset();
 
     const permissionsResponse = {
       data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; })
@@ -55,18 +55,18 @@ describe('RolesView', () => {
       }
     };
 
-    moxios.stubRequest('/api/v1/permissions', {
+    mockAxios.request('/api/v1/permissions').respondWith({
       status: 200,
-      response: permissionsResponse
+      data: permissionsResponse
     });
-    moxios.stubRequest('/api/v1/roles/1', {
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: 200,
-      response: roleResponse
+      data: roleResponse
     });
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('role name in title gets translated for detail view', async () => {
@@ -84,7 +84,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.html()).toContain('settings.roles.view app.role_lables.admin');
     view.destroy();
   });
@@ -104,7 +104,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.html()).toContain('settings.roles.edit app.role_lables.admin');
     view.destroy();
   });
@@ -124,7 +124,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(BFormCheckbox).wrappers.every(input => input.vm.isDisabled)).toBe(true);
     expect(view.findAllComponents(BFormRadio).wrappers.every(input => input.vm.isDisabled)).toBe(true);
@@ -158,7 +158,7 @@ describe('RolesView', () => {
     expect(view.vm.isBusy).toBe(true);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
@@ -208,15 +208,16 @@ describe('RolesView', () => {
   it('error handler gets called if an error occurs during load of data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
-    const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+    mockAxios.request('/api/v1/permissions').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -235,7 +236,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(2);
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
@@ -244,8 +245,6 @@ describe('RolesView', () => {
     const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
     expect(saveButton.wrappers.length).toBe(1);
 
-    restoreRoleResponse();
-    restorePermissionsResponse();
     view.destroy();
   });
 
@@ -278,11 +277,9 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const requestCount = moxios.requests.count();
+    await mockAxios.wait();
 
     await view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click');
-    expect(moxios.requests.count()).toBe(requestCount);
     expect(spy).toBeCalledTimes(1);
     view.destroy();
   });
@@ -316,7 +313,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
     let roomLimitCustomRadio;
 
@@ -335,11 +332,20 @@ describe('RolesView', () => {
     await inputs[0].setValue('Test');
     await inputs[1].setValue(10);
 
+    const request = mockAxios.request('/api/v1/roles/1');
+
     view.findComponent(BForm).trigger('submit');
 
-    let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    await request.wait();
+    const data = JSON.parse(request.config.data);
+
+    expect(data.name).toBe('Test');
+    expect(data.room_limit).toBe('10');
+    expect(data.permissions).toEqual([10, 2]);
+
+    await request.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           name: ['Test name'],
@@ -350,30 +356,20 @@ describe('RolesView', () => {
       }
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    const data = JSON.parse(request.config.data);
-
-    expect(data.name).toBe('Test');
-    expect(data.room_limit).toBe('10');
-    expect(data.permissions).toEqual([10, 2]);
-
     const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
     expect(feedback[0].html()).toContain('Test name');
     expect(feedback[1].html()).toContain('Test room limit');
     expect(feedback[2].html()).toContain('Test permissions');
     expect(feedback[2].html()).toContain('Test permissions 0');
 
-    restoreRoleResponse();
-    restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: 204
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
-    restoreRoleResponse();
     view.destroy();
   });
 
@@ -407,13 +403,13 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
-    let restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -422,24 +418,24 @@ describe('RolesView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-role-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
-    restoreRoleResponse();
-    restoreRoleResponse = overrideStub('/api/v1/roles/1', {
-      status: 204
-    });
+    const request = mockAxios.request('/api/v1/roles/1');
 
     staleModelModal.vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     const data = JSON.parse(request.config.data);
 
     expect(data.updated_at).toBe(newModel.updated_at);
+
+    await request.respondWith({
+      status: 204
+    });
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-    restoreRoleResponse();
     view.destroy();
   });
 
@@ -473,14 +469,14 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
     newModel.name = 'Test';
 
-    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -489,12 +485,10 @@ describe('RolesView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-role-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
     expect(view.findComponent(BFormInput).element.value).toBe('admin');
-
-    restoreRoleResponse();
 
     staleModelModal.vm.$refs['cancel-button'].click();
 
@@ -507,13 +501,38 @@ describe('RolesView', () => {
   it('reload overlay gets shown if an error occurs during load of permissions', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restorePermissionsResponse = overrideStub('/api/v1/permissions', {
-      status: 500,
-      response: {
-        message: 'Test'
+    mockAxios.reset();
+
+    mockAxios.request('/api/v1/roles/1').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: '1',
+          name: 'admin',
+          default: false,
+          model_name: 'Role',
+          room_limit: null,
+          updated_at: '2020-09-08T15:13:26.000000Z',
+          permissions: [
+            {
+              id: 1,
+              name: 'tests.testA'
+            },
+            {
+              id: 10,
+              name: 'tests.testJ'
+            }
+          ]
+        }
       }
     });
 
+    mockAxios.request('/api/v1/permissions').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
     const view = mount(View, {
       localVue,
       mocks: {
@@ -528,7 +547,8 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
+
     expect(spy).toBeCalledTimes(1);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
     expect(view.html()).toContain('app.reload');
@@ -536,7 +556,6 @@ describe('RolesView', () => {
     const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
     expect(saveButton.wrappers.length).toBe(1);
 
-    restorePermissionsResponse();
     view.destroy();
   });
 
@@ -548,11 +567,21 @@ describe('RolesView', () => {
     const router = new VueRouter();
     router.push = routerSpy;
 
-    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
+    });
+
+    const permissionsResponse = {
+      data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; })
+    };
+
+    mockAxios.request('/api/v1/permissions').respondWith({
+      status: 200,
+      data: permissionsResponse
     });
 
     const view = mount(View, {
@@ -570,23 +599,32 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
 
-    restoreRoleResponse();
     view.destroy();
   });
 
   it('reload overlay gets shown if another error than 404 occurs during load of the role', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
+    });
+
+    const permissionsResponse = {
+      data: Array.from(Array(10).keys()).map(item => { return { id: item + 1, name: `tests.test${item + 1}` }; })
+    };
+
+    mockAxios.request('/api/v1/permissions').respondWith({
+      status: 200,
+      data: permissionsResponse
     });
 
     const view = mount(View, {
@@ -603,14 +641,13 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
     expect(view.html()).toContain('app.reload');
     const saveButton = view.findAllComponents(BButton).filter(button => button.text() === 'app.save' && button.attributes('disabled'));
     expect(saveButton.wrappers.length).toBe(1);
 
-    restoreRoleResponse();
     view.destroy();
   });
 
@@ -637,29 +674,29 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     view.findComponent(BForm).trigger('submit');
 
-    const restoreRoleResponse = overrideStub('/api/v1/roles/1', {
+    mockAxios.request('/api/v1/roles/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.roles' });
 
-    restoreRoleResponse();
     view.destroy();
   });
 
   it('included permissions get shown and updated', async () => {
-    let restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/permissions').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'tests.test1', included_permissions: [] },
           { id: 2, name: 'tests.test2', included_permissions: [] },
@@ -667,6 +704,29 @@ describe('RolesView', () => {
           { id: 4, name: 'tests.test4', included_permissions: [] },
           { id: 10, name: 'tests.test5', included_permissions: [4] }
         ]
+      }
+    });
+    mockAxios.request('/api/v1/roles/1').respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: '1',
+          name: 'admin',
+          default: false,
+          model_name: 'Role',
+          room_limit: null,
+          updated_at: '2020-09-08T15:13:26.000000Z',
+          permissions: [
+            {
+              id: 1,
+              name: 'tests.testA'
+            },
+            {
+              id: 10,
+              name: 'tests.testJ'
+            }
+          ]
+        }
       }
     });
 
@@ -692,7 +752,7 @@ describe('RolesView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     let permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
 
@@ -721,12 +781,10 @@ describe('RolesView', () => {
     expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
     expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
 
-    restorePermissionsResponse();
-
     // test if permission include works after reload of include map
-    restorePermissionsResponse = overrideStub('/api/v1/permissions', {
+    mockAxios.request('/api/v1/permissions').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'tests.test1', included_permissions: [] },
           { id: 2, name: 'tests.test2', included_permissions: [] },
@@ -737,7 +795,7 @@ describe('RolesView', () => {
       }
     });
     view.vm.loadPermissions();
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     permissionsCxs = view.findAllComponents(BFormCheckbox).wrappers;
@@ -753,7 +811,6 @@ describe('RolesView', () => {
     expect(perm4.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
     expect(perm10.element.parentElement.parentElement.children[2].innerHTML).toContain('fa-solid fa-minus-circle text-danger');
 
-    restorePermissionsResponse();
     view.destroy();
   });
 });
