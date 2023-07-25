@@ -6,7 +6,7 @@ import PermissionService from '../../resources/js/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../resources/js/stores/auth';
-import { createLocalVue, mockAxios, waitAxios } from './helper';
+import { createLocalVue, mockAxios } from './helper';
 import VueRouter from 'vue-router';
 
 const localVue = createLocalVue();

@@ -8,7 +8,6 @@ import _ from 'lodash';
 import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import axios from 'axios';
 
 const localVue = createLocalVue();
 

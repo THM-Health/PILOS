@@ -9,7 +9,6 @@ import Base from '../../../../resources/js/api/base';
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import axios from 'axios';
 
 const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', permissions: [], model_name: 'User', room_limit: -1 };
 const initialState = { auth: { currentUser: exampleUser } };

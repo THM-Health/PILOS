@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BForm, BFormInput } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import VueRouter from 'vue-router';
 import New from '../../../../../resources/js/views/settings/users/New.vue';
 import TimezoneSelect from '../../../../../resources/js/components/Inputs/TimezoneSelect.vue';
 import LocaleSelect from '../../../../../resources/js/components/Inputs/LocaleSelect.vue';
 import RoleSelect from '../../../../../resources/js/components/Inputs/RoleSelect.vue';
-import { createContainer, waitMoxios, createLocalVue } from '../../../helper';
+import { createContainer, mockAxios, createLocalVue } from '../../../helper';
 import Base from '../../../../../resources/js/api/base';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
@@ -17,11 +17,11 @@ localVue.use(VueRouter);
 
 describe('NewUserView', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('submit form', async () => {
@@ -92,14 +92,15 @@ describe('NewUserView', () => {
     expect(submitButton.exists()).toBeTruthy();
     expect(submitButton.text()).toEqual('app.save');
     expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    const saveRequest = mockAxios.request('/api/v1/users');
+
     await submitButton.trigger('click');
 
     // Check if request was sent and check content
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.config.url).toEqual('/api/v1/users');
-    expect(JSON.parse(request.config.data)).toEqual({
+    await saveRequest.wait();
+    expect(saveRequest.config.method).toEqual('post');
+    expect(JSON.parse(saveRequest.config.data)).toEqual({
       firstname: 'John',
       lastname: 'Doe',
       email: 'john.doe@domain.tld',
@@ -120,9 +121,9 @@ describe('NewUserView', () => {
     expect(roleSelect.props('disabled')).toBeTruthy();
 
     // Respond with success
-    await request.respondWith({
+    await saveRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 123,
           authenticator: 'local',
@@ -180,12 +181,14 @@ describe('NewUserView', () => {
     expect(submitButton.exists()).toBeTruthy();
     expect(submitButton.text()).toEqual('app.save');
     expect(submitButton.attributes('disabled')).toBeFalsy();
+
+    let saveRequest = mockAxios.request('/api/v1/users');
+
     await submitButton.trigger('click');
 
     // Check if request was sent and check content
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(JSON.parse(request.config.data)).toEqual({
+    await saveRequest.wait();
+    expect(JSON.parse(saveRequest.config.data)).toEqual({
       firstname: null,
       lastname: null,
       email: null,
@@ -198,9 +201,9 @@ describe('NewUserView', () => {
     });
 
     // Respond with errors
-    await request.respondWith({
+    await saveRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           firstname: ['The Firstname field is required.'],
           lastname: ['The Lastname field is required.'],
@@ -222,9 +225,11 @@ describe('NewUserView', () => {
     const roleSelect = form.findComponent(RoleSelect);
     expect(roleSelect.props('invalid')).toBeTruthy();
 
+    saveRequest = mockAxios.request('/api/v1/users');
+
     // Submit again
     await submitButton.trigger('click');
-    await waitMoxios();
+    await saveRequest.wait();
 
     // Check if validation errors are cleared on new submit
     expect(fields.at(0).props('state')).toBeNull();
@@ -234,10 +239,9 @@ describe('NewUserView', () => {
     expect(roleSelect.props('invalid')).toBeFalsy();
 
     // Respond with server error
-    request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await saveRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal Server Error'
       }
     });

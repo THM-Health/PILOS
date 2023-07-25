@@ -86,6 +86,15 @@ describe('Room Index', () => {
   it('show different heading depending on permission', async () => {
     const oldUser = PermissionService.currentUser;
 
+    mockAxios.request('/api/v1/rooms').respondWith({
+      status: 200,
+      data: exampleRoomResponse
+    });
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: exampleRoomTypeResponse
+    });
+
     const view = mount(RoomList, {
       localVue,
       mocks: {
@@ -324,7 +333,6 @@ describe('Room Index', () => {
       status: 200,
       data: exampleRoomResponse
     });
-
     mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
       data: exampleRoomTypeResponse
@@ -342,12 +350,12 @@ describe('Room Index', () => {
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    // enter search query and click search button
+    // enter search query
     await view.findComponent(BFormInput).setValue('Meeting');
 
     let request = mockAxios.request('/api/v1/rooms');
 
-    await view.findAllComponents(BButton).trigger('click');
+    await view.findComponent(BButton).trigger('click');
 
     // check if new request with the search query is send
     await request.wait();
@@ -496,7 +504,7 @@ describe('Room Index', () => {
     expect(roomTypeRequest.config.params).toStrictEqual({ filter: 'searchable' });
     await roomTypeRequest.respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     view.destroy();
