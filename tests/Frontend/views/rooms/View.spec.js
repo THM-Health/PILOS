@@ -947,10 +947,6 @@ describe('Room', () => {
     // check if require access code is shown
     expect(view.html()).toContain('rooms.require_access_code');
 
-    // reinstall moxios to disable stub
-
-    mockAxios.reset();
-
     // click on the login button without input to access code field
     const loginButton = view.findAllComponents(BButton).at(1);
     expect(loginButton.text()).toBe('rooms.login');

@@ -1,5 +1,4 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import mockAxios from './mock-axios';
 import { createLocalVue as originalCreateLocalVue } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import HideTooltip from '../../resources/js/directives/hide-tooltip';
@@ -11,62 +10,14 @@ function createLocalVue () {
   return localVue;
 }
 
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-const mockAxios = new MockAdapter(axios);
 /**
  * Various helper functions for testing
  */
 module.exports = {
 
-  mockAxios: {
-    reset: () => mockAxios.reset(),
-
-    wait: () => new Promise(resolve => setTimeout(resolve)),
-
-    request: function (url, params) {
-      const resolvers = {
-        request: null,
-        response: null
-      };
-
-      const promises = {
-        request: new Promise(function (resolve) {
-          resolvers.request = resolve;
-        }),
-        response: new Promise(function (resolve) {
-          resolvers.response = resolve;
-        })
-      };
-
-      const request = {
-        config: null,
-        respondWith: function ({ status, data, header = {} }) {
-          resolvers.response([status, data, header]);
-          return new Promise(resolve => setTimeout(resolve));
-        },
-        wait: () => promises.request
-      };
-
-      mockAxios.onAny(url, params).replyOnce(function (config) {
-        // Add xsrf header
-        const xsrfValue = document.cookie.split('; ').find((row) => row.startsWith(config.xsrfCookieName))?.split('=')[1];
-
-        if (config.withCredentials && config.xsrfCookieName && xsrfValue) {
-          config.headers[config.xsrfHeaderName] = xsrfValue;
-        }
-
-        request.config = config;
-        resolvers.request();
-        return promises.response;
-      });
-
-      return request;
-    },
-
-    history: () => mockAxios.history
-  },
+  /** mock Axios requests
+   * @docs tests/Frontend/mock-axios.js */
+  mockAxios,
 
   /**
    * Asynchronous helper function for modal events
