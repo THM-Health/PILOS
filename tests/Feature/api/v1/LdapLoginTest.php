@@ -176,7 +176,7 @@ class LdapLoginTest extends TestCase
     public function testAttributeMapping()
     {
         Log::swap(new LogFake);
-        Config::set('ldap.logging', false);
+        Config::set('ldap.logging.enabled', false);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
@@ -211,7 +211,7 @@ class LdapLoginTest extends TestCase
     public function testAttributeMappingLogging()
     {
         Log::swap(new LogFake);
-        Config::set('ldap.logging', true);
+        Config::set('ldap.logging.enabled', true);
 
         $this->from(config('app.url'))->postJson(route('api.v1.login.ldap'), [
             'username' => $this->ldapUser->uid[0],
