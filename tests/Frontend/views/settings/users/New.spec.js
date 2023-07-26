@@ -174,6 +174,27 @@ describe('NewUserView', () => {
       attachTo: createContainer()
     });
 
+    // Find all regular input fields and fill them
+    let fields = view.findAllComponents(BFormInput);
+    await fields.at(0).setValue('John');
+    await fields.at(1).setValue('Doe');
+    await fields.at(2).setValue('john.doe@domain.tld');
+    await fields.at(3).setValue('!Test1234');
+    await fields.at(4).setValue('!Test1234');
+
+    // Find timezone select and set value
+    const timezoneSelect = view.findComponent(TimezoneSelect);
+    await timezoneSelect.vm.$emit('input', 'Europe/London');
+
+    // Find locale select and set value
+    const localeSelect = view.findComponent(LocaleSelect);
+    await localeSelect.vm.$emit('input', 'de');
+
+    // Find role select and set value
+    let roleSelect = view.findComponent(RoleSelect);
+    const roles = [{ id: 1, name: 'admin', default: true, model_name: 'Role', room_limit: -1 }, { id: 2, name: 'user', default: false, model_name: 'Role', room_limit: null }];
+    await roleSelect.vm.$emit('input', roles);
+
     // Find submit button and click it
     const form = view.findComponent(BForm);
     const buttons = form.findAllComponents(BButton);
@@ -189,15 +210,15 @@ describe('NewUserView', () => {
     // Check if request was sent and check content
     await saveRequest.wait();
     expect(JSON.parse(saveRequest.config.data)).toEqual({
-      firstname: null,
-      lastname: null,
-      email: null,
-      user_locale: 'en',
-      timezone: 'Europe/Berlin',
-      roles: [],
+      firstname: 'John',
+      lastname: 'Doe',
+      email: 'john.doe@domain.tld',
+      user_locale: 'de',
+      timezone: 'Europe/London',
+      roles: [1, 2],
       generate_password: false,
-      new_password: null,
-      new_password_confirmation: null
+      new_password: '!Test1234',
+      new_password_confirmation: '!Test1234'
     });
 
     // Respond with errors
@@ -217,12 +238,12 @@ describe('NewUserView', () => {
     await view.vm.$nextTick();
 
     // Check if errors are shown
-    const fields = form.findAllComponents(BFormInput);
+    fields = form.findAllComponents(BFormInput);
     expect(fields.at(0).props('state')).toBe(false);
     expect(fields.at(1).props('state')).toBe(false);
     expect(fields.at(2).props('state')).toBe(false);
     expect(fields.at(3).props('state')).toBe(false);
-    const roleSelect = form.findComponent(RoleSelect);
+    roleSelect = form.findComponent(RoleSelect);
     expect(roleSelect.props('invalid')).toBeTruthy();
 
     saveRequest = mockAxios.request('/api/v1/users');

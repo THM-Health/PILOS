@@ -194,6 +194,13 @@ describe('PasswordComponent', () => {
 
     await wrapper.vm.$nextTick();
 
+    const inputs = wrapper.findAllComponents(BFormInput);
+
+    // Fill form
+    await inputs.at(0).find('input').setValue('secretPassword123#');
+    await inputs.at(1).find('input').setValue('newSecretPassword123#');
+    await inputs.at(2).find('input').setValue('confirmNewSecretPassword123#');
+
     // Find submit button
     const saveButton = wrapper.findComponent(BButton);
     // --- Check 404 error ---
@@ -214,6 +221,9 @@ describe('PasswordComponent', () => {
 
     // --- Check form validation error ---
     request = mockAxios.request('/api/v1/users/2/password');
+    await inputs.at(0).find('input').setValue('secretPassword123#');
+    await inputs.at(1).find('input').setValue('newSecretPassword123#');
+    await inputs.at(2).find('input').setValue('confirmNewSecretPassword123#');
     await saveButton.trigger('click');
     await request.wait();
     // Respond with errors
@@ -234,12 +244,14 @@ describe('PasswordComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if errors are shown
-    const inputs = wrapper.findAllComponents(BFormInput);
     expect(inputs.at(0).props('state')).toBe(false);
     expect(inputs.at(1).props('state')).toBe(false);
 
     // --- Check other errors ---
     request = mockAxios.request('/api/v1/users/2/password');
+    await inputs.at(0).find('input').setValue('secretPassword123#');
+    await inputs.at(1).find('input').setValue('newSecretPassword123#');
+    await inputs.at(2).find('input').setValue('confirmNewSecretPassword123#');
     await saveButton.trigger('click');
     await request.wait();
 
