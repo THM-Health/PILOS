@@ -146,7 +146,7 @@ class RoomController extends Controller
      */
     public function start(Room $room, StartJoinMeeting $request)
     {
-        $this->authorize('start', [$room, $request->get('token')]);
+        $this->authorize('start', [$room, $request->token]);
 
         $roomService = new RoomService($room);
         $url         = $roomService->start($request->record_attendance)->getJoinUrl($request);

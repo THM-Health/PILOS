@@ -245,7 +245,7 @@ class MeetingService
      */
     public function getJoinUrl(StartJoinMeeting $request): string
     {
-        $token = $request->get('token');
+        $token = $request->token;
 
         if ($token) {
             $name = $token->fullname;
