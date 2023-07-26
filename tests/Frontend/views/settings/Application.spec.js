@@ -37,7 +37,7 @@ describe('Application', () => {
     mockAxios.request('/api/v1/getTimezones').respondWith({
       status: 200,
       data: {
-        timezones: ['UTC']
+        data: ['UTC', 'Europe/Berlin']
       }
     });
   });
@@ -78,11 +78,14 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           room_token_expiration: 525600,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -148,11 +151,14 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           room_token_expiration: 525600,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -207,10 +213,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -332,10 +341,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -359,7 +371,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -377,10 +390,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test1.svg',
           room_limit: -1,
           pagination_page_size: 11,
           own_rooms_pagination_page_size: 6,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -424,10 +440,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -451,7 +470,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -528,10 +548,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: true,
             message: 'Test',
@@ -562,7 +585,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -648,10 +672,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -675,7 +702,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -719,10 +747,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -746,7 +777,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -791,10 +823,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -818,7 +853,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -862,10 +898,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -889,7 +928,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -942,10 +982,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: 32,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -969,7 +1012,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1011,10 +1055,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1039,7 +1086,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1066,10 +1114,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1094,7 +1145,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1121,10 +1173,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1148,7 +1203,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1186,10 +1242,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1214,7 +1273,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1241,10 +1301,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1269,7 +1332,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1306,10 +1370,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1333,7 +1400,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1370,10 +1438,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1398,7 +1469,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1435,10 +1507,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1463,7 +1538,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1507,10 +1583,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1535,7 +1614,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1581,10 +1661,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1609,7 +1692,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1636,10 +1720,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1670,7 +1757,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1694,10 +1782,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1728,7 +1819,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1754,20 +1846,27 @@ describe('Application', () => {
     saveRequest = mockAxios.request('/api/v1/settings');
 
     // delete file and save
+    console.log(1);
     await deleteBtn.trigger('click');
+    console.log(2);
     await saveSettingsButton.trigger('click');
+    console.log(3);
     await view.vm.$nextTick();
 
     await saveRequest.wait();
+    console.log(4);
     expect(saveRequest.config.data.get('bbb[style]')).toBe('');
     await saveRequest.respondWith({
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1798,7 +1897,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1843,10 +1943,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1871,7 +1974,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1908,10 +2012,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -1943,7 +2050,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -1970,10 +2078,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -2005,7 +2116,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -2047,10 +2159,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -2082,7 +2197,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -2109,10 +2225,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -2144,7 +2263,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -2187,10 +2307,13 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -2222,7 +2345,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
@@ -2249,16 +2373,19 @@ describe('Application', () => {
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
-          help_url: 'www.pilos.com/help',
-          legal_notice_url: 'www.pilos.com/legal',
-          privacy_policy_url: 'www.pilos.com/privacy',
+          help_url: 'http://www.pilos.com/help',
+          legal_notice_url: 'http://www.pilos.com/legal',
+          privacy_policy_url: 'http://www.pilos.com/privacy',
           bbb: bbbSettings,
           default_presentation: 'foo.pdf',
           statistics: {
@@ -2280,31 +2407,36 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
 
     // check if urls have been set
-    expect(view.vm.$data.settings.help_url).toBe('www.pilos.com/help');
-    expect(view.vm.$data.settings.legal_notice_url).toBe('www.pilos.com/legal');
-    expect(view.vm.$data.settings.privacy_policy_url).toBe('www.pilos.com/privacy');
+    expect(view.vm.$data.settings.help_url).toBe('http://www.pilos.com/help');
+    expect(view.vm.$data.settings.legal_notice_url).toBe('http://www.pilos.com/legal');
+    expect(view.vm.$data.settings.privacy_policy_url).toBe('http://www.pilos.com/privacy');
 
     const saveSettingsButton = view.find('#application-save-button');
     expect(saveSettingsButton.exists()).toBeTruthy();
 
     const saveRequest = mockAxios.request('/api/v1/settings');
 
+    console.log(saveSettingsButton.attributes());
     await saveSettingsButton.trigger('click');
     await saveRequest.wait();
     await saveRequest.respondWith({
       status: 200,
       data: {
         data: {
+          name: 'App name',
+          favicon: 'favicon.ico',
           logo: 'test.svg',
           room_limit: -1,
           pagination_page_size: 10,
           own_rooms_pagination_page_size: 5,
+          default_timezone: 'Europe/Berlin',
           banner: {
             enabled: false
           },
@@ -2332,7 +2464,8 @@ describe('Application', () => {
             inactive_period: 30,
             never_used_period: 14,
             deadline_period: 7
-          }
+          },
+          room_token_expiration: -1
         }
       }
     });
