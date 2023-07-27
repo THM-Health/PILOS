@@ -30,12 +30,17 @@ we decided to build a new system with another architecture.
 
 ## Screenshots
 ### Welcome, Home and Login
-<img src="https://user-images.githubusercontent.com/4281791/179394928-85062946-0204-4463-98a4-970de9af9711.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394213-41450e6e-0fe0-4a17-b097-eab3de6a8bb4.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394929-217fc9c9-1447-4822-94c7-7c2826cc9dff.png" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/9e77f33e-2e03-4f78-8db1-0b5bd3e6fe36" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/9fcac911-3fc2-404e-bd9e-fe5e66e6783f" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/3d4c5d70-febb-4369-923b-6335ad7652e1" width="30%"></img>
+
 
 ### User profile
-<img src="https://user-images.githubusercontent.com/4281791/179394216-f47a0030-9f49-4607-a2ed-5b2a110a6e9c.png" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/80209d1e-d419-4a90-87dd-73eb231f2d98" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/e73e845e-a885-4506-aeec-86604e8d97e3" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/0d7ac489-8f33-4761-8132-44078992fef8" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/f88d7dbb-16e5-49cc-bf20-5751210c7ba5" width="30%"></img>
+
 
 ### Room settings
 <img src="https://user-images.githubusercontent.com/4281791/179394223-b792d6f1-1033-425b-b027-6903c8e0fc0d.png" width="30%"></img>
