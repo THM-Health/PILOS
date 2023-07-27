@@ -43,14 +43,14 @@ we decided to build a new system with another architecture.
 
 
 ### Room settings
-<img src="https://user-images.githubusercontent.com/4281791/179394223-b792d6f1-1033-425b-b027-6903c8e0fc0d.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394222-f43b3adb-1602-41bd-aad8-7802b99787b7.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394219-6822cfc1-7d2a-4076-bc93-5974737e1e1f.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394221-ffa5f399-7256-4c30-9f6d-9b24746ceba9.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394235-0ce8c63a-98d9-4d79-8516-75d24684fe2c.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394224-26da44de-6aca-454f-b884-f60a17e3d066.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394218-edbc616d-8cf3-4657-9fca-92df8cea411f.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394225-4b5e7407-d8ae-4fb4-a7f1-82c7d28f9d67.png" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/fc8dde9a-5eda-4be3-a6a9-f4f38c2ac839" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/0d50aea4-5a23-4618-95eb-db2adaf3de1b" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/55ee94d8-50ed-468c-a2c5-c3d44fcfb62e" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/79531007-387e-4c36-81b0-d900bc626702" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/7a1908dc-70db-4989-bff3-a2e66ea5d857" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/6d4562f0-e9e5-4dfd-8891-b20be5954d3f" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/2adafcce-57ce-46ea-b6fb-98aa1d156790" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/7512ab98-bc93-47dd-9c15-23bec1b9a787" width="30%"></img>
 
 
 ### Settings
