@@ -1846,15 +1846,11 @@ describe('Application', () => {
     saveRequest = mockAxios.request('/api/v1/settings');
 
     // delete file and save
-    console.log(1);
     await deleteBtn.trigger('click');
-    console.log(2);
     await saveSettingsButton.trigger('click');
-    console.log(3);
     await view.vm.$nextTick();
 
     await saveRequest.wait();
-    console.log(4);
     expect(saveRequest.config.data.get('bbb[style]')).toBe('');
     await saveRequest.respondWith({
       status: 200,
@@ -2423,7 +2419,6 @@ describe('Application', () => {
 
     const saveRequest = mockAxios.request('/api/v1/settings');
 
-    console.log(saveSettingsButton.attributes());
     await saveSettingsButton.trigger('click');
     await saveRequest.wait();
     await saveRequest.respondWith({
