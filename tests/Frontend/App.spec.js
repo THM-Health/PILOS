@@ -6,6 +6,7 @@ import PermissionService from '../../resources/js/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../resources/js/stores/auth';
+import { useLoadingStore } from '../../resources/js/stores/loading';
 import { createLocalVue, mockAxios } from './helper';
 import VueRouter from 'vue-router';
 
@@ -114,6 +115,8 @@ describe('App', () => {
 
     // Set currently logged in user
     const authStore = useAuthStore();
+    const loadingStore = useLoadingStore();
+
     authStore.currentUser = currentUser;
 
     await view.vm.$nextTick();
@@ -124,6 +127,10 @@ describe('App', () => {
 
     // Wait for request to be processed
     await request.wait();
+
+    // Check if app is in loading state (unmounting of all components)
+    expect(loadingStore.loadingCounter).toBe(1);
+
     expect(request.config.method).toBe('post');
     expect(request.config.url).toBe('/api/v1/logout');
 
@@ -135,6 +142,9 @@ describe('App', () => {
     // Check if user is redirected to logout page
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith({ name: 'logout' });
+
+    // Check if app is not in loading state anymore
+    expect(loadingStore.loadingCounter).toBe(0);
 
     // Check if user state is reset
     expect(authStore.currentUser).toEqual(null);

@@ -120,11 +120,14 @@ export default {
   methods: {
 
     ...mapActions(useAuthStore, { logoutSession: 'logout' }),
+    ...mapActions(useLoadingStore, ['setLoading', 'setLoadingFinished']),
 
     async logout () {
       try {
+        this.setLoading();
         await this.logoutSession();
         await this.$router.push({ name: 'logout' });
+        this.setLoadingFinished();
       } catch (error) {
         this.toastError(this.$t('auth.flash.logout_error'));
       }

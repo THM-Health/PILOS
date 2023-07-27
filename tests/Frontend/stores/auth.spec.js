@@ -3,7 +3,6 @@ import { mockAxios } from '../helper';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '../../../resources/js/stores/auth';
 import PermissionService from '../../../resources/js/services/PermissionService';
-import { useLoadingStore } from '../../../resources/js/stores/loading';
 
 describe('Auth Store', () => {
   beforeEach(() => {
@@ -68,7 +67,6 @@ describe('Auth Store', () => {
 
   it('logout', async () => {
     const auth = useAuthStore();
-    const loading = useLoadingStore();
     auth.currentUser = {
       id: 1,
       authenticator: 'external',
@@ -86,7 +84,6 @@ describe('Auth Store', () => {
     const request = mockAxios.request('/api/v1/logout');
 
     auth.logout();
-    expect(loading.loadingCounter).toBe(1);
 
     await request.wait();
 
@@ -98,6 +95,5 @@ describe('Auth Store', () => {
     });
 
     expect(auth.currentUser).toBeNull();
-    expect(loading.loadingCounter).toBe(0);
   });
 });

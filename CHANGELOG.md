@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Bump dependencies
+### Fixed
+- Network error on logout due to reload of all components
+
 ## [v2.1.1] - 2023-07-4
 ### Changed
 - Bump dependencies
