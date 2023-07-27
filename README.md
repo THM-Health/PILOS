@@ -1,4 +1,4 @@
-# PILOS
+<img src="https://raw.githubusercontent.com/THM-Health/PILOS/master/public/images/logo.svg" width="250px"></img>
 
 ![Status](https://github.com/THM-Health/PILOS/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/THM-Health/PILOS/branch/master/graph/badge.svg?token=6EXYQKIG3W)](https://codecov.io/gh/THM-Health/PILOS)
