@@ -54,20 +54,19 @@ we decided to build a new system with another architecture.
 
 
 ### Settings
-<img src="https://user-images.githubusercontent.com/4281791/179394234-a789014b-e80d-4cad-9f1f-7708a59061d3.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394211-5e9a99f0-e11a-4b16-8b59-55d67b005f6d.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394235-0ce8c63a-98d9-4d79-8516-75d24684fe2c.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394217-46785049-0f83-4ebe-83c4-160f88e8e57e.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394229-60f46ce9-b848-434c-93c4-7ddd92c34951.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394227-d4240121-b8cf-4790-ade0-c34456337fe4.png" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/e7eb9ff0-d961-481a-9977-155ac61a0d14" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/40a4836a-0ada-4883-9432-6165c7fdc32b" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/65e6e2a0-9781-4797-be81-5905bcb41459" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/945a1a23-ed09-406f-86f1-ca81c2f51387" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/15afabdd-1777-48b7-8b8e-8d51b4164f4e" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/f7ba7584-de55-4209-bd2e-6d920b16fa8e" width="30%"></img>
 
 ### Servers, Server-Pools, Meetings
-<img src="https://user-images.githubusercontent.com/4281791/179394233-eccf88e3-4fd7-4bf1-b074-19a682c9adfc.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394232-7e1ad5bf-7d0c-42f2-8e4f-e11860c2417c.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394215-0413ca7d-8fa8-4eca-b764-45ab5a3355cc.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394231-729f22c1-ab2a-4c7d-8d79-93b0812fd15f.png" width="30%"></img>
-<img src="https://user-images.githubusercontent.com/4281791/179394226-4db4d5b0-0849-4bdb-bdd4-7a6902187ea0.png" width="30%"></img>
-
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/6221bea3-975a-4ca1-9b2b-cddc4f9368eb" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/0523b0c4-d460-430d-873b-c946331d51af" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/4ad130bd-d33a-4a6d-bf2d-ffd9a3638282" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/ec331dec-45d5-4316-8e99-03f7ed5409ed" width="30%"></img>
+<img src="https://github.com/THM-Health/PILOS/assets/4281791/5f414402-bb4d-43e5-8f2c-2ed44dc54661" width="30%"></img>
 
 ## Architecture
 
