@@ -1,7 +1,7 @@
 import Index from '../../../../../resources/js/views/settings/servers/Index.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import moxios from 'moxios';
+
 import BootstrapVue, {
 
   BTr,
@@ -12,7 +12,7 @@ import BootstrapVue, {
   BFormInput
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -105,17 +105,18 @@ let oldUser;
 
 describe('ServersIndex', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
     oldUser = PermissionService.currentUser;
   });
 
   afterEach(() => {
-    moxios.uninstall();
     PermissionService.setCurrentUser(oldUser);
   });
 
   it('list of servers with pagination gets displayed', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
+
+    const request = mockAxios.request('api/v1/servers');
 
     const view = mount(Index, {
       localVue,
@@ -125,13 +126,11 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-    const request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: defaultResponse
+      data: defaultResponse
     });
     await view.vm.$nextTick();
 
@@ -173,6 +172,8 @@ describe('ServersIndex', () => {
   it('list of servers with search', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.viewAny'] });
 
+    let request = mockAxios.request('api/v1/servers');
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -184,13 +185,11 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-    let request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: defaultResponse
+      data: defaultResponse
     });
     await view.vm.$nextTick();
     expect(view.findComponent(BTbody).findAllComponents(BTr).length).toBe(4);
@@ -198,16 +197,18 @@ describe('ServersIndex', () => {
     const search = view.findComponent(BFormInput);
     expect(search.exists()).toBeTruthy();
     expect(search.html()).toContain('app.search');
+
+    request = mockAxios.request('api/v1/servers');
+
     await search.setValue('Server 02');
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
 
-    request = moxios.requests.mostRecent();
     expect(request.config.params.name).toBe('Server 02');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 2,
@@ -250,10 +251,10 @@ describe('ServersIndex', () => {
   it('update and delete buttons only shown if user has the permission', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-    const response = {
+    mockAxios.request('api/v1/servers').respondWith({
       status: 200,
-      response: defaultResponse
-    };
+      data: defaultResponse
+    });
 
     const view = mount(Index, {
       localVue,
@@ -263,8 +264,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
@@ -285,6 +285,13 @@ describe('ServersIndex', () => {
   it('error handler gets called if an error occurs during loading of data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    mockAxios.request('api/v1/servers').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -293,14 +300,7 @@ describe('ServersIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(spy).toBeCalledTimes(1);
@@ -311,10 +311,10 @@ describe('ServersIndex', () => {
   it('property gets cleared correctly if deletion gets aborted', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
-    const response = {
+    mockAxios.request('api/v1/servers').respondWith({
       status: 200,
-      response: defaultResponse
-    };
+      data: defaultResponse
+    });
 
     const view = mount(Index, {
       localVue,
@@ -327,8 +327,7 @@ describe('ServersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -352,10 +351,10 @@ describe('ServersIndex', () => {
   it('server delete', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
-    const response = {
+    mockAxios.request('api/v1/servers').respondWith({
       status: 200,
-      response: defaultResponse
-    };
+      data: defaultResponse
+    });
 
     const view = mount(Index, {
       localVue,
@@ -368,8 +367,7 @@ describe('ServersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -384,28 +382,29 @@ describe('ServersIndex', () => {
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     expect(view.vm.$data.serverToDelete.id).toEqual(3);
+
+    const deleteRequest = mockAxios.request('api/v1/servers/3');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
+    await deleteRequest.wait();
     // delete without replacement
-    let request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers/3');
-    expect(request.config.method).toBe('delete');
+    expect(deleteRequest.config.method).toBe('delete');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
 
-    await request.respondWith({
+    const request = mockAxios.request('api/v1/servers');
+
+    await deleteRequest.respondWith({
       status: 204
     });
 
-    await waitMoxios();
+    await request.wait();
     // reload data for servers
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers');
     expect(request.config.method).toBe('get');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 1,
@@ -487,10 +486,10 @@ describe('ServersIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
-    const response = {
+    mockAxios.request('api/v1/servers').respondWith({
       status: 200,
-      response: defaultResponse
-    };
+      data: defaultResponse
+    });
 
     const view = mount(Index, {
       localVue,
@@ -503,8 +502,7 @@ describe('ServersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -519,26 +517,29 @@ describe('ServersIndex', () => {
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     expect(view.vm.$data.serverToDelete.id).toEqual(3);
+
+    const deleteRequest = mockAxios.request('api/v1/servers/3');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
+    await deleteRequest.wait();
+
+    const request = mockAxios.request('api/v1/servers');
+
     // delete without replacement
-    let request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await deleteRequest.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
-    await waitMoxios();
+    await request.wait();
     // reload data for roomTypes
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers');
     expect(request.config.method).toBe('get');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 1,
@@ -621,10 +622,10 @@ describe('ServersIndex', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'servers.delete'] });
 
-    const response = {
+    mockAxios.request('api/v1/servers').respondWith({
       status: 200,
-      response: defaultResponse
-    };
+      data: defaultResponse
+    });
 
     const view = mount(Index, {
       localVue,
@@ -637,8 +638,7 @@ describe('ServersIndex', () => {
       }
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -650,18 +650,94 @@ describe('ServersIndex', () => {
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     expect(view.vm.$data.serverToDelete.id).toEqual(3);
+
+    const deleteRequest = mockAxios.request('api/v1/servers/3');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
+    await deleteRequest.wait();
     // delete
-    const request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers/3');
-    expect(request.config.method).toBe('delete');
+    expect(deleteRequest.config.method).toBe('delete');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
+
+    const request = mockAxios.request('api/v1/servers');
+
     // error replacement required
-    await request.respondWith({
+    await deleteRequest.respondWith({
       status: 500
+    });
+
+    await request.wait();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 1,
+            name: 'Server 01',
+            description: 'Testserver 01',
+            strength: 1,
+            status: 1,
+            participant_count: 10,
+            listener_count: 5,
+            voice_participant_count: 5,
+            video_count: 5,
+            meeting_count: 2,
+            own_meeting_count: 2,
+            version: '2.4.5',
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            own_meeting_count: 9,
+            version: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 4,
+            name: 'Server 04',
+            description: 'Testserver 04',
+            strength: 1,
+            status: 0,
+            participant_count: null,
+            listener_count: null,
+            voice_participant_count: null,
+            video_count: null,
+            meeting_count: null,
+            own_meeting_count: null,
+            version: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=1',
+          prev: null,
+          next: null
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 15,
+          to: 2,
+          total: 2
+        }
+      }
     });
 
     await view.vm.$nextTick();
@@ -677,19 +753,9 @@ describe('ServersIndex', () => {
   it('new server button is displayed if the user has the corresponding permissions', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-    const view = mount(Index, {
-      localVue,
-      mocks: {
-        $t: key => key
-      },
-      attachTo: createContainer()
-    });
-
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
+    mockAxios.request('api/v1/servers').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         links: {
           first: 'http://localhost/api/v1/servers?page=1',
@@ -708,6 +774,16 @@ describe('ServersIndex', () => {
         }
       }
     });
+
+    const view = mount(Index, {
+      localVue,
+      mocks: {
+        $t: key => key
+      },
+      attachTo: createContainer()
+    });
+
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent({ ref: 'newServer' }).exists()).toBeFalsy();
@@ -721,6 +797,8 @@ describe('ServersIndex', () => {
   it('reload button displayed and triggers reload', async () => {
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
+    let request = mockAxios.request('api/v1/servers');
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -730,30 +808,28 @@ describe('ServersIndex', () => {
     });
 
     // During normal load the usage should not be updated
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.params.update_usage).toBeFalsy();
     await request.respondWith({
       status: 200,
-      response: defaultResponse
+      data: defaultResponse
     });
     await view.vm.$nextTick();
 
     expect(view.findComponent(BButton).exists()).toBeTruthy();
     expect(view.findComponent(BButton).html()).toContain('settings.servers.reload');
 
+    request = mockAxios.request('api/v1/servers');
+
     view.findComponent(BButton).trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     // reload data for roomTypes and force update of usage data
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/servers');
-    expect(request.config.method).toBe('get');
     expect(request.config.params.update_usage).toBeTruthy();
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 1,
@@ -812,10 +888,11 @@ describe('ServersIndex', () => {
     expect(html).toContain('7');
     expect(html).toContain('3');
 
+    request = mockAxios.request('api/v1/servers');
+
     // during future normal requests the force usage should be disabled again
     view.vm.$root.$emit('bv::refresh::table', 'servers-table');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.params.update_usage).toBeFalsy();
 
     view.destroy();

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import ProfileComponent from '../../../../resources/js/components/User/ProfileComponent.vue';
@@ -8,7 +8,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import LocaleSelect from '../../../../resources/js/components/Inputs/LocaleSelect.vue';
 import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneSelect.vue';
 import { createCanvas, Image } from 'canvas';
-import moxios from 'moxios';
+
 import _ from 'lodash';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
 import { useLocaleStore } from '../../../../resources/js/stores/locale';
@@ -58,11 +58,10 @@ const adminUser = {
 };
 describe('ProfileComponent', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
   });
 
   afterEach(() => {
-    moxios.uninstall();
     PermissionService.setCurrentUser(undefined);
   });
 
@@ -355,12 +354,13 @@ describe('ProfileComponent', () => {
 
     // Check buttons
     const buttons = wrapper.findAllComponents(BButton);
+
+    const request = mockAxios.request('/api/v1/users/2');
+
     await buttons.at(1).trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('post');
-    expect(request.config.url).toBe('/api/v1/users/2');
     expect(request.config.data.get('firstname')).toBe('Max');
     expect(request.config.data.get('lastname')).toBe('Mustermann');
     expect(request.config.data.get('_method')).toBe('PUT');
@@ -374,13 +374,13 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
 
     // Check if changes are emitted
-    expect(wrapper.emitted('updateUser')[0][0]).toBe(userAfterChanges);
+    expect(wrapper.emitted('updateUser')[0][0]).toStrictEqual(userAfterChanges);
     // Update user prop
     await wrapper.setProps({ user: userAfterChanges });
     await wrapper.vm.$nextTick();
@@ -456,18 +456,18 @@ describe('ProfileComponent', () => {
     expect(buttons.length).toBe(2);
     expect(buttons.at(1).text()).toBe('app.save');
 
+    const request = mockAxios.request('/api/v1/users/2');
+
     await buttons.at(1).trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('post');
-    expect(request.config.url).toBe('/api/v1/users/2');
     expect(request.config.data.get('image')).toBe('');
     expect(request.config.data.get('_method')).toBe('PUT');
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -475,7 +475,7 @@ describe('ProfileComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if event is emitted and update prop
-    expect(wrapper.emitted('updateUser')[0][0]).toBe(user);
+    expect(wrapper.emitted('updateUser')[0][0]).toStrictEqual(user);
     await wrapper.setProps({ user });
     await wrapper.vm.$nextTick();
 
@@ -520,13 +520,12 @@ describe('ProfileComponent', () => {
     expect(buttons.at(1).text()).toBe('app.save');
 
     // --- Check 404 error ---
-
+    let request = mockAxios.request('/api/v1/users/2');
     await buttons.at(1).trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -537,10 +536,9 @@ describe('ProfileComponent', () => {
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
     // --- Check stale error ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await buttons.at(1).trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     const response = {
       error: 428,
       message: 'test',
@@ -549,7 +547,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 428,
-      response
+      data: response
     });
 
     await wrapper.vm.$nextTick();
@@ -559,14 +557,13 @@ describe('ProfileComponent', () => {
     expect(wrapper.emitted().staleError[0]).toEqual([response]);
 
     // --- Check form validation error ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await buttons.at(1).trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           firstname: ['The Firstname field is required.'],
           lastname: ['The Lastname field is required.']
@@ -582,10 +579,9 @@ describe('ProfileComponent', () => {
     expect(fields.at(1).props('state')).toBe(false);
 
     // --- Check other errors ---
-
+    request = mockAxios.request('/api/v1/users/2');
     await buttons.at(1).trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Reset form validation error shown on next request
     expect(fields.at(0).props('state')).toBeNull();
@@ -593,7 +589,7 @@ describe('ProfileComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -642,12 +638,11 @@ describe('ProfileComponent', () => {
 
     // Check buttons
     const buttons = wrapper.findAllComponents(BButton);
+    const request = mockAxios.request('/api/v1/users/2');
     await buttons.at(1).trigger('click');
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('post');
-    expect(request.config.url).toBe('/api/v1/users/2');
     expect(request.config.data.get('firstname')).toBe('Max');
     expect(request.config.data.get('lastname')).toBe('Mustermann');
     expect(request.config.data.get('user_locale')).toBe('ru');
@@ -660,19 +655,20 @@ describe('ProfileComponent', () => {
 
     const userAfterChanges = { ...user, firstname: 'Max', lastname: 'Mustermann' };
 
+    const reloadUserRequest = mockAxios.request('/api/v1/currentUser');
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
 
-    const reloadUserRequest = moxios.requests.mostRecent();
+    await reloadUserRequest.wait();
     expect(reloadUserRequest.config.method).toBe('get');
-    expect(reloadUserRequest.config.url).toBe('/api/v1/currentUser');
     await reloadUserRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: userAfterChanges
       }
     });
@@ -859,10 +855,9 @@ describe('ProfileComponent', () => {
     expect(modal.vm.$data.isVisible).toBeFalsy();
 
     // submit form to send cropped image to server
-    moxios.requests.reset();
+    const request = mockAxios.request('/api/v1/users/2');
     view.findComponent(BForm).trigger('submit');
-    await waitMoxios();
-    const request = moxios.requests.at(0);
+    await request.wait();
     // check if blob is sent to server
     expect(request.config.data.get('image') instanceof Blob).toBeTruthy();
     expect(request.config.data.get('image').type).toBe('image/jpeg');

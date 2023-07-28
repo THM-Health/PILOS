@@ -120,12 +120,15 @@ export default {
   methods: {
 
     ...mapActions(useAuthStore, { logoutSession: 'logout' }),
+    ...mapActions(useLoadingStore, ['setLoading', 'setLoadingFinished']),
 
     async logout () {
       let response;
       try {
+        this.setLoading();
         response = await this.logoutSession();
       } catch (error) {
+        this.setLoadingFinished();
         this.toastError(this.$t('auth.flash.logout_error'));
         return;
       }
@@ -141,6 +144,8 @@ export default {
       }
 
       await this.$router.push({ name: 'logout', params: { incompleteWarning } });
+
+      this.setLoadingFinished();
     }
   }
 };

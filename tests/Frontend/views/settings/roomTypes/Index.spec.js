@@ -1,7 +1,7 @@
 import Index from '../../../../../resources/js/views/settings/roomTypes/Index.vue';
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
-import moxios from 'moxios';
+
 import BootstrapVue, {
 
   BTr,
@@ -12,7 +12,7 @@ import BootstrapVue, {
   BFormSelect
 } from 'bootstrap-vue';
 import Base from '../../../../../resources/js/api/base';
-import { waitMoxios, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -24,17 +24,15 @@ const initialState = { settings: { settings: { pagination_page_size: 5 } } };
 
 describe('RoomTypesIndex', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('list of room types with pagination gets displayed', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
+
+    const request = mockAxios.request('/api/v1/roomTypes');
 
     const view = mount(Index, {
       localVue,
@@ -45,13 +43,11 @@ describe('RoomTypesIndex', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     expect(view.findComponent(BTbody).findComponent(BTr).html()).toContain('b-table-busy-slot');
-
-    const request = moxios.requests.mostRecent();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           short: 'ME',
@@ -76,9 +72,9 @@ describe('RoomTypesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
-    const response = {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           short: 'ME',
@@ -87,7 +83,7 @@ describe('RoomTypesIndex', () => {
           model_name: 'RoomType'
         }]
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -98,8 +94,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     view.findComponent(BTbody).findAllComponents(BTr).wrappers.forEach((row) => {
@@ -120,6 +115,13 @@ describe('RoomTypesIndex', () => {
   it('error handler gets called if an error occurs during loading of data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 500,
+      data: {
+        message: 'Test'
+      }
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -129,14 +131,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 500,
-      response: {
-        message: 'Test'
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(spy).toBeCalledTimes(1);
@@ -148,10 +143,9 @@ describe('RoomTypesIndex', () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
-
-    const response = {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [{
           id: '1',
           short: 'ME',
@@ -160,7 +154,7 @@ describe('RoomTypesIndex', () => {
           model_name: 'RoomType'
         }]
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -174,8 +168,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -202,9 +195,9 @@ describe('RoomTypesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
 
-    const response = {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '1',
@@ -222,7 +215,7 @@ describe('RoomTypesIndex', () => {
           }
         ]
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -236,8 +229,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -252,20 +244,21 @@ describe('RoomTypesIndex', () => {
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
+
+    let deleteRequest = mockAxios.request('/api/v1/roomTypes/1');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
+    await deleteRequest.wait();
     // delete without replacement
-    let request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/roomTypes/1');
-    expect(request.config.method).toBe('delete');
-    expect(request.config.data).toBe('{"replacement_room_type":null}');
+    expect(deleteRequest.config.method).toBe('delete');
+    expect(deleteRequest.config.data).toBe('{"replacement_room_type":null}');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     // error replacement required
-    await request.respondWith({
+    await deleteRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           replacement_room_type: ['test']
@@ -278,28 +271,31 @@ describe('RoomTypesIndex', () => {
 
     // select replacement and delete again
     await view.findComponent(BModal).findComponent(BFormSelect).setValue(2);
+
+    deleteRequest = mockAxios.request('/api/v1/roomTypes/1');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
+    await deleteRequest.wait();
     // delete data with replacement
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/roomTypes/1');
-    expect(request.config.method).toBe('delete');
-    expect(request.config.data).toBe('{"replacement_room_type":2}');
+    expect(deleteRequest.config.url).toBe('/api/v1/roomTypes/1');
+    expect(deleteRequest.config.method).toBe('delete');
+    expect(deleteRequest.config.data).toBe('{"replacement_room_type":2}');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
-    await request.respondWith({
+
+    const reloadRequest = mockAxios.request('/api/v1/roomTypes');
+
+    await deleteRequest.respondWith({
       status: 204
     });
 
-    await waitMoxios();
+    await reloadRequest.wait();
     // reload data for roomTypes
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/roomTypes');
-    expect(request.config.method).toBe('get');
-    await request.respondWith({
+    expect(reloadRequest.config.method).toBe('get');
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '2',
@@ -329,9 +325,9 @@ describe('RoomTypesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
 
-    const response = {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '1',
@@ -349,7 +345,7 @@ describe('RoomTypesIndex', () => {
           }
         ]
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -363,8 +359,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -379,26 +374,27 @@ describe('RoomTypesIndex', () => {
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
+
+    const deleteRequest = mockAxios.request('/api/v1/roomTypes/1');
+    const reloadRequest = mockAxios.request('/api/v1/roomTypes');
+
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
     await view.vm.$nextTick();
 
-    await waitMoxios();
+    await deleteRequest.wait();
     // delete without replacement
-    let request = moxios.requests.mostRecent();
-    await request.respondWith({
+    await deleteRequest.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
-    await waitMoxios();
+    await reloadRequest.wait();
     // reload data for roomTypes
-    request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/roomTypes');
-    expect(request.config.method).toBe('get');
-    await request.respondWith({
+    expect(reloadRequest.config.method).toBe('get');
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '2',
@@ -428,9 +424,9 @@ describe('RoomTypesIndex', () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
     PermissionService.setCurrentUser({ permissions: ['settings.manage', 'roomTypes.delete'] });
 
-    const response = {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: '1',
@@ -441,7 +437,7 @@ describe('RoomTypesIndex', () => {
           }
         ]
       }
-    };
+    });
 
     const view = mount(Index, {
       localVue,
@@ -455,8 +451,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith(response);
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
@@ -469,17 +464,17 @@ describe('RoomTypesIndex', () => {
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     expect(view.vm.$data.roomTypeToDelete.id).toEqual('1');
     view.findComponent(BModal).findAllComponents(BButton).at(1).trigger('click');
-    await view.vm.$nextTick();
 
-    await waitMoxios();
+    const deleteRequest = mockAxios.request('/api/v1/roomTypes/1');
+
+    await view.vm.$nextTick();
+    await deleteRequest.wait();
     // delete
-    const request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/roomTypes/1');
-    expect(request.config.method).toBe('delete');
-    expect(request.config.data).toBe('{"replacement_room_type":null}');
+    expect(deleteRequest.config.method).toBe('delete');
+    expect(deleteRequest.config.data).toBe('{"replacement_room_type":null}');
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(true);
     // error replacement required
-    await request.respondWith({
+    await deleteRequest.respondWith({
       status: 500
     });
 
@@ -499,6 +494,13 @@ describe('RoomTypesIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['settings.manage'] });
 
+    mockAxios.request('/api/v1/roomTypes').respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
+
     const view = mount(Index, {
       localVue,
       mocks: {
@@ -508,14 +510,7 @@ describe('RoomTypesIndex', () => {
       pinia: createTestingPinia({ initialState })
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    await request.respondWith({
-      status: 200,
-      response: {
-        data: []
-      }
-    });
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.findComponent(BButton).exists()).toBeFalsy();

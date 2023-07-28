@@ -1,8 +1,8 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BFormSelect, BInputGroupAppend } from 'bootstrap-vue';
 import TimezoneSelect from '../../../../resources/js/components/Inputs/TimezoneSelect.vue';
-import { createContainer, waitMoxios, createLocalVue } from '../../helper';
-import moxios from 'moxios';
+import { createContainer, mockAxios, createLocalVue } from '../../helper';
+
 import Base from '../../../../resources/js/api/base';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -12,14 +12,16 @@ localVue.use(PiniaVuePlugin);
 
 describe('TimezoneSelect', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
   });
 
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('check v-model and props', async () => {
+    const request = mockAxios.request('/api/v1/getTimezones');
+
     const view = mount(TimezoneSelect, {
       pinia: createTestingPinia(),
       localVue,
@@ -40,10 +42,7 @@ describe('TimezoneSelect', () => {
     await view.vm.$nextTick();
     const select = view.findComponent(BFormSelect);
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/getTimezones');
+    await request.wait();
 
     // Check if the select is disabled during request and the busy event is emitted
     expect(select.props('disabled')).toBeTruthy();
@@ -51,7 +50,7 @@ describe('TimezoneSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           'America/New_York',
           'Australia/Sydney',
@@ -114,6 +113,8 @@ describe('TimezoneSelect', () => {
   it('loading error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    let request = mockAxios.request('/api/v1/getTimezones');
+
     const view = mount(TimezoneSelect, {
       pinia: createTestingPinia(),
       localVue,
@@ -134,10 +135,7 @@ describe('TimezoneSelect', () => {
     await view.vm.$nextTick();
     const select = view.findComponent(BFormSelect);
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/getTimezones');
+    await request.wait();
 
     // Check if the select is disabled during request and the busy event is emitted
     expect(select.props('disabled')).toBeTruthy();
@@ -145,7 +143,7 @@ describe('TimezoneSelect', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal Server Error'
       }
     });
@@ -169,20 +167,19 @@ describe('TimezoneSelect', () => {
 
     // Trigger reload
     expect(reloadButton.attributes('disabled')).toBeUndefined();
+
+    request = mockAxios.request('/api/v1/getTimezones');
+
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    expect(moxios.requests.count()).toBe(2);
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/getTimezones');
+    await request.wait();
 
     // Check if button is disabled during request
     expect(reloadButton.attributes('disabled')).toBe('disabled');
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           'America/New_York',
           'Australia/Sydney',

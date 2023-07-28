@@ -4,7 +4,6 @@ import { BButton, BModal, BootstrapVue } from 'bootstrap-vue';
 import RoomDescriptionHtmlComponent from '../../../../resources/js/components/Room/RoomDescriptionHtmlComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import { expect, it } from 'vitest';
-import moxios from 'moxios';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -14,10 +13,6 @@ const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', p
 describe('RoomDescriptionHtmlComponent', () => {
   beforeEach(() => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
   });
 
   it('Open external link modal', async () => {

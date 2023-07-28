@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { BButton, BInputGroupAppend } from 'bootstrap-vue';
-import { createContainer, waitMoxios, createLocalVue } from '../../helper';
+import { createContainer, mockAxios, createLocalVue } from '../../helper';
 import { Multiselect } from 'vue-multiselect';
-import moxios from 'moxios';
 import Base from '../../../../resources/js/api/base';
 import RoleSelect from '../../../../resources/js/components/Inputs/RoleSelect.vue';
 
@@ -10,14 +9,12 @@ const localVue = createLocalVue();
 
 describe('RoleSelect', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('check v-model and props', async () => {
+    const request = mockAxios.request('/api/v1/roles');
+
     const view = mount(RoleSelect, {
       localVue,
       mocks: {
@@ -35,13 +32,9 @@ describe('RoleSelect', () => {
 
     const select = view.findComponent(Multiselect);
 
-    await view.vm.$nextTick();
+    await request.wait();
 
-    await waitMoxios();
-
-    const request = moxios.requests.mostRecent();
     expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/roles');
     expect(request.config.params).toEqual({ page: 1 });
 
     expect(select.props('disabled')).toBeTruthy();
@@ -49,7 +42,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'admin' },
           { id: 2, name: 'user' }
@@ -159,19 +152,19 @@ describe('RoleSelect', () => {
 
     // Check if options are empty and no request is sent
     expect(view.vm.$data.roles.length).toBe(0);
-    expect(moxios.requests.count()).toBe(0);
+    expect(mockAxios.history().get.length).toBe(0);
 
     // Check if component is disabled
     expect(select.props('disabled')).toBeTruthy();
+
+    const request = mockAxios.request('/api/v1/roles');
 
     // Enable select
     await view.setProps({ disabled: false });
 
     // Check if request is sent
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/roles');
     expect(request.config.params).toEqual({ page: 1 });
 
     // Check loading indicator
@@ -179,7 +172,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'admin' },
           { id: 2, name: 'user' }
@@ -220,6 +213,8 @@ describe('RoleSelect', () => {
   it('loading error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    let request = mockAxios.request('/api/v1/roles');
+
     const view = mount(RoleSelect, {
       localVue,
       mocks: {
@@ -235,10 +230,8 @@ describe('RoleSelect', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/roles');
     expect(request.config.params).toEqual({ page: 1 });
 
     // Check loading indicator
@@ -246,7 +239,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal Server Error'
       }
     });
@@ -263,15 +256,14 @@ describe('RoleSelect', () => {
     const reloadButton = appendWrapper.findComponent(BButton);
     expect(reloadButton.exists()).toBeTruthy();
 
+    request = mockAxios.request('/api/v1/roles');
+
     // Trigger reload
     expect(reloadButton.attributes('disabled')).toBeUndefined();
     await reloadButton.trigger('click');
 
-    await waitMoxios();
-    expect(moxios.requests.count()).toBe(2);
-    request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toEqual('get');
-    expect(request.config.url).toEqual('/api/v1/roles');
     expect(request.config.params).toEqual({ page: 1 });
 
     // Check if button is disabled during request
@@ -279,7 +271,7 @@ describe('RoleSelect', () => {
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: 1, name: 'admin' },
           { id: 2, name: 'user' }

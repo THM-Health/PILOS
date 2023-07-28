@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import PasswordComponent from '../../../../resources/js/components/User/PasswordComponent.vue';
 import { BButton, BFormInput } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import Base from '../../../../resources/js/api/base';
 import PermissionService from '../../../../resources/js/services/PermissionService';
 
@@ -35,11 +35,7 @@ const adminUser = {
 
 describe('PasswordComponent', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   // Admin can change password without password confirmation
@@ -74,19 +70,19 @@ describe('PasswordComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     expect(saveButton.text()).toBe('auth.change_password');
 
+    const request = mockAxios.request('/api/v1/users/2/password');
+
     // Click save button
     await saveButton.trigger('click');
-    await waitMoxios();
 
     // Check request
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/users/2/password');
     expect(JSON.parse(request.config.data)).toEqual({ new_password: 'secretPassword123#', new_password_confirmation: 'confirmSecretPassword123#' });
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -143,19 +139,19 @@ describe('PasswordComponent', () => {
     const saveButton = wrapper.findComponent(BButton);
     expect(saveButton.text()).toBe('auth.change_password');
 
+    const request = mockAxios.request('/api/v1/users/2/password');
+
     // Click save button
     await saveButton.trigger('click');
-    await waitMoxios();
 
     // Check request
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/users/2/password');
     expect(JSON.parse(request.config.data)).toEqual({ current_password: 'secretPassword123#', new_password: 'newSecretPassword123#', new_password_confirmation: 'confirmNewSecretPassword123#' });
 
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: user
       }
     });
@@ -198,16 +194,22 @@ describe('PasswordComponent', () => {
 
     await wrapper.vm.$nextTick();
 
+    const inputs = wrapper.findAllComponents(BFormInput);
+
+    // Fill form
+    await inputs.at(0).find('input').setValue('secretPassword123#');
+    await inputs.at(1).find('input').setValue('newSecretPassword123#');
+    await inputs.at(2).find('input').setValue('confirmNewSecretPassword123#');
+
     // Find submit button
     const saveButton = wrapper.findComponent(BButton);
     // --- Check 404 error ---
-
+    let request = mockAxios.request('/api/v1/users/2/password');
     await saveButton.trigger('click');
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await request.wait();
     await request.respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'User not found'
       }
     });
@@ -218,14 +220,16 @@ describe('PasswordComponent', () => {
     expect(wrapper.emitted().notFoundError).toBeTruthy();
 
     // --- Check form validation error ---
-
+    request = mockAxios.request('/api/v1/users/2/password');
+    await inputs.at(0).find('input').setValue('secretPassword123#');
+    await inputs.at(1).find('input').setValue('newSecretPassword123#');
+    await inputs.at(2).find('input').setValue('confirmNewSecretPassword123#');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
     // Respond with errors
     await request.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           current_password: [
             'The current password field is required.'
@@ -240,15 +244,16 @@ describe('PasswordComponent', () => {
     await wrapper.vm.$nextTick();
 
     // Check if errors are shown
-    const inputs = wrapper.findAllComponents(BFormInput);
     expect(inputs.at(0).props('state')).toBe(false);
     expect(inputs.at(1).props('state')).toBe(false);
 
     // --- Check other errors ---
-
+    request = mockAxios.request('/api/v1/users/2/password');
+    await inputs.at(0).find('input').setValue('secretPassword123#');
+    await inputs.at(1).find('input').setValue('newSecretPassword123#');
+    await inputs.at(2).find('input').setValue('confirmNewSecretPassword123#');
     await saveButton.trigger('click');
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await request.wait();
 
     // Reset form validation error shown on next request
     expect(inputs.at(0).props('state')).toBeNull();
@@ -256,7 +261,7 @@ describe('PasswordComponent', () => {
 
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });

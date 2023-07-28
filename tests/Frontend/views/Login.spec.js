@@ -1,13 +1,13 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, { BButton, BFormInvalidFeedback, BSpinner } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import Login from '../../../resources/js/views/Login.vue';
 import LocalLoginComponent from '../../../resources/js/components/Login/LocalLoginComponent.vue';
 import LdapLoginComponent from '../../../resources/js/components/Login/LdapLoginComponent.vue';
 import env from '../../../resources/js/env';
 import Base from '../../../resources/js/api/base';
 import VueRouter from 'vue-router';
-import { waitMoxios, createLocalVue } from '../helper';
+import { mockAxios, createLocalVue } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 
@@ -18,11 +18,7 @@ localVue.use(PiniaVuePlugin);
 
 describe('Login', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('correct data gets sent on ldap login', async () => {
@@ -34,29 +30,29 @@ describe('Login', () => {
       }
     });
 
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+
     const ldapLoginComponent = view.findComponent(LdapLoginComponent);
     await ldapLoginComponent.find('#ldapUsername').setValue('user');
     await ldapLoginComponent.find('#ldapPassword').setValue('password');
     await ldapLoginComponent.findComponent(BButton).trigger('submit');
     expect(ldapLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await csrfRequest.wait();
 
-    expect(request.config.url).toBe('/sanctum/csrf-cookie');
+    const loginRequest = mockAxios.request('/api/v1/login/ldap');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    await request.respondWith({
+
+    await csrfRequest.respondWith({
       status: 200
     });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await loginRequest.wait();
 
-    expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login/ldap');
+    expect(loginRequest.config.headers['X-XSRF-TOKEN']).toBe('test-csrf');
 
-    const data = JSON.parse(request.config.data);
+    const data = JSON.parse(loginRequest.config.data);
     expect(data.username).toBe('user');
     expect(data.password).toBe('password');
     view.destroy();
@@ -85,29 +81,27 @@ describe('Login', () => {
       }
     });
 
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+
     const localLoginComponent = view.findComponent(LocalLoginComponent);
     await localLoginComponent.find('#localEmail').setValue('user');
     await localLoginComponent.find('#localPassword').setValue('password');
     await localLoginComponent.findComponent(BButton).trigger('submit');
     expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await csrfRequest.wait();
 
-    expect(request.config.url).toBe('/sanctum/csrf-cookie');
+    const loginRequest = mockAxios.request('/api/v1/login/local');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    await request.respondWith({
+
+    await csrfRequest.respondWith({
       status: 200
     });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-
-    expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login/local');
-
-    const data = JSON.parse(request.config.data);
+    await loginRequest.wait();
+    expect(loginRequest.config.headers['X-XSRF-TOKEN']).toBe('test-csrf');
+    const data = JSON.parse(loginRequest.config.data);
     expect(data.email).toBe('user');
     expect(data.password).toBe('password');
 
@@ -131,15 +125,15 @@ describe('Login', () => {
       router
     });
 
-    moxios.stubRequest('/sanctum/csrf-cookie', {
+    mockAxios.request('/sanctum/csrf-cookie').respondWith({
       status: 200
     });
-    moxios.stubRequest('/api/v1/login/ldap', {
+    mockAxios.request('/api/v1/login/ldap').respondWith({
       status: 204
     });
-    moxios.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 1,
           authenticator: 'external',
@@ -188,15 +182,15 @@ describe('Login', () => {
       router
     });
 
-    moxios.stubRequest('/sanctum/csrf-cookie', {
+    mockAxios.request('/sanctum/csrf-cookie').respondWith({
       status: 200
     });
-    moxios.stubRequest('/api/v1/login/ldap', {
+    mockAxios.request('/api/v1/login/ldap').respondWith({
       status: 204
     });
-    moxios.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           id: 1,
           authenticator: 'external',
@@ -237,6 +231,8 @@ describe('Login', () => {
       }
     });
 
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+
     const localLoginComponent = view.findComponent(LocalLoginComponent);
     await localLoginComponent.find('#localEmail').setValue('user');
     await localLoginComponent.find('#localPassword').setValue('password');
@@ -244,29 +240,26 @@ describe('Login', () => {
 
     expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await csrfRequest.wait();
 
-    expect(request.config.url).toBe('/sanctum/csrf-cookie');
+    const loginRequest = mockAxios.request('/api/v1/login/local');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    await request.respondWith({
+
+    await csrfRequest.respondWith({
       status: 200
     });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await loginRequest.wait();
+    expect(loginRequest.config.headers['X-XSRF-TOKEN']).toBe('test-csrf');
 
-    expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login/local');
-
-    const data = JSON.parse(request.config.data);
+    const data = JSON.parse(loginRequest.config.data);
     expect(data.email).toBe('user');
     expect(data.password).toBe('password');
 
-    await request.respondWith({
+    await loginRequest.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         errors: {
           email: ['Password or Email wrong!']
         }
@@ -290,6 +283,8 @@ describe('Login', () => {
       }
     });
 
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+
     const localLoginComponent = view.findComponent(LocalLoginComponent);
     await localLoginComponent.find('#localEmail').setValue('user');
     await localLoginComponent.find('#localPassword').setValue('password');
@@ -297,29 +292,26 @@ describe('Login', () => {
 
     expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
+    await csrfRequest.wait();
 
-    expect(request.config.url).toBe('/sanctum/csrf-cookie');
+    const loginRequest = mockAxios.request('/api/v1/login/local');
 
     document.cookie = 'XSRF-TOKEN=test-csrf';
-    await request.respondWith({
+
+    await csrfRequest.respondWith({
       status: 200
     });
 
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
+    await loginRequest.wait();
+    expect(loginRequest.config.headers['X-XSRF-TOKEN']).toBe('test-csrf');
 
-    expect(request.headers['X-XSRF-TOKEN']).toBe('test-csrf');
-    expect(request.config.url).toBe('/api/v1/login/local');
-
-    const data = JSON.parse(request.config.data);
+    const data = JSON.parse(loginRequest.config.data);
     expect(data.email).toBe('user');
     expect(data.password).toBe('password');
 
-    await request.respondWith({
+    await loginRequest.respondWith({
       status: env.HTTP_TOO_MANY_REQUESTS,
-      response: {
+      data: {
         errors: {
           email: ['Too many logins. Please try again later!']
         }
@@ -344,6 +336,8 @@ describe('Login', () => {
       }
     });
 
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+
     const localLoginComponent = view.findComponent(LocalLoginComponent);
     await localLoginComponent.find('#localEmail').setValue('user');
     await localLoginComponent.find('#localPassword').setValue('password');
@@ -351,12 +345,9 @@ describe('Login', () => {
 
     expect(localLoginComponent.findComponent(BSpinner).exists()).toBe(true);
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await csrfRequest.wait();
 
-    expect(request.config.url).toBe('/sanctum/csrf-cookie');
-
-    await request.respondWith({
+    await csrfRequest.respondWith({
       status: 500
     });
     expect(spy).toBeCalledTimes(1);

@@ -3,11 +3,10 @@ import BootstrapVue, {
   BButton,
   BTbody
 } from 'bootstrap-vue';
-import moxios from 'moxios';
 import HistoryComponent from '../../../../resources/js/components/Room/HistoryComponent.vue';
 import VueClipboard from 'vue-clipboard2';
 import Base from '../../../../resources/js/api/base';
-import { waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -25,10 +24,7 @@ const initialState = { settings: { settings: { attendance: { enabled: true }, st
 
 describe('History', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('load meetings', async () => {
@@ -60,13 +56,15 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+    await request.wait();
+
+    expect(request.config.params.page).toEqual(1);
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '6091532e-57c7-4a88-9b00-2bebfb969002', start: '2021-06-22T11:05:39.000000Z', end: null, attendance: true, statistical: false },
           { id: '2ba7ba60-91d7-49f5-b1bb-5353b9415406', start: '2021-06-22T10:04:50.000000Z', end: '2021-06-22T10:06:16.000000Z', attendance: false, statistical: false },
@@ -108,15 +106,18 @@ describe('History', () => {
 
     const reloadButton = view.findComponent(BButton);
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
+
+    request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
     await reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+
+    expect(request.config.params.page).toEqual(1);
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -153,13 +154,14 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '6091532e-57c7-4a88-9b00-2bebfb969002', start: '2021-06-22T11:05:39.000000Z', end: null, attendance: true, statistical: false },
           { id: '2ba7ba60-91d7-49f5-b1bb-5353b9415406', start: '2021-06-22T10:04:50.000000Z', end: '2021-06-22T10:06:16.000000Z', attendance: false, statistical: false },
@@ -242,13 +244,14 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -261,15 +264,17 @@ describe('History', () => {
 
     const reloadButton = view.findAllComponents(BButton).at(1);
     expect(reloadButton.text()).toBe('app.reload');
+
+    request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
     await reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '6091532e-57c7-4a88-9b00-2bebfb969002', start: '2021-06-22T11:05:39.000000Z', end: null, attendance: true, statistical: false },
           { id: '2ba7ba60-91d7-49f5-b1bb-5353b9415406', start: '2021-06-22T10:04:50.000000Z', end: '2021-06-22T10:06:16.000000Z', attendance: false, statistical: false },
@@ -319,13 +324,14 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '10b23d8a-9dc1-4377-a26f-bdc990cd2f36', start: '2021-06-22T08:49:10.000000Z', end: '2021-06-22T08:50:20.000000Z', attendance: true, statistical: true }
         ],
@@ -354,17 +360,16 @@ describe('History', () => {
 
     expect(view.find('#statsModal').find('.modal').element.style.display).toEqual('none');
 
+    request = mockAxios.request('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
+
     await buttonsRow.at(0).trigger('click');
 
-    await waitMoxios();
-
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/stats');
+    await request.wait();
 
     await waitModalShown(view, async () => {
       await request.respondWith({
         status: 200,
-        response: {
+        data: {
           data: [
             {
               id: 8,
@@ -424,13 +429,14 @@ describe('History', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/meetings');
+
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/meetings?page=1');
+
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { id: '10b23d8a-9dc1-4377-a26f-bdc990cd2f36', start: '2021-06-22T08:49:10.000000Z', end: '2021-06-22T08:50:20.000000Z', attendance: true, statistical: true }
         ],
@@ -457,17 +463,16 @@ describe('History', () => {
 
     expect(view.find('#attendanceModal').find('.modal').element.style.display).toEqual('none');
 
+    request = mockAxios.request('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
+
     await buttonsRow.at(1).trigger('click');
 
-    await waitMoxios();
-
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/meetings/10b23d8a-9dc1-4377-a26f-bdc990cd2f36/attendance');
+    await request.wait();
 
     await waitModalShown(view, async () => {
       await request.respondWith({
         status: 200,
-        response: {
+        data: {
           data: [
             {
               name: 'John Doe',

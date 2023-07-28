@@ -25,7 +25,7 @@ class LDAPServiceProvider extends ServiceProvider
      */
     protected function registerLogging()
     {
-        if (! Config::get('ldap.logging', false)) {
+        if (! Config::get('ldap.enabled.logging', false)) {
             return;
         }
 

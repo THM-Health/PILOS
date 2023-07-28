@@ -6,9 +6,9 @@ import PermissionService from '../../resources/js/services/PermissionService';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../resources/js/stores/auth';
-import { createLocalVue, waitMoxios } from './helper';
+import { useLoadingStore } from '../../resources/js/stores/loading';
+import { createLocalVue, mockAxios } from './helper';
 import VueRouter from 'vue-router';
-import moxios from 'moxios';
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -23,11 +23,7 @@ const currentUser = {
 
 describe('App', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('settings menu item gets only shown if the user has permissions to manage settings', async () => {
@@ -84,6 +80,8 @@ describe('App', () => {
   });
 
   it('successfull logout', async () => {
+    const request = mockAxios.request('/api/v1/logout');
+
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
 
@@ -117,6 +115,8 @@ describe('App', () => {
 
     // Set currently logged in user
     const authStore = useAuthStore();
+    const loadingStore = useLoadingStore();
+
     authStore.currentUser = currentUser;
 
     await view.vm.$nextTick();
@@ -125,9 +125,12 @@ describe('App', () => {
     const logoutMenu = view.findComponent({ ref: 'logout' });
     await logoutMenu.find('a').trigger('click');
 
-    // Wait for request to be sent
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    // Wait for request to be processed
+    await request.wait();
+
+    // Check if app is in loading state (unmounting of all components)
+    expect(loadingStore.loadingCounter).toBe(1);
+
     expect(request.config.method).toBe('post');
     expect(request.config.url).toBe('/api/v1/logout');
 
@@ -136,11 +139,12 @@ describe('App', () => {
       status: 204
     });
 
-    await view.vm.$nextTick();
-
     // Check if user is redirected to logout page
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith({ name: 'logout' });
+
+    // Check if app is not in loading state anymore
+    expect(loadingStore.loadingCounter).toBe(0);
 
     // Check if user state is reset
     expect(authStore.currentUser).toEqual(null);
@@ -151,6 +155,8 @@ describe('App', () => {
   });
 
   it('failed logout', async () => {
+    const request = mockAxios.request('/api/v1/logout');
+
     const oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser(currentUser);
 
@@ -195,15 +201,14 @@ describe('App', () => {
     await logoutMenu.find('a').trigger('click');
 
     // Wait for request to be sent
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('post');
     expect(request.config.url).toBe('/api/v1/logout');
 
     // Reply with failed logout (e.g. server error)
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
