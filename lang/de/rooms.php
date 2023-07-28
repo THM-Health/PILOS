@@ -126,6 +126,38 @@ return [
     ],
     'only_used_by_authenticated_users' => 'Dieser Raum kann nur von angemeldeten Benutzern verwendet werden.',
     'placeholder_name'                 => 'Max Mustermann',
+    'recordings' => [
+        'title' => 'Aufzeichnungen',
+        'nodata' => 'Keine Aufzeichnungen vorhanden',
+        'start' => 'Beginn',
+        'end' => 'Ende',
+        'formats' => 'Formate',
+        'availableFormats' => 'Verfügbare Formate',
+        'description' => 'Bezeichnung',
+        'access' => 'Zugriffsrecht',
+        'actions' => 'Aktionen',
+        'editRecording' => 'Aufzeichnung bearbeiten',
+        'deleteRecording' => 'Aufzeichnung löschen',
+        'modals' => [
+            'edit' => [
+                'title' => 'Aufzeichnung bearbeiten',
+                'save' => 'Speichern',
+                'cancel' => 'Abbrechen'
+            ]
+        ],
+        'formatTypes' => [
+            'screenshare' => 'Bildschirmübertragung',
+            'notes' => 'Notizen',
+            'podcast' => 'Audio-Podcast',
+            'presentation' => 'Präsentation'
+        ],
+        'accessTypes' => [
+            'everyone' => 'Jeder (wie Raum)',
+            'participant' => 'Mitglied: Teilnehmer',
+            'moderator' => 'Mitglied: Moderator',
+            'owner' => 'Mitglied: Mitbesitzer'
+        ]
+    ],
     'recording_attendance_accept'      => 'Ich bin mit der Protokollierung einverstanden.',
     'recording_attendance_info'        => 'Die Anwesenheit in diesem Raum wird protokolliert.',
     'require_access_code'              => 'Für diesen Raum ist ein Zugangscode erforderlich',

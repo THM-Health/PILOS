@@ -72,4 +72,13 @@ class Meeting extends Model
     {
         return $this->hasMany(MeetingAttendee::class);
     }
+
+    /**
+     * Meeting
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function recording()
+    {
+        return $this->hasOne(Recording::class);
+    }
 }

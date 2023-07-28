@@ -9,32 +9,48 @@ server {
         internal;
         alias /var/www/html/storage/app/;
     }
- 
+
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
- 
+
     index index.php;
- 
+
     charset utf-8;
- 
+
     location / {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
     client_max_body_size 1G;
- 
+
     location = /favicon.ico { access_log off; log_not_found off; }
     location = /robots.txt  { access_log off; log_not_found off; }
- 
+
     error_page 404 /index.php;
- 
+
     location ~ \.php$ {
         fastcgi_pass unix:/var/run/php8.1-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
- 
+
     location ~ /\.(?!well-known).* {
         deny all;
     }
+
+
+    location /playback/presentation/playback.html {
+        return 301 /playback/presentation/0.81/playback.html?$query_string;
+    }
+
+    location /playback/presentation/2.0/playback.html {
+        return 301 /playback/presentation/2.3/$arg_meetingId?$query_string;
+    }
+
+    location /playback/presentation/2.3/ {
+            alias /var/www/html/bbb-playback/build/;
+            index index.html;
+            try_files $uri $uri/ /playback/presentation/2.3/index.html;
+    }
+
 }

@@ -60,13 +60,14 @@ class MeetingService
     /**
      * Start meeting with the properties saved for this meeting and room
      */
-    public function start(): bool
+    public function start(): ?\BigBlueButton\Responses\CreateMeetingResponse
     {
         // Set meeting parameters
         // TODO user limit, not working properly with bbb at the moment
         $meetingParams = new CreateMeetingParameters($this->meeting->id, $this->meeting->room->name);
         $meetingParams->setModeratorPW($this->meeting->moderator_pw)
             ->setAttendeePW($this->meeting->attendee_pw)
+            ->setRecord($this->meeting->record)
             ->setLogoutURL(url('rooms/'.$this->meeting->room->id))
             ->setEndCallbackUrl($this->getCallbackUrl())
             ->setDuration($this->meeting->room->duration)
@@ -116,7 +117,7 @@ class MeetingService
             $this->meeting->forceDelete();
             $this->serverService->handleApiCallFailed();
 
-            return false;
+            return null;
         }
 
         // Check server response for meeting creation
@@ -136,10 +137,10 @@ class MeetingService
                     break;
             }
 
-            return false;
+            return null;
         }
 
-        return true;
+        return $result;
     }
 
     /**

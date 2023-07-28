@@ -32,6 +32,13 @@
               </template>
               <file-component :room="room" ></file-component>
             </b-tab>
+            <!-- Recordings management tab -->
+            <b-tab>
+              <template v-slot:title>
+                <i class="fa-solid fa-circle-play"></i> {{ $t('rooms.recordings.title') }}
+              </template>
+              <recording-component :room="room" ></recording-component>
+            </b-tab>
             <!-- Statistics tab -->
             <b-tab>
               <template v-slot:title>
@@ -56,6 +63,7 @@
 import SettingsComponent from './SettingsComponent.vue';
 import MembersComponent from './MembersComponent.vue';
 import FileComponent from './FileComponent.vue';
+import RecordingComponent from './RecordingComponent.vue';
 import HistoryComponent from './HistoryComponent.vue';
 import TokensComponent from './TokensComponent.vue';
 import RoomDescriptionComponent from './RoomDescriptionComponent.vue';
@@ -68,7 +76,8 @@ export default {
     SettingsComponent,
     MembersComponent,
     FileComponent,
-    TokensComponent
+    TokensComponent,
+    RecordingComponent
   },
   props: {
     room: Object

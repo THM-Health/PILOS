@@ -76,6 +76,15 @@ class Room extends Model
     ];
 
     /**
+     * Meeting
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function recordings()
+    {
+        return $this->hasManyThrough(Recording::class, Meeting::class);
+    }
+
+    /**
      * Room owner
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
