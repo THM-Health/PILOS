@@ -42,11 +42,11 @@ class RecordingController extends Controller
     public function update(UpdateRecordingRequest $request, Room $room, Recording $recording)
     {
         $recording->description = $request->description;
-        $recording->access = $request->access;
+        $recording->access      = $request->access;
         $recording->save();
 
-        foreach ($request->formats as $formatRequest){
-            $format = $recording->formats()->findOrFail($formatRequest['id']);
+        foreach ($request->formats as $formatRequest) {
+            $format           = $recording->formats()->findOrFail($formatRequest['id']);
             $format->disabled = $formatRequest['disabled'];
             $format->save();
         }

@@ -5,15 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Meeting;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class RecordingController extends Controller
 {
-
     /**
-     * @param string $format
-     * @param string $meeting
-     * @param string $resource
+     * @param  string   $format
+     * @param  string   $meeting
+     * @param  string   $resource
      * @return Response
      */
     public function resource(string $format, string $meeting, string $resource = 'index.html'): \Illuminate\Http\Response

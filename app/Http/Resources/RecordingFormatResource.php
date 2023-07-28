@@ -14,8 +14,8 @@ class RecordingFormatResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'     => $this->id,
-            'format' => $this->format,
+            'id'       => $this->id,
+            'format'   => $this->format,
             'disabled' => $this->disabled,
         ];
     }

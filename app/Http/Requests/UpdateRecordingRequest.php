@@ -12,10 +12,10 @@ class UpdateRecordingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => ['nullable','string'],
-            'access' => ['required',new EnumValue(RecordingAccess::class)],
-            'formats' => ['required','array'],
-            'formats.*.id' => ['required','distinct', Rule::in($this->recording->formats->pluck('id')->toArray())],
+            'description'        => ['nullable','string'],
+            'access'             => ['required',new EnumValue(RecordingAccess::class)],
+            'formats'            => ['required','array'],
+            'formats.*.id'       => ['required','distinct', Rule::in($this->recording->formats->pluck('id')->toArray())],
             'formats.*.disabled' => ['required','boolean'],
         ];
     }
