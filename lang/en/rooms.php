@@ -3,7 +3,6 @@
 return [
     'access_code'                  => 'Access code',
     'access_for_participants'      => 'Access for participants',
-//    'all_rooms'                    => 'All rooms',
     'become_member'                => 'Become member',
     'copy_access_for_participants' => 'Copy access for participants to clipboard',
     'create'                       => [
@@ -41,8 +40,6 @@ return [
         'apply' => 'Apply',
         'title' => 'Filter',
     ],
-//    'find_rooms'         => 'Find rooms',
-//    'find_rooms_info'    => 'List of all public listed rooms without an access code',
     'first_and_lastname' => 'First- und last name',
     'flash'              => [
         'access_code_invalid' => 'The access code is invalid.',
@@ -130,7 +127,6 @@ return [
             'title'   => 'Delete room',
         ],
     ],
-//    'my_rooms'                  => 'My rooms',
     'name'                      => 'Room name',
     'no_rooms_available'        => 'No rooms available',
     'no_rooms_available_search' => 'No rooms found for this search query',
@@ -214,8 +210,6 @@ return [
         ],
         'title' => 'Settings',
     ],
-//    'shared_by'    => 'Shared by :name',
-//    'shared_rooms' => 'Rooms shared with me',
     'start'        => 'Start',
     'status'       => [
         'not_running' => 'No running meeting',

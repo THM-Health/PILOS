@@ -3,7 +3,6 @@
 return [
     'access_code'                  => 'Zugangscode',
     'access_for_participants'      => 'Zugang für Teilnehmer',
-//    'all_rooms'                    => 'Alle Räume',
     'become_member'                => 'Mitglied werden',
     'copy_access_for_participants' => 'Zugangsdaten für Teilnehmer in Zwischenablage kopieren',
     'create'                       => [
@@ -41,8 +40,6 @@ return [
         'apply' => 'Anwenden',
         'title' => 'Filter',
     ],
-//    'find_rooms'         => 'Räume finden',
-//    'find_rooms_info'    => 'Liste aller öffentlich gelisteten Räume ohne Zugangscode',
     'first_and_lastname' => 'Vor- und Nachname',
     'flash'              => [
         'access_code_invalid' => 'Der Zugangscode ist ungültig.',
@@ -129,7 +126,6 @@ return [
             'title'   => 'Raum löschen',
         ],
     ],
-//    'my_rooms'                  => 'Meine Räume',
     'name'                      => 'Raumname',
     'no_rooms_available'        => 'Keine Räume vorhanden',
     'no_rooms_available_search' => 'Keine Räume für diesen Suchbegriff gefunden',
@@ -213,8 +209,6 @@ return [
         ],
         'title' => 'Einstellungen',
     ],
-//    'shared_by'    => 'Geteilt von :name',
-//    'shared_rooms' => 'Mit mir geteilte Räume',
     'start'        => 'Starten',
     'status'       => [
         'not_running' => 'Kein laufendes Meeting',

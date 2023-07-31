@@ -34,7 +34,7 @@ class Room extends JsonResource
         $this->token         = $token;
     }
 
-    public function getDetails($runningMeeting)
+    public function getDetails($latestMeeting)
     {
         if (!$this->details) {
             return [];
@@ -51,20 +51,20 @@ class Room extends JsonResource
             'can_start'         => Gate::inspect('start', [$this->resource, $this->token])->allowed(),
             'access_code'       => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
             'room_type_invalid' => $this->roomTypeInvalid,
-            'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
+            'record_attendance' => !setting('attendance.enabled') ? false : (($latestMeeting != null && $latestMeeting->end == null) ? $latestMeeting->record_attendance : $this->resource->record_attendance),
             'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles()
         ];
     }
 
-    public function getLastMeeting($runningMeeting)
+    public function getLastMeeting($latestMeeting)
     {
-        if (!$runningMeeting) {
+        if (!$latestMeeting) {
             return null;
         }
 
         return [
-            'start' => $runningMeeting->start,
-            'end'   => $runningMeeting->end
+            'start' => $latestMeeting->start,
+            'end'   => $latestMeeting->end
         ];
     }
 
@@ -76,7 +76,7 @@ class Room extends JsonResource
      */
     public function toArray($request)
     {
-        $runningMeeting = $this->resource->latestMeeting();
+        $latestMeeting = $this->resource->latestMeeting();
 
         return [
             'id'                => $this->id,
@@ -85,11 +85,10 @@ class Room extends JsonResource
                 'id'   => $this->owner->id,
                 'name' => $this->owner->fullname,
             ],
-            'running'           => $runningMeeting != null,
-            'last_meeting'      => $this->getLastMeeting($runningMeeting),
+            'last_meeting'      => $this->getLastMeeting($latestMeeting),
             'type'              => new RoomType($this->roomType),
             'model_name'        => $this->model_name,
-            $this->mergeWhen($this->details, $this->getDetails($runningMeeting))
+            $this->mergeWhen($this->details, $this->getDetails($latestMeeting))
         ];
     }
 }

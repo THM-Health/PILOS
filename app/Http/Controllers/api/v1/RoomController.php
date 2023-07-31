@@ -50,8 +50,6 @@ class RoomController extends Controller
                 //own rooms
                 $query->where('user_id', '=', Auth::user()->id);
 
-                //ToDo count number of own rooms and save it in additionalMeta
-
                 //rooms where the user is member
                 if ($request->filter == RoomFilter::OWN_AND_SHARED || $request->filter == RoomFilter::ALL) {
                     $query->orWhereIn('id', $roomMemberships);
@@ -74,6 +72,7 @@ class RoomController extends Controller
             $collection->where('room_type_id', $request->room_type);
         }
 
+        //count all available rooms
         $additionalMeta['meta']['total_no_filter'] = $collection->count();
 
         //rooms that can be found with the search
@@ -102,6 +101,7 @@ class RoomController extends Controller
                 break;
         }
 
+        //count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
         $collection = $collection->paginate(setting('own_rooms_pagination_page_size'));
