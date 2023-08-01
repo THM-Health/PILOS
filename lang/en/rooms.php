@@ -164,6 +164,7 @@ return [
             'max_duration'    => 'Max. duration',
             'minutes'         => 'min.',
             'reset_duration'  => 'Reset duration',
+            'short_description' => 'Short description',
             'title'           => 'General',
             'type'            => 'Type',
             'welcome_message' => 'Welcome message',

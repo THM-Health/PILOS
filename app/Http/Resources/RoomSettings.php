@@ -31,6 +31,7 @@ class RoomSettings extends JsonResource
             'allow_guests'                       => $this->allow_guests,
             'allow_membership'                   => $this->allow_membership,
             'welcome'                            => $this->welcome,
+            'short_description' => $this->short_description,
             'max_participants'                   => $this->max_participants,
             'duration'                           => $this->duration,
             'default_role'                       => $this->default_role,

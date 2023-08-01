@@ -163,6 +163,7 @@ return [
             'max_duration'    => 'Max. Dauer',
             'minutes'         => 'min.',
             'reset_duration'  => 'Dauer zurücksetzen',
+            'short_description' => 'Kurzbeschreibung',
             'title'           => 'Allgemein',
             'type'            => 'Art',
             'welcome_message' => 'Begrüßungsnachricht',
