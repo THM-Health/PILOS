@@ -24,7 +24,7 @@ Route::get('test', function () {
 Route::get('download/file/{roomFile}/{filename?}', [FileController::class,'show'])->name('download.file')->middleware('signed');
 Route::get('download/attendance/{meeting}', [MeetingController::class,'attendance'])->name('download.attendance')->middleware('auth:users,ldap');
 
-Route::get('recording/{format}/{meeting}/{resource?}', [\App\Http\Controllers\RecordingController::class,'resource'])->where('resource', '.*')->name('recording.resource');
+Route::get('recording/{format}/{recording}/{resource?}', [\App\Http\Controllers\RecordingController::class,'resource'])->where('resource', '.*')->name('recording.resource');
 
 if (config('greenlight.compatibility')) {
     Route::prefix(config('greenlight.base'))->group(function () {

@@ -8,31 +8,43 @@ use App\Http\Resources\RecordingResource;
 use App\Models\Recording;
 use App\Models\RecordingFormat;
 use App\Models\Room;
+use Illuminate\Support\Collection;
 
 class RecordingController extends Controller
 {
     public function index(Room $room)
     {
+        /* if (\Gate::allows('viewAllRecordings', $room)) {
+             return RecordingResource::collection($room->recordings);
+         }
+
+         $availableRecordings = new Collection();
+         foreach($room->recordings as $recording) {
+             if ($recording->access === 'public') {
+                 return RecordingResource::collection($room->recordings);
+             }
+         }*/
+
         return RecordingResource::collection($room->recordings);
     }
 
     public function show(Room $room, RecordingFormat $format)
     {
-        if (!$format->recording->meeting->room->is($room)) {
+        if (!$format->recording->room->is($room)) {
             abort(404, __('app.errors.recording_not_found'));
         }
 
-        $internalMeetingId = $format->recording->meeting->internal_meeting_id;
+        $recordingId = $format->recording->id;
 
-        session()->push($internalMeetingId.'-'.$format->format, true );
+        session()->push($recordingId.'-'.$format->format, true );
 
         if ($format->format === 'presentation') {
-            return response()->json(['url' => config('recording.player').'/'.$internalMeetingId.'/']);
+            return response()->json(['url' => config('recording.player').'/'.$recordingId.'/']);
         }
 
-        $resource = explode($internalMeetingId.'/', $format->url, 2)[1];
+        $resource = explode($recordingId.'/', $format->url, 2)[1];
 
-        $resourceRoute = route('recording.resource', ['format' => $format->format, 'meeting' => $internalMeetingId, 'resource' => $resource]) . ($resource == '' ? '/' : '');
+        $resourceRoute = route('recording.resource', ['format' => $format->format, 'recording' => $recordingId, 'resource' => $resource]) . ($resource == '' ? '/' : '');
 
         return response()->json(['url' => $resourceRoute]);
 

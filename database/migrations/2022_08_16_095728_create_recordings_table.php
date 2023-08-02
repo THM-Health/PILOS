@@ -15,8 +15,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('recordings', function (Blueprint $table) {
-            $table->id();
-            $table->string('meeting_id')->unique();
+            $table->string('id')->primary();
+            $table->string('room_id')->unique();
+            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            $table->string('meeting_id')->nullable();
             $table->foreign('meeting_id')->references('id')->on('meetings')->onDelete('cascade');
             $table->text('description')->nullable();
             $table->tinyInteger('access')->default(RecordingAccess::OWNER);

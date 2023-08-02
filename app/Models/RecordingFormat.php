@@ -9,6 +9,7 @@ use SimpleXMLElement;
 class RecordingFormat extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'url','format'
     ];
@@ -19,26 +20,44 @@ class RecordingFormat extends Model
 
     public static function createFromRecordingXML(SimpleXMLElement $xml)
     {
-        $internalMeetingId = (string) $xml->meeting->attributes()->id;
+        $recordingId = (string) $xml->id;
 
         $startTimestamp = (int) $xml->start_time;
         $start          = \Date::createFromTimestampUTC($startTimestamp / 1000);
         $endTimestamp   = (int) $xml->end_time;
         $end            = \Date::createFromTimestampUTC($endTimestamp / 1000);
 
-        $meeting = Meeting::where('internal_meeting_id', $internalMeetingId)->first();
-        if ($meeting == null) {
+        $meetingId = (string) $xml->meta->meetingId;
+
+        $meeting = Meeting::where('id', $meetingId)->first();
+
+        if ($meeting != null) {
+            $room = $meeting->room;
+        } else {
+            // Fallback to greenlight behaviour (using the persistent room id as meeting id)
+            $room = Room::where('id', $meetingId)->first();
+        }
+
+        // If the room does not exist, we can't create a recording
+        if ($room == null) {
             return null;
         }
 
-        $recording = $meeting->recording()->updateOrCreate(
-            [],
-            ['start' => $start, 'end' => $end]
-        );
+        // Check if the recording already exists, if not create recording
+        $recording = Recording::where('id', $recordingId)->first();
+        if ($recording == null) {
+            $recording        = new Recording();
+            $recording->id    = $recordingId;
+            $recording->start = $start;
+            $recording->end   = $end;
+            $recording->room()->associate($room);
+            $recording->meeting()->associate($meeting);
+            $recording->save();
+        }
 
         $format = (string) $xml->playback->format;
         $rawUrl = (string) $xml->playback->link;
-
+        
         $urlParts = parse_url($rawUrl);
         $url      = $urlParts['path'] . (isset($urlParts['query']) ? '?'.$urlParts['query'] : '') . (isset($urlParts['fragment']) ? '#'.$urlParts['fragment'] : '') ;
 

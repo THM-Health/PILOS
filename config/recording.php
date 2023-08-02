@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'player' => env('RECORDING_PLAYER'),
+    'player' => env('RECORDING_PLAYER','/playback/presentation/2.3'),
 ];

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('recording_formats', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('recording_id');
+            $table->string('recording_id');
             $table->foreign('recording_id')->references('id')->on('recordings')->onDelete('cascade');
             $table->string('format');
             $table->string('url');

@@ -160,6 +160,11 @@ return [
     ],
     'recording_attendance_accept'      => 'Ich bin mit der Protokollierung einverstanden.',
     'recording_attendance_info'        => 'Die Anwesenheit in diesem Raum wird protokolliert.',
+
+    'recording_accept'       => 'Ich bin mit der Aufzeichnung einverstanden. Wenn Sie nicht möchten, dass Ihre Stimme aufgezeichnet wird, stellen Sie sicher, dass Ihr Mikrofon stumm geschaltet ist. Verwenden Sie stattdessen den Chat, um sich zu beteiligen.',
+    'recording_video_accept' => '(Optional) Mein Videobild soll aufgezeichnet werden.',
+    'recording_info'         => 'Dieser Raum wird möglicherweise aufgezeichnet.',
+
     'require_access_code'              => 'Für diesen Raum ist ein Zugangscode erforderlich',
     'role'                             => 'Rolle',
     'roles'                            => [
@@ -180,6 +185,7 @@ return [
             'chars'           => 'Zeichen: :chars',
             'max_duration'    => 'Max. Dauer',
             'minutes'         => 'min.',
+            'record'          => 'Aufzeichnen',
             'reset_duration'  => 'Dauer zurücksetzen',
             'title'           => 'Allgemein',
             'type'            => 'Art',

@@ -125,14 +125,34 @@
               <!-- Show room start or join button -->
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
 
-                <b-alert show v-if="room.record_attendance" class="text-center p-3" ref="recordingAttendanceInfo">
+                <b-alert show v-if="room.record_attendance" class="p-3" ref="recordingAttendanceInfo">
                   <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_attendance_info') }}
                   <b-form-checkbox
+                    class="required"
                     v-model="recordAttendanceAgreement"
                     :value="true"
                     :unchecked-value="false"
                   >
                     {{ $t('rooms.recording_attendance_accept')}}
+                  </b-form-checkbox>
+                </b-alert>
+
+                <b-alert show v-if="room.record" class="p-3" ref="recordingInfo">
+                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_info') }}
+                  <b-form-checkbox
+                    class="required"
+                    v-model="recordAgreement"
+                    :value="true"
+                    :unchecked-value="false"
+                  >
+                    {{ $t('rooms.recording_accept')}}
+                  </b-form-checkbox>
+                  <b-form-checkbox
+                    v-model="recordVideoAgreement"
+                    :value="true"
+                    :unchecked-value="false"
+                  >
+                    {{ $t('rooms.recording_video_accept')}}
                   </b-form-checkbox>
                 </b-alert>
 
@@ -143,7 +163,7 @@
                     block
                     ref="joinMeeting"
                     v-on:click="join"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement) || (room.record && !recordAgreement)"
                     variant="primary"
                   >
                     <b-spinner small v-if="loadingJoinStart"></b-spinner> <i class="fa-solid fa-door-open"></i> {{ $t('rooms.join') }}
@@ -155,7 +175,7 @@
                     block
                     ref="startMeeting"
                     v-if="room.can_start"
-                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement)"
+                    :disabled="(!isAuthenticated && name==='') || loadingJoinStart || room.room_type_invalid || (room.record_attendance && !recordAttendanceAgreement) || (room.record && !recordAgreement)"
                     v-on:click="start"
                     variant="primary"
                   >
@@ -292,6 +312,8 @@ export default {
       accessCodeInput: '', // Access code input modal
       accessCodeValid: null, // Is access code valid
       recordAttendanceAgreement: false,
+      recordAgreement: false,
+      recordVideoAgreement: false,
       token: null,
       errors: []
     };
@@ -521,7 +543,9 @@ export default {
       const config = {
         params: {
           name: this.token ? null : this.name,
-          record_attendance: this.recordAttendanceAgreement ? 1 : 0
+          record_attendance: this.recordAttendanceAgreement ? 1 : 0,
+          record: this.recordAgreement ? 1 : 0,
+          record_video: this.recordVideoAgreement ? 1 : 0
         }
       };
 
@@ -603,7 +627,9 @@ export default {
       const config = {
         params: {
           name: this.token ? null : this.name,
-          record_attendance: this.recordAttendanceAgreement ? 1 : 0
+          record_attendance: this.recordAttendanceAgreement ? 1 : 0,
+          record: this.recordAgreement ? 1 : 0,
+          record_video: this.recordVideoAgreement ? 1 : 0
         }
       };
 

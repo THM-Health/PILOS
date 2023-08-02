@@ -27,6 +27,23 @@
                 :hide-reload="true"
               ></file-component>
             </b-tab>
+            <!-- Recordings management tab -->
+            <b-tab>
+              <template v-slot:title>
+                <i class="fa-solid fa-circle-play"></i> {{ $t('rooms.recordings.title') }}
+              </template>
+              <recording-component
+
+                ref="publicRecordingList"
+                :emit-errors="true"
+                v-on:error="onTabComponentError"
+                :access-code="accessCode"
+                :token="token"
+                :room="room"
+                :hide-reload="true"
+
+              ></recording-component>
+            </b-tab>
           </b-tabs>
         </b-card>
       </div>
@@ -36,12 +53,14 @@
 <script>
 import FileComponent from './FileComponent.vue';
 import RoomDescriptionComponent from './RoomDescriptionComponent.vue';
+import RecordingComponent from './RecordingComponent.vue';
 
 export default {
 
   components: {
     RoomDescriptionComponent,
-    FileComponent
+    FileComponent,
+    RecordingComponent
   },
   props: {
     room: Object,

@@ -72,7 +72,8 @@ class Room extends Model
         'access_code'                        => 'integer',
         'listed'                             => 'boolean',
         'record_attendance'                  => 'boolean',
-        'delete_inactive'                    => 'datetime',
+        'record'                             => 'boolean',
+        'delete_inactive'                    => 'datetime'
     ];
 
     /**
@@ -81,7 +82,7 @@ class Room extends Model
      */
     public function recordings()
     {
-        return $this->hasManyThrough(Recording::class, Meeting::class);
+        return $this->hasMany(Recording::class);
     }
 
     /**

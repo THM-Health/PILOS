@@ -84,7 +84,10 @@ USER www-data
 RUN npm install
 RUN composer install
 
-USER root
+# Build bbb recording player
+RUN npm run bbb-playback
+
+USER root 
 
 EXPOSE 80
 EXPOSE 443

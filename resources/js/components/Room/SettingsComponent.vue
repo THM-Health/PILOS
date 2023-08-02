@@ -85,6 +85,19 @@
               </b-input-group>
               <template slot='invalid-feedback'><div v-html="fieldError('duration')"></div></template>
             </b-form-group>
+
+            <!-- Checkbox record meeting -->
+            <b-form-group :state="fieldState('record')">
+              <b-form-checkbox
+                :disabled="disabled"
+                :state="fieldState('record')"
+                v-model="settings.record"
+                switch
+              >
+                {{ $t('rooms.settings.general.record') }}
+              </b-form-checkbox>
+              <template slot='invalid-feedback'><div v-html="fieldError('record')"></div></template>
+            </b-form-group>
           </b-col>
 
           <!-- Security settings tab -->

@@ -34,7 +34,8 @@ class Meeting extends Model
     protected $casts = [
         'start'              => 'datetime',
         'end'                => 'datetime',
-        'record_attendance'  => 'boolean'
+        'record_attendance'  => 'boolean',
+        'record'             => 'boolean'
     ];
 
     /**
@@ -71,14 +72,5 @@ class Meeting extends Model
     public function attendees()
     {
         return $this->hasMany(MeetingAttendee::class);
-    }
-
-    /**
-     * Meeting
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function recording()
-    {
-        return $this->hasOne(Recording::class);
     }
 }

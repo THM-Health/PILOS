@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
+use App\Models\RoomToken;
 use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
@@ -66,6 +67,7 @@ class Room extends JsonResource
                 'access_code'       => $this->when(Gate::inspect('viewAccessCode', [$this->resource])->allowed(), $this->access_code),
                 'room_type_invalid' => $this->roomTypeInvalid,
                 'record_attendance' => !setting('attendance.enabled') ? false : ($runningMeeting != null ? $runningMeeting->record_attendance : $this->resource->record_attendance),
+                'record'            => ($runningMeeting != null ? $runningMeeting->record : $this->resource->record),
                 'current_user'      => (new UserResource(\Illuminate\Support\Facades\Auth::user()))->withPermissions()->withoutRoles()
             ])
         ];

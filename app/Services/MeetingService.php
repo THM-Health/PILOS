@@ -83,7 +83,13 @@ class MeetingService
             ->setLockSettingsLockOnJoin($this->meeting->room->lock_settings_lock_on_join)
             ->setMuteOnStart($this->meeting->room->mute_on_start)
             ->setMeetingLayout(MeetingLayout::CUSTOM_LAYOUT)
-            ->setLearningDashboardEnabled(false);
+            ->setLearningDashboardEnabled(false)
+            ->setRemindRecordingIsOn(true)
+            ->setNotifyRecordingIsOn(true);
+
+        // TODO: implement remindRecordingIsOn / notifyRecordingIsOn in littleredbutton api
+
+        $meetingParams->addMeta('bbb-origin', 'PILOS');
 
         // get files that should be used in this meeting and add links to the files
         $files = $this->meeting->room->files()->where('use_in_meeting', true)->orderBy('default', 'desc')->get();
@@ -266,6 +272,8 @@ class MeetingService
             $joinMeetingParams->setGuest(true);
         }
         $joinMeetingParams->addUserData('bbb_skip_check_audio', Auth::user() ? Auth::user()->bbb_skip_check_audio : false);
+
+        $joinMeetingParams->addUserData('bbb_record_video', $request->record_video);
 
         // If a custom style file is set, pass url to bbb html5 client
         if (setting()->has('bbb_style')) {

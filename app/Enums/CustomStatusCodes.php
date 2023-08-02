@@ -23,4 +23,5 @@ final class CustomStatusCodes extends Enum
     public const MEETING_ATTENDANCE_NOT_ENDED =   469;
     public const ATTENDANCE_AGREEMENT_MISSING =   470;
     public const EMAIL_CHANGE_THROTTLE        =   471;
+    public const RECORD_AGREEMENT_MISSING     =   472;
 }

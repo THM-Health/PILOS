@@ -259,11 +259,6 @@ export default {
       default: false,
       required: false
     },
-    requireAgreement: {
-      type: Boolean,
-      default: false,
-      required: false
-    },
     emitErrors: {
       type: Boolean,
       default: false,

@@ -9,14 +9,33 @@ class Recording extends Model
 {
     use HasFactory;
 
+    /**
+     * The "type" of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+
     protected $casts = [
         'start'  => 'datetime',
         'end'    => 'datetime'
     ];
 
-    protected $fillable = [
-        'start', 'end'
-    ];
+    /**
+     * Meeting
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
 
     /**
      * Meeting

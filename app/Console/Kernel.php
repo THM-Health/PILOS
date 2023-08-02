@@ -10,6 +10,7 @@ use App\Console\Commands\BuildHistory;
 use App\Console\Commands\DeleteObsoleteTokens;
 use App\Console\Commands\DeleteUnverifiedNewUsers;
 use App\Console\Commands\ImportGreenlight2;
+use App\Console\Commands\ImportRecordingsCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -27,7 +28,8 @@ class Kernel extends ConsoleKernel
         CleanupAttendance::class,
         CleanupStatistics::class,
         DeleteObsoleteTokens::class,
-        CleanupRooms::class
+        CleanupRooms::class,
+        ImportRecordingsCommand::class
     ];
 
     /**
@@ -41,6 +43,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(CleanupAttendance::class)->daily();
         $schedule->command(CleanupRooms::class)->daily();
         $schedule->command(DeleteObsoleteTokens::class)->daily();
+        $schedule->command(ImportRecordingsCommand::class)->everyMinute();
     }
 
     /**
