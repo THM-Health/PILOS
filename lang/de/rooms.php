@@ -60,10 +60,12 @@ return [
             'alpha_desc'     => 'Alphabetisch absteigend',
         ],
         'room_component'=> [
-          'never_started'   => ' Noch nie gestartet',
-          'running_since'   => ' Meeting läuft seit :date',
-          'last_ran_till'   => ' Zuletzt gelaufen bis :date',
-          'meeting_starting'=> ' Meeting startet gerade'
+            'never_started'   => ' Noch nie gestartet',
+            'running_since'   => ' Meeting läuft seit :date',
+            'last_ran_till'   => ' Zuletzt gelaufen bis :date',
+            'meeting_starting'=> ' Meeting startet gerade',
+            'open'            => 'Öffnen',
+            'details'         => 'Details',
         ],
     ],
     'invalid_personal_link' => 'Dieser personalisierte Raumlink ist ungültig.',
@@ -159,14 +161,14 @@ return [
     ],
     'settings' => [
         'general' => [
-            'chars'           => 'Zeichen: :chars',
-            'max_duration'    => 'Max. Dauer',
-            'minutes'         => 'min.',
-            'reset_duration'  => 'Dauer zurücksetzen',
+            'chars'             => 'Zeichen: :chars',
+            'max_duration'      => 'Max. Dauer',
+            'minutes'           => 'min.',
+            'reset_duration'    => 'Dauer zurücksetzen',
             'short_description' => 'Kurzbeschreibung',
-            'title'           => 'Allgemein',
-            'type'            => 'Art',
-            'welcome_message' => 'Begrüßungsnachricht',
+            'title'             => 'Allgemein',
+            'type'              => 'Art',
+            'welcome_message'   => 'Begrüßungsnachricht',
         ],
         'none_placeholder' => '-- keine --',
         'participants'     => [

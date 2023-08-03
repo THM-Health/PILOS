@@ -85,9 +85,9 @@ class Room extends JsonResource
                 'id'   => $this->owner->id,
                 'name' => $this->owner->fullname,
             ],
-            'last_meeting'      => $this->getLastMeeting($latestMeeting),
-            'type'              => new RoomType($this->roomType),
-            'model_name'        => $this->model_name,
+            'last_meeting'          => $this->getLastMeeting($latestMeeting),
+            'type'                  => new RoomType($this->roomType),
+            'model_name'            => $this->model_name,
             'short_description'     => $this->short_description,
             $this->mergeWhen($this->details, $this->getDetails($latestMeeting))
         ];

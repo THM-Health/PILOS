@@ -13,6 +13,22 @@
     @include border-radius($thumbnail-border-radius);
 }
 
+.room-info-icon{
+    width: 1rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    text-align: center
+}
+
+.room-info-text{
+    flex-grow: 1;
+}
+
+.room-card-info-icon{
+    width: 20px;
+    flex-shrink: 0
+}
+
 .room-card{
     pointer-events: auto;
     cursor: pointer;

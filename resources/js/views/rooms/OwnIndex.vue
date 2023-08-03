@@ -62,7 +62,7 @@
           <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component :id="room.id" :name="room.name" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+                <room-component :id="room.id" :name="room.name" :shortDescription="room.short_description" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
 
           </b-row>
@@ -176,7 +176,7 @@ export default {
       });
     },
     /**
-     * changes showAllRooms if showSharedRooms was set to false
+     * Changes showAllRooms if showSharedRooms was set to false
      */
     changedSharedRooms () {
       if (!this.showSharedRooms) {
@@ -185,7 +185,7 @@ export default {
       this.loadRooms();
     },
     /**
-     * changes showSharedRooms if showAllRooms was set to true
+     * Changes showSharedRooms if showAllRooms was set to true
      */
     changedAllRooms () {
       if (this.showAllRooms) {
@@ -194,7 +194,7 @@ export default {
       this.loadRooms();
     },
     /**
-     * updates the roomFilter based on showAllRooms and showSharedRooms
+     * Updates the roomFilter based on showAllRooms and showSharedRooms
      */
     updateFilter () {
       if (this.showAllRooms) {

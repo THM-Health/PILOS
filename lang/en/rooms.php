@@ -63,7 +63,9 @@ return [
             'never_started'   => ' Never started before',
             'running_since'   => ' Meeting running since :date',
             'last_ran_till'   => ' Last ran till :date',
-            'meeting_starting'=> ' Meeting is starting'
+            'meeting_starting'=> ' Meeting is starting',
+            'open'            => 'Open',
+            'details'         => 'Details',
         ],
 
     ],
@@ -160,14 +162,14 @@ return [
     ],
     'settings' => [
         'general' => [
-            'chars'           => 'Characters: :chars',
-            'max_duration'    => 'Max. duration',
-            'minutes'         => 'min.',
-            'reset_duration'  => 'Reset duration',
+            'chars'             => 'Characters: :chars',
+            'max_duration'      => 'Max. duration',
+            'minutes'           => 'min.',
+            'reset_duration'    => 'Reset duration',
             'short_description' => 'Short description',
-            'title'           => 'General',
-            'type'            => 'Type',
-            'welcome_message' => 'Welcome message',
+            'title'             => 'General',
+            'type'              => 'Type',
+            'welcome_message'   => 'Welcome message',
         ],
         'none_placeholder' => '-- none --',
         'participants'     => [

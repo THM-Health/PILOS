@@ -540,7 +540,7 @@ export default {
         ? this.settings.short_description.length
         : 0;
       return char + ' / ' + 300;
-    },
+    }
 
   },
   created () {
