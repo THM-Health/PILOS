@@ -50,14 +50,21 @@ return [
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
+        'no_rooms_selected' => 'Keine Räume ausgewählt',
+        'reset_filter' => "Filter zurücksetzen",
         'room_type'   => 'Raumart',
-        'show_shared' => 'Geteilte Räume anzeigen',
-        'show_all'    => 'Alle Räume anzeigen',
+        'rooms'       => 'Räume',
+        'show_all'    => 'Alle Räume',
+        'show_own'    => 'Eigene Räume',
+        'show_public' => 'Öffentliche Räume',
+        'show_shared' => 'Geteilte Räume',
         'sorting'     => [
             'sort'           => 'Sortierung',
             'select_sorting' => '-- Sortierung auswählen --',
-            'alpha_asc'      => 'Alphabetisch aufsteigend',
-            'alpha_desc'     => 'Alphabetisch absteigend',
+            'alpha'          => 'Alphabetisch',
+            'last_active'    => 'Zuletzt aktiv',
+            'room_type'      => 'Nach Raumart',
+
         ],
         'room_component'=> [
             'never_started'   => ' Noch nie gestartet',
@@ -157,7 +164,7 @@ return [
         'loading_error' => 'Beim Laden der Raumarten ist ein Fehler aufgetreten.',
         'reload'        => 'Raumarten neuladen',
         'select_type'   => '-- Raumart auswählen --',
-        'all'           => 'Alle',
+        'all'           => 'Alle Raumarten',
     ],
     'settings' => [
         'general' => [

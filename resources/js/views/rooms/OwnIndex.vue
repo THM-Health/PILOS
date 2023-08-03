@@ -1,7 +1,18 @@
 <template>
     <b-container class="mt-3 mb-5">
-      <b-row class="mb-1">
-        <b-col :md="userCanCreateRooms? 9:12">
+      <b-row class="mb-3">
+        <b-col>
+          <h2>
+            {{$t('rooms.index.rooms')}}
+          </h2>
+        </b-col>
+        <b-col sm='12' md='3' v-if="userCanCreateRooms">
+            <new-room-component :disabled="limitReached" @limitReached="onReachLimit" ></new-room-component>
+            <b-badge class="w-100" v-if="showLimit">{{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}</b-badge>
+        </b-col>
+      </b-row>
+      <hr>
+
           <b-row class="mb-3">
             <b-col md="12">
               <b-input-group>
@@ -12,60 +23,72 @@
               </b-input-group>
             </b-col>
           </b-row>
-          <b-row>
-            <b-col md="3" class="mb-2">
-              <h6>{{ $t('rooms.index.sorting.sort') }}</h6>
-              <b-form-select v-model="selectedSortingType" @change="loadRooms()">
-                <b-form-select-option disabled value="-1">{{ $t('rooms.index.sorting.select_sorting') }}</b-form-select-option>
-                <b-form-select-option value="alpha_asc">{{ $t('rooms.index.sorting.alpha_asc') }}</b-form-select-option>
-                <b-form-select-option value="alpha_desc">{{ $t('rooms.index.sorting.alpha_desc') }}</b-form-select-option>
-              </b-form-select>
-            </b-col>
-            <b-col md="3" class="mb-2">
-              <h6>{{ $t('rooms.index.room_type') }}</h6>
-              <b-form-select v-model="selectedRoomType" @change="loadRooms()">
-                <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
-                <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
-                <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
-              </b-form-select>
-            </b-col>
-            <b-col md="3" class="mb-2">
-              <h6>{{ $t('rooms.index.show_shared') }}</h6>
-              <b-form-checkbox
-                switch
-                v-model="showSharedRooms"
-                @change="changedSharedRooms"
-              >
-              </b-form-checkbox>
-            </b-col >
-            <b-col md="3" class="mb-2">
-              <h6>{{ $t('rooms.index.show_all') }}</h6>
-              <b-form-checkbox
-                switch
-                v-model="showAllRooms"
-                @change="changedAllRooms"
-              >
-              </b-form-checkbox>
-            </b-col>
-
-          </b-row>
+      <b-row>
+        <b-col md="2" class="mb-2">
+          <h6>{{ $t('rooms.index.sorting.sort') }}</h6>
+          <b-form-select v-model="selectedSortingType" @change="loadRooms()">
+            <b-form-select-option disabled value="-1">{{ $t('rooms.index.sorting.select_sorting') }}</b-form-select-option>
+            <b-form-select-option value="last_active">{{ $t('rooms.index.sorting.last_active') }}</b-form-select-option>
+            <b-form-select-option value="alpha">{{ $t('rooms.index.sorting.alpha') }}</b-form-select-option>
+            <b-form-select-option value="room_type">{{ $t('rooms.index.sorting.room_type') }}</b-form-select-option>
+          </b-form-select>
         </b-col>
-          <b-col md="3" v-if="userCanCreateRooms">
-            <new-room-component :disabled="limitReached" @limitReached="onReachLimit" ></new-room-component>
-            <b-badge class="w-100" v-if="showLimit">{{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}</b-badge>
-          </b-col>
-      </b-row>
+        <b-col md="2" class="mb-2">
+          <h6>{{ $t('rooms.index.room_type') }}</h6>
+          <b-form-select v-model="selectedRoomType" @change="loadRooms()">
+            <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
+            <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
+            <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
+          </b-form-select>
+        </b-col>
+        <b-col md="8" class="mb-2">
+          <h6>Suchbereich</h6>
+          <b-form-group>
+            <b-form-checkbox
+              inline
+              switch
+              v-model="filter.own"
+            >
+              {{ $t('rooms.index.show_own') }}
+            </b-form-checkbox>
 
-      <b-overlay :show="loadingRooms" >
-        <div id="ownRooms" v-if="rooms">
+            <b-form-checkbox
+              inline
+              switch
+              v-model="filter.shared"
+            >
+              {{ $t('rooms.index.show_shared') }}
+            </b-form-checkbox>
+
+            <b-form-checkbox
+              inline
+              switch
+              v-model="filter.public"
+            >
+              {{ $t('rooms.index.show_public') }}
+            </b-form-checkbox>
+
+            <b-form-checkbox
+              v-if="userCanViewAll"
+              inline
+              switch
+              v-model="filter.all"
+            >
+              {{ $t('rooms.index.show_all') }}
+            </b-form-checkbox>
+          </b-form-group>
+        </b-col>
+      </b-row>
+      <b-overlay :show="loadingRooms" v-if="!showNoFilterMessage">
+        <div v-if="rooms">
           <em v-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
           <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component :id="room.id" :name="room.name" :shortDescription="room.short_description" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+                <room-component :id="room.id" :name="room.name" :shortDescription="room.short_description" :favorite="room.favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
-
           </b-row>
+
           <b-pagination
             class="mt-4"
             v-if="rooms.meta.last_page !== 1"
@@ -76,6 +99,11 @@
           ></b-pagination>
         </div>
       </b-overlay>
+      <div v-else style="text-align: center">
+        <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
+        <br>
+        <b-button @click="filter.own=true; filter.shared=true; selectedRoomType=null;"> {{ $t('rooms.index.reset_filter') }}</b-button>
+      </div>
     </b-container>
 </template>
 
@@ -87,6 +115,7 @@ import Base from '../../api/base';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import PermissionService from '../../services/PermissionService';
+import toast from "../../mixins/Toast";
 
 export default {
   components: {
@@ -106,6 +135,7 @@ export default {
   },
   mounted: function () {
     this.userCanCreateRooms = PermissionService.can('create', 'RoomPolicy');
+    this.userCanViewAll = PermissionService.can('viewAll', 'RoomPolicy');
     this.reload();
     this.loadRoomTypes();
   },
@@ -148,18 +178,24 @@ export default {
      * @param resetPage
      */
     loadRooms (resetPage = true) {
+      if (this.filter.own === false && this.filter.shared===false && this.filter.public=== false && this.filter.all===false){
+        this.showNoFilterMessage = true;
+        return;
+      }
+      this.showNoFilterMessage = false;
       // reset page of pagination if resetPage is true
       if (resetPage) {
         this.rooms.meta.current_page = 1;
       }
       this.loadingRooms = true;
-      // update the filter
-      this.updateFilter();
 
       Base.call('rooms', {
         method: 'get',
         params: {
-          filter: this.roomFilter,
+          filter_own: this.filter.own ? 1 : 0,
+          filter_shared: this.filter.shared ? 1 : 0,
+          filter_public: this.filter.public ? 1 : 0,
+          filter_all: this.filter.all ? 1 : 0,
           room_type: this.selectedRoomType,
           sort_by: this.selectedSortingType,
           search: this.rawSearchQuery.trim() !== '' ? this.rawSearchQuery.trim() : null,
@@ -175,52 +211,36 @@ export default {
         this.loadingRooms = false;
       });
     },
-    /**
-     * Changes showAllRooms if showSharedRooms was set to false
-     */
-    changedSharedRooms () {
-      if (!this.showSharedRooms) {
-        this.showAllRooms = false;
-      }
-      this.loadRooms();
-    },
-    /**
-     * Changes showSharedRooms if showAllRooms was set to true
-     */
-    changedAllRooms () {
-      if (this.showAllRooms) {
-        this.showSharedRooms = true;
-      }
-      this.loadRooms();
-    },
-    /**
-     * Updates the roomFilter based on showAllRooms and showSharedRooms
-     */
-    updateFilter () {
-      if (this.showAllRooms) {
-        this.roomFilter = 'all';
-      } else if (this.showSharedRooms && !this.showAllRooms) {
-        this.roomFilter = 'own_and_shared';
-      } else {
-        this.roomFilter = 'own';
-      }
-    }
+
   },
   data () {
     return {
       loadingRooms: false,
       rooms: null,
       rawSearchQuery: '',
-      roomFilter: 'own',
+      filter: {
+        own: true,
+        shared: true,
+        public: false,
+        all: false
+      },
+      showNoFilterMessage:false,
       selectedRoomType: null,
-      selectedSortingType: 'alpha_asc',
-      showAllRooms: false,
-      showSharedRooms: true,
+      selectedSortingType: 'last_active',
       roomTypes: [],
       roomTypesBusy: false,
       roomTypesLoadingError: false,
-      userCanCreateRooms: false
+      userCanCreateRooms: false,
+      userCanViewAll: false
     };
+  },
+  watch: {
+    filter: {
+      handler: function () {
+        this.loadRooms(true);
+      },
+      deep: true
+    }
   }
 };
 </script>

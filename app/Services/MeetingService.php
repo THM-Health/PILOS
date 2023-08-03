@@ -247,11 +247,18 @@ class MeetingService
     {
         $token = $request->get('token');
 
-        if ($token) {
-            $name = $token->fullname;
-        } else {
-            $name = Auth::guest() ? $request->name : Auth::user()->fullname;
+        if(Auth::guest()){
+            if ($token) {
+                $name = $token->fullname;
+            } else {
+                $name = $request->name;
+            }
         }
+        else{
+            $name = Auth::user()->fullname;
+            Auth::user()->roomJoins()->syncWithoutDetaching([$this->meeting->room->id => ['last_used' => now()]]);
+        }
+        
         $userId = Auth::guest() ? 's' . session()->getId() : 'u' . Auth::user()->id;
         $role   = $this->meeting->room->getRole(Auth::user(), $token);
 

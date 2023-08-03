@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-button :disabled="disabled" block variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> {{ $t('rooms.create.title') }} </b-button>
+    <b-button class="float-right" :disabled="disabled" variant="primary" @click="$bvModal.show('new-room')"> <i class="fa-solid fa-plus"></i> {{ $t('rooms.create.title') }} </b-button>
 
     <b-modal
       id="new-room"

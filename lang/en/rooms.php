@@ -50,14 +50,20 @@ return [
         'token_invalid'       => 'The personalised room link is no longer valid.',
     ],
     'index' => [
+        'no_rooms_selected' => 'No rooms selected',
+        'reset_filter' => 'Reset filter',
         'room_type'   => 'Room type',
-        'show_shared' => 'Show shared rooms',
-        'show_all'    => 'Show all rooms',
+        'rooms'       => 'Rooms',
+        'show_all'    => 'All rooms',
+        'show_own'    => 'Own rooms',
+        'show_public' => 'Public rooms',
+        'show_shared' => 'Shared rooms',
         'sorting'     => [
             'sort'           => 'Sorting',
             'select_sorting' => '-- Select sorting --',
-            'alpha_asc'      => 'Alphabetically ascending',
-            'alpha_desc'     => 'Alphabetically descending',
+            'alpha'          => 'Alphabetical',
+            'last_active'    => 'Last active',
+            'room_type'      => 'By room type',
         ],
         'room_component'=> [
             'never_started'   => ' Never started before',
@@ -158,7 +164,7 @@ return [
         'loading_error' => 'An error occurred during loading of the room types.',
         'reload'        => 'Reload room types',
         'select_type'   => '-- Select room type --',
-        'all'           => 'All',
+        'all'           => 'All room types',
     ],
     'settings' => [
         'general' => [
