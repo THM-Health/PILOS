@@ -10,12 +10,11 @@ use Illuminate\Support\Facades\Auth;
 
 class RoomAuthenticate
 {
-    /**
-     * Create a new controller instance.
-     */
-    public function __construct(
-        protected RoomAuthService $roomAuthService,
-    ) {
+    protected RoomAuthService $roomAuthService;
+
+    public function __construct(RoomAuthService $roomAuthService)
+    {
+        $this->roomAuthService = $roomAuthService;
     }
 
     /**
