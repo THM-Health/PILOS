@@ -7,6 +7,7 @@ use App\Models\RoomToken;
 
 /**
  * Service class to make the results of the RoomAuthenticate middleware available in all parts of the application.
+ * Singleton, access via dependency injection or app()->make(RoomAuthService::class)
  */
 class RoomAuthService
 {
