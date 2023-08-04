@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bump dependencies
+- Improve performance on permission checks ([#469])
+
 ### Fixed
 - Network error on logout due to reload of all components
 
@@ -615,6 +617,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#381]: https://github.com/THM-Health/PILOS/pull/381
 [#386]: https://github.com/THM-Health/PILOS/pull/386
 [#389]: https://github.com/THM-Health/PILOS/pull/389
+[#469]: https://github.com/THM-Health/PILOS/pull/469
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.1.1...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
