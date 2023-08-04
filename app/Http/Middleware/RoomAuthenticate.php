@@ -4,11 +4,19 @@ namespace App\Http\Middleware;
 
 use App\Models\Room;
 use App\Models\RoomToken;
+use App\Services\RoomAuthService;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
 class RoomAuthenticate
 {
+    protected RoomAuthService $roomAuthService;
+
+    public function __construct(RoomAuthService $roomAuthService)
+    {
+        $this->roomAuthService = $roomAuthService;
+    }
+
     /**
      * Handle requests to room routes and determine room unauthenticated status
      *
@@ -73,7 +81,9 @@ class RoomAuthenticate
             abort(403, 'require_code');
         }
 
-        $request->merge(['authenticated' => $authenticated, 'token' => $token]);
+        // make authentication status and token available to other parts of the application
+        $this->roomAuthService->setAuthenticated($room, $authenticated);
+        $this->roomAuthService->setRoomToken($room, $token);
 
         return $next($request);
     }

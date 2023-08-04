@@ -11,6 +11,7 @@ use App\Http\Requests\UpdateRoomSettings;
 use App\Http\Resources\RoomSettings;
 use App\Models\Room;
 use App\Models\RoomType;
+use App\Services\RoomAuthService;
 use App\Services\RoomService;
 use Auth;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -111,7 +112,7 @@ class RoomController extends Controller
 
         Log::info('Created new room {room}', ['room' => $room->getLogLabel()]);
 
-        return new \App\Http\Resources\Room($room, true);
+        return new \App\Http\Resources\Room($room);
     }
 
     /**
@@ -120,9 +121,9 @@ class RoomController extends Controller
      * @param  Room                     $room
      * @return \App\Http\Resources\Room
      */
-    public function show(Room $room, Request $request)
+    public function show(Room $room, RoomAuthService $roomAuthService)
     {
-        return new \App\Http\Resources\Room($room, $request->authenticated, true, $request->token);
+        return new \App\Http\Resources\Room($room, true);
     }
 
     /**
@@ -144,9 +145,9 @@ class RoomController extends Controller
      * @return JsonResponse
      * @throws AuthorizationException
      */
-    public function start(Room $room, StartJoinMeeting $request)
+    public function start(Room $room, StartJoinMeeting $request, RoomAuthService $roomAuthService)
     {
-        $this->authorize('start', [$room, $request->token]);
+        $this->authorize('start', [$room, $roomAuthService->getRoomToken($room)]);
 
         $roomService = new RoomService($room);
         $url         = $roomService->start($request->record_attendance, $request->record)->getJoinUrl($request);

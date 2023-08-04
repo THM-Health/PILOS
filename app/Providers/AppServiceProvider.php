@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\LocaleService;
+use App\Services\RoomAuthService;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
@@ -23,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(LocaleService::class, function () {
             return new LocaleService(new Filesystem());
+        });
+
+        $this->app->singleton(RoomAuthService::class, function () {
+            return new RoomAuthService();
         });
 
         if ($this->app->environment('local')) {

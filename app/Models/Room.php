@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\RoomUserRole;
 use App\Exceptions\RoomIdGenerationFailed;
+use App\Services\RoomAuthService;
 use App\Traits\AddsModelNameTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -191,8 +192,11 @@ class Room extends Model
      * @param  RoomToken|null $token
      * @return bool
      */
-    public function isModerator(?User $user, ?RoomToken $token = null)
+    public function isModerator(?User $user)
     {
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $token           = $roomAuthService->getRoomToken($this);
+
         if ($user == null && $token != null) {
             return $token->room->is($this) && $token->role == RoomUserRole::MODERATOR;
         }
@@ -216,6 +220,13 @@ class Room extends Model
      */
     public function isMember(?User $user)
     {
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $token           = $roomAuthService->getRoomToken($this);
+
+        if ($user == null && $token != null) {
+            return $token->room->is($this) && ($token->role == RoomUserRole::USER || $token->role == RoomUserRole::MODERATOR);
+        }
+
         return $user == null ? false : $this->members->contains($user);
     }
 
