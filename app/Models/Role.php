@@ -33,7 +33,7 @@ class Role extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\Models\User')->withPivot('automatic')->using('App\Models\RoleUser');
+        return $this->belongsToMany(User::class)->withPivot('automatic')->using(RoleUser::class);
     }
 
     /**
@@ -43,7 +43,7 @@ class Role extends Model
      */
     public function permissions()
     {
-        return $this->belongsToMany('App\Models\Permission');
+        return $this->belongsToMany(Permission::class)->using(PermissionRole::class);
     }
 
     /**

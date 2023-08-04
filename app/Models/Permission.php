@@ -28,7 +28,7 @@ class Permission extends Model
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Models\Role');
+        return $this->belongsToMany(Role::class)->using(PermissionRole::class);
     }
 
     /**
@@ -37,7 +37,7 @@ class Permission extends Model
      */
     public function includedPermissions()
     {
-        return $this->belongsToMany(self::class, 'included_permissions', 'permission_id', 'included_permission_id');
+        return $this->belongsToMany(self::class, 'included_permissions', 'permission_id', 'included_permission_id')->using(IncludedPermissionPermission::class);
     }
 
     /**
