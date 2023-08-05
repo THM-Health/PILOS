@@ -76,7 +76,7 @@ class Room extends JsonResource
      */
     public function toArray($request)
     {
-        $latestMeeting = $this->resource->latestMeeting();
+        $latestMeeting = $this->resource->latestMeeting;
 
         return [
             'id'                => $this->id,

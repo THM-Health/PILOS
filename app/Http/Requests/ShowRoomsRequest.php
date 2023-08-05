@@ -12,7 +12,10 @@ class ShowRoomsRequest extends FormRequest
     public function rules()
     {
         return[
-            'filter'          => ['required', new EnumValue(RoomFilter::class)],
+            'filter_own'      => ['required', 'boolean'],
+            'filter_shared'   => ['required', 'boolean'],
+            'filter_public'   => ['required', 'boolean'],
+            'filter_all'      => ['required', 'boolean'],
             'room_type'       => ['nullable', 'exists:App\Models\RoomType,id'],
             'sort_by'         => ['required', new EnumValue(RoomSortingType::class)],
             'search'          => ['string'],
