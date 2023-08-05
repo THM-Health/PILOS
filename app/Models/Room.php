@@ -140,16 +140,6 @@ class Room extends Model
         return $this->hasMany(Meeting::class);
     }
 
-     /**
-     * Meetings
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function latestMeeting()
-    {
-        return $this->belongsTo(Meeting::class,'meeting_id');
-    }
-
-
     /**
      * Files
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -175,6 +165,15 @@ class Room extends Model
     public function runningMeeting()
     {
         return $this->meetings()->whereNull('end')->orderByDesc('created_at')->first();
+    }
+
+    /**
+     * Get the latest meeting
+     * @return Meeting|null
+     */
+    public function latestMeeting()
+    {
+        return $this->meetings()->orderByDesc('created_at')->first();
     }
 
     /** Check if user is moderator of this room

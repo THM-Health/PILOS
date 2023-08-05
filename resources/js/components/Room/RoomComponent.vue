@@ -1,7 +1,7 @@
 <template>
-      <div class="h-100" >
-    <b-overlay :show="loading" class="h-100" rounded="sm" >
-      <b-card no-body bg-variant="white" class="room-card h-100" @click="open"  :class="{'running': running}">
+  <div class="h-100">
+    <b-overlay :show="loading" rounded="sm" class="h-100">
+      <b-card no-body bg-variant="white" class="room-card h-100" @click="open()" :class="{'running': running}">
         <b-card-body class="p-3 h-100">
           <div class="d-flex flex-column h-100">
             <div class="flex-grow-1">
@@ -10,10 +10,8 @@
                   <b-badge :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
                 </b-col>
                 <b-col>
-
-                  <div class="text-right" >
-                    <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info mr-1 p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
-                    <b-button @click.stop="toggleFavorite" :variant="favorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+                  <div class="text-right" v-if="shortDescription!=null">
+                    <b-button @click.stop="showShortDescriptionModal" size="sm" class="fa-solid fa-info"></b-button>
                   </div>
                 </b-col>
               </b-row>
@@ -47,7 +45,6 @@
     </b-card>
     </b-overlay>
 
-<!--    short Description Modal-->
     <b-modal
       ref="short-description-modal"
       :id="'short-description-modal-' + id"
@@ -57,17 +54,7 @@
       :cancel-title="$t('app.close')"
       :title="$t('rooms.index.room_component.details')"
     >
-
-      <b-row>
-        <b-col>
-          <b-badge :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
-        </b-col>
-        <b-col>
-          <div class="text-right" >
-            <b-button @click.stop="toggleFavorite" :variant="favorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
-          </div>
-        </b-col>
-      </b-row>
+      <b-badge :style="{ 'background-color': type.color}">{{this.type.description}}</b-badge>
       <h5 class="mt-2 text-break " style="width: 100% ">{{name}}</h5>
       <div>
         <div class="d-flex">
@@ -114,7 +101,6 @@ export default {
   props: {
     id: String,
     name: String,
-    favorite: Boolean,
     shortDescription: String,
     meeting: Object,
     shared: {
@@ -125,10 +111,6 @@ export default {
     owner: Object
   },
   methods: {
-
-    toggleFavorite: function () {
-     // TODO: Implement
-    },
 
     /**
      * open the room view

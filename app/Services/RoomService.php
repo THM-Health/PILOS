@@ -41,8 +41,8 @@ class RoomService
             // Block the lock for a max. of 45sec
             $lock->block($timeout);
 
-            $meeting = $this->room->latestMeeting;
-            if (!$meeting || $meeting->end != null) {
+            $meeting = $this->room->runningMeeting();
+            if (!$meeting) {
                 Log::info('Room {room} not running, creating a new meeting', ['room' => $this->room->getLogLabel() ]);
                 if ($this->room->roomTypeInvalid) {
                     $lock->release();
@@ -95,16 +95,17 @@ class RoomService
                 // Set start time after successful api call, prevents user from tying to join this meeting before it is ready
                 $meeting->start = date('Y-m-d H:i:s');
                 $meeting->save();
-
-                $this->room->latestMeeting()->associate($meeting);
-                $this->room->save();
-
                 $lock->release();
             } else {
                 Log::info('Room {room} already has running meeting', ['room' => $this->room->getLogLabel() ]);
 
                 $meetingService = new MeetingService($meeting);
-
+                // meeting in still starting
+                if ($meeting->start == null) {
+                    $lock->release();
+                    Log::warning('Failed to join meeting for room {room}; meeting is still starting', ['room' => $this->room->getLogLabel() ]);
+                    abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+                }
                 // Check if the meeting is actually running on the server
                 if (!$meetingService->isRunning()) {
                     $meetingService->setEnd();
@@ -141,11 +142,15 @@ class RoomService
         Log::info('Joining room {room}', ['room' => $this->room->getLogLabel() ]);
 
         // Check if there is a meeting running for this room, accordingly to the local database
-        $meeting = $this->room->latestMeeting;
-
+        $meeting = $this->room->runningMeeting();
         // no meeting found
-        if ($meeting == null || $meeting->end != null) {
+        if ($meeting == null) {
             Log::warning('Failed to join meeting for room {room}; no running meeting found', ['room' => $this->room->getLogLabel() ]);
+            abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
+        }
+        // meeting in still starting
+        if ($meeting->start == null) {
+            Log::warning('Failed to join meeting for room {room}; meeting is still starting', ['room' => $this->room->getLogLabel() ]);
             abort(CustomStatusCodes::MEETING_NOT_RUNNING, __('app.errors.not_running'));
         }
 

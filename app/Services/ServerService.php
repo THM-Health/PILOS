@@ -102,7 +102,7 @@ class ServerService
             (new MeetingService($meeting))->setEnd();
 
             // If no other meeting is running for this room, reset live room usage
-            if (!$meeting->room->latestMeeting || $meeting->room->latestMeeting->end != null) {
+            if ($meeting->room->runningMeeting() == null) {
                 $meeting->room->participant_count       = null;
                 $meeting->room->listener_count          = null;
                 $meeting->room->voice_participant_count = null;
