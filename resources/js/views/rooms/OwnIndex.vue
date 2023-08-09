@@ -1,5 +1,6 @@
 <template>
     <b-container class="mt-3 mb-5">
+<!--      heading and option to add new rooms-->
       <b-row class="mb-3">
         <b-col>
           <h2>
@@ -8,42 +9,68 @@
         </b-col>
         <b-col sm='12' md='3' v-if="userCanCreateRooms">
             <new-room-component :disabled="limitReached" @limitReached="onReachLimit" ></new-room-component>
-            <b-badge class="w-100" v-if="showLimit">{{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}</b-badge>
+            <b-badge class="float-right w-100" v-if="showLimit">{{ $t('rooms.room_limit',{has:rooms.meta.total_own,max:currentUser.room_limit}) }}</b-badge>
         </b-col>
       </b-row>
       <hr>
-
-          <b-row class="mb-3">
-            <b-col md="12">
-              <b-input-group>
+<!--    search, sorting, favourite and option to show filter-->
+      <b-row >
+            <b-col md="4">
+              <b-input-group class="mb-2">
                 <b-form-input @change="loadRooms()" :disabled="loadingRooms" ref="search" :placeholder="$t('app.search')" v-model="rawSearchQuery"></b-form-input>
                 <b-input-group-append>
                   <b-button @click="loadRooms()" :disabled="loadingRooms" variant="primary" v-tooltip-hide-click v-b-tooltip.hover :title="$t('app.search')"><i class="fa-solid fa-magnifying-glass"></i></b-button>
                 </b-input-group-append>
               </b-input-group>
             </b-col>
-          </b-row>
-      <b-row>
-        <b-col md="2" class="mb-2">
-          <h6>{{ $t('rooms.index.sorting.sort') }}</h6>
-          <b-form-select v-model="selectedSortingType" @change="loadRooms()">
-            <b-form-select-option disabled value="-1">{{ $t('rooms.index.sorting.select_sorting') }}</b-form-select-option>
-            <b-form-select-option value="last_active">{{ $t('rooms.index.sorting.last_active') }}</b-form-select-option>
-            <b-form-select-option value="alpha">{{ $t('rooms.index.sorting.alpha') }}</b-form-select-option>
-            <b-form-select-option value="room_type">{{ $t('rooms.index.sorting.room_type') }}</b-form-select-option>
-          </b-form-select>
+        <b-col md="8" class="text-right">
+
+          <b-dropdown
+            variant="secondary"
+            class=" ml-1 mb-2"
+            style="width: 14rem"
+            menu-class="w-100"
+            no-caret
+          >
+            <template #button-content>
+              <small class="fa-solid fa-sort mr-1"></small>
+              <span v-if="selectedSortingType==='last_active'">  {{ $t('rooms.index.sorting.last_active') }}</span>
+              <span v-if="selectedSortingType==='alpha'">  {{ $t('rooms.index.sorting.alpha') }}</span>
+              <span v-if="selectedSortingType==='room_type'">  {{ $t('rooms.index.sorting.room_type') }}</span>
+              <small class="fa-solid fa-chevron-down ml-1"></small>
+            </template>
+            <b-dropdown-item disabled>{{ $t('rooms.index.sorting.select_sorting') }} </b-dropdown-item>
+            <b-dropdown-item @click="changeSortingOption('last_active')"> {{ $t('rooms.index.sorting.last_active') }}</b-dropdown-item>
+            <b-dropdown-item @click="changeSortingOption('alpha')"> {{ $t('rooms.index.sorting.alpha') }} </b-dropdown-item>
+            <b-dropdown-item @click="changeSortingOption('room_type')"> {{ $t('rooms.index.sorting.room_type') }} </b-dropdown-item>
+          </b-dropdown>
+
+          <b-button @click="onlyShowFavourites=!onlyShowFavourites; loadRooms();" :variant="onlyShowFavourites?'primary':'secondary'" :disabled="showFilterOptions" class=" ml-1 mb-2">
+            <small class="fa-solid fa-star"></small>
+          </b-button>
+
+          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavourites" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
+            <small class="fa-solid fa-filter mr-1"></small>
+            {{$t('rooms.index.filter')}}
+            <small class="fa-solid" :class="{'fa-chevron-up': showFilterOptions, 'fa-chevron-down':!showFilterOptions }"></small>
+          </b-button>
+
+          <!--          <div class="float-right ml-1">-->
+<!--            <b-form-select v-model="selectedSortingType" @change="loadRooms()" class="bg-secondary">-->
+<!--              <b-form-select-option disabled value="-1">{{ $t('rooms.index.sorting.select_sorting') }} </b-form-select-option>-->
+<!--              <b-form-select-option value="last_active">{{ $t('rooms.index.sorting.last_active') }}</b-form-select-option>-->
+<!--              <b-form-select-option value="alpha">{{ $t('rooms.index.sorting.alpha') }}</b-form-select-option>-->
+<!--              <b-form-select-option value="room_type">{{ $t('rooms.index.sorting.room_type') }}</b-form-select-option>-->
+<!--            </b-form-select>-->
+<!--          </div>-->
+
         </b-col>
-        <b-col md="2" class="mb-2">
-          <h6>{{ $t('rooms.index.room_type') }}</h6>
-          <b-form-select v-model="selectedRoomType" @change="loadRooms()">
-            <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
-            <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
-            <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
-          </b-form-select>
-        </b-col>
-        <b-col md="8" class="mb-2">
-          <h6>Suchbereich</h6>
-          <b-form-group>
+
+      </b-row>
+<!--      filter options-->
+      <b-row v-if="showFilterOptions"  class="mb-2">
+        <b-col md="9" class="d-flex align-items-center">
+          <b-form-group class="mb-0 mt-0">
             <b-form-checkbox
               inline
               switch
@@ -78,11 +105,20 @@
             </b-form-checkbox>
           </b-form-group>
         </b-col>
+        <b-col md="3" class="h-100">
+          <b-form-select v-model="selectedRoomType" @change="loadRooms()" class="float-right">
+            <b-form-select-option disabled value="-1">{{ $t('rooms.room_types.select_type') }}</b-form-select-option>
+            <b-form-select-option :value="null">{{ $t('rooms.room_types.all') }}</b-form-select-option>
+            <b-form-select-option v-for="roomType in roomTypes" :key="roomType.id" :value="roomType.id">{{ roomType.description }}</b-form-select-option>
+          </b-form-select>
+        </b-col>
       </b-row>
       <b-overlay :show="loadingRooms" v-if="!showNoFilterMessage">
         <div v-if="rooms">
-          <em v-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
-          <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
+          <div class="text-center">
+            <em v-if="rooms.meta.total_no_filter===0" >{{ $t('rooms.no_rooms_available') }}</em>
+            <em v-else-if="!rooms.data.length" class="text-center">{{ $t('rooms.no_rooms_available_search') }}</em>
+          </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
                 <room-component :id="room.id" :name="room.name" :shortDescription="room.short_description" :favorite="room.favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
@@ -99,7 +135,7 @@
           ></b-pagination>
         </div>
       </b-overlay>
-      <div v-else style="text-align: center">
+      <div v-else class="text-center">
         <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
         <br>
         <b-button @click="filter.own=true; filter.shared=true; selectedRoomType=null;"> {{ $t('rooms.index.reset_filter') }}</b-button>
@@ -148,6 +184,11 @@ export default {
      */
     onReachLimit () {
       this.getCurrentUser();
+      this.loadRooms();
+    },
+
+    changeSortingOption(newOption){
+      this.selectedSortingType = newOption;
       this.loadRooms();
     },
     /**
@@ -224,7 +265,9 @@ export default {
         public: false,
         all: false
       },
+      showFilterOptions: false,
       showNoFilterMessage:false,
+      onlyShowFavourites:false,
       selectedRoomType: null,
       selectedSortingType: 'last_active',
       roomTypes: [],

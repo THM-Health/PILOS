@@ -50,9 +50,9 @@ return [
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
     'index' => [
+        'filter' => 'Filter',
         'no_rooms_selected' => 'Keine Räume ausgewählt',
         'reset_filter' => "Filter zurücksetzen",
-        'room_type'   => 'Raumart',
         'rooms'       => 'Räume',
         'show_all'    => 'Alle Räume',
         'show_own'    => 'Eigene Räume',
