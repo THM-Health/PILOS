@@ -89,6 +89,7 @@ class Room extends JsonResource
             'type'                  => new RoomType($this->roomType),
             'model_name'            => $this->model_name,
             'short_description'     => $this->short_description,
+            'is_favourite'          => Auth::user()?Auth::user()->roomFavorites->contains($this->id):false,
             $this->mergeWhen($this->details, $this->getDetails($latestMeeting))
         ];
     }

@@ -118,8 +118,8 @@ class RoomController extends Controller
                 break;
             case RoomSortingType::ROOM_TYPE:
                     $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
-    
-                    break;    
+
+                    break;
             case RoomSortingType::LAST_ACTIVE:
             default:
                 // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
@@ -307,5 +307,15 @@ class RoomController extends Controller
         $meetings = $room->meetings()->orderByDesc('start')->whereNotNull('start');
 
         return \App\Http\Resources\Meeting::collection($meetings->paginate(setting('pagination_page_size')));
+    }
+
+    public function addToFavourites(Room $room)
+    {
+        Auth::user()->roomFavorites()->attach($room);
+    }
+
+    public function deleteFromFavourites (Room $room)
+    {
+        Auth::user()->roomFavorites()->detach($room);
     }
 }

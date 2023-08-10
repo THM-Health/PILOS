@@ -13,7 +13,7 @@
 
                   <div class="text-right" >
                     <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info mr-1 p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
-                    <b-button @click.stop="toggleFavorite" :variant="favorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+                    <b-button @click.stop="toggleFavourite" :variant="isFavourite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
                   </div>
                 </b-col>
               </b-row>
@@ -64,7 +64,7 @@
         </b-col>
         <b-col>
           <div class="text-right" >
-            <b-button @click.stop="toggleFavorite" :variant="favorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+            <b-button @click.stop="toggleFavourite" :variant="isFavourite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
           </div>
         </b-col>
       </b-row>
@@ -105,6 +105,9 @@
 
 </template>
 <script>
+
+import Base from "../../api/base";
+
 export default {
   data () {
     return {
@@ -114,7 +117,7 @@ export default {
   props: {
     id: String,
     name: String,
-    favorite: Boolean,
+    isFavourite: Boolean,
     shortDescription: String,
     meeting: Object,
     shared: {
@@ -126,8 +129,22 @@ export default {
   },
   methods: {
 
-    toggleFavorite: function () {
-     // TODO: Implement
+    toggleFavourite: function () {
+      let config;
+      if (this.isFavourite){
+        config = {method: 'delete'};
+      }
+      else {
+        config = {method: 'put'};
+      }
+
+
+      Base.call('rooms/' + this.id +'/favourites', config)
+        .then(response=>{
+          this.$emit('favourites_changed');
+      }).catch(error =>{
+        Base.error(error,this);
+      });
     },
 
     /**

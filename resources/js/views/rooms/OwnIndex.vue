@@ -121,7 +121,7 @@
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component :id="room.id" :name="room.name" :shortDescription="room.short_description" :favorite="room.favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+                <room-component @favourites_changed="reload()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavourite="room.is_favourite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
           </b-row>
 
