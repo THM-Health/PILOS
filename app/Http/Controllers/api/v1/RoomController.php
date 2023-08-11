@@ -309,13 +309,29 @@ class RoomController extends Controller
         return \App\Http\Resources\Meeting::collection($meetings->paginate(setting('pagination_page_size')));
     }
 
-    public function addToFavourites(Room $room)
+    /**
+     * add a room to the users favorites
+     *
+     * @param Room $room
+     * @return \Illuminate\Http\Response
+     */
+    public function addToFavorites(Room $room)
     {
         Auth::user()->roomFavorites()->attach($room);
+
+        return response()->noContent();
     }
 
-    public function deleteFromFavourites (Room $room)
+    /**
+     * delete a room from the users favorites
+     *
+     * @param Room $room
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteFromFavorites (Room $room)
     {
         Auth::user()->roomFavorites()->detach($room);
+
+        return response()->noContent();
     }
 }

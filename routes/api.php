@@ -64,8 +64,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
         Route::get('rooms', [RoomController::class,'index'])->name('rooms.index');
         Route::post('rooms', [RoomController::class,'store'])->name('rooms.store');
-        Route::put('rooms/{room}/favourites', [RoomController::class, 'addToFavourites'])->name('rooms.favourites.add');
-        Route::delete('rooms/{room}/favourites', [RoomController::class, 'deleteFromFavourites'])->name('rooms.favourites.delete');
+        Route::put('rooms/{room}/favorites', [RoomController::class, 'addToFavorites'])->name('rooms.favorites.add');
+        Route::delete('rooms/{room}/favorites', [RoomController::class, 'deleteFromFavorites'])->name('rooms.favorites.delete');
         Route::put('rooms/{room}', [RoomController::class,'update'])->name('rooms.update');
         Route::delete('rooms/{room}', [RoomController::class,'destroy'])->name('rooms.destroy');
 

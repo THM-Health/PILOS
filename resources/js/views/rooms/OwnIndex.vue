@@ -13,7 +13,7 @@
         </b-col>
       </b-row>
       <hr>
-<!--    search, sorting, favourite and option to show filter-->
+<!--    search, sorting, favorite and option to show filter-->
       <b-row >
             <b-col md="4">
               <b-input-group class="mb-2">
@@ -45,11 +45,11 @@
             <b-dropdown-item @click="changeSortingOption('room_type')"> {{ $t('rooms.index.sorting.room_type') }} </b-dropdown-item>
           </b-dropdown>
 
-          <b-button @click="onlyShowFavourites=!onlyShowFavourites; loadRooms();" :variant="onlyShowFavourites?'primary':'secondary'" :disabled="showFilterOptions" class=" ml-1 mb-2">
+          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms();" :variant="onlyShowFavorites?'primary':'secondary'" :disabled="showFilterOptions" class=" ml-1 mb-2">
             <small class="fa-solid fa-star"></small>
           </b-button>
 
-          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavourites" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
+          <b-button @click="showFilterOptions=!showFilterOptions" :disabled="onlyShowFavorites" :variant="showFilterOptions?'primary':'secondary'" class = " ml-1 mb-2">
             <small class="fa-solid fa-filter mr-1"></small>
             {{$t('rooms.index.filter')}}
             <small class="fa-solid" :class="{'fa-chevron-up': showFilterOptions, 'fa-chevron-down':!showFilterOptions }"></small>
@@ -70,10 +70,11 @@
 <!--      filter options-->
       <b-row v-if="showFilterOptions"  class="mb-2">
         <b-col md="9" class="d-flex align-items-center">
-          <b-form-group class="mb-0 mt-0">
+          <b-form-group class="mb-2 mt-2">
             <b-form-checkbox
               inline
               switch
+              @change="toggleCheckbox"
               v-model="filter.own"
             >
               {{ $t('rooms.index.show_own') }}
@@ -82,6 +83,7 @@
             <b-form-checkbox
               inline
               switch
+              @change="toggleCheckbox"
               v-model="filter.shared"
             >
               {{ $t('rooms.index.show_shared') }}
@@ -91,6 +93,7 @@
               inline
               switch
               v-model="filter.public"
+              @change="toggleCheckbox"
             >
               {{ $t('rooms.index.show_public') }}
             </b-form-checkbox>
@@ -99,6 +102,7 @@
               v-if="userCanViewAll"
               inline
               switch
+              @change="toggleCheckboxAll"
               v-model="filter.all"
             >
               {{ $t('rooms.index.show_all') }}
@@ -121,7 +125,7 @@
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
-                <room-component @favourites_changed="reload()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavourite="room.is_favourite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
+                <room-component @favorites_changed="reload()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
           </b-row>
 
@@ -186,10 +190,37 @@ export default {
       this.getCurrentUser();
       this.loadRooms();
     },
-
+    /**
+     * Change sorting type to the type that was selected in the dropdown
+     * @param newOption
+     */
     changeSortingOption(newOption){
       this.selectedSortingType = newOption;
       this.loadRooms();
+    },
+
+    /**
+     * Check all checkboxes if the checkbox for all rooms is checked
+     */
+    toggleCheckboxAll(){
+      if (this.filter.all){
+        this.filter.own = true;
+        this.filter.public = true;
+        this.filter.shared = true;
+      }
+    },
+
+    /**
+     * Uncheck the checkbox for all rooms if one checkbox is unchecked
+     * @param checked
+     */
+    toggleCheckbox(checked){
+      if(this.filter.all){
+        if (!checked){
+          this.filter.all = false;
+        }
+      }
+
     },
     /**
      *  Reload rooms
@@ -267,7 +298,7 @@ export default {
       },
       showFilterOptions: false,
       showNoFilterMessage:false,
-      onlyShowFavourites:false,
+      onlyShowFavorites:false,
       selectedRoomType: null,
       selectedSortingType: 'last_active',
       roomTypes: [],

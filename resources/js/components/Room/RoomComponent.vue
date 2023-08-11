@@ -13,7 +13,7 @@
 
                   <div class="text-right" >
                     <b-button @click.stop="showShortDescriptionModal" v-if="shortDescription!=null" size="sm" class="fa-solid fa-info mr-1 p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
-                    <b-button @click.stop="toggleFavourite" :variant="isFavourite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+                    <b-button @click.stop="toggleFavorite" :variant="isFavorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
                   </div>
                 </b-col>
               </b-row>
@@ -64,7 +64,7 @@
         </b-col>
         <b-col>
           <div class="text-right" >
-            <b-button @click.stop="toggleFavourite" :variant="isFavourite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
+            <b-button @click.stop="toggleFavorite" :variant="isFavorite ? 'dark' : 'light'" size="sm" class="fa-solid fa-star p-0" style="height: 25px; width: 25px; font-size: 12px;"></b-button>
           </div>
         </b-col>
       </b-row>
@@ -117,7 +117,7 @@ export default {
   props: {
     id: String,
     name: String,
-    isFavourite: Boolean,
+    isFavorite: Boolean,
     shortDescription: String,
     meeting: Object,
     shared: {
@@ -129,19 +129,22 @@ export default {
   },
   methods: {
 
-    toggleFavourite: function () {
+    /**
+     * Add a room to the favorites or delete it from the favorites
+     */
+    toggleFavorite: function () {
       let config;
-      if (this.isFavourite){
+      //check if the room must be added or deleted
+      if (this.isFavorite){
         config = {method: 'delete'};
       }
       else {
         config = {method: 'put'};
       }
-
-
-      Base.call('rooms/' + this.id +'/favourites', config)
+      //add or delete room
+      Base.call('rooms/' + this.id +'/favorites', config)
         .then(response=>{
-          this.$emit('favourites_changed');
+          this.$emit('favorites_changed');
       }).catch(error =>{
         Base.error(error,this);
       });
