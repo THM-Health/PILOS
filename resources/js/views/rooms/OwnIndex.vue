@@ -268,6 +268,7 @@ export default {
           filter_shared: this.filter.shared ? 1 : 0,
           filter_public: this.filter.public ? 1 : 0,
           filter_all: this.filter.all ? 1 : 0,
+          only_favorites: this.onlyShowFavorites? 1:0,
           room_type: this.selectedRoomType,
           sort_by: this.selectedSortingType,
           search: this.rawSearchQuery.trim() !== '' ? this.rawSearchQuery.trim() : null,

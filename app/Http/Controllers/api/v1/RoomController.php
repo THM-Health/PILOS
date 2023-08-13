@@ -39,44 +39,48 @@ class RoomController extends Controller
         $collection     = null;
         $additionalMeta = [];
 
-        // list of room types for which listing is enabled
-        $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
+        if($request->only_favorites){
+            //list if room favourites
+            $roomFavorites = Auth::user()->roomFavorites->modelKeys();
+            $collection = Room::whereIn('rooms.id', $roomFavorites);
+        }else{
+            // all rooms without limitation (always include own rooms, shared rooms and public rooms)
+            if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
+                $collection = Room::query();
+            } else {
+                // list of room types for which listing is enabled
+                $roomTypesWithListingEnabled = RoomType::where('allow_listing', 1)->get('id');
 
-        // list of room ids where the user is member
-        $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
+                // list of room ids where the user is member
+                $roomMemberships             = Auth::user()->sharedRooms->modelKeys();
 
-        // all rooms without limitation (always include own rooms, shared rooms and public rooms)
-        if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
-            $collection = Room::query();
-        } else {
-            $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled, $roomMemberships, $request) {
-                // own rooms
-                if ($request->filter_own) {
-                    $query->orWhere('user_id', '=', Auth::user()->id);
-                }
+                $collection = Room::where(function (Builder $query) use ($roomTypesWithListingEnabled, $roomMemberships, $request) {
+                    // own rooms
+                    if ($request->filter_own) {
+                        $query->orWhere('user_id', '=', Auth::user()->id);
+                    }
 
-                // rooms where the user is member
-                if ($request->filter_shared) {
-                    $query->orWhereIn('rooms.id', $roomMemberships);
-                }
+                    // rooms where the user is member
+                    if ($request->filter_shared) {
+                        $query->orWhereIn('rooms.id', $roomMemberships);
+                    }
 
-                // all rooms that are public (listed and without access code)
-                if ($request->filter_public) {
-                    $query->orWhere(function (Builder $subQuery) use ($roomTypesWithListingEnabled) {
-                        $subQuery->where('listed', 1)
-                            ->whereNull('access_code')
-                            ->whereIn('room_type_id', $roomTypesWithListingEnabled);
-                    });
-                }
+                    // all rooms that are public (listed and without access code)
+                    if ($request->filter_public) {
+                        $query->orWhere(function (Builder $subQuery) use ($roomTypesWithListingEnabled) {
+                            $subQuery->where('listed', 1)
+                                ->whereNull('access_code')
+                                ->whereIn('room_type_id', $roomTypesWithListingEnabled);
+                        });
+                    }
 
-                // prevent request with no filter (would return all rooms)
-                if(!$request->filter_own && !$request->filter_shared && !$request->filter_public) {
-                    abort(400);
-                }
-            });
+                    // prevent request with no filter (would return all rooms)
+                    if(!$request->filter_own && !$request->filter_shared && !$request->filter_public) {
+                        abort(400);
+                    }
+                });
+            }
         }
-
-        // @TODO: Implement room favorites (strategry not known yet)
 
         // join relationship table to allow sorting by relationship columns
         $collection->leftJoin('meetings', 'rooms.meeting_id', '=', 'meetings.id');
@@ -89,8 +93,8 @@ class RoomController extends Controller
         // eager load relationships
         $collection->with(['owner','roomType','latestMeeting']);
 
-        // filter by specific room Type
-        if ($request->has('room_type')) {
+        // filter by specific room Type if not only favorites
+        if ($request->has('room_type') && !$request->only_favorites) {
             $collection->where('room_type_id', $request->room_type);
         }
 
@@ -123,9 +127,7 @@ class RoomController extends Controller
             case RoomSortingType::LAST_ACTIVE:
             default:
                 // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
-                // @TODO: Fix sorting: Room with no meeting are shown first, but should be last
-                $collection = $collection->orderByRaw('meetings.end IS NULL DESC')->orderBy('meetings.start')->orderBy('rooms.name');
-
+                $collection = $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name');
                 break;
         }
 

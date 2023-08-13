@@ -16,6 +16,7 @@ class ShowRoomsRequest extends FormRequest
             'filter_shared'   => ['required', 'boolean'],
             'filter_public'   => ['required', 'boolean'],
             'filter_all'      => ['required', 'boolean'],
+            'only_favorites'  => ['required', 'boolean'],
             'room_type'       => ['nullable', 'exists:App\Models\RoomType,id'],
             'sort_by'         => ['required', new EnumValue(RoomSortingType::class)],
             'search'          => ['string'],
