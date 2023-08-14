@@ -1,0 +1,52 @@
+<?php
+
+return [
+    'change_email'     => "Changer l'adresse e-mail",
+    'change_password'  => 'Changer le mot de passe',
+    'current_password' => 'Mot de passe actuel',
+    'email'            => [
+        'tab_title' => 'Identification',
+        'title'     => "S'identifier via son e-mail",
+    ],
+    'error' => [
+        'missing_attributes' => "Les informations d'identification sont manquants.",
+    ],
+    'external_id' => 'Identifiant externe',
+    'failed'      => "Ces informations d'identification ne correspondent pas à nos enregistrements.",
+    'flash'       => [
+        'login'             => 'Connexion réussie',
+        'logout_all_others' => 'Les autres appareils ont été déconnectés avec succès!',
+        'logout_error'      => 'Échec de la déconnexion',
+        'password_changed'  => 'Mot de passe changé avec succès',
+    ],
+    'forgot_password'             => 'Mot de passe oublié?',
+    'input_new_password'          => 'Definir un nouveau mot de passe',
+    'input_new_password_new_user' => 'Définir le mot de passe pour ce nouvel utilisateur',
+    'ldap'                        => [
+        'tab_title'     => 'LDAP',
+        'title'         => "S'identifier via un compte LDAP",
+        'username'      => "Nom d'utilisateur",
+        'username_help' => "Entrez le nom d'utilisateur de votre compte LDAP (différent de l'e-mail)",
+    ],
+    'login'                     => 'Se connecter',
+    'logout'                    => 'Se déconnecter',
+    'logout_success'            => 'Déconnexion réussie',
+    'new_password'              => 'Nouveau mot de passe',
+    'new_password_confirmation' => 'Confirmation du nouveau mot de passe',
+    'password'                  => 'Mot de passe',
+    'reset_password'            => 'Réinitialiser le mot de passe',
+    'send_email_confirm_mail'   => "Un e-mail de vérification a été envoyé à {email}. Veuillez confirmer la nouvelle adresse en cliquant sur le lien dans l'e-mail.",
+    'send_password_reset_link'  => 'Envoyer le lien de réinitialisation du mot de passe',
+    'sessions'                  => [
+        'active'        => 'Sessions actives',
+        'browser'       => 'Navigateur',
+        'current'       => 'Session actuelle',
+        'ip'            => 'IP',
+        'last_active'   => 'Dernière activité',
+        'logout_all'    => 'Se déconnecter de toutes les autres sessions',
+        'unknown_agent' => 'Inconnu',
+    ],
+    'set_password'   => 'Définir le mot de passe',
+    'throttle'       => 'Trop de tentatives de connexion. Veuillez réessayer dans :seconds secondes.',
+    'throttle_email' => "Vous avez récemment demandé un changement d'adresse e-mail. Veuillez patienter et réessayer plus tard.",
+];
