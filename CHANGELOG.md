@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bump dependencies
 - Improve performance on permission checks ([#469])
+- Add french translation
 
 ### Fixed
 - Network error on logout due to reload of all components
