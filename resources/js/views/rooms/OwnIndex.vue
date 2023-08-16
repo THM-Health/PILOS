@@ -1,6 +1,6 @@
 <template>
     <b-container class="mt-3 mb-5">
-<!--      heading and option to add new rooms-->
+<!--  heading and option to add new rooms-->
       <b-row class="mb-3">
         <b-col>
           <h2>
@@ -13,7 +13,7 @@
         </b-col>
       </b-row>
       <hr>
-<!--    search, sorting, favorite and option to show filter-->
+<!--  search, sorting, favorite and option to show filter-->
       <b-row >
             <b-col md="4">
               <b-input-group class="mb-2">
@@ -45,7 +45,7 @@
             <b-dropdown-item @click="changeSortingOption('room_type')"> {{ $t('rooms.index.sorting.room_type') }} </b-dropdown-item>
           </b-dropdown>
 
-          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms();" :variant="onlyShowFavorites?'primary':'secondary'" :disabled="showFilterOptions" class=" ml-1 mb-2">
+          <b-button @click="onlyShowFavorites=!onlyShowFavorites; loadRooms();" :variant="onlyShowFavorites?'primary':'secondary'" v-tooltip-hide-click v-b-tooltip.hover :title="$t('rooms.index.favorites')" :disabled="showFilterOptions" class=" ml-1 mb-2">
             <small class="fa-solid fa-star"></small>
           </b-button>
 
@@ -54,20 +54,11 @@
             {{$t('rooms.index.filter')}}
             <small class="fa-solid" :class="{'fa-chevron-up': showFilterOptions, 'fa-chevron-down':!showFilterOptions }"></small>
           </b-button>
-
-          <!--          <div class="float-right ml-1">-->
-<!--            <b-form-select v-model="selectedSortingType" @change="loadRooms()" class="bg-secondary">-->
-<!--              <b-form-select-option disabled value="-1">{{ $t('rooms.index.sorting.select_sorting') }} </b-form-select-option>-->
-<!--              <b-form-select-option value="last_active">{{ $t('rooms.index.sorting.last_active') }}</b-form-select-option>-->
-<!--              <b-form-select-option value="alpha">{{ $t('rooms.index.sorting.alpha') }}</b-form-select-option>-->
-<!--              <b-form-select-option value="room_type">{{ $t('rooms.index.sorting.room_type') }}</b-form-select-option>-->
-<!--            </b-form-select>-->
-<!--          </div>-->
-
         </b-col>
 
       </b-row>
-<!--      filter options-->
+
+<!--  filter options-->
       <b-row v-if="showFilterOptions"  class="mb-2">
         <b-col md="9" class="d-flex align-items-center">
           <b-form-group class="mb-2 mt-2">
@@ -117,18 +108,20 @@
           </b-form-select>
         </b-col>
       </b-row>
+
+<!--  rooms-->
       <b-overlay :show="loadingRooms" v-if="!showNoFilterMessage">
         <div v-if="rooms">
-          <div class="text-center">
-            <em v-if="rooms.meta.total_no_filter===0" >{{ $t('rooms.no_rooms_available') }}</em>
-            <em v-else-if="!rooms.data.length" class="text-center">{{ $t('rooms.no_rooms_available_search') }}</em>
+          <div class="text-center mt-3">
+            <em v-if="onlyShowFavorites && rooms.meta.total_no_filter===0"> {{$t('rooms.index.no_favorites')}} </em>
+            <em v-else-if="rooms.meta.total_no_filter===0">{{ $t('rooms.no_rooms_available') }}</em>
+            <em v-else-if="!rooms.data.length">{{ $t('rooms.no_rooms_available_search') }}</em>
           </div>
           <b-row cols="1" cols-sm="2" cols-md="2" cols-lg="3" >
             <b-col v-for="room in rooms.data" :key="room.id" class="pt-2">
                 <room-component @favorites_changed="reload()" :id="room.id" :name="room.name" :shortDescription="room.short_description" :isFavorite="room.is_favorite" :owner="room.owner" :type="room.type" :meeting="room.last_meeting"></room-component>
             </b-col>
           </b-row>
-
           <b-pagination
             class="mt-4"
             v-if="rooms.meta.last_page !== 1"
@@ -139,7 +132,7 @@
           ></b-pagination>
         </div>
       </b-overlay>
-      <div v-else class="text-center">
+      <div v-else class="text-center mt-3">
         <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
         <br>
         <b-button @click="filter.own=true; filter.shared=true; selectedRoomType=null;"> {{ $t('rooms.index.reset_filter') }}</b-button>
@@ -268,7 +261,7 @@ export default {
           filter_shared: this.filter.shared ? 1 : 0,
           filter_public: this.filter.public ? 1 : 0,
           filter_all: this.filter.all ? 1 : 0,
-          only_favorites: this.onlyShowFavorites? 1:0,
+          only_favorites: this.onlyShowFavorites? 1 : 0,
           room_type: this.selectedRoomType,
           sort_by: this.selectedSortingType,
           search: this.rawSearchQuery.trim() !== '' ? this.rawSearchQuery.trim() : null,

@@ -50,7 +50,9 @@ return [
         'token_invalid'       => 'The personalised room link is no longer valid.',
     ],
     'index' => [
+        'favorites' => 'Favorites',
         'filter' => 'Filter',
+        'no_favorites' => 'No rooms marked as favorites',
         'no_rooms_selected' => 'No rooms selected',
         'reset_filter' => 'Reset filter',
         'rooms'       => 'Rooms',

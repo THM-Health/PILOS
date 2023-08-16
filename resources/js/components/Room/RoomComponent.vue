@@ -1,6 +1,7 @@
 <template>
       <div class="h-100" >
     <b-overlay :show="loading" class="h-100" rounded="sm" >
+<!--      room card-->
       <b-card no-body bg-variant="white" class="room-card h-100" @click="open"  :class="{'running': running}">
         <b-card-body class="p-3 h-100">
           <div class="d-flex flex-column h-100">
