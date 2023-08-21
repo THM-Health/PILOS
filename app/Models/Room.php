@@ -140,15 +140,14 @@ class Room extends Model
         return $this->hasMany(Meeting::class);
     }
 
-     /**
+    /**
      * Meetings
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function latestMeeting()
     {
-        return $this->belongsTo(Meeting::class,'meeting_id');
+        return $this->belongsTo(Meeting::class, 'meeting_id');
     }
-
 
     /**
      * Files

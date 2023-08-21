@@ -37,7 +37,7 @@ class SettingsTest extends TestCase
     {
         setting(['logo' => 'testlogo.svg']);
         setting(['pagination_page_size' => '123']);
-        setting(['own_rooms_pagination_page_size' => '123']);
+        setting(['room_pagination_page_size' => '123']);
         setting(['room_limit' => '-1']);
         setting(['banner' => [
             'enabled'    => true,

@@ -107,7 +107,7 @@
 </template>
 <script>
 
-import Base from "../../api/base";
+import Base from '../../api/base';
 
 export default {
   data () {
@@ -135,20 +135,19 @@ export default {
      */
     toggleFavorite: function () {
       let config;
-      //check if the room must be added or deleted
-      if (this.isFavorite){
-        config = {method: 'delete'};
+      // check if the room must be added or deleted
+      if (this.isFavorite) {
+        config = { method: 'delete' };
+      } else {
+        config = { method: 'put' };
       }
-      else {
-        config = {method: 'put'};
-      }
-      //add or delete room
-      Base.call('rooms/' + this.id +'/favorites', config)
-        .then(response=>{
+      // add or delete room
+      Base.call('rooms/' + this.id + '/favorites', config)
+        .then(response => {
           this.$emit('favorites_changed');
-      }).catch(error =>{
-        Base.error(error,this);
-      });
+        }).catch(error => {
+          Base.error(error, this);
+        });
     },
 
     /**

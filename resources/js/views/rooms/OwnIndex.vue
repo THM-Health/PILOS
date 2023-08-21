@@ -33,11 +33,17 @@
             no-caret
           >
             <template #button-content>
-              <small class="fa-solid fa-sort mr-1"></small>
-              <span v-if="selectedSortingType==='last_active'">  {{ $t('rooms.index.sorting.last_active') }}</span>
-              <span v-if="selectedSortingType==='alpha'">  {{ $t('rooms.index.sorting.alpha') }}</span>
-              <span v-if="selectedSortingType==='room_type'">  {{ $t('rooms.index.sorting.room_type') }}</span>
-              <small class="fa-solid fa-chevron-down ml-1"></small>
+              <div class="d-flex justify-content-between">
+                <div>
+                  <small class="fa-solid fa-sort mr-1"></small>
+                  <span v-if="selectedSortingType==='last_active'">  {{ $t('rooms.index.sorting.last_active') }}</span>
+                  <span v-if="selectedSortingType==='alpha'">  {{ $t('rooms.index.sorting.alpha') }}</span>
+                  <span v-if="selectedSortingType==='room_type'">  {{ $t('rooms.index.sorting.room_type') }}</span>
+                </div>
+                <div>
+                  <small class="fa-solid fa-chevron-down ml-1"></small>
+                </div>
+              </div>
             </template>
             <b-dropdown-item disabled>{{ $t('rooms.index.sorting.select_sorting') }} </b-dropdown-item>
             <b-dropdown-item @click="changeSortingOption('last_active')"> {{ $t('rooms.index.sorting.last_active') }}</b-dropdown-item>
@@ -135,7 +141,7 @@
       <div v-else class="text-center mt-3">
         <em>{{ $t('rooms.index.no_rooms_selected') }}</em>
         <br>
-        <b-button @click="filter.own=true; filter.shared=true; selectedRoomType=null;"> {{ $t('rooms.index.reset_filter') }}</b-button>
+        <b-button @click="filter.own=true; filter.shared=true; selectedRoomType=null; loadRooms(true);"> {{ $t('rooms.index.reset_filter') }}</b-button>
       </div>
     </b-container>
 </template>
@@ -148,7 +154,6 @@ import Base from '../../api/base';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../../stores/auth';
 import PermissionService from '../../services/PermissionService';
-import toast from "../../mixins/Toast";
 
 export default {
   components: {
@@ -187,7 +192,7 @@ export default {
      * Change sorting type to the type that was selected in the dropdown
      * @param newOption
      */
-    changeSortingOption(newOption){
+    changeSortingOption (newOption) {
       this.selectedSortingType = newOption;
       this.loadRooms();
     },
@@ -195,25 +200,26 @@ export default {
     /**
      * Check all checkboxes if the checkbox for all rooms is checked
      */
-    toggleCheckboxAll(){
-      if (this.filter.all){
+    toggleCheckboxAll () {
+      if (this.filter.all) {
         this.filter.own = true;
         this.filter.public = true;
         this.filter.shared = true;
       }
+      this.loadRooms(true);
     },
 
     /**
      * Uncheck the checkbox for all rooms if one checkbox is unchecked
      * @param checked
      */
-    toggleCheckbox(checked){
-      if(this.filter.all){
-        if (!checked){
+    toggleCheckbox (checked) {
+      if (this.filter.all) {
+        if (!checked) {
           this.filter.all = false;
         }
       }
-
+      this.loadRooms(true);
     },
     /**
      *  Reload rooms
@@ -243,7 +249,7 @@ export default {
      * @param resetPage
      */
     loadRooms (resetPage = true) {
-      if (this.filter.own === false && this.filter.shared===false && this.filter.public=== false && this.filter.all===false){
+      if (this.filter.own === false && this.filter.shared === false && this.filter.public === false && this.filter.all === false) {
         this.showNoFilterMessage = true;
         return;
       }
@@ -261,7 +267,7 @@ export default {
           filter_shared: this.filter.shared ? 1 : 0,
           filter_public: this.filter.public ? 1 : 0,
           filter_all: this.filter.all ? 1 : 0,
-          only_favorites: this.onlyShowFavorites? 1 : 0,
+          only_favorites: this.onlyShowFavorites ? 1 : 0,
           room_type: this.selectedRoomType,
           sort_by: this.selectedSortingType,
           search: this.rawSearchQuery.trim() !== '' ? this.rawSearchQuery.trim() : null,
@@ -276,7 +282,7 @@ export default {
       }).finally(() => {
         this.loadingRooms = false;
       });
-    },
+    }
 
   },
   data () {
@@ -291,8 +297,8 @@ export default {
         all: false
       },
       showFilterOptions: false,
-      showNoFilterMessage:false,
-      onlyShowFavorites:false,
+      showNoFilterMessage: false,
+      onlyShowFavorites: false,
       selectedRoomType: null,
       selectedSortingType: 'last_active',
       roomTypes: [],
@@ -303,12 +309,7 @@ export default {
     };
   },
   watch: {
-    filter: {
-      handler: function () {
-        this.loadRooms(true);
-      },
-      deep: true
-    }
+
   }
 };
 </script>

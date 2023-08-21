@@ -66,6 +66,7 @@ class RouteServiceProvider extends ServiceProvider
                 // Limit to 5 attempts per minute and user+ip, not blocking the real user
                 return Limit::perMinute( 5)->by($request->user()->id.'|'.$request->ip());
             }
+
             // If the user is not editing himself, no rate limit (use the default rate limit, see api rate limit)
             return Limit::none();
         });

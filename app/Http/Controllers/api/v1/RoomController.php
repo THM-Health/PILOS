@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\api\v1;
 
 use App\Enums\CustomStatusCodes;
-use App\Enums\RoomFilter;
 use App\Enums\RoomSortingType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoom;
@@ -39,11 +38,11 @@ class RoomController extends Controller
         $collection     = null;
         $additionalMeta = [];
 
-        if($request->only_favorites){
+        if ($request->only_favorites) {
             //list if room favourites
             $roomFavorites = Auth::user()->roomFavorites->modelKeys();
-            $collection = Room::whereIn('rooms.id', $roomFavorites);
-        }else{
+            $collection    = Room::whereIn('rooms.id', $roomFavorites);
+        } else {
             // all rooms without limitation (always include own rooms, shared rooms and public rooms)
             if ($request->filter_all && Auth::user()->can('viewAll', Room::class)) {
                 $collection = Room::query();
@@ -75,7 +74,7 @@ class RoomController extends Controller
                     }
 
                     // prevent request with no filter (would return all rooms)
-                    if(!$request->filter_own && !$request->filter_shared && !$request->filter_public) {
+                    if (!$request->filter_own && !$request->filter_shared && !$request->filter_public) {
                         abort(400);
                     }
                 });
@@ -121,20 +120,21 @@ class RoomController extends Controller
 
                 break;
             case RoomSortingType::ROOM_TYPE:
-                    $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
+                $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
 
-                    break;
+                break;
             case RoomSortingType::LAST_ACTIVE:
             default:
                 // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
                 $collection = $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name');
+
                 break;
         }
 
         // count own rooms
         $additionalMeta['meta']['total_own'] = Auth::user()->myRooms()->count();
 
-        $collection = $collection->paginate(setting('own_rooms_pagination_page_size'));
+        $collection = $collection->paginate(setting('room_pagination_page_size'));
 
         return \App\Http\Resources\Room::collection($collection)->additional($additionalMeta);
     }
@@ -314,12 +314,12 @@ class RoomController extends Controller
     /**
      * add a room to the users favorites
      *
-     * @param Room $room
+     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
     public function addToFavorites(Room $room)
     {
-        Auth::user()->roomFavorites()->attach($room);
+        Auth::user()->roomFavorites()->syncWithoutDetaching([$room->id]);
 
         return response()->noContent();
     }
@@ -327,10 +327,10 @@ class RoomController extends Controller
     /**
      * delete a room from the users favorites
      *
-     * @param Room $room
+     * @param  Room                      $room
      * @return \Illuminate\Http\Response
      */
-    public function deleteFromFavorites (Room $room)
+    public function deleteFromFavorites(Room $room)
     {
         Auth::user()->roomFavorites()->detach($room);
 

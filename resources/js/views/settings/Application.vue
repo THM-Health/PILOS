@@ -267,27 +267,27 @@
           </b-col>
 
           <b-col md='6'>
-            <!--Own rooms pagination page size settings-->
+            <!--Room pagination page size settings-->
             <b-form-group
               label-class="font-weight-bold"
               class="mb-4"
               label-for="application-pagination-own-room-page-size-input"
-              :description="$t('settings.application.own_rooms_pagination_page_size.description')"
-              :state='fieldState("own_rooms_pagination_page_size")'
-              :label="$t('settings.application.own_rooms_pagination_page_size.title')"
+              :description="$t('settings.application.room_pagination_page_size.description')"
+              :state='fieldState("room_pagination_page_size")'
+              :label="$t('settings.application.room_pagination_page_size.title')"
             >
               <b-form-input id="application-pagination-own-room-page-size-input"
-                            v-model="settings.own_rooms_pagination_page_size"
+                            v-model="settings.room_pagination_page_size"
                             type="number"
                             min="1"
                             max="25"
                             required
                             :disabled="isBusy || viewOnly || !loaded"
-                            :state='fieldState("own_rooms_pagination_page_size")'
+                            :state='fieldState("room_pagination_page_size")'
               >
               </b-form-input>
               <template slot='invalid-feedback'>
-                <div v-html="fieldError('own_rooms_pagination_page_size')"></div>
+                <div v-html="fieldError('room_pagination_page_size')"></div>
               </template>
             </b-form-group>
           </b-col>
@@ -1271,7 +1271,7 @@ export default {
       formData.append('room_limit', this.settings.room_limit);
       formData.append('room_token_expiration', this.settings.room_token_expiration);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
-      formData.append('own_rooms_pagination_page_size', this.settings.own_rooms_pagination_page_size);
+      formData.append('room_pagination_page_size', this.settings.room_pagination_page_size);
       formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
       formData.append('help_url', this.settings.help_url || '');

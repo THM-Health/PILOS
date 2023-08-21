@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\RoomFilter;
 use App\Enums\RoomSortingType;
 use BenSampo\Enum\Rules\EnumValue;
 use Illuminate\Foundation\Http\FormRequest;

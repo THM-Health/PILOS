@@ -148,6 +148,7 @@ class MeetingService
     public function isRunning(): bool
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
+
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
         try {
             $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
@@ -247,14 +248,13 @@ class MeetingService
     {
         $token = $request->get('token');
 
-        if(Auth::guest()){
+        if (Auth::guest()) {
             if ($token) {
                 $name = $token->fullname;
             } else {
                 $name = $request->name;
             }
-        }
-        else{
+        } else {
             $name = Auth::user()->fullname;
             Auth::user()->roomJoins()->syncWithoutDetaching([$this->meeting->room->id => ['last_used' => now()]]);
         }
