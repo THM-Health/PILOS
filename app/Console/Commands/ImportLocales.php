@@ -89,6 +89,8 @@ class ImportLocales extends Command
 
             // Iterate over each group and generate PHP language files
             foreach ($groups as $group) {
+               
+                $this->recur_ksort($response[$group]);
                 // Export the group data as a PHP array
                 $exported = VarExporter::export($response[$group]);
 
@@ -99,5 +101,19 @@ class ImportLocales extends Command
 
         $this->info('Apply coding standards');
         Process::run('composer run fix-cs '.config('app.locale_dir'));
+    }
+
+    /**
+     * Recursively sort the locale array by key.
+     *
+     * @param array $array Locale data
+     * @return void
+     */
+    function recur_ksort(&$array) {
+        foreach ($array as &$value) {
+            if (is_array($value))
+                $this->recur_ksort($value);
+         }
+         ksort($array);
     }
 }
