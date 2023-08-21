@@ -4,7 +4,7 @@ return [
     'application' => [
         'attendance' => [
             'enabled_title'          => 'Autoriser la journalisation de la présence des participants aux réunions',
-            'retention_period_title' => "Nombre de jours de conservation de la journalisation des présences",
+            'retention_period_title' => 'Nombre de jours de conservation de la journalisation des présences',
         ],
         'attendance_and_statistics_title' => 'Fréquentation et statistiques',
         'banner'                          => [
@@ -114,7 +114,7 @@ return [
         'statistics' => [
             'meetings' => [
                 'enabled_title'          => "Journalisation de l'utilisation des réunions",
-                'retention_period_title' => "Durée de conservation de la journalisation des réunions en jours",
+                'retention_period_title' => 'Durée de conservation de la journalisation des réunions en jours',
             ],
             'servers' => [
                 'enabled_title'          => "Journaliser l'utilisation du serveur",
@@ -122,7 +122,7 @@ return [
             ],
         ],
         'three_month'      => '3 mois (90 jours)',
-        'tile_description' => "Paramètres systèmes tels que le logo, la bannière de maintenance et la pagination des pages.",
+        'tile_description' => 'Paramètres systèmes tels que le logo, la bannière de maintenance et la pagination des pages.',
         'title'            => 'Application',
         'two_weeks'        => '2 semaines (14 jours)',
         'two_years'        => '2 ans (730 jours)',

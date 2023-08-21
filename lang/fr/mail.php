@@ -4,7 +4,7 @@ return [
     'action_url'    => 'Si vous ne parvenez pas à cliquer sur le bouton ":actionText", copiez et collez l\'URL ci-dessous dans votre navigateur internet:',
     'email_changed' => [
         'description' => "L'adresse e-mail de votre compte a été modifiée.",
-        'new_email'   => "Nouvelle adresse e-mail: :email",
+        'new_email'   => 'Nouvelle adresse e-mail: :email',
         'signature'   => "Si vous n'avez pas demandé à changer votre adresse e-mail, veuillez contacter le support.",
         'subject'     => 'Adresse e-mail modifée',
     ],
@@ -39,10 +39,10 @@ return [
         'subject'     => 'Compte utilisateur créé',
     ],
     'verify_email' => [
-        'action'      => "Confirmez votre adresse e-mail",
+        'action'      => 'Confirmez votre adresse e-mail',
         'description' => 'Veuillez cliquer sur le bouton ci-dessous pour confirmer votre adresse e-mail.',
         'expire'      => 'Ce lien de vérification expirera à :expireDateTime.',
         'signature'   => "Si vous n'avez pas demandé à changer votre adresse e-mail, veuillez contacter le support.",
-        'subject'     => "Confirmez votre adresse e-mail",
+        'subject'     => 'Confirmez votre adresse e-mail',
     ],
 ];

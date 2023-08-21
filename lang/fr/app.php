@@ -36,7 +36,7 @@ return [
         'no_room_access'               => 'Vous ne disposez pas des autorisations nécessaires pour modifier cette salle.',
         'no_server_available'          => "Actuellement, il n'y a pas de serveurs disponibles.",
         'not_member_of_room'           => "Cette personne n'est pas (plus) membre de cette salle.",
-        'not_running'                  => "Accès échoué ! La salle est actuellement fermée.",
+        'not_running'                  => 'Accès échoué ! La salle est actuellement fermée.',
         'role_delete_linked_users'     => 'Ce rôle est associé à certains utilisateurs et ne peut donc pas être supprimé !',
         'role_update_permission_lost'  => "Ces modifications du rôle vous feraient perdre vos permissions d'accès et de modification des rôles !",
         'room_limit_exceeded'          => 'La création de la salle a échouée ! Vous avez atteint la quantité maximum de salles.',

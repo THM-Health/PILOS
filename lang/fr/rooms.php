@@ -96,7 +96,7 @@ return [
                 'title_bulk' => 'Modifier :numberOfSelectedUsers utilisateurs',
             ],
             'remove' => [
-                'confirm'      => "Voulez-vous enlever :firstname :lastname de cette salle ?",
+                'confirm'      => 'Voulez-vous enlever :firstname :lastname de cette salle ?',
                 'confirm_bulk' => 'Voulez-vous enlever :numberOfSelectedUsers membres de cette salle ?',
                 'title'        => 'Enlever ce membre de cette salle',
                 'title_bulk'   => 'Enlever :numberOfSelectedUsers membres de cette salle',
