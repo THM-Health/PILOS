@@ -89,7 +89,6 @@ class ImportLocales extends Command
 
             // Iterate over each group and generate PHP language files
             foreach ($groups as $group) {
-               
                 $this->recur_ksort($response[$group]);
                 // Export the group data as a PHP array
                 $exported = VarExporter::export($response[$group]);
@@ -106,14 +105,16 @@ class ImportLocales extends Command
     /**
      * Recursively sort the locale array by key.
      *
-     * @param array $array Locale data
+     * @param  array $array Locale data
      * @return void
      */
-    function recur_ksort(&$array) {
+    public function recur_ksort(&$array)
+    {
         foreach ($array as &$value) {
-            if (is_array($value))
+            if (is_array($value)) {
                 $this->recur_ksort($value);
-         }
-         ksort($array);
+            }
+        }
+        ksort($array);
     }
 }
