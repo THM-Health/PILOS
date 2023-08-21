@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- French localisation
 
 ### Changed
 - Bump dependencies
@@ -12,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Network error on logout due to reload of all components
+- Internal server error on using personalized room links ([#470])
 
 ## [v2.1.1] - 2023-07-4
 ### Changed
@@ -618,6 +621,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#386]: https://github.com/THM-Health/PILOS/pull/386
 [#389]: https://github.com/THM-Health/PILOS/pull/389
 [#469]: https://github.com/THM-Health/PILOS/pull/469
+[#470]: https://github.com/THM-Health/PILOS/pull/470
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.1.1...HEAD
 [v1.0.0]: https://github.com/THM-Health/PILOS/releases/tag/v1.0.0
