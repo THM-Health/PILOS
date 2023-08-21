@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add french translations
 
 ### Changed
+- Renamed env option OWN_ROOMS_PAGINATION_PAGE_SIZE to ROOM_PAGINATION_PAGE_SIZE (OWN_ROOMS_PAGINATION_PAGE_SIZE deprecated) ([#373])
+- Refactor user interface for room search and home page ([#372], [#373])
 - Bump dependencies
 - Improve performance on permission checks ([#469])
 
@@ -614,6 +616,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#345]: https://github.com/THM-Health/PILOS/pull/345
 [#346]: https://github.com/THM-Health/PILOS/issues/346
 [#371]: https://github.com/THM-Health/PILOS/pull/371
+[#372]: https://github.com/THM-Health/PILOS/issues/372
+[#373]: https://github.com/THM-Health/PILOS/pull/373
 [#377]: https://github.com/THM-Health/PILOS/issues/377
 [#380]: https://github.com/THM-Health/PILOS/issues/380
 [#381]: https://github.com/THM-Health/PILOS/pull/381
