@@ -2,7 +2,7 @@ import VueRouter from 'vue-router';
 import Login from './views/Login.vue';
 import Logout from './views/Logout.vue';
 import NotFound from './views/NotFound.vue';
-import RoomsOwnIndex from './views/rooms/OwnIndex.vue';
+import RoomsIndex from './views/rooms/Index.vue';
 import RoomView from './views/rooms/View.vue';
 import PermissionService from './services/PermissionService';
 import Settings from './views/settings/Settings.vue';
@@ -85,18 +85,13 @@ export const routes = [
     component: ForgotPassword,
     meta: { guestsOnly: true }
   },
-  // {
-  //   path: '/rooms',
-  //   name: 'rooms.index',
-  //   component: RoomsIndex,
-  //   meta: { requiresAuth: true }
-  // },
   {
-    path: '/rooms/own',
-    name: 'rooms.own_index',
-    component: RoomsOwnIndex,
+    path: '/rooms',
+    name: 'rooms.index',
+    component: RoomsIndex,
     meta: { requiresAuth: true }
   },
+
   {
     path: '/rooms/:id/:token?',
     name: 'rooms.view',

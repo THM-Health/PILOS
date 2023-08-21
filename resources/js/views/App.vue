@@ -32,7 +32,7 @@
 
           <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav v-if='isAuthenticated'>
-              <b-nav-item :to="{ name: 'rooms.own_index' }">{{ $t('app.rooms') }}</b-nav-item>
+              <b-nav-item :to="{ name: 'rooms.index' }">{{ $t('app.rooms') }}</b-nav-item>
               <can method='viewAny' policy='MeetingPolicy'>
                 <b-nav-item :to="{ name: 'meetings.index' }">{{ $t('meetings.currently_running') }}</b-nav-item>
               </can>

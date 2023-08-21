@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
+import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import { BFormInput, BFormSelect } from 'bootstrap-vue';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';

@@ -217,7 +217,7 @@ describe('Login', () => {
     expect(toastSuccessSpy).toBeCalledTimes(1);
     expect(toastSuccessSpy).toBeCalledWith('auth.flash.login');
     expect(routerSpy).toBeCalledTimes(1);
-    expect(routerSpy).toBeCalledWith({ name: 'rooms.own_index' });
+    expect(routerSpy).toBeCalledWith({ name: 'rooms.index' });
 
     view.destroy();
   });

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
+import RoomList from '../../../../resources/js/views/rooms/Index.vue';
 import { BBadge, BCard } from 'bootstrap-vue';
 
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
