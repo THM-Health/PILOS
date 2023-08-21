@@ -12,7 +12,7 @@ class LDAPUser extends ExternalUser
         // Get the attributes from the LDAP user object
         $raw_attributes = $ldap_user->getAttributes();
 
-        if (config('ldap.logging')) {
+        if (config('ldap.logging.enabled')) {
             Log::debug('LDAP attributes', $raw_attributes);
         }
 

@@ -2,7 +2,7 @@ import View from '../../../../../resources/js/views/settings/serverPools/View.vu
 import { mount } from '@vue/test-utils';
 import PermissionService from '../../../../../resources/js/services/PermissionService';
 import { Multiselect } from 'vue-multiselect';
-import moxios from 'moxios';
+
 import BootstrapVue, {
 
   BFormInput,
@@ -13,7 +13,7 @@ import Base from '../../../../../resources/js/api/base';
 import VueRouter from 'vue-router';
 import env from '../../../../../resources/js/env';
 import _ from 'lodash';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../../helper';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -25,7 +25,7 @@ describe('ServerPoolView', () => {
   beforeEach(() => {
     oldUser = PermissionService.currentUser;
     PermissionService.setCurrentUser({ permissions: ['server.viewAny', 'serverPools.viewAny', 'serverPools.view', 'serverPools.create', 'serverPools.update', 'settings.manage'] });
-    moxios.install();
+    mockAxios.reset();
 
     const serverResponse = {
       data: [
@@ -120,20 +120,19 @@ describe('ServerPoolView', () => {
       }
     };
 
-    moxios.stubRequest('/api/v1/servers?page=1', {
+    mockAxios.request('/api/v1/servers', { page: 1 }).respondWith({
       status: 200,
-      response: serverResponse
+      data: serverResponse
     });
 
-    moxios.stubRequest('/api/v1/serverPools/1', {
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: 200,
-      response: serverPoolResponse
+      data: serverPoolResponse
     });
   });
 
   afterEach(() => {
     PermissionService.setCurrentUser(oldUser);
-    moxios.uninstall();
   });
 
   it('input fields are disabled if the server pool is displayed in view mode', async () => {
@@ -149,7 +148,7 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(view.findAllComponents(BFormInput).wrappers.every(input => input.attributes('disabled'))).toBe(true);
     expect(view.findAllComponents(Multiselect).wrappers.every(input => input.vm.disabled)).toBe(true);
     view.destroy();
@@ -158,9 +157,77 @@ describe('ServerPoolView', () => {
   it('error handler gets called if an error occurs during load of data and reload button reloads data', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/servers', { page: 1 }).respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 1,
+            name: 'Server 01',
+            description: 'Testserver 01',
+            strength: 1,
+            status: 1,
+            participant_count: 10,
+            listener_count: 5,
+            voice_participant_count: 5,
+            video_count: 5,
+            meeting_count: 2,
+            own_meeting_count: 2,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            own_meeting_count: 9,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 3,
+            name: 'Server 03',
+            description: 'Testserver 03',
+            strength: 1,
+            status: -1,
+            participant_count: null,
+            listener_count: null,
+            voice_participant_count: null,
+            video_count: null,
+            meeting_count: null,
+            own_meeting_count: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=2',
+          prev: null,
+          next: 'http://localhost/api/v1/servers?page=2'
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 3,
+          to: 3,
+          total: 4
+        }
+      }
+    });
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -177,18 +244,48 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(true);
 
-    restoreServerPoolResponse();
+    const request = mockAxios.request('/api/v1/serverPools/1');
 
     const reloadButton = view.findComponent({ ref: 'reloadServerPool' });
     expect(reloadButton.exists()).toBeTruthy();
     reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: {
+          id: 1,
+          name: 'Test',
+          description: 'Pool for testing',
+          server_count: 2,
+          servers: [
+            {
+              id: 1,
+              name: 'Server 01',
+              description: 'Testserver 01',
+              strength: 1,
+              status: 1,
+              participant_count: 10,
+              listener_count: 5,
+              voice_participant_count: 5,
+              video_count: 5,
+              meeting_count: 2,
+              own_meeting_count: 2,
+              model_name: 'Server',
+              updated_at: '2020-12-21T13:43:21.000000Z'
+            }
+          ],
+          model_name: 'ServerPool',
+          updated_at: '2020-12-21T13:43:21.000000Z'
+        }
+      }
+    });
     expect(view.vm.isBusy).toBe(false);
     expect(view.findComponent(BOverlay).props('show')).toBe(false);
 
@@ -204,9 +301,77 @@ describe('ServerPoolView', () => {
 
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    mockAxios.reset();
+    mockAxios.request('/api/v1/servers', { page: 1 }).respondWith({
+      status: 200,
+      data: {
+        data: [
+          {
+            id: 1,
+            name: 'Server 01',
+            description: 'Testserver 01',
+            strength: 1,
+            status: 1,
+            participant_count: 10,
+            listener_count: 5,
+            voice_participant_count: 5,
+            video_count: 5,
+            meeting_count: 2,
+            own_meeting_count: 2,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 2,
+            name: 'Server 02',
+            description: 'Testserver 02',
+            strength: 1,
+            status: 1,
+            participant_count: 50,
+            listener_count: 25,
+            voice_participant_count: 30,
+            video_count: 5,
+            meeting_count: 10,
+            own_meeting_count: 9,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          },
+          {
+            id: 3,
+            name: 'Server 03',
+            description: 'Testserver 03',
+            strength: 1,
+            status: -1,
+            participant_count: null,
+            listener_count: null,
+            voice_participant_count: null,
+            video_count: null,
+            meeting_count: null,
+            own_meeting_count: null,
+            model_name: 'Server',
+            updated_at: '2020-12-21T13:43:21.000000Z'
+          }
+        ],
+        links: {
+          first: 'http://localhost/api/v1/servers?page=1',
+          last: 'http://localhost/api/v1/servers?page=2',
+          prev: null,
+          next: 'http://localhost/api/v1/servers?page=2'
+        },
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 2,
+          path: 'http://localhost/api/v1/servers',
+          per_page: 3,
+          to: 3,
+          total: 4
+        }
+      }
+    });
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -224,12 +389,11 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
 
-    restoreServerPoolResponse();
     view.destroy();
   });
 
@@ -253,22 +417,23 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    await mockAxios.wait();
+
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: 404,
-      response: {
+      data: {
         message: 'Test'
       }
     });
 
-    view.findComponent(BForm).trigger('submit');
+    await view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
 
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'settings.server_pools' });
-    restoreServerPoolResponse();
+
     view.destroy();
   });
 
@@ -287,20 +452,20 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    await mockAxios.wait();
+
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
 
-    restoreServerPoolResponse();
     view.destroy();
   });
 
@@ -323,12 +488,11 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
-    const requestCount = moxios.requests.count();
+    await mockAxios.wait();
 
     await view.findAllComponents(BButton).filter(button => button.text() === 'app.back').at(0).trigger('click');
-    expect(moxios.requests.count()).toBe(requestCount);
     expect(spy).toBeCalledTimes(1);
+
     view.destroy();
   });
 
@@ -351,7 +515,7 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     await view.findAllComponents(BFormInput).at(0).setValue('Demo');
     await view.findAllComponents(BFormInput).at(1).setValue('Demopool');
@@ -359,9 +523,19 @@ describe('ServerPoolView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    const request = mockAxios.request('/api/v1/serverPools/1');
+
+    await mockAxios.wait();
+
+    const data = JSON.parse(request.config.data);
+
+    expect(data.name).toBe('Demo');
+    expect(data.description).toBe('Demopool');
+    expect(data.servers).toEqual([1, 2]);
+
+    await request.respondWith({
       status: env.HTTP_UNPROCESSABLE_ENTITY,
-      response: {
+      data: {
         message: 'The given data was invalid.',
         errors: {
           name: ['Test name'],
@@ -371,29 +545,20 @@ describe('ServerPoolView', () => {
       }
     });
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    const data = JSON.parse(request.config.data);
-
-    expect(data.name).toBe('Demo');
-    expect(data.description).toBe('Demopool');
-    expect(data.servers).toEqual([1, 2]);
-
     const feedback = view.findAllComponents(BFormInvalidFeedback).wrappers;
     expect(feedback[0].html()).toContain('Test name');
     expect(feedback[1].html()).toContain('Test description');
     expect(feedback[2].html()).toContain('Test server');
 
-    restoreServerPoolResponse();
-    restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: 204
     });
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     expect(spy).toBeCalledTimes(1);
-    restoreServerPoolResponse();
+
     view.destroy();
   });
 
@@ -417,13 +582,13 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
 
-    let restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -432,24 +597,24 @@ describe('ServerPoolView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
 
-    restoreServerPoolResponse();
-    restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
-      status: 204
-    });
+    const request = mockAxios.request('/api/v1/serverPools/1');
 
     staleModelModal.vm.$refs['ok-button'].click();
 
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     const data = JSON.parse(request.config.data);
-
     expect(data.updated_at).toBe(newModel.updated_at);
+
+    await request.respondWith({
+      status: 204
+    });
+
     expect(view.findComponent(BModal).vm.$data.isVisible).toBe(false);
-    restoreServerPoolResponse();
+
     view.destroy();
   });
 
@@ -467,14 +632,14 @@ describe('ServerPoolView', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     const newModel = _.cloneDeep(view.vm.model);
     newModel.updated_at = '2020-09-08T16:13:26.000000Z';
     newModel.name = 'Demo';
 
-    const restoreServerPoolResponse = overrideStub('/api/v1/serverPools/1', {
+    mockAxios.request('/api/v1/serverPools/1').respondWith({
       status: env.HTTP_STALE_MODEL,
-      response: {
+      data: {
         error: env.HTTP_STALE_MODEL,
         message: 'test',
         new_model: newModel
@@ -483,12 +648,10 @@ describe('ServerPoolView', () => {
 
     view.findComponent(BForm).trigger('submit');
 
-    await waitMoxios();
+    await mockAxios.wait();
     const staleModelModal = view.findComponent({ ref: 'stale-server-pool-modal' });
     expect(staleModelModal.vm.$data.isVisible).toBe(true);
     expect(view.findAllComponents(BFormInput).at(0).element.value).toBe('Test');
-
-    restoreServerPoolResponse();
 
     await staleModelModal.vm.$refs['cancel-button'].click();
 
@@ -518,9 +681,7 @@ describe('ServerPoolView', () => {
     expect(saveButton.html()).toContain('app.save');
 
     // load servers
-    await waitMoxios();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/servers?page=1');
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // check drop down values
@@ -533,16 +694,16 @@ describe('ServerPoolView', () => {
     expect(paginationButtons.at(0).attributes('disabled')).toBe('disabled');
     expect(paginationButtons.at(1).attributes('disabled')).toBeUndefined();
 
+    let request = mockAxios.request('/api/v1/servers', { page: 2 });
+
     // test navigate to next page
     await paginationButtons.at(1).trigger('click');
     // dropdown show loading spinner during load and save disabled
     expect(multiSelect.props('loading')).toBeTruthy();
-    await waitMoxios();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/servers?page=2');
+    await request.wait();
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 4,
@@ -580,14 +741,14 @@ describe('ServerPoolView', () => {
     expect(paginationButtons.at(1).attributes('disabled')).toBe('disabled');
 
     // test error during load
-    const restoreServerPoolResponse = overrideStub('/api/v1/servers?page=1', {
+    mockAxios.request('/api/v1/servers', { page: 1 }).respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
     await paginationButtons.at(0).trigger('click');
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // hide loading spinner, disable dropdown and prevent saving
@@ -597,7 +758,8 @@ describe('ServerPoolView', () => {
 
     expect(spy).toBeCalledTimes(1);
 
-    restoreServerPoolResponse();
+    // test reload button
+    request = mockAxios.request('/api/v1/servers', { page: 2 });
 
     const reloadButton = view.findAllComponents(BButton).at(2);
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
@@ -605,13 +767,11 @@ describe('ServerPoolView', () => {
     await reloadButton.trigger('click');
 
     // load servers
-    await waitMoxios();
+    await request.wait();
     expect(saveButton.attributes('disabled')).toBe('disabled');
-    request = moxios.requests.mostRecent();
-    expect(request.url).toBe('/api/v1/servers?page=2');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 4,

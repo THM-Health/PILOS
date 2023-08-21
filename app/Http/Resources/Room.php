@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\User as UserResource;
+use App\Models\RoomToken;
+use App\Services\RoomAuthService;
 use Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
@@ -26,12 +28,14 @@ class Room extends JsonResource
      * @param boolean   $details       Show details of the room (otherwise only basic information for listing is shown)
      * @param RoomToken $token         The token used to authenticate the user
      */
-    public function __construct($resource, bool $authenticated, bool $details = false, ?RoomToken $token = null)
+    public function __construct($resource, bool $details = false)
     {
         parent::__construct($resource);
-        $this->authenticated = $authenticated;
         $this->details       = $details;
-        $this->token         = $token;
+
+        $roomAuthService     = app()->make(RoomAuthService::class);
+        $this->token         = $roomAuthService->getRoomToken($resource);
+        $this->authenticated = $roomAuthService->isAuthenticated($resource);
     }
 
     public function getDetails($latestMeeting)

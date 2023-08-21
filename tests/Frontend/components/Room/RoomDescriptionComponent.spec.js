@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { createContainer, createLocalVue, waitMoxios } from '../../helper';
+import { createContainer, createLocalVue, mockAxios } from '../../helper';
 import { BButton, BFormInvalidFeedback, BootstrapVue } from 'bootstrap-vue';
 import RoomDescriptionComponent from '../../../../resources/js/components/Room/RoomDescriptionComponent.vue';
 import RoomDescriptionHtmlComponent from '../../../../resources/js/components/Room/RoomDescriptionHtmlComponent.vue';
@@ -7,7 +7,6 @@ import TipTapEditor from '../../../../resources/js/components/TipTap/TipTapEdito
 import PermissionService from '../../../../resources/js/services/PermissionService';
 import Base from '../../../../resources/js/api/base';
 import { expect, it } from 'vitest';
-import moxios from 'moxios';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
@@ -33,10 +32,7 @@ const exampleUser = { id: 1, firstname: 'John', lastname: 'Doe', locale: 'de', p
 describe('RoomDescriptionComponent', () => {
   beforeEach(() => {
     PermissionService.setCurrentUser(exampleUser);
-    moxios.install();
-  });
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('Sanitize html and replace links', async () => {
@@ -327,18 +323,18 @@ describe('RoomDescriptionComponent', () => {
     // Check if save and cancel buttons are shown
     const saveButton = view.findComponent(BButton);
 
+    const request = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8/description');
+
     // Click save button
     await saveButton.trigger('click');
 
     // Check if request is sent
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
+    await request.wait();
     expect(request.config.method).toBe('put');
-    expect(request.config.url).toBe('/api/v1/rooms/gs4-6fb-kk8/description');
     expect(JSON.parse(request.config.data)).toStrictEqual({ description: '<p>Test 2</p>' });
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: { ...newRoom, description: '<p>Test 2</p>' }
       }
     });
@@ -382,16 +378,16 @@ describe('RoomDescriptionComponent', () => {
     // Check if save and cancel buttons are shown
     const saveButton = view.findComponent(BButton);
 
+    const request = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8/description');
+
     // Click save button
     await saveButton.trigger('click');
 
     // Check if request is sent
-    await waitMoxios();
-    const request = moxios.requests.mostRecent();
-    expect(request.config.url).toBe('/api/v1/rooms/gs4-6fb-kk8/description');
+    await request.wait();
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -405,16 +401,16 @@ describe('RoomDescriptionComponent', () => {
     expect(view.emitted('settingsChanged')).toBeFalsy();
     expect(view.findComponent(TipTapEditor).exists()).toBe(true);
 
+    const request2 = mockAxios.request('/api/v1/rooms/gs4-6fb-kk8/description');
+
     // Save description again
     await saveButton.trigger('click');
 
     // Check if request is sent
-    await waitMoxios();
-    const request2 = moxios.requests.mostRecent();
-    expect(request2.config.url).toBe('/api/v1/rooms/gs4-6fb-kk8/description');
+    await request2.wait();
     await request2.respondWith({
       status: 422,
-      response: { message: 'The Description must not be greater than 65000 characters', errors: { description: ['The Description must not be greater than 65000 characters.'] } }
+      data: { message: 'The Description must not be greater than 65000 characters', errors: { description: ['The Description must not be greater than 65000 characters.'] } }
     });
 
     await view.vm.$nextTick();

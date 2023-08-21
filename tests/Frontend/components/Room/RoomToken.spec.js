@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, {
-  BButton, BFormInput, BFormRadio,
+  BButton, BFormInput, BFormInvalidFeedback, BFormRadio,
   BTbody
 } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import { vi } from 'vitest';
 import TokensComponent from '../../../../resources/js/components/Room/TokensComponent.vue';
 import VueClipboard from 'vue-clipboard2';
@@ -12,7 +12,7 @@ import VueRouter from 'vue-router';
 import RoomView from '../../../../resources/js/views/rooms/View.vue';
 import _ from 'lodash';
 import Base from '../../../../resources/js/api/base';
-import { waitModalHidden, waitModalShown, waitMoxios, createContainer, createLocalVue } from '../../helper';
+import { waitModalHidden, waitModalShown, mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -41,15 +41,17 @@ const initialState = { settings: { settings: { base_url: 'https://domain.tld' } 
 
 describe('Room Token', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
     PermissionService.setCurrentUser(exampleUser);
   });
   afterEach(() => {
-    moxios.uninstall();
+
   });
 
   it('load tokens', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
+
+    let request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
 
     const view = mount(TokensComponent, {
       localVue,
@@ -64,13 +66,11 @@ describe('Room Token', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
           { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
@@ -100,15 +100,16 @@ describe('Room Token', () => {
     // reload with empty response
     const reloadButton = view.findAllComponents(BButton).at(1);
     expect(reloadButton.html()).toContain('fa-solid fa-sync');
+
+    request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     await reloadButton.trigger('click');
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -119,15 +120,15 @@ describe('Room Token', () => {
     expect(rows.length).toBe(1);
     expect(rows.at(0).text()).toContain('rooms.tokens.nodata');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     // reload without owner permissions to check edit buttons missing
     await reloadButton.trigger('click');
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
           { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
@@ -153,15 +154,15 @@ describe('Room Token', () => {
     expect(buttonsRow0.length).toBe(1);
     expect(buttonsRow0.at(0).html()).toContain('fa-solid fa-link');
 
+    request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     // reload without owner permissions to check edit buttons missing
     await reloadButton.trigger('click');
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -175,6 +176,8 @@ describe('Room Token', () => {
     const clipboardSpy = vi.fn();
 
     const toastInfoSpy = vi.fn();
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
 
     const view = mount(TokensComponent, {
       localVue,
@@ -192,13 +195,11 @@ describe('Room Token', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    const request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           { token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R', firstname: 'John', lastname: 'Doe', role: 1, expires: '2021-10-17T12:21:19.000000Z', last_usage: '2021-09-17T14:36:11.000000Z' },
           { token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus', firstname: 'Max', lastname: 'Mustermann', role: 2, expires: '2021-10-20T09:17:02.000000Z', last_usage: '2021-10-03T17:24:10.000000Z' }
@@ -222,6 +223,8 @@ describe('Room Token', () => {
   });
 
   it('delete token', async () => {
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -240,13 +243,11 @@ describe('Room Token', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -287,32 +288,32 @@ describe('Room Token', () => {
 
     const confirmButton = modal.findAllComponents(BButton).at(1);
     expect(confirmButton.text()).toBe('app.yes');
+
+    const deleteRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+
     await confirmButton.trigger('click');
 
-    await waitMoxios();
+    await deleteRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+    expect(deleteRequest.config.method).toEqual('delete');
 
     await view.vm.$nextTick();
+
+    const reloadRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
 
     await waitModalHidden(view, async () => {
-      await request.respondWith({
+      await deleteRequest.respondWith({
         status: 204
       });
     });
 
-    await waitMoxios();
     expect(modal.find('.modal').element.style.display).toEqual('none');
-    await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
 
-    await request.respondWith({
+    await reloadRequest.wait();
+    await view.vm.$nextTick();
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: 'hexlwS0qlin6aFiWe7aFVTWM4RhsUEAZRklH12tBMiGLHMfArzOE7UZMbLFu5rQu4NwEBg7EfDH1hDxUm1NuQ05gAB4VO6aB4Tus',
@@ -343,6 +344,8 @@ describe('Room Token', () => {
   it('delete token error', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -361,13 +364,11 @@ describe('Room Token', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -408,18 +409,21 @@ describe('Room Token', () => {
 
     const confirmButton = modal.findAllComponents(BButton).at(1);
     expect(confirmButton.text()).toBe('app.yes');
+
+    const deleteRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+
     await confirmButton.trigger('click');
 
-    await waitMoxios();
+    await deleteRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('delete');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+    expect(deleteRequest.config.method).toEqual('delete');
+
+    const reloadRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
 
     await waitModalHidden(view, async () => {
-      await request.respondWith({
+      await deleteRequest.respondWith({
         status: 500,
-        response: {
+        data: {
           message: 'Internal server error'
         }
       });
@@ -430,15 +434,11 @@ describe('Room Token', () => {
 
     expect(spy).toBeCalledTimes(1);
 
-    await waitMoxios();
+    await reloadRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
-
-    await request.respondWith({
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -475,6 +475,8 @@ describe('Room Token', () => {
   });
 
   it('edit token', async () => {
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -493,13 +495,11 @@ describe('Room Token', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -552,23 +552,24 @@ describe('Room Token', () => {
 
     const confirmButton = modal.findAllComponents(BButton).at(1);
     expect(confirmButton.text()).toBe('app.save');
+
+    let editRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+
     await confirmButton.trigger('click');
 
-    await waitMoxios();
+    await editRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
-    expect(request.config.method).toEqual('put');
+    expect(editRequest.config.method).toEqual('put');
 
-    let data = JSON.parse(request.config.data);
+    let data = JSON.parse(editRequest.config.data);
 
     expect(data.firstname).toEqual('Richard2');
     expect(data.lastname).toEqual('Roe');
     expect(data.role).toEqual(2);
 
-    await request.respondWith({
+    await editRequest.respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           firstname: ['Firstname contains the following non-permitted characters: 2']
         }
@@ -579,24 +580,25 @@ describe('Room Token', () => {
     expect(modal.findAllComponents(BFormInput).at(0).element.parentElement.innerHTML).toContain('Firstname contains the following non-permitted characters: 2');
     await modal.findAllComponents(BFormInput).at(0).setValue('Richard');
 
+    editRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
+
     await confirmButton.trigger('click');
 
-    await waitMoxios();
+    await editRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens/1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R');
-    expect(request.config.method).toEqual('put');
 
-    data = JSON.parse(request.config.data);
+    data = JSON.parse(editRequest.config.data);
 
     expect(data.firstname).toEqual('Richard');
     expect(data.lastname).toEqual('Roe');
     expect(data.role).toEqual(2);
 
+    const reloadRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     await waitModalHidden(view, () => {
-      request.respondWith({
+      editRequest.respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
             firstname: 'Richard',
@@ -612,15 +614,11 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     expect(modal.find('.modal').element.style.display).toEqual('none');
 
-    await waitMoxios();
+    await reloadRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
-    expect(request.config.method).toEqual('get');
-
-    await request.respondWith({
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -659,6 +657,8 @@ describe('Room Token', () => {
   it('add token', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     const view = mount(TokensComponent, {
       localVue,
       mocks: {
@@ -677,13 +677,11 @@ describe('Room Token', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await request.wait();
     await view.vm.$nextTick();
-    let request = moxios.requests.mostRecent();
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
     await request.respondWith({
       status: 200,
-      response: {
+      data: {
         data: []
       }
     });
@@ -718,23 +716,24 @@ describe('Room Token', () => {
 
     const confirmButton = modal.findAllComponents(BButton).at(1);
     expect(confirmButton.text()).toBe('app.save');
+
+    let addRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     await confirmButton.trigger('click');
 
-    await waitMoxios();
+    await addRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+    expect(addRequest.config.method).toEqual('post');
 
-    let data = JSON.parse(request.config.data);
+    let data = JSON.parse(addRequest.config.data);
 
     expect(data.firstname).toEqual('Richard');
     expect(data.lastname).toEqual('Roe');
     expect(data.role).toEqual(2);
 
-    await request.respondWith({
+    await addRequest.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -743,24 +742,26 @@ describe('Room Token', () => {
 
     expect(spy).toBeCalledTimes(1);
 
+    addRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     await confirmButton.trigger('click');
 
-    await waitMoxios();
+    await addRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('post');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
+    expect(addRequest.config.method).toEqual('post');
 
-    data = JSON.parse(request.config.data);
+    data = JSON.parse(addRequest.config.data);
 
     expect(data.firstname).toEqual('Richard');
     expect(data.lastname).toEqual('Roe');
     expect(data.role).toEqual(2);
 
+    const reloadRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
     await waitModalHidden(view, () => {
-      request.respondWith({
+      addRequest.respondWith({
         status: 200,
-        response: {
+        data: {
           data: {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
             firstname: 'Richard',
@@ -777,15 +778,11 @@ describe('Room Token', () => {
     await view.vm.$nextTick();
     expect(modal.find('.modal').element.style.display).toEqual('none');
 
-    await waitMoxios();
+    await reloadRequest.wait();
     await view.vm.$nextTick();
-    request = moxios.requests.mostRecent();
-    expect(request.config.method).toEqual('get');
-    expect(request.url).toEqual('/api/v1/rooms/123-456-789/tokens');
-
-    await request.respondWith({
+    await reloadRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             token: '1ZKctHSaGd7qLDpFa0emXSjoVTkJHkiTm0xajVOXhHU9BA9CCZquf6sDZtAAEGgdO40neF5dXITbH0CxhKM5940eW988WiIKxC8R',
@@ -809,6 +806,130 @@ describe('Room Token', () => {
     expect(rows[0].at(3).text()).toBe('09/17/2021, 16:36');
     expect(rows[0].at(4).text()).toBe('10/17/2021, 14:21');
     expect(rows.length).toBe(1);
+
+    view.destroy();
+  });
+
+  it('add token form validation error', async () => {
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
+    const view = mount(TokensComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key + (values !== undefined ? ':' + JSON.stringify(values) : ''),
+        $d: i18nDateMock
+      },
+      propsData: {
+        room: exampleRoom,
+        modalStatic: true
+      },
+      stubs: {
+        transition: false
+      },
+      router: routerMock,
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+
+    await request.wait();
+    await view.vm.$nextTick();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: []
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // Open modal
+    const addButton = view.findComponent(BButton);
+    await waitModalShown(view, () => {
+      addButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    const modal = view.findComponent({ ref: 'add-edit-token-modal' });
+
+    // Check if modal inputs are empty
+    expect(modal.findAllComponents(BFormInput).at(0).element.value).toBe('');
+    expect(modal.findAllComponents(BFormInput).at(1).element.value).toBe('');
+
+    // Set only firstname
+    await modal.findAllComponents(BFormInput).at(0).setValue('Richard');
+
+    // Click confirm button
+    const confirmButton = modal.findAllComponents(BButton).at(1);
+
+    const addRequest = mockAxios.request('/api/v1/rooms/123-456-789/tokens');
+
+    await confirmButton.trigger('click');
+
+    await addRequest.wait();
+    await view.vm.$nextTick();
+    expect(addRequest.config.method).toEqual('post');
+
+    // Check request with mandatory fields missing
+    const data = JSON.parse(addRequest.config.data);
+    expect(data.firstname).toEqual('Richard');
+    expect(data.lastname).toEqual(null);
+    expect(data.role).toEqual(null);
+
+    // Respond with validation errors
+    await addRequest.respondWith({
+      status: 422,
+      data: {
+        message: 'The Lastname field is required. (and 1 more error)',
+        errors: {
+          lastname: [
+            'The Lastname field is required.'
+          ],
+          role: [
+            'The Role field is required.'
+          ]
+        }
+      }
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if modal is still open
+    expect(modal.find('.modal').element.style.display).toEqual('block');
+
+    // Check if error messages are shown
+    let errorMessages = modal.findAllComponents(BFormInvalidFeedback);
+    expect(errorMessages.length).toBe(2);
+    expect(errorMessages.at(0).text()).toBe('The Lastname field is required.');
+    expect(errorMessages.at(1).text()).toBe('The Role field is required.');
+
+    // Close modal using cancel button
+    const cancelButton = modal.findAllComponents(BButton).at(0);
+
+    // Wait for modal to close
+    await waitModalHidden(view, () => {
+      cancelButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if modal is closed
+    expect(modal.find('.modal').element.style.display).toEqual('none');
+
+    // Open modal again
+    await waitModalShown(view, () => {
+      addButton.trigger('click');
+    });
+
+    await view.vm.$nextTick();
+
+    // Check if values are reset
+    expect(modal.findAllComponents(BFormInput).at(0).element.value).toBe('');
+    expect(modal.findAllComponents(BFormInput).at(1).element.value).toBe('');
+
+    // Check if no old error messages are shown
+    errorMessages = modal.findAllComponents(BFormInvalidFeedback);
+    expect(errorMessages.length).toBe(0);
 
     view.destroy();
   });

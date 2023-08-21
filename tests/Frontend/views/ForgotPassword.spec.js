@@ -1,10 +1,10 @@
 import ForgotPassword from '../../../resources/js/views/ForgotPassword.vue';
 import { mount } from '@vue/test-utils';
-import moxios from 'moxios';
+
 import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../resources/js/api/base';
-import { waitMoxios, createLocalVue } from '../helper';
+import { mockAxios, createLocalVue } from '../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 
@@ -15,11 +15,7 @@ localVue.use(VueRouter);
 
 describe('ForgotPassword', () => {
   beforeEach(() => {
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('before route enter redirects to the 404 page if the self reset is disabled', async () => {
@@ -49,6 +45,12 @@ describe('ForgotPassword', () => {
   it('submit handles errors correctly', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
+    mockAxios.request('/sanctum/csrf-cookie').respondWith({
+      status: 200
+    });
+
+    const request = mockAxios.request('/api/v1/password/email');
+
     const view = mount(ForgotPassword, {
       localVue,
       mocks: {
@@ -58,10 +60,10 @@ describe('ForgotPassword', () => {
 
     await view.findComponent(BFormInput).setValue('foo@bar.com');
     await view.findComponent(BButton).trigger('submit');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await request.wait();
+    await request.respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Internal server error'
       }
     });
@@ -86,16 +88,24 @@ describe('ForgotPassword', () => {
       router
     });
 
+    const csrfRequest = mockAxios.request('/sanctum/csrf-cookie');
+    const request = mockAxios.request('/api/v1/password/email');
+
     await view.findComponent(BFormInput).setValue('foo@bar.com');
     await view.findComponent(BButton).trigger('submit');
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+    await csrfRequest.wait();
+
+    document.cookie = 'XSRF-TOKEN=test-csrf';
+
+    await csrfRequest.respondWith({
       status: 200
     });
-    await waitMoxios();
-    await moxios.requests.mostRecent().respondWith({
+
+    await request.wait();
+    expect(request.config.headers['X-XSRF-TOKEN']).toBe('test-csrf');
+    await request.respondWith({
       status: 200,
-      response: {
+      data: {
         message: 'Success!'
       }
     });

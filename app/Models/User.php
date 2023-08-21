@@ -64,6 +64,13 @@ class User extends Authenticatable implements HasLocalePreference
 
     protected $appends = ['fullname'];
 
+    // Cached list of all permissions of the user
+    protected ?array $permissionsCache         = null;
+
+    // Clear the permissionsCache of all users before the next permission check
+    // Is set to true on any change by the pivot models that control the permissions of the user (RoleUser, PermissionRole, IncludedPermissionPermission)
+    public static $clearPermissionCache = false;
+
     public function getFullnameAttribute()
     {
         return $this->firstname.' '.$this->lastname;
@@ -221,7 +228,7 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function roles()
     {
-        return $this->belongsToMany('App\Models\Role')->withPivot('automatic')->using('App\Models\RoleUser');
+        return $this->belongsToMany(Role::class)->withPivot('automatic')->using(RoleUser::class);
     }
 
     /**
@@ -231,20 +238,25 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function getPermissionsAttribute()
     {
-        return array_reduce($this->roles->all(), function ($permissions, $role) {
-            foreach ($role->permissions as $permission) {
-                if (!in_array($permission->name, $permissions)) {
-                    array_push($permissions, $permission->name);
-                    foreach ($permission->includedPermissions as $includedPermission) {
-                        if (!in_array($includedPermission->name, $permissions)) {
-                            array_push($permissions, $includedPermission->name);
-                        }
-                    }
-                }
-            }
+        $permissions = [];
 
-            return $permissions;
-        }, []);
+        DB::table('permissions')
+            ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
+            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
+            ->leftJoin('included_permissions', 'permissions.id', '=', 'included_permissions.permission_id')
+            ->leftJoin('permissions as permissions2', 'permissions2.id', '=', 'included_permissions.included_permission_id')
+            ->where('role_user.user_id', '=', $this->id)
+            ->get(['permissions.name', 'permissions2.name as included_permission_name'])
+            ->each(function ($item) use (&$permissions) {
+                if ($item->included_permission_name != null) {
+                    array_push($permissions, $item->included_permission_name);
+                }
+                
+                array_push($permissions, $item->name);
+            });
+
+        // remove duplicates; array_keys(array_flip( is much faster than array_unique (see https://dev.to/devmount/4-php-tricks-to-boost-script-performance-ol1)
+        return array_keys(array_flip($permissions));
     }
 
     /**
@@ -254,17 +266,16 @@ class User extends Authenticatable implements HasLocalePreference
      */
     public function hasPermission(string $permission)
     {
-        return DB::table('permissions')
-            ->join('permission_role', 'permission_role.permission_id', '=', 'permissions.id')
-            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
-            ->leftJoin('included_permissions', 'permissions.id', '=', 'included_permissions.permission_id')
-            ->leftJoin('permissions as permissions2', 'permissions2.id', '=', 'included_permissions.included_permission_id')
-            ->where(function ($query) use ($permission) {
-                $query->where('permissions.name', '=', $permission)
-                    ->orWhere('permissions2.name', '=', $permission);
-            })
-            ->where('role_user.user_id', '=', $this->id)
-            ->exists();
+        // Check if the permission cache is not set or if it should be cleared
+        if ($this->permissionsCache == null || self::$clearPermissionCache) {
+            // Build permission cache
+            $this->permissionsCache     = $this->getPermissionsAttribute();
+
+            self::$clearPermissionCache = false;
+        }
+
+        // Check if the user has the permission
+        return in_array($permission, $this->permissionsCache);
     }
 
     public function sessions()

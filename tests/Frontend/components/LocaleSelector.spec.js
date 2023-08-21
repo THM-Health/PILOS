@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
 import LocaleSelector from '../../../resources/js/components/LocaleSelector.vue';
 import BootstrapVue, { BFormInvalidFeedback, BDropdownItem } from 'bootstrap-vue';
-import moxios from 'moxios';
 import Base from '../../../resources/js/api/base';
-import { createLocalVue, waitMoxios } from '../helper';
+import { createLocalVue, mockAxios } from '../helper';
 import { createTestingPinia } from '@pinia/testing';
 import { PiniaVuePlugin } from 'pinia';
 import { useLoadingStore } from '../../../resources/js/stores/loading';
@@ -29,11 +28,7 @@ describe('LocaleSelector', () => {
       };
     });
 
-    moxios.install();
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
+    mockAxios.reset();
   });
 
   it('all locales loaded in i18n gets rendered', async () => {
@@ -83,9 +78,9 @@ describe('LocaleSelector', () => {
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    moxios.stubRequest('/api/v1/locale', {
+    mockAxios.request('/api/v1/locale').respondWith({
       status: 422,
-      response: {
+      data: {
         errors: {
           locale: ['Test']
         }
@@ -100,7 +95,7 @@ describe('LocaleSelector', () => {
 
     items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    await waitMoxios();
+    await mockAxios.wait();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
@@ -123,9 +118,9 @@ describe('LocaleSelector', () => {
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    moxios.stubRequest('/api/v1/locale', {
+    mockAxios.request('/api/v1/locale').respondWith({
       status: 500,
-      response: {
+      data: {
         message: 'Test'
       }
     });
@@ -142,7 +137,7 @@ describe('LocaleSelector', () => {
 
     expect(loadingStore.overlayLoadingCounter).toEqual(1);
 
-    await waitMoxios();
+    await mockAxios.wait();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);
@@ -164,13 +159,13 @@ describe('LocaleSelector', () => {
       pinia: createTestingPinia({ initialState: { locale: { currentLocale: 'ru' } }, stubActions: false })
     });
 
-    moxios.stubRequest('/api/v1/locale', {
+    mockAxios.request('/api/v1/locale').respondWith({
       status: 200
     });
 
-    moxios.stubRequest('/api/v1/currentUser', {
+    mockAxios.request('/api/v1/currentUser').respondWith({
       status: 200,
-      response: {
+      data: {
         data: {
           data: null
         }
@@ -185,7 +180,7 @@ describe('LocaleSelector', () => {
 
     await items.filter(item => item !== activeItems.at(0)).at(0).get('a').trigger('click');
 
-    await waitMoxios();
+    await mockAxios.wait();
 
     activeItems = wrapper.findAllComponents(BDropdownItem).filter(item => item.props().active);
     expect(activeItems.length).toBe(1);

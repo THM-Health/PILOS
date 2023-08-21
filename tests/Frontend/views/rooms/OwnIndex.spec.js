@@ -1,12 +1,12 @@
 import { mount } from '@vue/test-utils';
 import RoomList from '../../../../resources/js/views/rooms/OwnIndex.vue';
 import { BBadge, BCard } from 'bootstrap-vue';
-import moxios from 'moxios';
+
 import RoomComponent from '../../../../resources/js/components/Room/RoomComponent.vue';
 import VueRouter from 'vue-router';
 import NewRoomComponent from '../../../../resources/js/components/Room/NewRoomComponent.vue';
 import PermissionService from '../../../../resources/js/services/PermissionService';
-import { waitMoxios, overrideStub, createContainer, createLocalVue } from '../../helper';
+import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { useAuthStore } from '../../../../resources/js/stores/auth';
@@ -22,12 +22,8 @@ const initialState = { auth: { currentUser: exampleUser } };
 
 describe('Own Room Index', () => {
   beforeEach(() => {
-    moxios.install();
+    mockAxios.reset();
     PermissionService.currentUser = exampleUser;
-  });
-
-  afterEach(() => {
-    moxios.uninstall();
   });
 
   const exampleOwnRoomResponse = {
@@ -114,17 +110,17 @@ describe('Own Room Index', () => {
   };
 
   it('check list of rooms and attribute bindings', async () => {
-    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleOwnRoomResponse
+      data: exampleOwnRoomResponse
     });
-    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'shared' }).respondWith({
       status: 200,
-      response: exampleSharedRoomResponse
+      data: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomList, {
@@ -136,7 +132,7 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     expect(view.vm.ownRooms).toEqual(exampleOwnRoomResponse);
@@ -203,9 +199,8 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    view.findComponent(BCard).trigger('click');
+    await view.findComponent(BCard).trigger('click');
 
-    await waitMoxios();
     expect(routerSpy).toBeCalledTimes(1);
     expect(routerSpy).toBeCalledWith({ name: 'rooms.view', params: { id: exampleRoomListEntry.id } });
 
@@ -213,17 +208,17 @@ describe('Own Room Index', () => {
   });
 
   it('test reload function and room limit reach event', async () => {
-    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleOwnRoomResponse
+      data: exampleOwnRoomResponse
     });
-    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'shared' }).respondWith({
       status: 200,
-      response: exampleSharedRoomResponse
+      data: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomList, {
@@ -238,16 +233,16 @@ describe('Own Room Index', () => {
     const authStore = useAuthStore();
     authStore.currentUser.room_limit = 2;
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     // find current amount of rooms
     let rooms = view.findAllComponents(RoomComponent);
     expect(rooms.length).toBe(3);
 
     // change response and fire event
-    overrideStub('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own' }).respondWith({
       status: 200,
-      response: {
+      data: {
         data: [
           {
             id: 'abc-def-123',
@@ -299,7 +294,7 @@ describe('Own Room Index', () => {
     expect(newRoomComponent.exists()).toBeTruthy();
     newRoomComponent.vm.$emit('limitReached');
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
     // check if now two rooms are displayed
     rooms = view.findAllComponents(RoomComponent);
@@ -313,17 +308,17 @@ describe('Own Room Index', () => {
   });
 
   it('test search', async () => {
-    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleOwnRoomResponse
+      data: exampleOwnRoomResponse
     });
-    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'shared' }).respondWith({
       status: 200,
-      response: exampleSharedRoomResponse
+      data: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomList, {
@@ -335,7 +330,7 @@ describe('Own Room Index', () => {
       attachTo: createContainer()
     });
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     let searchField = view.findComponent({ ref: 'search' });
@@ -343,25 +338,26 @@ describe('Own Room Index', () => {
 
     // Enter search query
     await searchField.setValue('test');
+
+    let ownRequest = mockAxios.request('/api/v1/rooms', { filter: 'own' });
+    let sharedRequest = mockAxios.request('/api/v1/rooms', { filter: 'shared' });
+
     searchField.trigger('change');
 
     // Check room pagination reset
     expect(view.vm.$data.ownRooms.meta.current_page).toBe(1);
     expect(view.vm.$data.sharedRooms.meta.current_page).toBe(1);
 
-    moxios.requests.reset();
+    await sharedRequest.wait();
+    await ownRequest.wait();
 
-    await waitMoxios();
     // Check if requests use the search string
-    let ownRequest = moxios.requests.at(0);
-    let sharedRequest = moxios.requests.at(1);
-
-    expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test');
-    expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test');
+    expect(ownRequest.config.params).toStrictEqual({ filter: 'own', page: 1, search: 'test' });
+    expect(sharedRequest.config.params).toStrictEqual({ filter: 'shared', page: 1, search: 'test' });
 
     await ownRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -376,7 +372,7 @@ describe('Own Room Index', () => {
     });
     await sharedRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -399,16 +395,19 @@ describe('Own Room Index', () => {
     // check empty list message for no user rooms
     searchField = view.findComponent({ ref: 'search' });
     await searchField.setValue('test2');
+
+    ownRequest = mockAxios.request('/api/v1/rooms', { filter: 'own' });
+    sharedRequest = mockAxios.request('/api/v1/rooms', { filter: 'shared' });
+
     searchField.trigger('change');
-    moxios.requests.reset();
-    await waitMoxios();
-    ownRequest = moxios.requests.at(0);
-    sharedRequest = moxios.requests.at(1);
-    expect(ownRequest.url).toBe('/api/v1/rooms?filter=own&page=1&search=test2');
-    expect(sharedRequest.url).toBe('/api/v1/rooms?filter=shared&page=1&search=test2');
+    await ownRequest.wait();
+    await sharedRequest.wait();
+
+    expect(ownRequest.config.params).toStrictEqual({ filter: 'own', page: 1, search: 'test2' });
+    expect(sharedRequest.config.params).toStrictEqual({ filter: 'shared', page: 1, search: 'test2' });
     await ownRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -423,7 +422,7 @@ describe('Own Room Index', () => {
     });
     await sharedRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -446,17 +445,17 @@ describe('Own Room Index', () => {
   });
 
   it('test room limit', async () => {
-    moxios.stubRequest('/api/v1/rooms?filter=own&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'own' }).respondWith({
       status: 200,
-      response: exampleOwnRoomResponse
+      data: exampleOwnRoomResponse
     });
-    moxios.stubRequest('/api/v1/rooms?filter=shared&page=1', {
+    mockAxios.request('/api/v1/rooms', { filter: 'shared' }).respondWith({
       status: 200,
-      response: exampleSharedRoomResponse
+      data: exampleSharedRoomResponse
     });
-    moxios.stubRequest('/api/v1/roomTypes', {
+    mockAxios.request('/api/v1/roomTypes').respondWith({
       status: 200,
-      response: exampleRoomTypeResponse
+      data: exampleRoomTypeResponse
     });
 
     const view = mount(RoomList, {
@@ -470,7 +469,7 @@ describe('Own Room Index', () => {
 
     const authStore = useAuthStore();
 
-    await waitMoxios();
+    await mockAxios.wait();
     await view.vm.$nextTick();
 
     // Hide room count for users without limit
@@ -486,14 +485,15 @@ describe('Own Room Index', () => {
     // Enter search query
     const searchField = view.findComponent({ ref: 'search' });
     await searchField.setValue('test');
+
+    const ownRequest = mockAxios.request('/api/v1/rooms', { filter: 'own' });
+    const sharedRequest = mockAxios.request('/api/v1/rooms', { filter: 'shared' });
+
     searchField.trigger('change');
-    moxios.requests.reset();
-    await waitMoxios();
-    const ownRequest = moxios.requests.at(0);
-    const sharedRequest = moxios.requests.at(1);
+    await ownRequest.wait();
     await ownRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,
@@ -506,9 +506,11 @@ describe('Own Room Index', () => {
         }
       }
     });
+
+    await sharedRequest.wait();
     await sharedRequest.respondWith({
       status: 200,
-      response: {
+      data: {
         data: [],
         meta: {
           current_page: 1,

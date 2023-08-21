@@ -246,7 +246,8 @@ class MeetingService
      */
     public function getJoinUrl(StartJoinMeeting $request): string
     {
-        $token = $request->get('token');
+        $roomAuthService = app()->make(RoomAuthService::class);
+        $token           = $roomAuthService->getRoomToken($this->meeting->room);
 
         if (Auth::guest()) {
             if ($token) {

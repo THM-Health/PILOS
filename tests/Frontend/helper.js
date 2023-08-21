@@ -1,4 +1,4 @@
-import moxios from 'moxios';
+import mockAxios from './mock-axios';
 import { createLocalVue as originalCreateLocalVue } from '@vue/test-utils';
 import BootstrapVue from 'bootstrap-vue';
 import HideTooltip from '../../resources/js/directives/hide-tooltip';
@@ -14,15 +14,10 @@ function createLocalVue () {
  * Various helper functions for testing
  */
 module.exports = {
-  /**
-   * Asynchronous helper function for moxios.wait
-   * @returns {Promise<void>}
-   */
-  waitMoxios: async () => {
-    await new Promise((resolve) => {
-      moxios.wait(resolve);
-    });
-  },
+
+  /** mock Axios requests
+   * @docs tests/Frontend/mock-axios.js */
+  mockAxios,
 
   /**
    * Asynchronous helper function for modal events
@@ -92,27 +87,6 @@ module.exports = {
    */
   waitCollapseShown: async (wrapper, action) => {
     await module.exports.waitCollapseEvent(wrapper, action, 'shown');
-  },
-
-  /**
-   * Overwrite an existing moxios response
-   * @see https://github.com/axios/moxios/issues/42#issuecomment-499578991
-   * @param url Url of the axios call
-   * @param response New response for axios call
-   * @returns {restoreFunc} Function to restore old response
-   */
-  overrideStub: (url, response) => {
-    const l = moxios.stubs.count();
-    for (let i = 0; i < l; i++) {
-      const stub = moxios.stubs.at(i);
-      if (stub.url === url) {
-        const oldResponse = stub.response;
-        const restoreFunc = () => { stub.response = oldResponse; };
-
-        stub.response = response;
-        return restoreFunc;
-      }
-    }
   },
 
   /**

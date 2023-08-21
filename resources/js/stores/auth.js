@@ -4,7 +4,6 @@ import { loadLanguageAsync, setTimeZone } from '../i18n';
 import PermissionService from '../services/PermissionService';
 import _ from 'lodash';
 import { useLocaleStore } from './locale';
-import { useLoadingStore } from './loading';
 
 export const useAuthStore = defineStore('auth', {
   state: () => {
@@ -40,20 +39,13 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout () {
-      const loading = useLoadingStore();
-      loading.setLoading();
+      const response = await auth.logout();
 
-      let response;
-      try {
-        response = await auth.logout();
+      // logout successfull, clear current user
+      this.setCurrentUser(null, false);
+      // reset timezone of i18n to use local system timezone
+      setTimeZone(undefined);
 
-        // logout successfull, clear current user
-        this.setCurrentUser(null, false);
-        // reset timezone of i18n to use local system timezone
-        setTimeZone(undefined);
-      } finally {
-        loading.setLoadingFinished();
-      }
       return response;
     },
 

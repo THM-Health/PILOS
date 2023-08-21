@@ -100,7 +100,8 @@ export const routes = [
   {
     path: '/rooms/:id/:token?',
     name: 'rooms.view',
-    component: RoomView
+    component: RoomView,
+    meta: { redirectBackAfterLogin: true }
   },
   {
     path: '/meetings',
@@ -405,6 +406,10 @@ export const routes = [
  * that resolves to a boolean value whether the current user is permitted to access the route.
  * Since it may be that additional data must be requested from the server to perform the permission
  * check it must always be a promise.
+ *
+ * The meta `redirectBackAfterLogin` can be used for routes that are accessible for users and guests.
+ * If a user clicks on the login button in the menu, he will be redirected to the page he was on before (implemented in the App.vue).
+ * Note: On pages that are only accessible for users, the user is always (independent of this meta attribute) redirected to the login page and back to the page he was on before.
  *
  * If the meta `guestsOnly` is set for a matched route but the user is logged in, he will
  * be redirected to the home route with a error messsage.

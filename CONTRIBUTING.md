@@ -111,9 +111,18 @@ LDAP_BASE_DN="ou=people,dc=university,dc=org"
 LDAP_TIMEOUT=5
 LDAP_SSL=false
 LDAP_TLS=false
+
+# LDAP logging debugging only
 LDAP_LOGGING=true
+
+# Attribute with GUID; OpenLDAP: 'entryuuid', AD: 'objectGUID'
 LDAP_GUID_KEY=entryuuid
-AUTH_LOG_ROLES=true
+
+# Comma seperated list of the object class
+LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
+
+# Attribute by which the user should be found in the LDAP
+LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
 **`app/Auth/config/ldap_mapping.json`**
