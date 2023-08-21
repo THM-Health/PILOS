@@ -44,8 +44,6 @@ services:
         - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
     phpmyadmin:
       image: phpmyadmin/phpmyadmin
-      links:
-        - db:db
       ports:
         - '${FORWARD_PHPMYADMIN_PORT:-8080}:80'
       environment:
@@ -66,12 +64,10 @@ services:
       command: --copy-service
     phpldapadmin:
       image: osixia/phpldapadmin
-      links:
-        - openldap:ldap-host
       ports:
         - '${FORWARD_PHPLDAPADMIN_PORT:-6680}:80'
       environment:
-        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'ldap-host': [{'server': []},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org', 'bind_pass': 'admin'}]}]}]"
+        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'Local LDAP': [{'server': [{'host': 'openldap'}]},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org'},{'bind_pass': 'admin'},{'auth_type': 'config'}]}]}]"
         PHPLDAPADMIN_HTTPS: 'false'
 volumes:
   mariadb:
