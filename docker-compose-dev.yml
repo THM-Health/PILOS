@@ -67,7 +67,7 @@ services:
       ports:
         - '${FORWARD_PHPLDAPADMIN_PORT:-6680}:80'
       environment:
-        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'openldap': [{'server': []},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org', 'bind_pass': 'admin'}]}]}]"
+        PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'Local LDAP': [{'server': [{'host': 'openldap'}]},{'login': [{'bind_id': 'cn=admin,dc=university,dc=org'},{'bind_pass': 'admin'},{'auth_type': 'config'}]}]}]"
         PHPLDAPADMIN_HTTPS: 'false'
 volumes:
   mariadb:
