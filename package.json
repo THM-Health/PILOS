@@ -31,7 +31,7 @@
         "eslint-plugin-vitest-globals": "^1.4.0",
         "eslint-plugin-vue": "^9.16.1",
         "jsdom": "^22.1.0",
-        "laravel-vite-plugin": "^0.7.0",
+        "laravel-vite-plugin": "^0.8.0",
         "lodash": "^4.17.19",
         "mutationobserver-shim": "^0.3.7",
         "popper.js": "^1.12",
