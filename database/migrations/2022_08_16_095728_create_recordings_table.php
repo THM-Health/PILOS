@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('recordings', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->string('room_id')->unique();
+            $table->string('room_id');
             $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->string('meeting_id')->nullable();
             $table->foreign('meeting_id')->references('id')->on('meetings')->onDelete('cascade');
