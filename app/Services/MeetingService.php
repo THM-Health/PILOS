@@ -148,6 +148,7 @@ class MeetingService
     public function isRunning(): bool
     {
         $isMeetingRunningParams = new GetMeetingInfoParameters($this->meeting->id);
+
         // TODO Replace with meetingIsRunning after bbb updates its api, see https://github.com/bigbluebutton/bigbluebutton/issues/8246
         try {
             $response = $this->serverService->getBigBlueButton()->getMeetingInfo($isMeetingRunningParams);
