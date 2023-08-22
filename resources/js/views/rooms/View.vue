@@ -428,8 +428,8 @@ export default {
         .then(response => {
           this.reload();
         }).catch(error => {
-        Base.error(error, this);
-      });
+          Base.error(error, this);
+        });
     },
 
     ...mapActions(useAuthStore, ['setCurrentUser']),
