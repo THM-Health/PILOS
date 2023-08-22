@@ -11,6 +11,6 @@ use BenSampo\Enum\Enum;
 final class RoomSortingType extends Enum
 {
     public const ALPHA        =   'alpha';
-    public const LAST_ACTIVE  =   'last_active';
+    public const LAST_STARTED  =   'last_started';
     public const ROOM_TYPE    =   'room_type';
 }

@@ -41,6 +41,9 @@
               {{ $t('rooms.end_membership.message') }}
             </b-modal>
 
+            <b-button @click="toggleFavorite" :variant="room.is_favorite ? 'dark' : 'light'">
+              <i class="fa-solid fa-star"></i>
+            </b-button>
             <!-- Reload general room settings/details -->
             <b-button
               variant="secondary"
@@ -407,6 +410,26 @@ export default {
         }
       }
       Base.error(error, this.$root);
+    },
+
+    /**
+     * Add a room to the favorites or delete it from the favorites
+     */
+    toggleFavorite: function () {
+      let config;
+      // check if the room must be added or deleted
+      if (this.room.is_favorite) {
+        config = { method: 'delete' };
+      } else {
+        config = { method: 'put' };
+      }
+      // add or delete room
+      Base.call('rooms/' + this.room.id + '/favorites', config)
+        .then(response => {
+          this.reload();
+        }).catch(error => {
+        Base.error(error, this);
+      });
     },
 
     ...mapActions(useAuthStore, ['setCurrentUser']),

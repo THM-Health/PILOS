@@ -36,7 +36,6 @@ class RoomController extends Controller
      */
     public function index(ShowRoomsRequest $request)
     {
-        $collection     = null;
         $additionalMeta = [];
 
         if ($request->only_favorites) {
@@ -124,7 +123,7 @@ class RoomController extends Controller
                 $collection = $collection->orderBy('room_types.description')->orderBy('rooms.name');
 
                 break;
-            case RoomSortingType::LAST_ACTIVE:
+            case RoomSortingType::LAST_STARTED:
             default:
                 // 1. Sort by running state, 2. Sort by last meeting start date, 3. Sort by room name
                 $collection = $collection->orderByRaw('meetings.start IS NULL ASC')->orderByRaw('meetings.end IS NULL DESC')->orderByDesc('meetings.start')->orderBy('rooms.name');

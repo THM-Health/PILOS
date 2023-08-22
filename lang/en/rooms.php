@@ -64,7 +64,7 @@ return [
             'sort'           => 'Sorting',
             'select_sorting' => '-- Select sorting --',
             'alpha'          => 'Alphabetical',
-            'last_active'    => 'Last active',
+            'last_started'    => 'Last started',
             'room_type'      => 'By room type',
         ],
         'room_component'=> [

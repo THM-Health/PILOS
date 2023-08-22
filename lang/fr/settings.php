@@ -72,7 +72,7 @@ return [
         'one_month'                      => '1 mois (30 jours)',
         'one_week'                       => '1 semaine (7 jours)',
         'one_year'                       => '1 an (365 jours)',
-        'own_rooms_pagination_page_size' => [
+        'room_pagination_page_size' => [
             'description' => 'Limites de pagination pour les salles personnelles',
             'title'       => 'Taille de la pagination pour les salles personnelles',
         ],

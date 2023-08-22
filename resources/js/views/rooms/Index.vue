@@ -36,7 +36,7 @@
               <div class="d-flex justify-content-between">
                 <div>
                   <small class="fa-solid fa-sort mr-1"></small>
-                  <span v-if="selectedSortingType==='last_active'">  {{ $t('rooms.index.sorting.last_active') }}</span>
+                  <span v-if="selectedSortingType==='last_started'">  {{ $t('rooms.index.sorting.last_started') }}</span>
                   <span v-if="selectedSortingType==='alpha'">  {{ $t('rooms.index.sorting.alpha') }}</span>
                   <span v-if="selectedSortingType==='room_type'">  {{ $t('rooms.index.sorting.room_type') }}</span>
                 </div>
@@ -46,7 +46,7 @@
               </div>
             </template>
             <b-dropdown-item disabled>{{ $t('rooms.index.sorting.select_sorting') }} </b-dropdown-item>
-            <b-dropdown-item @click="changeSortingOption('last_active')"> {{ $t('rooms.index.sorting.last_active') }}</b-dropdown-item>
+            <b-dropdown-item @click="changeSortingOption('last_started')"> {{ $t('rooms.index.sorting.last_started') }}</b-dropdown-item>
             <b-dropdown-item @click="changeSortingOption('alpha')"> {{ $t('rooms.index.sorting.alpha') }} </b-dropdown-item>
             <b-dropdown-item @click="changeSortingOption('room_type')"> {{ $t('rooms.index.sorting.room_type') }} </b-dropdown-item>
           </b-dropdown>
@@ -300,7 +300,7 @@ export default {
       showNoFilterMessage: false,
       onlyShowFavorites: false,
       selectedRoomType: null,
-      selectedSortingType: 'last_active',
+      selectedSortingType: 'last_started',
       roomTypes: [],
       roomTypesBusy: false,
       roomTypesLoadingError: false,

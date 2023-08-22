@@ -64,7 +64,7 @@ return [
             'sort'           => 'Sortierung',
             'select_sorting' => '-- Sortierung auswählen --',
             'alpha'          => 'Alphabetisch',
-            'last_active'    => 'Zuletzt aktiv',
+            'last_started'    => 'Zuletzt gestartet',
             'room_type'      => 'Nach Raumart',
 
         ],
