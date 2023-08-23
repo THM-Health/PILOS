@@ -145,4 +145,9 @@ return [
     */
 
     'password_timeout' => 10800,
+
+
+    'local' => [
+        'enabled' => env('LOCAL_AUTH_ENABLED', true),
+    ],
 ];

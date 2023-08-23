@@ -103,7 +103,10 @@ class ApplicationSettings extends JsonResource
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),
             'auth'                  => [
+                'local'                  => config('auth.local.enabled'),
                 'ldap'                   => config('ldap.enabled'),
+                'oidc'                   => config('services.oidc.enabled'),
+                'saml2'                  => config('services.saml2.enabled'),
             ],
             'room_refresh_rate'     => floatval(config('bigbluebutton.room_refresh_rate')),
         ];

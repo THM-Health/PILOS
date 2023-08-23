@@ -123,14 +123,29 @@ export default {
     ...mapActions(useLoadingStore, ['setLoading', 'setLoadingFinished']),
 
     async logout () {
+      let response;
       try {
         this.setLoading();
-        await this.logoutSession();
-        await this.$router.push({ name: 'logout' });
-        this.setLoadingFinished();
+        response = await this.logoutSession();
       } catch (error) {
+        this.setLoadingFinished();
         this.toastError(this.$t('auth.flash.logout_error'));
+        return;
       }
+
+      if (response.data.redirect) {
+        window.location.href = response.data.redirect;
+        return;
+      }
+
+      let incompleteWarning = null;
+      if (response.data.external_auth && !response.data.external_sign_out) {
+        incompleteWarning = response.data.external_auth;
+      }
+
+      await this.$router.push({ name: 'logout', params: { incompleteWarning } });
+
+      this.setLoadingFinished();
     }
   }
 };

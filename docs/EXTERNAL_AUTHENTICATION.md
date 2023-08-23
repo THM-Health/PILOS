@@ -6,8 +6,7 @@ PILOS has two types of users: Local and External.
 Local users can be created by administrators. They can log in to the system with the combination of email address and password. Via PILOS, an email can be sent to the user upon creation, also a password reset function can be activated.
 
 ## External users
-In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems.
-We currently only support LDAP. OpenID-Connect and SAML 2.0 are in planning.
+In large environments it is impractical to manage all users in PILOS. Therefore PILOS can be connected to external authentication systems. LDAP, OpenID-Connect and SAML 2.0 are available as interfaces. All three authentication providers can be operated in parallel, but none of them more than once.
 
 # Setup of external authenticators
 
@@ -47,6 +46,60 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
+## Open-ID Connect
+
+To enable Open-ID Connect, you need to add/set the following options in the  `.env` file and adjust to your needs.
+
+The required `openid` scope is always present, even if not explicitly set. If you need more scopes to get all required attributes, add them with a comma.
+
+The `OIDC_TTL` option defines the time in seconds how long the metadata is cached for, so that the metadata does not have to be reloaded with every request.
+
+```
+# Open-ID Connect config
+OIDC_ENABLED=true
+OIDC_CLIENT_ID=my_client_id
+OIDC_CLIENT_SECRET=my_client_secret
+OIDC_ISSUER=http://idp.university.org
+OIDC_SCOPES="profile,email"
+OIDC_TTL=3600
+```
+
+In your IDP you should configure the following:
+
+- Redirect URI: https://your-domain.com/auth/oidc/callback
+- Post Logout URI: https://your-domain.com/logout
+- Backchannel Logout URI: https://your-domain.com/auth/oidc/logout
+
+
+## SAML 2.0
+
+To enable SAML 2.0, you need to add/set the following options in the  `.env` file and adjust to your needs.
+
+Place the metadata xml file (`saml2_metadata.xml`) of the IDP in the `app/Auth/config` folder.
+
+Alternatively, the metadata can also be loaded dynamically from a URL provided by the option `SAML2_METADATA_URL`. Using the `SAML2_TTL` option you can set the time in seconds how long the metadata is cached for, so that the metadata does not have to be reloaded with every request.
+
+To enable client signature and encryption, you have to set `SAML2_SIGN_ENCRYPT=true` and place your certificate (`saml2_fullchain.pem`) and private key (`saml2_privkey.pem`) in the `app/Auth/config` folder.
+
+```
+# SAML 2.0 config
+SAML2_ENABLED=true
+SAML2_METADATA_URL=http://idp.university.org/metadata
+SAML2_TTL=3600
+SAML2_SIGN_ENCRYPT=true
+```
+
+You can find the metadata of this application at: https://your-domain.com/auth/saml2/metadata
+
+In your IDP you should configure the following:
+
+- Entity ID: https://your-domain.com/auth/saml2
+- Valid redirect URIs: https://your-domain.com/auth/saml2/callback
+- Back channel logout (we currently don't support Front channel logout)
+- Always use POST binding for responses
+- Assertion Consumer Service POST Binding URL: https://your-domain.com/auth/saml2/callback
+- Logout Service POST Binding URL: https://your-domain.com/auth/saml2/logout
+
 # Configure mapping
 
 For each external authenticator the attribute and role mapping needs to be configured.
@@ -55,6 +108,8 @@ The mapping is defined in a JSON file, which is stored in the directory `app/Aut
 | Authenticator   | Filename           |
 |-----------------|--------------------|
 | LDAP            | ldap_mapping.json  |
+| Open-ID Connect | oidc_mapping.json  |
+| SAML 2.0        | saml2_mapping.json |
 
 ## Attribute mapping
 
@@ -71,7 +126,7 @@ You must add attribute mapping for the following attributes.
 
 
 **Notice:** The External identifier (`external_id`) is used to uniquely identify a user.
-If the same external_id is supplied by multiple authenticators, the user is considered to be the same. This will be useful for switching between different authenticators in the future.
+If the same external_id is supplied by multiple authenticators, the user is considered to be the same. This can be useful for switching between different authenticators.
 
 ### Array attributes
 
@@ -114,6 +169,7 @@ To negate the result of the regex, add the attribute `not` to the rule object an
 #### Arrays
 The negation of arrays means: Check that regular expression doesn't match on any entry
 If the `all` attribute is also true: Check that regular expression doesn't match matches all entries
+
 
 
 ## Examples
@@ -163,6 +219,88 @@ In this example the LDAP schema uses the common name (CN) as username and has th
                 }
       ]
     }
+    ]
+}
+```
+
+##  Open-ID Connect
+
+### Attributes
+In this example the Open-ID Connect provider returns the claim `preferred_username` which contains the username and an additional claim `roles` with an array of roles.
+
+### Roles
+- The "student" role is assigned to any user who has the "student" role.
+
+```json
+{
+    "attributes": {
+        "external_id": "preferred_username",
+        "first_name": "given_name",
+        "last_name": "family_name",
+        "email": "email",
+        "roles": "roles"
+    },
+    "roles":[
+        {
+            "name":"student",
+            "disabled":false,
+            "all":true,
+            "rules":[
+                {
+                    "attribute":"roles",
+                    "regex":"/^(student)$/im"
+                }
+            ]
+        }
+    ]
+}
+```
+
+## SAML 2.0
+
+### Attributes
+This example uses the attributes of the [eduPerson Object Class Specification (202001)](https://wiki.refeds.org/display/STAN/eduPerson+2020-01).
+
+### Roles
+- The "admin" role is assigned to any user whose email ends with @its.university.org and who has the "staff" affiliation.
+
+- The "user" role is given to everyone.
+
+```json
+{
+    "attributes": {
+        "external_id": "urn:oid:1.3.6.1.4.1.5923.1.1.1.6",
+        "first_name": "urn:oid:2.5.4.42",
+        "last_name": "urn:oid:2.5.4.4",
+        "email": "urn:oid:0.9.2342.19200300.100.1.3",
+        "affiliation": "urn:oid:1.3.6.1.4.1.5923.1.1.1.1"
+    },
+    "roles":[
+        {
+            "name":"admin",
+            "disabled":false,
+            "all":true,
+            "rules":[
+                {
+                    "attribute":"email",
+                    "regex":"/.*(@its\\.university\\.org)$/i"
+                },
+                {
+                    "attribute":"affiliation",
+                    "regex":"/^(staff)$/im"
+                }
+            ]
+        },
+        {
+            "name": "user",
+            "disabled": false,
+            "rules": [
+                {
+                    "attribute": "external_id",
+                    "regex": "/^.*/im"
+                }
+            ]
+        }
     ]
 }
 ```

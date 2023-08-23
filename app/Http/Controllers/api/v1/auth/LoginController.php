@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
 
 class LoginController extends Controller
 {
@@ -22,6 +23,7 @@ class LoginController extends Controller
 
     use AuthenticatesUsers {
         logout as protected logoutApplication;
+        login as protected loginApplication;
     }
 
     /**
@@ -38,6 +40,16 @@ class LoginController extends Controller
     public function username()
     {
         return 'email';
+    }
+
+    public function login(Request $request)
+    {
+        // Check if local login is enabled
+        if (!config('auth.local.enabled')) {
+            abort(404);
+        }
+
+        return $this->loginApplication($request);
     }
 
     protected function credentials(Request $request)
@@ -63,8 +75,39 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        $redirect        = false;
+        $externalAuth    = false;
+        $externalSignOut = false;
+
+        if (session()->has('external_auth')) {
+            switch(session()->get('external_auth')) {
+                case 'oidc':
+                    $externalAuth = 'oidc';
+                    $url          = Socialite::driver('oidc')->logout(session()->get('oidc_id_token'), url('/logout'));
+                    if ($url) {
+                        $redirect        = $url;
+                        $externalSignOut = true;
+                    }
+
+                    break;
+                case 'saml2':
+                    $externalAuth = 'saml2';
+                    $url          = Socialite::driver('saml2')->logout(session()->get('saml2_name_id'), url('/logout'));
+                    if ($url) {
+                        $redirect        = $url;
+                        $externalSignOut = true;
+                    }
+
+                    break;
+            }
+        }
+
         $this->logoutApplication($request);
 
-        return response()->noContent();
+        return response()->json([
+            'redirect'          => $redirect,
+            'external_auth'     => $externalAuth,
+            'external_sign_out' => $externalSignOut
+        ]);
     }
 }

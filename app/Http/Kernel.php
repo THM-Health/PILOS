@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIf;
+use App\Http\Middleware\StoreSessionData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -42,6 +43,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
             'loggedin:ldap,users',
+            StoreSessionData::class,
             LogContext::class,
         ],
 

@@ -16,7 +16,23 @@
                 :errors="errors.ldap"
               ></ldap-login-component>
             </b-tab>
-            <b-tab :title="$t('auth.email.tab_title')">
+            <b-tab :title="$t('auth.oidc.tab_title')" v-if="getSetting('auth.oidc')" >
+              <external-login-component
+                id="oidc"
+                :title="$t('auth.oidc.title')"
+                :redirect-label="$t('auth.oidc.redirect')"
+                :redirect-url="oidcRedirectUrl"
+              ></external-login-component>
+            </b-tab>
+            <b-tab :title="$t('auth.saml2.tab_title')" v-if="getSetting('auth.saml2')" >
+              <external-login-component
+                id="saml2"
+                :title="$t('auth.saml2.title')"
+                :redirect-label="$t('auth.saml2.redirect')"
+                :redirect-url="saml2RedirectUrl"
+              ></external-login-component>
+            </b-tab>
+            <b-tab :title="$t('auth.email.tab_title')" v-if="getSetting('auth.local')">
               <local-login-component
                 id="local"
                 :title="$t('auth.email.title')"
@@ -43,9 +59,11 @@ import Base from '../api/base';
 import { mapState, mapActions } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useAuthStore } from '../stores/auth';
+import ExternalLoginComponent from '../components/Login/ExternalLoginComponent.vue';
 
 export default {
   components: {
+    ExternalLoginComponent,
     LocalLoginComponent,
     LdapLoginComponent
   },
@@ -60,7 +78,17 @@ export default {
   },
   computed: {
 
-    ...mapState(useSettingsStore, ['getSetting'])
+    ...mapState(useSettingsStore, ['getSetting']),
+
+    oidcRedirectUrl () {
+      const url = '/auth/oidc/redirect';
+      return this.$route.query.redirect ? url + '?redirect=' + encodeURIComponent(this.$route.query.redirect) : url;
+    },
+
+    saml2RedirectUrl () {
+      const url = '/auth/saml2/redirect';
+      return this.$route.query.redirect ? url + '?redirect=' + encodeURIComponent(this.$route.query.redirect) : url;
+    }
   },
   methods: {
 
@@ -80,6 +108,7 @@ export default {
         this.toastSuccess(this.$t('auth.flash.login'));
         // check if user should be redirected back after login
         if (this.$route.query.redirect !== undefined) {
+          console.log(this.$route.query.redirect);
           await this.$router.push(this.$route.query.redirect);
         } else {
           await this.$router.push({ name: 'rooms.own_index' });
