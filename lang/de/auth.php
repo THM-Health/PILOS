@@ -9,7 +9,12 @@ return [
         'title'     => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
-        'missing_attributes' => 'Es fehlen Attribute für die Authentifizierung.',
+        'invalid_configuration' => 'Die Konfiguration des Anmeldedienstes ist fehlerhaft.',
+        'invalid_state'         => 'Fehlerhafter Zustand.',
+        'login_failed'          => 'Anmeldung fehlgeschlagen',
+        'missing_attributes'    => 'Es fehlen Attribute für die Authentifizierung.',
+        'network_issue'         => 'Es konnte keine Verbindung zum Anmeldedienst aufgebaut werden. Versuchen Sie es später erneut.',
+        'reason'                => 'Fehlergrund',
     ],
     'external_id' => 'Externe ID',
     'failed'      => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
@@ -35,6 +40,12 @@ return [
     'new_password_confirmation' => 'Neues Passwort bestätigen',
     'password'                  => 'Passwort',
     'reset_password'            => 'Passwort zurücksetzen',
+    'shibboleth'                => [
+        'logout_incomplete' => 'Achtung: Sie sind weiterhin bei Shibboleth angemeldet.',
+        'redirect'          => 'Anmelden',
+        'tab_title'         => 'Shibboleth',
+        'title'             => 'Mit Shibboleth anmelden',
+    ],
     'send_email_confirm_mail'   => 'Es wurde eine Bestätigungsmail an {email} gesendet. Bestätigen Sie die Änderung, in dem Sie auf den Link in der E-Mail klicken.',
     'send_password_reset_link'  => 'Passwort-Rücksetz-Link senden',
     'sessions'                  => [

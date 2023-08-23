@@ -9,7 +9,12 @@ return [
         'title'     => 'Login with Email',
     ],
     'error' => [
-        'missing_attributes' => 'Attributes for authentication are missing.',
+        'invalid_configuration' => 'The configuration of authentication service is incorrect.',
+        'invalid_state'         => 'Invalid state.',
+        'login_failed'          => 'Login failed',
+        'missing_attributes'    => 'Attributes for authentication are missing.',
+        'network_issue'         => 'Unable to connect to the authentication service. Try again later.',
+        'reason'                => 'Error reason',
     ],
     'external_id' => 'External ID',
     'failed'      => 'These credentials do not match our records.',
@@ -35,6 +40,12 @@ return [
     'new_password_confirmation' => 'New password confirmation',
     'password'                  => 'Password',
     'reset_password'            => 'Reset password',
+    'shibboleth'                => [
+        'logout_incomplete' => 'Attention: You are still logged in to Shibboleth.',
+        'redirect'          => 'Log in',
+        'tab_title'         => 'Shibboleth',
+        'title'             => 'Log in with Shibboleth',
+    ],
     'send_email_confirm_mail'   => 'A verification email has been sent to {email}. Please confirm the new email address by clicking on the link in the email.',
     'send_password_reset_link'  => 'Send password reset link',
     'sessions'                  => [

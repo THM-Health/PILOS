@@ -29,6 +29,11 @@ class ResetPasswordController extends Controller
      */
     public function reset(Request $request)
     {
+        // Check if local login is enabled
+        if (!config('auth.local.enabled')) {
+            abort(404);
+        }
+
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email',

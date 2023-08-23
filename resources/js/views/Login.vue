@@ -17,6 +17,15 @@
               ></ldap-login-component>
             </b-tab>
             <b-tab :title="$t('auth.email.tab_title')">
+            <b-tab :title="$t('auth.shibboleth.tab_title')" v-if="getSetting('auth.shibboleth')" >
+              <external-login-component
+                id="shibboleth"
+                :title="$t('auth.shibboleth.title')"
+                :redirect-label="$t('auth.shibboleth.redirect')"
+                :redirect-url="shibbolethRedirectUrl"
+              ></external-login-component>
+            </b-tab>
+            <b-tab :title="$t('auth.email.tab_title')" v-if="getSetting('auth.local')">
               <local-login-component
                 id="local"
                 :title="$t('auth.email.title')"
@@ -43,9 +52,11 @@ import Base from '../api/base';
 import { mapState, mapActions } from 'pinia';
 import { useSettingsStore } from '../stores/settings';
 import { useAuthStore } from '../stores/auth';
+import ExternalLoginComponent from '../components/Login/ExternalLoginComponent.vue';
 
 export default {
   components: {
+    ExternalLoginComponent,
     LocalLoginComponent,
     LdapLoginComponent
   },
@@ -60,7 +71,12 @@ export default {
   },
   computed: {
 
-    ...mapState(useSettingsStore, ['getSetting'])
+    ...mapState(useSettingsStore, ['getSetting']),
+
+    shibbolethRedirectUrl () {
+      const url = '/auth/shibboleth/redirect';
+      return this.$route.query.redirect ? url + '?redirect=' + encodeURIComponent(this.$route.query.redirect) : url;
+    }
   },
   methods: {
 

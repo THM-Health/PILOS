@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
 use App\Http\Middleware\RouteEnableIf;
+use App\Http\Middleware\StoreSessionData;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -19,6 +20,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
+        \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
@@ -41,13 +43,16 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
+            'shibboleth',
             'loggedin:ldap,users',
+            StoreSessionData::class,
             LogContext::class,
         ],
 
         'api' => [
             EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            'shibboleth',
             'loggedin:ldap,users',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetApplicationLocale::class,
@@ -76,5 +81,6 @@ class Kernel extends HttpKernel
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
         'check.stale'           => EnsureModelNotStale::class,
         'enable_if'             => RouteEnableIf::class,
+        'shibboleth'            => \App\Auth\Shibboleth\ShibbolethSessionMiddleware::class,
     ];
 }

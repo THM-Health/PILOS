@@ -46,12 +46,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap');
 
     Route::post('logout', [LoginController::class,'logout'])->name('logout');
+    
     Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['guest', 'throttle:password_reset']);
+    Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if:password_self_reset_enabled', 'guest', 'throttle:password_email']);
 
     // TODO: Implement or remove this completely
     // Route::post('register', 'RegisterController@register');
 
-    Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if:password_self_reset_enabled', 'guest', 'throttle:password_email']);
+   
 
     Route::middleware('auth:users,ldap')->group(function () {
         Route::get('settings/all', [ApplicationController::class,'allSettings'])->name('application.complete')->middleware('can:applicationSettings.viewAny');
