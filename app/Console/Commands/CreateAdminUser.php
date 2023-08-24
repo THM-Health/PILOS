@@ -46,6 +46,13 @@ class CreateAdminUser extends Command
      */
     public function handle()
     {
+        // Check if local login is enabled
+        if (!config('auth.local.enabled')) {
+            $this->error('Local login is not enabled. Please enable it in the .env with the option LOCAL_AUTH_ENABLED and then retry!');
+
+            return 1;
+        }
+        
         $roles = Role::where(['name' => 'admin'])->pluck('id')->all();
 
         if (empty($roles)) {

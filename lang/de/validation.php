@@ -73,7 +73,7 @@ return [
         'new_password_confirmation'          => 'Neues Passwort Bestätigung',
         'password'                           => 'Passwort',
         'password_confirmation'              => 'Passwort Bestätigung',
-        'password_self_reset_enabled'        => 'Registrierten Benutzer ermöglichen das Passwort zurückzusetzen',
+        'password_self_reset_enabled'        => 'Lokalen Benutzer ermöglichen das Passwort zurückzusetzen',
         'permissions'                        => 'Rechte',
         'phone'                              => 'Telefonnummer',
         'privacy_policy_url'                 => 'Datenschutzerklärung',

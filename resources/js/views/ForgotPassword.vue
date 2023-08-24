@@ -51,20 +51,6 @@ export default {
     };
   },
 
-  /**
-   * Calls the next callback if the password self reset page is enabled
-   * otherwise the user gets redirected to a 404 route.
-   */
-  beforeRouteEnter (to, from, next) {
-    const settings = useSettingsStore();
-
-    if (!settings.getSetting('password_self_reset_enabled') || !settings.getSetting('auth.local')) {
-      next('/404');
-    } else {
-      next();
-    }
-  },
-
   methods: {
     /**
      * Sends a password reset request to the server for the given email.

@@ -73,7 +73,7 @@ return [
         'new_password_confirmation'          => 'New password confirmation',
         'password'                           => 'Password',
         'password_confirmation'              => 'Password confirmation',
-        'password_self_reset_enabled'        => 'Give registered users the possibility to reset and change their password',
+        'password_self_reset_enabled'        => 'Give local users the possibility to reset and change their password',
         'permissions'                        => 'Permissions',
         'phone'                              => 'Phone',
         'privacy_policy_url'                 => 'Privacy policy',

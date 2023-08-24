@@ -15,6 +15,7 @@
               variant='success'
               :title="$t('settings.users.new')"
               :to="{ name: 'settings.users.new' }"
+              v-if="getSetting('auth.local')"
             ><i class="fa-solid fa-plus"></i></b-button>
           </can>
         </b-col>
@@ -180,6 +181,7 @@
               :disabled='isBusy'
               variant='warning'
               class='mb-1'
+              v-if="getSetting('auth.local')"
               @click='showResetPasswordModal(data.item)'
             >
               <i class='fa-solid fa-key'></i>
@@ -269,6 +271,8 @@ import Can from '../../../components/Permissions/Can.vue';
 import Base from '../../../api/base';
 import TextTruncate from '../../../components/TextTruncate.vue';
 import { Multiselect } from 'vue-multiselect';
+import { mapState } from 'pinia';
+import { useSettingsStore } from '../../../stores/settings';
 
 export default {
   components: { TextTruncate, Can, Multiselect },
@@ -297,7 +301,9 @@ export default {
       }
 
       return fields;
-    }
+    },
+
+    ...mapState(useSettingsStore, ['getSetting'])
   },
 
   data () {

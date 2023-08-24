@@ -108,20 +108,6 @@ export default {
     ...mapState(useAuthStore, ['currentUser'])
   },
 
-  /**
-   * Calls the next callback if the password self reset page is enabled
-   * otherwise the user gets redirected to a 404 route.
-   */
-  beforeRouteEnter (to, from, next) {
-    const settings = useSettingsStore();
-
-    if (!settings.getSetting('auth.local')) {
-      next('/404');
-    } else {
-      next();
-    }
-  },
-
   methods: {
 
     ...mapActions(useAuthStore, ['getCurrentUser']),
