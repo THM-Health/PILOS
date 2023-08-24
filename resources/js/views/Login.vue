@@ -16,7 +16,6 @@
                 :errors="errors.ldap"
               ></ldap-login-component>
             </b-tab>
-            <b-tab :title="$t('auth.email.tab_title')">
             <b-tab :title="$t('auth.email.tab_title')" v-if="getSetting('auth.local')">
               <local-login-component
                 id="local"

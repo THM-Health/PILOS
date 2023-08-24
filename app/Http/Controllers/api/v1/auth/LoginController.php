@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\api\v1\auth;
 
-use App\Auth\Shibboleth\ShibbolethProvider;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
