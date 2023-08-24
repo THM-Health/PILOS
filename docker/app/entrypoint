@@ -22,8 +22,8 @@ function buildFrontend() {
 function migrateDatabase() {
     echo "Migrating database and seed with example data"
 
-    while ! mysqladmin ping -h${DB_HOST} -u${DB_USERNAME} -p${DB_PASSWORD} --silent; do
-        echo "Waiting for database connection..."
+    while ! gosu www-data php artisan db:check; do
+        echo "Waiting before trying again..."
         sleep 5
     done
     gosu www-data php artisan migrate --force --seed
