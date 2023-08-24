@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api\v1\auth;
 
+use App\Auth\Shibboleth\ShibbolethProvider;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class LoginController extends Controller
 
     use AuthenticatesUsers {
         logout as protected logoutApplication;
+        login as protected loginApplication;
     }
 
     /**
@@ -38,6 +40,16 @@ class LoginController extends Controller
     public function username()
     {
         return 'email';
+    }
+
+    public function login(Request $request)
+    {
+        // Check if local login is enabled
+        if (!config('auth.local.enabled')) {
+            abort(404);
+        }
+
+        return $this->loginApplication($request);
     }
 
     protected function credentials(Request $request)
