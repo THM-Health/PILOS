@@ -58,7 +58,7 @@ export default {
   beforeRouteEnter (to, from, next) {
     const settings = useSettingsStore();
 
-    if (!settings.getSetting('password_self_reset_enabled') || !settings.getSetting('auth.local')) {
+    if (!settings.getSetting('password_self_reset_enabled')) {
       next('/404');
     } else {
       next();

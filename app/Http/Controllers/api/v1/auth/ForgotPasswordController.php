@@ -22,11 +22,6 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request): JsonResponse
     {
-        // Check if local login is enabled
-        if (!config('auth.local.enabled')) {
-            abort(404);
-        }
-        
         $this->validateEmail($request);
 
         $user = User::where('authenticator', '=', 'local')

@@ -44,11 +44,6 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // Check if local login is enabled
-        if (!config('auth.local.enabled')) {
-            abort(404);
-        }
-
         return $this->loginApplication($request);
     }
 

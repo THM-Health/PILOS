@@ -24,7 +24,7 @@
                 :redirect-url="shibbolethRedirectUrl"
               ></external-login-component>
             </b-tab>
-            <b-tab :title="$t('auth.email.tab_title')" v-if="getSetting('auth.local')">
+            <b-tab :title="$t('auth.email.tab_title')">
               <local-login-component
                 id="local"
                 :title="$t('auth.email.title')"

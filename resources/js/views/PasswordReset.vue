@@ -73,7 +73,6 @@ import { loadLanguageAsync } from '../i18n';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
-import { useSettingsStore } from '../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -106,20 +105,6 @@ export default {
 
   computed: {
     ...mapState(useAuthStore, ['currentUser'])
-  },
-
-  /**
-   * Calls the next callback if the password self reset page is enabled
-   * otherwise the user gets redirected to a 404 route.
-   */
-  beforeRouteEnter (to, from, next) {
-    const settings = useSettingsStore();
-
-    if (!settings.getSetting('auth.local')) {
-      next('/404');
-    } else {
-      next();
-    }
   },
 
   methods: {

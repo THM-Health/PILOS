@@ -103,7 +103,6 @@ class ApplicationSettings extends JsonResource
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),
             'auth'                  => [
-                'local'                  => config('auth.local.enabled'),
                 'ldap'                   => config('ldap.enabled'),
                 'shibboleth'             => config('services.shibboleth.enabled'),
             ],
