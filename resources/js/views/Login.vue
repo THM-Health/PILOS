@@ -16,7 +16,6 @@
                 :errors="errors.ldap"
               ></ldap-login-component>
             </b-tab>
-            <b-tab :title="$t('auth.email.tab_title')">
             <b-tab :title="$t('auth.shibboleth.tab_title')" v-if="getSetting('auth.shibboleth')" >
               <external-login-component
                 id="shibboleth"
