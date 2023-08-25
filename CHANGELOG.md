@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - French localisation
 - Support for PostgreSQL ([#503], [#504])
+- Shibboleth authentication ([#20], [#497])
 
 ### Changed
 - Bump dependencies
@@ -399,6 +400,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#17]: https://github.com/THM-Health/PILOS/pull/17
 [#18]: https://github.com/THM-Health/PILOS/pull/18
 [#19]: https://github.com/THM-Health/PILOS/issues/19
+[#20]: https://github.com/THM-Health/PILOS/issues/20
 [#21]: https://github.com/THM-Health/PILOS/pull/21
 [#22]: https://github.com/THM-Health/PILOS/pull/22
 [#30]: https://github.com/THM-Health/PILOS/issues/30
@@ -623,6 +625,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#389]: https://github.com/THM-Health/PILOS/pull/389
 [#469]: https://github.com/THM-Health/PILOS/pull/469
 [#470]: https://github.com/THM-Health/PILOS/pull/470
+[#497]: https://github.com/THM-Health/PILOS/pull/497
 [#503]: https://github.com/THM-Health/PILOS/issues/503
 [#504]: https://github.com/THM-Health/PILOS/pull/504
 
