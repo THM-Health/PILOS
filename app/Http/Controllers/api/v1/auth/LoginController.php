@@ -23,7 +23,6 @@ class LoginController extends Controller
 
     use AuthenticatesUsers {
         logout as protected logoutApplication;
-        login as protected loginApplication;
     }
 
     /**
@@ -40,11 +39,6 @@ class LoginController extends Controller
     public function username()
     {
         return 'email';
-    }
-
-    public function login(Request $request)
-    {
-        return $this->loginApplication($request);
     }
 
     protected function credentials(Request $request)

@@ -9,11 +9,8 @@ return [
         'title'     => 'Mit einer E-Mail anmelden',
     ],
     'error' => [
-        'invalid_configuration' => 'Die Konfiguration des Anmeldedienstes ist fehlerhaft.',
-        'invalid_state'         => 'Fehlerhafter Zustand.',
         'login_failed'          => 'Anmeldung fehlgeschlagen',
         'missing_attributes'    => 'Es fehlen Attribute für die Authentifizierung.',
-        'network_issue'         => 'Es konnte keine Verbindung zum Anmeldedienst aufgebaut werden. Versuchen Sie es später erneut.',
         'reason'                => 'Fehlergrund',
     ],
     'external_id' => 'Externe ID',

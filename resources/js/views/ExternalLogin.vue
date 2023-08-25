@@ -6,9 +6,6 @@
 
           <strong>{{ $t('auth.error.reason') }}</strong>
           <p v-if="error == 'missing_attributes'">{{ $t('auth.error.missing_attributes') }}</p>
-          <p v-if="error == 'invalid_configuration'">{{ $t('auth.error.invalid_configuration') }}</p>
-          <p v-if="error == 'network_issue'">{{ $t('auth.error.network_issue') }}</p>
-          <p v-if="error == 'invalid_state'">{{ $t('auth.error.invalid_state') }}</p>
 
           <template #footer>
             <b-button variant="dark" block :to="{ name: 'home'}">

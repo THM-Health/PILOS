@@ -9,11 +9,8 @@ return [
         'title'     => 'Login with Email',
     ],
     'error' => [
-        'invalid_configuration' => 'The configuration of authentication service is incorrect.',
-        'invalid_state'         => 'Invalid state.',
         'login_failed'          => 'Login failed',
         'missing_attributes'    => 'Attributes for authentication are missing.',
-        'network_issue'         => 'Unable to connect to the authentication service. Try again later.',
         'reason'                => 'Error reason',
     ],
     'external_id' => 'External ID',
