@@ -205,7 +205,7 @@
               </b-form-group>
 
               <!-- Radio default user role for logged in users only -->
-              <b-form-group :state="fieldState('default_role')">
+              <b-form-group :state="fieldState('default_role')" ref="defaultRole-group">
                 <template v-slot:label>
                   {{ $t('rooms.settings.participants.default_role.title') }}<br><small>{{ $t('rooms.settings.participants.default_role.only_logged_in') }}</small>
                 </template>
@@ -228,34 +228,39 @@
                 <template slot='invalid-feedback'><div v-html="fieldError('default_role')"></div></template>
               </b-form-group>
 
-            <!-- Radio usage of the waiting room/guest lobby -->
-            <b-form-group :state="fieldState('lobby')" :label="$t('rooms.settings.participants.waiting_room.title')">
-              <b-form-radio
-                :disabled="disabled"
-                name="setting-lobby"
-                v-model.number="settings.lobby"
-                :state="fieldState('lobby')"
-                value="0">
-                {{ $t('app.disabled') }}
-              </b-form-radio>
-              <b-form-radio
-                :disabled="disabled"
-                name="setting-lobby"
-                v-model.number="settings.lobby"
-                :state="fieldState('lobby')"
-                value="1">
-                {{ $t('app.enabled') }}
-              </b-form-radio>
-              <b-form-radio
-                :disabled="disabled"
-                name="setting-lobby"
-                v-model.number="settings.lobby"
-                :state="fieldState('lobby')"
-                value="2">
-                {{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}
-              </b-form-radio>
-              <template slot='invalid-feedback'><div v-html="fieldError('lobby')"></div></template>
-            </b-form-group>
+              <!-- Radio usage of the waiting room/guest lobby -->
+              <b-form-group :state="fieldState('lobby')" :label="$t('rooms.settings.participants.waiting_room.title')" ref="waitingRoom-group">
+                <b-form-radio
+                  :disabled="disabled"
+                  name="setting-lobby"
+                  v-model.number="settings.lobby"
+                  :state="fieldState('lobby')"
+                  value="0">
+                  {{ $t('app.disabled') }}
+                </b-form-radio>
+                <b-form-radio
+                  :disabled="disabled"
+                  name="setting-lobby"
+                  v-model.number="settings.lobby"
+                  :state="fieldState('lobby')"
+                  value="1">
+                  {{ $t('app.enabled') }}
+                </b-form-radio>
+                <b-form-radio
+                  :disabled="disabled"
+                  name="setting-lobby"
+                  v-model.number="settings.lobby"
+                  :state="fieldState('lobby')"
+                  value="2">
+                  {{ $t('rooms.settings.participants.waiting_room.only_for_guests_enabled') }}
+                </b-form-radio>
+                <template slot='invalid-feedback'><div v-html="fieldError('lobby')"></div></template>
+              </b-form-group>
+
+              <!-- Alert shown when default role is moderator and waiting room is active -->
+              <b-alert ref="waiting-room-alert" show v-if="showLobbyAlert" variant="warning">
+                {{ $t('rooms.settings.participants.waiting_room_alert') }}
+              </b-alert>
 
             <!-- Checkbox record attendance of users and guests -->
             <b-form-group :state="fieldState('record_attendance')" v-if="getGlobalSetting('attendance.enabled')">
@@ -513,6 +518,13 @@ export default {
         ? this.settings.welcome.length
         : 0;
       return char + ' / ' + this.getGlobalSetting('bbb.welcome_message_limit');
+    },
+
+    /**
+     * Show alert if simulatinously default role is moderator and waiting room is active
+     */
+    showLobbyAlert () {
+      return this.settings.default_role === 2 && this.settings.lobby === 1;
     }
   },
   created () {

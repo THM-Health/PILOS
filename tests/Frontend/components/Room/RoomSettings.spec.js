@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import BootstrapVue, {
   BButton,
+  BFormRadio,
   BFormInput,
   BFormTextarea,
   BOverlay
@@ -13,6 +14,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
+import { expect } from 'chai';
 
 const localVue = createLocalVue();
 
@@ -802,5 +804,97 @@ describe('RoomSettings', () => {
     });
 
     view.destroy();
+  });
+
+  it('show alert when default role moderator and waiting room active at the same time', async () => {
+    PermissionService.setCurrentUser(exampleUser);
+
+    const request = mockAxios.request('/api/v1/rooms/123-456-789/settings');
+
+    const view = mount(SettingsComponent, {
+      localVue,
+      mocks: {
+        $t: (key, values) => key
+      },
+      propsData: {
+        room: ownerRoom
+      },
+      pinia: createTestingPinia({ initialState }),
+      attachTo: createContainer()
+    });
+    await request.wait();
+    await view.vm.$nextTick();
+    await request.respondWith({
+      status: 200,
+      data: {
+        data: {
+          name: 'Meeting One',
+          room_type: {
+            id: 1,
+            short: 'VL',
+            description: 'Vorlesung',
+            color: '#80BA27',
+            allow_listing: true,
+            model_name: 'RoomType',
+            updated_at: '2021-02-04T11:36:39.000000Z'
+          },
+          access_code: null,
+          mute_on_start: true,
+          lock_settings_disable_cam: false,
+          webcams_only_for_moderator: true,
+          lock_settings_disable_mic: false,
+          lock_settings_disable_private_chat: false,
+          lock_settings_disable_public_chat: true,
+          lock_settings_disable_note: true,
+          lock_settings_lock_on_join: true,
+          lock_settings_hide_user_list: false,
+          everyone_can_start: false,
+          allow_guests: true,
+          allow_membership: false,
+          welcome: 'welcome',
+          max_participants: 10,
+          duration: 5,
+          default_role: 1,
+          lobby: 0,
+          listed: true,
+          record_attendance: true
+        }
+      }
+    });
+    await view.vm.$nextTick();
+    let alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+
+    const defaultRoleRadios = view.findComponent({ ref: 'defaultRole-group' }).findAllComponents(BFormRadio);
+    const waitingRoomRadios = view.findComponent({ ref: 'waitingRoom-group' }).findAllComponents(BFormRadio);
+
+    // test all variations with default role set to participant
+    expect(alertEl.exists()).toBeFalsy();
+    await waitingRoomRadios.at(0).find('input').setChecked();
+    alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+    await view.vm.$nextTick();
+    expect(alertEl.exists()).toBeFalsy();
+    await waitingRoomRadios.at(1).find('input').setChecked();
+    alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+    await view.vm.$nextTick();
+    expect(alertEl.exists()).toBeFalsy();
+    await waitingRoomRadios.at(2).find('input').setChecked();
+    alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+    await view.vm.$nextTick();
+    expect(alertEl.exists()).toBeFalsy();
+
+    // test all variations with default role set to moderator
+    await defaultRoleRadios.at(1).find('input').setChecked();
+    await waitingRoomRadios.at(0).find('input').setChecked();
+    alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+    await view.vm.$nextTick();
+    expect(alertEl.exists()).toBeFalsy();
+    await waitingRoomRadios.at(1).find('input').setChecked();
+    alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+    await view.vm.$nextTick();
+    expect(alertEl.exists()).toBeTruthy();
+    await waitingRoomRadios.at(2).find('input').setChecked();
+    alertEl = view.findComponent({ ref: 'waiting-room-alert' });
+    await view.vm.$nextTick();
+    expect(alertEl.exists()).toBeFalsy();
   });
 });

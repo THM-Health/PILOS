@@ -235,6 +235,7 @@ return [
                 'only_for_guests_enabled' => 'Enabled only for guests',
                 'title'                   => 'Waiting room',
             ],
+            'waiting_room_alert'=> 'Default role is set to Moderator: Waiting room is only active for guests and old members!',
         ],
         'permissions' => [
             'everyone_start' => 'Everyone can start the meeting',
