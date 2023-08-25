@@ -51,7 +51,7 @@
         "@tiptap/extension-link": "^2.0.4",
         "@tiptap/extension-text-align": "^2.1.7",
         "@tiptap/extension-text-style": "^2.1.7",
-        "@tiptap/extension-underline": "^2.0.4",
+        "@tiptap/extension-underline": "^2.1.7",
         "@tiptap/starter-kit": "^2.0.4",
         "@tiptap/vue-2": "^2.0.4",
         "awesome-mask": "^1.1.1",
