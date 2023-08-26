@@ -392,254 +392,346 @@ class RoomTest extends TestCase
     }
 
     /**
-     * Test list of rooms without filter
+     * Test list of rooms (filter, room type)
      */
-    public function testRoomList()
-    {
+    public function testRoomListFilter(){
         setting(['pagination_page_size' => 10]);
         $user      = User::factory()->create(['firstname'=>'John','lastname'=>'Doe']);
         $roomType1 = RoomType::factory()->create();
         $roomType2 = RoomType::factory()->create(['allow_listing'=>false]);
         $roomType3 = RoomType::factory()->create(['allow_listing'=>true]);
 
-        $room1 = Room::factory()->create(['name'=>'test a','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'access_code'=>123456789]);
-        $room2 = Room::factory()->create(['name'=>'test b','user_id'=>$user->id,'room_type_id'=>$roomType1->id,'listed'=>false,'access_code'=>null]);
-        $room3 = Room::factory()->create(['name'=>'room a','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'access_code'=>123456789]);
-        $room4 = Room::factory()->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType2->id,'listed'=>true,'access_code'=>null]);
-        $room5 = Room::factory()->create(['name'=>'room b','user_id'=>$user->id,'room_type_id'=>$roomType3->id,'listed'=>true,'access_code'=>null]);
+        $roomOwn = Room::factory()->create(['name'=>'Own room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
+        $roomOwn->owner()->associate($this->user);
+        $roomOwn->save();
+        $roomShared = Room::factory()->create(['name'=>'Shared room', 'room_type_id'=>$roomType1->id, 'listed'=>false, 'access_code'=>null]);
+        $roomShared->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+        $roomPublic = Room::factory()->create(['name'=>'Public room', 'room_type_id'=>$roomType3->id, 'listed'=>true, 'access_code'=>null]);
+        $roomAll1 = Room::factory()->create(['name'=>'Room all 1','room_type_id'=>$roomType2->id,'listed'=>true,'access_code'=>123456789]);
+        $roomAll2 = Room::factory()->create(['name'=>'Room all 2', 'room_type_id'=>$roomType2->id, 'listed'=>true, 'access_code'=>null]);
 
         // Testing guests access
-        $this->getJson(route('api.v1.rooms.index'))
-            ->assertUnauthorized();
+        $this->getJson(route('api.v1.rooms.index'))->assertUnauthorized();
 
-        // Test as logged in user, without viewAll rooms permission, should only see rooms
-        // that are listing and have a room type that allows listing
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+        //Test with logged in user
+
+        //filter own
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(['id'=>$room5->id,'name'=>$room5->name])
-            ->assertJsonCount(8, 'meta');
+            ->assertJsonCount(1,'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonPath('meta.total_no_filter',1)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta')
+            ->assertJsonStructure([
+                'data' => [
+                    0 => [
+                        'id',
+                        'name',
+                        'owner' => [
+                            'id',
+                            'name',
+                        ],
+                        'last_meeting',
+                        'type' => [
+                            'id',
+                            'short',
+                            'description',
+                            'color'
+                        ],
+                        'model_name',
+                        'short_description',
+                        'is_favorite'
+                    ]
+                ]
+            ]);
 
-        // Test with viewAll rooms permission
+        //filter shared
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(1,'data')
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonPath('meta.total_no_filter',1)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter public
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(1,'data')
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonPath('meta.total_no_filter',1)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter own, shared
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=0&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(2,'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonPath('meta.total_no_filter',2)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter shared, public
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(2,'data')
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonPath('meta.total_no_filter',2)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter own, public
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=0&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(2,'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonPath('meta.total_no_filter',2)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter own, shared, public
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=0&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(3,'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonPath('meta.total_no_filter',3)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter all (without permission to show all rooms)
+        //should lead to bad request because the other filters are set to 0 (false)
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
+            ->assertBadRequest();
+        //should show same result as showing all the other filters together
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
+            ->assertStatus(200)
+            ->assertJsonCount(3,'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonPath('meta.total_no_filter',3)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
+
+        //filter all (with permission to show all rooms)
+        //should show all rooms
         $role       = Role::factory()->create();
         $role->permissions()->attach($this->viewAllPermission);
         $this->user->roles()->attach($role);
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index'))
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data')
-            ->assertJsonFragment(['id'=>$room1->id,'name'=>$room1->name])
-            ->assertJsonFragment(['id'=>$room2->id,'name'=>$room2->name])
-            ->assertJsonFragment(['id'=>$room3->id,'name'=>$room3->name])
-            ->assertJsonFragment(['id'=>$room4->id,'name'=>$room4->name])
-            ->assertJsonCount(8, 'meta');
+            ->assertJsonCount(5,'data')
+            ->assertJsonFragment(['id'=>$roomOwn->id, 'name'=>$roomOwn->name])
+            ->assertJsonFragment(['id'=>$roomShared->id, 'name'=>$roomShared->name])
+            ->assertJsonFragment(['id'=>$roomPublic->id, 'name'=>$roomPublic->name])
+            ->assertJsonFragment(['id'=>$roomAll1->id, 'name'=>$roomAll1->name])
+            ->assertJsonFragment(['id'=>$roomAll2->id, 'name'=>$roomAll2->name])
+            ->assertJsonPath('meta.total_no_filter',5)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
 
-        // Find by room name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=0&filter_shared=0&filter_public=0&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(2, 'data')
-            ->assertJsonCount(8, 'meta');
+            ->assertJsonCount(5,'data')
+            ->assertJsonPath('meta.total_no_filter',5)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
 
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a')
+        //filter all (with permission to show all rooms) but with room type
+        //should show all rooms with the given room type
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&room_type='.$roomType2->id.'&sort_by=last_started&page=1')
             ->assertStatus(200)
-            ->assertJsonCount(1, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+a+xyz')
-            ->assertStatus(200)
-            ->assertJsonCount(0, 'data');
-
-        // Find by owner name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john')
-            ->assertStatus(200)
-            ->assertJsonCount(5, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john+d')
-            ->assertStatus(200)
-            ->assertJsonCount(5, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=john+d+xzy')
-            ->assertStatus(200)
-            ->assertJsonCount(0, 'data');
-
-        // Find by owner name and room name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+john')
-            ->assertStatus(200)
-            ->assertJsonCount(2, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?search=test+john+xyz')
-            ->assertStatus(200)
-            ->assertJsonCount(0, 'data');
-
-        // Filter by room types
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id)
-            ->assertStatus(200)
-            ->assertJsonCount(2, 'data')
-            ->assertJsonCount(8, 'meta');
-
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id.'&room_types[]='.$roomType2->id)
-            ->assertStatus(200)
-            ->assertJsonCount(4, 'data');
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]=0')
-            ->assertStatus(200)
-            ->assertJsonCount(0, 'data');
-
-        // Filter by room types and search
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?room_types[]='.$roomType1->id.'&search=test+a')
-            ->assertStatus(200)
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(2,'data')
+            ->assertJsonFragment(['id'=>$roomAll1->id, 'name'=>$roomAll1->name])
+            ->assertJsonFragment(['id'=>$roomAll2->id, 'name'=>$roomAll2->name])
+            ->assertJsonPath('meta.total_no_filter',2)
+            ->assertJsonPath('meta.total_own',1)
+            ->assertJsonCount(10,'meta');
     }
 
-    /**
-     * Test list of rooms with filter
-     */
-    public function testRoomListWithFilter()
-    {
-        $rooms = Room::factory()->count(4)->create();
-
-        $server   = Server::factory()->create();
-        $meeting1 = $rooms[0]->meetings()->create();
-        $meeting1->server()->associate($server);
-        $meeting1->start        = date('Y-m-d H:i:s');
-        $meeting1->attendee_pw  = bin2hex(random_bytes(5));
-        $meeting1->moderator_pw = bin2hex(random_bytes(5));
-        $meeting1->save();
-
-        $meeting2 = $rooms[2]->meetings()->create();
-        $meeting2->server()->associate($server);
-        $meeting2->start        = date('Y-m-d H:i:s');
-        $meeting2->attendee_pw  = bin2hex(random_bytes(5));
-        $meeting2->moderator_pW = bin2hex(random_bytes(5));
-        $meeting2->save();
-
-        // Testing guests access
-        $this->getJson(route('api.v1.rooms.index').'?filter=own')
-            ->assertUnauthorized();
-
-        // Invalid filter
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
-            ->assertStatus(400);
-
-        // Testing ownership and membership
-        $rooms[0]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $rooms[1]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
-        $rooms[2]->owner()->associate($this->user);
-        $rooms[2]->save();
-        $rooms[3]->owner()->associate($this->user);
-        $rooms[3]->save();
-
-        // Testing working filter
-        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$rooms[2]->id])
-            ->assertJsonFragment(['id'=>$rooms[3]->id])
-            ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('meta.total_no_filter', 2)
-            ->assertJsonCount(9, 'meta')
-            ->assertJsonStructure([
-                'data' => [
-                    0 => [
-                        'id',
-                        'name',
-                        'owner' => [
-                            'id',
-                            'name',
-                        ],
-                        'running',
-                        'type' => [
-                            'id',
-                            'short',
-                            'description',
-                            'color'
-                        ],
-                        'model_name',
-                    ]
-                ]
-            ]);
-
-        foreach ($results->json('data') as $room) {
-            if ($room['id'] == $rooms[2]->id) {
-                self::assertTrue($room['running']);
-            } else {
-                self::assertFalse($room['running']);
-            }
-        }
-
-        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$rooms[0]->id])
-            ->assertJsonFragment(['id'=>$rooms[1]->id])
-            ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('meta.total_no_filter', 2)
-            ->assertJsonStructure([
-                'data' => [
-                    0 => [
-                        'id',
-                        'name',
-                        'owner' => [
-                            'id',
-                            'name',
-                        ],
-                        'running',
-                        'type' => [
-                            'id',
-                            'short',
-                            'description',
-                            'color'
-                        ],
-                        'model_name',
-                    ]
-                ]
-            ]);
-
-        foreach ($results->json('data') as $room) {
-            if ($room['id'] == $rooms[0]->id) {
-                self::assertTrue($room['running']);
-            } else {
-                self::assertFalse($room['running']);
-            }
-        }
-    }
+//    /**
+//     * Test list of rooms with filter
+//     */
+//    //ToDo
+//    public function testRoomListWithFilter()
+//    {
+//        $rooms = Room::factory()->count(4)->create();
+//
+//        $server   = Server::factory()->create();
+//        $meeting1 = $rooms[0]->meetings()->create();
+//        $meeting1->server()->associate($server);
+//        $meeting1->start        = date('Y-m-d H:i:s');
+//        $meeting1->attendee_pw  = bin2hex(random_bytes(5));
+//        $meeting1->moderator_pw = bin2hex(random_bytes(5));
+//        $meeting1->save();
+//
+//        $meeting2 = $rooms[2]->meetings()->create();
+//        $meeting2->server()->associate($server);
+//        $meeting2->start        = date('Y-m-d H:i:s');
+//        $meeting2->attendee_pw  = bin2hex(random_bytes(5));
+//        $meeting2->moderator_pW = bin2hex(random_bytes(5));
+//        $meeting2->save();
+//
+//        // Testing guests access
+//        $this->getJson(route('api.v1.rooms.index').'?filter=own')
+//            ->assertUnauthorized();
+//
+//        // Invalid filter
+//        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=123')
+//            ->assertStatus(400);
+//
+//        // Testing ownership and membership
+//        $rooms[0]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+//        $rooms[1]->members()->attach($this->user, ['role'=>RoomUserRole::USER]);
+//        $rooms[2]->owner()->associate($this->user);
+//        $rooms[2]->save();
+//        $rooms[3]->owner()->associate($this->user);
+//        $rooms[3]->save();
+//
+//        // Testing working filter
+//        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
+//            ->assertOk()
+//            ->assertJsonFragment(['id'=>$rooms[2]->id])
+//            ->assertJsonFragment(['id'=>$rooms[3]->id])
+//            ->assertJsonPath('meta.total', 2)
+//            ->assertJsonPath('meta.total_no_filter', 2)
+//            ->assertJsonCount(9, 'meta')
+//            ->assertJsonStructure([
+//                'data' => [
+//                    0 => [
+//                        'id',
+//                        'name',
+//                        'owner' => [
+//                            'id',
+//                            'name',
+//                        ],
+//                        'running',
+//                        'type' => [
+//                            'id',
+//                            'short',
+//                            'description',
+//                            'color'
+//                        ],
+//                        'model_name',
+//                    ]
+//                ]
+//            ]);
+//
+//        foreach ($results->json('data') as $room) {
+//            if ($room['id'] == $rooms[2]->id) {
+//                self::assertTrue($room['running']);
+//            } else {
+//                self::assertFalse($room['running']);
+//            }
+//        }
+//
+//        $results = $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=shared')
+//            ->assertOk()
+//            ->assertJsonFragment(['id'=>$rooms[0]->id])
+//            ->assertJsonFragment(['id'=>$rooms[1]->id])
+//            ->assertJsonPath('meta.total', 2)
+//            ->assertJsonPath('meta.total_no_filter', 2)
+//            ->assertJsonStructure([
+//                'data' => [
+//                    0 => [
+//                        'id',
+//                        'name',
+//                        'owner' => [
+//                            'id',
+//                            'name',
+//                        ],
+//                        'running',
+//                        'type' => [
+//                            'id',
+//                            'short',
+//                            'description',
+//                            'color'
+//                        ],
+//                        'model_name',
+//                    ]
+//                ]
+//            ]);
+//
+//        foreach ($results->json('data') as $room) {
+//            if ($room['id'] == $rooms[0]->id) {
+//                self::assertTrue($room['running']);
+//            } else {
+//                self::assertFalse($room['running']);
+//            }
+//        }
+//    }
 
     /**
      * Test search for rooms
      */
     public function testRoomSearch()
     {
-        $room = Room::factory()->create(['name'=>'Meeting One']);
+        $user      = User::factory()->create(['firstname'=>'John','lastname'=>'Doe']);
+        $room1 = Room::factory()->create(['name'=>'Test a','user_id'=>$user->id]);
+        $room2 = Room::factory()->create(['name'=>'room b','user_id'=>$user->id]);
 
-        // Testing ownership and membership
-        $room->owner()->associate($this->user);
-        $room->save();
+        $role       = Role::factory()->create();
+        $role->permissions()->attach($this->viewAllPermission);
+        $this->user->roles()->attach($role);
 
         // Testing without query
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id])
-            ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('meta.total_no_filter', 1);
+            ->assertJsonFragment(['id'=>$room1->id])
+            ->assertJsonFragment(['id'=>$room2->id])
+            ->assertJsonPath('meta.total_no_filter', 2);
 
         // Testing with empty query
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=')
-            ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id])
-            ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('meta.total_no_filter', 1);
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=')
+            ->assertJsonValidationErrors('search');
 
-        // Testing with fragment of the room name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=One')
+        // Find by room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=Test')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id])
-            ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('meta.total_no_filter', 1);
+            ->assertJsonFragment(['id'=>$room1->id])
+            ->assertJsonCount(1,'data')
+            ->assertJsonPath('meta.total_no_filter', 2);
 
-        // Testing with full name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting One')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=Test+a')
             ->assertOk()
-            ->assertJsonFragment(['id'=>$room->id])
-            ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('meta.total_no_filter', 1);
+            ->assertJsonFragment(['id'=>$room1->id])
+            ->assertJsonCount(1,'data')
+            ->assertJsonPath('meta.total_no_filter', 2);
 
-        // Testing with invalid name
-        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter=own&search=Meeting Two')
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=Test+a+xyz')
             ->assertOk()
-            ->assertJsonMissing(['id'=>$room->id])
-            ->assertJsonPath('meta.total', 0)
-            ->assertJsonPath('meta.total_no_filter', 1);
+            ->assertJsonCount(0,'data');
+
+        // Find by owner name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=john')
+            ->assertOk()
+            ->assertJsonCount(2,'data');
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=john+d')
+            ->assertOk()
+            ->assertJsonCount(2,'data');
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=john+d+xyz')
+            ->assertOk()
+            ->assertJsonCount(0,'data');
+
+        //Find by owner name and room name
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=test+john')
+            ->assertOk()
+            ->assertJsonFragment(['id'=>$room1->id])
+            ->assertJsonCount(1,'data')
+            ->assertJsonPath('meta.total_no_filter', 2);
+
+        $this->actingAs($this->user)->getJson(route('api.v1.rooms.index').'?filter_own=1&filter_shared=1&filter_public=1&filter_all=1&only_favorites=0&sort_by=last_started&page=1&search=test+john+xyz')
+            ->assertOk()
+            ->assertJsonCount(0,'data');
     }
 
     /**
