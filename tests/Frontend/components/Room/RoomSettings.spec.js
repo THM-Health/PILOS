@@ -14,7 +14,7 @@ import PermissionService from '../../../../resources/js/services/PermissionServi
 import { mockAxios, createContainer, createLocalVue } from '../../helper';
 import { PiniaVuePlugin } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 
 const localVue = createLocalVue();
 
