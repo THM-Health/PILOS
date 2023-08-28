@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shibboleth authentication ([#20], [#497])
 
 ## [v2.2.0] - 2023-08-28
-
+### Added
 - French localisation
 - Support for PostgreSQL ([#503], [#504])
 - Warning for waiting room settings ([#302], [#509])
