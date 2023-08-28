@@ -48,7 +48,7 @@ class UploadLocales extends Command
                 'id'            => config('services.poeditor.project'),
                 'updating'      => 'terms_translations',
                 'overwrite'     => 1,
-                'sync_terms'    => 1,
+                'sync_terms'    => config('app.fallback_locale') == $locale ? 1 : 0,
                 'fuzzy_trigger' => 1,
                 'language'      => $locale
             ]);
