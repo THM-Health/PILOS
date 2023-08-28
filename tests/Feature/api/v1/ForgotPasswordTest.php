@@ -15,9 +15,28 @@ class ForgotPasswordTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'auth.local.enabled'    => true
+        ]);
+    }
+
     public function testDisabledRoute()
     {
+        // Check if the route is disabled when the password self reset is disabled
         setting(['password_self_reset_enabled' => false ]);
+        $this->postJson(route('api.v1.password.email'), [
+            'email' => 'test@test.de'
+        ])->assertNotFound();
+        setting(['password_self_reset_enabled' => true ]);
+
+        // Check if the route is disabled when the local provider is disabled
+        config([
+            'auth.local.enabled'    => false
+        ]);
         $this->postJson(route('api.v1.password.email'), [
             'email' => 'test@test.de'
         ])->assertNotFound();

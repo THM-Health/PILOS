@@ -71,7 +71,7 @@ class CreateAdminUser extends Command
         $data['password']              = $this->secret('Password');
         $data['password_confirmation'] = $this->secret('Password Confirmation');
         $data['generate_password']     = false;
-        $data['bbb_skip_check_audio']  = $this->confirm('Skip audio check on joining rooms?');
+        $data['bbb_skip_check_audio']  = false;
         $data['roles']                 = $roles;
         $data['timezone']              = 'UTC';
 

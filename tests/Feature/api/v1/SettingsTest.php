@@ -55,6 +55,8 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.room_refresh_rate' => 20]);
         config(['app.url' => 'https://domain.tld']);
         config(['app.version' => 'v1.0.0']);
+        config(['auth.local.enabled' => true]);
+        config(['ldap.enabled' => false]);
 
         setting(['statistics' => [
             'meetings' => [
@@ -101,6 +103,10 @@ class SettingsTest extends TestCase
                     ],
                     'room_token_expiration' => -1,
                     'room_refresh_rate'     => 20,
+                    'auth'                  => [
+                        'local' => true,
+                        'ldap'  => false
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -135,6 +141,9 @@ class SettingsTest extends TestCase
         setting(['room_token_expiration' => 100]);
         config(['bigbluebutton.room_refresh_rate' => 5.5]);
 
+        config(['auth.local.enabled' => false]);
+        config(['ldap.enabled' => true]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -161,6 +170,10 @@ class SettingsTest extends TestCase
                     ],
                     'room_token_expiration' => 100,
                     'room_refresh_rate'     => 5.5,
+                    'auth'                  => [
+                        'local' => false,
+                        'ldap'  => true
+                    ]
                 ]
             ])
             ->assertSuccessful();

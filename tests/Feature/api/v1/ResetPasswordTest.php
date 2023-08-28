@@ -16,6 +16,15 @@ class ResetPasswordTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'auth.local.enabled'    => true
+        ]);
+    }
+
     public function testResetPassword()
     {
         setting(['password_self_reset_enabled' => true]);
@@ -142,5 +151,23 @@ class ResetPasswordTest extends TestCase
         // Check if all sessions of the user (newUser) are terminated due to password reset, and  sessions of other users are still there
         $this->assertCount(0, $newUser->sessions);
         $this->assertCount(1, $user->sessions);
+    }
+
+    public function testDisabledRoute()
+    {
+        $user    = User::factory()->create();
+
+        // Check if the route is disabled when the password self reset is disabled
+        setting(['password_self_reset_enabled' => false ]);
+        $this->postJson(route('api.v1.password.email'), ['email' => $user->email])
+            ->assertNotFound();
+        setting(['password_self_reset_enabled' => true ]);
+
+        // Check if the route is disabled when the local provider is disabled
+        config([
+            'auth.local.enabled'    => false
+        ]);
+        $this->postJson(route('api.v1.password.email'), ['email' => $user->email])
+            ->assertNotFound();
     }
 }
