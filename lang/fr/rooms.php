@@ -235,6 +235,7 @@ return [
                 'only_for_guests_enabled' => 'Activé pour les invités uniquement',
                 'title'                   => 'Salle d\'attente',
             ],
+            'waiting_room_alert' => 'Le rôle par défaut est défini sur Modérateur : La salle d\'attente n\'est active que pour les invités et les membres déjà existants avec le rôle de participant!',
         ],
         'permissions' => [
             'everyone_start' => 'Tout le monde peut ouvrir la salle',
