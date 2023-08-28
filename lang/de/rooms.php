@@ -236,7 +236,7 @@ return [
                 'only_for_guests_enabled' => 'Aktiviert für Gäste',
                 'title'                   => 'Warteraum',
             ],
-            'waiting_room_alert'=> 'Standardrolle ist auf Moderator gesetzt: Warteraum ist nur für Gäste und bereits bestehende Mitglieder mit Teilnehmerrolle aktiv!',
+            'waiting_room_alert' => 'Standardrolle ist auf Moderator gesetzt: Warteraum ist nur für Gäste und bereits bestehende Mitglieder mit Teilnehmerrolle aktiv!',
         ],
         'permissions' => [
             'everyone_start' => 'Jeder darf das Meeting starten',
