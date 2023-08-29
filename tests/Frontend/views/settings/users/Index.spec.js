@@ -160,7 +160,7 @@ describe('UsersIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('reset password button only shown if the user has the permission and local user are enabled and it handles errors as expected', async () => {
+  it('reset password button only shown if the user has the permission and local users are enabled and it handles errors as expected', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const oldUser = PermissionService.currentUser;
