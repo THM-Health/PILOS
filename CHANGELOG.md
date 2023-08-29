@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - French localisation
 - Support for PostgreSQL ([#503], [#504])
 - Warning for waiting room settings ([#302], [#509])
+- Option to disable local authentication ([#505], [#506])
 
 ### Changed
 - Bump dependencies
@@ -629,6 +630,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#470]: https://github.com/THM-Health/PILOS/pull/470
 [#503]: https://github.com/THM-Health/PILOS/issues/503
 [#504]: https://github.com/THM-Health/PILOS/pull/504
+[#505]: https://github.com/THM-Health/PILOS/issues/505
+[#506]: https://github.com/THM-Health/PILOS/pull/506
 [#509]: https://github.com/THM-Health/PILOS/pull/509
 
 [unreleased]: https://github.com/THM-Health/PILOS/compare/v2.2.0...HEAD
