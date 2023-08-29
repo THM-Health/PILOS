@@ -27,16 +27,20 @@ class ForgotPasswordTest extends TestCase
     public function testDisabledRoute()
     {
         // Check if the route is disabled when the password self reset is disabled
+        config([
+            'auth.local.enabled'    => true
+        ]);
         setting(['password_self_reset_enabled' => false ]);
         $this->postJson(route('api.v1.password.email'), [
             'email' => 'test@test.de'
         ])->assertNotFound();
-        setting(['password_self_reset_enabled' => true ]);
+        
 
         // Check if the route is disabled when the local provider is disabled
         config([
             'auth.local.enabled'    => false
         ]);
+        setting(['password_self_reset_enabled' => true ]);
         $this->postJson(route('api.v1.password.email'), [
             'email' => 'test@test.de'
         ])->assertNotFound();

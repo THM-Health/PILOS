@@ -225,12 +225,7 @@ class UserController extends Controller
      * @return JsonResponse
      */
     public function resetPassword(User $user)
-    {
-        // Check if local login is enabled
-        if (!config('auth.local.enabled')) {
-            abort(404);
-        }
-        
+    {   
         $authService = new AuthenticationService($user);
         $response    = $authService->sendResetLink();
 
