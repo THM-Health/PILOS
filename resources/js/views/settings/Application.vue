@@ -763,15 +763,15 @@
               label-class="font-weight-bold"
               class="mb-4"
               :label="$t('settings.application.user_settings')"
-              :state='fieldState("password_self_reset_enabled")'
+              :state='fieldState("password_change_allowed")'
             >
               <b-form-checkbox
-                v-model='settings.password_self_reset_enabled'
+                v-model='settings.password_change_allowed'
                 :state="fieldState('password_change_allowed')"
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.password_self_reset_enabled') }}
+                {{ $t('settings.application.password_change_allowed') }}
               </b-form-checkbox>
 
               <template slot='invalid-feedback'>
