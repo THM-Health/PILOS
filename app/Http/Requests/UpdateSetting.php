@@ -27,7 +27,7 @@ class UpdateSetting extends FormRequest
             'favicon_file'                              => 'required_without:favicon|mimes:ico|max:500', // 500 KB, larger files are bad for loading times
             'own_rooms_pagination_page_size'            => 'required|numeric|min:1|max:25',
             'pagination_page_size'                      => 'required|numeric|min:1|max:100',
-            'password_self_reset_enabled'               => 'required|boolean',
+            'password_change_allowed'                   => 'required|boolean',
             'default_timezone'                          => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'banner'                                    => 'required|array',
             'banner.enabled'                            => 'required|boolean',

@@ -25,8 +25,6 @@ export const useAuthStore = defineStore('auth', {
         const locale = useLocaleStore();
         locale.setCurrentLocale(this.currentUser.user_locale);
       }
-
-      return true;
     },
 
     async getCurrentUser () {

@@ -49,7 +49,6 @@ export default {
   mounted () {
     this.verifyEmail();
   },
-
   methods: {
     verifyEmail () {
       this.loading = true;

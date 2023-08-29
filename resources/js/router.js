@@ -92,7 +92,7 @@ export const routes = [
     name: 'password.forgot',
     component: ForgotPassword,
     meta: {
-      disabled: () => !useSettingsStore().getSetting('password_self_reset_enabled') || !useSettingsStore().getSetting('auth.local'),
+      disabled: () => !useSettingsStore().getSetting('password_change_allowed') || !useSettingsStore().getSetting('auth.local'),
       guestsOnly: true
     }
   },

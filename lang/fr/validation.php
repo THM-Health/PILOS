@@ -73,7 +73,7 @@ return [
         'new_password_confirmation'          => 'Confirmation du nouveau mot de passe',
         'password'                           => 'Mot de passe',
         'password_confirmation'              => 'Confirmation du mot de passe',
-        'password_self_reset_enabled'        => 'Donnez aux utilisateurs enregistrés la possibilité de réinitialiser et de modifier leur mot de passe',
+        'password_change_allowed'            => 'Donnez aux utilisateurs enregistrés la possibilité de réinitialiser et de modifier leur mot de passe',
         'permissions'                        => 'Permissions',
         'phone'                              => 'Téléphone',
         'privacy_policy_url'                 => 'Politique de confidentialité',

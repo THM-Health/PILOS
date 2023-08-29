@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bump dependencies
 - Improve performance on permission checks ([#469])
+- Renamed env option PASSWORD_SELF_RESET_ENABLED to PASSWORD_CHANGE_ALLOWED and enabled by default (PASSWORD_SELF_RESET_ENABLED deprecated) ([#506])
 
 ### Fixed
 - Network error on logout due to reload of all components

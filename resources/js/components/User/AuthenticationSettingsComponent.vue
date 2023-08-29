@@ -58,7 +58,7 @@ export default {
       return this.currentUser?.id === this.user.id;
     },
     canChangePassword () {
-      return !this.isOwnUser || this.getSetting('password_self_reset_enabled');
+      return !this.isOwnUser || this.getSetting('password_change_allowed');
     }
   },
   methods: {
