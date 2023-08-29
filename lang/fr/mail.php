@@ -25,10 +25,10 @@ return [
     'room_expires' => [
         'delete'     => 'Si vous n\'avez plus besoin de la salle, vous avez la possibilité de la supprimer vous-même.',
         'expire'     => 'Si vous ne faites rien, la salle sera automatiquement supprimée le :date.',
-        'inactivity' => 'Votre salle ":name" a été créé le :date, mais sa dernière utilisation remonte à :jours.',
+        'inactivity' => 'Votre salle ":name" a été créé le :date, mais sa dernière utilisation remonte à :jours.',
         'intro'      => 'Pour économiser les ressources du serveur, les salles inutilisées sont automatiquement supprimées.',
         'keep'       => 'Si vous souhaitez continuer à utiliser la salle, veuillez démarrer la salle avant la date limite.',
-        'no_meeting' => 'Votre salon ":name" a été créé le :date mais n\'a jamais été utilisée.',
+        'no_meeting' => 'Votre salon ":name" a été créé le :date mais n\'a jamais été utilisée.',
         'open'       => 'Ouvrir la salle',
         'subject'    => 'La salle ":name" sera supprimée pour cause d\'inactivité',
     ],

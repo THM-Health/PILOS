@@ -80,7 +80,7 @@ return [
             'description' => 'Begrenzt die Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
-        'password_self_reset_enabled' => 'Registrierten Benutzern ermöglichen das Passwort zurückzusetzen',
+        'password_change_allowed'     => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
         'privacy_policy_url'          => [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title'       => 'URL zur Datenschutzerklärung',

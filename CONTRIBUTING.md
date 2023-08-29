@@ -17,7 +17,7 @@ Checkout the section [Report a bug](#report-a-bug) if you found a bug, or you on
 
 ## Code of conduct
 
-Everyone how want to contribute to this project including the owners must hold our [Code of Conduct](CODE_OF_CONDUCT.md).
+Everyone who want to contribute to this project including the owners must hold our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Setting up a development environment
 
@@ -25,16 +25,7 @@ Before implementing a feature or fixing a bug or security issue you need to set 
 The easiest way is to install [Docker Desktop](https://docs.docker.com/get-docker/) on your machine.
 If you are using windows, you need to set up WSL2 first and configure docker to use WSL.
 
-Next clone the repository to your preferred directory (for Windows inside of WSL) execute the following command. This will create a temp. docker container with php and composer installed.
-It will download the required packages and the scripts you need to run laravel sail.
-```bash
-docker run --rm \
--u "$(id -u):$(id -g)" \
--v $(pwd):/var/www/html \
--w /var/www/html \
-laravelsail/php81-composer:latest \
-composer install --ignore-platform-reqs
-```
+Next clone the repository to your preferred directory (for Windows inside of WSL).
 
 Next you should set an alias for sail.
 ```bash
@@ -46,7 +37,17 @@ We also need to create a .env file by copying the default .env.example file.
 cp .env.example .env
 ```
 
-You can start the application with: `sail up -d` 
+Now we should adjust the .env file for development:
+```
+APP_ENV=local
+APP_DEBUG=true
+```
+
+You can start the application with: 
+```bash
+sail up -d 
+```
+
 To adjust the port of the webserver, change APP_PORT in the .env file.
 
 ### SSL (optional)
@@ -78,8 +79,65 @@ Make sure to have `APP_ENV=local` during local development.
 If set to `production`, some caching and performance optimisation is done during the start of the container, which makes it impossible to edit the source code in real time.
 
 ### Database
+
+#### Using MariaDB
 The development environment comes with mariadb that is preconfigured in the .env file.
-You need to run the artisan commands for migration and seeding (see README.md).
+
+You need to run the artisan commands for migration and seeding (see [installation guide](docs/INSTALL.md)).
+**Example** 
+```bash
+sail artisan migrate
+sail artisan db:seed
+```
+
+#### Using PostgreSQL
+You can also use PostgreSQL as an alternative database since v2.
+
+Please note: We do NOT support migrating from v1.
+
+To run a local PostgreSQL using docker you have to adjust the `docker-compose-dev.yml` file:
+```yml
+    db:
+      image: postgres:14.6-alpine3.17
+      container_name: postgres
+      restart: unless-stopped
+      volumes:
+        - postgres:/var/lib/postgresql/data
+        - './tests/Utils/create-postgres-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+      environment:
+        PGPASSWORD: '${DB_PASSWORD}'
+        POSTGRES_USER: '${DB_USERNAME}'
+        POSTGRES_PASSWORD: '${DB_PASSWORD}'
+        POSTGRES_DB: '${DB_DATABASE}'
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        retries: 3
+        timeout: 5s
+```
+
+We also have to adjust the volume configuration in the `docker-compose-dev.yml`:
+```yml
+volumes:
+  postgres:
+    driver: local
+```
+
+After implementing these changes the docker-container has to be restartet with:
+```bash
+sail down
+sail up -d 
+```
+
+To use a different database adjust the `.env` file:
+
+```
+# Database config
+DB_CONNECTION=pgsql
+DB_HOST=db
+DB_PORT=5432
+```
+
+You need to run the artisan commands for migration and seeding (see [installation guide](docs/INSTALL.md)).
 **Example** 
 ```bash
 sail artisan migrate
@@ -87,19 +145,18 @@ sail artisan db:seed
 ```
 
 ### PHPMyAdmin
+You can manage your MariaDB using PHPMyAdmin.
 To adjust the port of PHPMyAdmin, change FORWARD_PHPMYADMIN_PORT in the .env file.
 By default, PHPMyAdmin is served at http://localhost:8080
 
 ### Admin user
-To create a new admin user run the artisan command for admin user creation (see README.md).
+To create a new admin user run the artisan command for admin user creation (see [installation guide](docs/INSTALL.md)).
 ```bash
 sail artisan users:create:admin
 ```
 
 ### LDAP 
-For local development the included LDAP server can be used. To use this, it must first be configured in the .env. Then the attribute and role mapping must be configured.
-
-**`.env`**
+For local development the included LDAP server can be used. To use this, it must first be configured in the `.env`:
 ```
 # LDAP config
 LDAP_ENABLED=true
@@ -125,9 +182,7 @@ LDAP_OBJECT_CLASSES=top,person,organizationalperson,inetorgperson
 LDAP_LOGIN_ATTRIBUTE=uid
 ```
 
-**`app/Auth/config/ldap_mapping.json`**
-
-This role mapping gives users of the group students the user role and users of the group staff the admin role.
+Then the attribute and role mapping must be configured by creating a file in the following path `app/Auth/config/ldap_mapping.json`:
 
 ```json
 {
@@ -164,7 +219,9 @@ This role mapping gives users of the group students the user role and users of t
 }
 ```
 
-There are three user accounts (see docker/openldap/bootstrap.ldif)
+This role mapping gives users of the group students the user role and users of the group staff the admin role.
+
+There are three user accounts (see `docker/openldap/bootstrap.ldif`)
 1. Name: John Doe, Username: jdoe, Password: password, Groups: Student
 2. Name: Richard Roe, Username: rroe, Password: password, Groups: Staff
 3. Name: John Smith, Username: jsmi, Password: password, Groups: Student and Staff
@@ -178,7 +235,7 @@ By default PHPLdapAdmin is servered at http://localhost:6680
 For testing functionality of the application which requires a running BigBlueButton server you may need to install a server on your development machine.
 
 ### Finish Setup
-Checkout the installation guide in the [readme](README.md) for additional steps needed to finish the setup. Instead of
+Checkout the [installation guide](docs/INSTALL.md) for additional steps needed to finish the setup. Instead of
 running `sail npm run build` you must run in the dev environment `sail npm run dev`. For the development you can use any
 editor of your choice but please do not check in any configuration files for your editor. In this case you may want to
 extend the `.gitignore` with yours editor config files.

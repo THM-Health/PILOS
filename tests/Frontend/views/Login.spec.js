@@ -72,10 +72,24 @@ describe('Login', () => {
     view.destroy();
   });
 
+  it('hide local login if disabled', () => {
+    const view = mount(Login, {
+      localVue,
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: false } } } }, stubActions: false }),
+      mocks: {
+        $t: (key) => key
+      }
+    });
+
+    const localLoginComponent = view.findComponent(LocalLoginComponent);
+    expect(localLoginComponent.exists()).toBeFalsy();
+    view.destroy();
+  });
+
   it('correct data gets sent on email login', async () => {
     const view = mount(Login, {
       localVue,
-      pinia: createTestingPinia({ stubActions: false }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -225,7 +239,7 @@ describe('Login', () => {
   it('unprocessable entity errors gets displayed for the corresponding fields', async () => {
     const view = mount(Login, {
       localVue,
-      pinia: createTestingPinia({ stubActions: false }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -277,7 +291,7 @@ describe('Login', () => {
   it('error for too many login requests gets displayed', async () => {
     const view = mount(Login, {
       localVue,
-      pinia: createTestingPinia({ stubActions: false }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }
@@ -330,7 +344,7 @@ describe('Login', () => {
 
     const view = mount(Login, {
       localVue,
-      pinia: createTestingPinia({ stubActions: false }),
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } }, stubActions: false }),
       mocks: {
         $t: (key) => key
       }

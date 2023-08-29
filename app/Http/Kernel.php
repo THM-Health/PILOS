@@ -5,7 +5,8 @@ namespace App\Http;
 use App\Http\Middleware\EnsureModelNotStale;
 use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RoomAuthenticate;
-use App\Http\Middleware\RouteEnableIf;
+use App\Http\Middleware\RouteEnableIfConfig;
+use App\Http\Middleware\RouteEnableIfSetting;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -75,6 +76,7 @@ class Kernel extends HttpKernel
         'room.authenticate'     => RoomAuthenticate::class,
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
         'check.stale'           => EnsureModelNotStale::class,
-        'enable_if'             => RouteEnableIf::class,
+        'enable_if_config'      => RouteEnableIfConfig::class,
+        'enable_if_setting'     => RouteEnableIfSetting::class,
     ];
 }

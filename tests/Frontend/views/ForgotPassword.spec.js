@@ -5,41 +5,14 @@ import BootstrapVue, { BButton, BFormInput } from 'bootstrap-vue';
 import VueRouter from 'vue-router';
 import Base from '../../../resources/js/api/base';
 import { mockAxios, createLocalVue } from '../helper';
-import { PiniaVuePlugin } from 'pinia';
-import { createTestingPinia } from '@pinia/testing';
 
 const localVue = createLocalVue();
 localVue.use(BootstrapVue);
-localVue.use(PiniaVuePlugin);
 localVue.use(VueRouter);
 
 describe('ForgotPassword', () => {
   beforeEach(() => {
     mockAxios.reset();
-  });
-
-  it('before route enter redirects to the 404 page if the self reset is disabled', async () => {
-    createTestingPinia({ initialState: { settings: { settings: { password_self_reset_enabled: false } } } });
-
-    const to = await new Promise((resolve) => {
-      ForgotPassword.beforeRouteEnter({}, {}, (to) => {
-        resolve(to);
-      });
-    });
-
-    expect(to).toBe('/404');
-  });
-
-  it('before route enter continues to the view if the self reset is enabled', async () => {
-    createTestingPinia({ initialState: { settings: { settings: { password_self_reset_enabled: true } } } });
-
-    const to = await new Promise((resolve) => {
-      ForgotPassword.beforeRouteEnter({}, {}, (to) => {
-        resolve(to);
-      });
-    });
-
-    expect(to).toBe(undefined);
   });
 
   it('submit handles errors correctly', async () => {
