@@ -42,16 +42,16 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('settings', [ApplicationController::class,'settings'])->name('application');
     Route::get('currentUser', [ApplicationController::class,'currentUser'])->name('currentUser');
    
-    Route::post('login/local', [LoginController::class,'login'])->name('login.local');
-    Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap');
+    Route::post('login/local', [LoginController::class,'login'])->name('login.local')->middleware(['enable_if_config:auth.local.enabled']);
+    Route::post('login/ldap', [LDAPController::class,'login'])->name('login.ldap')->middleware(['enable_if_config:ldap.enabled']);
 
     Route::post('logout', [LoginController::class,'logout'])->name('logout');
-    Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['guest', 'throttle:password_reset']);
+    Route::post('password/reset', [ResetPasswordController::class,'reset'])->name('password.reset')->middleware(['enable_if_config:auth.local.enabled','guest', 'throttle:password_reset']);
 
     // TODO: Implement or remove this completely
     // Route::post('register', 'RegisterController@register');
 
-    Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if:password_self_reset_enabled', 'guest', 'throttle:password_email']);
+    Route::post('password/email', [ForgotPasswordController::class,'sendResetLinkEmail'])->name('password.email')->middleware(['enable_if_config:auth.local.enabled', 'enable_if_setting:password_change_allowed', 'guest', 'throttle:password_email']);
 
     Route::middleware('auth:users,ldap')->group(function () {
         Route::get('settings/all', [ApplicationController::class,'allSettings'])->name('application.complete')->middleware('can:applicationSettings.viewAny');
@@ -111,7 +111,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
         Route::post('email/verify', [VerificationController::class,'verify'])->name('email.verify')->middleware('throttle:verify_email');
 
-        Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware('can:resetPassword,user');
+        Route::post('users/{user}/resetPassword', [UserController::class,'resetPassword'])->name('users.password.reset')->middleware(['enable_if_config:auth.local.enabled', 'can:resetPassword,user']);
 
 
         Route::get('sessions', [SessionController::class,'index'])->name('sessions.index');

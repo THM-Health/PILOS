@@ -80,7 +80,7 @@ return [
             'description' => 'Limits the number of page size for data tables pagination',
             'title'       => 'Pagination page size',
         ],
-        'password_self_reset_enabled' => 'Give registered users the possibility to reset their password',
+        'password_change_allowed'     => 'Give local users the possibility to change their password',
         'privacy_policy_url'          => [
             'description' => 'If not set, no privacy policy link will be displayed in the footer.',
             'title'       => 'URL to the privacy policy',

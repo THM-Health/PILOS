@@ -6,8 +6,12 @@ import Index from '../../../../../resources/js/views/settings/users/Index.vue';
 import Base from '../../../../../resources/js/api/base';
 import { Multiselect } from 'vue-multiselect';
 import { mockAxios, createContainer, createLocalVue } from '../../../helper';
+import { useSettingsStore } from '../../../../../resources/js/stores/settings';
+import { createTestingPinia } from '@pinia/testing';
+import { PiniaVuePlugin } from 'pinia';
 
 const localVue = createLocalVue();
+localVue.use(PiniaVuePlugin);
 
 describe('UsersIndex', () => {
   beforeEach(() => {
@@ -62,6 +66,7 @@ describe('UsersIndex', () => {
     let request = mockAxios.request('/api/v1/users');
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -155,7 +160,7 @@ describe('UsersIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('reset password button only shown if the user has the permission and it handles errors as expected', async () => {
+  it('reset password button only shown if the user has the permission and local users are enabled and it handles errors as expected', async () => {
     const spy = vi.spyOn(Base, 'error').mockImplementation(() => {});
 
     const oldUser = PermissionService.currentUser;
@@ -209,6 +214,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -219,6 +225,8 @@ describe('UsersIndex', () => {
         modalStatic: true
       }
     });
+
+    const settings = useSettingsStore();
 
     await mockAxios.wait();
     await view.vm.$nextTick();
@@ -263,6 +271,19 @@ describe('UsersIndex', () => {
     expect(view.findComponent({ ref: 'reset-user-password-modal' }).vm.$data.isVisible).toBe(false);
     expect(view.vm.$data.userToResetPassword).toBeUndefined();
     expect(spy).toBeCalledTimes(1);
+
+    // Check if reset password button is hidden if local users are disabled
+    settings.settings.auth.local = false;
+    await view.vm.$nextTick();
+    expect(rows.at(0).findAllComponents(BButton).length).toEqual(1);
+    expect(rows.at(0).findAllComponents(BButton).at(0).html()).toContain('fa-edit');
+
+    // Check if reset password button is shown if local users are enabled
+    settings.settings.auth.local = true;
+    await view.vm.$nextTick();
+    expect(rows.at(0).findAllComponents(BButton).length).toEqual(2);
+    expect(rows.at(0).findAllComponents(BButton).at(0).html()).toContain('fa-edit');
+    expect(rows.at(0).findAllComponents(BButton).at(1).html()).toContain('fa-key');
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -324,6 +345,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -401,6 +423,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -442,6 +465,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -487,6 +511,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -566,6 +591,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -599,7 +625,7 @@ describe('UsersIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('new user button is displayed if the user has the corresponding permissions', async () => {
+  it('new user button is displayed if the user has the corresponding permissions and local users are enabled', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
@@ -617,6 +643,7 @@ describe('UsersIndex', () => {
     });
 
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -625,12 +652,30 @@ describe('UsersIndex', () => {
       attachTo: createContainer()
     });
 
+    const settings = useSettingsStore();
+
     await mockAxios.wait();
     await view.vm.$nextTick();
 
-    const newButton = view.findComponent(BButton);
+    const newButton = view.findComponent({ ref: 'new-user-button' });
     expect(newButton.html()).toContain('settings.users.new');
     expect(newButton.props('to')).toEqual({ name: 'settings.users.new' });
+
+    // Check if button is hidden if user has no permission
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'new-user-button' }).exists()).toBeFalsy();
+    PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
+
+    // Check if button is hidden if local users are disabled
+    settings.settings.auth.local = false;
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'new-user-button' }).exists()).toBeFalsy();
+
+    // Check if button is shown if local users are enabled
+    settings.settings.auth.local = true;
+    await view.vm.$nextTick();
+    expect(view.findComponent({ ref: 'new-user-button' }).exists()).toBeTruthy();
 
     view.destroy();
     PermissionService.setCurrentUser(oldUser);
@@ -641,6 +686,7 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,
@@ -833,6 +879,7 @@ describe('UsersIndex', () => {
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage'] });
     const view = mount(Index, {
+      pinia: createTestingPinia({ initialState: { settings: { settings: { auth: { local: true } } } } }),
       localVue,
       mocks: {
         $t: key => key,

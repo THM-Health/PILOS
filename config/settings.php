@@ -91,7 +91,8 @@ return [
         'banner'                         => [
             'enabled' => false
         ],
-        'password_self_reset_enabled' => env('PASSWORD_SELF_RESET_ENABLED', false),
+        //@deprecate PASSWORD_SELF_RESET_ENABLED
+        'password_change_allowed'     => env('PASSWORD_CHANGE_ALLOWED', env('PASSWORD_SELF_RESET_ENABLED', true)),
         'default_timezone'            => env('DEFAULT_TIMEZONE', 'UTC'),
         'help_url'                    => env('HELP_URL'),
         'legal_notice_url'            => env('LEGAL_NOTICE_URL'),

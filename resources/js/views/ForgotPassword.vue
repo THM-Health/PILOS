@@ -38,7 +38,6 @@
 <script>
 import FieldErrors from '../mixins/FieldErrors';
 import Base from '../api/base';
-import { useSettingsStore } from '../stores/settings';
 
 export default {
   mixins: [FieldErrors],
@@ -49,20 +48,6 @@ export default {
       loading: false,
       errors: {}
     };
-  },
-
-  /**
-   * Calls the next callback if the password self reset page is enabled
-   * otherwise the user gets redirected to a 404 route.
-   */
-  beforeRouteEnter (to, from, next) {
-    const settings = useSettingsStore();
-
-    if (!settings.getSetting('password_self_reset_enabled')) {
-      next('/404');
-    } else {
-      next();
-    }
   },
 
   methods: {

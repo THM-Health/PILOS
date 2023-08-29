@@ -45,7 +45,7 @@ class ApplicationSettings extends JsonResource
             'room_limit'                     => intval(setting('room_limit')),
             'pagination_page_size'           => intval(setting('pagination_page_size')),
             'own_rooms_pagination_page_size' => intval(setting('own_rooms_pagination_page_size')),
-            'password_self_reset_enabled'    => boolval(setting('password_self_reset_enabled')),
+            'password_change_allowed'        => boolval(setting('password_change_allowed')),
             'default_timezone'               => setting('default_timezone'),
             'bbb'                            => [
                 'file_mimes'            => config('bigbluebutton.allowed_file_mimes'),
@@ -103,6 +103,7 @@ class ApplicationSettings extends JsonResource
             ],
             'room_token_expiration' => intval(setting('room_token_expiration')),
             'auth'                  => [
+                'local'                  => config('auth.local.enabled'),
                 'ldap'                   => config('ldap.enabled'),
             ],
             'room_refresh_rate'     => floatval(config('bigbluebutton.room_refresh_rate')),

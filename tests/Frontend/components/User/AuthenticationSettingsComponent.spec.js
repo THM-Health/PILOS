@@ -93,7 +93,7 @@ describe('AuthenticationSettingsComponent', () => {
 
   it('password', async () => {
     const wrapper = mount(AuthenticationSettingsComponent, {
-      pinia: createTestingPinia({ initialState: { auth: { currentUser: adminUser }, settings: { settings: { password_self_reset_enabled: false } } }, stubActions: false }),
+      pinia: createTestingPinia({ initialState: { auth: { currentUser: adminUser }, settings: { settings: { password_change_allowed: false } } }, stubActions: false }),
       localVue,
       mocks: {
         $t: key => key
@@ -139,7 +139,7 @@ describe('AuthenticationSettingsComponent', () => {
     expect(wrapper.findComponent(PasswordComponent).exists()).toBe(false);
 
     // Check if shown for own user with permission to change password
-    settings.settings.password_self_reset_enabled = true;
+    settings.settings.password_change_allowed = true;
     await wrapper.vm.$nextTick();
     expect(wrapper.findComponent(PasswordComponent).exists()).toBe(true);
 
@@ -161,7 +161,7 @@ describe('AuthenticationSettingsComponent', () => {
 
   it('sessions', async () => {
     const wrapper = mount(AuthenticationSettingsComponent, {
-      pinia: createTestingPinia({ initialState: { auth: { currentUser: adminUser }, settings: { settings: { password_self_reset_enabled: false } } }, stubActions: false }),
+      pinia: createTestingPinia({ initialState: { auth: { currentUser: adminUser }, settings: { settings: { password_change_allowed: false } } }, stubActions: false }),
       localVue,
       mocks: {
         $t: key => key

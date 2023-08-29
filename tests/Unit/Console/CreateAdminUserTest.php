@@ -21,15 +21,11 @@ class CreateAdminUserTest extends TestCase
         config([
             'app.enabled_locales'   => ['de', 'en'],
             'app.fallback_locale'   => 'ru',
-            'app.locale'            => 'en'
+            'app.locale'            => 'en',
+            'auth.local.enabled'    => true
         ]);
     }
 
-    /**
-     * A basic unit test example.
-     *
-     * @return void
-     */
     public function testInvalidInputs()
     {
         Role::factory()->create(['name' => 'admin']);
@@ -42,16 +38,10 @@ class CreateAdminUserTest extends TestCase
             ->expectsQuestion('Locale (possible values: ' . join(',', config('app.enabled_locales')) . ')', str_repeat('a', 256))
             ->expectsQuestion('Password', 'Test')
             ->expectsQuestion('Password Confirmation', 'Test1234')
-            ->expectsConfirmation('Skip audio check on joining rooms?', 'f')
             ->expectsOutput('Something went wrong, please see the error messages below for more information.')
             ->assertExitCode(1);
     }
 
-    /**
-     * A basic unit test example.
-     *
-     * @return void
-     */
     public function testMissingRole()
     {
         $this->artisan('users:create:admin')
@@ -59,11 +49,6 @@ class CreateAdminUserTest extends TestCase
             ->assertExitCode(1);
     }
 
-    /**
-     * A basic unit test example.
-     *
-     * @return void
-     */
     public function testValidInputs()
     {
         Role::factory()->create(['name' => 'admin']);
@@ -77,9 +62,19 @@ class CreateAdminUserTest extends TestCase
             ->expectsQuestion('Password', 'Test_1234')
             ->expectsQuestion('Password Confirmation', 'Test_1234')
             ->expectsOutput('New admin user created successfully.')
-            ->expectsConfirmation('Skip audio check on joining rooms?', 'y')
             ->assertExitCode(0);
 
         $this->assertDatabaseCount('users', 1);
+    }
+
+    public function testLocalAuthDisabled()
+    {
+        config([
+            'auth.local.enabled'    => false
+        ]);
+
+        $this->artisan('users:create:admin')
+            ->expectsOutput('Local login is not enabled. Please enable it in the .env with the option LOCAL_AUTH_ENABLED and then retry!')
+            ->assertExitCode(1);
     }
 }
