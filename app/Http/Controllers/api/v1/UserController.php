@@ -225,7 +225,7 @@ class UserController extends Controller
      * @return JsonResponse
      */
     public function resetPassword(User $user)
-    {   
+    {
         $authService = new AuthenticationService($user);
         $response    = $authService->sendResetLink();
 

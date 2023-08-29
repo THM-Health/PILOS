@@ -35,7 +35,6 @@ class ForgotPasswordTest extends TestCase
             'email' => 'test@test.de'
         ])->assertNotFound();
         
-
         // Check if the route is disabled when the local provider is disabled
         config([
             'auth.local.enabled'    => false

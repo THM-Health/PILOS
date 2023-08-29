@@ -21,7 +21,7 @@ class ForgotPasswordController extends Controller
      * @return JsonResponse
      */
     public function sendResetLinkEmail(Request $request): JsonResponse
-    {   
+    {
         $this->validateEmail($request);
 
         $user = User::where('authenticator', '=', 'local')

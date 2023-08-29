@@ -76,7 +76,7 @@ class Kernel extends HttpKernel
         'room.authenticate'     => RoomAuthenticate::class,
         'loggedin'              => \App\Http\Middleware\LoggedInUser::class,
         'check.stale'           => EnsureModelNotStale::class,
-        'enable_if_config'             => RouteEnableIfConfig::class,
-        'enable_if_setting'             => RouteEnableIfSetting::class,
+        'enable_if_config'      => RouteEnableIfConfig::class,
+        'enable_if_setting'     => RouteEnableIfSetting::class,
     ];
 }
