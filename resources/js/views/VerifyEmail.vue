@@ -24,7 +24,6 @@
 <script>
 import Base from '../api/base';
 import env from '../env';
-import { useSettingsStore } from '../stores/settings';
 
 export default {
   name: 'ConfirmEmailChange.vue',

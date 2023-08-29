@@ -451,9 +451,7 @@ export function beforeEachRoute (router, to, from, next) {
       return false;
     })) {
       next({ name: '404' });
-    }
-
-    if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
+    } else if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }

@@ -13,6 +13,7 @@
               v-b-tooltip.hover
               v-tooltip-hide-click
               variant='success'
+              ref="new-user-button"
               :title="$t('settings.users.new')"
               :to="{ name: 'settings.users.new' }"
               v-if="getSetting('auth.local')"

@@ -73,7 +73,6 @@ import { loadLanguageAsync } from '../i18n';
 import { mapActions, mapState } from 'pinia';
 import { useAuthStore } from '../stores/auth';
 import { useLocaleStore } from '../stores/locale';
-import { useSettingsStore } from '../stores/settings';
 
 export default {
   mixins: [FieldErrors],
