@@ -625,7 +625,7 @@ describe('UsersIndex', () => {
     PermissionService.setCurrentUser(oldUser);
   });
 
-  it('new user button is displayed if the user has the corresponding permissions and local user are enabled', async () => {
+  it('new user button is displayed if the user has the corresponding permissions and local users are enabled', async () => {
     const oldUser = PermissionService.currentUser;
 
     PermissionService.setCurrentUser({ permissions: ['users.viewAny', 'settings.manage', 'users.create'] });
