@@ -41,6 +41,7 @@
                 :token="token"
                 :room="room"
                 :hide-reload="true"
+                :show-disabled="false"
 
               ></recording-component>
             </b-tab>
@@ -80,6 +81,7 @@ export default {
      */
     reload: function () {
       this.$refs.publicFileList.reload();
+      this.$refs.publicRecordingList.reload();
     }
   }
 };

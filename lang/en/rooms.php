@@ -117,6 +117,8 @@ return [
         'file_forbidden'      => 'The access to the requested file was forbidden.',
         'file_gone'           => 'The file has been deleted in the meantime.',
         'no_new_room'         => 'You do not have the necessary permission to create a new room.',
+        'recording_forbidden' => 'The access to the requested recording was forbidden.',
+        'recording_gone'      => 'The recording has been deleted in the meantime.',
         'start_forbidden'     => 'The room could not be started by you.',
         'token_invalid'       => 'The personalised room link is no longer valid.',
     ],
@@ -194,8 +196,48 @@ return [
     ],
     'only_used_by_authenticated_users' => 'This room can only be used by authenticated users.',
     'placeholder_name'                 => 'John Doe',
+    'recordings'                       => [
+        'title'            => 'Recordings',
+        'nodata'           => 'No recordings available',
+        'start'            => 'Start',
+        'end'              => 'End',
+        'formats'          => 'Formats',
+        'available_formats' => 'Available formats',
+        'description'      => 'Description',
+        'access'           => 'Access',
+        'actions'          => 'Actions',
+        'edit_recording'    => 'Edit recording',
+        'delete_Recording'  => 'Delete recording',
+        'modals'           => [
+            'edit' => [
+                'title'  => 'Edit recording',
+                'save'   => 'Save',
+                'cancel' => 'cancel'
+            ],
+            'delete' => [
+                'title'  => 'Delete recording',
+                'confirm' => 'Should the recording be irrevocably deleted?',
+            ]
+        ],
+        'format_types' => [
+            'screenshare'  => 'Screenshare',
+            'notes'        => 'Notes',
+            'podcast'      => 'Audio-Podcast',
+            'presentation' => 'Presentation',
+            'video'        => 'Video'
+        ],
+        'access_types' => [
+            'everyone'    => 'Everyone (like room)',
+            'participant' => 'Member: Participant',
+            'moderator'   => 'Member: Moderator',
+            'owner'       => 'Member: Co-owner'
+        ]
+    ],
     'recording_attendance_accept'      => 'I agree with the logging.',
     'recording_attendance_info'        => 'The attendance in this room is logged.',
+    'recording_accept'                 => 'I agree to the recording. If you don\'t want your voice recorded, make sure your microphone is muted. Use the chat to participate instead.',
+    'recording_video_accept'           => '(Optional) My video image may be recorded.',
+    'recording_info'                   => 'This room may be recorded.',
     'require_access_code'              => 'An access code is required to join this room',
     'role'                             => 'Role',
     'roles'                            => [

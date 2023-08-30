@@ -37,7 +37,7 @@
               <template v-slot:title>
                 <i class="fa-solid fa-circle-play"></i> {{ $t('rooms.recordings.title') }}
               </template>
-              <recording-component :room="room" ></recording-component>
+              <recording-component :room="room" :show-disabled="true" ></recording-component>
             </b-tab>
             <!-- Statistics tab -->
             <b-tab>

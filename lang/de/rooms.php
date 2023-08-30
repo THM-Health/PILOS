@@ -117,6 +117,8 @@ return [
         'file_forbidden'      => 'Die Zugriff auf die Datei wurde verweigert.',
         'file_gone'           => 'Die Datei wurde in der Zwischenzeit gelöscht.',
         'no_new_room'         => 'Sie haben nicht die nötige Berechtigung um einen neuen Raum zu erstellen.',
+        'recording_forbidden' => 'Die Zugriff auf die Aufzeichnung wurde verweigert.',
+        'recording_gone'      => 'Die Aufzeichnung wurde in der Zwischenzeit gelöscht.',
         'start_forbidden'     => 'Der Raum kann von Ihnen nicht gestartet werden.',
         'token_invalid'       => 'Der personalisierte Raumlink ist nicht mehr gültig.',
     ],
@@ -201,26 +203,29 @@ return [
         'start'            => 'Beginn',
         'end'              => 'Ende',
         'formats'          => 'Formate',
-        'availableFormats' => 'Verfügbare Formate',
+        'available_formats' => 'Verfügbare Formate',
         'description'      => 'Bezeichnung',
         'access'           => 'Zugriffsrecht',
         'actions'          => 'Aktionen',
-        'editRecording'    => 'Aufzeichnung bearbeiten',
-        'deleteRecording'  => 'Aufzeichnung löschen',
+        'edit_recording'    => 'Aufzeichnung bearbeiten',
+        'delete_recording'  => 'Aufzeichnung löschen',
         'modals'           => [
             'edit' => [
                 'title'  => 'Aufzeichnung bearbeiten',
-                'save'   => 'Speichern',
-                'cancel' => 'Abbrechen'
+            ],
+            'delete' => [
+                'title'  => 'Aufzeichnung löschen',
+                'confirm' => 'Soll die Aufzeichnung unwiderruflich gelöscht werden?',
             ]
         ],
-        'formatTypes' => [
+        'format_types' => [
             'screenshare'  => 'Bildschirmübertragung',
             'notes'        => 'Notizen',
             'podcast'      => 'Audio-Podcast',
-            'presentation' => 'Präsentation'
+            'presentation' => 'Präsentation',
+            'video'        => 'Video'
         ],
-        'accessTypes' => [
+        'access_types' => [
             'everyone'    => 'Jeder (wie Raum)',
             'participant' => 'Mitglied: Teilnehmer',
             'moderator'   => 'Mitglied: Moderator',
@@ -229,11 +234,10 @@ return [
     ],
     'recording_attendance_accept'      => 'Ich bin mit der Protokollierung einverstanden.',
     'recording_attendance_info'        => 'Die Anwesenheit in diesem Raum wird protokolliert.',
-
-    'recording_accept'       => 'Ich bin mit der Aufzeichnung einverstanden. Wenn Sie nicht möchten, dass Ihre Stimme aufgezeichnet wird, stellen Sie sicher, dass Ihr Mikrofon stumm geschaltet ist. Verwenden Sie stattdessen den Chat, um sich zu beteiligen.',
-    'recording_video_accept' => '(Optional) Mein Videobild soll aufgezeichnet werden.',
+    'recording_accept'       => 'Ich bin mit der Aufzeichnung einverstanden.',
+    'recording_video_accept' => '(Optional) Mein Videobild darf aufgezeichnet werden.',
+    'recording_hint' => ' Wenn Sie nicht möchten, dass Ihre Stimme aufgezeichnet wird, stellen Sie sicher, dass Ihr Mikrofon stumm geschaltet ist. Verwenden Sie stattdessen den Chat, um sich zu beteiligen.',
     'recording_info'         => 'Dieser Raum wird möglicherweise aufgezeichnet.',
-
     'require_access_code'              => 'Für diesen Raum ist ein Zugangscode erforderlich',
     'role'                             => 'Rolle',
     'roles'                            => [

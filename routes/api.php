@@ -147,7 +147,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('rooms/{room}/files/{file}', [RoomFileController::class,'show'])->name('rooms.files.show')->middleware(['can:downloadFile,room,file', 'room.authenticate']);
 
     Route::get('rooms/{room}/recordings', [RecordingController::class,'index'])->name('rooms.recordings.get')->middleware('room.authenticate');
-    Route::get('rooms/{room}/recordings/{format}', [RecordingController::class,'show'])->name('rooms.recordings.get')->middleware(['can:downloadFile,room,format', 'room.authenticate']);
+    Route::get('rooms/{room}/recordings/{format}', [RecordingController::class,'show'])->name('rooms.recordings.get')->middleware(['can:downloadRecordingFormat,room,format', 'room.authenticate']);
 
 
     Route::get('meetings/{meeting}/endCallback', [MeetingController::class,'endMeetingCallback'])->name('meetings.endcallback');

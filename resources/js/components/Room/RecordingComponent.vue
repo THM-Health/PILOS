@@ -52,7 +52,7 @@
                 variant="secondary"
                 :disabled="loadingDownload===data.item.id"
                 @click="showEditRecordingModal(data.item)"
-                :title="$t('rooms.recordings.editRecording')"
+                :title="$t('rooms.recordings.edit_recording')"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
               >
@@ -64,7 +64,7 @@
                 variant="danger"
                 :disabled="loadingDownload===data.item.id"
                 @click="showDeleteRecordingModal(data.item)"
-                :title="$t('rooms.recordings.deleteRecording')"
+                :title="$t('rooms.recordings.delete_recording')"
                 v-b-tooltip.hover
                 v-tooltip-hide-click
               >
@@ -79,12 +79,12 @@
           <b-button-group>
             <!-- View file -->
             <b-button
-              v-for="format in data.item.formats" :key="format.id"
-              :variant="format.disabled ? 'outline-secondary' :'secondary'"
+              v-for="format in data.item.formats.filter(format => !format.disabled || showDisabled)" :key="format.id"
+              :variant="format.disabled ? 'light' :'secondary'"
               @click="downloadFormat(format.id)"
               :disabled="disableDownload"
               target="_blank"
-              :title="$t('rooms.recordings.formatTypes.'+format.format)"
+              :title="$t('rooms.recordings.format_types.'+format.format)"
               v-b-tooltip.hover
               v-tooltip-hide-click
             >
@@ -94,6 +94,7 @@
                 <i v-if="format.format === 'screenshare'" class="fa-solid fa-display"></i>
                 <i v-if="format.format === 'presentation'" class="fa-solid fa-person-chalkboard"></i>
                 <i v-if="format.format === 'notes'" class="fa-solid fa-file-lines"></i>
+                <i v-if="format.format === 'video'" class="fa-solid fa-video"></i>
               </div>
             </b-button>
           </b-button-group>
@@ -109,10 +110,10 @@
 
         <!-- render user role -->
         <template v-slot:cell(access)="data">
-          <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.recordings.accessTypes.everyone') }}</b-badge>
-          <b-badge v-if="data.value === 1" variant="success" >{{ $t('rooms.recordings.accessTypes.participant') }}</b-badge>
-          <b-badge v-if="data.value === 2" variant="danger">{{ $t('rooms.recordings.accessTypes.moderator') }}</b-badge>
-          <b-badge v-if="data.value === 3" variant="dark">{{ $t('rooms.recordings.accessTypes.owner') }}</b-badge>
+          <b-badge v-if="data.value === 0" variant="info">{{ $t('rooms.recordings.access_types.everyone') }}</b-badge>
+          <b-badge v-if="data.value === 1" variant="success" >{{ $t('rooms.recordings.access_types.participant') }}</b-badge>
+          <b-badge v-if="data.value === 2" variant="danger">{{ $t('rooms.recordings.access_types.moderator') }}</b-badge>
+          <b-badge v-if="data.value === 3" variant="dark">{{ $t('rooms.recordings.access_types.owner') }}</b-badge>
         </template>
 
       </b-table>
@@ -157,7 +158,7 @@
       :static='modalStatic'
       :busy="isLoadingAction"
       ok-variant="success"
-      :cancel-title="$t('rooms.recordings.modals.edit.cancel')"
+      :cancel-title="$t('app.cancel')"
       @ok="saveEditRecording"
       ref="edit-recording-modal"
       :no-close-on-esc="isLoadingAction"
@@ -170,7 +171,7 @@
         </h5>
       </template>
       <template v-slot:modal-ok>
-        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('rooms.recordings.modals.edit.save') }}
+        <b-spinner small v-if="isLoadingAction"></b-spinner>  {{ $t('app.save') }}
       </template>
       <div v-if="editRecording">
         <b-form-group
@@ -188,7 +189,7 @@
           <template slot='invalid-feedback'><div v-html="fieldError('description')"></div></template>
         </b-form-group>
 
-        <b-form-group :label="$t('rooms.recordings.availableFormats')">
+        <b-form-group :label="$t('rooms.recordings.available_formats')">
 
           <b-form-checkbox
             v-for="format in editRecording.formats"
@@ -204,16 +205,16 @@
 
         <b-form-group :label="$t('rooms.recordings.access')">
           <b-form-radio v-model.number="editRecording.access" name="access" value="0">
-            <b-badge variant="info">{{ $t('rooms.recordings.accessTypes.everyone') }}</b-badge>
+            <b-badge variant="info">{{ $t('rooms.recordings.access_types.everyone') }}</b-badge>
           </b-form-radio>
           <b-form-radio v-model.number="editRecording.access" name="access" value="1">
-            <b-badge variant="success">{{ $t('rooms.recordings.accessTypes.participant') }}</b-badge>
+            <b-badge variant="success">{{ $t('rooms.recordings.access_types.participant') }}</b-badge>
           </b-form-radio>
           <b-form-radio v-model.number="editRecording.access" name="access" value="2">
-            <b-badge variant="danger">{{ $t('rooms.recordings.accessTypes.moderator') }}</b-badge>
+            <b-badge variant="danger">{{ $t('rooms.recordings.access_types.moderator') }}</b-badge>
           </b-form-radio>
           <b-form-radio v-model.number="editRecording.access" name="access" value="3">
-            <b-badge variant="dark">{{ $t('rooms.recordings.accessTypes.owner') }}</b-badge>
+            <b-badge variant="dark">{{ $t('rooms.recordings.access_types.owner') }}</b-badge>
           </b-form-radio>
         </b-form-group>
       </div>
@@ -265,6 +266,11 @@ export default {
       required: false
     },
     modalStatic: {
+      type: Boolean,
+      default: false,
+      required: false
+    },
+    showDisabled: {
       type: Boolean,
       default: false,
       required: false
@@ -372,17 +378,16 @@ export default {
             // Forbidden, not allowed to download this file
             if (error.response.status === env.HTTP_FORBIDDEN) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileForbidden'));
-              // this.removeRecording(formatId);
+              this.toastError(this.$t('rooms.flash.recording_forbidden'));
+              this.reload();
               return;
             }
 
             // File gone
             if (error.response.status === env.HTTP_NOT_FOUND) {
               // Show error message
-              this.flashMessage.error(this.$t('rooms.flash.fileGone'));
-              // Remove file from list
-              // this.removeRecording(file);
+              this.toastError(this.$t('rooms.flash.recording_gone'));
+              this.reload();
               return;
             }
           }
@@ -417,7 +422,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.recordingGone'));
+          this.toastError(this.$t('rooms.flash.recording_gone'));
           // Remove recording from list
           this.removeRecording(this.deleteRecording);
           return;
@@ -479,7 +484,7 @@ export default {
       }).catch((error) => {
         if (error.response.status === env.HTTP_NOT_FOUND) {
           // Show error message
-          this.flashMessage.error(this.$t('rooms.flash.fileGone'));
+          this.toastError(this.$t('rooms.flash.recording_gone'));
           // Remove file from list
           this.removeFile(file);
           return;

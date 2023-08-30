@@ -2,30 +2,35 @@
 
 namespace App\Http\Controllers\api\v1;
 
+use App\Enums\RecordingAccess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateRecordingRequest;
 use App\Http\Resources\RecordingResource;
 use App\Models\Recording;
 use App\Models\RecordingFormat;
 use App\Models\Room;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 
 class RecordingController extends Controller
 {
     public function index(Room $room)
     {
-        /* if (\Gate::allows('viewAllRecordings', $room)) {
-             return RecordingResource::collection($room->recordings);
-         }
+        if (\Gate::allows('viewAllRecordings', $room)) {
+            return RecordingResource::collection($room->recordings()->with('formats')->get());
+        }
 
-         $availableRecordings = new Collection();
-         foreach($room->recordings as $recording) {
-             if ($recording->access === 'public') {
-                 return RecordingResource::collection($room->recordings);
-             }
-         }*/
+        $allowedAccess = [RecordingAccess::EVERYONE];
 
-        return RecordingResource::collection($room->recordings);
+        if ($room->isModerator(\Auth::user())) {
+            $allowedAccess[] = RecordingAccess::MODERATOR;
+            $allowedAccess[] = RecordingAccess::PARTICIPANT;
+        } elseif ($room->isMember(\Auth::user())) {
+            $allowedAccess[] = RecordingAccess::PARTICIPANT;
+        }
+
+        return RecordingResource::collection($room->recordings()->whereIn('access', $allowedAccess)->with('formats')->whereHas('formats', function (Builder $query) {
+            $query->where('disabled', false);
+        })->get());
     }
 
     public function show(Room $room, RecordingFormat $format)

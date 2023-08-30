@@ -27,7 +27,8 @@ class RecordingFormat extends Model
         $endTimestamp   = (int) $xml->end_time;
         $end            = \Date::createFromTimestampUTC($endTimestamp / 1000);
 
-        $meetingId = (string) $xml->meta->meetingId;
+        $meetingId   = (string) $xml->meta->meetingId;
+        $meetingName = (string) $xml->meta->meetingName;
 
         $meeting = Meeting::where('id', $meetingId)->first();
 
@@ -46,10 +47,11 @@ class RecordingFormat extends Model
         // Check if the recording already exists, if not create recording
         $recording = Recording::where('id', $recordingId)->first();
         if ($recording == null) {
-            $recording        = new Recording();
-            $recording->id    = $recordingId;
-            $recording->start = $start;
-            $recording->end   = $end;
+            $recording              = new Recording();
+            $recording->id          = $recordingId;
+            $recording->description = $meetingName;
+            $recording->start       = $start;
+            $recording->end         = $end;
             $recording->room()->associate($room);
             $recording->meeting()->associate($meeting);
             $recording->save();

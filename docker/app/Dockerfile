@@ -39,6 +39,9 @@ RUN chown www-data:www-data /var/www/
 RUN usermod -u $WWWUSER www-data
 RUN groupmod -o -g $WWWGROUP www-data
 
+RUN addgroup pilos-spool --gid 2000 && \
+    addgroup www-data pilos-spool
+
 # Copy start script
 COPY ./docker/app/entrypoint /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint

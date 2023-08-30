@@ -126,7 +126,7 @@
               <b-col col cols="12" :md="isAuthenticated ? 12 : 6">
 
                 <b-alert show v-if="room.record_attendance" class="p-3" ref="recordingAttendanceInfo">
-                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_attendance_info') }}
+                  <i class="fa-solid fa-triangle-exclamation"></i> {{ $t('rooms.recording_attendance_info') }}
                   <b-form-checkbox
                     class="required"
                     v-model="recordAttendanceAgreement"
@@ -138,7 +138,8 @@
                 </b-alert>
 
                 <b-alert show v-if="room.record" class="p-3" ref="recordingInfo">
-                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_info') }}
+                  <i class="fa-solid fa-triangle-exclamation"></i> {{ $t('rooms.recording_info') }}<br>
+                  <i class="fa-solid fa-info-circle"></i> {{ $t('rooms.recording_hint') }}<br>
                   <b-form-checkbox
                     class="required"
                     v-model="recordAgreement"
