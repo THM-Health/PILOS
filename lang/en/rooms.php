@@ -197,25 +197,25 @@ return [
     'only_used_by_authenticated_users' => 'This room can only be used by authenticated users.',
     'placeholder_name'                 => 'John Doe',
     'recordings'                       => [
-        'title'            => 'Recordings',
-        'nodata'           => 'No recordings available',
-        'start'            => 'Start',
-        'end'              => 'End',
-        'formats'          => 'Formats',
+        'title'             => 'Recordings',
+        'nodata'            => 'No recordings available',
+        'start'             => 'Start',
+        'end'               => 'End',
+        'formats'           => 'Formats',
         'available_formats' => 'Available formats',
-        'description'      => 'Description',
-        'access'           => 'Access',
-        'actions'          => 'Actions',
+        'description'       => 'Description',
+        'access'            => 'Access',
+        'actions'           => 'Actions',
         'edit_recording'    => 'Edit recording',
         'delete_Recording'  => 'Delete recording',
-        'modals'           => [
+        'modals'            => [
             'edit' => [
                 'title'  => 'Edit recording',
                 'save'   => 'Save',
                 'cancel' => 'cancel'
             ],
             'delete' => [
-                'title'  => 'Delete recording',
+                'title'   => 'Delete recording',
                 'confirm' => 'Should the recording be irrevocably deleted?',
             ]
         ],
@@ -235,9 +235,10 @@ return [
     ],
     'recording_attendance_accept'      => 'I agree with the logging.',
     'recording_attendance_info'        => 'The attendance in this room is logged.',
-    'recording_accept'                 => 'I agree to the recording. If you don\'t want your voice recorded, make sure your microphone is muted. Use the chat to participate instead.',
-    'recording_video_accept'           => '(Optional) My video image may be recorded.',
+    'recording_accept'                 => 'I agree to the recording.',
+    'recording_hint'                   => 'If you don\'t want your voice recorded, make sure your microphone is muted. Use the chat to participate instead.',
     'recording_info'                   => 'This room may be recorded.',
+    'recording_video_accept'           => '(Optional) My video image may be recorded.',
     'require_access_code'              => 'An access code is required to join this room',
     'role'                             => 'Role',
     'roles'                            => [
