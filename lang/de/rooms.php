@@ -61,11 +61,11 @@ return [
         'show_public'       => 'Öffentliche Räume',
         'show_shared'       => 'Geteilte Räume',
         'sorting'           => [
-            'sort'           => 'Sortierung',
-            'select_sorting' => '-- Sortierung auswählen --',
-            'alpha'          => 'Alphabetisch',
+            'sort'            => 'Sortierung',
+            'select_sorting'  => '-- Sortierung auswählen --',
+            'alpha'           => 'Alphabetisch',
             'last_started'    => 'Zuletzt gestartet',
-            'room_type'      => 'Nach Raumart',
+            'room_type'       => 'Nach Raumart',
 
         ],
         'room_component'=> [

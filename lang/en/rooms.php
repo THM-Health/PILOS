@@ -61,11 +61,11 @@ return [
         'show_public'       => 'Public rooms',
         'show_shared'       => 'Shared rooms',
         'sorting'           => [
-            'sort'           => 'Sorting',
-            'select_sorting' => '-- Select sorting --',
-            'alpha'          => 'Alphabetical',
+            'sort'            => 'Sorting',
+            'select_sorting'  => '-- Select sorting --',
+            'alpha'           => 'Alphabetical',
             'last_started'    => 'Last started',
-            'room_type'      => 'By room type',
+            'room_type'       => 'By room type',
         ],
         'room_component'=> [
             'never_started'   => ' Never started before',
