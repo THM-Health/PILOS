@@ -65,18 +65,12 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         $redirect        = false;
-        $externalAuth    = false;
-        $externalSignOut = false;
 
         if (session()->has('external_auth')) {
             switch(session()->get('external_auth')) {
                 case 'shibboleth':
-                    $externalAuth = 'shibboleth';
-                    $url          = app(ShibbolethProvider::class)->logout(url('/logout'));
-                    if ($url) {
-                        $redirect        = $url;
-                        $externalSignOut = true;
-                    }
+                    $url             = app(ShibbolethProvider::class)->logout(url('/logout'));
+                    $redirect        = $url;
 
                     break;
             }
@@ -85,9 +79,7 @@ class LoginController extends Controller
         $this->logoutApplication($request);
 
         return response()->json([
-            'redirect'          => $redirect,
-            'external_auth'     => $externalAuth,
-            'external_sign_out' => $externalSignOut
+            'redirect'          => $redirect
         ]);
     }
 }

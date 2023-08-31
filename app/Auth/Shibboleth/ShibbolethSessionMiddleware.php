@@ -8,6 +8,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ShibbolethSessionMiddleware
 {
+    public function __construct(protected ShibbolethProvider $provider)
+    {
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -19,10 +23,10 @@ class ShibbolethSessionMiddleware
         if (\Auth::user() && session('external_auth') == 'shibboleth') {
             // check if user still has a valid shibboleth session and that it didn't change in the meantime
             $headerName = config('services.shibboleth.session_id_header');
-            if (!$request->hasHeader($headerName) || session('shibboleth_session_id') != $request->header($headerName)) {
+            if (!$request->hasHeader($headerName) || session('shibboleth_session_id') != $this->provider->hashShibbolethSessionId($request->header($headerName))) {
                 \Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+
+                return redirect($this->provider->logout(url('/logout?message=session_expired')));
             }
         }
 

@@ -2,8 +2,12 @@
 
 namespace App\Auth\Shibboleth;
 
+use App\Models\SessionData;
 use Auth;
+use Cache;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use SoapServer;
 
 class ShibbolethProvider
@@ -19,8 +23,6 @@ class ShibbolethProvider
 
         if (\Auth::user() && session('external_auth') == 'shibboleth') {
             \Auth::logout();
-            session()->invalidate();
-            session()->regenerateToken();
         }
 
         // Send user to the return URL
@@ -57,35 +59,10 @@ class ShibbolethProvider
 
     /**
      * @throws MissingAttributeException
+     * @throws ShibbolethSessionDuplicateException
      */
     public function login(Request $request)
     {
-        /*
-
-        @TODO: Check if this additional code is needed, added in the initial implementation
-
-         // Check if session was already used for an other login request
-         $session = Cache::has('shib-session-'.$shibSessionId);
-         if ($session) {
-             // if shibboleth session was used for another request,
-             // try to find the shibboleth cookie, remove it and reload page
-             // to force a new login login and shibboleth session
-             foreach ($request->cookies->keys() as $cookie) {
-                 $regexshib='/^_shibsession_[a-z0-9]/';
-                 if (preg_match($regexshib, $cookie)) {
-                     \Cookie::queue(\Cookie::forget($cookie));
-                 }
-             }
- 
-             return redirect($request->fullUrl());
-         }
- 
-         // Create cache item to prevent usage of the same session for another login request
-         // valid until the session expires
-         $secondsToExpire = now()->diffInSeconds(Date::createFromTimestamp($shibSessionExpires));
-         Cache::put('shib-session-'.$shibSessionId, true, $secondsToExpire);
-        */
-
         // Create new shibboleth user
         $saml_user = new ShibbolethUser($request);
        
@@ -94,23 +71,50 @@ class ShibbolethProvider
 
         // Sync attributes and map roles
         $saml_user->syncWithEloquentModel($user, config('services.shibboleth.mapping')->roles);
+
+        // Get shibboleth session id
+        $hasedShibbolethSessionId = $this->hashShibbolethSessionId($request->header(config('services.shibboleth.session_id_header')));
+        $expiresShibbolethSession = $request->header(config('services.shibboleth.session_expires_header'));
         
+        // Cache key and expiration time to prevent duplicate login attempts with the same shibboleth session id
+        $cacheKey     = 'shibboleth_session_'.$hasedShibbolethSessionId;
+        $cacheExpires = Carbon::createFromTimestamp($expiresShibbolethSession);
+
+        // Check if shibboleth session id is already in use by other sessions
+        $lookupSessions = SessionData::where('key', 'shibboleth_session_id')->where('value', $hasedShibbolethSessionId)->get();
+        foreach ($lookupSessions as $lookupSession) {
+            // Delete all application sessions with the same shibboleth session id
+            $lookupSession->session()->delete();
+        }
+
+        // If shibboleth session id is already in use or was used before, throw exception and log attempt
+        if ($lookupSessions->isNotEmpty() || Cache::has($cacheKey)) {
+            Log::notice('Prevented login attempt with duplicate shibboleth session');
+
+            throw new ShibbolethSessionDuplicateException();
+        }
+
         // Login the user / start application session
         Auth::login($user);
 
-        // Get shibboleth session id
-        $shibbolethSessionId = $request->header(config('services.shibboleth.session_id_header'));
+        // Store shibboleth session id in cache to prevent duplicate login attempts
+        Cache::put($cacheKey, true, $cacheExpires);
 
         // Store shibboleth session id in session data table to find application session based in the shibboleth session id
         session(['session_data' => [
-            ['key'=>'shibboleth_session_id', 'value' => $shibbolethSessionId],
+            ['key'=>'shibboleth_session_id', 'value' => $hasedShibbolethSessionId],
         ]]);
 
         // Store authentication method and shibboleth session id in session
         // to validate each request in the ValidateShibbolethSession middleware
         session()->put('external_auth', 'shibboleth');
-        session()->put('shibboleth_session_id', $shibbolethSessionId);
+        session()->put('shibboleth_session_id', $hasedShibbolethSessionId);
 
         return $user;
+    }
+
+    public function hashShibbolethSessionId($shibbolethSessionId)
+    {
+        return hash('sha256', $shibbolethSessionId);
     }
 }

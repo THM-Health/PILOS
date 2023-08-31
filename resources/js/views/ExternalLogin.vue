@@ -6,6 +6,7 @@
 
           <strong>{{ $t('auth.error.reason') }}</strong>
           <p v-if="error == 'missing_attributes'">{{ $t('auth.error.missing_attributes') }}</p>
+          <p v-if="error == 'shibboleth_session_duplicate_exception'">{{ $t('auth.error.shibboleth_session_duplicate_exception') }}</p>
 
           <template #footer>
             <b-button variant="dark" block :to="{ name: 'home'}">

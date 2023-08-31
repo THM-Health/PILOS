@@ -41,6 +41,9 @@ class ShibbolethController extends Controller
             $user = $this->provider->login($request);
         } catch(MissingAttributeException $e) {
             return redirect('/external_login?error=missing_attributes');
+        } catch(ShibbolethSessionDuplicateException $e) {
+            // Prevented login attempt with duplicate shibboleth session, redirect to logout to kill SP session
+            return redirect($this->provider->logout(url('/external_login?error=shibboleth_session_duplicate_exception')));
         }
 
         Log::info('External user {user} has been successfully authenticated.', ['user' => $user->getLogLabel(), 'type' => 'shibboleth']);

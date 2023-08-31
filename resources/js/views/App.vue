@@ -138,12 +138,7 @@ export default {
         return;
       }
 
-      let incompleteWarning = null;
-      if (response.data.external_auth && !response.data.external_sign_out) {
-        incompleteWarning = response.data.external_auth;
-      }
-
-      await this.$router.push({ name: 'logout', params: { incompleteWarning } });
+      await this.$router.push({ name: 'logout' });
 
       this.setLoadingFinished();
     }

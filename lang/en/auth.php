@@ -9,9 +9,10 @@ return [
         'title'     => 'Login with Email',
     ],
     'error' => [
-        'login_failed'          => 'Login failed',
-        'missing_attributes'    => 'Attributes for authentication are missing.',
-        'reason'                => 'Error reason',
+        'login_failed'                           => 'Login failed',
+        'missing_attributes'                     => 'Attributes for authentication are missing.',
+        'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
+        'reason'                                 => 'Error reason',
     ],
     'external_id' => 'External ID',
     'failed'      => 'These credentials do not match our records.',
@@ -38,7 +39,6 @@ return [
     'password'                  => 'Password',
     'reset_password'            => 'Reset password',
     'shibboleth'                => [
-        'logout_incomplete' => 'Attention: You are still logged in to Shibboleth.',
         'redirect'          => 'Log in',
         'tab_title'         => 'Shibboleth',
         'title'             => 'Log in with Shibboleth',
