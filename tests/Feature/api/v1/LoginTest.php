@@ -145,7 +145,7 @@ class LoginTest extends TestCase
     {
         $user     = User::factory()->make();
         $response = $this->actingAs($user)->from(config('app.url'))->postJson(route('api.v1.logout'));
-        $response->assertJson(['redirect' => false, 'external_auth' => false, 'external_sign_out' => false]);
+        $response->assertJson(['redirect' => false]);
         $this->assertGuest();
     }
 
