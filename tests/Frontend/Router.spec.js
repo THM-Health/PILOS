@@ -93,6 +93,76 @@ describe('Router', () => {
       });
     });
 
+    it('beforeEachRoute calls next with 404 if the route is disabled', async () => {
+      const router = {
+        app: {
+          $t: (key) => key,
+          $root: {
+            toastError: () => {}
+          }
+        }
+      };
+
+      createTestingPinia();
+      const loading = useLoadingStore();
+      loading.initialized = true;
+      const auth = useAuthStore();
+      auth.currentUser = currentUser;
+
+      const to = {
+        matched: [{
+          path: '/bar',
+          meta: {
+            disabled: () => { return true; }
+          }
+        }]
+      };
+
+      await new Promise((resolve) => {
+        beforeEachRoute(router, to, undefined, (args) => {
+          expect(args.name).toBe('404');
+          resolve();
+        });
+      });
+    });
+
+    it('beforeEachRoute calls next if the route is not disabled', async () => {
+      const router = {
+        app: {
+          $t: (key) => key,
+          $root: {
+            toastError: () => {}
+          }
+        }
+      };
+
+      createTestingPinia();
+      const loading = useLoadingStore();
+      loading.initialized = true;
+      const auth = useAuthStore();
+      auth.currentUser = currentUser;
+
+      const to = {
+        matched: [{
+          path: '/foo',
+          meta: {
+            disabled: () => { return false; }
+          }
+        }]
+      };
+
+      let nextCalled = false;
+
+      await new Promise((resolve) => {
+        beforeEachRoute(router, to, undefined, () => {
+          nextCalled = true;
+          resolve();
+        });
+      });
+
+      expect(nextCalled).toBe(true);
+    });
+
     it('beforeEachRoute calls next with login path if the user is not authenticated even if permission check accidentally returns true', async () => {
       const router = {};
 

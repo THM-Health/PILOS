@@ -91,7 +91,7 @@ class UploadLocalesTest extends TestCase
                     $data['id'] == 'project123' &&
                      $data['updating'] == 'terms_translations' &&
                      $data['overwrite'] == 1 &&
-                     $data['sync_terms'] == 1 &&
+                     $data['sync_terms'] == 0 &&
                      $data['fuzzy_trigger'] == 1 &&
                      $data['language'] == 'de' &&
                      $data['file'] == '{"key_1":"wert_1"}';

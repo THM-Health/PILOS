@@ -17,6 +17,15 @@ class LoginTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config([
+            'auth.local.enabled'    => true
+        ]);
+    }
+
     /**
      * Tests that a correct response gets returned when trying to login with invalid credentials.
      *
@@ -192,5 +201,26 @@ class LoginTest extends TestCase
                 && $log->context['ip'] == '127.0.0.1'
                 && $log->context['current-user'] == 'guest'
         );
+    }
+
+    /**
+     * Test that login route is diabled if local authenticator is disabled.
+     *
+     * @return void
+     */
+    public function testLoginDisabled()
+    {
+        config([
+        'auth.local.enabled'    => false
+        ]);
+
+        $user = User::factory()->create([
+            'password' => Hash::make('bar')
+        ]);
+        $response = $this->from(config('app.url'))->postJson(route('api.v1.login.local'), [
+            'email'    => $user->email,
+            'password' => 'bar'
+        ]);
+        $response->assertNotFound();
     }
 }

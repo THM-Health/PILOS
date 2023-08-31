@@ -105,7 +105,7 @@ class UserPolicy
     {
         return $model->authenticator === 'local'
             && $user->can('update', $model)
-            && (setting('password_self_reset_enabled') || $model->id !== $user->id);
+            && (setting('password_change_allowed') || $model->id !== $user->id);
     }
 
     /**
