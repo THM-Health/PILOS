@@ -48,7 +48,8 @@ LDAP_LOGIN_ATTRIBUTE=uid
 
 ## Shibboleth
 
-The shibboleth authentication is available if the reverse proxy is apache with mod_shib. The application trusts the header information of the apache webserver and authenticates the user via the shibboleth protected route /auth/shibboleth/callback.
+The shibboleth authentication is available if the reverse proxy is apache with mod_shib.
+The application trusts the header information of the apache webserver and authenticates the user via the shibboleth protected route /auth/shibboleth/callback.
 
 ### Configure Apache + mod_shib
 
@@ -72,7 +73,15 @@ If you host your own discovery service, you also need to add these lines before 
 ```
 ProxyPass /shibboleth-ds !
 ProxyPass /shibboleth-sp !
-````
+```
+
+
+You need the add the url of the font- and back-channel to the ApplicationDefaults element in the `/etc/shibboleth/shibboleth2.xml` file:
+
+```xml
+<Notify Channel="back" Location="https://DOMAIN.TLD/auth/shibboleth/logout" />
+<Notify Channel="front" Location="https://DOMAIN.TLD/auth/shibboleth/logout" />
+```
 
 ### Configure application to use shibboleth
 
