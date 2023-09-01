@@ -263,9 +263,10 @@ return [
     'title' => 'Paramètres',
     'users' => [
         'authenticator' => [
-            'external' => 'Externe',
-            'local'    => 'Interne',
-            'title'    => 'Type d\'identification',
+            'shibboleth' => 'Shibboleth',
+            'ldap'       => 'LDAP',
+            'local'      => 'Interne',
+            'title'      => 'Type d\'identification',
         ],
         'base_data' => 'Données de base',
         'bbb'       => 'BigBlueButton',

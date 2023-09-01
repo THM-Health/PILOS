@@ -67,7 +67,7 @@ class ShibbolethProvider
         $saml_user = new ShibbolethUser($request);
        
         // Get eloquent user (existing or new)
-        $user = $saml_user->createOrFindEloquentModel();
+        $user = $saml_user->createOrFindEloquentModel('shibboleth');
 
         // Sync attributes and map roles
         $saml_user->syncWithEloquentModel($user, config('services.shibboleth.mapping')->roles);

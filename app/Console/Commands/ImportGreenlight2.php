@@ -135,7 +135,7 @@ class ImportGreenlight2 extends Command
             // import ldap users
             elseif ($user->provider == 'ldap') {
                 // check if user with this username exists
-                $dbUser = User::where('external_id', $user->username)->first();
+                $dbUser = User::where('external_id', $user->username)->where('authenticator', 'ldap')->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
                     $existed++;
@@ -147,7 +147,7 @@ class ImportGreenlight2 extends Command
 
                 // create new user
                 $dbUser                = new User();
-                $dbUser->authenticator = 'external';
+                $dbUser->authenticator = 'ldap';
                 $dbUser->email         = $user->email;
                 $dbUser->external_id   = $user->username;
                 // as greenlight doesn't split the name in first and lastname,
@@ -164,8 +164,10 @@ class ImportGreenlight2 extends Command
                 $userMap[$user->id] = $dbUser->id;
                 $bar->advance();
             } else {
+                // @TODO: Customize authenticator mapping on import
+
                 // check if user with this social uid exists
-                $dbUser = User::where('external_id', $user->social_uid)->first();
+                $dbUser = User::where('external_id', $user->social_uid)->where('authenticator', $user->provider)->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
                     $existed++;
@@ -177,7 +179,7 @@ class ImportGreenlight2 extends Command
 
                 // create new user
                 $dbUser                = new User();
-                $dbUser->authenticator = 'external';
+                $dbUser->authenticator = $user->provider;
                 $dbUser->email         = $user->email;
                 $dbUser->external_id   = $user->social_uid;
                 // as greenlight doesn't split the name in first and lastname,

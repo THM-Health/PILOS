@@ -14,9 +14,10 @@ return [
         'shibboleth_session_duplicate_exception' => 'The Shibboleth session is already in use. Please log in again.',
         'reason'                                 => 'Error reason',
     ],
-    'external_id' => 'External ID',
-    'failed'      => 'These credentials do not match our records.',
-    'flash'       => [
+    'authenticator'    => 'Authenticator',
+    'authenticator_id' => 'Authenticator-ID',
+    'failed'           => 'These credentials do not match our records.',
+    'flash'            => [
         'login'             => 'Successfully logged in',
         'logout_all_others' => 'The other devices have been successfully logged out!',
         'logout_error'      => 'Logout failed',

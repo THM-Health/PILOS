@@ -14,9 +14,10 @@ return [
         'shibboleth_session_duplicate_exception' => 'Die Shibboleth-Session ist bereits in Verwendung. Bitte melden Sie sich erneut an.',
         'reason'                                 => 'Fehlergrund',
     ],
-    'external_id' => 'Externe ID',
-    'failed'      => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
-    'flash'       => [
+    'authenticator'    => 'Authentifikator',
+    'authenticator_id' => 'Authentifikator-ID',
+    'failed'           => 'Diese Kombination aus Zugangsdaten wurde nicht in unserer Datenbank gefunden.',
+    'flash'            => [
         'login'             => 'Erfolgreich angemeldet',
         'logout_all_others' => 'Die Abmeldung von allen anderen Geräten verlief erfolgreich!',
         'logout_error'      => 'Abmelden fehlgeschlagen',

@@ -11,9 +11,10 @@ return [
     'error' => [
         'missing_attributes' => 'Les informations d\'identification sont manquants.',
     ],
-    'external_id' => 'Identifiant externe',
-    'failed'      => 'Ces informations d\'identification ne correspondent pas à nos enregistrements.',
-    'flash'       => [
+    'authenticator'    => 'Authentificateur',
+    'authenticator_id' => 'Authentificateur-ID',
+    'failed'           => 'Ces informations d\'identification ne correspondent pas à nos enregistrements.',
+    'flash'            => [
         'login'             => 'Connexion réussie',
         'logout_all_others' => 'Les autres appareils ont été déconnectés avec succès!',
         'logout_error'      => 'Échec de la déconnexion',
