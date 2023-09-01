@@ -71,16 +71,16 @@
         },
         {
             "name": "bensampo/laravel-enum",
-            "version": "v6.6.2",
+            "version": "v6.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BenSampo/laravel-enum.git",
-                "reference": "85db3d402f8b4687e31f72fb1cc2f78cc71ec565"
+                "reference": "97cbf477e89024038d2b50f7b09aa7c2d44d6bd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BenSampo/laravel-enum/zipball/85db3d402f8b4687e31f72fb1cc2f78cc71ec565",
-                "reference": "85db3d402f8b4687e31f72fb1cc2f78cc71ec565",
+                "url": "https://api.github.com/repos/BenSampo/laravel-enum/zipball/97cbf477e89024038d2b50f7b09aa7c2d44d6bd9",
+                "reference": "97cbf477e89024038d2b50f7b09aa7c2d44d6bd9",
                 "shasum": ""
             },
             "require": {
@@ -150,7 +150,7 @@
             ],
             "support": {
                 "issues": "https://github.com/BenSampo/laravel-enum/issues",
-                "source": "https://github.com/BenSampo/laravel-enum/tree/v6.6.2"
+                "source": "https://github.com/BenSampo/laravel-enum/tree/v6.6.3"
             },
             "funding": [
                 {
@@ -158,7 +158,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-03T15:22:44+00:00"
+            "time": "2023-08-31T14:24:02+00:00"
         },
         {
             "name": "brick/math",
@@ -2527,16 +2527,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.4.0",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "d44a24690f16b8c1808bf13b1bd54ae4c63ea048"
+                "reference": "3669d6d5f7a47a93c08ddff335e6d945481a1dd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d44a24690f16b8c1808bf13b1bd54ae4c63ea048",
-                "reference": "d44a24690f16b8c1808bf13b1bd54ae4c63ea048",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/3669d6d5f7a47a93c08ddff335e6d945481a1dd5",
+                "reference": "3669d6d5f7a47a93c08ddff335e6d945481a1dd5",
                 "shasum": ""
             },
             "require": {
@@ -2629,7 +2629,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-24T15:16:10+00:00"
+            "time": "2023-08-30T16:55:00+00:00"
         },
         {
             "name": "league/config",
