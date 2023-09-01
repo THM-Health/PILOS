@@ -67,7 +67,7 @@ jobs:
         DB_PASSWORD: password
       run: php artisan migrate --no-interaction -vvv
     
-    - name: Execute command to pull locales from POEditor
+    - name: Execute command to push locales from POEditor
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
         DB_DATABASE: test

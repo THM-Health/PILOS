@@ -80,7 +80,7 @@ return [
             'description' => 'Anzahl der gleichzeitig angezeigten Datensätze in Tabellen',
             'title'       => 'Größe der Paginierung',
         ],
-        'password_self_reset_enabled' => 'Registrierten Benutzern ermöglichen das Passwort zurückzusetzen',
+        'password_change_allowed'     => 'Lokalen Benutzern ermöglichen das Passwort zu ändern',
         'privacy_policy_url'          => [
             'description' => 'Wenn nicht gesetzt, wird kein Link zur Datenschutzerklärung in der Fußzeile angezeigt.',
             'title'       => 'URL zur Datenschutzerklärung',
@@ -222,20 +222,27 @@ return [
         'disabled'             => 'Deaktiviert',
         'disabled_description' => 'Bereits laufende Meetings werden durch eine Deaktivierung nicht beendet, neue können jedoch nicht erstellt werden',
         'edit'                 => 'Server :name bearbeiten',
-        'hide_salt'            => 'Klartext verbergen',
-        'meeting_count'        => 'Meetings',
-        'meeting_description'  => 'Alle Meetings auf dem BigBlueButton-Server',
-        'new'                  => 'Neuen Server hinzufügen',
-        'no_data'              => 'Es sind keine Server vorhanden!',
-        'no_data_filtered'     => 'Für die Suchanfrage wurden keine Server gefunden!',
-        'offline'              => 'Offline',
-        'offline_reason'       => [
+        'flash'                => [
+            'panic' => [
+                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
+                'title'       => 'Der Server wurde deaktiviert.',
+            ],
+        ],
+        'hide_salt'           => 'Klartext verbergen',
+        'meeting_count'       => 'Meetings',
+        'meeting_description' => 'Alle Meetings auf dem BigBlueButton-Server',
+        'new'                 => 'Neuen Server hinzufügen',
+        'no_data'             => 'Es sind keine Server vorhanden!',
+        'no_data_filtered'    => 'Für die Suchanfrage wurden keine Server gefunden!',
+        'offline'             => 'Offline',
+        'offline_reason'      => [
             'connection' => 'Der Verbindungsaufbau zum Server ist fehlgeschlagen.',
             'salt'       => 'Es wurde eine Verbindung zum Server hergestellt, aber das API-Geheimnis ist ungültig.',
         ],
         'online'                  => 'Online',
         'own_meeting_count'       => 'Eigene Meetings',
         'own_meeting_description' => 'Meetings, die von diesem System verwaltet werden',
+        'panic'                   => 'Deaktivieren & Aufräumen',
         'panic_description'       => 'Es werden nur Meetings beendet, die über dieses System erstellt wurden!',
         'panic_server'            => 'Server deaktiveren und alle Meetings beenden',
         'participant_count'       => 'Teilnehmer',
@@ -252,13 +259,6 @@ return [
         'version'                 => 'Version',
         'video_count'             => 'Videos',
         'view'                    => 'Detaillierte Informationen über Server :name',
-        'flash'                   => [
-            'panic' => [
-                'description' => 'Es wurden :total Meetings gefunden und :success erfolgreich beendet.',
-                'title'       => 'Der Server wurde deaktiviert.',
-            ],
-        ],
-        'panic' => 'Deaktivieren & Aufräumen',
     ],
     'title' => 'Einstellungen',
     'users' => [
@@ -268,6 +268,7 @@ return [
             'title'    => 'Anmeldeart',
         ],
         'base_data' => 'Stammdaten',
+        'bbb'       => 'BigBlueButton',
         'delete'    => [
             'confirm' => 'Wollen Sie den Benutzer :firstname :lastname wirklich löschen?',
             'item'    => 'Benutzer :firstname :lastname löschen',
@@ -290,6 +291,7 @@ return [
         'new'                    => 'Neuen Benutzer erstellen',
         'no_data'                => 'Es sind keine Benutzer vorhanden!',
         'no_data_filtered'       => 'Für die Suchanfrage wurden keine Benutzer gefunden!',
+        'other_settings'         => 'Weitere Einstellungen',
         'password_reset_success' => 'Passwort-Rücksetz-Mail wurde erfolgreich an :mail verschickt!',
         'remove_role'            => 'Rolle entfernen',
         'reset_password'         => [
@@ -300,12 +302,10 @@ return [
         'role_filter'           => 'Rolle zum Filtern auswählen',
         'roles_and_permissions' => 'Rollen and Berechtigungen',
         'show_password'         => 'Password anzeigen',
+        'skip_check_audio'      => 'Echo-Test deaktivieren',
         'tile_description'      => 'Die Benutzer können sich an dem System anmelden und je nach Rolle unterschiedliche Funktionen nutzen.',
         'timezone'              => 'Zeitzone',
         'user_locale'           => 'Sprache',
         'view'                  => 'Detaillierte Informationen für den Benutzer :firstname :lastname',
-        'other_settings'        => 'Weitere Einstellungen',
-        'bbb'                   => 'BigBlueButton',
-        'skip_check_audio'      => 'Echo-Test deaktivieren',
     ],
 ];

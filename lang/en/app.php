@@ -151,6 +151,11 @@ return [
     'profile'       => 'Profile',
     'reload'        => 'Reload',
     'reset'         => 'Reset',
+    'role_lables'   => [
+        'admin' => 'Administrator',
+        'user'  => 'User',
+    ],
+    'roles'         => 'Roles',
     'room_limit'    => 'Room limit',
     'room_types'    => 'Room types',
     'rooms'         => 'Rooms',
@@ -174,13 +179,8 @@ return [
         'success' => 'Your email address was successfully verified!',
         'title'   => 'Email verification',
     ],
-    'version'     => 'Version',
-    'view'        => 'View',
-    'wait'        => 'Please wait...',
-    'yes'         => 'Yes',
-    'roles'       => 'Roles',
-    'role_lables' => [
-        'admin' => 'Administrator',
-        'user'  => 'User',
-    ]
+    'version' => 'Version',
+    'view'    => 'View',
+    'wait'    => 'Please wait...',
+    'yes'     => 'Yes',
 ];

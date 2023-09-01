@@ -73,7 +73,7 @@ return [
         'new_password_confirmation'          => 'Neues Passwort Bestätigung',
         'password'                           => 'Passwort',
         'password_confirmation'              => 'Passwort Bestätigung',
-        'password_self_reset_enabled'        => 'Registrierten Benutzer ermöglichen das Passwort zurückzusetzen',
+        'password_change_allowed'            => 'Lokalen Benutzer ermöglichen das Passwort zu ändern',
         'permissions'                        => 'Rechte',
         'phone'                              => 'Telefonnummer',
         'privacy_policy_url'                 => 'Datenschutzerklärung',
@@ -133,33 +133,32 @@ return [
             'not_in'   => 'Ersatzraumart ungültig! Es wird eine Ersatzraumart benötigt, da dieser Raumart noch Räume zugeordnet sind.',
             'required' => 'Ersatzraumart benötigt! Dieser Raumart sind noch Räume zugeordnet.',
         ],
-        'room' => [
-            'already_member'            => 'Der Benutzer ist bereits Mitglied des Raums.',
-            'not_member'                => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
-            'self_delete'               => 'Sie dürfen sich nicht selbst löschen.',
-            'self_edit'                 => 'Sie dürfen sich nicht selbst bearbeiten.',
-            'several_users_found_email' => 'Es wurden mehrere Benutzer mit dieser E-Mail gefunden',
-            'user_not_found_email'      => 'Es wurde kein Benuter mit dieser E-Mail gefunden'
-
-        ],
-        'user' => [
-            'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.',
-        ],
-        'user_emails' => [
-            '*' => [
-                'email' => ':input ist keine gültige E-mail-Adresse.'
-            ]
-        ],
         'roles' => [
             '*' => [
                 'distinct' => 'Mindestens eine Rolle wurde mehrfach ausgewählt.',
                 'exists'   => 'Eine der ausgewählten Rollen existiert nicht.',
             ],
         ],
+        'room' => [
+            'already_member'            => 'Der Benutzer ist bereits Mitglied des Raums.',
+            'not_member'                => 'Der Benutzer ":firstname :lastname" ist nicht Mitglied des Raums.',
+            'self_delete'               => 'Sie dürfen sich nicht selbst löschen.',
+            'self_edit'                 => 'Sie dürfen sich nicht selbst bearbeiten.',
+            'several_users_found_email' => 'Es wurden mehrere Benutzer mit dieser E-Mail gefunden',
+            'user_not_found_email'      => 'Es wurde kein Benuter mit dieser E-Mail gefunden',
+        ],
         'servers' => [
             '*' => [
                 'distinct' => 'Der Server mit der ID :input wurde mehrfach ausgewählt.',
                 'exists'   => 'Der Server mit der ID :input konnte nicht gefunden werden.',
+            ],
+        ],
+        'user' => [
+            'exists' => 'Der ausgewählte Benutzer konnte nicht gefunden werden.',
+        ],
+        'user_emails' => [
+            '*' => [
+                'email' => ':input ist keine gültige E-mail-Adresse.',
             ],
         ],
     ],

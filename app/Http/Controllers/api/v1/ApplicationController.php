@@ -97,7 +97,7 @@ class ApplicationController extends Controller
         setting()->set('room_limit', $request->room_limit);
         setting()->set('room_pagination_page_size', $request->room_pagination_page_size);
         setting()->set('pagination_page_size', $request->pagination_page_size);
-        setting()->set('password_self_reset_enabled', $request->password_self_reset_enabled);
+        setting()->set('password_change_allowed', $request->password_change_allowed);
         setting()->set('default_timezone', $request->default_timezone);
         setting()->set('room_token_expiration', $request->room_token_expiration);
         setting()->set('banner', array_filter($request->banner, function ($setting) {

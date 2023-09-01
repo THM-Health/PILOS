@@ -763,19 +763,19 @@
               label-class="font-weight-bold"
               class="mb-4"
               :label="$t('settings.application.user_settings')"
-              :state='fieldState("password_self_reset_enabled")'
+              :state='fieldState("password_change_allowed")'
             >
               <b-form-checkbox
-                v-model='settings.password_self_reset_enabled'
-                :state="fieldState('password_self_reset_enabled')"
+                v-model='settings.password_change_allowed'
+                :state="fieldState('password_change_allowed')"
                 :disabled='isBusy || viewOnly || !loaded'
                 switch
               >
-                {{ $t('settings.application.password_self_reset_enabled') }}
+                {{ $t('settings.application.password_change_allowed') }}
               </b-form-checkbox>
 
               <template slot='invalid-feedback'>
-                <div v-html="fieldError('password_self_reset_enabled')"></div>
+                <div v-html="fieldError('password_change_allowed')"></div>
               </template>
             </b-form-group>
           </b-col>
@@ -1272,7 +1272,7 @@ export default {
       formData.append('room_token_expiration', this.settings.room_token_expiration);
       formData.append('pagination_page_size', this.settings.pagination_page_size);
       formData.append('room_pagination_page_size', this.settings.room_pagination_page_size);
-      formData.append('password_self_reset_enabled', this.settings.password_self_reset_enabled ? 1 : 0);
+      formData.append('password_change_allowed', this.settings.password_self_reset_enabled ? 1 : 0);
       formData.append('default_timezone', this.settings.default_timezone);
       formData.append('help_url', this.settings.help_url || '');
       formData.append('legal_notice_url', this.settings.legal_notice_url || '');

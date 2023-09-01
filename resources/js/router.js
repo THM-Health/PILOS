@@ -27,6 +27,7 @@ import VerifyEmail from './views/VerifyEmail.vue';
 import Profile from './views/Profile.vue';
 import { useAuthStore } from './stores/auth';
 import { useLoadingStore } from './stores/loading';
+import { useSettingsStore } from './stores/settings';
 
 const Home = Object.values(import.meta.glob(['../custom/js/views/Home.vue', '@/views/Home.vue'], { eager: true }))[0].default;
 
@@ -58,7 +59,10 @@ export const routes = [
     path: '/reset_password',
     name: 'password.reset',
     component: PasswordReset,
-    meta: { guestsOnly: true },
+    meta: {
+      disabled: () => !useSettingsStore().getSetting('auth.local'),
+      guestsOnly: true
+    },
     props: route => {
       return {
         token: route.query.token,
@@ -71,7 +75,10 @@ export const routes = [
     path: '/verify_email',
     name: 'verify.email',
     component: VerifyEmail,
-    meta: { requiresAuth: true },
+    meta: {
+      disabled: () => !useSettingsStore().getSetting('auth.local'),
+      requiresAuth: true
+    },
     props: route => {
       return {
         token: route.query.token,
@@ -83,7 +90,10 @@ export const routes = [
     path: '/forgot_password',
     name: 'password.forgot',
     component: ForgotPassword,
-    meta: { guestsOnly: true }
+    meta: {
+      disabled: () => !useSettingsStore().getSetting('password_change_allowed') || !useSettingsStore().getSetting('auth.local'),
+      guestsOnly: true
+    }
   },
   {
     path: '/rooms',
@@ -139,6 +149,7 @@ export const routes = [
         component: NewUser,
         meta: {
           requiresAuth: true,
+          disabled: () => !useSettingsStore().getSetting('auth.local'),
           accessPermitted: () => Promise.resolve(
             PermissionService.can('manage', 'SettingPolicy') &&
             PermissionService.can('create', 'UserPolicy')
@@ -397,6 +408,9 @@ export const routes = [
  * For routes where `meta.requiresAuth` and their child pages is set to `true` the user gets
  * redirected to the login page if he isn't authenticated.
  *
+ * It is possible to specify a function `meta.disabled` that must return a boolean value whether
+ * the route is disabled or not. If the route is disabled the user gets redirected to the 404 page.
+ *
  * Also it is possible to specify a function `meta.accessPermitted` that must return a Promise
  * that resolves to a boolean value whether the current user is permitted to access the route.
  * Since it may be that additional data must be requested from the server to perform the permission
@@ -423,7 +437,15 @@ export function beforeEachRoute (router, to, from, next) {
     ));
   }).then((recordsPermissions) => {
     loading.setLoadingFinished();
-    if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
+
+    if (to.matched.some((record) => {
+      if (record.meta.disabled !== undefined) {
+        return record.meta.disabled(to.params, to.query, router.app);
+      }
+      return false;
+    })) {
+      next({ name: '404' });
+    } else if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
       next({
         name: 'login',
         query: { redirect: to.fullPath }

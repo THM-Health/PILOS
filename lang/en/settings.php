@@ -80,7 +80,7 @@ return [
             'description' => 'Number of records displayed simultaneously in tables',
             'title'       => 'Pagination page size',
         ],
-        'password_self_reset_enabled' => 'Give registered users the possibility to reset their password',
+        'password_change_allowed'     => 'Give local users the possibility to change their password',
         'privacy_policy_url'          => [
             'description' => 'If not set, no privacy policy link will be displayed in the footer.',
             'title'       => 'URL to the privacy policy',
@@ -222,20 +222,27 @@ return [
         'disabled'             => 'Disabled',
         'disabled_description' => 'Currently running meetings are not stopped if server gets disabled, but no new meetings are started',
         'edit'                 => 'Edit server :name',
-        'hide_salt'            => 'Hide clear text',
-        'meeting_count'        => 'Meetings',
-        'meeting_description'  => 'All meetings on the BigBlueButton-Server',
-        'new'                  => 'Add new server',
-        'no_data'              => 'No servers found!',
-        'no_data_filtered'     => 'For the filter query no servers were found!',
-        'offline'              => 'Offline',
-        'offline_reason'       => [
+        'flash'                => [
+            'panic' => [
+                'description' => ':total meetings were found and :success were successfully stopped.',
+                'title'       => 'The server has been disabled.',
+            ],
+        ],
+        'hide_salt'           => 'Hide clear text',
+        'meeting_count'       => 'Meetings',
+        'meeting_description' => 'All meetings on the BigBlueButton-Server',
+        'new'                 => 'Add new server',
+        'no_data'             => 'No servers found!',
+        'no_data_filtered'    => 'For the filter query no servers were found!',
+        'offline'             => 'Offline',
+        'offline_reason'      => [
             'connection' => 'No connection could be established to the server.',
             'salt'       => 'A connection to the server could be established, but the API secret is invalid.',
         ],
         'online'                  => 'Online',
         'own_meeting_count'       => 'Own meetings',
         'own_meeting_description' => 'Meetings that are managed by this system',
+        'panic'                   => 'Disable & cleanup',
         'panic_description'       => 'Only meetings managed by this system are stopped!',
         'panic_server'            => 'Disable server and end all meetings',
         'participant_count'       => 'Participants',
@@ -252,13 +259,6 @@ return [
         'version'                 => 'Version',
         'video_count'             => 'Videos',
         'view'                    => 'Detailed information for the server :name',
-        'flash'                   => [
-            'panic' => [
-                'description' => ':total meetings were found and :success were successfully stopped.',
-                'title'       => 'The server has been disabled.',
-            ],
-        ],
-        'panic' => 'Disable & cleanup',
     ],
     'title' => 'Settings',
     'users' => [
@@ -268,6 +268,7 @@ return [
             'title'    => 'Authentication Type',
         ],
         'base_data' => 'Base data',
+        'bbb'       => 'BigBlueButton',
         'delete'    => [
             'confirm' => 'Are you really want to delete the user :firstname :lastname?',
             'item'    => 'Delete user :firstname :lastname',
@@ -290,6 +291,7 @@ return [
         'new'                    => 'Create new user',
         'no_data'                => 'No users found!',
         'no_data_filtered'       => 'For the filter query no users were found!',
+        'other_settings'         => 'Other settings',
         'password_reset_success' => 'Password reset mail was successfully send to :mail!',
         'remove_role'            => 'Remove role',
         'reset_password'         => [
@@ -300,12 +302,10 @@ return [
         'role_filter'           => 'Select role for filtering',
         'roles_and_permissions' => 'Roles and permissions',
         'show_password'         => 'Show password',
+        'skip_check_audio'      => 'Disable echo audio test',
         'tile_description'      => 'Users can login to the system and use different features depending on their role.',
         'timezone'              => 'Timezone',
         'user_locale'           => 'Language',
         'view'                  => 'Detailed information for the user :firstname :lastname',
-        'other_settings'        => 'Other settings',
-        'bbb'                   => 'BigBlueButton',
-        'skip_check_audio'      => 'Disable echo audio test',
     ],
 ];

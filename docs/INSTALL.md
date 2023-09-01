@@ -62,6 +62,7 @@ You also need to edit the `APP_URL` option in the `.env` file to match the domai
 
 ### Database
 The docker-compose.yml provides a mariadb.
+
 To create a secure default database password, run the following command:
 ```bash
 openssl rand -hex 24
@@ -70,6 +71,38 @@ Copy the output and edit the `DB_PASSWORD` option in the `.env` file.
 
 **Example**: `DB_PASSWORD=44cefe1bc30ddf6bd2013a97f58353acb5e9000e7ec3bb90`
 
+
+#### Using PostgreSQL
+You can also use PostgreSQL as an alternative database since v2.
+
+Please note: We do NOT support migrating from v1.
+
+To run a local PostgreSQL using docker you have to adjust the `docker-compose.yml` file:
+```yml
+    db:
+      image: postgres:14.6-alpine3.17
+      container_name: postgres
+      restart: unless-stopped
+      volumes:
+        - ./db:/var/lib/postgresql/data
+      environment:
+        POSTGRES_USER: '${DB_USERNAME}'
+        POSTGRES_PASSWORD: '${DB_PASSWORD}'
+        POSTGRES_DB: '${DB_DATABASE}'
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready"]
+        retries: 3
+        timeout: 5s
+```
+
+To use a different database adjust the `.env` file:
+
+```
+# Database config
+DB_CONNECTION=pgsql
+DB_HOST=db
+DB_PORT=5432
+```
 
 ### Webserver
 PILOS has a build in nginx webserver. However, it is **highly** recommended to not expose the container port.

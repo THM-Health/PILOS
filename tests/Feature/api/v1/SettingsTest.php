@@ -55,6 +55,8 @@ class SettingsTest extends TestCase
         config(['bigbluebutton.room_refresh_rate' => 20]);
         config(['app.url' => 'https://domain.tld']);
         config(['app.version' => 'v1.0.0']);
+        config(['auth.local.enabled' => true]);
+        config(['ldap.enabled' => false]);
 
         setting(['statistics' => [
             'meetings' => [
@@ -101,6 +103,10 @@ class SettingsTest extends TestCase
                     ],
                     'room_token_expiration' => -1,
                     'room_refresh_rate'     => 20,
+                    'auth'                  => [
+                        'local' => true,
+                        'ldap'  => false
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -135,6 +141,9 @@ class SettingsTest extends TestCase
         setting(['room_token_expiration' => 100]);
         config(['bigbluebutton.room_refresh_rate' => 5.5]);
 
+        config(['auth.local.enabled' => false]);
+        config(['ldap.enabled' => true]);
+
         $this->getJson(route('api.v1.application'))
             ->assertJson([
                 'data' => [
@@ -161,6 +170,10 @@ class SettingsTest extends TestCase
                     ],
                     'room_token_expiration' => 100,
                     'room_refresh_rate'     => 5.5,
+                    'auth'                  => [
+                        'local' => false,
+                        'ldap'  => true
+                    ]
                 ]
             ])
             ->assertSuccessful();
@@ -375,7 +388,7 @@ class SettingsTest extends TestCase
                 'link_style'  => 'primary',
                 'icon'        => 'fas fa-door-open',
             ],
-            'password_self_reset_enabled' => '1',
+            'password_change_allowed'     => '1',
             'default_timezone'            => 'Europe/Berlin',
             'help_url'                    => 'http://localhost',
             'legal_notice_url'            => 'http://localhost',
@@ -430,7 +443,7 @@ class SettingsTest extends TestCase
                         'link'       => 'http://localhost',
                         'icon'       => 'fas fa-door-open',
                     ],
-                    'password_self_reset_enabled' => true,
+                    'password_change_allowed'     => true,
                     'default_timezone'            => 'Europe/Berlin',
                     'help_url'                    => 'http://localhost',
                     'legal_notice_url'            => 'http://localhost',
@@ -497,7 +510,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => false,
+            'password_change_allowed'        => false,
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -558,7 +571,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => '1',
+            'password_change_allowed'        => '1',
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -627,7 +640,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => '1',
+            'password_change_allowed'        => '1',
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -692,7 +705,7 @@ class SettingsTest extends TestCase
             'pagination_page_size'           => 'notnumber',
             'room_pagination_page_size'      => 'notnumber',
             'room_limit'                     => 'notnumber',
-            'password_self_reset_enabled'    => 'foo',
+            'password_change_allowed'        => 'foo',
             'default_timezone'               => 'timezone',
             'help_url'                       => 33,
             'legal_notice_url'               => 44,
@@ -733,7 +746,7 @@ class SettingsTest extends TestCase
                 'room_limit',
                 'banner',
                 'banner.enabled',
-                'password_self_reset_enabled',
+                'password_change_allowed',
                 'default_timezone',
                 'help_url',
                 'legal_notice_url',
@@ -762,7 +775,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => false,
-            'password_self_reset_enabled'    => '1',
+            'password_change_allowed'        => '1',
             'default_timezone'               => 'Europe/Berlin',
             'help_url'                       => 'http://localhost',
             'legal_notice_url'               => 'http://localhost',
@@ -984,7 +997,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => '1',
+            'password_change_allowed'        => '1',
             'default_timezone'               => 'Europe/Berlin',
             'default_presentation'           => UploadedFile::fake()->create('favicon.ico', 100, 'image/x-icon'),
             'room_token_expiration'          => -1,
@@ -1087,7 +1100,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => '1',
+            'password_change_allowed'        => '1',
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -1170,7 +1183,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => '1',
+            'password_change_allowed'        => '1',
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -1241,7 +1254,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => false,
+            'password_change_allowed'        => false,
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -1305,7 +1318,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => false,
+            'password_change_allowed'        => false,
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [
@@ -1344,7 +1357,7 @@ class SettingsTest extends TestCase
             'room_pagination_page_size'      => '15',
             'room_limit'                     => '-1',
             'banner'                         => ['enabled' => false],
-            'password_self_reset_enabled'    => false,
+            'password_change_allowed'        => false,
             'default_timezone'               => 'Europe/Berlin',
             'room_token_expiration'          => -1,
             'statistics'                     => [

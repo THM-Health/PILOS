@@ -820,7 +820,7 @@ class UserTest extends TestCase
     public function testChangePassword()
     {
         Notification::fake();
-        setting(['password_self_reset_enabled' => false]);
+        setting(['password_change_allowed' => false]);
 
         $password    = $this->faker->password;
         $newPassword = '!SuperSecretPassword123';
@@ -845,7 +845,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Give user permission to change own password
-        setting(['password_self_reset_enabled' => true]);
+        setting(['password_change_allowed' => true]);
 
         // Check with missing password
         $this->actingAs($user)->putJson(route('api.v1.users.password.change', ['user' => $user]), $changes)
@@ -945,7 +945,7 @@ class UserTest extends TestCase
     public function testChangePasswordAdmin()
     {
         Notification::fake();
-        setting(['password_self_reset_enabled' => false]);
+        setting(['password_change_allowed' => false]);
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $newPassword = '!SuperSecretPassword123';
@@ -1045,7 +1045,7 @@ class UserTest extends TestCase
             ->assertForbidden();
 
         // Check if admin can change own password if self reset is enabled, but also has to provide current password
-        setting(['password_self_reset_enabled' => true]);
+        setting(['password_change_allowed' => true]);
         $this->actingAs($admin)->putJson(route('api.v1.users.password.change', ['user' => $admin]), $changes)
             ->assertJsonValidationErrors('current_password');
     }
@@ -1255,6 +1255,10 @@ class UserTest extends TestCase
 
     public function testResetPassword()
     {
+        config([
+            'auth.local.enabled'    => true
+        ]);
+
         $resetUser = User::factory()->create([
             'initial_password_set' => true,
             'authenticator'        => 'external',
@@ -1291,7 +1295,6 @@ class UserTest extends TestCase
         $resetUser->save();
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertSuccessful();
-        $resetUrl = '';
         Notification::assertSentTo($resetUser, PasswordReset::class);
 
         // Check if requesting reset immediately after another reset request is not possible
@@ -1299,6 +1302,13 @@ class UserTest extends TestCase
         $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
             ->assertStatus(CustomStatusCodes::PASSWORD_RESET_FAILED);
         Notification::assertNotSentTo($resetUser, PasswordReset::class);
+
+        // Check if disabled if local authenticator is disabled
+        config([
+            'auth.local.enabled'    => false
+        ]);
+        $this->actingAs($user)->postJson(route('api.v1.users.password.reset', ['user' => $resetUser]))
+        ->assertNotFound();
     }
 
     public function testCreateUserWithGeneratedPassword()

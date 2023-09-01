@@ -55,11 +55,6 @@ class LDAPController extends Controller
      */
     public function login(Request $request)
     {
-        // Check if ldap is enabled
-        if (!config('ldap.enabled')) {
-            abort(404);
-        }
-
         try {
             // Run login method from AuthenticatesUsers trait
             return $this->ldapLogin($request);

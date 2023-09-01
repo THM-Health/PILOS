@@ -73,7 +73,7 @@ return [
         'new_password_confirmation'          => 'New password confirmation',
         'password'                           => 'Password',
         'password_confirmation'              => 'Password confirmation',
-        'password_self_reset_enabled'        => 'Give registered users the possibility to reset and change their password',
+        'password_change_allowed'            => 'Give local users the possibility to change their password',
         'permissions'                        => 'Permissions',
         'phone'                              => 'Phone',
         'privacy_policy_url'                 => 'Privacy policy',
@@ -133,13 +133,25 @@ return [
             'not_in'   => 'Replacement room type invalid! A replacement room type is required because rooms are still assigned to this room type.',
             'required' => 'Replacement room type required! Rooms are still assigned to this room type.',
         ],
+        'roles' => [
+            '*' => [
+                'distinct' => 'At least one role was provided multiple times.',
+                'exists'   => 'One of the selected roles does not exist.',
+            ],
+        ],
         'room' => [
             'already_member'            => 'The user is already member of the room.',
             'not_member'                => 'The user ":firstname :lastname" isn\'t a member.',
             'self_delete'               => 'The user is not allowed to delete himself.',
             'self_edit'                 => 'The user is not allowed to edit himself.',
             'several_users_found_email' => 'Several users were found with this email',
-            'user_not_found_email'      => 'No user was found with this email'
+            'user_not_found_email'      => 'No user was found with this email',
+        ],
+        'servers' => [
+            '*' => [
+                'distinct' => 'The server with the ID :input was selected more than once.',
+                'exists'   => 'The server with the ID :input could not be found.',
+            ],
         ],
         'user' => [
             'exists' => 'The selected user could not be found.',
@@ -147,18 +159,6 @@ return [
         'user_emails' => [
             '*' => [
                 'email' => ':input is not a valid email.',
-            ]
-        ],
-        'roles' => [
-            '*' => [
-                'distinct' => 'At least one role was provided multiple times.',
-                'exists'   => 'One of the selected roles does not exist.',
-            ],
-        ],
-        'servers' => [
-            '*' => [
-                'distinct' => 'The server with the ID :input was selected more than once.',
-                'exists'   => 'The server with the ID :input could not be found.',
             ],
         ],
     ],
