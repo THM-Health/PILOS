@@ -47,6 +47,21 @@ class ImportGreenlight2 extends Command
         $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
+        $availableAuthenticators = ['shibboleth'];
+        $socialProviders = DB::connection('greenlight')->table('users')->select('provider')->whereNotIn('provider', ['greenlight', 'ldap'])->distinct()->get();
+        $providerAuthenticatorMap = [];
+
+        foreach($socialProviders as $socialProvider){
+            $authenticator = $this->choice(
+                'Please select the authenticator for the social provider: '.$socialProvider->provider,
+                $availableAuthenticators,
+                null,
+                $maxAttempts             = null,
+                $allowMultipleSelections = false
+            );
+            $providerAuthenticatorMap[$socialProvider->provider] = $authenticator;
+        }
+
         // ask user what room type the imported rooms should get
         $roomTypeShort = $this->choice(
             'What room type should the rooms be assigned to?',
@@ -73,7 +88,7 @@ class ImportGreenlight2 extends Command
         // find id of the selected role
         $defaultRole = Role::where('name', $defaultRole)->first()->id;
 
-        $userMap = $this->importUsers($users, $defaultRole);
+        $userMap = $this->importUsers($users, $defaultRole, $providerAuthenticatorMap);
         $roomMap = $this->importRooms($rooms, $roomType, $userMap, !$requireAuth, $prefix);
         $this->importSharedAccesses($sharedAccesses, $roomMap, $userMap);
     }
@@ -85,7 +100,7 @@ class ImportGreenlight2 extends Command
      * @param  int        $defaultRole IDs of the role that should be assigned to new non-ldap users
      * @return array      Array map of greenlight user ids as key and id of the found/created user as value
      */
-    protected function importUsers(Collection $users, int $defaultRole): array
+    protected function importUsers(Collection $users, int $defaultRole, array $providerAuthenticatorMap): array
     {
         $this->line('Importing users');
         $userMap  = [];
@@ -164,10 +179,8 @@ class ImportGreenlight2 extends Command
                 $userMap[$user->id] = $dbUser->id;
                 $bar->advance();
             } else {
-                // @TODO: Customize authenticator mapping on import
-
                 // check if user with this social uid exists
-                $dbUser = User::where('external_id', $user->social_uid)->where('authenticator', $user->provider)->first();
+                $dbUser = User::where('external_id', $user->social_uid)->where('authenticator', $providerAuthenticatorMap[$user->provider])->first();
                 if ($dbUser != null) {
                     // user found, link greenlight user id to id of found user
                     $existed++;
@@ -179,7 +192,7 @@ class ImportGreenlight2 extends Command
 
                 // create new user
                 $dbUser                = new User();
-                $dbUser->authenticator = $user->provider;
+                $dbUser->authenticator = $providerAuthenticatorMap[$user->provider];
                 $dbUser->email         = $user->email;
                 $dbUser->external_id   = $user->social_uid;
                 // as greenlight doesn't split the name in first and lastname,
