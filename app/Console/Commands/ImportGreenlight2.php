@@ -42,8 +42,8 @@ class ImportGreenlight2 extends Command
             'sslmode'        => 'prefer',
         ]);
 
-        $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')->value;
-        $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'email', 'name', 'password_digest']);
+        $requireAuth    = DB::connection('greenlight')->table('features')->where('name', 'Room Authentication')->first('value')?->value == true;
+        $users          = DB::connection('greenlight')->table('users')->where('deleted', false)->get(['id', 'provider', 'username', 'social_uid', 'email', 'name', 'password_digest']);
         $rooms          = DB::connection('greenlight')->table('rooms')->where('deleted', false)->get(['id', 'uid', 'user_id', 'name', 'room_settings', 'access_code']);
         $sharedAccesses = DB::connection('greenlight')->table('shared_accesses')->get(['room_id', 'user_id']);
 
@@ -150,6 +150,36 @@ class ImportGreenlight2 extends Command
                 $dbUser->authenticator = 'external';
                 $dbUser->email         = $user->email;
                 $dbUser->external_id   = $user->username;
+                // as greenlight doesn't split the name in first and lastname,
+                // we have to import it as firstname, should be corrected during next login
+                $dbUser->firstname     = $user->name;
+                $dbUser->lastname      = '';
+                $dbUser->password      = Hash::make(Str::random());
+                $dbUser->locale        = config('app.locale');
+                $dbUser->timezone      = setting('default_timezone');
+                $dbUser->save();
+
+                // user was successfully imported, link greenlight user id to id of new user
+                $created++;
+                $userMap[$user->id] = $dbUser->id;
+                $bar->advance();
+            } else {
+                // check if user with this social uid exists
+                $dbUser = User::where('external_id', $user->social_uid)->first();
+                if ($dbUser != null) {
+                    // user found, link greenlight user id to id of found user
+                    $existed++;
+                    $userMap[$user->id] = $dbUser->id;
+                    $bar->advance();
+
+                    continue;
+                }
+
+                // create new user
+                $dbUser                = new User();
+                $dbUser->authenticator = 'external';
+                $dbUser->email         = $user->email;
+                $dbUser->external_id   = $user->social_uid;
                 // as greenlight doesn't split the name in first and lastname,
                 // we have to import it as firstname, should be corrected during next login
                 $dbUser->firstname     = $user->name;
